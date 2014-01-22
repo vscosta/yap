@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="gist_8hpp" kind="file">
+    <compoundname>gist.hpp</compoundname>
+    <includedby refid="gist_8hh" local="no">/usr/include/gecode/gist.hh</includedby>
+    <invincdepgraph>
+      <node id="7384">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="7386">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="7389">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="7384" relation="include">
+        </childnode>
+        <childnode refid="7385" relation="include">
+        </childnode>
+      </node>
+      <node id="7388">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="7389" relation="include">
+        </childnode>
+      </node>
+      <node id="7385">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="7383">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="7384" relation="include">
+        </childnode>
+        <childnode refid="7385" relation="include">
+        </childnode>
+        <childnode refid="7386" relation="include">
+        </childnode>
+        <childnode refid="7387" relation="include">
+        </childnode>
+        <childnode refid="7388" relation="include">
+        </childnode>
+      </node>
+      <node id="7387">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="7382">
+        <label>/usr/include/gecode/gist/gist.hpp</label>
+        <link refid="gist.hpp"/>
+        <childnode refid="7383" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Gist">Gecode::Gist</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2006</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2012-03-30<sp/>05:58:02<sp/>+0200<sp/>(Fri,<sp/>30<sp/>Mar<sp/>2012)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>12665<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gist<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="41" refid="classGecode_1_1Gist_1_1VarComparator_1a68510af05b5a29bb8733106188ff8de1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VarComparator_1a68510af05b5a29bb8733106188ff8de1" kindref="member">VarComparator&lt;S&gt;::VarComparator</ref>(std::string<sp/>name)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Gist_1_1TextOutput" kindref="compound">TextOutput</ref>(name)<sp/>{}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classGecode_1_1Gist_1_1VarComparator_1a80d841acbe2ca68f118c488d4e9f2e81" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VarComparator_1a80d841acbe2ca68f118c488d4e9f2e81" kindref="member">VarComparator&lt;S&gt;::compare</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>s0,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>s1)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>std::ostringstream<sp/>result;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal">S&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(s0).<ref refid="group__FuncIterRangesOp_1ga544c763f5400045d10bf8affc0768df4" kindref="member">compare</ref>(s1,result);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(result.str()<sp/>!=<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>init();</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>addHtml(</highlight><highlight class="stringliteral">&quot;&lt;pre&gt;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>getStream()<sp/>&lt;&lt;<sp/>result.str()<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>addHtml(</highlight><highlight class="stringliteral">&quot;&lt;/pre&gt;&lt;hr<sp/>/&gt;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>std::string</highlight></codeline>
+<codeline lineno="59" refid="classGecode_1_1Gist_1_1VarComparator_1aa394cf13d3596d485594f70a081d7159" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VarComparator_1aa394cf13d3596d485594f70a081d7159" kindref="member">VarComparator&lt;S&gt;::name</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TextOutput_1ace0679b9d0570a1878f0e8e107afa6b5" kindref="member">TextOutput::name</ref>();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1Gist_1_1VarComparator_1ac0be6b5ea237e5a498cb0ab5fc4ac3d5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VarComparator_1ac0be6b5ea237e5a498cb0ab5fc4ac3d5" kindref="member">VarComparator&lt;S&gt;::finalize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1TextOutput_1a05235e5de91d0f791c89c30e4a23d9a2" kindref="member">TextOutput::finalize</ref>();</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::string</highlight></codeline>
+<codeline lineno="70" refid="classGecode_1_1Gist_1_1Comparator_1a9ccd8f26b26afcbb683d50ab5bf34b06" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">Comparator::compare</ref>(std::string<sp/>x_n,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntVarRanges" kindref="compound">IntVarRanges</ref><sp/>xr(x),<sp/>yr(y);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="group__FuncIterRangesOp_1gabc0077b3bcdd3d4e4ff6ab306f163c36" kindref="member">Iter::Ranges::equal</ref>(xr,yr))<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::ostringstream<sp/>ret;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/>x_n<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;=&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>-&gt;<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>y;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret.str();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::string</highlight></codeline>
+<codeline lineno="80" refid="classGecode_1_1Gist_1_1Comparator_1ab2b1b310507a935fbce8136c3f246492" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">Comparator::compare</ref>(std::string<sp/>x_n,<sp/><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref><sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>(x.<ref refid="classGecode_1_1BoolVar_1adbf6b228c6cfeff17dabe087cc5a22f2" kindref="member">min</ref>()<sp/>==<sp/>y.<ref refid="classGecode_1_1BoolVar_1adbf6b228c6cfeff17dabe087cc5a22f2" kindref="member">min</ref>()<sp/>&amp;&amp;<sp/>x.<ref refid="classGecode_1_1BoolVar_1a0360832a74cdc9c4799cdeff91a51921" kindref="member">max</ref>()<sp/>==<sp/>y.<ref refid="classGecode_1_1BoolVar_1a0360832a74cdc9c4799cdeff91a51921" kindref="member">max</ref>())<sp/>)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::ostringstream<sp/>ret;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/>x_n<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;=&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>-&gt;<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>y;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret.str();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_HAS_SET_VARS</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::string</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">Comparator::compare</ref>(std::string<sp/>x_n,<sp/><ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref><sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1SetVarGlbRanges" kindref="compound">SetVarGlbRanges</ref><sp/>xglbr(x),<sp/>yglbr(y);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1SetVarLubRanges" kindref="compound">SetVarLubRanges</ref><sp/>xlubr(x),<sp/>ylubr(y);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>(<ref refid="group__FuncIterRangesOp_1gabc0077b3bcdd3d4e4ff6ab306f163c36" kindref="member">Iter::Ranges::equal</ref>(xglbr,yglbr)<sp/>&amp;&amp;<sp/></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="group__FuncIterRangesOp_1gabc0077b3bcdd3d4e4ff6ab306f163c36" kindref="member">Iter::Ranges::equal</ref>(xlubr,ylubr)<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x.<ref refid="classGecode_1_1SetVar_1acffacfce212b30659c8395280bce695e" kindref="member">cardMin</ref>()<sp/>==<sp/>y.<ref refid="classGecode_1_1SetVar_1acffacfce212b30659c8395280bce695e" kindref="member">cardMin</ref>()<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>y.<ref refid="classGecode_1_1SetVar_1acc16a7decd12bd340faa56a505537856" kindref="member">cardMax</ref>()<sp/>==<sp/>y.<ref refid="classGecode_1_1SetVar_1acc16a7decd12bd340faa56a505537856" kindref="member">cardMax</ref>())<sp/>)<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::ostringstream<sp/>ret;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/>x_n<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;=&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>-&gt;<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>y;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret.str();</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_HAS_FLOAT_VARS</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::string</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">Comparator::compare</ref>(std::string<sp/>x_n,<sp/>FloatVar<sp/>x,<sp/>FloatVar<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>(x.min()<sp/>==<sp/>y.min()<sp/>&amp;&amp;<sp/>x.max()<sp/>==<sp/>y.max())<sp/>)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::ostringstream<sp/>ret;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/>x_n<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;=&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>-&gt;<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>y;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret.str();</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Var&gt;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/>std::string</highlight></codeline>
+<codeline lineno="117" refid="classGecode_1_1Gist_1_1Comparator_1a09561deb2f55d1f9ccfee102c8955f48" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">Comparator::compare</ref>(std::string<sp/>x_n,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray&lt;Var&gt;</ref>&amp;<sp/>x,<sp/></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray&lt;Var&gt;</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.<ref refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" kindref="member">size</ref>()<sp/>!=<sp/>y.<ref refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" kindref="member">size</ref>())</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;Error:<sp/>array<sp/>size<sp/>mismatch&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>std::ostringstream<sp/>ret;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>first<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i&lt;x.<ref refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" kindref="member">size</ref>();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::ostringstream<sp/>xni;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>xni<sp/>&lt;&lt;<sp/>x_n<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;[&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>i<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;]&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>cmp<sp/>=<sp/><ref refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" kindref="member">compare</ref>(xni.str(),x[i],y[i]);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cmp<sp/>!=<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!first)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>first<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>&lt;&lt;<sp/>cmp;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret.str();</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="140" refid="classGecode_1_1Gist_1_1Print_1af694df1a40427c2fb6ade49986b9a67f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Print_1af694df1a40427c2fb6ade49986b9a67f" kindref="member">Print&lt;S&gt;::Print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>name)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Gist_1_1TextOutput" kindref="compound">TextOutput</ref>(name)<sp/>{}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145" refid="classGecode_1_1Gist_1_1Print_1a66321be95255e1fb5e885623d5b4a8e6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Print_1a66321be95255e1fb5e885623d5b4a8e6" kindref="member">Print&lt;S&gt;::inspect</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>node)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>init();</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>addHtml(</highlight><highlight class="stringliteral">&quot;&lt;pre&gt;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal">S&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(node).print(getStream());</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>flush();</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>addHtml(</highlight><highlight class="stringliteral">&quot;&lt;/pre&gt;&lt;hr<sp/>/&gt;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/>std::string</highlight></codeline>
+<codeline lineno="155" refid="classGecode_1_1Gist_1_1Print_1aba08d133c20caa38bd1c5186383955ad" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Print_1aba08d133c20caa38bd1c5186383955ad" kindref="member">Print&lt;S&gt;::name</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TextOutput_1ace0679b9d0570a1878f0e8e107afa6b5" kindref="member">TextOutput::name</ref>();</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="classGecode_1_1Gist_1_1Print_1adfdd0d9d6214757c4c81cf50d0ac2bda" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Print_1adfdd0d9d6214757c4c81cf50d0ac2bda" kindref="member">Print&lt;S&gt;::finalize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1TextOutput_1a05235e5de91d0f791c89c30e4a23d9a2" kindref="member">TextOutput::finalize</ref>();</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="166" refid="classGecode_1_1Gist_1_1Options_1abf5bde69a42a7e964ccde3f765ab3e6f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1abf5bde69a42a7e964ccde3f765ab3e6f" kindref="member">Options::Options</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}<sp/></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="169" refid="classGecode_1_1Gist_1_1Options_1_1__I_1ae72f267066730f659e81eed8096e0621" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1ae72f267066730f659e81eed8096e0621" kindref="member">Options::_I::_I</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>:<sp/>_click(<ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>,1),<sp/>n_click(0),</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>_solution(<ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>,1),<sp/>n_solution(0),</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>_move(<ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>,1),<sp/>n_move(0),<sp/>_compare(<ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>,1),<sp/>n_compare(0)<sp/>{}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="classGecode_1_1Gist_1_1Options_1_1__I_1aac7c39bdc867214bb747bd2cc723c845" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1aac7c39bdc867214bb747bd2cc723c845" kindref="member">Options::_I::click</ref>(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>_click[</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(n_click++)]<sp/>=<sp/>i;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178" refid="classGecode_1_1Gist_1_1Options_1_1__I_1a42ed7e80766ac195e7c484e9cb386a87" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1a42ed7e80766ac195e7c484e9cb386a87" kindref="member">Options::_I::solution</ref>(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>_solution[</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(n_solution++)]<sp/>=<sp/>i;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="classGecode_1_1Gist_1_1Options_1_1__I_1a641578a09d09d282061fda4d52774ee2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1a641578a09d09d282061fda4d52774ee2" kindref="member">Options::_I::move</ref>(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>_move[</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(n_move++)]<sp/>=<sp/>i;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="classGecode_1_1Gist_1_1Options_1_1__I_1ac4606fb2e872c7a921c16182462d980a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1ac4606fb2e872c7a921c16182462d980a" kindref="member">Options::_I::compare</ref>(<ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref>*<sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/>_compare[</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(n_compare++)]<sp/>=<sp/>c;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*</highlight></codeline>
+<codeline lineno="190" refid="classGecode_1_1Gist_1_1Options_1_1__I_1af5ee5e7aa68ec0abd73faf70b6080c74" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1aac7c39bdc867214bb747bd2cc723c845" kindref="member">Options::_I::click</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>n_click)<sp/>?<sp/>_click[i]<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*</highlight></codeline>
+<codeline lineno="194" refid="classGecode_1_1Gist_1_1Options_1_1__I_1a19d00c403d609f89df00a82aeb1f4327" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1a42ed7e80766ac195e7c484e9cb386a87" kindref="member">Options::_I::solution</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>n_solution)<sp/>?<sp/>_solution[i]<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*</highlight></codeline>
+<codeline lineno="198" refid="classGecode_1_1Gist_1_1Options_1_1__I_1ad3d4b8a7370c01e9a3fa21e1d7b22ab4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1a641578a09d09d282061fda4d52774ee2" kindref="member">Options::_I::move</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>n_move)<sp/>?<sp/>_move[i]<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref>*</highlight></codeline>
+<codeline lineno="202" refid="classGecode_1_1Gist_1_1Options_1_1__I_1a4f554654349b12571fc7b99d646f5a1e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Options_1_1__I_1ac4606fb2e872c7a921c16182462d980a" kindref="member">Options::_I::compare</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>n_compare)<sp/>?<sp/>_compare[i]<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207" refid="namespaceGecode_1_1Gist_1a93f16ccd4ffc99cc958124348172d7f2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Gist_1a93f16ccd4ffc99cc958124348172d7f2" kindref="member">dfs</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*<sp/>root,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Gist::Options</ref>&amp;<sp/>opt)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1a7f6954d6a6f1986a87923e6d787f38b8" kindref="member">explore</ref>(root,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/>opt);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212" refid="namespaceGecode_1_1Gist_1a82664735df61360a285ea94625afbd71" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Gist_1a82664735df61360a285ea94625afbd71" kindref="member">bab</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*<sp/>root,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Gist::Options</ref>&amp;<sp/>opt)<sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1a7f6954d6a6f1986a87923e6d787f38b8" kindref="member">Gist::explore</ref>(root,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/>opt);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>gist-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/gist/gist.hpp"/>
+  </compounddef>
+</doxygen>

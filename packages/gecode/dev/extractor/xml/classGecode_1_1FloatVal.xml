@@ -1,0 +1,2877 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FloatVal" kind="class" prot="public">
+    <compoundname>Gecode::FloatVal</compoundname>
+    <includes refid="float_8hh" local="no">float.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a8c1f572364da18672ffdb5b4ae1cb988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVal::FloatVal</definition>
+        <argsstring>(void)</argsstring>
+        <name>FloatVal</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="419" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="49" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ad3fd6e2fbb2da4dc54539e23eefb0264" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVal::FloatVal</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>FloatVal</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with float number <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="421" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a903214697885c415c7099af3fa99f56c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVal::FloatVal</definition>
+        <argsstring>(const FloatNum &amp;l, const FloatNum &amp;u)</argsstring>
+        <name>FloatVal</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>u</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with lower bound <emphasis>l</emphasis> and upper bound <emphasis>u</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="423" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="53" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1af77244f0cd00856e3cef162d6dc049d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVal::FloatVal</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>FloatVal</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="425" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1adbe613d0b1fd41faeda1562b99a56508" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator=</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="428" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a1eb552c4ec6788c68c72acd79b554ded" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator=</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="430" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a75295fb557a8fdbcb2241c65dfc9e24b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::FloatVal::assign</definition>
+        <argsstring>(FloatNum const &amp;l, FloatNum const &amp;u)</argsstring>
+        <name>assign</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> const &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> const &amp;</type>
+          <declname>u</declname>
+        </param>
+        <briefdescription>
+<para>Assign lower bound <emphasis>l</emphasis> and upper bound <emphasis>u</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="433" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a4cbc414ccc0f5c7a1c17ccacdbbe2769" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVal::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="439" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aece4088e555f3cebd5602579a4a32ca0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVal::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="441" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a0692c12e6facdff1a69aa922106bad2e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVal::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of float value (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="443" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="82" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a80af58494a18161fb91a1e2a2cad4a9e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVal::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of float value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="445" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value tests</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ac3b5f2385affc59be2a14dab861a1434" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::FloatVal::tight</definition>
+        <argsstring>(void) const </argsstring>
+        <name>tight</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether float is tight. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="451" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="91" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a2ff264ceb49188e3bb470ba0d5911709" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::FloatVal::singleton</definition>
+        <argsstring>(void) const </argsstring>
+        <name>singleton</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether float is a singleton. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="453" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ac9b4066d7b98767bf276b9768a225d0f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::FloatVal::in</definition>
+        <argsstring>(FloatNum n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is included. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="455" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="100" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ad3010b56030cc489d9a758b891660e8e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::FloatVal::zero_in</definition>
+        <argsstring>(void) const </argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether zero is included. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="457" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="104" bodyend="106"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Float value construction</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7bdd469d171f204081a75e575aa1b38d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVal::hull</definition>
+        <argsstring>(FloatNum x, FloatNum y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return hull of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="463" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="109" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ae7d1792e70f7a9d98d5e9b9b62548ee3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVal::pi_half</definition>
+        <argsstring>(void)</argsstring>
+        <name>pi_half</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return <formula id="39">$\pi/2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="465" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="113" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a64b19653958d3dc1dec5a6ba8382a9c9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVal::pi</definition>
+        <argsstring>(void)</argsstring>
+        <name>pi</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return lower bound of <formula id="40">$\pi$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="467" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="118" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a48afdec0b932f517dcb00c5b3707ce3e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVal::pi_twice</definition>
+        <argsstring>(void)</argsstring>
+        <name>pi_twice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return <formula id="41">$2\pi$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="469" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="123" bodyend="126"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Update operators</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a85ccaaa6514685a43e970d01f7562016" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator+=</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Increment by <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="475" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="129" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a723a9e41c091d5268fa1700ffbe819ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator-=</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>operator-=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Subtract by <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="477" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="133" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7b047e94822e7fbadb0248bcb746ca96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator*=</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>operator*=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Multiply by <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="479" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="137" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a8addc7ca9f4f75d731340c14fa63c043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator/=</definition>
+        <argsstring>(const FloatNum &amp;n)</argsstring>
+        <name>operator/=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Divide by <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="481" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="141" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aa122ce240c3b0434c8756a3e96d6fe80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator+=</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Increment by <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="483" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="146" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a2d28e2e903b7b4938bc0e4c605022e2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator-=</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>operator-=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Subtract by <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="485" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="150" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aeca33a5b957c31292337defacb10ed92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator*=</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>operator*=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Multiply by <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="487" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="154" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a57b70fc98aeee276d82503569145db59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+        <definition>forceinline FloatVal &amp; Gecode::FloatVal::operator/=</definition>
+        <argsstring>(const FloatVal &amp;v)</argsstring>
+        <name>operator/=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Divide by <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="489" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="158" bodyend="160"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="classGecode_1_1FloatVal_1aa816dfdb0c2442c029a2bcd371702d7f" prot="protected" static="no">
+        <type><ref refid="structboost_1_1numeric_1_1interval__lib_1_1save__state" kindref="compound">boost::numeric::interval_lib::save_state</ref>&lt; <ref refid="classGecode_1_1Float_1_1Rounding" kindref="compound">Float::Rounding</ref> &gt;</type>
+        <definition>typedef boost::numeric::interval_lib::save_state&lt;Float::Rounding&gt; Gecode::FloatVal::R</definition>
+        <argsstring></argsstring>
+        <name>R</name>
+        <briefdescription>
+<para>Used rounding policies. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="403" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="403" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1FloatVal_1a2233eddade5647368c5196dd927d92df" prot="protected" static="no">
+        <type><ref refid="structboost_1_1numeric_1_1interval__lib_1_1checking__strict" kindref="compound">boost::numeric::interval_lib::checking_strict</ref>&lt; <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &gt;</type>
+        <definition>typedef boost::numeric::interval_lib::checking_strict&lt;FloatNum&gt; Gecode::FloatVal::P</definition>
+        <argsstring></argsstring>
+        <name>P</name>
+        <briefdescription>
+<para>Used checking policy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="405" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="405" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1FloatVal_1a3c23c65330032e44abfb2574ee726d5d" prot="protected" static="no">
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">boost::numeric::interval</ref>&lt; <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref>, <ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">boost::numeric::interval_lib::policies</ref>&lt; <ref refid="classGecode_1_1FloatVal_1aa816dfdb0c2442c029a2bcd371702d7f" kindref="member">R</ref>, <ref refid="classGecode_1_1FloatVal_1a2233eddade5647368c5196dd927d92df" kindref="member">P</ref> &gt; &gt;</type>
+        <definition>typedef boost::numeric::interval&lt;FloatNum, boost::numeric::interval_lib::policies&lt;R, P&gt; &gt; Gecode::FloatVal::FloatValImpType</definition>
+        <argsstring></argsstring>
+        <name>FloatValImpType</name>
+        <briefdescription>
+<para>Implementation type for float value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="410" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="410" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FloatVal_1a4a099f13867f1d25e792dd90e4c6bcaa" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1FloatVal_1a3c23c65330032e44abfb2574ee726d5d" kindref="member">FloatValImpType</ref></type>
+        <definition>FloatValImpType Gecode::FloatVal::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Implementation of float value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="412" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="412" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ada7487044541afa7b5e640379187803a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="322" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="168" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a36b3ceba1855f4c32fa2d2e8c47b0584" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="323" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="172" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ae1ec3066bc18538324ae8872805b9b6f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="324" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="178" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aa0522b989b143d174d65dd8ff6e228cf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="325" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="182" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1af946d16e3ea1110af417e591c999731f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="326" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="186" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1abc5522e64b8aa96d1c35454c7be82457" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="327" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="191" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aeb85a77febae259405755d186488a14d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="328" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="195" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a7e0e093039386f84fb1f26232ddce20f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="329" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="199" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a468a5f73772d9742faa5027110e678f2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="330" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="204" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1abcebf04586da174b535cbe618eade4af" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="331" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="208" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a61e83968107d1f012fec244735823a72" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="332" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="212" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a6c9dd4e315f40b7d48e0a50521c503a0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="333" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="217" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1acf527ebe56ecadb61506be00330a31b7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="334" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="221" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a1ea44d95f97b7514e2988d47349ebd67" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="335" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="225" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a2b9c7d723705ab1304ada91d8713f57b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="337" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="230" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a96a1155549b33686d4fb79fbe7ee498f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="338" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="238" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a2328c4eeba614fddfa0f219be8d163b9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="339" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="338" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a2cc360f0897079ea136afc95c1d6ca36" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="340" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="247" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ae2abd8dee42f3daf615ab1c1835f203d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="341" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="255" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a8403de97f34d54e2b324e6875e9da42e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="342" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="342" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aa05fcd669862116972c6c92f885c0a6e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="343" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="264" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aa8db89df70c826dadec6ce12aea44292" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="344" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="272" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a7c1dcc5fbf8a1a67d47b7de01483bfc3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="345" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="346" bodyend="348"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a82c2a353119aee23edc19e30165cef5c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="346" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="281" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a1249c8a1fea55598d84a2d8949ddbf3c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="347" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="289" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a34cd95b6904ff555c47e76260547b61c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="348" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="350" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a1ad3eedc6c345b176ad782ba17b7713e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="349" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="298" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a76ee5502be1d4d15159e4f9c124ce44a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="350" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="306" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ae786111b2417e084c62433ab37ccf072" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="351" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="354" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a942c4dca3bf2617f7048fa90ed721c7e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="352" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="321" bodyend="327"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a7a31b41cef2c2ed58131e3b98f74b672" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="353" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="329" bodyend="335"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a59a0105f553966cfbbc157b0af131b86" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="354" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="358" bodyend="360"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aed866c047de917a52fa637e52ad7b393" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>friend std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const FloatVal &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="357" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="364" bodyend="366"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a6181591191cfd5b96972457941834d41" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal abs</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>abs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="360" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="369" bodyend="371"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a548ca9425bb139f91a00481593926960" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal sqrt</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>sqrt</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="361" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="373" bodyend="375"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a7d66d3d626a7def8e98832723ed08e07" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal sqr</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>sqr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="362" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="377" bodyend="379"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a590be30f619ec6b05df87faa4a731ebf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal pow</definition>
+        <argsstring>(const FloatVal &amp;x, int n)</argsstring>
+        <name>pow</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="363" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="381" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ad19e1f2f65da7c07da1de04d7f187327" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal nroot</definition>
+        <argsstring>(const FloatVal &amp;x, int n)</argsstring>
+        <name>nroot</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="364" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="385" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aa969af8d5fbba4ac14e484a67cff5221" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="366" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="390" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a6838190b2161e887d3a6cae552ee8241" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="367" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="394" bodyend="396"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a3d56768fc5e3fb6285cfc875dd9fc92c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="368" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="398" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ab32dfb9f2826ae430e9147e0c79de226" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="369" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="402" bodyend="404"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1abca794a357ae496c1b353aa6c8cabbef" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="370" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="406" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1aef565b7a033832f08a7c406701f03cb3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="371" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="410" bodyend="412"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1ab3ccd0fc8108558d5b8626c0a566b8e8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool Float::subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="393" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a756d6e6fa4d681c90794c7bc838882e5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool Float::proper_subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::proper_subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="394" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a5a37d1254ce872136b007daf28555dd8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend bool</type>
+        <definition>bool Float::overlap</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::overlap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="395" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a3cace99c1d23c09f7d5f5c48f51ec120" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Float::intersect</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::intersect</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="396" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a0c60f5bd0e322a8c46835ad9eabf9572" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Float::hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="397" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a39356c95615b53725c7d45690c2980c5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Float::hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>Float::hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="398" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a5356a1a646ce0eb38647202e926398fe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Float::hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>Float::hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="399" column="1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVal_1a18f993eb7ca1f3cb53488120b32ab3dc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Float::hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>Float::hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="400" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ae022bb7b75eb4ed1ff5facdefb7c7b76" prot="protected" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVal::FloatVal</definition>
+        <argsstring>(const FloatValImpType &amp;i)</argsstring>
+        <name>FloatVal</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal_1a3c23c65330032e44abfb2574ee726d5d" kindref="member">FloatValImpType</ref> &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from implementation <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="414" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="55" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ab6213fb8e2d0a9249dc93b8700e7a57d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>x</emphasis> is a subset of <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="274" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="494" bodyend="496"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a50be3699e9b7d0e2b4a0ce117b314041" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool proper_subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>proper_subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>x</emphasis> is a proper subset of <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="279" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="498" bodyend="500"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a030395eb8d468819aead2d4fd17a54d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool overlap</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>overlap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>x</emphasis> and <emphasis>y</emphasis> overlap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="284" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="502" bodyend="504"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aebe2178cd74665ee11c8048f42721e76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal intersect</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return intersection of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="290" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="507" bodyend="509"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1af6cdaa3fa4a585828bd0fa978f08ae0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return hull of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="295" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="511" bodyend="513"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ab1df6016aa0d6284410832b71605d3bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return hull of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="300" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="515" bodyend="517"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ade5133e01e4a17243c22327c1dc389cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return hull of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="305" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="519" bodyend="521"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a24924d0ce642bc4316e7e67538542704" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return hull of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="310" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="523" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ada7487044541afa7b5e640379187803a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="497" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="168" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a36b3ceba1855f4c32fa2d2e8c47b0584" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="502" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="172" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ae1ec3066bc18538324ae8872805b9b6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="508" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="178" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aa0522b989b143d174d65dd8ff6e228cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="513" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="182" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1af946d16e3ea1110af417e591c999731f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator+</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="518" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="186" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1abc5522e64b8aa96d1c35454c7be82457" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="523" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="191" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aeb85a77febae259405755d186488a14d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="528" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="195" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7e0e093039386f84fb1f26232ddce20f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator-</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="533" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="199" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a468a5f73772d9742faa5027110e678f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="538" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="204" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1abcebf04586da174b535cbe618eade4af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="543" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="208" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a61e83968107d1f012fec244735823a72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator*</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="548" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="212" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a6c9dd4e315f40b7d48e0a50521c503a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="553" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="217" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1acf527ebe56ecadb61506be00330a31b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="558" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="221" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1af52eab828bfffc57717a7e1bc3920081" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal operator/</definition>
+        <argsstring>(const FloatNum &amp;r, const FloatVal &amp;x)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Arithmetic operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="563" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="225" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a2b9c7d723705ab1304ada91d8713f57b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="569" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="230" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a96a1155549b33686d4fb79fbe7ee498f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="574" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="238" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a2328c4eeba614fddfa0f219be8d163b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="579" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="338" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a2cc360f0897079ea136afc95c1d6ca36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="585" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="247" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ae2abd8dee42f3daf615ab1c1835f203d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="590" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="255" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a8403de97f34d54e2b324e6875e9da42e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&lt;=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&lt;=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="595" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="342" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aa05fcd669862116972c6c92f885c0a6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="601" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="264" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aa8db89df70c826dadec6ce12aea44292" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="606" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="272" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7c1dcc5fbf8a1a67d47b7de01483bfc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="611" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="346" bodyend="348"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a82c2a353119aee23edc19e30165cef5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="617" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="281" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a1249c8a1fea55598d84a2d8949ddbf3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="622" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="289" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a34cd95b6904ff555c47e76260547b61c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator&gt;=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator&gt;=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="627" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="350" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a1ad3eedc6c345b176ad782ba17b7713e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="632" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="298" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a76ee5502be1d4d15159e4f9c124ce44a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="637" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="306" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ae786111b2417e084c62433ab37ccf072" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator==</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="642" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="354" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a942c4dca3bf2617f7048fa90ed721c7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="648" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="321" bodyend="327"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7a31b41cef2c2ed58131e3b98f74b672" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="653" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="329" bodyend="335"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a59a0105f553966cfbbc157b0af131b86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool operator!=</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="658" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="358" bodyend="360"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a0008f8794b62fd037a7f6e171d40e3cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const FloatVal &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print float value <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="658" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="364" bodyend="366"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a6181591191cfd5b96972457941834d41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal abs</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>abs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return absolute value of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="672" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="369" bodyend="371"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a548ca9425bb139f91a00481593926960" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal sqrt</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>sqrt</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return square root of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="677" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="373" bodyend="375"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a7d66d3d626a7def8e98832723ed08e07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal sqr</definition>
+        <argsstring>(const FloatVal &amp;x)</argsstring>
+        <name>sqr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return square of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="682" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="377" bodyend="379"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a590be30f619ec6b05df87faa4a731ebf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal pow</definition>
+        <argsstring>(const FloatVal &amp;x, int n)</argsstring>
+        <name>pow</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return <emphasis>n</emphasis> -th power of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="687" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="381" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ad19e1f2f65da7c07da1de04d7f187327" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal nroot</definition>
+        <argsstring>(const FloatVal &amp;x, int n)</argsstring>
+        <name>nroot</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return <emphasis>n</emphasis> -th root of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="692" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="385" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aa969af8d5fbba4ac14e484a67cff5221" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="698" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="390" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a6838190b2161e887d3a6cae552ee8241" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="703" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="394" bodyend="396"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1a3d56768fc5e3fb6285cfc875dd9fc92c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal max</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="708" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="398" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1ab32dfb9f2826ae430e9147e0c79de226" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="713" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="402" bodyend="404"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1abca794a357ae496c1b353aa6c8cabbef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="718" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="406" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVal_1aef565b7a033832f08a7c406701f03cb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal min</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum of <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="723" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="410" bodyend="412"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> value type. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2383">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="2384" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2384">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float.hh" line="321" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="321" bodyend="491"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FloatVal_1a6181591191cfd5b96972457941834d41" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>abs</name></member>
+      <member refid="classGecode_1_1FloatVal_1a6181591191cfd5b96972457941834d41" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>abs</name></member>
+      <member refid="classGecode_1_1FloatVal_1a75295fb557a8fdbcb2241c65dfc9e24b" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>assign</name></member>
+      <member refid="classGecode_1_1FloatVal_1a0c60f5bd0e322a8c46835ad9eabf9572" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1a39356c95615b53725c7d45690c2980c5" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1a5356a1a646ce0eb38647202e926398fe" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1a18f993eb7ca1f3cb53488120b32ab3dc" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1a3cace99c1d23c09f7d5f5c48f51ec120" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::intersect</name></member>
+      <member refid="classGecode_1_1FloatVal_1a5a37d1254ce872136b007daf28555dd8" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::overlap</name></member>
+      <member refid="classGecode_1_1FloatVal_1a756d6e6fa4d681c90794c7bc838882e5" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::proper_subset</name></member>
+      <member refid="classGecode_1_1FloatVal_1ab3ccd0fc8108558d5b8626c0a566b8e8" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>Float::subset</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae022bb7b75eb4ed1ff5facdefb7c7b76" prot="protected" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatVal</name></member>
+      <member refid="classGecode_1_1FloatVal_1a8c1f572364da18672ffdb5b4ae1cb988" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatVal</name></member>
+      <member refid="classGecode_1_1FloatVal_1ad3fd6e2fbb2da4dc54539e23eefb0264" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatVal</name></member>
+      <member refid="classGecode_1_1FloatVal_1a903214697885c415c7099af3fa99f56c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatVal</name></member>
+      <member refid="classGecode_1_1FloatVal_1af77244f0cd00856e3cef162d6dc049d1" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatVal</name></member>
+      <member refid="classGecode_1_1FloatVal_1a3c23c65330032e44abfb2574ee726d5d" prot="protected" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>FloatValImpType</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7bdd469d171f204081a75e575aa1b38d" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1af6cdaa3fa4a585828bd0fa978f08ae0c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1ab1df6016aa0d6284410832b71605d3bc" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1ade5133e01e4a17243c22327c1dc389cc" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1a24924d0ce642bc4316e7e67538542704" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>hull</name></member>
+      <member refid="classGecode_1_1FloatVal_1ac9b4066d7b98767bf276b9768a225d0f" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>in</name></member>
+      <member refid="classGecode_1_1FloatVal_1aebe2178cd74665ee11c8048f42721e76" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa969af8d5fbba4ac14e484a67cff5221" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1a6838190b2161e887d3a6cae552ee8241" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1a3d56768fc5e3fb6285cfc875dd9fc92c" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1aece4088e555f3cebd5602579a4a32ca0" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa969af8d5fbba4ac14e484a67cff5221" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1a6838190b2161e887d3a6cae552ee8241" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1a3d56768fc5e3fb6285cfc875dd9fc92c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVal_1a80af58494a18161fb91a1e2a2cad4a9e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>med</name></member>
+      <member refid="classGecode_1_1FloatVal_1ab32dfb9f2826ae430e9147e0c79de226" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1abca794a357ae496c1b353aa6c8cabbef" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1aef565b7a033832f08a7c406701f03cb3" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1a4cbc414ccc0f5c7a1c17ccacdbbe2769" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1ab32dfb9f2826ae430e9147e0c79de226" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1abca794a357ae496c1b353aa6c8cabbef" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1aef565b7a033832f08a7c406701f03cb3" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVal_1ad19e1f2f65da7c07da1de04d7f187327" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>nroot</name></member>
+      <member refid="classGecode_1_1FloatVal_1ad19e1f2f65da7c07da1de04d7f187327" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>nroot</name></member>
+      <member refid="classGecode_1_1FloatVal_1a942c4dca3bf2617f7048fa90ed721c7e" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7a31b41cef2c2ed58131e3b98f74b672" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a59a0105f553966cfbbc157b0af131b86" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a942c4dca3bf2617f7048fa90ed721c7e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7a31b41cef2c2ed58131e3b98f74b672" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a59a0105f553966cfbbc157b0af131b86" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator!=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a468a5f73772d9742faa5027110e678f2" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1abcebf04586da174b535cbe618eade4af" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1a61e83968107d1f012fec244735823a72" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1a468a5f73772d9742faa5027110e678f2" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1abcebf04586da174b535cbe618eade4af" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1a61e83968107d1f012fec244735823a72" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7b047e94822e7fbadb0248bcb746ca96" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*=</name></member>
+      <member refid="classGecode_1_1FloatVal_1aeca33a5b957c31292337defacb10ed92" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator*=</name></member>
+      <member refid="classGecode_1_1FloatVal_1ada7487044541afa7b5e640379187803a" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae1ec3066bc18538324ae8872805b9b6f" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa0522b989b143d174d65dd8ff6e228cf" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1af946d16e3ea1110af417e591c999731f" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1ada7487044541afa7b5e640379187803a" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae1ec3066bc18538324ae8872805b9b6f" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa0522b989b143d174d65dd8ff6e228cf" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1af946d16e3ea1110af417e591c999731f" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1FloatVal_1a85ccaaa6514685a43e970d01f7562016" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa122ce240c3b0434c8756a3e96d6fe80" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a36b3ceba1855f4c32fa2d2e8c47b0584" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1abc5522e64b8aa96d1c35454c7be82457" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1aeb85a77febae259405755d186488a14d" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7e0e093039386f84fb1f26232ddce20f" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1a36b3ceba1855f4c32fa2d2e8c47b0584" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1abc5522e64b8aa96d1c35454c7be82457" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1aeb85a77febae259405755d186488a14d" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7e0e093039386f84fb1f26232ddce20f" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-</name></member>
+      <member refid="classGecode_1_1FloatVal_1a723a9e41c091d5268fa1700ffbe819ed" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2d28e2e903b7b4938bc0e4c605022e2a" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator-=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a6c9dd4e315f40b7d48e0a50521c503a0" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1acf527ebe56ecadb61506be00330a31b7" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1ea44d95f97b7514e2988d47349ebd67" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1a6c9dd4e315f40b7d48e0a50521c503a0" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1acf527ebe56ecadb61506be00330a31b7" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1af52eab828bfffc57717a7e1bc3920081" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/</name></member>
+      <member refid="classGecode_1_1FloatVal_1a8addc7ca9f4f75d731340c14fa63c043" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a57b70fc98aeee276d82503569145db59" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator/=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2b9c7d723705ab1304ada91d8713f57b" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a96a1155549b33686d4fb79fbe7ee498f" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2328c4eeba614fddfa0f219be8d163b9" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2b9c7d723705ab1304ada91d8713f57b" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a96a1155549b33686d4fb79fbe7ee498f" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2328c4eeba614fddfa0f219be8d163b9" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1aed866c047de917a52fa637e52ad7b393" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a0008f8794b62fd037a7f6e171d40e3cb" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2cc360f0897079ea136afc95c1d6ca36" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae2abd8dee42f3daf615ab1c1835f203d" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a8403de97f34d54e2b324e6875e9da42e" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2cc360f0897079ea136afc95c1d6ca36" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae2abd8dee42f3daf615ab1c1835f203d" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a8403de97f34d54e2b324e6875e9da42e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&lt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1adbe613d0b1fd41faeda1562b99a56508" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1eb552c4ec6788c68c72acd79b554ded" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1ad3eedc6c345b176ad782ba17b7713e" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1a76ee5502be1d4d15159e4f9c124ce44a" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae786111b2417e084c62433ab37ccf072" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1ad3eedc6c345b176ad782ba17b7713e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1a76ee5502be1d4d15159e4f9c124ce44a" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae786111b2417e084c62433ab37ccf072" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator==</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa05fcd669862116972c6c92f885c0a6e" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa8db89df70c826dadec6ce12aea44292" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7c1dcc5fbf8a1a67d47b7de01483bfc3" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa05fcd669862116972c6c92f885c0a6e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa8db89df70c826dadec6ce12aea44292" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7c1dcc5fbf8a1a67d47b7de01483bfc3" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;</name></member>
+      <member refid="classGecode_1_1FloatVal_1a82c2a353119aee23edc19e30165cef5c" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1249c8a1fea55598d84a2d8949ddbf3c" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a34cd95b6904ff555c47e76260547b61c" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a82c2a353119aee23edc19e30165cef5c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a1249c8a1fea55598d84a2d8949ddbf3c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a34cd95b6904ff555c47e76260547b61c" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>operator&gt;=</name></member>
+      <member refid="classGecode_1_1FloatVal_1a030395eb8d468819aead2d4fd17a54d9" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>overlap</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2233eddade5647368c5196dd927d92df" prot="protected" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>P</name></member>
+      <member refid="classGecode_1_1FloatVal_1a64b19653958d3dc1dec5a6ba8382a9c9" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>pi</name></member>
+      <member refid="classGecode_1_1FloatVal_1ae7d1792e70f7a9d98d5e9b9b62548ee3" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>pi_half</name></member>
+      <member refid="classGecode_1_1FloatVal_1a48afdec0b932f517dcb00c5b3707ce3e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>pi_twice</name></member>
+      <member refid="classGecode_1_1FloatVal_1a590be30f619ec6b05df87faa4a731ebf" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>pow</name></member>
+      <member refid="classGecode_1_1FloatVal_1a590be30f619ec6b05df87faa4a731ebf" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>pow</name></member>
+      <member refid="classGecode_1_1FloatVal_1a50be3699e9b7d0e2b4a0ce117b314041" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>proper_subset</name></member>
+      <member refid="classGecode_1_1FloatVal_1aa816dfdb0c2442c029a2bcd371702d7f" prot="protected" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>R</name></member>
+      <member refid="classGecode_1_1FloatVal_1a2ff264ceb49188e3bb470ba0d5911709" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>singleton</name></member>
+      <member refid="classGecode_1_1FloatVal_1a0692c12e6facdff1a69aa922106bad2e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>size</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7d66d3d626a7def8e98832723ed08e07" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>sqr</name></member>
+      <member refid="classGecode_1_1FloatVal_1a7d66d3d626a7def8e98832723ed08e07" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>sqr</name></member>
+      <member refid="classGecode_1_1FloatVal_1a548ca9425bb139f91a00481593926960" prot="private" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>sqrt</name></member>
+      <member refid="classGecode_1_1FloatVal_1a548ca9425bb139f91a00481593926960" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>sqrt</name></member>
+      <member refid="classGecode_1_1FloatVal_1ab6213fb8e2d0a9249dc93b8700e7a57d" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>subset</name></member>
+      <member refid="classGecode_1_1FloatVal_1ac3b5f2385affc59be2a14dab861a1434" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>tight</name></member>
+      <member refid="classGecode_1_1FloatVal_1a4a099f13867f1d25e792dd90e4c6bcaa" prot="protected" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>x</name></member>
+      <member refid="classGecode_1_1FloatVal_1ad3010b56030cc489d9a758b891660e8e" prot="public" virt="non-virtual"><scope>Gecode::FloatVal</scope><name>zero_in</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,456 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1MemoryManager" kind="class" prot="public">
+    <compoundname>Gecode::MemoryManager</compoundname>
+    <includes refid="memory-manager_8hpp" local="no">memory-manager.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1a34de6e57a2028d48304b25f3389be6b4" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Gecode::MemoryManager::cur_hcsz</definition>
+        <argsstring></argsstring>
+        <name>cur_hcsz</name>
+        <briefdescription>
+<para>Current heap chunk size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="151" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1a551af8fc0b94094ed97b915811cd2125" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1HeapChunk" kindref="compound">HeapChunk</ref> *</type>
+        <definition>HeapChunk* Gecode::MemoryManager::cur_hc</definition>
+        <argsstring></argsstring>
+        <name>cur_hc</name>
+        <briefdescription>
+<para>Current heap chunk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="152" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1a6ec7b2741de80cc6966a1c102db5884e" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Gecode::MemoryManager::requested</definition>
+        <argsstring></argsstring>
+        <name>requested</name>
+        <briefdescription>
+<para>Total amount of heap memory requested. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="153" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1a4a6d12904dee39921a95007bfa8f4ce8" prot="private" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* Gecode::MemoryManager::start</definition>
+        <argsstring></argsstring>
+        <name>start</name>
+        <briefdescription>
+<para>Start of current heap area used for allocation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="155" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1ae844fca6730a7e68054f3156b1d4a0ee" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Gecode::MemoryManager::lsz</definition>
+        <argsstring></argsstring>
+        <name>lsz</name>
+        <briefdescription>
+<para>Size left for allocation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="156" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1ad83af3025fdbad7b9bc75d2514cf9dbc" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+        <definition>FreeList* Gecode::MemoryManager::fl[MemoryConfig::fl_size_max-MemoryConfig::fl_size_min+1]</definition>
+        <argsstring>[MemoryConfig::fl_size_max-MemoryConfig::fl_size_min+1]</argsstring>
+        <name>fl</name>
+        <briefdescription>
+<para>Start of free lists. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="172" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryManager_1a5b948416e1009399836646d54b5e155d" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1MemoryChunk" kindref="compound">MemoryChunk</ref> *</type>
+        <definition>MemoryChunk* Gecode::MemoryManager::slack</definition>
+        <argsstring></argsstring>
+        <name>slack</name>
+        <briefdescription>
+<para>Slack memory chunks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="189" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a104180d4a5b7cee66635f3e922109dc9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::MemoryManager::MemoryManager</definition>
+        <argsstring>(SharedMemory *sm)</argsstring>
+        <name>MemoryManager</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <briefdescription>
+<para>Constructor initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="144" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="378" bodyend="384"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1ae7391893c4bdd4bdd792b00871589c0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::MemoryManager::MemoryManager</definition>
+        <argsstring>(SharedMemory *sm, MemoryManager &amp;mm, size_t s_sub)</argsstring>
+        <name>MemoryManager</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1MemoryManager" kindref="compound">MemoryManager</ref> &amp;</type>
+          <declname>mm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s_sub</declname>
+        </param>
+        <briefdescription>
+<para>Constructor during cloning <emphasis>mm</emphasis> with shared memory <emphasis>sm</emphasis> and for a memory area for subscriptions of size <emphasis>s_sub</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="146" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="387" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a4d87b046d91995bfe75f9cf9dd79024a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::MemoryManager::release</definition>
+        <argsstring>(SharedMemory *sm)</argsstring>
+        <name>release</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <briefdescription>
+<para>Release all allocated heap chunks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="148" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="405" bodyend="412"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1af1041aa5a9da4e30169728ca5acfd3db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::MemoryManager::alloc</definition>
+        <argsstring>(SharedMemory *sm, size_t s)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory of size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="166" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="328" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1af7672c021b3670cd9dd108ff3c409223" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::MemoryManager::subscriptions</definition>
+        <argsstring>(void) const </argsstring>
+        <name>subscriptions</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get the memory area for subscriptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="168" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="340" bodyend="342"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a6a9511f6cb6329afcf5f1d750e085f1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+            <declname>s</declname>
+            <defname>s</defname>
+          </param>
+        </templateparamlist>
+        <type>void *</type>
+        <definition>void* Gecode::MemoryManager::fl_alloc</definition>
+        <argsstring>(SharedMemory *sm)</argsstring>
+        <name>fl_alloc</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <briefdescription>
+<para>Allocate free list element of size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="183" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a0b5c901e033d012125cbeb0350c6eb16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::MemoryManager::fl_dispose</definition>
+        <argsstring>(FreeList *f, FreeList *l)</argsstring>
+        <name>fl_dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Release all free list elements of size <emphasis>s</emphasis> between f and l (inclusive) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="185" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1adf3a1a21dbf7e00df32e074114cb4f1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::MemoryManager::reuse</definition>
+        <argsstring>(void *p, size_t s)</argsstring>
+        <name>reuse</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Store for reusal, if of sufficient size for free list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="192" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="421" bodyend="443"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a5f5b40d6c3d2fd850c193c3ea41b287c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+            <declname>s</declname>
+            <defname>s</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void *</type>
+        <definition>forceinline void* Gecode::MemoryManager::fl_alloc</definition>
+        <argsstring>(SharedMemory *sm)</argsstring>
+        <name>fl_alloc</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="453" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="453" bodyend="462"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a25d4107f73e28400a6f837ea59de2a40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+            <declname>s</declname>
+            <defname>s</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::MemoryManager::fl_dispose</definition>
+        <argsstring>(FreeList *f, FreeList *l)</argsstring>
+        <name>fl_dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="466" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="466" bodyend="476"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a3e471359fcee974af07c756eed6d44eb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::MemoryManager::alloc_refill</definition>
+        <argsstring>(SharedMemory *sm, size_t s)</argsstring>
+        <name>alloc_refill</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Refill current heap area (outlined) issued by request of size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="160" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1af8df773da8018a7e626b4a44c8009ee5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::MemoryManager::alloc_fill</definition>
+        <argsstring>(SharedMemory *sm, size_t s, bool first)</argsstring>
+        <name>alloc_fill</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>first</declname>
+        </param>
+        <briefdescription>
+<para>Do the real work for refilling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="162" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="345" bodyend="375"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1a6f4ef360cbd1bf2e553d1d2ae1a74a83" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::MemoryManager::fl_refill</definition>
+        <argsstring>(SharedMemory *sm)</argsstring>
+        <name>fl_refill</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+          <declname>sm</declname>
+        </param>
+        <briefdescription>
+<para>Refill free list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="174" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="480" bodyend="509"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1abf7d2bd01e76283b806222a7c24b7c8b" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::MemoryManager::sz2i</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>sz2i</name>
+        <param>
+          <type>size_t</type>
+          <defname>s</defname>
+        </param>
+        <briefdescription>
+<para>Translate size to index in free list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="176" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="310" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MemoryManager_1ace4de36e70c412d4c207e16a73bb47a0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::MemoryManager::i2sz</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>i2sz</name>
+        <param>
+          <type>size_t</type>
+          <defname>i</defname>
+        </param>
+        <briefdescription>
+<para>Translate index in free list to size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="178" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="317" bodyend="319"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Manage memory for space. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="141" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="141" bodyend="193"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MemoryManager_1af1041aa5a9da4e30169728ca5acfd3db" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1MemoryManager_1af8df773da8018a7e626b4a44c8009ee5" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>alloc_fill</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a3e471359fcee974af07c756eed6d44eb" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>alloc_refill</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a551af8fc0b94094ed97b915811cd2125" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>cur_hc</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a34de6e57a2028d48304b25f3389be6b4" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>cur_hcsz</name></member>
+      <member refid="classGecode_1_1MemoryManager_1ad83af3025fdbad7b9bc75d2514cf9dbc" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a6a9511f6cb6329afcf5f1d750e085f1b" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl_alloc</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a5f5b40d6c3d2fd850c193c3ea41b287c" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl_alloc</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a0b5c901e033d012125cbeb0350c6eb16" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl_dispose</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a25d4107f73e28400a6f837ea59de2a40" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl_dispose</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a6f4ef360cbd1bf2e553d1d2ae1a74a83" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>fl_refill</name></member>
+      <member refid="classGecode_1_1MemoryManager_1ace4de36e70c412d4c207e16a73bb47a0" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>i2sz</name></member>
+      <member refid="classGecode_1_1MemoryManager_1ae844fca6730a7e68054f3156b1d4a0ee" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>lsz</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a104180d4a5b7cee66635f3e922109dc9" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>MemoryManager</name></member>
+      <member refid="classGecode_1_1MemoryManager_1ae7391893c4bdd4bdd792b00871589c0d" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>MemoryManager</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a4d87b046d91995bfe75f9cf9dd79024a" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>release</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a6ec7b2741de80cc6966a1c102db5884e" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>requested</name></member>
+      <member refid="classGecode_1_1MemoryManager_1adf3a1a21dbf7e00df32e074114cb4f1d" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>reuse</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a5b948416e1009399836646d54b5e155d" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>slack</name></member>
+      <member refid="classGecode_1_1MemoryManager_1a4a6d12904dee39921a95007bfa8f4ce8" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>start</name></member>
+      <member refid="classGecode_1_1MemoryManager_1af7672c021b3670cd9dd108ff3c409223" prot="public" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>subscriptions</name></member>
+      <member refid="classGecode_1_1MemoryManager_1abf7d2bd01e76283b806222a7c24b7c8b" prot="private" virt="non-virtual"><scope>Gecode::MemoryManager</scope><name>sz2i</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Print" kind="class" prot="public">
+    <compoundname>Gecode::Gist::Print</compoundname>
+    <basecompoundref refid="classGecode_1_1Gist_1_1TextOutput" prot="public" virt="non-virtual">Gecode::Gist::TextOutput</basecompoundref>
+    <basecompoundref refid="classGecode_1_1Gist_1_1Inspector" prot="public" virt="non-virtual">Gecode::Gist::Inspector</basecompoundref>
+    <includes refid="gist_8hh" local="no">gist.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>S</declname>
+        <defname>S</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Print_1af694df1a40427c2fb6ade49986b9a67f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::Print&lt; S &gt;::Print</definition>
+        <argsstring>(const std::string &amp;name)</argsstring>
+        <name>Print</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="195" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="140" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Print_1a66321be95255e1fb5e885623d5b4a8e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::Print&lt; S &gt;::inspect</definition>
+        <argsstring>(const Space &amp;node)</argsstring>
+        <name>inspect</name>
+        <reimplements refid="classGecode_1_1Gist_1_1Inspector_1a11f4564704c09cff55d6e64481c79b5c">inspect</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Use the print method of the template class S to print a space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="197" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="145" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Print_1aba08d133c20caa38bd1c5186383955ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::Print&lt; S &gt;::name</definition>
+        <argsstring>(void)</argsstring>
+        <name>name</name>
+        <reimplements refid="classGecode_1_1Gist_1_1Inspector_1a73e0ba2fd76e260d42a51f5c35538a9d">name</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="199" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Print_1adfdd0d9d6214757c4c81cf50d0ac2bda" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::Print&lt; S &gt;::finalize</definition>
+        <argsstring>(void)</argsstring>
+        <name>finalize</name>
+        <reimplements refid="classGecode_1_1Gist_1_1Inspector_1a164be6725b23c5534ad2cbd89606b0cf">finalize</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Clean up when <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref> exits. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="201" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="161" bodyend="163"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An inspector for printing simple text output. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5255">
+        <label>Gecode::Gist::Inspector</label>
+        <link refid="classGecode_1_1Gist_1_1Inspector"/>
+      </node>
+      <node id="5253">
+        <label>Gecode::Gist::Print&lt; S &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1Print"/>
+        <childnode refid="5254" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5255" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5254">
+        <label>Gecode::Gist::TextOutput</label>
+        <link refid="classGecode_1_1Gist_1_1TextOutput"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5258">
+        <label>Gecode::Gist::Inspector</label>
+        <link refid="classGecode_1_1Gist_1_1Inspector"/>
+      </node>
+      <node id="5256">
+        <label>Gecode::Gist::Print&lt; S &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1Print"/>
+        <childnode refid="5257" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5258" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5257">
+        <label>Gecode::Gist::TextOutput</label>
+        <link refid="classGecode_1_1Gist_1_1TextOutput"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist.hh" line="192" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="192" bodyend="202"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a7f0c4cdc525826976d092e8fddb2098e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>addHtml</name></member>
+      <member refid="classGecode_1_1Gist_1_1Print_1adfdd0d9d6214757c4c81cf50d0ac2bda" prot="public" virt="virtual"><scope>Gecode::Gist::Print</scope><name>finalize</name></member>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a16d6c4bb1c9c9944e8b63f017fd23e56" prot="protected" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>flush</name></member>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a81330b3dc641a7cac828667320cfd48d" prot="protected" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>getStream</name></member>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a7cea5e84158102fb78153d880fb562f8" prot="protected" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>init</name></member>
+      <member refid="classGecode_1_1Gist_1_1Print_1a66321be95255e1fb5e885623d5b4a8e6" prot="public" virt="virtual"><scope>Gecode::Gist::Print</scope><name>inspect</name></member>
+      <member refid="classGecode_1_1Gist_1_1Print_1aba08d133c20caa38bd1c5186383955ad" prot="public" virt="virtual"><scope>Gecode::Gist::Print</scope><name>name</name></member>
+      <member refid="classGecode_1_1Gist_1_1Print_1af694df1a40427c2fb6ade49986b9a67f" prot="public" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>Print</name></member>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a501fec3f0754c159c406953a407abaa9" prot="public" virt="non-virtual"><scope>Gecode::Gist::Print</scope><name>TextOutput</name></member>
+      <member refid="classGecode_1_1Gist_1_1Inspector_1a6bd4b557059bcce22a1cc1389c88cebf" prot="public" virt="virtual"><scope>Gecode::Gist::Print</scope><name>~Inspector</name></member>
+      <member refid="classGecode_1_1Gist_1_1TextOutput_1a271bfca8cc1b4194ee8956e1b06bb325" prot="public" virt="virtual"><scope>Gecode::Gist::Print</scope><name>~TextOutput</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

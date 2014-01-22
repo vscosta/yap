@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList" kind="class" prot="protected">
+    <compoundname>Gecode::Iter::Values::ValueListIter::ValueList</compoundname>
+    <basecompoundref refid="classGecode_1_1Support_1_1BlockClient" prot="public" virt="non-virtual">Gecode::Support::BlockClient&lt; ValueList, Region &gt;</basecompoundref>
+    <includes refid="values-list_8hpp" local="no">values-list.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList_1a67f3c79d6561f0be3417a3a50afefa75" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Values::ValueListIter::ValueList::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <briefdescription>
+<para>Value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-list.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/values-list.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList_1a25fd5fe444dc64ee674b029eb126b014" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList" kindref="compound">ValueList</ref> *</type>
+        <definition>ValueList* Gecode::Iter::Values::ValueListIter::ValueList::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Next element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-list.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/values-list.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value list class. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7549">
+        <label>Gecode::Iter::Values::ValueListIter::ValueList</label>
+        <link refid="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList"/>
+        <childnode refid="7550" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7550">
+        <label>Gecode::Support::BlockClient&lt; ValueList, Region &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BlockClient"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7551">
+        <label>Gecode::Iter::Values::ValueListIter::ValueList</label>
+        <link refid="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList"/>
+        <childnode refid="7552" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7551" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7552">
+        <label>Gecode::Support::BlockClient&lt; ValueList, Region &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BlockClient"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/values-list.hpp" line="48" column="1" bodyfile="/usr/include/gecode/iter/values-list.hpp" bodystart="48" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList_1a25fd5fe444dc64ee674b029eb126b014" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::ValueListIter::ValueList</scope><name>next</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockClient_1a1417331f77401df6c2815716b8ec416a" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::ValueListIter::ValueList</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockClient_1a7873484dbfa571602fa51f7c4339e282" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::ValueListIter::ValueList</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockClient_1a23bb9c142be653962e8c922cba096b7c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::ValueListIter::ValueList</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1ValueListIter_1_1ValueList_1a67f3c79d6561f0be3417a3a50afefa75" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::ValueListIter::ValueList</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

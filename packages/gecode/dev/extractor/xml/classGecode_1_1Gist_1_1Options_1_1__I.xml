@@ -1,0 +1,291 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Options_1_1__I" kind="class" prot="public">
+    <compoundname>Gecode::Gist::Options::_I</compoundname>
+    <includes refid="gist_8hh" local="no">gist.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1a67a2cb277b60bae9ce2602c02d86580a" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">Support::DynamicArray</ref>&lt; <ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *, <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &gt;</type>
+        <definition>Support::DynamicArray&lt;Inspector*,Heap&gt; Gecode::Gist::Options::_I::_click</definition>
+        <argsstring></argsstring>
+        <name>_click</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="243" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="243" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1ace5c8afe3ccf3968746c8740b0600644" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Gist::Options::_I::n_click</definition>
+        <argsstring></argsstring>
+        <name>n_click</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="244" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1aa36781f8c44fd91c1ebddde42ecf07d5" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">Support::DynamicArray</ref>&lt; <ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *, <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &gt;</type>
+        <definition>Support::DynamicArray&lt;Inspector*,Heap&gt; Gecode::Gist::Options::_I::_solution</definition>
+        <argsstring></argsstring>
+        <name>_solution</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="245" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1ac584e0736722aed83ae4ab5315d5f76f" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Gist::Options::_I::n_solution</definition>
+        <argsstring></argsstring>
+        <name>n_solution</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="246" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1a1b308a60ab778d09fd82094fd04fe7e1" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">Support::DynamicArray</ref>&lt; <ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *, <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &gt;</type>
+        <definition>Support::DynamicArray&lt;Inspector*,Heap&gt; Gecode::Gist::Options::_I::_move</definition>
+        <argsstring></argsstring>
+        <name>_move</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="247" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="247" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1a4d9056cab495d51e611a885dfd051d95" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Gist::Options::_I::n_move</definition>
+        <argsstring></argsstring>
+        <name>n_move</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="248" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1a194da0e397209d53cee120c61e933eb3" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">Support::DynamicArray</ref>&lt; <ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref> *, <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &gt;</type>
+        <definition>Support::DynamicArray&lt;Comparator*,Heap&gt; Gecode::Gist::Options::_I::_compare</definition>
+        <argsstring></argsstring>
+        <name>_compare</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="249" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1_1__I_1a71391432bdd92b40e736fcd457e8b750" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Gist::Options::_I::n_compare</definition>
+        <argsstring></argsstring>
+        <name>n_compare</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="250" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="250" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1ae72f267066730f659e81eed8096e0621" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Gist::Options::_I::_I</definition>
+        <argsstring>(void)</argsstring>
+        <name>_I</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="253" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="169" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1aac7c39bdc867214bb747bd2cc723c845" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::Options::_I::click</definition>
+        <argsstring>(Inspector *i)</argsstring>
+        <name>click</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add inspector that reacts on node double clicks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="255" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="174" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1a42ed7e80766ac195e7c484e9cb386a87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::Options::_I::solution</definition>
+        <argsstring>(Inspector *i)</argsstring>
+        <name>solution</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add inspector that reacts on each new solution that is found. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="257" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="178" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1a641578a09d09d282061fda4d52774ee2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::Options::_I::move</definition>
+        <argsstring>(Inspector *i)</argsstring>
+        <name>move</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add inspector that reacts on each move of the cursor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="259" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="182" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1ac4606fb2e872c7a921c16182462d980a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::Options::_I::compare</definition>
+        <argsstring>(Comparator *c)</argsstring>
+        <name>compare</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Add comparator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="261" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="186" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1af5ee5e7aa68ec0abd73faf70b6080c74" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+        <definition>forceinline Inspector * Gecode::Gist::Options::_I::click</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>click</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return click inspector number <emphasis>i</emphasis>, or NULL if it does not exist. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="264" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="190" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1a19d00c403d609f89df00a82aeb1f4327" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+        <definition>forceinline Inspector * Gecode::Gist::Options::_I::solution</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>solution</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return solution inspector number <emphasis>i</emphasis>, or NULL if it does not exist. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="266" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="194" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1ad3d4b8a7370c01e9a3fa21e1d7b22ab4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref> *</type>
+        <definition>forceinline Inspector * Gecode::Gist::Options::_I::move</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>move</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return move inspector number <emphasis>i</emphasis>, or NULL if it does not exist. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="268" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="198" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1_1__I_1a4f554654349b12571fc7b99d646f5a1e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref> *</type>
+        <definition>forceinline Comparator * Gecode::Gist::Options::_I::compare</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>compare</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return comparator number <emphasis>i</emphasis>, or NULL if it does not exist. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="270" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="202" bodyend="204"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Helper class storing inspectors. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/gist.hh" line="241" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="241" bodyend="271"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a67a2cb277b60bae9ce2602c02d86580a" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>_click</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a194da0e397209d53cee120c61e933eb3" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>_compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1ae72f267066730f659e81eed8096e0621" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>_I</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a1b308a60ab778d09fd82094fd04fe7e1" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>_move</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1aa36781f8c44fd91c1ebddde42ecf07d5" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>_solution</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1aac7c39bdc867214bb747bd2cc723c845" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>click</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1af5ee5e7aa68ec0abd73faf70b6080c74" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>click</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1ac4606fb2e872c7a921c16182462d980a" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a4f554654349b12571fc7b99d646f5a1e" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a641578a09d09d282061fda4d52774ee2" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>move</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1ad3d4b8a7370c01e9a3fa21e1d7b22ab4" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>move</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1ace5c8afe3ccf3968746c8740b0600644" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>n_click</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a71391432bdd92b40e736fcd457e8b750" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>n_compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a4d9056cab495d51e611a885dfd051d95" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>n_move</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1ac584e0736722aed83ae4ab5315d5f76f" prot="private" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>n_solution</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a42ed7e80766ac195e7c484e9cb386a87" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>solution</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1_1__I_1a19d00c403d609f89df00a82aeb1f4327" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options::_I</scope><name>solution</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

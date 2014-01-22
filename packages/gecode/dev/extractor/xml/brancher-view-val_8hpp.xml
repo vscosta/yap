@@ -1,0 +1,1187 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="brancher-view-val_8hpp" kind="file">
+    <compoundname>brancher-view-val.hpp</compoundname>
+    <includedby refid="kernel_8hh" local="no">/usr/include/gecode/kernel.hh</includedby>
+    <invincdepgraph>
+      <node id="26810">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26793">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="26818">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="26819" relation="include">
+        </childnode>
+      </node>
+      <node id="26816">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="26817" relation="include">
+        </childnode>
+        <childnode refid="26818" relation="include">
+        </childnode>
+      </node>
+      <node id="26817">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="26793" relation="include">
+        </childnode>
+      </node>
+      <node id="26770">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="26771" relation="include">
+        </childnode>
+        <childnode refid="26772" relation="include">
+        </childnode>
+      </node>
+      <node id="26799">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="26800" relation="include">
+        </childnode>
+      </node>
+      <node id="26848">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="26849" relation="include">
+        </childnode>
+      </node>
+      <node id="26836">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="26820" relation="include">
+        </childnode>
+      </node>
+      <node id="26844">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="26845">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="26844" relation="include">
+        </childnode>
+      </node>
+      <node id="26828">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="26842">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="26817" relation="include">
+        </childnode>
+      </node>
+      <node id="26808">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="26851">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="26809">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="26805" relation="include">
+        </childnode>
+        <childnode refid="26806" relation="include">
+        </childnode>
+        <childnode refid="26799" relation="include">
+        </childnode>
+        <childnode refid="26810" relation="include">
+        </childnode>
+        <childnode refid="26811" relation="include">
+        </childnode>
+        <childnode refid="26812" relation="include">
+        </childnode>
+        <childnode refid="26813" relation="include">
+        </childnode>
+        <childnode refid="26814" relation="include">
+        </childnode>
+      </node>
+      <node id="26786">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="26876">
+        <label>/usr/include/gecode/search/sequential/bab.hh</label>
+        <link refid="sequential_2bab_8hh_source"/>
+      </node>
+      <node id="26865">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="26853" relation="include">
+        </childnode>
+        <childnode refid="26822" relation="include">
+        </childnode>
+        <childnode refid="26863" relation="include">
+        </childnode>
+        <childnode refid="26864" relation="include">
+        </childnode>
+        <childnode refid="26866" relation="include">
+        </childnode>
+      </node>
+      <node id="26855">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="26791">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="26838">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="26827" relation="include">
+        </childnode>
+      </node>
+      <node id="26823">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="26783">
+        <label>/usr/include/gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="26782" relation="include">
+        </childnode>
+        <childnode refid="26781" relation="include">
+        </childnode>
+      </node>
+      <node id="26830">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="26831" relation="include">
+        </childnode>
+        <childnode refid="26832" relation="include">
+        </childnode>
+        <childnode refid="26833" relation="include">
+        </childnode>
+        <childnode refid="26793" relation="include">
+        </childnode>
+        <childnode refid="26834" relation="include">
+        </childnode>
+        <childnode refid="26835" relation="include">
+        </childnode>
+        <childnode refid="26809" relation="include">
+        </childnode>
+        <childnode refid="26836" relation="include">
+        </childnode>
+        <childnode refid="26820" relation="include">
+        </childnode>
+        <childnode refid="26837" relation="include">
+        </childnode>
+        <childnode refid="26821" relation="include">
+        </childnode>
+        <childnode refid="26824" relation="include">
+        </childnode>
+        <childnode refid="26838" relation="include">
+        </childnode>
+        <childnode refid="26839" relation="include">
+        </childnode>
+        <childnode refid="26801" relation="include">
+        </childnode>
+        <childnode refid="26840" relation="include">
+        </childnode>
+        <childnode refid="26811" relation="include">
+        </childnode>
+        <childnode refid="26812" relation="include">
+        </childnode>
+        <childnode refid="26813" relation="include">
+        </childnode>
+        <childnode refid="26841" relation="include">
+        </childnode>
+        <childnode refid="26814" relation="include">
+        </childnode>
+      </node>
+      <node id="26849">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="26770" relation="include">
+        </childnode>
+      </node>
+      <node id="26780">
+        <label>/usr/include/gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="26781" relation="include">
+        </childnode>
+        <childnode refid="26783" relation="include">
+        </childnode>
+        <childnode refid="26784" relation="include">
+        </childnode>
+        <childnode refid="26788" relation="include">
+        </childnode>
+      </node>
+      <node id="26832">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="26793" relation="include">
+        </childnode>
+      </node>
+      <node id="26773">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="26774" relation="include">
+        </childnode>
+        <childnode refid="26775" relation="include">
+        </childnode>
+        <childnode refid="26776" relation="include">
+        </childnode>
+        <childnode refid="26777" relation="include">
+        </childnode>
+      </node>
+      <node id="26877">
+        <label>/usr/include/gecode/search/sequential/dfs.hh</label>
+        <link refid="sequential_2dfs_8hh_source"/>
+      </node>
+      <node id="26831">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="26793" relation="include">
+        </childnode>
+      </node>
+      <node id="26827">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="26771">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="26869">
+        <label>/usr/include/gecode/search.hh</label>
+        <link refid="search_8hh_source"/>
+        <childnode refid="26849" relation="include">
+        </childnode>
+        <childnode refid="26790" relation="include">
+        </childnode>
+        <childnode refid="26870" relation="include">
+        </childnode>
+        <childnode refid="26878" relation="include">
+        </childnode>
+        <childnode refid="26872" relation="include">
+        </childnode>
+        <childnode refid="26871" relation="include">
+        </childnode>
+        <childnode refid="26876" relation="include">
+        </childnode>
+        <childnode refid="26877" relation="include">
+        </childnode>
+        <childnode refid="26875" relation="include">
+        </childnode>
+        <childnode refid="26880" relation="include">
+        </childnode>
+        <childnode refid="26881" relation="include">
+        </childnode>
+      </node>
+      <node id="26785">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="26786" relation="include">
+        </childnode>
+        <childnode refid="26787" relation="include">
+        </childnode>
+      </node>
+      <node id="26840">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26874">
+        <label>/usr/include/gecode/search/parallel/dfs.hh</label>
+        <link refid="parallel_2dfs_8hh_source"/>
+      </node>
+      <node id="26859">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="26807">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="26788">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="26785" relation="include">
+        </childnode>
+      </node>
+      <node id="26812">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26835">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="26807" relation="include">
+        </childnode>
+      </node>
+      <node id="26822">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="26769">
+        <label>/usr/include/gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="26770" relation="include">
+        </childnode>
+        <childnode refid="26773" relation="include">
+        </childnode>
+        <childnode refid="26778" relation="include">
+        </childnode>
+        <childnode refid="26779" relation="include">
+        </childnode>
+        <childnode refid="26789" relation="include">
+        </childnode>
+        <childnode refid="26788" relation="include">
+        </childnode>
+        <childnode refid="26780" relation="include">
+        </childnode>
+        <childnode refid="26790" relation="include">
+        </childnode>
+        <childnode refid="26792" relation="include">
+        </childnode>
+        <childnode refid="26867" relation="include">
+        </childnode>
+        <childnode refid="26868" relation="include">
+        </childnode>
+        <childnode refid="26848" relation="include">
+        </childnode>
+        <childnode refid="26869" relation="include">
+        </childnode>
+        <childnode refid="26858" relation="include">
+        </childnode>
+      </node>
+      <node id="26861">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="26784">
+        <label>/usr/include/gecode/gist/nodestats.hh</label>
+        <link refid="nodestats_8hh_source"/>
+        <childnode refid="26785" relation="include">
+        </childnode>
+      </node>
+      <node id="26864">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="26822" relation="include">
+        </childnode>
+        <childnode refid="26863" relation="include">
+        </childnode>
+      </node>
+      <node id="26813">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26821">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="26822" relation="include">
+        </childnode>
+      </node>
+      <node id="26805">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="26868">
+        <label>/usr/include/gecode/kernel/wait.hh</label>
+        <link refid="wait_8hh_source"/>
+      </node>
+      <node id="26826">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="26787">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="26819">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="26792" relation="include">
+        </childnode>
+      </node>
+      <node id="26794">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="26881">
+        <label>/usr/include/gecode/search/worker.hh</label>
+        <link refid="worker_8hh_source"/>
+        <childnode refid="26872" relation="include">
+        </childnode>
+        <childnode refid="26871" relation="include">
+        </childnode>
+        <childnode refid="26876" relation="include">
+        </childnode>
+        <childnode refid="26877" relation="include">
+        </childnode>
+        <childnode refid="26875" relation="include">
+        </childnode>
+      </node>
+      <node id="26795">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="26796" relation="include">
+        </childnode>
+        <childnode refid="26801" relation="include">
+        </childnode>
+        <childnode refid="26803" relation="include">
+        </childnode>
+      </node>
+      <node id="26852">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="26851" relation="include">
+        </childnode>
+      </node>
+      <node id="26853">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="26851" relation="include">
+        </childnode>
+      </node>
+      <node id="26839">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="26827" relation="include">
+        </childnode>
+      </node>
+      <node id="26778">
+        <label>/usr/include/gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="26779" relation="include">
+        </childnode>
+      </node>
+      <node id="26825">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="26826" relation="include">
+        </childnode>
+      </node>
+      <node id="26871">
+        <label>/usr/include/gecode/search/parallel/path.hh</label>
+        <link refid="parallel_2path_8hh_source"/>
+        <childnode refid="26872" relation="include">
+        </childnode>
+      </node>
+      <node id="26790">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="26786" relation="include">
+        </childnode>
+        <childnode refid="26787" relation="include">
+        </childnode>
+        <childnode refid="26791" relation="include">
+        </childnode>
+        <childnode refid="26789" relation="include">
+        </childnode>
+        <childnode refid="26788" relation="include">
+        </childnode>
+      </node>
+      <node id="26804">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="26802">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="26834">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="26795" relation="include">
+        </childnode>
+      </node>
+      <node id="26841">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="26878">
+        <label>/usr/include/gecode/search/meta/rbs.hh</label>
+        <link refid="rbs_8hh_source"/>
+        <childnode refid="26879" relation="include">
+        </childnode>
+      </node>
+      <node id="26873">
+        <label>/usr/include/gecode/search/parallel/bab.hh</label>
+        <link refid="parallel_2bab_8hh_source"/>
+      </node>
+      <node id="26847">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="26809" relation="include">
+        </childnode>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26796">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="26797" relation="include">
+        </childnode>
+      </node>
+      <node id="26814">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="26815" relation="include">
+        </childnode>
+      </node>
+      <node id="26777">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="26774" relation="include">
+        </childnode>
+      </node>
+      <node id="26768">
+        <label>/usr/include/gecode/kernel/brancher-view-val.hpp</label>
+        <link refid="brancher-view-val.hpp"/>
+        <childnode refid="26769" relation="include">
+        </childnode>
+      </node>
+      <node id="26789">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="26872">
+        <label>/usr/include/gecode/search/parallel/engine.hh</label>
+        <link refid="engine_8hh_source"/>
+        <childnode refid="26873" relation="include">
+        </childnode>
+        <childnode refid="26874" relation="include">
+        </childnode>
+      </node>
+      <node id="26774">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="26772">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="26800">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="26856">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="26855" relation="include">
+        </childnode>
+      </node>
+      <node id="26781">
+        <label>/usr/include/gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="26782" relation="include">
+        </childnode>
+      </node>
+      <node id="26779">
+        <label>/usr/include/gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="26780" relation="include">
+        </childnode>
+      </node>
+      <node id="26862">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="26776">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="26875">
+        <label>/usr/include/gecode/search/sequential/path.hh</label>
+        <link refid="sequential_2path_8hh_source"/>
+        <childnode refid="26876" relation="include">
+        </childnode>
+        <childnode refid="26877" relation="include">
+        </childnode>
+      </node>
+      <node id="26879">
+        <label>/usr/include/gecode/search/rbs.hpp</label>
+        <link refid="rbs_8hpp_source"/>
+        <childnode refid="26869" relation="include">
+        </childnode>
+      </node>
+      <node id="26846">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="26827" relation="include">
+        </childnode>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26792">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="26770" relation="include">
+        </childnode>
+        <childnode refid="26774" relation="include">
+        </childnode>
+        <childnode refid="26776" relation="include">
+        </childnode>
+        <childnode refid="26777" relation="include">
+        </childnode>
+        <childnode refid="26773" relation="include">
+        </childnode>
+        <childnode refid="26790" relation="include">
+        </childnode>
+        <childnode refid="26793" relation="include">
+        </childnode>
+        <childnode refid="26794" relation="include">
+        </childnode>
+        <childnode refid="26795" relation="include">
+        </childnode>
+        <childnode refid="26804" relation="include">
+        </childnode>
+        <childnode refid="26805" relation="include">
+        </childnode>
+        <childnode refid="26806" relation="include">
+        </childnode>
+        <childnode refid="26807" relation="include">
+        </childnode>
+        <childnode refid="26808" relation="include">
+        </childnode>
+        <childnode refid="26809" relation="include">
+        </childnode>
+        <childnode refid="26816" relation="include">
+        </childnode>
+        <childnode refid="26820" relation="include">
+        </childnode>
+        <childnode refid="26821" relation="include">
+        </childnode>
+        <childnode refid="26823" relation="include">
+        </childnode>
+        <childnode refid="26824" relation="include">
+        </childnode>
+        <childnode refid="26800" relation="include">
+        </childnode>
+        <childnode refid="26825" relation="include">
+        </childnode>
+        <childnode refid="26797" relation="include">
+        </childnode>
+        <childnode refid="26827" relation="include">
+        </childnode>
+        <childnode refid="26828" relation="include">
+        </childnode>
+        <childnode refid="26802" relation="include">
+        </childnode>
+        <childnode refid="26829" relation="include">
+        </childnode>
+        <childnode refid="26830" relation="include">
+        </childnode>
+        <childnode refid="26841" relation="include">
+        </childnode>
+        <childnode refid="26815" relation="include">
+        </childnode>
+        <childnode refid="26842" relation="include">
+        </childnode>
+        <childnode refid="26843" relation="include">
+        </childnode>
+        <childnode refid="26846" relation="include">
+        </childnode>
+        <childnode refid="26847" relation="include">
+        </childnode>
+        <childnode refid="26848" relation="include">
+        </childnode>
+        <childnode refid="26850" relation="include">
+        </childnode>
+        <childnode refid="26852" relation="include">
+        </childnode>
+        <childnode refid="26853" relation="include">
+        </childnode>
+        <childnode refid="26854" relation="include">
+        </childnode>
+        <childnode refid="26856" relation="include">
+        </childnode>
+        <childnode refid="26857" relation="include">
+        </childnode>
+        <childnode refid="26858" relation="include">
+        </childnode>
+      </node>
+      <node id="26801">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26803">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26843">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="26844" relation="include">
+        </childnode>
+        <childnode refid="26845" relation="include">
+        </childnode>
+      </node>
+      <node id="26824">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="26870">
+        <label>/usr/include/gecode/search/meta/nogoods.hh</label>
+        <link refid="nogoods_8hh_source"/>
+        <childnode refid="26871" relation="include">
+        </childnode>
+        <childnode refid="26875" relation="include">
+        </childnode>
+      </node>
+      <node id="26815">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="26857">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="26855" relation="include">
+        </childnode>
+      </node>
+      <node id="26829">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="26811">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="26802" relation="include">
+        </childnode>
+      </node>
+      <node id="26775">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="26866">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="26782">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor_8hh_source"/>
+      </node>
+      <node id="26854">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="26855" relation="include">
+        </childnode>
+      </node>
+      <node id="26798">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="26793" relation="include">
+        </childnode>
+      </node>
+      <node id="26797">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="26798" relation="include">
+        </childnode>
+        <childnode refid="26793" relation="include">
+        </childnode>
+        <childnode refid="26799" relation="include">
+        </childnode>
+      </node>
+      <node id="26820">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="26850">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="26851" relation="include">
+        </childnode>
+      </node>
+      <node id="26837">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="26821" relation="include">
+        </childnode>
+      </node>
+      <node id="26858">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="26859" relation="include">
+        </childnode>
+        <childnode refid="26853" relation="include">
+        </childnode>
+        <childnode refid="26851" relation="include">
+        </childnode>
+        <childnode refid="26860" relation="include">
+        </childnode>
+        <childnode refid="26861" relation="include">
+        </childnode>
+        <childnode refid="26822" relation="include">
+        </childnode>
+        <childnode refid="26854" relation="include">
+        </childnode>
+        <childnode refid="26856" relation="include">
+        </childnode>
+        <childnode refid="26857" relation="include">
+        </childnode>
+        <childnode refid="26855" relation="include">
+        </childnode>
+        <childnode refid="26826" relation="include">
+        </childnode>
+        <childnode refid="26862" relation="include">
+        </childnode>
+        <childnode refid="26863" relation="include">
+        </childnode>
+        <childnode refid="26864" relation="include">
+        </childnode>
+        <childnode refid="26865" relation="include">
+        </childnode>
+        <childnode refid="26866" relation="include">
+        </childnode>
+      </node>
+      <node id="26867">
+        <label>/usr/include/gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="26792" relation="include">
+        </childnode>
+        <childnode refid="26858" relation="include">
+        </childnode>
+      </node>
+      <node id="26880">
+        <label>/usr/include/gecode/search/support.hh</label>
+        <link refid="search_2support_8hh_source"/>
+        <childnode refid="26872" relation="include">
+        </childnode>
+        <childnode refid="26871" relation="include">
+        </childnode>
+        <childnode refid="26879" relation="include">
+        </childnode>
+        <childnode refid="26876" relation="include">
+        </childnode>
+        <childnode refid="26877" relation="include">
+        </childnode>
+        <childnode refid="26875" relation="include">
+        </childnode>
+      </node>
+      <node id="26806">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="26863">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="26864" relation="include">
+        </childnode>
+      </node>
+      <node id="26833">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="26793" relation="include">
+        </childnode>
+      </node>
+      <node id="26860">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1PosValChoice" prot="public">Gecode::PosValChoice</innerclass>
+    <innerclass refid="classGecode_1_1ViewValNGL" prot="public">Gecode::ViewValNGL</innerclass>
+    <innerclass refid="classGecode_1_1ViewValBrancher" prot="public">Gecode::ViewValBrancher</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2012</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-07-08<sp/>17:25:13<sp/>+0200<sp/>(Mon,<sp/>08<sp/>Jul<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13825<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="50" refid="classGecode_1_1PosValChoice" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosChoice" kindref="compound">PosChoice</ref><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val<sp/>_val;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref>&amp;<sp/>b,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref>&amp;<sp/>p,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>n);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>val(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1ga9f9ab6d72452ad86b95cd65abf463161" kindref="member">size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>archive(<ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref>&amp;<sp/>e)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="68" refid="classGecode_1_1ViewValNGL" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1ViewValNGL" kindref="compound">ViewValNGL</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref><sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1ViewValNGL_1a29e0b5c01dc7467d293e5a282caa8074" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>View<sp/><ref refid="classGecode_1_1ViewValNGL_1a29e0b5c01dc7467d293e5a282caa8074" kindref="member">x</ref>;</highlight></codeline>
+<codeline lineno="73" refid="classGecode_1_1ViewValNGL_1a9094f91ddbf37e014ff2493db94356d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Val<sp/><ref refid="classGecode_1_1ViewValNGL_1a9094f91ddbf37e014ff2493db94356d9" kindref="member">n</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1af68098131587292a8e5eb25c10cfe64a" kindref="member">ViewValNGL</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View<sp/><ref refid="classGecode_1_1ViewValNGL_1a29e0b5c01dc7467d293e5a282caa8074" kindref="member">x</ref>,<sp/>Val<sp/><ref refid="classGecode_1_1ViewValNGL_1a9094f91ddbf37e014ff2493db94356d9" kindref="member">n</ref>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1af68098131587292a8e5eb25c10cfe64a" kindref="member">ViewValNGL</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1ViewValNGL" kindref="compound">ViewValNGL</ref>&amp;<sp/>ngl);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewValNGL_1ae57047793ad3211f80e899a6011895db" kindref="member">subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewValNGL_1a9b7543d29220e599e79f56a0bd774261" kindref="member">cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewValNGL_1ad1eb07a0062850a3b83f474cdab8d27d" kindref="member">dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="95" refid="classGecode_1_1ViewValBrancher" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher</ref>&lt;View,n&gt;<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewBrancher_1adc4246630e2e482d2fd9f83d1a839fe7" kindref="member">ViewBrancher&lt;View,n&gt;::BranchFilter</ref><sp/>BranchFilter;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::vs</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::x</ref>;</highlight></codeline>
+<codeline lineno="101" refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" kindref="member">vsc</ref>;</highlight></codeline>
+<codeline lineno="103" refid="classGecode_1_1ViewValBrancher_1ae0e1c5f3aa3c467d92832d99cab8cb0d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="classGecode_1_1ViewValBrancher_1ae0e1c5f3aa3c467d92832d99cab8cb0d" kindref="member">VarValPrint</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref>&amp;<sp/>bh,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>View::VarType<sp/><ref refid="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" kindref="member">x</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>m,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o);</highlight></codeline>
+<codeline lineno="109" refid="classGecode_1_1ViewValBrancher_1a63c5e6ebf613316bd58c76ade0ea5df2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1ae0e1c5f3aa3c467d92832d99cab8cb0d" kindref="member">VarValPrint</ref><sp/><ref refid="classGecode_1_1ViewValBrancher_1a63c5e6ebf613316bd58c76ade0ea5df2" kindref="member">vvp</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">ViewValBrancher</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher</ref>&amp;<sp/>b);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">ViewValBrancher</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray&lt;View&gt;</ref>&amp;<sp/><ref refid="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" kindref="member">x</ref>,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel&lt;View&gt;</ref>*<sp/><ref refid="classGecode_1_1ViewBrancher_1af24b93d52c489f9c90b2f6823e1b0c0f" kindref="member">vs</ref>[n],<sp/></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" kindref="member">vsc</ref>,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BranchFilter<sp/><ref refid="classGecode_1_1ViewBrancher_1a8bd06d8ce2ebbeeba3a0df263d0fbacf" kindref="member">bf</ref>,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1ae0e1c5f3aa3c467d92832d99cab8cb0d" kindref="member">VarValPrint</ref><sp/><ref refid="classGecode_1_1ViewValBrancher_1a63c5e6ebf613316bd58c76ade0ea5df2" kindref="member">vvp</ref>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9" kindref="member">choice</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9" kindref="member">choice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref>&amp;<sp/>e);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref><sp/><ref refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882" kindref="member">commit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8" kindref="member">ngl</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98" kindref="member">print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1a022fe17f0b2e1c48799b97adfbcdf384" kindref="member">copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ViewValBrancher_1a5927b457442e8fbab4d9737b12df2c06" kindref="member">dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref><sp/><ref refid="classGecode_1_1ViewValBrancher_1a3cac53948c9a6217603eec85883f5933" kindref="member">post</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray&lt;View&gt;</ref>&amp;<sp/><ref refid="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" kindref="member">x</ref>,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel&lt;View&gt;</ref>*<sp/><ref refid="classGecode_1_1ViewBrancher_1af24b93d52c489f9c90b2f6823e1b0c0f" kindref="member">vs</ref>[n],<sp/></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/><ref refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" kindref="member">vsc</ref>,<sp/></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BranchFilter<sp/><ref refid="classGecode_1_1ViewBrancher_1a8bd06d8ce2ebbeeba3a0df263d0fbacf" kindref="member">bf</ref>,</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1ae0e1c5f3aa3c467d92832d99cab8cb0d" kindref="member">VarValPrint</ref><sp/><ref refid="classGecode_1_1ViewValBrancher_1a63c5e6ebf613316bd58c76ade0ea5df2" kindref="member">vvp</ref>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/><sp/><sp/>*<sp/>%Choice<sp/>with<sp/>position<sp/>and<sp/>value</highlight></codeline>
+<codeline lineno="153"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="154"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="157" refid="classGecode_1_1PosValChoice_1a17cdcfe6816fd47a4689ec31f20a13e8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1PosValChoice_1a17cdcfe6816fd47a4689ec31f20a13e8" kindref="member">PosValChoice&lt;Val&gt;::PosValChoice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref>&amp;<sp/>b,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref>&amp;<sp/>p,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>n)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1PosChoice" kindref="compound">PosChoice</ref>(b,a,p),<sp/>_val(n)<sp/>{}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;</highlight></codeline>
+<codeline lineno="163" refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" kindref="member">PosValChoice&lt;Val&gt;::val</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_val;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="classGecode_1_1PosValChoice_1ae5b4003da9b2a9976410ad41ede55c75" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1PosValChoice_1ae5b4003da9b2a9976410ad41ede55c75" kindref="member">PosValChoice&lt;Val&gt;::size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175" refid="classGecode_1_1PosValChoice_1a6eb0c381908020c0432b5c7cc4dd5309" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1PosValChoice_1a6eb0c381908020c0432b5c7cc4dd5309" kindref="member">PosValChoice&lt;Val&gt;::archive</ref>(<ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref>&amp;<sp/>e)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1PosChoice_1a1b4be569c47acb2dd50700ff94b58601" kindref="member">PosChoice::archive</ref>(e);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>e<sp/>&lt;&lt;<sp/>_val;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="182"><highlight class="comment"><sp/><sp/><sp/>*<sp/>View-value<sp/>no-good<sp/>literal</highlight></codeline>
+<codeline lineno="183"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="184"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="187" refid="classGecode_1_1ViewValNGL_1af68098131587292a8e5eb25c10cfe64a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1af68098131587292a8e5eb25c10cfe64a" kindref="member">ViewValNGL&lt;View,Val,pc&gt;::ViewValNGL</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View<sp/>x0,<sp/>Val<sp/>n0)</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>(home),<sp/>x(x0),<sp/>n(n0)<sp/>{}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="192" refid="classGecode_1_1ViewValNGL_1a855456710fb1879e6e7b0b3e9d135c8d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1af68098131587292a8e5eb25c10cfe64a" kindref="member">ViewValNGL&lt;View,Val,pc&gt;::ViewValNGL</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1ViewValNGL" kindref="compound">ViewValNGL</ref>&amp;<sp/>ngl)</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>(home,share,ngl),<sp/>n(ngl.n)<sp/>{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1a29e0b5c01dc7467d293e5a282caa8074" kindref="member">x</ref>.update(home,share,ngl.<ref refid="classGecode_1_1ViewValNGL_1a29e0b5c01dc7467d293e5a282caa8074" kindref="member">x</ref>);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199" refid="classGecode_1_1ViewValNGL_1ae57047793ad3211f80e899a6011895db" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1ae57047793ad3211f80e899a6011895db" kindref="member">ViewValNGL&lt;View,Val,pc&gt;::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>x.subscribe(home,p,pc);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205" refid="classGecode_1_1ViewValNGL_1a9b7543d29220e599e79f56a0bd774261" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1a9b7543d29220e599e79f56a0bd774261" kindref="member">ViewValNGL&lt;View,Val,pc&gt;::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>x.cancel(home,p,pc);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/>PropCond<sp/>pc&gt;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="classGecode_1_1ViewValNGL_1ad1eb07a0062850a3b83f474cdab8d27d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValNGL_1ad1eb07a0062850a3b83f474cdab8d27d" kindref="member">ViewValNGL&lt;View,Val,pc&gt;::dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<sp/><ref refid="classGecode_1_1NGL_1afd8655a06d89684571304621d06ffc50" kindref="member">NGL::dispose</ref>(home);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*this);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="219"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Generic<sp/>brancher<sp/>based<sp/>on<sp/>variable/value<sp/>selection</highlight></codeline>
+<codeline lineno="220"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="221"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::</ref></highlight></codeline>
+<codeline lineno="225" refid="classGecode_1_1ViewValBrancher_1ab0d73a199cda2c9c6e6c9e8134ee1aed" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">  ViewValBrancher</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray&lt;View&gt;</ref>&amp;<sp/>x,</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel&lt;View&gt;</ref>*<sp/>vs[n],<sp/></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/>vsc0,</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BranchFilter<sp/>bf,</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VarValPrint<sp/>vvp0)</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher</ref>&lt;View,n&gt;(home,x,vs,bf),<sp/>vsc(vsc0),<sp/>vvp(vvp0)<sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" kindref="member">vsc</ref>-&gt;<ref refid="classGecode_1_1ValSelCommitBase_1aabb0896e9be1dd51b09c86e7fb7a5634" kindref="member">notice</ref>())</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>home.<ref refid="classGecode_1_1Home_1a25526fc8f7e6ddd0d8a9b4eb83862c70" kindref="member">notice</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<ref refid="namespaceGecode_1a99c644746a8611a92ce7f82ff6e12bc9a1f784a3552a29808c4d566132b9a1875" kindref="member">AP_DISPOSE</ref>,</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a3cac53948c9a6217603eec85883f5933" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::</ref></highlight></codeline>
+<codeline lineno="239" refid="classGecode_1_1ViewValBrancher_1a3cac53948c9a6217603eec85883f5933" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1a3cac53948c9a6217603eec85883f5933" kindref="member">  post</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray&lt;View&gt;</ref>&amp;<sp/>x,</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel&lt;View&gt;</ref>*<sp/>vs[n],<sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/>vsc,</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BranchFilter<sp/>bf,</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VarValPrint<sp/>vvp)<sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher&lt;View,n,Val,a&gt;</ref>(home,x,vs,vsc,bf,vvp);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::</ref></highlight></codeline>
+<codeline lineno="249" refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" kindref="member">  ViewValBrancher</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>,<sp/><ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher&lt;View,n,Val,a&gt;</ref>&amp;<sp/>b)</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher</ref>&lt;View,n&gt;(home,shared,b),<sp/></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>vsc(b.vsc-&gt;copy(home,shared)),<sp/>vvp(b.vvp)<sp/>{}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref>*</highlight></codeline>
+<codeline lineno="255" refid="classGecode_1_1ViewValBrancher_1a022fe17f0b2e1c48799b97adfbcdf384" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a022fe17f0b2e1c48799b97adfbcdf384" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher&lt;View,n,Val,a&gt;</ref>(home,shared,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>*</highlight></codeline>
+<codeline lineno="261" refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::choice</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref><sp/>p<sp/>=<sp/><ref refid="classGecode_1_1ViewBrancher_1a3bccef15a969bd042419c9adf7d24728" kindref="member">ViewBrancher&lt;View,n&gt;::pos</ref>(home);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>View<sp/>v<sp/>=<sp/><ref refid="classGecode_1_1ViewBrancher_1a5326d83d4f34ed591f7c5e946b8d7fe5" kindref="member">ViewBrancher&lt;View,n&gt;::view</ref>(p);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,a,p,vsc-&gt;val(home,v,p.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>));</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>*</highlight></codeline>
+<codeline lineno="269" refid="classGecode_1_1ViewValBrancher_1a50ffb6bee3aa645335bfa8285211ebe0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::choice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref>&amp;<sp/>e)<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<sp/>home;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p;<sp/>e<sp/>&gt;&gt;<sp/>p;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>Val<sp/>v;<sp/>e<sp/>&gt;&gt;<sp/>v;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,a,p,v);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;</ref></highlight></codeline>
+<codeline lineno="279" refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882" kindref="member">  ::commit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b)<sp/>{</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;<sp/>pvc</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(c);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a93e4dea4e5e021b4f58d0ccc78ac1523" kindref="member">me_failed</ref>(vsc-&gt;commit(home,b,</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::view</ref>(pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>()),</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>().<ref refid="classGecode_1_1Pos_1a76dca77bffd691ac8f098b0951fc214c" kindref="member">pos</ref>,</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pvc.<ref refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" kindref="member">val</ref>()))<sp/></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>?<sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5a839b40c2e7ccebb2e61e92e274833089" kindref="member">ES_FAILED</ref><sp/>:<sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5a01d6fb1ec70479e8e413d5ecfd63e303" kindref="member">ES_OK</ref>;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>*</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;</ref></highlight></codeline>
+<codeline lineno="292" refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8" kindref="member">  ::ngl</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;<sp/>pvc</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(c);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vsc-&gt;ngl(home,b,</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::view</ref>(pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>()),pvc.<ref refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" kindref="member">val</ref>());</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;</ref></highlight></codeline>
+<codeline lineno="302" refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98" kindref="member">  ::print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>&amp;<sp/>c,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b,</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;<sp/>pvc</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1PosValChoice" kindref="compound">PosValChoice&lt;Val&gt;</ref>&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(c);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/>View<sp/>xi<sp/>=<sp/><ref refid="classGecode_1_1ViewBrancher_1a5326d83d4f34ed591f7c5e946b8d7fe5" kindref="member">ViewBrancher&lt;View,n&gt;::view</ref>(pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>());</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>View::VarType<sp/>y(<ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::view</ref>(pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>()).varimp());</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vvp<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>vvp(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,b,y,pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>().<ref refid="classGecode_1_1Pos_1a76dca77bffd691ac8f098b0951fc214c" kindref="member">pos</ref>,pvc.<ref refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" kindref="member">val</ref>(),o);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>vsc-&gt;print(home,b,xi,pvc.<ref refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" kindref="member">pos</ref>().<ref refid="classGecode_1_1Pos_1a76dca77bffd691ac8f098b0951fc214c" kindref="member">pos</ref>,pvc.<ref refid="classGecode_1_1PosValChoice_1aec40b076c46547454d266666c45aa84f" kindref="member">val</ref>(),o);</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a&gt;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="316" refid="classGecode_1_1ViewValBrancher_1a5927b457442e8fbab4d9737b12df2c06" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ViewValBrancher_1a5927b457442e8fbab4d9737b12df2c06" kindref="member">ViewValBrancher&lt;View,n,Val,a&gt;::dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vsc-&gt;notice())</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>home.<ref refid="classGecode_1_1Space_1aab89b878dbffb5b16a50ad19add652f7" kindref="member">ignore</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<ref refid="namespaceGecode_1a99c644746a8611a92ce7f82ff6e12bc9a1f784a3552a29808c4d566132b9a1875" kindref="member">AP_DISPOSE</ref>,</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/>vsc-&gt;dispose(home);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<sp/><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher&lt;View,n&gt;::dispose</ref>(home);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="classGecode_1_1ViewValBrancher" kindref="compound">ViewValBrancher&lt;View,n,Val,a&gt;</ref>);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>kernel-branch</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/kernel/brancher-view-val.hpp"/>
+  </compounddef>
+</doxygen>

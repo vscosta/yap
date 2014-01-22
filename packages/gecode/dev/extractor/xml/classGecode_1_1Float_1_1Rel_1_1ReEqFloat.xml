@@ -1,0 +1,292 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat" kind="class" prot="public">
+    <compoundname>Gecode::Float::Rel::ReEqFloat</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ReUnaryPropagator" prot="public" virt="non-virtual">Gecode::Int::ReUnaryPropagator&lt; View, PC_FLOAT_BND, CtrlView &gt;</basecompoundref>
+    <includes refid="float_2rel_8hh" local="no">rel.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+      <param>
+        <type>class CtrlView</type>
+      </param>
+      <param>
+        <type><ref refid="namespaceGecode_1a8904e2a3f216089daeaa60652a6429a5" kindref="member">ReifyMode</ref></type>
+        <declname>rm</declname>
+        <defname>rm</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a4fbf17c438c1da39265231ca4581cb97" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> constant to check. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="161" column="1" bodyfile="/usr/include/gecode/float/rel.hh" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1ab661020b147619f793e60b8d21c62095" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::ReEqFloat</definition>
+        <argsstring>(Space &amp;home, bool share, ReEqFloat &amp;p)</argsstring>
+        <name>ReEqFloat</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat" kindref="compound">ReEqFloat</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="163" column="1" bodyfile="/usr/include/gecode/float/rel/eq.hpp" bodystart="310" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1abf740f1b02277a99d5e29c1fadc4906a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::ReEqFloat</definition>
+        <argsstring>(Home home, View x, FloatVal c, CtrlView b)</argsstring>
+        <name>ReEqFloat</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="165" column="1" bodyfile="/usr/include/gecode/float/rel/eq.hpp" bodystart="284" bodyend="285"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a205502d487658833d75d38d41b24365a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="168" column="1" bodyfile="/usr/include/gecode/float/rel/eq.hpp" bodystart="315" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a2fab816036ea268035dba88a5a9e0ed3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="170" column="1" bodyfile="/usr/include/gecode/float/rel/eq.hpp" bodystart="321" bodyend="341"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a9127706e4d74dec794d31b9d4312fdac" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;::post</definition>
+        <argsstring>(Home home, View x, FloatVal c, CtrlView b)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Post bounds consistent propagator <formula id="22">$ (x = c)\Leftrightarrow b$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/rel.hh" line="172" column="1" bodyfile="/usr/include/gecode/float/rel/eq.hpp" bodystart="289" bodyend="305"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Reified bounds consistent equality with float propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/float/rel.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="5844">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_FLOAT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="5845" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5845">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5846" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5843">
+        <label>Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat"/>
+        <childnode refid="5844" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5846">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5847" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5847">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5849">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_FLOAT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="5850" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5853" relation="usage">
+          <edgelabel>b</edgelabel>
+        </childnode>
+        <childnode refid="5854" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+      </node>
+      <node id="5854">
+        <label>View</label>
+      </node>
+      <node id="5855">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="5856" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="5850">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5851" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5852" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="5848">
+        <label>Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat"/>
+        <childnode refid="5849" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5855" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+      </node>
+      <node id="5851">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5852" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5853">
+        <label>CtrlView</label>
+      </node>
+      <node id="5852">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="5856">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/rel.hh" line="155" column="1" bodyfile="/usr/include/gecode/float/rel.hh" bodystart="155" bodyend="173"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a67942f5e0ce29ad2ed50bcdbbf8d0a21" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>b</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a4fbf17c438c1da39265231ca4581cb97" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a205502d487658833d75d38d41b24365a" prot="public" virt="virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a6edc70dd620caa8ae23c925e3d56b094" prot="public" virt="virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1aedaf560e612a72d2c50468e178a0e774" prot="public" virt="virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a9127706e4d74dec794d31b9d4312fdac" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>post</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1a2fab816036ea268035dba88a5a9e0ed3" prot="public" virt="virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1ab661020b147619f793e60b8d21c62095" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>ReEqFloat</name></member>
+      <member refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat_1abf740f1b02277a99d5e29c1fadc4906a" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>ReEqFloat</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1af6e31a70189c8a39e12eefe27e365be4" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1adc287dd26211932234555a2899c1b02b" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a69a8ed8a8cb59a7e78c1d4cf4a98392d" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1ac299c8d19dedc67b54742776d36b03d4" prot="protected" virt="non-virtual"><scope>Gecode::Float::Rel::ReEqFloat</scope><name>x0</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

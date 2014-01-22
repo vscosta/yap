@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1save__state" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::save_state</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Rounding</basecompoundref>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Rounding</declname>
+        <defname>Rounding</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structboost_1_1numeric_1_1interval__lib_1_1save__state_1aa85ed351597bc7eff594118dd3406584" prot="public" static="no">
+        <type><ref refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1save__state__unprotected" kindref="compound">detail::save_state_unprotected</ref>&lt; Rounding &gt;</type>
+        <definition>typedef detail::save_state_unprotected&lt;Rounding&gt; boost::numeric::interval_lib::save_state&lt; Rounding &gt;::unprotected_rounding</definition>
+        <argsstring></argsstring>
+        <name>unprotected_rounding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="84" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structboost_1_1numeric_1_1interval__lib_1_1save__state_1aaf5eeae5c6929a1ed73d81198d4fcbcf" prot="public" static="no" mutable="no">
+        <type>Rounding::rounding_mode</type>
+        <definition>Rounding::rounding_mode boost::numeric::interval_lib::save_state&lt; Rounding &gt;::mode</definition>
+        <argsstring></argsstring>
+        <name>mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="78" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1save__state_1ae66bc9f23b79945073a5b8977acc3b02" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>boost::numeric::interval_lib::save_state&lt; Rounding &gt;::save_state</definition>
+        <argsstring>()</argsstring>
+        <name>save_state</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="79" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="79" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1save__state_1a7d5138040204a756d29afb980d15fdd2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>boost::numeric::interval_lib::save_state&lt; Rounding &gt;::~save_state</definition>
+        <argsstring>()</argsstring>
+        <name>~save_state</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="83" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="83" bodyend="83"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6278">
+        <label>Rounding</label>
+      </node>
+      <node id="6277">
+        <label>boost::numeric::interval_lib::save_state&lt; Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1save__state"/>
+        <childnode refid="6278" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6280">
+        <label>Rounding</label>
+      </node>
+      <node id="6279">
+        <label>boost::numeric::interval_lib::save_state&lt; Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1save__state"/>
+        <childnode refid="6280" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="77" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="76" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1save__state_1aaf5eeae5c6929a1ed73d81198d4fcbcf" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::save_state</scope><name>mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1save__state_1ae66bc9f23b79945073a5b8977acc3b02" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::save_state</scope><name>save_state</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1save__state_1aa85ed351597bc7eff594118dd3406584" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::save_state</scope><name>unprotected_rounding</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1save__state_1a7d5138040204a756d29afb980d15fdd2" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::save_state</scope><name>~save_state</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

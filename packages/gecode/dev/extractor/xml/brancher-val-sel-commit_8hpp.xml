@@ -1,0 +1,1087 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="brancher-val-sel-commit_8hpp" kind="file">
+    <compoundname>brancher-val-sel-commit.hpp</compoundname>
+    <includedby refid="kernel_8hh" local="no">/usr/include/gecode/kernel.hh</includedby>
+    <invincdepgraph>
+      <node id="26465">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26448">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="26473">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="26474" relation="include">
+        </childnode>
+      </node>
+      <node id="26471">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="26472" relation="include">
+        </childnode>
+        <childnode refid="26473" relation="include">
+        </childnode>
+      </node>
+      <node id="26472">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="26448" relation="include">
+        </childnode>
+      </node>
+      <node id="26423">
+        <label>/usr/include/gecode/kernel/brancher-val-sel-commit.hpp</label>
+        <link refid="brancher-val-sel-commit.hpp"/>
+        <childnode refid="26424" relation="include">
+        </childnode>
+      </node>
+      <node id="26425">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="26426" relation="include">
+        </childnode>
+        <childnode refid="26427" relation="include">
+        </childnode>
+      </node>
+      <node id="26454">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="26455" relation="include">
+        </childnode>
+      </node>
+      <node id="26503">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="26504" relation="include">
+        </childnode>
+      </node>
+      <node id="26491">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="26475" relation="include">
+        </childnode>
+      </node>
+      <node id="26499">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="26500">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="26499" relation="include">
+        </childnode>
+      </node>
+      <node id="26483">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="26497">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="26472" relation="include">
+        </childnode>
+      </node>
+      <node id="26463">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="26506">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="26464">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="26460" relation="include">
+        </childnode>
+        <childnode refid="26461" relation="include">
+        </childnode>
+        <childnode refid="26454" relation="include">
+        </childnode>
+        <childnode refid="26465" relation="include">
+        </childnode>
+        <childnode refid="26466" relation="include">
+        </childnode>
+        <childnode refid="26467" relation="include">
+        </childnode>
+        <childnode refid="26468" relation="include">
+        </childnode>
+        <childnode refid="26469" relation="include">
+        </childnode>
+      </node>
+      <node id="26441">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="26531">
+        <label>/usr/include/gecode/search/sequential/bab.hh</label>
+        <link refid="sequential_2bab_8hh_source"/>
+      </node>
+      <node id="26520">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="26508" relation="include">
+        </childnode>
+        <childnode refid="26477" relation="include">
+        </childnode>
+        <childnode refid="26518" relation="include">
+        </childnode>
+        <childnode refid="26519" relation="include">
+        </childnode>
+        <childnode refid="26521" relation="include">
+        </childnode>
+      </node>
+      <node id="26510">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="26446">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="26493">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="26482" relation="include">
+        </childnode>
+      </node>
+      <node id="26478">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="26438">
+        <label>/usr/include/gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="26437" relation="include">
+        </childnode>
+        <childnode refid="26436" relation="include">
+        </childnode>
+      </node>
+      <node id="26485">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="26486" relation="include">
+        </childnode>
+        <childnode refid="26487" relation="include">
+        </childnode>
+        <childnode refid="26488" relation="include">
+        </childnode>
+        <childnode refid="26448" relation="include">
+        </childnode>
+        <childnode refid="26489" relation="include">
+        </childnode>
+        <childnode refid="26490" relation="include">
+        </childnode>
+        <childnode refid="26464" relation="include">
+        </childnode>
+        <childnode refid="26491" relation="include">
+        </childnode>
+        <childnode refid="26475" relation="include">
+        </childnode>
+        <childnode refid="26492" relation="include">
+        </childnode>
+        <childnode refid="26476" relation="include">
+        </childnode>
+        <childnode refid="26479" relation="include">
+        </childnode>
+        <childnode refid="26493" relation="include">
+        </childnode>
+        <childnode refid="26494" relation="include">
+        </childnode>
+        <childnode refid="26456" relation="include">
+        </childnode>
+        <childnode refid="26495" relation="include">
+        </childnode>
+        <childnode refid="26466" relation="include">
+        </childnode>
+        <childnode refid="26467" relation="include">
+        </childnode>
+        <childnode refid="26468" relation="include">
+        </childnode>
+        <childnode refid="26496" relation="include">
+        </childnode>
+        <childnode refid="26469" relation="include">
+        </childnode>
+      </node>
+      <node id="26504">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="26425" relation="include">
+        </childnode>
+      </node>
+      <node id="26435">
+        <label>/usr/include/gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="26436" relation="include">
+        </childnode>
+        <childnode refid="26438" relation="include">
+        </childnode>
+        <childnode refid="26439" relation="include">
+        </childnode>
+        <childnode refid="26443" relation="include">
+        </childnode>
+      </node>
+      <node id="26487">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="26448" relation="include">
+        </childnode>
+      </node>
+      <node id="26428">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="26429" relation="include">
+        </childnode>
+        <childnode refid="26430" relation="include">
+        </childnode>
+        <childnode refid="26431" relation="include">
+        </childnode>
+        <childnode refid="26432" relation="include">
+        </childnode>
+      </node>
+      <node id="26532">
+        <label>/usr/include/gecode/search/sequential/dfs.hh</label>
+        <link refid="sequential_2dfs_8hh_source"/>
+      </node>
+      <node id="26486">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="26448" relation="include">
+        </childnode>
+      </node>
+      <node id="26482">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="26426">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="26524">
+        <label>/usr/include/gecode/search.hh</label>
+        <link refid="search_8hh_source"/>
+        <childnode refid="26504" relation="include">
+        </childnode>
+        <childnode refid="26445" relation="include">
+        </childnode>
+        <childnode refid="26525" relation="include">
+        </childnode>
+        <childnode refid="26533" relation="include">
+        </childnode>
+        <childnode refid="26527" relation="include">
+        </childnode>
+        <childnode refid="26526" relation="include">
+        </childnode>
+        <childnode refid="26531" relation="include">
+        </childnode>
+        <childnode refid="26532" relation="include">
+        </childnode>
+        <childnode refid="26530" relation="include">
+        </childnode>
+        <childnode refid="26535" relation="include">
+        </childnode>
+        <childnode refid="26536" relation="include">
+        </childnode>
+      </node>
+      <node id="26440">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="26441" relation="include">
+        </childnode>
+        <childnode refid="26442" relation="include">
+        </childnode>
+      </node>
+      <node id="26495">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26529">
+        <label>/usr/include/gecode/search/parallel/dfs.hh</label>
+        <link refid="parallel_2dfs_8hh_source"/>
+      </node>
+      <node id="26514">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="26462">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="26443">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="26440" relation="include">
+        </childnode>
+      </node>
+      <node id="26467">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26490">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="26462" relation="include">
+        </childnode>
+      </node>
+      <node id="26477">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="26424">
+        <label>/usr/include/gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="26425" relation="include">
+        </childnode>
+        <childnode refid="26428" relation="include">
+        </childnode>
+        <childnode refid="26433" relation="include">
+        </childnode>
+        <childnode refid="26434" relation="include">
+        </childnode>
+        <childnode refid="26444" relation="include">
+        </childnode>
+        <childnode refid="26443" relation="include">
+        </childnode>
+        <childnode refid="26435" relation="include">
+        </childnode>
+        <childnode refid="26445" relation="include">
+        </childnode>
+        <childnode refid="26447" relation="include">
+        </childnode>
+        <childnode refid="26522" relation="include">
+        </childnode>
+        <childnode refid="26523" relation="include">
+        </childnode>
+        <childnode refid="26503" relation="include">
+        </childnode>
+        <childnode refid="26524" relation="include">
+        </childnode>
+        <childnode refid="26513" relation="include">
+        </childnode>
+      </node>
+      <node id="26516">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="26439">
+        <label>/usr/include/gecode/gist/nodestats.hh</label>
+        <link refid="nodestats_8hh_source"/>
+        <childnode refid="26440" relation="include">
+        </childnode>
+      </node>
+      <node id="26519">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="26477" relation="include">
+        </childnode>
+        <childnode refid="26518" relation="include">
+        </childnode>
+      </node>
+      <node id="26468">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26476">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="26477" relation="include">
+        </childnode>
+      </node>
+      <node id="26460">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="26523">
+        <label>/usr/include/gecode/kernel/wait.hh</label>
+        <link refid="wait_8hh_source"/>
+      </node>
+      <node id="26481">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="26442">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="26474">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="26447" relation="include">
+        </childnode>
+      </node>
+      <node id="26449">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="26536">
+        <label>/usr/include/gecode/search/worker.hh</label>
+        <link refid="worker_8hh_source"/>
+        <childnode refid="26527" relation="include">
+        </childnode>
+        <childnode refid="26526" relation="include">
+        </childnode>
+        <childnode refid="26531" relation="include">
+        </childnode>
+        <childnode refid="26532" relation="include">
+        </childnode>
+        <childnode refid="26530" relation="include">
+        </childnode>
+      </node>
+      <node id="26450">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="26451" relation="include">
+        </childnode>
+        <childnode refid="26456" relation="include">
+        </childnode>
+        <childnode refid="26458" relation="include">
+        </childnode>
+      </node>
+      <node id="26507">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="26506" relation="include">
+        </childnode>
+      </node>
+      <node id="26508">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="26506" relation="include">
+        </childnode>
+      </node>
+      <node id="26494">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="26482" relation="include">
+        </childnode>
+      </node>
+      <node id="26433">
+        <label>/usr/include/gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="26434" relation="include">
+        </childnode>
+      </node>
+      <node id="26480">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="26481" relation="include">
+        </childnode>
+      </node>
+      <node id="26526">
+        <label>/usr/include/gecode/search/parallel/path.hh</label>
+        <link refid="parallel_2path_8hh_source"/>
+        <childnode refid="26527" relation="include">
+        </childnode>
+      </node>
+      <node id="26445">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="26441" relation="include">
+        </childnode>
+        <childnode refid="26442" relation="include">
+        </childnode>
+        <childnode refid="26446" relation="include">
+        </childnode>
+        <childnode refid="26444" relation="include">
+        </childnode>
+        <childnode refid="26443" relation="include">
+        </childnode>
+      </node>
+      <node id="26459">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="26457">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="26489">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="26450" relation="include">
+        </childnode>
+      </node>
+      <node id="26496">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="26533">
+        <label>/usr/include/gecode/search/meta/rbs.hh</label>
+        <link refid="rbs_8hh_source"/>
+        <childnode refid="26534" relation="include">
+        </childnode>
+      </node>
+      <node id="26528">
+        <label>/usr/include/gecode/search/parallel/bab.hh</label>
+        <link refid="parallel_2bab_8hh_source"/>
+      </node>
+      <node id="26502">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="26464" relation="include">
+        </childnode>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26451">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="26452" relation="include">
+        </childnode>
+      </node>
+      <node id="26469">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="26470" relation="include">
+        </childnode>
+      </node>
+      <node id="26432">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="26429" relation="include">
+        </childnode>
+      </node>
+      <node id="26444">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="26527">
+        <label>/usr/include/gecode/search/parallel/engine.hh</label>
+        <link refid="engine_8hh_source"/>
+        <childnode refid="26528" relation="include">
+        </childnode>
+        <childnode refid="26529" relation="include">
+        </childnode>
+      </node>
+      <node id="26429">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="26427">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="26455">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="26511">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="26510" relation="include">
+        </childnode>
+      </node>
+      <node id="26436">
+        <label>/usr/include/gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="26437" relation="include">
+        </childnode>
+      </node>
+      <node id="26434">
+        <label>/usr/include/gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="26435" relation="include">
+        </childnode>
+      </node>
+      <node id="26517">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="26431">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="26530">
+        <label>/usr/include/gecode/search/sequential/path.hh</label>
+        <link refid="sequential_2path_8hh_source"/>
+        <childnode refid="26531" relation="include">
+        </childnode>
+        <childnode refid="26532" relation="include">
+        </childnode>
+      </node>
+      <node id="26534">
+        <label>/usr/include/gecode/search/rbs.hpp</label>
+        <link refid="rbs_8hpp_source"/>
+        <childnode refid="26524" relation="include">
+        </childnode>
+      </node>
+      <node id="26501">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="26482" relation="include">
+        </childnode>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26447">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="26425" relation="include">
+        </childnode>
+        <childnode refid="26429" relation="include">
+        </childnode>
+        <childnode refid="26431" relation="include">
+        </childnode>
+        <childnode refid="26432" relation="include">
+        </childnode>
+        <childnode refid="26428" relation="include">
+        </childnode>
+        <childnode refid="26445" relation="include">
+        </childnode>
+        <childnode refid="26448" relation="include">
+        </childnode>
+        <childnode refid="26449" relation="include">
+        </childnode>
+        <childnode refid="26450" relation="include">
+        </childnode>
+        <childnode refid="26459" relation="include">
+        </childnode>
+        <childnode refid="26460" relation="include">
+        </childnode>
+        <childnode refid="26461" relation="include">
+        </childnode>
+        <childnode refid="26462" relation="include">
+        </childnode>
+        <childnode refid="26463" relation="include">
+        </childnode>
+        <childnode refid="26464" relation="include">
+        </childnode>
+        <childnode refid="26471" relation="include">
+        </childnode>
+        <childnode refid="26475" relation="include">
+        </childnode>
+        <childnode refid="26476" relation="include">
+        </childnode>
+        <childnode refid="26478" relation="include">
+        </childnode>
+        <childnode refid="26479" relation="include">
+        </childnode>
+        <childnode refid="26455" relation="include">
+        </childnode>
+        <childnode refid="26480" relation="include">
+        </childnode>
+        <childnode refid="26452" relation="include">
+        </childnode>
+        <childnode refid="26482" relation="include">
+        </childnode>
+        <childnode refid="26483" relation="include">
+        </childnode>
+        <childnode refid="26457" relation="include">
+        </childnode>
+        <childnode refid="26484" relation="include">
+        </childnode>
+        <childnode refid="26485" relation="include">
+        </childnode>
+        <childnode refid="26496" relation="include">
+        </childnode>
+        <childnode refid="26470" relation="include">
+        </childnode>
+        <childnode refid="26497" relation="include">
+        </childnode>
+        <childnode refid="26498" relation="include">
+        </childnode>
+        <childnode refid="26501" relation="include">
+        </childnode>
+        <childnode refid="26502" relation="include">
+        </childnode>
+        <childnode refid="26503" relation="include">
+        </childnode>
+        <childnode refid="26505" relation="include">
+        </childnode>
+        <childnode refid="26507" relation="include">
+        </childnode>
+        <childnode refid="26508" relation="include">
+        </childnode>
+        <childnode refid="26509" relation="include">
+        </childnode>
+        <childnode refid="26511" relation="include">
+        </childnode>
+        <childnode refid="26512" relation="include">
+        </childnode>
+        <childnode refid="26513" relation="include">
+        </childnode>
+      </node>
+      <node id="26456">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26458">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26498">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="26499" relation="include">
+        </childnode>
+        <childnode refid="26500" relation="include">
+        </childnode>
+      </node>
+      <node id="26479">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="26525">
+        <label>/usr/include/gecode/search/meta/nogoods.hh</label>
+        <link refid="nogoods_8hh_source"/>
+        <childnode refid="26526" relation="include">
+        </childnode>
+        <childnode refid="26530" relation="include">
+        </childnode>
+      </node>
+      <node id="26470">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="26512">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="26510" relation="include">
+        </childnode>
+      </node>
+      <node id="26484">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="26466">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="26457" relation="include">
+        </childnode>
+      </node>
+      <node id="26430">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="26521">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="26437">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor_8hh_source"/>
+      </node>
+      <node id="26509">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="26510" relation="include">
+        </childnode>
+      </node>
+      <node id="26453">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="26448" relation="include">
+        </childnode>
+      </node>
+      <node id="26452">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="26453" relation="include">
+        </childnode>
+        <childnode refid="26448" relation="include">
+        </childnode>
+        <childnode refid="26454" relation="include">
+        </childnode>
+      </node>
+      <node id="26475">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="26505">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="26506" relation="include">
+        </childnode>
+      </node>
+      <node id="26492">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="26476" relation="include">
+        </childnode>
+      </node>
+      <node id="26513">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="26514" relation="include">
+        </childnode>
+        <childnode refid="26508" relation="include">
+        </childnode>
+        <childnode refid="26506" relation="include">
+        </childnode>
+        <childnode refid="26515" relation="include">
+        </childnode>
+        <childnode refid="26516" relation="include">
+        </childnode>
+        <childnode refid="26477" relation="include">
+        </childnode>
+        <childnode refid="26509" relation="include">
+        </childnode>
+        <childnode refid="26511" relation="include">
+        </childnode>
+        <childnode refid="26512" relation="include">
+        </childnode>
+        <childnode refid="26510" relation="include">
+        </childnode>
+        <childnode refid="26481" relation="include">
+        </childnode>
+        <childnode refid="26517" relation="include">
+        </childnode>
+        <childnode refid="26518" relation="include">
+        </childnode>
+        <childnode refid="26519" relation="include">
+        </childnode>
+        <childnode refid="26520" relation="include">
+        </childnode>
+        <childnode refid="26521" relation="include">
+        </childnode>
+      </node>
+      <node id="26522">
+        <label>/usr/include/gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="26447" relation="include">
+        </childnode>
+        <childnode refid="26513" relation="include">
+        </childnode>
+      </node>
+      <node id="26535">
+        <label>/usr/include/gecode/search/support.hh</label>
+        <link refid="search_2support_8hh_source"/>
+        <childnode refid="26527" relation="include">
+        </childnode>
+        <childnode refid="26526" relation="include">
+        </childnode>
+        <childnode refid="26534" relation="include">
+        </childnode>
+        <childnode refid="26531" relation="include">
+        </childnode>
+        <childnode refid="26532" relation="include">
+        </childnode>
+        <childnode refid="26530" relation="include">
+        </childnode>
+      </node>
+      <node id="26461">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="26518">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="26519" relation="include">
+        </childnode>
+      </node>
+      <node id="26488">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="26448" relation="include">
+        </childnode>
+      </node>
+      <node id="26515">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1ValSelCommitBase" prot="public">Gecode::ValSelCommitBase</innerclass>
+    <innerclass refid="classGecode_1_1ValSelCommit" prot="public">Gecode::ValSelCommit</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>author:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2012</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-07-04<sp/>17:03:13<sp/>+0200<sp/>(Thu,<sp/>04<sp/>Jul<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13801<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>_View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>_Val&gt;</highlight></codeline>
+<codeline lineno="48" refid="classGecode_1_1ValSelCommitBase" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref><sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="51" refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_View<sp/><ref refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" kindref="member">View</ref>;</highlight></codeline>
+<codeline lineno="53" refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Val<sp/><ref refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" kindref="member">Val</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a358581edaeef98017ed1f5c84dd7f878" kindref="member">ValSelCommitBase</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>&amp;<sp/>vb);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a358581edaeef98017ed1f5c84dd7f878" kindref="member">ValSelCommitBase</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>,<sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>&amp;<sp/>vsc);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" kindref="member">Val</ref><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a60c87b6c54ca414f93cef96cab5910f3" kindref="member">val</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" kindref="member">View</ref><sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a07da4a911e5ea1512ce13eaa174e9466" kindref="member">commit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,<sp/></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" kindref="member">View</ref><sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/><ref refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" kindref="member">Val</ref><sp/>n)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>*<sp/><ref refid="classGecode_1_1ValSelCommitBase_1a39c438b0d8f03ce3ad0058d15b909d36" kindref="member">ngl</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" kindref="member">View</ref><sp/>x,<sp/><ref refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" kindref="member">Val</ref><sp/>n)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a94cfc929da76a464e4a98251720eb007" kindref="member">print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a83afac14ab9952d1e2cec017f3e6ae29" kindref="member">View</ref><sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase_1aea76d86174df5df2832725f688c9ce91" kindref="member">Val</ref>&amp;<sp/>n,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>*<sp/><ref refid="classGecode_1_1ValSelCommitBase_1aacf724ce06eb5fdbf07c89b6f898268f" kindref="member">copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase_1aabb0896e9be1dd51b09c86e7fb7a5634" kindref="member">notice</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a933ce7d2e4cb215482da500c82d8da41" kindref="member">dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="79"></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="keyword">operator</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s,<sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">operator</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>p,<sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">operator</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>p);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1ValSelCommit" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit</ref><sp/></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt;typename<sp/>ValSel::View,typename<sp/>ValSel::Val&gt;<sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" kindref="member">ValSel::View</ref>,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSel_1a1ab3056f51deae75a156bc1fa7d1b993" kindref="member">ValSel::Val</ref>&gt;::Val<sp/>Val;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" kindref="member">ValSel::View</ref>,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSel_1a1ab3056f51deae75a156bc1fa7d1b993" kindref="member">ValSel::Val</ref>&gt;::View<sp/>View;</highlight></codeline>
+<codeline lineno="99" refid="classGecode_1_1ValSelCommit_1a4576358c91622677d2824cec299e3d8b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSel" kindref="compound">ValSel</ref><sp/><ref refid="classGecode_1_1ValSelCommit_1a4576358c91622677d2824cec299e3d8b" kindref="member">s</ref>;</highlight></codeline>
+<codeline lineno="101" refid="classGecode_1_1ValSelCommit_1a41cf21f0fa21ec80f28fd94a0f09ad27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValCommit" kindref="compound">ValCommit</ref><sp/><ref refid="classGecode_1_1ValSelCommit_1a41cf21f0fa21ec80f28fd94a0f09ad27" kindref="member">c</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1add6ce08783cb7cf259f2deea45ef4e15" kindref="member">ValSelCommit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>&amp;<sp/>vb);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1add6ce08783cb7cf259f2deea45ef4e15" kindref="member">ValSelCommit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>,<sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;</ref>&amp;<sp/>vsc);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Val<sp/><ref refid="classGecode_1_1ValSelCommit_1a9c6f3f7679c37ab4d87d1bc39645142b" kindref="member">val</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/><ref refid="classGecode_1_1ValSelCommit_1aaa88da2b45021b8c8889774c1219ee72" kindref="member">commit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,<sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/>Val<sp/>n);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>*<sp/><ref refid="classGecode_1_1ValSelCommit_1a8e16673cd1d2e4a60056579da900a6c6" kindref="member">ngl</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>View<sp/>x,<sp/>Val<sp/>n)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommit_1a45adf5057b3a8e523f785cc675559772" kindref="member">print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>n,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;</ref>*<sp/><ref refid="classGecode_1_1ValSelCommit_1a14a40b3b2acc04506a4af17a865bfc2c" kindref="member">copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommit_1ade55ceb17f72120c27ca1730f728f471" kindref="member">notice</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValSelCommit_1adcfde640fb7366091d76cffbdb86af69" kindref="member">dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="131" refid="classGecode_1_1ValSelCommitBase_1a358581edaeef98017ed1f5c84dd7f878" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase_1a358581edaeef98017ed1f5c84dd7f878" kindref="member">ValSelCommitBase&lt;View,Val&gt;::ValSelCommitBase</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>&amp;)<sp/>{}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;::</ref></highlight></codeline>
+<codeline lineno="135" refid="classGecode_1_1ValSelCommitBase_1ab8306d78f1b033a58a49d21267bcf8da" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">    ValSelCommitBase</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;</ref>&amp;)<sp/>{}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="classGecode_1_1ValSelCommitBase_1a05ac49867bde8d48fc2acc82a3690315" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;::operator</ref><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*)<sp/>{}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="classGecode_1_1ValSelCommitBase_1a9aa565913196d07a049954045650f083" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;::operator</ref><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*,<sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;)<sp/>{}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Val&gt;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*</highlight></codeline>
+<codeline lineno="145" refid="classGecode_1_1ValSelCommitBase_1a0ee14246336933185a961486b0ee0069" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase&lt;View,Val&gt;::operator</ref><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s,<sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>home.ralloc(s);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="154" refid="classGecode_1_1ValSelCommit_1add6ce08783cb7cf259f2deea45ef4e15" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;::ValSelCommit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>&amp;<sp/>vb)<sp/></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt;View,Val&gt;(home,vb),<sp/>s(home,vb),<sp/>c(home,vb)<sp/>{}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="160" refid="classGecode_1_1ValSelCommit_1a1696cad131e573147b35d5a9d21025a9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1add6ce08783cb7cf259f2deea45ef4e15" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::ValSelCommit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>,<sp/></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;</ref>&amp;<sp/>vsc)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt;View,Val&gt;(home,shared,vsc),</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s(home,shared,vsc.s),<sp/>c(home,shared,vsc.c)<sp/>{}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ValSelCommit&lt;ValSel,ValCommit&gt;::Val</highlight></codeline>
+<codeline lineno="167" refid="classGecode_1_1ValSelCommit_1a9c6f3f7679c37ab4d87d1bc39645142b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1a9c6f3f7679c37ab4d87d1bc39645142b" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::val</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s.val(home,x,i);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="173" refid="classGecode_1_1ValSelCommit_1aaa88da2b45021b8c8889774c1219ee72" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1aaa88da2b45021b8c8889774c1219ee72" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::commit</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,<sp/></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/>Val<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>c.commit(home,a,x,i,n);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref>*<sp/></highlight></codeline>
+<codeline lineno="180" refid="classGecode_1_1ValSelCommit_1a8e16673cd1d2e4a60056579da900a6c6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1a8e16673cd1d2e4a60056579da900a6c6" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::ngl</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>View<sp/>x,<sp/>Val<sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>c.ngl(home,<sp/>a,<sp/>x,<sp/>n);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187" refid="classGecode_1_1ValSelCommit_1a45adf5057b3a8e523f785cc675559772" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1a45adf5057b3a8e523f785cc675559772" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::print</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a,<sp/></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Val&amp;<sp/>n,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ostream&amp;<sp/>o)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>c.print(home,a,x,i,n,o);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;</ref>*</highlight></codeline>
+<codeline lineno="195" refid="classGecode_1_1ValSelCommit_1a14a40b3b2acc04506a4af17a865bfc2c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1a14a40b3b2acc04506a4af17a865bfc2c" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1ValSelCommit" kindref="compound">ValSelCommit&lt;ValSel,ValCommit&gt;</ref>(home,shared,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="classGecode_1_1ValSelCommit_1ade55ceb17f72120c27ca1730f728f471" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1ade55ceb17f72120c27ca1730f728f471" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::notice</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s.notice()<sp/>||<sp/>c.notice();</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValSel,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>ValCommit&gt;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207" refid="classGecode_1_1ValSelCommit_1adcfde640fb7366091d76cffbdb86af69" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1ValSelCommit_1adcfde640fb7366091d76cffbdb86af69" kindref="member">ValSelCommit&lt;ValSel,ValCommit&gt;::dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>s.dispose(home);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>c.dispose(home);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>kernel-branch</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/kernel/brancher-val-sel-commit.hpp"/>
+  </compounddef>
+</doxygen>

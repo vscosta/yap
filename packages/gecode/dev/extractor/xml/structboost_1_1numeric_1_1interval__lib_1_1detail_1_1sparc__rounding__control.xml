@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::detail::sparc_rounding_control</compoundname>
+    <derivedcompoundref refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01double_01_4" prot="public" virt="non-virtual">boost::numeric::interval_lib::rounding_control&lt; double &gt;</derivedcompoundref>
+    <derivedcompoundref refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01float_01_4" prot="public" virt="non-virtual">boost::numeric::interval_lib::rounding_control&lt; float &gt;</derivedcompoundref>
+    <derivedcompoundref refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01long_01double_01_4" prot="public" virt="non-virtual">boost::numeric::interval_lib::rounding_control&lt; long double &gt;</derivedcompoundref>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1aa23c782fe137b067b49e6f98e4cb842f" prot="public" static="no">
+        <type>unsigned int</type>
+        <definition>typedef unsigned int boost::numeric::interval_lib::detail::sparc_rounding_control::rounding_mode</definition>
+        <argsstring></argsstring>
+        <name>rounding_mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="32" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1af7919ecf2a85ae6f2bcaf4e9e4daff99" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::set_rounding_mode</definition>
+        <argsstring>(const rounding_mode &amp;mode)</argsstring>
+        <name>set_rounding_mode</name>
+        <param>
+          <type>const rounding_mode &amp;</type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="34" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="34" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a28bf635416992ab7927f27b8e0603fc6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::get_rounding_mode</definition>
+        <argsstring>(rounding_mode &amp;mode)</argsstring>
+        <name>get_rounding_mode</name>
+        <param>
+          <type>rounding_mode &amp;</type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="48" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="48" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a6eb38f70667ef7ab95ac34c56dfc426f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::downward</definition>
+        <argsstring>()</argsstring>
+        <name>downward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="68" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="68" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a6c3476e8a246fa1e43fb7352b4197096" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::upward</definition>
+        <argsstring>()</argsstring>
+        <name>upward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="69" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a94fabb6dfd681dd51001c079eaf56878" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::to_nearest</definition>
+        <argsstring>()</argsstring>
+        <name>to_nearest</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="70" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="70" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a55056405408d5a206c9c00554acded24" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::detail::sparc_rounding_control::toward_zero</definition>
+        <argsstring>()</argsstring>
+        <name>toward_zero</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="71" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="71" bodyend="71"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6629">
+        <label>boost::numeric::interval_lib::detail::sparc_rounding_control</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control"/>
+      </node>
+      <node id="6631">
+        <label>boost::numeric::interval_lib::rounding_control&lt; float &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01float_01_4"/>
+        <childnode refid="6629" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6630">
+        <label>boost::numeric::interval_lib::rounding_control&lt; double &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01double_01_4"/>
+        <childnode refid="6629" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6632">
+        <label>boost::numeric::interval_lib::rounding_control&lt; long double &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_3_01long_01double_01_4"/>
+        <childnode refid="6629" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" line="31" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/sparc_rounding_control.hpp" bodystart="30" bodyend="73"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a6eb38f70667ef7ab95ac34c56dfc426f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>downward</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a28bf635416992ab7927f27b8e0603fc6" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>get_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1aa23c782fe137b067b49e6f98e4cb842f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1af7919ecf2a85ae6f2bcaf4e9e4daff99" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>set_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a94fabb6dfd681dd51001c079eaf56878" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>to_nearest</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a55056405408d5a206c9c00554acded24" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>toward_zero</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1sparc__rounding__control_1a6c3476e8a246fa1e43fb7352b4197096" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::sparc_rounding_control</scope><name>upward</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1162 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="set_2channel_2int_8hpp" kind="file">
+    <compoundname>int.hpp</compoundname>
+    <includes refid="int_8hh" local="no">gecode/int.hh</includes>
+    <includedby refid="set_2channel_8hh" local="no">/usr/include/gecode/set/channel.hh</includedby>
+    <incdepgraph>
+      <node id="14702">
+        <label>gecode/support/cast.hpp</label>
+        <link refid="cast_8hpp_source"/>
+      </node>
+      <node id="14794">
+        <label>gecode/iter/values-ranges.hpp</label>
+        <link refid="values-ranges_8hpp_source"/>
+      </node>
+      <node id="14816">
+        <label>gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="14686" relation="include">
+        </childnode>
+        <childnode refid="14817" relation="include">
+        </childnode>
+      </node>
+      <node id="14815">
+        <label>gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="14816" relation="include">
+        </childnode>
+      </node>
+      <node id="14783">
+        <label>gecode/iter/ranges-rangelist.hpp</label>
+        <link refid="ranges-rangelist_8hpp_source"/>
+      </node>
+      <node id="14756">
+        <label>gecode/kernel/brancher-val-sel-commit.hpp</label>
+        <link refid="brancher-val-sel-commit_8hpp_source"/>
+      </node>
+      <node id="14789">
+        <label>gecode/iter/values-map.hpp</label>
+        <link refid="values-map_8hpp_source"/>
+      </node>
+      <node id="14774">
+        <label>gecode/iter/ranges-negative.hpp</label>
+        <link refid="ranges-negative_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14718">
+        <label>gecode/support/static-stack.hpp</label>
+        <link refid="static-stack_8hpp_source"/>
+      </node>
+      <node id="14758">
+        <label>gecode/kernel/var-imp.hpp</label>
+        <link refid="kernel_2var-imp_8hpp_source"/>
+      </node>
+      <node id="14716">
+        <label>gecode/support/random.hpp</label>
+        <link refid="random_8hpp_source"/>
+      </node>
+      <node id="14760">
+        <label>limits</label>
+      </node>
+      <node id="14734">
+        <label>gecode/kernel/var.hpp</label>
+        <link refid="kernel_2var_8hpp_source"/>
+      </node>
+      <node id="14819">
+        <label>gecode/int/view/bool.hpp</label>
+        <link refid="int_2view_2bool_8hpp_source"/>
+      </node>
+      <node id="14798">
+        <label>gecode/iter/ranges-size.hpp</label>
+        <link refid="ranges-size_8hpp_source"/>
+      </node>
+      <node id="14719">
+        <label>gecode/support/thread/none.hpp</label>
+        <link refid="none_8hpp_source"/>
+      </node>
+      <node id="14738">
+        <label>iterator</label>
+      </node>
+      <node id="14766">
+        <label>gecode/iter/ranges-array.hpp</label>
+        <link refid="ranges-array_8hpp_source"/>
+      </node>
+      <node id="14721">
+        <label>gecode/support/timer.hpp</label>
+        <link refid="timer_8hpp_source"/>
+      </node>
+      <node id="14720">
+        <label>gecode/support/thread/thread.hpp</label>
+        <link refid="thread_2thread_8hpp_source"/>
+      </node>
+      <node id="14782">
+        <label>gecode/iter/ranges-singleton-append.hpp</label>
+        <link refid="ranges-singleton-append_8hpp_source"/>
+      </node>
+      <node id="14776">
+        <label>gecode/iter/ranges-positive.hpp</label>
+        <link refid="ranges-positive_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14755">
+        <label>gecode/kernel/brancher-val-commit.hpp</label>
+        <link refid="brancher-val-commit_8hpp_source"/>
+      </node>
+      <node id="14807">
+        <label>gecode/int/view/iter.hpp</label>
+        <link refid="int_2view_2iter_8hpp_source"/>
+      </node>
+      <node id="14745">
+        <label>gecode/kernel/afc.hpp</label>
+        <link refid="kernel_2afc_8hpp_source"/>
+      </node>
+      <node id="14730">
+        <label>gecode/kernel/var-type.hpp</label>
+        <link refid="var-type_8hpp_source"/>
+      </node>
+      <node id="14722">
+        <label>gecode/support/hw-rnd.hpp</label>
+        <link refid="hw-rnd_8hpp_source"/>
+      </node>
+      <node id="14786">
+        <label>gecode/iter/values-bitsetoffset.hpp</label>
+        <link refid="values-bitsetoffset_8hpp_source"/>
+      </node>
+      <node id="14710">
+        <label>cmath</label>
+      </node>
+      <node id="14695">
+        <label>cassert</label>
+      </node>
+      <node id="14752">
+        <label>gecode/kernel/brancher-view-sel.hpp</label>
+        <link refid="brancher-view-sel_8hpp_source"/>
+      </node>
+      <node id="14759">
+        <label>gecode/kernel/allocators.hpp</label>
+        <link refid="allocators_8hpp_source"/>
+        <childnode refid="14760" relation="include">
+        </childnode>
+      </node>
+      <node id="14827">
+        <label>gecode/int/int-set-2.hpp</label>
+        <link refid="int-set-2_8hpp_source"/>
+      </node>
+      <node id="14737">
+        <label>cstdarg</label>
+      </node>
+      <node id="14708">
+        <label>gecode/support/bitset-base.hpp</label>
+        <link refid="bitset-base_8hpp_source"/>
+        <childnode refid="14687" relation="include">
+        </childnode>
+      </node>
+      <node id="14740">
+        <label>gecode/kernel/shared-array.hpp</label>
+        <link refid="shared-array_8hpp_source"/>
+        <childnode refid="14737" relation="include">
+        </childnode>
+        <childnode refid="14689" relation="include">
+        </childnode>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14818">
+        <label>gecode/int/view/cached.hpp</label>
+        <link refid="int_2view_2cached_8hpp_source"/>
+      </node>
+      <node id="14731">
+        <label>gecode/kernel/modevent.hpp</label>
+        <link refid="modevent_8hpp_source"/>
+      </node>
+      <node id="14724">
+        <label>gecode/kernel/memory-config.hpp</label>
+        <link refid="memory-config_8hpp_source"/>
+      </node>
+      <node id="14836">
+        <label>gecode/int/branch/val.hpp</label>
+        <link refid="int_2branch_2val_8hpp_source"/>
+      </node>
+      <node id="14707">
+        <label>gecode/support/int-type.hpp</label>
+        <link refid="int-type_8hpp_source"/>
+        <childnode refid="14687" relation="include">
+        </childnode>
+      </node>
+      <node id="14793">
+        <label>gecode/iter/values-positive.hpp</label>
+        <link refid="values-positive_8hpp_source"/>
+      </node>
+      <node id="14688">
+        <label>cfloat</label>
+      </node>
+      <node id="14799">
+        <label>gecode/int/exception.hpp</label>
+        <link refid="int_2exception_8hpp_source"/>
+      </node>
+      <node id="14700">
+        <label>gecode/support/exception.hpp</label>
+        <link refid="support_2exception_8hpp_source"/>
+        <childnode refid="14701" relation="include">
+        </childnode>
+      </node>
+      <node id="14701">
+        <label>exception</label>
+      </node>
+      <node id="14772">
+        <label>gecode/iter/ranges-map.hpp</label>
+        <link refid="ranges-map_8hpp_source"/>
+      </node>
+      <node id="14733">
+        <label>gecode/kernel/region.hpp</label>
+        <link refid="region_8hpp_source"/>
+      </node>
+      <node id="14706">
+        <label>gecode/support/marked-pointer.hpp</label>
+        <link refid="marked-pointer_8hpp_source"/>
+        <childnode refid="14692" relation="include">
+        </childnode>
+      </node>
+      <node id="14703">
+        <label>gecode/support/thread.hpp</label>
+        <link refid="thread_8hpp_source"/>
+        <childnode refid="14692" relation="include">
+        </childnode>
+      </node>
+      <node id="14691">
+        <label>gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="14692" relation="include">
+        </childnode>
+        <childnode refid="14693" relation="include">
+        </childnode>
+        <childnode refid="14694" relation="include">
+        </childnode>
+        <childnode refid="14695" relation="include">
+        </childnode>
+        <childnode refid="14696" relation="include">
+        </childnode>
+        <childnode refid="14698" relation="include">
+        </childnode>
+        <childnode refid="14723" relation="include">
+        </childnode>
+        <childnode refid="14724" relation="include">
+        </childnode>
+        <childnode refid="14725" relation="include">
+        </childnode>
+        <childnode refid="14726" relation="include">
+        </childnode>
+        <childnode refid="14727" relation="include">
+        </childnode>
+        <childnode refid="14728" relation="include">
+        </childnode>
+        <childnode refid="14729" relation="include">
+        </childnode>
+        <childnode refid="14731" relation="include">
+        </childnode>
+        <childnode refid="14732" relation="include">
+        </childnode>
+        <childnode refid="14733" relation="include">
+        </childnode>
+        <childnode refid="14734" relation="include">
+        </childnode>
+        <childnode refid="14735" relation="include">
+        </childnode>
+        <childnode refid="14736" relation="include">
+        </childnode>
+        <childnode refid="14740" relation="include">
+        </childnode>
+        <childnode refid="14741" relation="include">
+        </childnode>
+        <childnode refid="14743" relation="include">
+        </childnode>
+        <childnode refid="14744" relation="include">
+        </childnode>
+        <childnode refid="14745" relation="include">
+        </childnode>
+        <childnode refid="14746" relation="include">
+        </childnode>
+        <childnode refid="14747" relation="include">
+        </childnode>
+        <childnode refid="14748" relation="include">
+        </childnode>
+        <childnode refid="14749" relation="include">
+        </childnode>
+        <childnode refid="14750" relation="include">
+        </childnode>
+        <childnode refid="14751" relation="include">
+        </childnode>
+        <childnode refid="14752" relation="include">
+        </childnode>
+        <childnode refid="14753" relation="include">
+        </childnode>
+        <childnode refid="14754" relation="include">
+        </childnode>
+        <childnode refid="14755" relation="include">
+        </childnode>
+        <childnode refid="14756" relation="include">
+        </childnode>
+        <childnode refid="14757" relation="include">
+        </childnode>
+        <childnode refid="14758" relation="include">
+        </childnode>
+        <childnode refid="14759" relation="include">
+        </childnode>
+      </node>
+      <node id="14801">
+        <label>gecode/int/int-set-1.hpp</label>
+        <link refid="int-set-1_8hpp_source"/>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14746">
+        <label>gecode/kernel/branch-traits.hpp</label>
+        <link refid="branch-traits_8hpp_source"/>
+      </node>
+      <node id="14812">
+        <label>gecode/int/view/zero.hpp</label>
+        <link refid="zero_8hpp_source"/>
+      </node>
+      <node id="14768">
+        <label>gecode/iter/ranges-compl.hpp</label>
+        <link refid="ranges-compl_8hpp_source"/>
+      </node>
+      <node id="14830">
+        <label>gecode/int/extensional/dfa.hpp</label>
+        <link refid="dfa_8hpp_source"/>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14736">
+        <label>gecode/kernel/array.hpp</label>
+        <link refid="kernel_2array_8hpp_source"/>
+        <childnode refid="14737" relation="include">
+        </childnode>
+        <childnode refid="14689" relation="include">
+        </childnode>
+        <childnode refid="14738" relation="include">
+        </childnode>
+        <childnode refid="14690" relation="include">
+        </childnode>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14833">
+        <label>gecode/int/branch/afc.hpp</label>
+        <link refid="int_2branch_2afc_8hpp_source"/>
+      </node>
+      <node id="14750">
+        <label>gecode/kernel/branch-val.hpp</label>
+        <link refid="branch-val_8hpp_source"/>
+      </node>
+      <node id="14715">
+        <label>gecode/support/dynamic-stack.hpp</label>
+        <link refid="dynamic-stack_8hpp_source"/>
+      </node>
+      <node id="14777">
+        <label>gecode/iter/ranges-scale.hpp</label>
+        <link refid="ranges-scale_8hpp_source"/>
+        <childnode refid="14710" relation="include">
+        </childnode>
+      </node>
+      <node id="14727">
+        <label>gecode/kernel/archive.hpp</label>
+        <link refid="archive_8hpp_source"/>
+      </node>
+      <node id="14732">
+        <label>gecode/kernel/range-list.hpp</label>
+        <link refid="range-list_8hpp_source"/>
+      </node>
+      <node id="14788">
+        <label>gecode/iter/values-inter.hpp</label>
+        <link refid="values-inter_8hpp_source"/>
+      </node>
+      <node id="14751">
+        <label>gecode/kernel/brancher-merit.hpp</label>
+        <link refid="brancher-merit_8hpp_source"/>
+      </node>
+      <node id="14697">
+        <label>gecode/support/config.hpp</label>
+        <link refid="support_2config_8hpp_source"/>
+      </node>
+      <node id="14824">
+        <label>gecode/int/view/bool-test.hpp</label>
+        <link refid="bool-test_8hpp_source"/>
+      </node>
+      <node id="14781">
+        <label>gecode/iter/ranges-add.hpp</label>
+        <link refid="ranges-add_8hpp_source"/>
+      </node>
+      <node id="14806">
+        <label>gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="14689" relation="include">
+        </childnode>
+        <childnode refid="14807" relation="include">
+        </childnode>
+        <childnode refid="14808" relation="include">
+        </childnode>
+        <childnode refid="14809" relation="include">
+        </childnode>
+        <childnode refid="14810" relation="include">
+        </childnode>
+        <childnode refid="14811" relation="include">
+        </childnode>
+        <childnode refid="14812" relation="include">
+        </childnode>
+        <childnode refid="14813" relation="include">
+        </childnode>
+        <childnode refid="14814" relation="include">
+        </childnode>
+        <childnode refid="14815" relation="include">
+        </childnode>
+        <childnode refid="14818" relation="include">
+        </childnode>
+        <childnode refid="14819" relation="include">
+        </childnode>
+        <childnode refid="14820" relation="include">
+        </childnode>
+        <childnode refid="14821" relation="include">
+        </childnode>
+        <childnode refid="14822" relation="include">
+        </childnode>
+        <childnode refid="14823" relation="include">
+        </childnode>
+        <childnode refid="14824" relation="include">
+        </childnode>
+      </node>
+      <node id="14787">
+        <label>gecode/iter/values-list.hpp</label>
+        <link refid="values-list_8hpp_source"/>
+      </node>
+      <node id="14790">
+        <label>gecode/iter/values-minus.hpp</label>
+        <link refid="values-minus_8hpp_source"/>
+      </node>
+      <node id="14748">
+        <label>gecode/kernel/branch-var.hpp</label>
+        <link refid="branch-var_8hpp_source"/>
+      </node>
+      <node id="14685">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set/channel/int.hpp"/>
+        <childnode refid="14686" relation="include">
+        </childnode>
+      </node>
+      <node id="14725">
+        <label>gecode/kernel/memory-manager.hpp</label>
+        <link refid="memory-manager_8hpp_source"/>
+      </node>
+      <node id="14800">
+        <label>gecode/int/limits.hpp</label>
+        <link refid="int_2limits_8hpp_source"/>
+      </node>
+      <node id="14714">
+        <label>gecode/support/dynamic-queue.hpp</label>
+        <link refid="dynamic-queue_8hpp_source"/>
+      </node>
+      <node id="14825">
+        <label>gecode/int/propagator.hpp</label>
+        <link refid="int_2propagator_8hpp_source"/>
+      </node>
+      <node id="14832">
+        <label>gecode/int/branch/traits.hpp</label>
+        <link refid="int_2branch_2traits_8hpp_source"/>
+      </node>
+      <node id="14796">
+        <label>gecode/iter/values-union.hpp</label>
+        <link refid="values-union_8hpp_source"/>
+      </node>
+      <node id="14726">
+        <label>gecode/kernel/macros.hpp</label>
+        <link refid="kernel_2macros_8hpp_source"/>
+      </node>
+      <node id="14775">
+        <label>gecode/iter/ranges-offset.hpp</label>
+        <link refid="ranges-offset_8hpp_source"/>
+      </node>
+      <node id="14742">
+        <label>ctime</label>
+      </node>
+      <node id="14814">
+        <label>gecode/int/view/offset.hpp</label>
+        <link refid="int_2view_2offset_8hpp_source"/>
+      </node>
+      <node id="14784">
+        <label>gecode/iter/values-array.hpp</label>
+        <link refid="values-array_8hpp_source"/>
+      </node>
+      <node id="14835">
+        <label>gecode/int/branch/var.hpp</label>
+        <link refid="int_2branch_2var_8hpp_source"/>
+      </node>
+      <node id="14778">
+        <label>gecode/iter/ranges-singleton.hpp</label>
+        <link refid="ranges-singleton_8hpp_source"/>
+      </node>
+      <node id="14690">
+        <label>vector</label>
+      </node>
+      <node id="14821">
+        <label>gecode/int/view/print.hpp</label>
+        <link refid="int_2view_2print_8hpp_source"/>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14744">
+        <label>gecode/kernel/advisor.hpp</label>
+        <link refid="advisor_8hpp_source"/>
+      </node>
+      <node id="14831">
+        <label>gecode/int/extensional/tuple-set.hpp</label>
+        <link refid="tuple-set_8hpp_source"/>
+        <childnode refid="14739" relation="include">
+        </childnode>
+      </node>
+      <node id="14757">
+        <label>gecode/kernel/brancher-view-val.hpp</label>
+        <link refid="brancher-view-val_8hpp_source"/>
+      </node>
+      <node id="14810">
+        <label>gecode/int/view/int.hpp</label>
+        <link refid="int_2view_2int_8hpp_source"/>
+      </node>
+      <node id="14823">
+        <label>gecode/int/view/rel-test.hpp</label>
+        <link refid="int_2view_2rel-test_8hpp_source"/>
+      </node>
+      <node id="14739">
+        <label>sstream</label>
+      </node>
+      <node id="14826">
+        <label>gecode/int/array-traits.hpp</label>
+        <link refid="int_2array-traits_8hpp_source"/>
+      </node>
+      <node id="14754">
+        <label>gecode/kernel/brancher-val-sel.hpp</label>
+        <link refid="brancher-val-sel_8hpp_source"/>
+      </node>
+      <node id="14743">
+        <label>gecode/kernel/propagator.hpp</label>
+        <link refid="kernel_2propagator_8hpp_source"/>
+      </node>
+      <node id="14712">
+        <label>gecode/support/block-allocator.hpp</label>
+        <link refid="block-allocator_8hpp_source"/>
+      </node>
+      <node id="14817">
+        <label>gecode/int/div.hpp</label>
+        <link refid="int_2div_8hpp_source"/>
+      </node>
+      <node id="14792">
+        <label>gecode/iter/values-offset.hpp</label>
+        <link refid="values-offset_8hpp_source"/>
+      </node>
+      <node id="14828">
+        <label>gecode/int/array.hpp</label>
+        <link refid="int_2array_8hpp_source"/>
+      </node>
+      <node id="14747">
+        <label>gecode/kernel/activity.hpp</label>
+        <link refid="kernel_2activity_8hpp_source"/>
+      </node>
+      <node id="14686">
+        <label>gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="14687" relation="include">
+        </childnode>
+        <childnode refid="14688" relation="include">
+        </childnode>
+        <childnode refid="14689" relation="include">
+        </childnode>
+        <childnode refid="14690" relation="include">
+        </childnode>
+        <childnode refid="14691" relation="include">
+        </childnode>
+        <childnode refid="14761" relation="include">
+        </childnode>
+        <childnode refid="14698" relation="include">
+        </childnode>
+        <childnode refid="14799" relation="include">
+        </childnode>
+        <childnode refid="14800" relation="include">
+        </childnode>
+        <childnode refid="14801" relation="include">
+        </childnode>
+        <childnode refid="14802" relation="include">
+        </childnode>
+        <childnode refid="14806" relation="include">
+        </childnode>
+        <childnode refid="14825" relation="include">
+        </childnode>
+        <childnode refid="14826" relation="include">
+        </childnode>
+        <childnode refid="14827" relation="include">
+        </childnode>
+        <childnode refid="14828" relation="include">
+        </childnode>
+        <childnode refid="14829" relation="include">
+        </childnode>
+        <childnode refid="14830" relation="include">
+        </childnode>
+        <childnode refid="14831" relation="include">
+        </childnode>
+        <childnode refid="14832" relation="include">
+        </childnode>
+        <childnode refid="14833" relation="include">
+        </childnode>
+        <childnode refid="14834" relation="include">
+        </childnode>
+        <childnode refid="14835" relation="include">
+        </childnode>
+        <childnode refid="14836" relation="include">
+        </childnode>
+        <childnode refid="14837" relation="include">
+        </childnode>
+      </node>
+      <node id="14693">
+        <label>cstdlib</label>
+      </node>
+      <node id="14709">
+        <label>gecode/support/bitset.hpp</label>
+        <link refid="bitset_8hpp_source"/>
+        <childnode refid="14687" relation="include">
+        </childnode>
+        <childnode refid="14710" relation="include">
+        </childnode>
+      </node>
+      <node id="14809">
+        <label>gecode/int/var/bool.hpp</label>
+        <link refid="int_2var_2bool_8hpp_source"/>
+      </node>
+      <node id="14698">
+        <label>gecode/support/auto-link.hpp</label>
+        <link refid="auto-link_8hpp_source"/>
+      </node>
+      <node id="14837">
+        <label>gecode/int/branch/assign.hpp</label>
+        <link refid="int_2branch_2assign_8hpp_source"/>
+      </node>
+      <node id="14689">
+        <label>iostream</label>
+      </node>
+      <node id="14723">
+        <label>gecode/kernel/exception.hpp</label>
+        <link refid="kernel_2exception_8hpp_source"/>
+      </node>
+      <node id="14820">
+        <label>gecode/int/view/neg-bool.hpp</label>
+        <link refid="neg-bool_8hpp_source"/>
+      </node>
+      <node id="14773">
+        <label>gecode/iter/ranges-minus.hpp</label>
+        <link refid="ranges-minus_8hpp_source"/>
+      </node>
+      <node id="14791">
+        <label>gecode/iter/values-negative.hpp</label>
+        <link refid="values-negative_8hpp_source"/>
+      </node>
+      <node id="14699">
+        <label>gecode/support/macros.hpp</label>
+        <link refid="support_2macros_8hpp_source"/>
+      </node>
+      <node id="14735">
+        <label>gecode/kernel/view.hpp</label>
+        <link refid="kernel_2view_8hpp_source"/>
+      </node>
+      <node id="14749">
+        <label>gecode/kernel/branch-tiebreak.hpp</label>
+        <link refid="branch-tiebreak_8hpp_source"/>
+      </node>
+      <node id="14692">
+        <label>cstddef</label>
+      </node>
+      <node id="14687">
+        <label>climits</label>
+      </node>
+      <node id="14795">
+        <label>gecode/iter/values-singleton.hpp</label>
+        <link refid="values-singleton_8hpp_source"/>
+      </node>
+      <node id="14729">
+        <label>gecode/kernel/core.hpp</label>
+        <link refid="core_8hpp_source"/>
+        <childnode refid="14689" relation="include">
+        </childnode>
+        <childnode refid="14730" relation="include">
+        </childnode>
+      </node>
+      <node id="14771">
+        <label>gecode/iter/ranges-inter.hpp</label>
+        <link refid="ranges-inter_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14765">
+        <label>gecode/iter/ranges-append.hpp</label>
+        <link refid="ranges-append_8hpp_source"/>
+      </node>
+      <node id="14762">
+        <label>gecode/iter/ranges-operations.hpp</label>
+        <link refid="ranges-operations_8hpp_source"/>
+      </node>
+      <node id="14696">
+        <label>gecode/support.hh</label>
+        <link refid="support_8hh_source"/>
+        <childnode refid="14695" relation="include">
+        </childnode>
+        <childnode refid="14697" relation="include">
+        </childnode>
+        <childnode refid="14698" relation="include">
+        </childnode>
+        <childnode refid="14699" relation="include">
+        </childnode>
+        <childnode refid="14700" relation="include">
+        </childnode>
+        <childnode refid="14702" relation="include">
+        </childnode>
+        <childnode refid="14703" relation="include">
+        </childnode>
+        <childnode refid="14704" relation="include">
+        </childnode>
+        <childnode refid="14706" relation="include">
+        </childnode>
+        <childnode refid="14707" relation="include">
+        </childnode>
+        <childnode refid="14708" relation="include">
+        </childnode>
+        <childnode refid="14709" relation="include">
+        </childnode>
+        <childnode refid="14711" relation="include">
+        </childnode>
+        <childnode refid="14712" relation="include">
+        </childnode>
+        <childnode refid="14713" relation="include">
+        </childnode>
+        <childnode refid="14714" relation="include">
+        </childnode>
+        <childnode refid="14715" relation="include">
+        </childnode>
+        <childnode refid="14716" relation="include">
+        </childnode>
+        <childnode refid="14717" relation="include">
+        </childnode>
+        <childnode refid="14718" relation="include">
+        </childnode>
+        <childnode refid="14719" relation="include">
+        </childnode>
+        <childnode refid="14720" relation="include">
+        </childnode>
+        <childnode refid="14721" relation="include">
+        </childnode>
+        <childnode refid="14722" relation="include">
+        </childnode>
+      </node>
+      <node id="14834">
+        <label>gecode/int/branch/activity.hpp</label>
+        <link refid="int_2branch_2activity_8hpp_source"/>
+      </node>
+      <node id="14804">
+        <label>gecode/int/var-imp/int.hpp</label>
+        <link refid="int_2var-imp_2int_8hpp_source"/>
+      </node>
+      <node id="14802">
+        <label>gecode/int/var-imp.hpp</label>
+        <link refid="int_2var-imp_8hpp_source"/>
+        <childnode refid="14710" relation="include">
+        </childnode>
+        <childnode refid="14803" relation="include">
+        </childnode>
+        <childnode refid="14804" relation="include">
+        </childnode>
+        <childnode refid="14805" relation="include">
+        </childnode>
+      </node>
+      <node id="14767">
+        <label>gecode/iter/ranges-cache.hpp</label>
+        <link refid="ranges-cache_8hpp_source"/>
+      </node>
+      <node id="14713">
+        <label>gecode/support/dynamic-array.hpp</label>
+        <link refid="dynamic-array_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14811">
+        <label>gecode/int/view/constint.hpp</label>
+        <link refid="constint_8hpp_source"/>
+      </node>
+      <node id="14797">
+        <label>gecode/iter/values-unique.hpp</label>
+        <link refid="values-unique_8hpp_source"/>
+      </node>
+      <node id="14769">
+        <label>gecode/iter/ranges-diff.hpp</label>
+        <link refid="ranges-diff_8hpp_source"/>
+      </node>
+      <node id="14717">
+        <label>gecode/support/sort.hpp</label>
+        <link refid="support_2sort_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+        <childnode refid="14687" relation="include">
+        </childnode>
+      </node>
+      <node id="14803">
+        <label>gecode/int/var-imp/delta.hpp</label>
+        <link refid="int_2var-imp_2delta_8hpp_source"/>
+      </node>
+      <node id="14741">
+        <label>gecode/kernel/rnd.hpp</label>
+        <link refid="rnd_8hpp_source"/>
+        <childnode refid="14742" relation="include">
+        </childnode>
+      </node>
+      <node id="14705">
+        <label>algorithm</label>
+      </node>
+      <node id="14753">
+        <label>gecode/kernel/brancher-view.hpp</label>
+        <link refid="brancher-view_8hpp_source"/>
+      </node>
+      <node id="14785">
+        <label>gecode/iter/values-bitset.hpp</label>
+        <link refid="values-bitset_8hpp_source"/>
+      </node>
+      <node id="14728">
+        <label>gecode/kernel/global-afc.hpp</label>
+        <link refid="global-afc_8hpp_source"/>
+        <childnode refid="14710" relation="include">
+        </childnode>
+      </node>
+      <node id="14770">
+        <label>gecode/iter/ranges-empty.hpp</label>
+        <link refid="ranges-empty_8hpp_source"/>
+      </node>
+      <node id="14808">
+        <label>gecode/int/var/int.hpp</label>
+        <link refid="int_2var_2int_8hpp_source"/>
+      </node>
+      <node id="14761">
+        <label>gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="14691" relation="include">
+        </childnode>
+        <childnode refid="14762" relation="include">
+        </childnode>
+        <childnode refid="14763" relation="include">
+        </childnode>
+        <childnode refid="14764" relation="include">
+        </childnode>
+        <childnode refid="14765" relation="include">
+        </childnode>
+        <childnode refid="14766" relation="include">
+        </childnode>
+        <childnode refid="14767" relation="include">
+        </childnode>
+        <childnode refid="14768" relation="include">
+        </childnode>
+        <childnode refid="14769" relation="include">
+        </childnode>
+        <childnode refid="14770" relation="include">
+        </childnode>
+        <childnode refid="14771" relation="include">
+        </childnode>
+        <childnode refid="14772" relation="include">
+        </childnode>
+        <childnode refid="14773" relation="include">
+        </childnode>
+        <childnode refid="14774" relation="include">
+        </childnode>
+        <childnode refid="14775" relation="include">
+        </childnode>
+        <childnode refid="14776" relation="include">
+        </childnode>
+        <childnode refid="14777" relation="include">
+        </childnode>
+        <childnode refid="14778" relation="include">
+        </childnode>
+        <childnode refid="14779" relation="include">
+        </childnode>
+        <childnode refid="14780" relation="include">
+        </childnode>
+        <childnode refid="14781" relation="include">
+        </childnode>
+        <childnode refid="14782" relation="include">
+        </childnode>
+        <childnode refid="14783" relation="include">
+        </childnode>
+        <childnode refid="14784" relation="include">
+        </childnode>
+        <childnode refid="14785" relation="include">
+        </childnode>
+        <childnode refid="14786" relation="include">
+        </childnode>
+        <childnode refid="14787" relation="include">
+        </childnode>
+        <childnode refid="14788" relation="include">
+        </childnode>
+        <childnode refid="14789" relation="include">
+        </childnode>
+        <childnode refid="14790" relation="include">
+        </childnode>
+        <childnode refid="14791" relation="include">
+        </childnode>
+        <childnode refid="14792" relation="include">
+        </childnode>
+        <childnode refid="14793" relation="include">
+        </childnode>
+        <childnode refid="14794" relation="include">
+        </childnode>
+        <childnode refid="14795" relation="include">
+        </childnode>
+        <childnode refid="14796" relation="include">
+        </childnode>
+        <childnode refid="14797" relation="include">
+        </childnode>
+        <childnode refid="14798" relation="include">
+        </childnode>
+      </node>
+      <node id="14780">
+        <label>gecode/iter/ranges-values.hpp</label>
+        <link refid="ranges-values_8hpp_source"/>
+      </node>
+      <node id="14805">
+        <label>gecode/int/var-imp/bool.hpp</label>
+        <link refid="int_2var-imp_2bool_8hpp_source"/>
+      </node>
+      <node id="14694">
+        <label>cstring</label>
+      </node>
+      <node id="14829">
+        <label>gecode/int/reify.hpp</label>
+        <link refid="reify_8hpp_source"/>
+      </node>
+      <node id="14779">
+        <label>gecode/iter/ranges-union.hpp</label>
+        <link refid="ranges-union_8hpp_source"/>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14813">
+        <label>gecode/int/view/minus.hpp</label>
+        <link refid="int_2view_2minus_8hpp_source"/>
+      </node>
+      <node id="14763">
+        <label>gecode/iter/ranges-minmax.hpp</label>
+        <link refid="ranges-minmax_8hpp_source"/>
+      </node>
+      <node id="14711">
+        <label>gecode/support/bitset-offset.hpp</label>
+        <link refid="bitset-offset_8hpp_source"/>
+        <childnode refid="14687" relation="include">
+        </childnode>
+        <childnode refid="14710" relation="include">
+        </childnode>
+        <childnode refid="14689" relation="include">
+        </childnode>
+      </node>
+      <node id="14704">
+        <label>gecode/support/heap.hpp</label>
+        <link refid="heap_8hpp_source"/>
+        <childnode refid="14694" relation="include">
+        </childnode>
+        <childnode refid="14693" relation="include">
+        </childnode>
+        <childnode refid="14705" relation="include">
+        </childnode>
+      </node>
+      <node id="14822">
+        <label>gecode/int/var/print.hpp</label>
+        <link refid="int_2var_2print_8hpp_source"/>
+      </node>
+      <node id="14764">
+        <label>gecode/iter/ranges-list.hpp</label>
+        <link refid="ranges-list_8hpp_source"/>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="14839">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="14838">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set/channel/int.hpp"/>
+        <childnode refid="14839" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set">Gecode::Set</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Channel">Gecode::Set::Channel</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Gabor<sp/>Szokoli<sp/>&lt;szokoli@gecode.org&gt;</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2004</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2004</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Gabor<sp/>Szokoli,<sp/>2004</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2011-11-03<sp/>11:52:07<sp/>+0100<sp/>(Thu,<sp/>03<sp/>Nov<sp/>2011)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>12452<sp/>$</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/int.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Set<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Channel<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="48" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1adff4fcb082e623657277f5dc06512c5b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1af1468f805c822e34343ec7a71289a451" kindref="member">ChannelInt&lt;View&gt;::ChannelInt</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt;<ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">Gecode::Int::CachedView</ref>&lt;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">Gecode::Int::IntView</ref>&gt;<sp/>&gt;&amp;<sp/>xs0,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt;<ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>ys0)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>(home),<sp/>xs(xs0),<sp/>ys(ys0)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>.size();<sp/>i--;)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>[i].initCache(home,<ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>(0,<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>.size()-1));</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>.size();<sp/>i--;)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>[i].initCache(home,<ref refid="classGecode_1_1IntSet_1af6247876f310d0209b9b7f951cae9b99" kindref="member">IntSet::empty</ref>,<ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>(0,<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>.size()-1));</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>.subscribe(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/>Gecode::Int::PC_INT_DOM);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>.subscribe(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/>PC_SET_ANY);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="63" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1af1468f805c822e34343ec7a71289a451" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1af1468f805c822e34343ec7a71289a451" kindref="member">ChannelInt&lt;View&gt;::ChannelInt</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt" kindref="compound">ChannelInt</ref>&amp;<sp/>p)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>(home,share,p)<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>.update(home,share,p.<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4e9467913c98b9e2aca1fb9d04d84045" kindref="member">xs</ref>);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>.update(home,share,p.<ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a9aa77cd231fcaf06d76fb077b3f8cb97" kindref="member">ys</ref>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1aba44f4fb63f071275f869b9a0f52a7f5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1aba44f4fb63f071275f869b9a0f52a7f5" kindref="member">ChannelInt&lt;View&gt;::post</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt;<ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">Gecode::Int::CachedView</ref>&lt;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">Gecode::Int::IntView</ref>&gt;<sp/>&gt;&amp;<sp/>xs,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt;<ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>ys)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Sharing<sp/>of<sp/>ys<sp/>is<sp/>taken<sp/>care<sp/>of<sp/>in<sp/>the<sp/>propagator:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>ys<sp/>are<sp/>propagated<sp/>to<sp/>be<sp/>disjoint,<sp/>so<sp/>shared<sp/>variables</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>result<sp/>in<sp/>failure.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>xssize<sp/>=<sp/>xs.size();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=ys.size();<sp/>i--;)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(ys[i].exclude(home,<sp/>xssize,<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1aa0057c6b80521aaf8485343580d0eed5" kindref="member">Limits::max</ref>));</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(ys[i].exclude(home,<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a768af29a2cbf9eec75b4376b325f6cc4" kindref="member">Limits::min</ref>,<sp/>-1));</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>yssize<sp/>=<sp/>ys.size();</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(yssize<sp/>&gt;<sp/><ref refid="namespaceGecode_1_1Int_1_1Limits_1ad2fea399ca2de529a8b294fefe37e177" kindref="member">Gecode::Int::Limits::max</ref>)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5a839b40c2e7ccebb2e61e92e274833089" kindref="member">ES_FAILED</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=xs.size();<sp/>i--;)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(xs[i].gq(home,<sp/>0));</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(xs[i].le(home,<sp/>static_cast&lt;int&gt;(yssize)));</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt" kindref="compound">ChannelInt</ref>(home,xs,ys);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5a01d6fb1ec70479e8e413d5ecfd63e303" kindref="member">ES_OK</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></highlight></codeline>
+<codeline lineno="97" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4a447583169ad8b66c72f2d80515136f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a4a447583169ad8b66c72f2d80515136f" kindref="member">ChannelInt&lt;View&gt;::cost</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref>&amp;)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1PropCost_1ab9758f7a6301e1f3e1010762465b085a" kindref="member">PropCost::quadratic</ref>(<ref refid="classGecode_1_1PropCost_1ad1bebae59ea373495c5bf51ffc249dcda29f70a7d7f550f3822568ddce422d861" kindref="member">PropCost::LO</ref>,<sp/>xs.size()+ys.size());</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a5a36c392fdf9a76465852b34208950de" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a5a36c392fdf9a76465852b34208950de" kindref="member">ChannelInt&lt;View&gt;::dispose</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>xs.cancel(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/>Gecode::Int::PC_INT_DOM);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>ys.cancel(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/>PC_SET_ANY);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<sp/><ref refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9" kindref="member">Propagator::dispose</ref>(home);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*this);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref>*</highlight></codeline>
+<codeline lineno="112" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a93e633a3992f56b3e2b5788223807c10" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a93e633a3992f56b3e2b5788223807c10" kindref="member">ChannelInt&lt;View&gt;::copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share)<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt" kindref="compound">ChannelInt</ref>(home,share,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></highlight></codeline>
+<codeline lineno="118" refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a5b07a963c60e52f57fffff2aa51f1680" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt_1a5b07a963c60e52f57fffff2aa51f1680" kindref="member">ChannelInt&lt;View&gt;::propagate</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref>&amp;)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>assigned<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>v=xs.size();<sp/>v--;)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xs[v].assigned())<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assigned++;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xs[v].modified())</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(ys[xs[v].val()].include(home,v));</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xs[v].modified())<sp/>{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewDiffRanges" kindref="compound">Gecode::Int::ViewDiffRanges&lt;Gecode::Int::IntView&gt;</ref><sp/>d(xs[v]);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues" kindref="compound">Iter::Ranges::ToValues</ref>&lt;<ref refid="classGecode_1_1Int_1_1ViewDiffRanges" kindref="compound">Gecode::Int::ViewDiffRanges</ref>&lt;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">Gecode::Int::IntView</ref>&gt;<sp/>&gt;<sp/>dv(d);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;<sp/>dv();<sp/>++dv)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(ys[dv.val()].exclude(home,<sp/>v));</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>xs[v].cache(home);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=ys.size();<sp/>i--;)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ys[i].glbModified())<sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbDiffRanges" kindref="compound">GlbDiffRanges&lt;View&gt;</ref><sp/>yilb(ys[i]);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues" kindref="compound">Iter::Ranges::ToValues&lt;GlbDiffRanges&lt;View&gt;</ref><sp/>&gt;<sp/>dv(yilb);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;dv();++dv)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(xs[dv.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a0fa7a1051bf37c3d44d7971292ff0dd4" kindref="member">val</ref>()].eq(home,i));</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ys[i].cacheGlb(home);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ys[i].lubModified())<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubDiffRanges" kindref="compound">LubDiffRanges&lt;View&gt;</ref><sp/>yiub(ys[i]);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues" kindref="compound">Iter::Ranges::ToValues&lt;LubDiffRanges&lt;View&gt;</ref><sp/>&gt;<sp/>dv(yiub);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;dv();++dv)</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GECODE_ME_CHECK(xs[dv.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a0fa7a1051bf37c3d44d7971292ff0dd4" kindref="member">val</ref>()].nq(home,i));</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ys[i].cacheLub(home);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(assigned==xs.size())<sp/>?<sp/>home.<ref refid="group__TaskActorStatus_1gafc19cbf71ed90a9e0b414b875103f4c7" kindref="member">ES_SUBSUMED</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">)<sp/>:<sp/><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5ac32341b682bca52b8617a8ad004023ef" kindref="member">ES_NOFIX</ref>;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}}}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>set-prop</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/set/channel/int.hpp"/>
+  </compounddef>
+</doxygen>

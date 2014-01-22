@@ -1,0 +1,263 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Distinct" kind="namespace">
+    <compoundname>Gecode::Int::Distinct</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1Rank" prot="public">Gecode::Int::Distinct::Rank</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1MaxIncIdx" prot="public">Gecode::Int::Distinct::MaxIncIdx</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1MinIncIdx" prot="public">Gecode::Int::Distinct::MinIncIdx</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1MinInc" prot="public">Gecode::Int::Distinct::MinInc</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" prot="public">Gecode::Int::Distinct::HallInfo</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1Val" prot="public">Gecode::Int::Distinct::Val</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1Bnd" prot="public">Gecode::Int::Distinct::Bnd</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1Graph" prot="public">Gecode::Int::Distinct::Graph</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl" prot="public">Gecode::Int::Distinct::DomCtrl</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1Dom" prot="public">Gecode::Int::Distinct::Dom</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Distinct_1_1TerDom" prot="public">Gecode::Int::Distinct::TerDom</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a87637ee2f20f32f7fc1694cc57dbb53e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::Distinct::pathset_t</definition>
+        <argsstring>(HallInfo hall[], int start, int end, int to)</argsstring>
+        <name>pathset_t</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>end</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="141" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="141" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a5ba35c4f10f0457bc3309ec6f677e217" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::Distinct::pathset_h</definition>
+        <argsstring>(HallInfo hall[], int start, int end, int to)</argsstring>
+        <name>pathset_h</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>end</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="149" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="149" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1ad9c93b2939f91193396704cae155fb3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Distinct::pathmin_h</definition>
+        <argsstring>(const HallInfo hall[], int i)</argsstring>
+        <name>pathmin_h</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="157" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="157" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a359a6dd2e8d4a619856f9f8f1e2b6d8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Distinct::pathmin_t</definition>
+        <argsstring>(const HallInfo hall[], int i)</argsstring>
+        <name>pathmin_t</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="164" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="164" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1aa5c8048320f4672477490bd09cd4b959" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Distinct::pathmax_h</definition>
+        <argsstring>(const HallInfo hall[], int i)</argsstring>
+        <name>pathmax_h</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="171" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="171" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a8b788e9dd36d5bad37a8c9d1e0db0ec6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Distinct::pathmax_t</definition>
+        <argsstring>(const HallInfo hall[], int i)</argsstring>
+        <name>pathmax_t</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Distinct_1_1HallInfo" kindref="compound">HallInfo</ref></type>
+          <declname>hall</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="178" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="178" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a20048792bef5d1044c68fab690f0ba88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::prop_bnd</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, int &amp;min_x, int &amp;max_x)</argsstring>
+        <name>prop_bnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>min_x</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>max_x</declname>
+        </param>
+        <briefdescription>
+<para>Perform bounds consistent distinct propagation. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is actually the propagation algorithm for <ref refid="classGecode_1_1Int_1_1Distinct_1_1Bnd" kindref="compound">Distinct::Bnd</ref>. It is available as separate function as it is reused for both bounds consistent and domain consistent distinct propagators. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="186" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="186" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a191e2729d9f164b5cabf6d6da2f92f56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::prop_bnd</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>prop_bnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Perform bounds consistent distinct propagation. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is actually the propagation algorithm for <ref refid="classGecode_1_1Int_1_1Distinct_1_1Bnd" kindref="compound">Distinct::Bnd</ref>. It is available as separate function as it is reused for both bounds consistent and domain consistent distinct propagators. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="344" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="344" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Distinct_1a78305e0f437f8b03eeac39ee9095ffc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>complete</declname>
+            <defname>complete</defname>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::prop_val</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;)</argsstring>
+        <name>prop_val</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <defname>x</defname>
+        </param>
+        <briefdescription>
+<para>Eliminate singletons by naive value propagation. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is actually the propagation algorithm for <ref refid="classGecode_1_1Int_1_1Distinct_1_1Val" kindref="compound">Distinct::Val</ref>. It is available as separate function as it is reused for both bounds consistent and domain consistent distinct propagators.</para><para>If <emphasis>complete</emphasis> is true, computes fixpoint, otherwise might not compute fixpoint. This can be helpful when used together with bounds or domain propagation to protect from pathological cases which can be handled more efficiently with bounds propagation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/val.hpp" line="46" column="1" bodyfile="/usr/include/gecode/int/distinct/val.hpp" bodystart="46" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Distinct propagators </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="38" column="1"/>
+  </compounddef>
+</doxygen>

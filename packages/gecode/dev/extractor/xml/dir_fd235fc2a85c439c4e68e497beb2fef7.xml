@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_fd235fc2a85c439c4e68e497beb2fef7" kind="dir">
+    <compoundname>/usr/include/gecode/set/element</compoundname>
+    <innerfile refid="disjoint_8hpp">disjoint.hpp</innerfile>
+    <innerfile refid="element_2inter_8hpp">inter.hpp</innerfile>
+    <innerfile refid="element_2union_8hpp">union.hpp</innerfile>
+    <innerfile refid="unionConst_8hpp">unionConst.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/element/"/>
+  </compounddef>
+</doxygen>

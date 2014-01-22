@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1IntSet_1_1IntSetObject" kind="class" prot="private">
+    <compoundname>Gecode::IntSet::IntSetObject</compoundname>
+    <basecompoundref refid="classGecode_1_1SharedHandle_1_1Object" prot="public" virt="non-virtual">Gecode::SharedHandle::Object</basecompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1IntSet_1_1IntSetObject_1abc1131d144760c9ad6c101a15ace27b2" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::IntSet::IntSetObject::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Size of set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="181" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1IntSet_1_1IntSetObject_1a90dc877edfadf2536a06773f846b266d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::IntSet::IntSetObject::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="183" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1IntSet_1_1IntSetObject_1aa85c3dbc97f05b949b488b27b6198cd8" prot="public" static="no" mutable="no">
+        <type>Range *</type>
+        <definition>Range* Gecode::IntSet::IntSetObject::r</definition>
+        <argsstring></argsstring>
+        <name>r</name>
+        <briefdescription>
+<para>Array of ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="185" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1IntSet_1_1IntSetObject_1a0bff2f444400ef11ca412596a85c7da2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT IntSetObject *</type>
+        <definition>static GECODE_INT_EXPORT IntSetObject* Gecode::IntSet::IntSetObject::allocate</definition>
+        <argsstring>(int m)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Allocate object with <emphasis>m</emphasis> elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="187" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1IntSet_1_1IntSetObject_1af12aa2128dafdfff6c314841e14eaf78" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+        <definition>GECODE_INT_EXPORT SharedHandle::Object* Gecode::IntSet::IntSetObject::copy</definition>
+        <argsstring>(void) const </argsstring>
+        <name>copy</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return copy of object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="189" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntSet_1_1IntSetObject_1ac350028909a30f29562f7bba6962dc11" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT bool</type>
+        <definition>GECODE_INT_EXPORT bool Gecode::IntSet::IntSetObject::in</definition>
+        <argsstring>(int n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Check whether <emphasis>n</emphasis> is included in the set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="191" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntSet_1_1IntSetObject_1a0b575fa6e68624ecd8aa6ac0571604d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT</type>
+        <definition>virtual GECODE_INT_EXPORT Gecode::IntSet::IntSetObject::~IntSetObject</definition>
+        <argsstring>(void)</argsstring>
+        <name>~IntSetObject</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="193" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2980">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2979">
+        <label>Gecode::IntSet::IntSetObject</label>
+        <childnode refid="2980" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2982">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2983">
+        <label>Gecode::IntSet::Range</label>
+      </node>
+      <node id="2981">
+        <label>Gecode::IntSet::IntSetObject</label>
+        <childnode refid="2982" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2983" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int.hh" line="178" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="178" bodyend="194"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1a0bff2f444400ef11ca412596a85c7da2" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1af12aa2128dafdfff6c314841e14eaf78" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>copy</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1ac350028909a30f29562f7bba6962dc11" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>in</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1a90dc877edfadf2536a06773f846b266d" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>n</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a74e54baaa39f46295bf5ea15eaec1212" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>Object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a2db9735b0b6a3704586e5ec1702696e2" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1aabfe1d610fe626da356724f96ea51c89" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1aa85c3dbc97f05b949b488b27b6198cd8" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>r</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1abc1131d144760c9ad6c101a15ace27b2" prot="public" virt="non-virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>size</name></member>
+      <member refid="classGecode_1_1IntSet_1_1IntSetObject_1a0b575fa6e68624ecd8aa6ac0571604d4" prot="public" virt="virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>~IntSetObject</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a55569725d23dd66a356853b0ab9c6fc1" prot="public" virt="virtual"><scope>Gecode::IntSet::IntSetObject</scope><name>~Object</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

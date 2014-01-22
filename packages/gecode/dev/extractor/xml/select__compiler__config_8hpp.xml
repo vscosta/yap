@@ -1,0 +1,294 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="select__compiler__config_8hpp" kind="file">
+    <compoundname>select_compiler_config.hpp</compoundname>
+    <includedby refid="third-party_2boost_2config_8hpp" local="no">/usr/include/gecode/third-party/boost/config.hpp</includedby>
+    <invincdepgraph>
+      <node id="34297">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/rounded_transc.hpp</label>
+        <link refid="rounded__transc_8hpp_source"/>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34282">
+        <label>/usr/include/gecode/third-party/boost/limits.hpp</label>
+        <link refid="third-party_2boost_2limits_8hpp_source"/>
+        <childnode refid="34283" relation="include">
+        </childnode>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34285">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="34286" relation="include">
+        </childnode>
+        <childnode refid="34287" relation="include">
+        </childnode>
+        <childnode refid="34288" relation="include">
+        </childnode>
+        <childnode refid="34289" relation="include">
+        </childnode>
+      </node>
+      <node id="34293">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/detail/bugs.hpp</label>
+        <link refid="bugs_8hpp_source"/>
+        <childnode refid="34290" relation="include">
+        </childnode>
+        <childnode refid="34291" relation="include">
+        </childnode>
+        <childnode refid="34294" relation="include">
+        </childnode>
+        <childnode refid="34295" relation="include">
+        </childnode>
+        <childnode refid="34297" relation="include">
+        </childnode>
+        <childnode refid="34292" relation="include">
+        </childnode>
+        <childnode refid="34298" relation="include">
+        </childnode>
+      </node>
+      <node id="34291">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp</label>
+        <link refid="arith2_8hpp_source"/>
+        <childnode refid="34292" relation="include">
+        </childnode>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34279">
+        <label>/usr/include/gecode/third-party/boost/config/select_compiler_config.hpp</label>
+        <link refid="select_compiler_config.hpp"/>
+        <childnode refid="34280" relation="include">
+        </childnode>
+      </node>
+      <node id="34299">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/set.hpp</label>
+        <link refid="third-party_2boost_2numeric_2interval_2compare_2set_8hpp_source"/>
+        <childnode refid="34300" relation="include">
+        </childnode>
+      </node>
+      <node id="34284">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval.hpp</label>
+        <link refid="interval_8hpp_source"/>
+        <childnode refid="34285" relation="include">
+        </childnode>
+      </node>
+      <node id="34281">
+        <label>/usr/include/gecode/third-party/boost/detail/limits.hpp</label>
+        <link refid="third-party_2boost_2detail_2limits_8hpp_source"/>
+      </node>
+      <node id="34289">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="34286" relation="include">
+        </childnode>
+      </node>
+      <node id="34280">
+        <label>/usr/include/gecode/third-party/boost/config.hpp</label>
+        <link refid="third-party_2boost_2config_8hpp_source"/>
+        <childnode refid="34281" relation="include">
+        </childnode>
+        <childnode refid="34282" relation="include">
+        </childnode>
+        <childnode refid="34290" relation="include">
+        </childnode>
+        <childnode refid="34291" relation="include">
+        </childnode>
+        <childnode refid="34293" relation="include">
+        </childnode>
+        <childnode refid="34292" relation="include">
+        </childnode>
+        <childnode refid="34298" relation="include">
+        </childnode>
+      </node>
+      <node id="34286">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="34283">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp</label>
+        <link refid="checking_8hpp_source"/>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34290">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp</label>
+        <link refid="arith_8hpp_source"/>
+        <childnode refid="34291" relation="include">
+        </childnode>
+        <childnode refid="34292" relation="include">
+        </childnode>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34296">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/hw_rounding.hpp</label>
+        <link refid="hw__rounding_8hpp_source"/>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34288">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="34298">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp</label>
+        <link refid="numeric_2interval_2utility_8hpp_source"/>
+        <childnode refid="34299" relation="include">
+        </childnode>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34287">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="34292">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp</label>
+        <link refid="transc_8hpp_source"/>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34294">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/detail/division.hpp</label>
+        <link refid="division_8hpp_source"/>
+        <childnode refid="34290" relation="include">
+        </childnode>
+        <childnode refid="34291" relation="include">
+        </childnode>
+      </node>
+      <node id="34295">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp</label>
+        <link refid="rounded__arith_8hpp_source"/>
+        <childnode refid="34294" relation="include">
+        </childnode>
+        <childnode refid="34296" relation="include">
+        </childnode>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+      <node id="34300">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare.hpp</label>
+        <link refid="compare_8hpp_source"/>
+        <childnode refid="34284" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>Boost<sp/>compiler<sp/>configuration<sp/>selection<sp/>header<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Martin<sp/>Wille<sp/>2003.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Guillaume<sp/>Melquiond<sp/>2003.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Distributed<sp/>under<sp/>the<sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(See<sp/>accompanying<sp/>file<sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org/<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/>locate<sp/>which<sp/>compiler<sp/>we<sp/>are<sp/>using<sp/>and<sp/>define</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//<sp/>BOOST_COMPILER_CONFIG<sp/>as<sp/>needed:<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__GCCXML__)</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>GCC-XML<sp/>emulates<sp/>other<sp/>compilers,<sp/>it<sp/>has<sp/>to<sp/>appear<sp/>first<sp/>here!</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/gcc_xml.hpp&quot;</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__CUDACC__</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>NVIDIA<sp/>CUDA<sp/>C++<sp/>compiler<sp/>for<sp/>GPU</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/nvcc.hpp&quot;</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__COMO__</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Comeau<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/comeau.hpp&quot;</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__PATHSCALE__)<sp/>&amp;&amp;<sp/>(__PATHCC__<sp/>&gt;=<sp/>4)</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>PathScale<sp/>EKOPath<sp/>compiler<sp/>(has<sp/>to<sp/>come<sp/>before<sp/>clang<sp/>and<sp/>gcc)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/pathscale.hpp&quot;</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__clang__</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Clang<sp/>C++<sp/>emulates<sp/>GCC,<sp/>so<sp/>it<sp/>has<sp/>to<sp/>appear<sp/>early.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/clang.hpp&quot;</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__DMC__</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Digital<sp/>Mars<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/digitalmars.hpp&quot;</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__INTEL_COMPILER)<sp/>||<sp/>defined(__ICL)<sp/>||<sp/>defined(__ICC)<sp/>||<sp/>defined(__ECC)</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Intel</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/intel.hpp&quot;</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/>elif<sp/>defined<sp/>__GNUC__</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>GNU<sp/>C++:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/gcc.hpp&quot;</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__KCC</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Kai<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/kai.hpp&quot;</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__sgi</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>SGI<sp/>MIPSpro<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/sgi_mipspro.hpp&quot;</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__DECCXX</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Compaq<sp/>Tru64<sp/>Unix<sp/>cxx</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/compaq_cxx.hpp&quot;</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__ghs</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Greenhills<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/greenhills.hpp&quot;</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__CODEGEARC__</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>CodeGear<sp/>-<sp/>must<sp/>be<sp/>checked<sp/>for<sp/>before<sp/>Borland</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/codegear.hpp&quot;</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__BORLANDC__</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Borland</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/borland.hpp&quot;</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/><sp/>__MWERKS__</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Metrowerks<sp/>CodeWarrior</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/metrowerks.hpp&quot;</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/><sp/>__SUNPRO_CC</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Sun<sp/>Workshop<sp/>Compiler<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/sunpro_cc.hpp&quot;</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>__HP_aCC</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>HP<sp/>aCC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/hp_acc.hpp&quot;</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__MRC__)<sp/>||<sp/>defined(__SC__)</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>MPW<sp/>MrCpp<sp/>or<sp/>SCpp</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/mpw.hpp&quot;</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__IBMCPP__)</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>IBM<sp/>Visual<sp/>Age</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/vacpp.hpp&quot;</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__PGI)</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Portland<sp/>Group<sp/>Inc.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/pgi.hpp&quot;</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>_MSC_VER</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/><sp/>Microsoft<sp/>Visual<sp/>C++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Must<sp/>remain<sp/>the<sp/>last<sp/>#elif<sp/>since<sp/>some<sp/>other<sp/>vendors<sp/>(Metrowerks,<sp/>for</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>example)<sp/>also<sp/>#define<sp/>_MSC_VER</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_COMPILER_CONFIG<sp/>&quot;gecode/third-party/boost/config/compiler/visualc.hpp&quot;</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>this<sp/>must<sp/>come<sp/>last<sp/>-<sp/>generate<sp/>an<sp/>error<sp/>if<sp/>we<sp/>don&apos;t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="comment">//<sp/>recognise<sp/>the<sp/>compiler:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>&quot;Unknown<sp/>compiler<sp/>-<sp/>please<sp/>configure<sp/>(http://www.boost.org/libs/config/config.htm#configuring)<sp/>and<sp/>report<sp/>the<sp/>results<sp/>to<sp/>the<sp/>main<sp/>boost<sp/>mailing<sp/>list<sp/>(http://www.boost.org/more/mailing_lists.htm#main)&quot;</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/select_compiler_config.hpp"/>
+  </compounddef>
+</doxygen>

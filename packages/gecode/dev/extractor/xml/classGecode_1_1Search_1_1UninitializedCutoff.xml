@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1UninitializedCutoff" kind="class" prot="public">
+    <compoundname>Gecode::Search::UninitializedCutoff</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="search_8hh" local="no">search.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1UninitializedCutoff_1a7ac7de621be773007100d7027ac330f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Search::UninitializedCutoff::UninitializedCutoff</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>UninitializedCutoff</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="123" column="1" bodyfile="/usr/include/gecode/search/exception.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Uninitialized cutoff for restart-based search </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7182">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7183" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7183">
+        <label>std::exception</label>
+      </node>
+      <node id="7181">
+        <label>Gecode::Search::UninitializedCutoff</label>
+        <link refid="classGecode_1_1Search_1_1UninitializedCutoff"/>
+        <childnode refid="7182" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7185">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7186" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7186">
+        <label>std::exception</label>
+      </node>
+      <node id="7184">
+        <label>Gecode::Search::UninitializedCutoff</label>
+        <link refid="classGecode_1_1Search_1_1UninitializedCutoff"/>
+        <childnode refid="7185" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search.hh" line="120" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="120" bodyend="124"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Search::UninitializedCutoff</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Search_1_1UninitializedCutoff_1a7ac7de621be773007100d7027ac330f3" prot="public" virt="non-virtual"><scope>Gecode::Search::UninitializedCutoff</scope><name>UninitializedCutoff</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Search::UninitializedCutoff</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

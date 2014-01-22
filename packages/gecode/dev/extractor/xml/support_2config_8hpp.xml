@@ -1,0 +1,1256 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="support_2config_8hpp" kind="file">
+    <compoundname>config.hpp</compoundname>
+    <includedby refid="support_8hh" local="no">/usr/include/gecode/support.hh</includedby>
+    <invincdepgraph>
+      <node id="32497">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32480">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="32505">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="32506" relation="include">
+        </childnode>
+      </node>
+      <node id="32503">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="32504" relation="include">
+        </childnode>
+        <childnode refid="32505" relation="include">
+        </childnode>
+      </node>
+      <node id="32504">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="32480" relation="include">
+        </childnode>
+      </node>
+      <node id="32457">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="32458" relation="include">
+        </childnode>
+        <childnode refid="32459" relation="include">
+        </childnode>
+      </node>
+      <node id="32486">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="32487" relation="include">
+        </childnode>
+      </node>
+      <node id="32535">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="32536" relation="include">
+        </childnode>
+      </node>
+      <node id="32523">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="32507" relation="include">
+        </childnode>
+      </node>
+      <node id="32531">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="32532">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="32531" relation="include">
+        </childnode>
+      </node>
+      <node id="32515">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="32529">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="32504" relation="include">
+        </childnode>
+      </node>
+      <node id="32495">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="32538">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="32496">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="32492" relation="include">
+        </childnode>
+        <childnode refid="32493" relation="include">
+        </childnode>
+        <childnode refid="32486" relation="include">
+        </childnode>
+        <childnode refid="32497" relation="include">
+        </childnode>
+        <childnode refid="32498" relation="include">
+        </childnode>
+        <childnode refid="32499" relation="include">
+        </childnode>
+        <childnode refid="32500" relation="include">
+        </childnode>
+        <childnode refid="32501" relation="include">
+        </childnode>
+      </node>
+      <node id="32473">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="32563">
+        <label>/usr/include/gecode/search/sequential/bab.hh</label>
+        <link refid="sequential_2bab_8hh_source"/>
+      </node>
+      <node id="32552">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="32540" relation="include">
+        </childnode>
+        <childnode refid="32509" relation="include">
+        </childnode>
+        <childnode refid="32550" relation="include">
+        </childnode>
+        <childnode refid="32551" relation="include">
+        </childnode>
+        <childnode refid="32553" relation="include">
+        </childnode>
+      </node>
+      <node id="32542">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="32478">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="32525">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="32514" relation="include">
+        </childnode>
+      </node>
+      <node id="32510">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="32470">
+        <label>/usr/include/gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="32469" relation="include">
+        </childnode>
+        <childnode refid="32468" relation="include">
+        </childnode>
+      </node>
+      <node id="32517">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="32518" relation="include">
+        </childnode>
+        <childnode refid="32519" relation="include">
+        </childnode>
+        <childnode refid="32520" relation="include">
+        </childnode>
+        <childnode refid="32480" relation="include">
+        </childnode>
+        <childnode refid="32521" relation="include">
+        </childnode>
+        <childnode refid="32522" relation="include">
+        </childnode>
+        <childnode refid="32496" relation="include">
+        </childnode>
+        <childnode refid="32523" relation="include">
+        </childnode>
+        <childnode refid="32507" relation="include">
+        </childnode>
+        <childnode refid="32524" relation="include">
+        </childnode>
+        <childnode refid="32508" relation="include">
+        </childnode>
+        <childnode refid="32511" relation="include">
+        </childnode>
+        <childnode refid="32525" relation="include">
+        </childnode>
+        <childnode refid="32526" relation="include">
+        </childnode>
+        <childnode refid="32488" relation="include">
+        </childnode>
+        <childnode refid="32527" relation="include">
+        </childnode>
+        <childnode refid="32498" relation="include">
+        </childnode>
+        <childnode refid="32499" relation="include">
+        </childnode>
+        <childnode refid="32500" relation="include">
+        </childnode>
+        <childnode refid="32528" relation="include">
+        </childnode>
+        <childnode refid="32501" relation="include">
+        </childnode>
+      </node>
+      <node id="32536">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="32457" relation="include">
+        </childnode>
+      </node>
+      <node id="32467">
+        <label>/usr/include/gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="32468" relation="include">
+        </childnode>
+        <childnode refid="32470" relation="include">
+        </childnode>
+        <childnode refid="32471" relation="include">
+        </childnode>
+        <childnode refid="32475" relation="include">
+        </childnode>
+      </node>
+      <node id="32519">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="32480" relation="include">
+        </childnode>
+      </node>
+      <node id="32460">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="32461" relation="include">
+        </childnode>
+        <childnode refid="32462" relation="include">
+        </childnode>
+        <childnode refid="32463" relation="include">
+        </childnode>
+        <childnode refid="32464" relation="include">
+        </childnode>
+      </node>
+      <node id="32564">
+        <label>/usr/include/gecode/search/sequential/dfs.hh</label>
+        <link refid="sequential_2dfs_8hh_source"/>
+      </node>
+      <node id="32518">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="32480" relation="include">
+        </childnode>
+      </node>
+      <node id="32514">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="32458">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="32556">
+        <label>/usr/include/gecode/search.hh</label>
+        <link refid="search_8hh_source"/>
+        <childnode refid="32536" relation="include">
+        </childnode>
+        <childnode refid="32477" relation="include">
+        </childnode>
+        <childnode refid="32557" relation="include">
+        </childnode>
+        <childnode refid="32565" relation="include">
+        </childnode>
+        <childnode refid="32559" relation="include">
+        </childnode>
+        <childnode refid="32558" relation="include">
+        </childnode>
+        <childnode refid="32563" relation="include">
+        </childnode>
+        <childnode refid="32564" relation="include">
+        </childnode>
+        <childnode refid="32562" relation="include">
+        </childnode>
+        <childnode refid="32567" relation="include">
+        </childnode>
+        <childnode refid="32568" relation="include">
+        </childnode>
+      </node>
+      <node id="32472">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="32473" relation="include">
+        </childnode>
+        <childnode refid="32474" relation="include">
+        </childnode>
+      </node>
+      <node id="32527">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32561">
+        <label>/usr/include/gecode/search/parallel/dfs.hh</label>
+        <link refid="parallel_2dfs_8hh_source"/>
+      </node>
+      <node id="32546">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="32494">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="32475">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="32472" relation="include">
+        </childnode>
+      </node>
+      <node id="32499">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32522">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="32494" relation="include">
+        </childnode>
+      </node>
+      <node id="32509">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="32456">
+        <label>/usr/include/gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="32457" relation="include">
+        </childnode>
+        <childnode refid="32460" relation="include">
+        </childnode>
+        <childnode refid="32465" relation="include">
+        </childnode>
+        <childnode refid="32466" relation="include">
+        </childnode>
+        <childnode refid="32476" relation="include">
+        </childnode>
+        <childnode refid="32475" relation="include">
+        </childnode>
+        <childnode refid="32467" relation="include">
+        </childnode>
+        <childnode refid="32477" relation="include">
+        </childnode>
+        <childnode refid="32479" relation="include">
+        </childnode>
+        <childnode refid="32554" relation="include">
+        </childnode>
+        <childnode refid="32555" relation="include">
+        </childnode>
+        <childnode refid="32535" relation="include">
+        </childnode>
+        <childnode refid="32556" relation="include">
+        </childnode>
+        <childnode refid="32545" relation="include">
+        </childnode>
+      </node>
+      <node id="32548">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="32471">
+        <label>/usr/include/gecode/gist/nodestats.hh</label>
+        <link refid="nodestats_8hh_source"/>
+        <childnode refid="32472" relation="include">
+        </childnode>
+      </node>
+      <node id="32551">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="32509" relation="include">
+        </childnode>
+        <childnode refid="32550" relation="include">
+        </childnode>
+      </node>
+      <node id="32500">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32508">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="32509" relation="include">
+        </childnode>
+      </node>
+      <node id="32492">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="32555">
+        <label>/usr/include/gecode/kernel/wait.hh</label>
+        <link refid="wait_8hh_source"/>
+      </node>
+      <node id="32513">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="32454">
+        <label>/usr/include/gecode/support/config.hpp</label>
+        <link refid="support/config.hpp"/>
+        <childnode refid="32455" relation="include">
+        </childnode>
+      </node>
+      <node id="32474">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="32506">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="32479" relation="include">
+        </childnode>
+      </node>
+      <node id="32481">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="32568">
+        <label>/usr/include/gecode/search/worker.hh</label>
+        <link refid="worker_8hh_source"/>
+        <childnode refid="32559" relation="include">
+        </childnode>
+        <childnode refid="32558" relation="include">
+        </childnode>
+        <childnode refid="32563" relation="include">
+        </childnode>
+        <childnode refid="32564" relation="include">
+        </childnode>
+        <childnode refid="32562" relation="include">
+        </childnode>
+      </node>
+      <node id="32482">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="32483" relation="include">
+        </childnode>
+        <childnode refid="32488" relation="include">
+        </childnode>
+        <childnode refid="32490" relation="include">
+        </childnode>
+      </node>
+      <node id="32539">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="32538" relation="include">
+        </childnode>
+      </node>
+      <node id="32540">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="32538" relation="include">
+        </childnode>
+      </node>
+      <node id="32526">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="32514" relation="include">
+        </childnode>
+      </node>
+      <node id="32465">
+        <label>/usr/include/gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="32466" relation="include">
+        </childnode>
+      </node>
+      <node id="32512">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="32513" relation="include">
+        </childnode>
+      </node>
+      <node id="32558">
+        <label>/usr/include/gecode/search/parallel/path.hh</label>
+        <link refid="parallel_2path_8hh_source"/>
+        <childnode refid="32559" relation="include">
+        </childnode>
+      </node>
+      <node id="32477">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="32473" relation="include">
+        </childnode>
+        <childnode refid="32474" relation="include">
+        </childnode>
+        <childnode refid="32478" relation="include">
+        </childnode>
+        <childnode refid="32476" relation="include">
+        </childnode>
+        <childnode refid="32475" relation="include">
+        </childnode>
+      </node>
+      <node id="32491">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="32489">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="32521">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="32482" relation="include">
+        </childnode>
+      </node>
+      <node id="32528">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="32565">
+        <label>/usr/include/gecode/search/meta/rbs.hh</label>
+        <link refid="rbs_8hh_source"/>
+        <childnode refid="32566" relation="include">
+        </childnode>
+      </node>
+      <node id="32560">
+        <label>/usr/include/gecode/search/parallel/bab.hh</label>
+        <link refid="parallel_2bab_8hh_source"/>
+      </node>
+      <node id="32534">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="32496" relation="include">
+        </childnode>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32483">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="32484" relation="include">
+        </childnode>
+      </node>
+      <node id="32501">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="32502" relation="include">
+        </childnode>
+      </node>
+      <node id="32464">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="32461" relation="include">
+        </childnode>
+      </node>
+      <node id="32476">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="32559">
+        <label>/usr/include/gecode/search/parallel/engine.hh</label>
+        <link refid="engine_8hh_source"/>
+        <childnode refid="32560" relation="include">
+        </childnode>
+        <childnode refid="32561" relation="include">
+        </childnode>
+      </node>
+      <node id="32461">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="32459">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="32487">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="32543">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="32542" relation="include">
+        </childnode>
+      </node>
+      <node id="32468">
+        <label>/usr/include/gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="32469" relation="include">
+        </childnode>
+      </node>
+      <node id="32466">
+        <label>/usr/include/gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="32467" relation="include">
+        </childnode>
+      </node>
+      <node id="32549">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="32463">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="32562">
+        <label>/usr/include/gecode/search/sequential/path.hh</label>
+        <link refid="sequential_2path_8hh_source"/>
+        <childnode refid="32563" relation="include">
+        </childnode>
+        <childnode refid="32564" relation="include">
+        </childnode>
+      </node>
+      <node id="32566">
+        <label>/usr/include/gecode/search/rbs.hpp</label>
+        <link refid="rbs_8hpp_source"/>
+        <childnode refid="32556" relation="include">
+        </childnode>
+      </node>
+      <node id="32533">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="32514" relation="include">
+        </childnode>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32479">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="32457" relation="include">
+        </childnode>
+        <childnode refid="32461" relation="include">
+        </childnode>
+        <childnode refid="32463" relation="include">
+        </childnode>
+        <childnode refid="32464" relation="include">
+        </childnode>
+        <childnode refid="32460" relation="include">
+        </childnode>
+        <childnode refid="32477" relation="include">
+        </childnode>
+        <childnode refid="32480" relation="include">
+        </childnode>
+        <childnode refid="32481" relation="include">
+        </childnode>
+        <childnode refid="32482" relation="include">
+        </childnode>
+        <childnode refid="32491" relation="include">
+        </childnode>
+        <childnode refid="32492" relation="include">
+        </childnode>
+        <childnode refid="32493" relation="include">
+        </childnode>
+        <childnode refid="32494" relation="include">
+        </childnode>
+        <childnode refid="32495" relation="include">
+        </childnode>
+        <childnode refid="32496" relation="include">
+        </childnode>
+        <childnode refid="32503" relation="include">
+        </childnode>
+        <childnode refid="32507" relation="include">
+        </childnode>
+        <childnode refid="32508" relation="include">
+        </childnode>
+        <childnode refid="32510" relation="include">
+        </childnode>
+        <childnode refid="32511" relation="include">
+        </childnode>
+        <childnode refid="32487" relation="include">
+        </childnode>
+        <childnode refid="32512" relation="include">
+        </childnode>
+        <childnode refid="32484" relation="include">
+        </childnode>
+        <childnode refid="32514" relation="include">
+        </childnode>
+        <childnode refid="32515" relation="include">
+        </childnode>
+        <childnode refid="32489" relation="include">
+        </childnode>
+        <childnode refid="32516" relation="include">
+        </childnode>
+        <childnode refid="32517" relation="include">
+        </childnode>
+        <childnode refid="32528" relation="include">
+        </childnode>
+        <childnode refid="32502" relation="include">
+        </childnode>
+        <childnode refid="32529" relation="include">
+        </childnode>
+        <childnode refid="32530" relation="include">
+        </childnode>
+        <childnode refid="32533" relation="include">
+        </childnode>
+        <childnode refid="32534" relation="include">
+        </childnode>
+        <childnode refid="32535" relation="include">
+        </childnode>
+        <childnode refid="32537" relation="include">
+        </childnode>
+        <childnode refid="32539" relation="include">
+        </childnode>
+        <childnode refid="32540" relation="include">
+        </childnode>
+        <childnode refid="32541" relation="include">
+        </childnode>
+        <childnode refid="32543" relation="include">
+        </childnode>
+        <childnode refid="32544" relation="include">
+        </childnode>
+        <childnode refid="32545" relation="include">
+        </childnode>
+      </node>
+      <node id="32488">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32490">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32530">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="32531" relation="include">
+        </childnode>
+        <childnode refid="32532" relation="include">
+        </childnode>
+      </node>
+      <node id="32511">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="32557">
+        <label>/usr/include/gecode/search/meta/nogoods.hh</label>
+        <link refid="nogoods_8hh_source"/>
+        <childnode refid="32558" relation="include">
+        </childnode>
+        <childnode refid="32562" relation="include">
+        </childnode>
+      </node>
+      <node id="32502">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="32544">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="32542" relation="include">
+        </childnode>
+      </node>
+      <node id="32516">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="32498">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="32489" relation="include">
+        </childnode>
+      </node>
+      <node id="32462">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="32553">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="32469">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor_8hh_source"/>
+      </node>
+      <node id="32541">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="32542" relation="include">
+        </childnode>
+      </node>
+      <node id="32455">
+        <label>/usr/include/gecode/support.hh</label>
+        <link refid="support_8hh_source"/>
+        <childnode refid="32456" relation="include">
+        </childnode>
+      </node>
+      <node id="32485">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="32480" relation="include">
+        </childnode>
+      </node>
+      <node id="32484">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="32485" relation="include">
+        </childnode>
+        <childnode refid="32480" relation="include">
+        </childnode>
+        <childnode refid="32486" relation="include">
+        </childnode>
+      </node>
+      <node id="32507">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="32537">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="32538" relation="include">
+        </childnode>
+      </node>
+      <node id="32524">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="32508" relation="include">
+        </childnode>
+      </node>
+      <node id="32545">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="32546" relation="include">
+        </childnode>
+        <childnode refid="32540" relation="include">
+        </childnode>
+        <childnode refid="32538" relation="include">
+        </childnode>
+        <childnode refid="32547" relation="include">
+        </childnode>
+        <childnode refid="32548" relation="include">
+        </childnode>
+        <childnode refid="32509" relation="include">
+        </childnode>
+        <childnode refid="32541" relation="include">
+        </childnode>
+        <childnode refid="32543" relation="include">
+        </childnode>
+        <childnode refid="32544" relation="include">
+        </childnode>
+        <childnode refid="32542" relation="include">
+        </childnode>
+        <childnode refid="32513" relation="include">
+        </childnode>
+        <childnode refid="32549" relation="include">
+        </childnode>
+        <childnode refid="32550" relation="include">
+        </childnode>
+        <childnode refid="32551" relation="include">
+        </childnode>
+        <childnode refid="32552" relation="include">
+        </childnode>
+        <childnode refid="32553" relation="include">
+        </childnode>
+      </node>
+      <node id="32554">
+        <label>/usr/include/gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="32479" relation="include">
+        </childnode>
+        <childnode refid="32545" relation="include">
+        </childnode>
+      </node>
+      <node id="32567">
+        <label>/usr/include/gecode/search/support.hh</label>
+        <link refid="search_2support_8hh_source"/>
+        <childnode refid="32559" relation="include">
+        </childnode>
+        <childnode refid="32558" relation="include">
+        </childnode>
+        <childnode refid="32566" relation="include">
+        </childnode>
+        <childnode refid="32563" relation="include">
+        </childnode>
+        <childnode refid="32564" relation="include">
+        </childnode>
+        <childnode refid="32562" relation="include">
+        </childnode>
+      </node>
+      <node id="32493">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="32550">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="32551" relation="include">
+        </childnode>
+      </node>
+      <node id="32520">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="32480" relation="include">
+        </childnode>
+      </node>
+      <node id="32547">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="support_2config_8hpp_1a0fffef6c3e9c8c786472fb6fa6fbc55d" prot="public" static="no">
+        <name>GECODE_DLL_USERPREFIX</name>
+        <initializer>&quot;&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="42" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a983cdb4946dabc110fbdd505304178c4" prot="public" static="no">
+        <name>GECODE_DLL_USERSUFFIX</name>
+        <initializer>&quot;&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="45" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a86e3a2a37c00cfb55ee5cff3f83bfc61" prot="public" static="no">
+        <name>GECODE_FLATZINC_VERSION</name>
+        <initializer>&quot;1.6&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="48" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1aa62ad7f8c717e3a596660fbc61606f81" prot="public" static="no">
+        <name>GECODE_GCC_HAS_CLASS_VISIBILITY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="51" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a12c131727cd9f1c2dfacc1c4ebc1fab7" prot="public" static="no">
+        <name>GECODE_HAS_BUILTIN_FFSL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="54" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a63314b307e9176d47956ade347f18096" prot="public" static="no">
+        <name>GECODE_HAS_FLOAT_VARS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="57" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1ad4fc86a4533657425f197973e65290d8" prot="public" static="no">
+        <name>GECODE_HAS_GIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="60" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1ac0f83c57e0748e080f32a9310d685d90" prot="public" static="no">
+        <name>GECODE_HAS_GNU_HASH_MAP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="63" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1ae0586415ca3d8aff3c1cb5b6af9145c2" prot="public" static="no">
+        <name>GECODE_HAS_INT_VARS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="66" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1abd3c6cd66a7bcd5b7b022d94b8d4719a" prot="public" static="no">
+        <name>GECODE_HAS_MTRACE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="72" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1acce9a86b5332806817325df6d88e7604" prot="public" static="no">
+        <name>GECODE_HAS_QT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="75" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a7e207c92eec12e9b4a2690af20737ff7" prot="public" static="no">
+        <name>GECODE_HAS_SET_VARS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="78" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a61ebbe24d638a82c9dfac8ad52bc45a6" prot="public" static="no">
+        <name>GECODE_HAS_UNISTD_H</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="81" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a66837ef2142bca80afde89c5c0bc4ce3" prot="public" static="no">
+        <name>GECODE_LIBRARY_VERSION</name>
+        <initializer>&quot;4-2-1&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="84" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1aa9f7d6865eb24be6a2ec149c590ee579" prot="public" static="no">
+        <name>GECODE_THREADS_PTHREADS</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="108" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a7f988b46a0380b1525bb5d94f032d5fc" prot="public" static="no">
+        <name>GECODE_THREADS_PTHREADS_SPINLOCK</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="111" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1ab8de2d304332b6645d219f58896aa530" prot="public" static="no">
+        <name>GECODE_USE_GETTIMEOFDAY</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="120" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1aab33819ae8587f2e49327bd834c3d161" prot="public" static="no">
+        <name>GECODE_VERSION</name>
+        <initializer>&quot;4.2.1&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="123" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1a429fbc50dce8125014102e4f18347685" prot="public" static="no">
+        <name>GECODE_VERSION_NUMBER</name>
+        <initializer>400201</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="126" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="support_2config_8hpp_1adb97414df8177596c2b149cf5f588ac8" prot="public" static="no">
+        <name>forceinline</name>
+        <initializer>inline __attribute__ ((__always_inline__))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/config.hpp" line="129" column="9" bodyfile="/usr/include/gecode/support/config.hpp" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>gecode/support/config.hpp.<sp/><sp/>Generated<sp/>from<sp/>config.hpp.in<sp/>by<sp/>configure.<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2008</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-07-15<sp/>02:49:56<sp/>+0200<sp/>(Mon,<sp/>15<sp/>Jul<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13879<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>to<sp/>include<sp/>audit<sp/>code<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_AUDIT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>User-defined<sp/>prefix<sp/>of<sp/>dll<sp/>names<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_DLL_USERPREFIX<sp/>&quot;&quot;</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>User-defined<sp/>suffix<sp/>of<sp/>dll<sp/>names<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_DLL_USERSUFFIX<sp/>&quot;&quot;</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Supported<sp/>version<sp/>of<sp/>FlatZinc<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_FLATZINC_VERSION<sp/>&quot;1.6&quot;</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>gcc<sp/>understands<sp/>visibility<sp/>attributes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_GCC_HAS_CLASS_VISIBILITY<sp/></highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>whether<sp/>__builtin_ffsl<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_BUILTIN_FFSL<sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>to<sp/>build<sp/>FLOAT<sp/>variables<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_FLOAT_VARS<sp/></highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>Gist<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_GIST<sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>GNU<sp/>hash_map<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_GNU_HASH_MAP<sp/></highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>to<sp/>build<sp/>INT<sp/>variables<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_INT_VARS<sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>MPFR<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_HAS_MPFR<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>have<sp/>mtrace<sp/>for<sp/>memory<sp/>leak<sp/>debugging<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_MTRACE<sp/></highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>Qt<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_QT<sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>to<sp/>build<sp/>SET<sp/>variables<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_SET_VARS<sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>unistd.h<sp/>is<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_HAS_UNISTD_H<sp/>1</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Gecode<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_LIBRARY_VERSION<sp/>&quot;4-2-1&quot;</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Heap<sp/>memory<sp/>alignment<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_MEMORY_ALIGNMENT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>How<sp/>to<sp/>check<sp/>allocation<sp/>size<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_MSIZE<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>to<sp/>track<sp/>peak<sp/>heap<sp/>size<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_PEAKHEAP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>need<sp/>malloc.h<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_PEAKHEAP_MALLOC_H<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>need<sp/>malloc/malloc.h<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_PEAKHEAP_MALLOC_MALLOC_H<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>are<sp/>compiling<sp/>static<sp/>libraries<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_STATIC_LIBS<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>have<sp/>Mac<sp/>OS<sp/>threads<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_THREADS_OSX<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>have<sp/>posix<sp/>threads<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_THREADS_PTHREADS<sp/>1</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>have<sp/>posix<sp/>spinlocks<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_THREADS_PTHREADS_SPINLOCK<sp/>1</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Whether<sp/>we<sp/>have<sp/>windows<sp/>threads<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_THREADS_WINDOWS<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Use<sp/>clock()<sp/>for<sp/>time-measurement<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>#undef<sp/>GECODE_USE_CLOCK<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Use<sp/>gettimeofday<sp/>for<sp/>time-measurement<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_USE_GETTIMEOFDAY<sp/>1</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Gecode<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_VERSION<sp/>&quot;4.2.1&quot;</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Gecode<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GECODE_VERSION_NUMBER<sp/>400201</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>How<sp/>to<sp/>tell<sp/>the<sp/>compiler<sp/>to<sp/>really,<sp/>really<sp/>inline<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>forceinline<sp/>inline<sp/>__attribute__<sp/>((__always_inline__))</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>support-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/support/config.hpp"/>
+  </compounddef>
+</doxygen>

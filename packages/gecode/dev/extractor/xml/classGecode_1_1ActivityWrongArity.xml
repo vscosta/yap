@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ActivityWrongArity" kind="class" prot="public">
+    <compoundname>Gecode::ActivityWrongArity</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="kernel_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ActivityWrongArity_1a784ce4836ca34bcc93a695d0f9ad34d5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ActivityWrongArity::ActivityWrongArity</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>ActivityWrongArity</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/exception.hpp" line="128" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="182" bodyend="183"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: activity has wrong arity </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="59">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="60" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>std::exception</label>
+      </node>
+      <node id="58">
+        <label>Gecode::ActivityWrongArity</label>
+        <link refid="classGecode_1_1ActivityWrongArity"/>
+        <childnode refid="59" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="62">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="63" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>std::exception</label>
+      </node>
+      <node id="61">
+        <label>Gecode::ActivityWrongArity</label>
+        <link refid="classGecode_1_1ActivityWrongArity"/>
+        <childnode refid="62" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/exception.hpp" line="125" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="125" bodyend="129"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ActivityWrongArity_1a784ce4836ca34bcc93a695d0f9ad34d5" prot="public" virt="non-virtual"><scope>Gecode::ActivityWrongArity</scope><name>ActivityWrongArity</name></member>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::ActivityWrongArity</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::ActivityWrongArity</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

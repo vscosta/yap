@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskDriverScript" kind="group">
+    <compoundname>TaskDriverScript</compoundname>
+    <title>Script classes</title>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__TaskDriverScript_1ga117d41ccb2d4699fca0252b091c3722a" prot="public" static="no">
+        <type>Driver::ScriptBase&lt; Space &gt;</type>
+        <definition>typedef Driver::ScriptBase&lt;Space&gt; Gecode::Script</definition>
+        <argsstring></argsstring>
+        <name>Script</name>
+        <briefdescription>
+<para>Base-class for scripts. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="666" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="666" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskDriverScript_1ga82bcca27a4e8679ffa36b01e8d2973eb" prot="public" static="no">
+        <type>Driver::ScriptBase&lt; MinimizeSpace &gt;</type>
+        <definition>typedef Driver::ScriptBase&lt;MinimizeSpace&gt; Gecode::MinimizeScript</definition>
+        <argsstring></argsstring>
+        <name>MinimizeScript</name>
+        <briefdescription>
+<para>Base-class for scripts for finding solution of lowest integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="671" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="671" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskDriverScript_1gae7e19e8171970ec062d17c0fe143f875" prot="public" static="no">
+        <type>Driver::ScriptBase&lt; MaximizeSpace &gt;</type>
+        <definition>typedef Driver::ScriptBase&lt;MaximizeSpace&gt; Gecode::MaximizeScript</definition>
+        <argsstring></argsstring>
+        <name>MaximizeScript</name>
+        <briefdescription>
+<para>Base-class for scripts for finding solution of highest integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="676" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="676" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskDriverScript_1ga87ef4356662e4e5d587cb93024a16e22" prot="public" static="no">
+        <type>Driver::ScriptBase&lt; IntMinimizeSpace &gt;</type>
+        <definition>typedef Driver::ScriptBase&lt;IntMinimizeSpace&gt; Gecode::IntMinimizeScript</definition>
+        <argsstring></argsstring>
+        <name>IntMinimizeScript</name>
+        <briefdescription>
+<para>Base-class for scripts for finding solution of lowest integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="681" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="681" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskDriverScript_1gabecf8e1aa610b53627939fa7d2cb65d6" prot="public" static="no">
+        <type>Driver::ScriptBase&lt; IntMaximizeSpace &gt;</type>
+        <definition>typedef Driver::ScriptBase&lt;IntMaximizeSpace&gt; Gecode::IntMaximizeScript</definition>
+        <argsstring></argsstring>
+        <name>IntMaximizeScript</name>
+        <briefdescription>
+<para>Base-class for scripts for finding solution of highest integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="686" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="686" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

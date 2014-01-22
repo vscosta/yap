@@ -1,0 +1,449 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="mpw_8hpp" kind="file">
+    <compoundname>mpw.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="mpw_8hpp_1afba43621e932ae676151c92cf74353d3" prot="public" static="no">
+        <name>BOOST_NO_CV_SPECIALIZATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="23" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1aa085b1956c23c0f151e03bc81fed0f7b" prot="public" static="no">
+        <name>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="24" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1ab1202c6d7429d3009855096881bc2b5f" prot="public" static="no">
+        <name>BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="25" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a70bf27da597d3ab83281785331145f10" prot="public" static="no">
+        <name>BOOST_NO_INCLASS_MEMBER_INITIALIZATION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="26" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a7741217677869546396dfa921c058be9" prot="public" static="no">
+        <name>BOOST_NO_INTRINSIC_WCHAR_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="27" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1aa93dba29530695ec6ace0b1c499d3e2f" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="28" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a47037116433d33b0622f800cdee64765" prot="public" static="no">
+        <name>BOOST_NO_USING_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="29" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1afbe58d464746d36d7a40268cc04370ac" prot="public" static="no">
+        <name>BOOST_NO_CWCHAR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="31" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a5d8d4a434c60a37c520052bdec610220" prot="public" static="no">
+        <name>BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="32" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1ae4e4629a2d4b5ed01aba3f0c497b8e1d" prot="public" static="no">
+        <name>BOOST_NO_STD_ALLOCATOR</name>
+        <initializer>/* actually a bug with const reference overloading */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="34" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a454e263333ba0a545af8b803fd1a8a53" prot="public" static="no">
+        <name>BOOST_NO_AUTO_DECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="43" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1abee59fa974ed5df6c79e90ad5d2935a2" prot="public" static="no">
+        <name>BOOST_NO_AUTO_MULTIDECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="44" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a7f33717514f6be9134295a6976c17ab0" prot="public" static="no">
+        <name>BOOST_NO_CHAR16_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="45" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a58c90dea21e43297b322244141749bb3" prot="public" static="no">
+        <name>BOOST_NO_CHAR32_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="46" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a2ab158f48b5ebc962868ca4fae0e235e" prot="public" static="no">
+        <name>BOOST_NO_CONSTEXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="47" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a5265b73b38627ec9f12a526bc43a53a7" prot="public" static="no">
+        <name>BOOST_NO_DECLTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="48" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a1e33c4ee8a0e882792a1ab749898fc25" prot="public" static="no">
+        <name>BOOST_NO_DEFAULTED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="49" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1ac6990e4e38c813084b7fb78af7ce1225" prot="public" static="no">
+        <name>BOOST_NO_DELETED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="50" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a86822fbd4a31972ef0b6c1ded3a4405e" prot="public" static="no">
+        <name>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="51" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a0e4b840afc76df158ce1024b265ee136" prot="public" static="no">
+        <name>BOOST_NO_EXTERN_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="52" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a1afa1eecb86fade06c2c9d679c2acd99" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="53" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="54" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a16e1e4611bfbfa7240467ed9d4a7c9d0" prot="public" static="no">
+        <name>BOOST_NO_LAMBDAS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="55" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a0579c4e6a9f145f7bfbbdf63b1cb115a" prot="public" static="no">
+        <name>BOOST_NO_NOEXCEPT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="56" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1aaf1c53a1bb595a0379a07db8f2c38353" prot="public" static="no">
+        <name>BOOST_NO_NULLPTR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="57" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a7f6939964e1d2ff8d7a4f5f3d98f807a" prot="public" static="no">
+        <name>BOOST_NO_RAW_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="58" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1aab711e4e53ece4b8ff79a12ace10492f" prot="public" static="no">
+        <name>BOOST_NO_RVALUE_REFERENCES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="59" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a673f164000ed2c207f200528add4f736" prot="public" static="no">
+        <name>BOOST_NO_SCOPED_ENUMS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="60" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1aff4c6e7a6a9d7bad9905ce7b9c100ae9" prot="public" static="no">
+        <name>BOOST_NO_SFINAE_EXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="61" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a982d85c01772e8754849378db91f4f1c" prot="public" static="no">
+        <name>BOOST_NO_STATIC_ASSERT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="62" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1ab6ce230323006d1a142b49de8090dda8" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_ALIASES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="63" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a4080e71a9718560d54bdffbd2a9a3cb2" prot="public" static="no">
+        <name>BOOST_NO_UNICODE_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="64" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1ac6f562f47e6a764127297fdec648165e" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="65" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a0097578e1d5220624588d3573312a3ba" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_MACROS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="66" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="mpw_8hpp_1a7501099fcfc0a918e188478cac7d6f31" prot="public" static="no">
+        <name>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" line="67" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Aleksey<sp/>Gurtovoy<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>MPW<sp/>C++<sp/>compilers<sp/>setup:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if<sp/><sp/><sp/><sp/>defined(__SC__)</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER<sp/>&quot;MPW<sp/>SCpp<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(__SC__)</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>defined(__MRC__)</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER<sp/>&quot;MPW<sp/>MrCpp<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(__MRC__)</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>else</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Using<sp/>MPW<sp/>compiler<sp/>configuration<sp/>by<sp/>mistake.<sp/><sp/>Please<sp/>update.&quot;</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>MPW<sp/>8.90:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(MPW_CPLUS<sp/>&lt;=<sp/>0x890)<sp/>||<sp/>!defined(BOOST_STRICT_CONFIG)</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_CV_SPECIALIZATIONS</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_INCLASS_MEMBER_INITIALIZATION</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_INTRINSIC_WCHAR_T</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_USING_TEMPLATE</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_CWCHAR</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_ALLOCATOR<sp/></highlight><highlight class="comment">/*<sp/>actually<sp/>a<sp/>bug<sp/>with<sp/>const<sp/>reference<sp/>overloading<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="comment">//<sp/>C++0x<sp/>features</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>See<sp/>boost\config\suffix.hpp<sp/>for<sp/>BOOST_NO_LONG_LONG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_DECLARATIONS</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_MULTIDECLARATIONS</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR16_T</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR32_T</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CONSTEXPR</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DECLTYPE</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DEFAULTED_FUNCTIONS</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DELETED_FUNCTIONS</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXTERN_TEMPLATE</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_LAMBDAS</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NOEXCEPT</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NULLPTR</highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RAW_LITERALS</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RVALUE_REFERENCES</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SCOPED_ENUMS</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SFINAE_EXPR</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_TEMPLATE_ALIASES</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNICODE_LITERALS</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_TEMPLATES</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_MACROS</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>check:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>we<sp/>don&apos;t<sp/>support<sp/>MPW<sp/>prior<sp/>to<sp/>version<sp/>8.9:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>MPW_CPLUS<sp/>&lt;<sp/>0x890</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>&quot;Compiler<sp/>not<sp/>supported<sp/>or<sp/>configured<sp/>-<sp/>please<sp/>reconfigure&quot;</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//<sp/>last<sp/>known<sp/>and<sp/>checked<sp/>version<sp/>is<sp/>0x890:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(MPW_CPLUS<sp/>&gt;<sp/>0x890)</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Unknown<sp/>compiler<sp/>version<sp/>-<sp/>please<sp/>run<sp/>the<sp/>configure<sp/>tests<sp/>and<sp/>report<sp/>the<sp/>results&quot;</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/mpw.hpp"/>
+  </compounddef>
+</doxygen>

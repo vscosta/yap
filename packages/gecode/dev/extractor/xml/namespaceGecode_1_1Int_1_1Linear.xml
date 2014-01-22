@@ -1,0 +1,2089 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Linear" kind="namespace">
+    <compoundname>Gecode::Int::Linear</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4" prot="public">Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01NegBoolView_01_4" prot="public">Gecode::Int::Linear::BoolNegTraits&lt; NegBoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1SupportSet" prot="public">Gecode::Int::Linear::SupportSet</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1SupportIter" prot="public">Gecode::Int::Linear::SupportIter</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter" prot="public">Gecode::Int::Linear::PosSupportIter</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NegSupportIter" prot="public">Gecode::Int::Linear::NegSupportIter</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NoView" prot="public">Gecode::Int::Linear::NoView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1TermLess" prot="public">Gecode::Int::Linear::TermLess</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LinBin" prot="public">Gecode::Int::Linear::LinBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin" prot="public">Gecode::Int::Linear::ReLinBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EqBin" prot="public">Gecode::Int::Linear::EqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReEqBin" prot="public">Gecode::Int::Linear::ReEqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NqBin" prot="public">Gecode::Int::Linear::NqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LqBin" prot="public">Gecode::Int::Linear::LqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1GqBin" prot="public">Gecode::Int::Linear::GqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin" prot="public">Gecode::Int::Linear::ReLqBin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LinTer" prot="public">Gecode::Int::Linear::LinTer</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EqTer" prot="public">Gecode::Int::Linear::EqTer</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NqTer" prot="public">Gecode::Int::Linear::NqTer</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LqTer" prot="public">Gecode::Int::Linear::LqTer</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1Lin" prot="public">Gecode::Int::Linear::Lin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReLin" prot="public">Gecode::Int::Linear::ReLin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1Eq" prot="public">Gecode::Int::Linear::Eq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1DomEq" prot="public">Gecode::Int::Linear::DomEq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReEq" prot="public">Gecode::Int::Linear::ReEq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1Nq" prot="public">Gecode::Int::Linear::Nq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1Lq" prot="public">Gecode::Int::Linear::Lq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReLq" prot="public">Gecode::Int::Linear::ReLq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LinBoolInt" prot="public">Gecode::Int::Linear::LinBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EqBoolInt" prot="public">Gecode::Int::Linear::EqBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1GqBoolInt" prot="public">Gecode::Int::Linear::GqBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NqBoolInt" prot="public">Gecode::Int::Linear::NqBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReLinBoolInt" prot="public">Gecode::Int::Linear::ReLinBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits" prot="public">Gecode::Int::Linear::BoolNegTraits</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReGqBoolInt" prot="public">Gecode::Int::Linear::ReGqBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ReEqBoolInt" prot="public">Gecode::Int::Linear::ReEqBoolInt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LinBoolView" prot="public">Gecode::Int::Linear::LinBoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EqBoolView" prot="public">Gecode::Int::Linear::EqBoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NqBoolView" prot="public">Gecode::Int::Linear::NqBoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1GqBoolView" prot="public">Gecode::Int::Linear::GqBoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ScaleBool" prot="public">Gecode::Int::Linear::ScaleBool</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1ScaleBoolArray" prot="public">Gecode::Int::Linear::ScaleBoolArray</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray" prot="public">Gecode::Int::Linear::EmptyScaleBoolArray</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LinBoolScale" prot="public">Gecode::Int::Linear::LinBoolScale</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1EqBoolScale" prot="public">Gecode::Int::Linear::EqBoolScale</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1LqBoolScale" prot="public">Gecode::Int::Linear::LqBoolScale</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1NqBoolScale" prot="public">Gecode::Int::Linear::NqBoolScale</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1Term" prot="public">Gecode::Int::Linear::Term</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793d" prot="public" static="no">
+        <name>BinMod</name>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793da473b129a6c7dd2cc4a79d1f93ddae1a3" prot="public">
+          <name>BM_X0_MIN</name>
+          <initializer>= 1&lt;&lt;0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793da20d32c419320c4023b2cf237b17daf21" prot="public">
+          <name>BM_X0_MAX</name>
+          <initializer>= 1&lt;&lt;1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793da75565ddfbb5e6457b1c66efdf48bfcd6" prot="public">
+          <name>BM_X1_MIN</name>
+          <initializer>= 1&lt;&lt;2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793da4b271ecef1b91e53a783cecd964c2e6b" prot="public">
+          <name>BM_X1_MAX</name>
+          <initializer>= 1&lt;&lt;3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aa5ae88034b2b38c1394d9bdecc53793da2af5c61c15bf40866b84f816e149b61b" prot="public">
+          <name>BM_ALL</name>
+          <initializer>= BM_X0_MIN|BM_X0_MAX|BM_X1_MIN|BM_X1_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Describe which view has been modified how. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-bin.hpp" line="160" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="160" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427" prot="public" static="no">
+        <name>TerMod</name>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427a5fdc3a18546500fe4da78b2169d3b24d" prot="public">
+          <name>TM_X0_MIN</name>
+          <initializer>= 1&lt;&lt;0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427a334ce11a16b33855e86d2e2acc5983c4" prot="public">
+          <name>TM_X0_MAX</name>
+          <initializer>= 1&lt;&lt;1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427a0e4a1076098980d3646e13e778c2059d" prot="public">
+          <name>TM_X1_MIN</name>
+          <initializer>= 1&lt;&lt;2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427aaae7c077a6913783e6846e8d2609153e" prot="public">
+          <name>TM_X1_MAX</name>
+          <initializer>= 1&lt;&lt;3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427ad27b0f0f9b6ad75166e298f021ec13c0" prot="public">
+          <name>TM_X2_MIN</name>
+          <initializer>= 1&lt;&lt;4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427ac20b3c585d740971eae92c919de013b7" prot="public">
+          <name>TM_X2_MAX</name>
+          <initializer>= 1&lt;&lt;5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1_1Linear_1aedce83a4c1a5df9d4325f78904005427a76ce49d9eae7915d20c59f62ded7b606" prot="public">
+          <name>TM_ALL</name>
+          <initializer>= TM_X0_MIN|TM_X0_MAX|TM_X1_MIN|TM_X1_MAX|TM_X2_MIN|TM_X2_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Describe which view has been modified how. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-ter.hpp" line="125" column="1" bodyfile="/usr/include/gecode/int/linear/int-ter.hpp" bodystart="125" bodyend="133"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a7ff2b6fc1220c150df83e47f214a40a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::isunit</definition>
+        <argsstring>(ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;)</argsstring>
+        <name>isunit</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <briefdescription>
+<para>Test if only unit-coefficient arrays used. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="48" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a48616b79f9df57fe01b91033e6987377" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::isunit</definition>
+        <argsstring>(ViewArray&lt; IntView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;)</argsstring>
+        <name>isunit</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="51" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a6876ff9baf680545dc33cfe1ff72989e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::isunit</definition>
+        <argsstring>(ViewArray&lt; IntView &gt; &amp;, ViewArray&lt; NoView &gt; &amp;)</argsstring>
+        <name>isunit</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ad433b7372da29e469be39d3b8101bb00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::isunit</definition>
+        <argsstring>(ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;)</argsstring>
+        <name>isunit</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a92750771faed3014ebfeedde36976327" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Linear::bounds_p</definition>
+        <argsstring>(ModEventDelta med, ViewArray&lt; View &gt; &amp;x, Val &amp;c, Val &amp;sl, Val &amp;su)</argsstring>
+        <name>bounds_p</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+          <declname>med</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>sl</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>su</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="129" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="129" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a4fc26ee2c18881ef16d27883567fc3b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Linear::bounds_n</definition>
+        <argsstring>(ModEventDelta med, ViewArray&lt; View &gt; &amp;y, Val &amp;c, Val &amp;sl, Val &amp;su)</argsstring>
+        <name>bounds_n</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+          <declname>med</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>sl</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>su</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="150" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="150" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a8d803f035d9a5d255fdf343ac229e6a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Linear::prop_bnd</definition>
+        <argsstring>(Space &amp;home, ModEventDelta med, Propagator &amp;p, ViewArray&lt; P &gt; &amp;x, ViewArray&lt; N &gt; &amp;y, Val &amp;c)</argsstring>
+        <name>prop_bnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+          <declname>med</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="172" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="172" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a938283f9db3482a5f9a1ac7155061a75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtobin</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>eqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of equality to binary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="293" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="293" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ad163eb7cea21686e7b2a3023bcc35800" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>eqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="298" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="298" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1adf472d4688ba671dcdb49617bd008438" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>eqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="306" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="306" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a07734c9e319595659449e2fb04e6a775" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>eqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="314" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="314" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1add174dc8964e71cd5b260fd2e6cc13f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtoter</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>eqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of equality to ternary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="332" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="332" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1af9a4fb3213d5adebbef1b9d915a9187e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>eqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="337" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="337" bodyend="342"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ad2f79f99c39648481242be1b1d3016e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>eqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="345" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="345" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a50e00199fd68c4dbcf2e4612652103c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::eqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>eqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="353" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="353" bodyend="366"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a9a8a28a3150aab952bfa5201ece488cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtobin</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>nqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of disequality to binary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="496" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="496" bodyend="498"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a4fa4fb408ffc1ce248478af6b74265dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>nqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="501" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="501" bodyend="506"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a56dec17befddbe24a1dd0cb5b032268d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>nqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="509" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="509" bodyend="514"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ac8402294af2428b56a45878e21d06113" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>nqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="517" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="517" bodyend="527"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a89fbc9fa9897d2b963469e2448303999" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtoter</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>nqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of disequality to ternary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="535" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="535" bodyend="537"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a6ab2bcd9ddf4bae0bb75cd53190e45a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>nqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="540" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="540" bodyend="545"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ada11cd52b80bf4472f1d374d76afd7fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>nqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="548" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="548" bodyend="553"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ac7ea7403525f60b0bd4d0e949b856c9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::nqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>nqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="556" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="556" bodyend="569"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ad01e4b38c81eb408c5bfb2e7a5120171" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtobin</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>lqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of inequality to binary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="645" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="645" bodyend="647"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a6c7582385b4398f03f1823507a8bebda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>lqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="650" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="650" bodyend="655"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a745ae7e3e2783cf1cd4f84bf2c71cd07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>lqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="658" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="658" bodyend="663"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a63a2fb4c287be18fbb1589cbdffe8814" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtobin</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>lqtobin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="666" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="666" bodyend="676"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a4c51e18245dd47b23827b08609ebe99d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class P</type>
+          </param>
+          <param>
+            <type>class N</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtoter</definition>
+        <argsstring>(Space &amp;, bool, Propagator &amp;, ViewArray&lt; P &gt; &amp;, ViewArray&lt; N &gt; &amp;, Val)</argsstring>
+        <name>lqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; P &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; N &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+        </param>
+        <briefdescription>
+<para>Rewriting of inequality to ternary propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="684" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="684" bodyend="686"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a61dfe24afe2e18fe5ea8aeab37bb228e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; NoView &gt; &amp;, Val c)</argsstring>
+        <name>lqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="689" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="689" bodyend="694"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1aac1a90b5e215071c9771784bcb26a437" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; NoView &gt; &amp;, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>lqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">NoView</ref> &gt; &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="697" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="697" bodyend="702"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a2f8f18e02513005986159225c8d36f80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>forceinline Actor* Gecode::Int::Linear::lqtoter</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; IntView &gt; &amp;y, Val c)</argsstring>
+        <name>lqtoter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-nary.hpp" line="705" column="1" bodyfile="/usr/include/gecode/int/linear/int-nary.hpp" bodystart="705" bodyend="718"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a4f0e2e16926cb7b04cd96e378ac84f44" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Linear::estimate</definition>
+        <argsstring>(Term&lt; View &gt; *t, int n, int c, int &amp;l, int &amp;u)</argsstring>
+        <name>estimate</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>u</declname>
+        </param>
+        <briefdescription>
+<para>Estimate lower and upper bounds. </para>        </briefdescription>
+        <detaileddescription>
+<para>Estimates the boundaries for a linear expression <formula id="16">$\sum_{i=0}^{n-1}t_i + c$</formula>. If the boundaries exceed the limits as defined in Limits::Int, these boundaries are returned.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>constant </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>l</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>lower bound </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>upper bound </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/post.hpp" line="45" column="1" bodyfile="/usr/include/gecode/int/linear/post.hpp" bodystart="45" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1aa9d92d08437a10c1bf95931764588008" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Int::Linear::gcd</definition>
+        <argsstring>(int a, int b)</argsstring>
+        <name>gcd</name>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Compute the greatest common divisor of <emphasis>a</emphasis> and <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/post.hpp" line="82" column="1" bodyfile="/usr/include/gecode/int/linear/post.hpp" bodystart="82" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ab5b8f6e8132452642145e44f9cf57bb0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Linear::normalize</definition>
+        <argsstring>(Term&lt; View &gt; *t, int &amp;n, Term&lt; View &gt; *&amp;t_p, int &amp;n_p, Term&lt; View &gt; *&amp;t_n, int &amp;n_n, int &amp;g)</argsstring>
+        <name>normalize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; *&amp;</type>
+          <declname>t_p</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>n_p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; *&amp;</type>
+          <declname>t_n</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>n_n</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+<para>Normalize linear integer constraints. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t_p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over integers with positive coefficients </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of postive terms </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t_n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over integers with negative coefficients </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of negative terms </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>greatest common divisor of all coefficients</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Replaces all negative coefficients by positive coefficients.</para><para><itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Divides all coefficients by their greatest common divisor and returns the gcd <emphasis>g</emphasis> </para></listitem></itemizedlist>
+</para><para>Returns true, if all coefficients are unit coefficients </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/post.hpp" line="119" column="1" bodyfile="/usr/include/gecode/int/linear/post.hpp" bodystart="119" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a9de2a7cb2f6fdbb0d25d9fb6a5276727" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; IntView &gt; *t, int n, IntRelType irt, int c, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for linear constraint over integers. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over integers </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result of linear constraint</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for long long ints as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1364" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a5376842452596d436993618d7d659549" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; IntView &gt; *t, int n, IntRelType irt, int c, Reify r, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Reify" kindref="compound">Reify</ref></type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post reified propagator for linear constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result of linear constraint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>reification specification</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Only bounds consistency is supported.</para></listitem><listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for long long ints as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1397" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1aacfcd7074c4eca8ca6fda3bc9cea9df3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; BoolView &gt; *t, int n, IntRelType irt, int c, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for linear constraint over Booleans. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over Booleans </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result of linear constraint</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1428" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1ad4f546185fc07bc409eb817ab68fd2c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; BoolView &gt; *t, int n, IntRelType irt, int c, Reify r, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Reify" kindref="compound">Reify</ref></type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for reified linear constraint over Booleans. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over Booleans </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result of linear constraint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>reification specification</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1460" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a5a525d2ff06db39ec65241bf64f8bde5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; BoolView &gt; *t, int n, IntRelType irt, IntView y, int c=0, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for linear constraint over Booleans. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over Booleans </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>variable right hand side of linear constraint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>constant right hand side of linear constraint</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1492" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Linear_1a8cb62f7a48b96f405c59ec4bb82027c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::Int::Linear::post</definition>
+        <argsstring>(Home home, Term&lt; BoolView &gt; *t, int n, IntRelType irt, IntView y, Reify r, IntConLevel=ICL_DEF)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &gt; *</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Reify" kindref="compound">Reify</ref></type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <defval><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247adace6cc5f677c3366b58e30b854c455472" kindref="member">ICL_DEF</ref></defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for reified linear constraint over Booleans. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>home</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current space </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of linear terms over Booleans </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of array </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>irt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>type of relation </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>variable right hand side of linear constraint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>reification specification</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+All variants for linear constraints share the following properties:<itemizedlist>
+<listitem><para>Variables occuring multiply in the term array are replaced by a single occurence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>Assume linear terms for the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the limits for integers as defined in Limits::Int, an exception of type Int::NumericalOverflow is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation).</para></listitem></itemizedlist>
+</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1524" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Linear propagators </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/bool-int.hpp" line="44" column="1"/>
+  </compounddef>
+</doxygen>

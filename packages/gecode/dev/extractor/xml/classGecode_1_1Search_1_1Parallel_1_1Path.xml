@@ -1,0 +1,454 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Parallel_1_1Path" kind="class" prot="public">
+    <compoundname>Gecode::Search::Parallel::Path</compoundname>
+    <basecompoundref refid="classGecode_1_1NoGoods" prot="public" virt="non-virtual">Gecode::NoGoods</basecompoundref>
+    <includes refid="parallel_2path_8hh" local="no">path.hh</includes>
+    <innerclass refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge" prot="public">Gecode::Search::Parallel::Path::Edge</innerclass>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Search_1_1Parallel_1_1Path_1aab5ebf7a93bae710f3b4695b3a146b57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Search::Meta::NoGoodsProp</definition>
+        <argsstring></argsstring>
+        <name>Search::Meta::NoGoodsProp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="62" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1ad9238e053e87b098a64c0531a5340615" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1DynamicStack" kindref="compound">Support::DynamicStack</ref>&lt; <ref refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge" kindref="compound">Edge</ref>, <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &gt;</type>
+        <definition>Support::DynamicStack&lt;Edge,Heap&gt; Gecode::Search::Parallel::Path::ds</definition>
+        <argsstring></argsstring>
+        <name>ds</name>
+        <briefdescription>
+<para>Stack to store edge information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="109" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1abb8938bffcd06bb857dedc82e80619f2" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Search::Parallel::Path::_ngdl</definition>
+        <argsstring></argsstring>
+        <name>_ngdl</name>
+        <briefdescription>
+<para>Depth limit for no-good generation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="111" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a82ac4c076fe68797fa389efb3553e9e0" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Parallel::Path::n_work</definition>
+        <argsstring></argsstring>
+        <name>n_work</name>
+        <briefdescription>
+<para>Number of edges that have work for stealing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="113" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a76b1ee12d3a8cc70cc0885a381d2dc2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Parallel::Path::Path</definition>
+        <argsstring>(int l)</argsstring>
+        <name>Path</name>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with no-good depth limit <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="116" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="225" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a3d36d0afce56a57dade9c45ab7ddd850" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Search::Parallel::Path::ngdl</definition>
+        <argsstring>(void) const </argsstring>
+        <name>ngdl</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return no-good depth limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="118" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="229" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1afd0fd42c88a38dd85e30a9a00e3bd477" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::ngdl</definition>
+        <argsstring>(int l)</argsstring>
+        <name>ngdl</name>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> no-good depth limit to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="120" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="234" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1ad5507dd14e16f08cd9fd5fd879c3e6a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>forceinline const Choice * Gecode::Search::Parallel::Path::push</definition>
+        <argsstring>(Worker &amp;stat, Space *s, Space *c)</argsstring>
+        <name>push</name>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref> &amp;</type>
+          <declname>stat</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Push space <emphasis>c</emphasis> (a clone of <emphasis>s</emphasis> or NULL) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="122" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="239" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a44fd0df6ae2014ee6d41b4b5180911cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Generate path for next node and return whether a next node exists. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="124" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="253" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a352e26521d6a499341bb0280de64edc6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge" kindref="compound">Edge</ref> &amp;</type>
+        <definition>forceinline Path::Edge &amp; Gecode::Search::Parallel::Path::top</definition>
+        <argsstring>(void) const </argsstring>
+        <name>top</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Provide access to topmost edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="126" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="268" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1aff0717092b5d08b090cba7b17929f9e3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether path is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="128" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="274" bodyend="276"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1ad17e9943eec9ab7556f365059844fc8d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Search::Parallel::Path::lc</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return position on stack of last copy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="130" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="285" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1abae300f618c20ce850648e46ec7db88d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::unwind</definition>
+        <argsstring>(int l)</argsstring>
+        <name>unwind</name>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Unwind the stack up to position <emphasis>l</emphasis> (after failure) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="132" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="298" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a278797a6d746d71778e7a667219965df" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::commit</definition>
+        <argsstring>(Space *s, int i) const </argsstring>
+        <name>commit</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Commit space <emphasis>s</emphasis> as described by stack entry at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="134" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="279" bodyend="282"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1afa02be68e7b67195e6b5d687a14fc9e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Search::Parallel::Path::recompute</definition>
+        <argsstring>(unsigned int &amp;d, unsigned int a_d, Worker &amp;s)</argsstring>
+        <name>recompute</name>
+        <param>
+          <type>unsigned int &amp;</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a_d</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Recompute space according to path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="136" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="354" bodyend="415"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a6157203dda497e863b36324b0bc67a88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Search::Parallel::Path::recompute</definition>
+        <argsstring>(unsigned int &amp;d, unsigned int a_d, Worker &amp;s, const Space *best, int &amp;mark)</argsstring>
+        <name>recompute</name>
+        <param>
+          <type>unsigned int &amp;</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a_d</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>best</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>mark</declname>
+        </param>
+        <briefdescription>
+<para>Recompute space according to path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="138" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="418" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1aa11857b45cbb6889fd13e310f5c41202" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Search::Parallel::Path::entries</definition>
+        <argsstring>(void) const </argsstring>
+        <name>entries</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of entries on stack. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="141" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="293" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1ad6e0f495dfde28b11332918fdc6a921a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::reset</definition>
+        <argsstring>(int l)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Reset stack and set no-good depth limit to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="143" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="310" bodyend="315"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a4aec7741fb7b5704f8d6bc41bac3e1dc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::steal</definition>
+        <argsstring>(void) const </argsstring>
+        <name>steal</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Make a quick check whether stealing might be feasible. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="145" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="318" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1a696a8244ca95cfa9450fbddc878a95ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Search::Parallel::Path::steal</definition>
+        <argsstring>(Worker &amp;stat, unsigned long int &amp;d)</argsstring>
+        <name>steal</name>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref> &amp;</type>
+          <declname>stat</declname>
+        </param>
+        <param>
+          <type>unsigned long int &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Steal work at depth <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="147" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="323" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1af0784c1ba64c9a0d1ea8da8b5389d256" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Search::Parallel::Path::post</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>post</name>
+        <reimplements refid="classGecode_1_1NoGoods_1a7a9cc78c6fd12d80f4487060dc2285fb">post</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Post no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="149" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Depth-first path (stack of edges) supporting recomputation. </para>    </briefdescription>
+    <detaileddescription>
+<para>Maintains the invariant that it contains the path of the node being currently explored. This is required to support recomputation, of course.</para><para>The path supports adaptive recomputation controlled by the value of a_d: only if the recomputation distance is at least this large, an additional clone is created. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="5122">
+        <label>Gecode::NoGoods</label>
+        <link refid="classGecode_1_1NoGoods"/>
+      </node>
+      <node id="5121">
+        <label>Gecode::Search::Parallel::Path</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Path"/>
+        <childnode refid="5122" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5124">
+        <label>Gecode::NoGoods</label>
+        <link refid="classGecode_1_1NoGoods"/>
+      </node>
+      <node id="5125">
+        <label>Gecode::Support::DynamicStack&lt; Gecode::Search::Parallel::Path::Edge, Gecode::Heap &gt;</label>
+        <link refid="classGecode_1_1Support_1_1DynamicStack"/>
+      </node>
+      <node id="5123">
+        <label>Gecode::Search::Parallel::Path</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Path"/>
+        <childnode refid="5124" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5125" relation="usage">
+          <edgelabel>ds</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/parallel/path.hh" line="61" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="61" bodyend="150"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1abb8938bffcd06bb857dedc82e80619f2" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>_ngdl</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a278797a6d746d71778e7a667219965df" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>commit</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1ad9238e053e87b098a64c0531a5340615" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>ds</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1aff0717092b5d08b090cba7b17929f9e3" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1aa11857b45cbb6889fd13e310f5c41202" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>entries</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1ad17e9943eec9ab7556f365059844fc8d" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>lc</name></member>
+      <member refid="classGecode_1_1NoGoods_1ad8a81d61de70c5bf047ecf203c5c86de" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>n</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a82ac4c076fe68797fa389efb3553e9e0" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>n_work</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a44fd0df6ae2014ee6d41b4b5180911cc" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>next</name></member>
+      <member refid="classGecode_1_1NoGoods_1a387fa9e4568b8dfe96df631e0fab397c" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>ng</name></member>
+      <member refid="classGecode_1_1NoGoods_1ac137457d4ba3cdbb66ecddf9ab667a2c" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>ng</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a3d36d0afce56a57dade9c45ab7ddd850" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>ngdl</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1afd0fd42c88a38dd85e30a9a00e3bd477" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>ngdl</name></member>
+      <member refid="classGecode_1_1NoGoods_1a45c011ac3e73edf35b69fc67e087c173" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>NoGoods</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a76b1ee12d3a8cc70cc0885a381d2dc2d" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>Path</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1af0784c1ba64c9a0d1ea8da8b5389d256" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::Path</scope><name>post</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1ad5507dd14e16f08cd9fd5fd879c3e6a2" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>push</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1afa02be68e7b67195e6b5d687a14fc9e9" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>recompute</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a6157203dda497e863b36324b0bc67a88" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>recompute</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1ad6e0f495dfde28b11332918fdc6a921a" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1aab5ebf7a93bae710f3b4695b3a146b57" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>Search::Meta::NoGoodsProp</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a4aec7741fb7b5704f8d6bc41bac3e1dc" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>steal</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a696a8244ca95cfa9450fbddc878a95ab" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>steal</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1a352e26521d6a499341bb0280de64edc6" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>top</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1abae300f618c20ce850648e46ec7db88d" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path</scope><name>unwind</name></member>
+      <member refid="classGecode_1_1NoGoods_1af8c4ccacac8c44e661fd8c9f0935586c" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::Path</scope><name>~NoGoods</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

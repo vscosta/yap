@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd" kind="class" prot="public">
+    <compoundname>Gecode::Int::Arithmetic::DivPlusBnd</compoundname>
+    <basecompoundref refid="classGecode_1_1MixTernaryPropagator" prot="public" virt="non-virtual">Gecode::MixTernaryPropagator&lt; VA, PC_INT_BND, VB, PC_INT_BND, VC, PC_INT_BND &gt;</basecompoundref>
+    <includes refid="int_2arithmetic_8hh" local="no">arithmetic.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>VA</declname>
+        <defname>VA</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VB</declname>
+        <defname>VB</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VC</declname>
+        <defname>VC</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1ac3e9e435be16a36859e254919230d4be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;::DivPlusBnd</definition>
+        <argsstring>(Home home, VA x0, VB x1, VC x2)</argsstring>
+        <name>DivPlusBnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>VA</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>VB</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>VC</type>
+          <declname>x2</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic.hh" line="742" column="1" bodyfile="/usr/include/gecode/int/arithmetic/divmod.hpp" bodystart="49" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1acb2e48e7f3c10d3e5bae9fed7c587213" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;::DivPlusBnd</definition>
+        <argsstring>(Space &amp;home, bool share, DivPlusBnd&lt; VA, VB, VC &gt; &amp;p)</argsstring>
+        <name>DivPlusBnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd" kindref="compound">DivPlusBnd</ref>&lt; VA, VB, VC &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic.hh" line="744" column="1" bodyfile="/usr/include/gecode/int/arithmetic/divmod.hpp" bodystart="55" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1a13b823280afa0a6f3aff3db8a02b3b6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic.hh" line="748" column="1" bodyfile="/usr/include/gecode/int/arithmetic/divmod.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1acc529fa0a1d8ef63ea638ed38d024fa5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic.hh" line="750" column="1" bodyfile="/usr/include/gecode/int/arithmetic/divmod.hpp" bodystart="68" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1ac4de637748f5224606e6292caee55d2a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;::post</definition>
+        <argsstring>(Home home, VA x0, VB x1, VC x2)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>VA</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>VB</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>VC</type>
+          <declname>x2</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator <formula id="97">$x_0\mathrm{div} x_1=x_2$</formula> (rounding towards 0) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic.hh" line="746" column="1" bodyfile="/usr/include/gecode/int/arithmetic/divmod.hpp" bodystart="92" bodyend="98"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Bounds consistent positive division propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>This propagator provides division for positive views only. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1778">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1779" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1779">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1780" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1780">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1776">
+        <label>Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd"/>
+        <childnode refid="1777" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1777">
+        <label>Gecode::MixTernaryPropagator&lt; VA, PC_INT_BND, VB, PC_INT_BND, VC, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="1778" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1786">
+        <label>VB</label>
+      </node>
+      <node id="1787">
+        <label>VC</label>
+      </node>
+      <node id="1783">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1784" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1785" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1784">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1785" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1785">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1781">
+        <label>Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd"/>
+        <childnode refid="1782" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1782">
+        <label>Gecode::MixTernaryPropagator&lt; VA, PC_INT_BND, VB, PC_INT_BND, VC, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="1783" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1786" relation="usage">
+          <edgelabel>x1</edgelabel>
+        </childnode>
+        <childnode refid="1787" relation="usage">
+          <edgelabel>x2</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/arithmetic.hh" line="735" column="1" bodyfile="/usr/include/gecode/int/arithmetic.hh" bodystart="734" bodyend="751"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1a13b823280afa0a6f3aff3db8a02b3b6b" prot="public" virt="virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>copy</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1afb1547491ef9cad86885a003946c34ec" prot="public" virt="virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>cost</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1aa48458409d622574236e9b16668b155f" prot="public" virt="virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1ac3e9e435be16a36859e254919230d4be" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>DivPlusBnd</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1acb2e48e7f3c10d3e5bae9fed7c587213" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>DivPlusBnd</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>med</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1a8490a68401f0934bbf27eea48bd3f147" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>MixTernaryPropagator</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1a97a2c97ec87dcf48f933d22353cc57ad" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>MixTernaryPropagator</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1ad9c8fd0652fa5fee8594319b62fbcebf" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>MixTernaryPropagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1ac4de637748f5224606e6292caee55d2a" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd_1acc529fa0a1d8ef63ea638ed38d024fa5" prot="public" virt="virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>size</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1a6bbf2331d95f22fcb0c734009cd10686" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>x0</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1a72f58e446290f7e60082212cbdc9c42d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>x1</name></member>
+      <member refid="classGecode_1_1MixTernaryPropagator_1ac18d8293b228d7b64ef43ca3ed39bd76" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::DivPlusBnd</scope><name>x2</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

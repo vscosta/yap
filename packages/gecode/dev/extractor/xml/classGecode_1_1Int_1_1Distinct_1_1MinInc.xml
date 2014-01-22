@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Distinct_1_1MinInc" kind="class" prot="public">
+    <compoundname>Gecode::Int::Distinct::MinInc</compoundname>
+    <includes refid="distinct_2bnd_8hpp" local="no">bnd.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1MinInc_1a883f53878dde7c7d4d920b0ddf9c95be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Distinct::MinInc&lt; View &gt;::operator()</definition>
+        <argsstring>(const View &amp;x, const View &amp;y)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const View &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const View &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="129" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="129" bodyend="131"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Sort-order by increasing minimum (direct) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/distinct/bnd.hpp" line="126" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="126" bodyend="132"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1MinInc_1a883f53878dde7c7d4d920b0ddf9c95be" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::MinInc</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

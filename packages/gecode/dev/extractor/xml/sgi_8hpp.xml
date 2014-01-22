@@ -1,0 +1,469 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="sgi_8hpp" kind="file">
+    <compoundname>sgi.hpp</compoundname>
+    <includes refid="config_2no__tr1_2utility_8hpp" local="no">gecode/third-party/boost/config/no_tr1/utility.hpp</includes>
+    <incdepgraph>
+      <node id="34356">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp</label>
+        <link refid="sgi.hpp"/>
+        <childnode refid="34357" relation="include">
+        </childnode>
+      </node>
+      <node id="34357">
+        <label>gecode/third-party/boost/config/no_tr1/utility.hpp</label>
+        <link refid="config_2no__tr1_2utility_8hpp_source"/>
+        <childnode refid="34358" relation="include">
+        </childnode>
+      </node>
+      <node id="34358">
+        <label>utility</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="sgi_8hpp_1a8d8e1c6496a27aa2c0f70c23c132fa58" prot="public" static="no">
+        <name>BOOST_NO_STD_ITERATOR_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="23" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a2d148b59e36d2b9f45ff2f72e9e58868" prot="public" static="no">
+        <name>BOOST_NO_STD_LOCALE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="59" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1abd05e0eebd57d4d79a48c08aa1f42dd1" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="81" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1ae4e4629a2d4b5ed01aba3f0c497b8e1d" prot="public" static="no">
+        <name>BOOST_NO_STD_ALLOCATOR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="82" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a2e2f4ab617d28e51366ecc85ce3479d0" prot="public" static="no">
+        <name>BOOST_HAS_HASH</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="88" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a24178ea4042b8eb9dbae65db8a7016df" prot="public" static="no">
+        <name>BOOST_HAS_SLIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="89" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1abc79a0adf4057be6a7b5e35da4186256" prot="public" static="no">
+        <name>BOOST_NO_STD_ITERATOR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="108" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1ad6cfb0103737b8d6da95fadd6f24f710" prot="public" static="no">
+        <name>BOOST_HAS_SGI_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="117" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a2a025f67528583e3e0c30e7f9dca14a3" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_ARRAY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="121" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1af5ba0869e1d6440efcc83a7e4371c786" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CHRONO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="122" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a99a70abe45125cd77461db951af623b1" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CODECVT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="123" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1aeafca1ba0ce1c0e9a506dc5c4ae0db02" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CONDITION_VARIABLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="124" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a6a8fe3913cbbe5a9b7ec68aa4ef2f32c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FORWARD_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="125" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a78d01772010913e629fad312f3039b0c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FUTURE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="126" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1aa2c7a518048d09ee2503f0da79ca45eb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_INITIALIZER_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="127" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a3101ea14746ac1d04dbfca62eab46b37" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_MUTEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="128" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a11078fb53f856c1773a028f8ae1dbb74" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RANDOM</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="129" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a2dcba45f6486552307f6c41050949127" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RATIO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="130" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1aaea35104fb86aeb7a56e813aa4b1641a" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_REGEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="131" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a8efd9c2962dcb5b1dd0189e1581a36bb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_SYSTEM_ERROR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="132" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1ac21a1d6ab1bdf429c4f3863eb61640fd" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_THREAD</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="133" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1ac4c03c75c321273027da8aa498dc812d" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TUPLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="134" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a5e9484cc1a51f14e9c5ac50bf0321a36" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="135" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a5aa0152b7f8a0edb483120c514f24f68" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPEINDEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="136" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a5f7c16445a4a41896de19fd44d0efa0d" prot="public" static="no">
+        <name>BOOST_NO_STD_UNORDERED</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="137" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a4ae4004387f3985465752f3f8a149b89" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_MAP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="138" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a0df1997f5eadf550a841cd1e0190d841" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_SET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="139" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a53e18344e017dae60158edae1f7ce594" prot="public" static="no">
+        <name>BOOST_NO_NUMERIC_LIMITS_LOWEST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="140" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sgi_8hpp_1a119bfbef30b482000f193169d6ae9fee" prot="public" static="no">
+        <name>BOOST_STDLIB</name>
+        <initializer>&quot;SGI standard library&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" line="142" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Darin<sp/>Adler<sp/>2001.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Jens<sp/>Maurer<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>generic<sp/>SGI<sp/>STL:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STL_CONFIG_H)</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;gecode/third-party/boost/config/no_tr1/utility.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(__STL_CONFIG_H)</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;This<sp/>is<sp/>not<sp/>the<sp/>SGI<sp/>STL!&quot;</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>No<sp/>std::iterator<sp/>traits<sp/>without<sp/>partial<sp/>specialisation:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STL_CLASS_PARTIAL_SPECIALIZATION)</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_ITERATOR_TRAITS</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//<sp/>No<sp/>std::stringstream<sp/>with<sp/>gcc<sp/>&lt;<sp/>3</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__GNUC__)<sp/>&amp;&amp;<sp/>(__GNUC__<sp/>&lt;<sp/>3)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/>((__GNUC_MINOR__<sp/>&lt;<sp/>95)<sp/>||<sp/>(__GNUC_MINOR__<sp/>==<sp/>96))<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/>!defined(__STL_USE_NEW_IOSTREAMS)<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"><sp/><sp/><sp/>defined(__APPLE_CC__)</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Note<sp/>that<sp/>we<sp/>only<sp/>set<sp/>this<sp/>for<sp/>GNU<sp/>C++<sp/>prior<sp/>to<sp/>2.95<sp/>since<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>latest<sp/>patches<sp/>for<sp/>that<sp/>release<sp/>do<sp/>contain<sp/>a<sp/>minimal<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>you<sp/>are<sp/>running<sp/>a<sp/>2.95<sp/>release<sp/>prior<sp/>to<sp/>2.95.3<sp/>then<sp/>this<sp/>will<sp/>need</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>setting,<sp/>but<sp/>there<sp/>is<sp/>no<sp/>way<sp/>to<sp/>detect<sp/>that<sp/>automatically<sp/>(other</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>than<sp/>by<sp/>running<sp/>the<sp/>configure<sp/>script).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Also,<sp/>the<sp/>unofficial<sp/>GNU<sp/>C++<sp/>2.96<sp/>included<sp/>in<sp/>RedHat<sp/>7.1<sp/>doesn&apos;t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>have<sp/>&lt;sstream&gt;.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STRINGSTREAM</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Apple<sp/>doesn&apos;t<sp/>seem<sp/>to<sp/>reliably<sp/>defined<sp/>a<sp/>*unix*<sp/>macro</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(CYGWIN)<sp/>&amp;&amp;<sp/>(<sp/><sp/>defined(__unix__)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__unix)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(unix)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__APPLE__)<sp/>\</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__APPLE)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(APPLE))</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Assume<sp/>no<sp/>std::locale<sp/>without<sp/>own<sp/>iostreams<sp/>(this<sp/>may<sp/>be<sp/>an</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">//<sp/>incorrect<sp/>assumption<sp/>in<sp/>some<sp/>cases):</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__SGI_STL_OWN_IOSTREAMS)<sp/>&amp;&amp;<sp/>!defined(__STL_USE_NEW_IOSTREAMS)</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_LOCALE</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Original<sp/>native<sp/>SGI<sp/>streams<sp/>have<sp/>non-standard<sp/>std::messages<sp/>facet:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__sgi)<sp/>&amp;&amp;<sp/>(_COMPILER_VERSION<sp/>&lt;=<sp/>650)<sp/>&amp;&amp;<sp/>!defined(__SGI_STL_OWN_IOSTREAMS)</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_LOCALE</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SGI&apos;s<sp/>new<sp/>iostreams<sp/>have<sp/>missing<sp/>&quot;const&quot;<sp/>in<sp/>messages&lt;&gt;::open</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__sgi)<sp/>&amp;&amp;<sp/>(_COMPILER_VERSION<sp/>&lt;=<sp/>740)<sp/>&amp;&amp;<sp/>defined(__STL_USE_NEW_IOSTREAMS)</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_MESSAGES</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//<sp/>No<sp/>template<sp/>iterator<sp/>constructors,<sp/>or<sp/>std::allocator</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">//<sp/>without<sp/>member<sp/>templates:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STL_MEMBER_TEMPLATES)</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_ALLOCATOR</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="comment">//<sp/>We<sp/>always<sp/>have<sp/>SGI<sp/>style<sp/>hash_set,<sp/>hash_map,<sp/>and<sp/>slist:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_HASH</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_SLIST</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">//<sp/>If<sp/>this<sp/>is<sp/>GNU<sp/>libstdc++2,<sp/>then<sp/>no<sp/>&lt;limits&gt;<sp/>and<sp/>no<sp/>std::wstring:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(defined(__GNUC__)<sp/>&amp;&amp;<sp/>(__GNUC__<sp/>&lt;<sp/>3))</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(__BASTRING__)</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_LIMITS</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Note:<sp/>&lt;gecode/third-party/boost/limits.hpp&gt;<sp/>will<sp/>provide<sp/>compile-time<sp/>constants</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>undef<sp/>BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_STD_WSTRING</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="comment">//<sp/>There<sp/>is<sp/>no<sp/>standard<sp/>iterator<sp/>unless<sp/>we<sp/>have<sp/>namespace<sp/>support:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STL_USE_NAMESPACES)</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_ITERATOR</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Intrinsic<sp/>type_traits<sp/>support.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>SGI<sp/>STL<sp/>has<sp/>it&apos;s<sp/>own<sp/>__type_traits<sp/>class,<sp/>which</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="comment">//<sp/>has<sp/>intrinsic<sp/>compiler<sp/>support<sp/>with<sp/>SGI&apos;s<sp/>compilers.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Whatever<sp/>map<sp/>SGI<sp/>style<sp/>type<sp/>traits<sp/>to<sp/>boost<sp/>equivalents:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_SGI_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>C++0x<sp/>headers<sp/>not<sp/>yet<sp/>implemented</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_ARRAY</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CHRONO</highlight></codeline>
+<codeline lineno="123"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CODECVT</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CONDITION_VARIABLE</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FORWARD_LIST</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FUTURE</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_INITIALIZER_LIST</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_MUTEX</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RANDOM</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RATIO</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_REGEX</highlight></codeline>
+<codeline lineno="132"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_SYSTEM_ERROR</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_THREAD</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TUPLE</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPEINDEX</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_UNORDERED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>deprecated;<sp/>see<sp/>following</highlight></codeline>
+<codeline lineno="138"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_MAP</highlight></codeline>
+<codeline lineno="139"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_SET</highlight></codeline>
+<codeline lineno="140"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_NUMERIC_LIMITS_LOWEST</highlight></codeline>
+<codeline lineno="141"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_STDLIB<sp/>&quot;SGI<sp/>standard<sp/>library&quot;</highlight></codeline>
+<codeline lineno="143"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp"/>
+  </compounddef>
+</doxygen>

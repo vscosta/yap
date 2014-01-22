@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1ArrayRanges" kind="class" prot="public">
+    <compoundname>Gecode::Set::ArrayRanges</compoundname>
+    <includes refid="const_8hpp" local="no">const.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a5e1dc5d4b027df27ce869010981c1d02" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::ArrayRanges::ArrayRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ArrayRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="53" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="53" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a203c3fb95abc82f4a568e1552c869fa7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::ArrayRanges::ArrayRanges</definition>
+        <argsstring>(int *ranges, int size)</argsstring>
+        <name>ArrayRanges</name>
+        <param>
+          <type>int *</type>
+          <declname>ranges</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for array <emphasis>ranges</emphasis> which is of size <emphasis>size</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="55" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="55" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a75e263ca5598f84715ee8c09cf3de677" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::ArrayRanges::init</definition>
+        <argsstring>(int *ranges, int size)</argsstring>
+        <name>init</name>
+        <param>
+          <type>int *</type>
+          <declname>ranges</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for array <emphasis>ranges</emphasis> which is of size <emphasis>size</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="58" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a8a944d12fce36450fb61cbedcb5b78a8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Set::ArrayRanges::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="66" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="66" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1aeeadb9c127feb346cb3b1ea364aa1b57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::ArrayRanges::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="68" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="68" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1aecce070b0793349f0fb7921f9cb7775f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::ArrayRanges::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="74" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="74" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a8aa913346edb93d7e90e9b68f7eddbb5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::ArrayRanges::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="76" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="76" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1ArrayRanges_1a491c13ea53c52c3d65115d2a1c22cc82" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Set::ArrayRanges::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="78" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1ArrayRanges_1a08b313be951b8e1bb3565db6223c6981" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* Gecode::Set::ArrayRanges::_ranges</definition>
+        <argsstring></argsstring>
+        <name>_ranges</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="46" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1ArrayRanges_1ab290c1267c99b2b3062fa36e95885f6a" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Set::ArrayRanges::_size</definition>
+        <argsstring></argsstring>
+        <name>_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="47" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1ArrayRanges_1ae8ea37ca5256fb03da34cca59e654693" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Set::ArrayRanges::_pos</definition>
+        <argsstring></argsstring>
+        <name>_pos</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="48" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for a two-dimensional array </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/view/const.hpp" line="44" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="44" bodyend="82"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1ae8ea37ca5256fb03da34cca59e654693" prot="private" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>_pos</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a08b313be951b8e1bb3565db6223c6981" prot="private" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>_ranges</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1ab290c1267c99b2b3062fa36e95885f6a" prot="private" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>_size</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a5e1dc5d4b027df27ce869010981c1d02" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>ArrayRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a203c3fb95abc82f4a568e1552c869fa7" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>ArrayRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a75e263ca5598f84715ee8c09cf3de677" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a8aa913346edb93d7e90e9b68f7eddbb5" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>max</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1aecce070b0793349f0fb7921f9cb7775f" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>min</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a8a944d12fce36450fb61cbedcb5b78a8" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1aeeadb9c127feb346cb3b1ea364aa1b57" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1ArrayRanges_1a491c13ea53c52c3d65115d2a1c22cc82" prot="public" virt="non-virtual"><scope>Gecode::Set::ArrayRanges</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

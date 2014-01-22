@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Channel_1_1LinkSingle" kind="class" prot="public">
+    <compoundname>Gecode::Int::Channel::LinkSingle</compoundname>
+    <basecompoundref refid="classGecode_1_1MixBinaryPropagator" prot="public" virt="non-virtual">Gecode::MixBinaryPropagator&lt; BoolView, PC_BOOL_VAL, IntView, PC_INT_VAL &gt;</basecompoundref>
+    <includes refid="int_2channel_8hh" local="no">channel.hh</includes>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1ab3b6bcc11fdfe45ca41aa7896da52929" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Channel::LinkSingle::LinkSingle</definition>
+        <argsstring>(Space &amp;home, bool share, LinkSingle &amp;p)</argsstring>
+        <name>LinkSingle</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle" kindref="compound">LinkSingle</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="179" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a0b0e00d527bf820ada895809d56c6e67" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Channel::LinkSingle::LinkSingle</definition>
+        <argsstring>(Home home, BoolView x0, IntView x1)</argsstring>
+        <name>LinkSingle</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>x1</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="181" column="1" bodyfile="/usr/include/gecode/int/channel/link-single.hpp" bodystart="41" bodyend="43"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1aa83e7673acca5d8da7b2dc6eea2e8bf0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>virtual Actor* Gecode::Int::Channel::LinkSingle::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="184" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a9bcf2b7e0388c15a2d5418217e6f4c44" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>virtual PropCost Gecode::Int::Channel::LinkSingle::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1MixBinaryPropagator_1aef25c60dde63e8d9cda2cec8c17b51e8">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (defined as low unary) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="186" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1aaa7ce799c9e2a0361ffe2e1633844aec" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>virtual ExecStatus Gecode::Int::Channel::LinkSingle::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="188" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a3196f1add10fd35c13826638ecaef785" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Channel::LinkSingle::post</definition>
+        <argsstring>(Home home, BoolView x0, IntView x1)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>x1</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="19">$ x_0 = x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel.hh" line="190" column="1" bodyfile="/usr/include/gecode/int/channel/link-single.hpp" bodystart="46" bodyend="66"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Link propagator for a single Boolean view. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/channel.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3400">
+        <label>Gecode::Int::Channel::LinkSingle</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle"/>
+        <childnode refid="3401" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3402">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="3403" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3401">
+        <label>Gecode::MixBinaryPropagator&lt; BoolView, PC_BOOL_VAL, IntView, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="3402" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3403">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3404" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3404">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3412">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="3413" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3410">
+        <label>Gecode::Int::IntView</label>
+        <link refid="classGecode_1_1Int_1_1IntView"/>
+        <childnode refid="3411" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3413">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="3411">
+        <label>Gecode::VarImpView&lt; IntVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="3405">
+        <label>Gecode::Int::Channel::LinkSingle</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle"/>
+        <childnode refid="3406" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3407">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="3408" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3409" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="3406">
+        <label>Gecode::MixBinaryPropagator&lt; BoolView, PC_BOOL_VAL, IntView, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="3407" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3410" relation="usage">
+          <edgelabel>x1</edgelabel>
+        </childnode>
+        <childnode refid="3412" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+      </node>
+      <node id="3408">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3409" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3409">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/channel.hh" line="173" column="1" bodyfile="/usr/include/gecode/int/channel.hh" bodystart="172" bodyend="191"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Channel::LinkSingle</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Channel::LinkSingle</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1aa83e7673acca5d8da7b2dc6eea2e8bf0" prot="public" virt="virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a9bcf2b7e0388c15a2d5418217e6f4c44" prot="public" virt="virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>cost</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1a10c621be7a2dfef913ce01e7678bac84" prot="public" virt="virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1ab3b6bcc11fdfe45ca41aa7896da52929" prot="private" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>LinkSingle</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a0b0e00d527bf820ada895809d56c6e67" prot="private" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>LinkSingle</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>med</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1a6d2a3d72b230c1d7f3628d35f12a5fad" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>MixBinaryPropagator</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1a77d8edc82a546fde6866328412de52ba" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>MixBinaryPropagator</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1a93a5256431c0f53076a11d440960d50b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>MixBinaryPropagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1a3196f1add10fd35c13826638ecaef785" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle_1aaa7ce799c9e2a0361ffe2e1633844aec" prot="public" virt="virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>size</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1af4b9b77e2ef3a4923fb0c86a9182158b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>x0</name></member>
+      <member refid="classGecode_1_1MixBinaryPropagator_1a7a162f63c3a35d6bbcdd6dbef1549caf" prot="protected" virt="non-virtual"><scope>Gecode::Int::Channel::LinkSingle</scope><name>x1</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_14eb7469551f5b3171da193880fdfb02" kind="dir">
+    <compoundname>/usr/include/gecode/third-party/boost/config/compiler</compoundname>
+    <innerfile refid="borland_8hpp">borland.hpp</innerfile>
+    <innerfile refid="clang_8hpp">clang.hpp</innerfile>
+    <innerfile refid="codegear_8hpp">codegear.hpp</innerfile>
+    <innerfile refid="comeau_8hpp">comeau.hpp</innerfile>
+    <innerfile refid="common__edg_8hpp">common_edg.hpp</innerfile>
+    <innerfile refid="compaq__cxx_8hpp">compaq_cxx.hpp</innerfile>
+    <innerfile refid="digitalmars_8hpp">digitalmars.hpp</innerfile>
+    <innerfile refid="gcc_8hpp">gcc.hpp</innerfile>
+    <innerfile refid="gcc__xml_8hpp">gcc_xml.hpp</innerfile>
+    <innerfile refid="greenhills_8hpp">greenhills.hpp</innerfile>
+    <innerfile refid="hp__acc_8hpp">hp_acc.hpp</innerfile>
+    <innerfile refid="intel_8hpp">intel.hpp</innerfile>
+    <innerfile refid="kai_8hpp">kai.hpp</innerfile>
+    <innerfile refid="metrowerks_8hpp">metrowerks.hpp</innerfile>
+    <innerfile refid="mpw_8hpp">mpw.hpp</innerfile>
+    <innerfile refid="nvcc_8hpp">nvcc.hpp</innerfile>
+    <innerfile refid="pathscale_8hpp">pathscale.hpp</innerfile>
+    <innerfile refid="pgi_8hpp">pgi.hpp</innerfile>
+    <innerfile refid="sgi__mipspro_8hpp">sgi_mipspro.hpp</innerfile>
+    <innerfile refid="sunpro__cc_8hpp">sunpro_cc.hpp</innerfile>
+    <innerfile refid="compiler_2vacpp_8hpp">vacpp.hpp</innerfile>
+    <innerfile refid="visualc_8hpp">visualc.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskPropPat" kind="group">
+    <compoundname>TaskPropPat</compoundname>
+    <title>Propagator patterns</title>
+    <innerclass refid="classGecode_1_1UnaryPropagator" prot="public">Gecode::UnaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1BinaryPropagator" prot="public">Gecode::BinaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1TernaryPropagator" prot="public">Gecode::TernaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1NaryPropagator" prot="public">Gecode::NaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1NaryOnePropagator" prot="public">Gecode::NaryOnePropagator</innerclass>
+    <innerclass refid="classGecode_1_1MixBinaryPropagator" prot="public">Gecode::MixBinaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1MixTernaryPropagator" prot="public">Gecode::MixTernaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1MixNaryOnePropagator" prot="public">Gecode::MixNaryOnePropagator</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

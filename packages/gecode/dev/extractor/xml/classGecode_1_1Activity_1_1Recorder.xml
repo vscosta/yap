@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Activity_1_1Recorder" kind="class" prot="protected">
+    <compoundname>Gecode::Activity::Recorder</compoundname>
+    <basecompoundref refid="classGecode_1_1NaryPropagator" prot="public" virt="non-virtual">Gecode::NaryPropagator&lt; View, PC_GEN_NONE &gt;</basecompoundref>
+    <includes refid="kernel_2activity_8hpp" local="no">activity.hpp</includes>
+    <innerclass refid="classGecode_1_1Activity_1_1Recorder_1_1Idx" prot="protected">Gecode::Activity::Recorder::Idx</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Recorder_1a4e630acc9f6ee61c0c45ec19fff6fd24" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+        <definition>Activity Gecode::Activity::Recorder&lt; View &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Access to activity information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="171" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Recorder_1ab9f85d92ef554adc5da8a7a46a9666dc" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; <ref refid="classGecode_1_1Activity_1_1Recorder_1_1Idx" kindref="compound">Idx</ref> &gt;</type>
+        <definition>Council&lt;Idx&gt; Gecode::Activity::Recorder&lt; View &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>The advisor council. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="173" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a242d835e27490d8c1b7e65afde7ecac8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Activity::Recorder&lt; View &gt;::Recorder</definition>
+        <argsstring>(Space &amp;home, bool share, Recorder&lt; View &gt; &amp;p)</argsstring>
+        <name>Recorder</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Activity_1_1Recorder" kindref="compound">Recorder</ref>&lt; View &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="175" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="382" bodyend="387"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a9ded97b765166c450eb22c536960c809" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Activity::Recorder&lt; View &gt;::Recorder</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, Activity &amp;a)</argsstring>
+        <name>Recorder</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="178" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="246" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a4e2033628369da82d8f40368be2223d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> *</type>
+        <definition>Propagator * Gecode::Activity::Recorder&lt; View &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="180" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="391" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a7f374769268f0524de719256cf0d9960" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Activity::Recorder&lt; View &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1NaryPropagator_1a7e890e5ed83d35c3dad87ca049567539">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (crazy so that propagator is likely to run last) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="182" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="411" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1ac66b268fd87dbdd155d110ee78e2a90e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Activity::Recorder&lt; View &gt;::advise</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a, const Delta &amp;d)</argsstring>
+        <name>advise</name>
+        <reimplements refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28">advise</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Give advice to propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="184" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="417" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a739625aead58a489ad3cc0c5af51d08c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Activity::Recorder&lt; View &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="186" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="424" bodyend="441"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1ab606889b8cb512fa2ba7b2ee296ff0c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t Gecode::Activity::Recorder&lt; View &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1NaryPropagator_1a9b42f1d528629c1386e2fb287de2a1b8">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="188" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="397" bodyend="407"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1a78a9f2db89bb324bcb54c6d0eebcebec" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Activity::Recorder&lt; View &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, Activity &amp;a)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Post activity recorder propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="190" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="257" bodyend="261"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> for recording activity information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5716">
+        <label>Gecode::NaryPropagator&lt; View, PC_GEN_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="5717" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5717">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5718" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5715">
+        <label>Gecode::Activity::Recorder&lt; View &gt;</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder"/>
+        <childnode refid="5716" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5718">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5719" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5719">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5728">
+        <label>Gecode::Council&lt; Gecode::Activity::Recorder::Idx &gt;</label>
+        <link refid="classGecode_1_1Council"/>
+      </node>
+      <node id="5726">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="5727" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="5721">
+        <label>Gecode::NaryPropagator&lt; View, PC_GEN_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="5722" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5725">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="5725" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="5726" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="5722">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5723" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5724" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="5720">
+        <label>Gecode::Activity::Recorder&lt; View &gt;</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder"/>
+        <childnode refid="5721" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5725" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="5728" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+      </node>
+      <node id="5723">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5724" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5724">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="5727">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/activity.hpp" line="47" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="47" bodyend="-1"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a4e630acc9f6ee61c0c45ec19fff6fd24" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>a</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1ac66b268fd87dbdd155d110ee78e2a90e" prot="public" virt="virtual"><scope>Gecode::Activity::Recorder</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1ab9f85d92ef554adc5da8a7a46a9666dc" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Activity::Recorder</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Activity::Recorder</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a4e2033628369da82d8f40368be2223d0" prot="public" virt="virtual"><scope>Gecode::Activity::Recorder</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a7f374769268f0524de719256cf0d9960" prot="public" virt="virtual"><scope>Gecode::Activity::Recorder</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1ab606889b8cb512fa2ba7b2ee296ff0c8" prot="public" virt="virtual"><scope>Gecode::Activity::Recorder</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a30e2cfc0a52033b042bf6e4a3a37f029" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1af0a8dfa7e9b637ab62f1a2f0c4e9a78d" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a88d5a8d7b24f925919e44d31287687f1" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a78a9f2db89bb324bcb54c6d0eebcebec" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>post</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a739625aead58a489ad3cc0c5af51d08c" prot="public" virt="virtual"><scope>Gecode::Activity::Recorder</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a242d835e27490d8c1b7e65afde7ecac8" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>Recorder</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1a9ded97b765166c450eb22c536960c809" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>Recorder</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>size</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1afa79d87e560aea027d59b153b353ee1c" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

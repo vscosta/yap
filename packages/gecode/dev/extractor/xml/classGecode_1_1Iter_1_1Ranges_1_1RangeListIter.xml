@@ -1,0 +1,557 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::RangeListIter</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Cache" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Cache</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Minus" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Minus</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1NaryInter" prot="public" virt="non-virtual">Gecode::Iter::Ranges::NaryInter</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1NaryUnion" prot="public" virt="non-virtual">Gecode::Iter::Ranges::NaryUnion</derivedcompoundref>
+    <includes refid="ranges-list_8hpp" local="no">ranges-list.hpp</includes>
+    <innerclass refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" prot="protected">Gecode::Iter::Ranges::RangeListIter::RangeList</innerclass>
+    <innerclass refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RLIO" prot="protected">Gecode::Iter::Ranges::RangeListIter::RLIO</innerclass>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a20baefe327ca3a8c60019809eb2a288b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::RangeListIter::RangeListIter</definition>
+        <argsstring>(void)</argsstring>
+        <name>RangeListIter</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="90" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="132" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae905e6df0a16145280f8dab551fc4122" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::RangeListIter::RangeListIter</definition>
+        <argsstring>(const RangeListIter &amp;i)</argsstring>
+        <name>RangeListIter</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter" kindref="compound">RangeListIter</ref> &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="92" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="146" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a40a1c7b1ad356f7565834ca82eb744fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::RangeListIter::RangeListIter</definition>
+        <argsstring>(Region &amp;r)</argsstring>
+        <name>RangeListIter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="94" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="136" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1acb190d616bb87905b66f399e429f94c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::RangeListIter::init</definition>
+        <argsstring>(Region &amp;r)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="96" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="140" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a4e5ec5bb8c6900217833bdfb4726e323" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter" kindref="compound">RangeListIter</ref> &amp;</type>
+        <definition>forceinline RangeListIter &amp; Gecode::Iter::Ranges::RangeListIter::operator=</definition>
+        <argsstring>(const RangeListIter &amp;i)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter" kindref="compound">RangeListIter</ref> &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="98" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="153" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a490ee02914be1cc86a541b77f014489b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Ranges::RangeListIter::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="104" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="234" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a9acfb095575a9db1d79aa67dd380269f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::RangeListIter::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="106" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="239" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ab5d71b116cf715dadb7926e6dcc31c7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::RangeListIter::reset</definition>
+        <argsstring>(void)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset iterator to start. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="108" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="244" bodyend="246"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a4720de627a62a0b2aee5361e5e13df51" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Ranges::RangeListIter::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="114" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="249" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1af9ed32d0260719a410ab6c10121d4e7c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Ranges::RangeListIter::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="116" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="253" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a2dcf3e47bd569f6b129a4d87e65d68dc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Iter::Ranges::RangeListIter::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="118" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="257" bodyend="259"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a72a1375ffd83558a1517a20912d7ec4a" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RLIO" kindref="compound">RLIO</ref> *</type>
+        <definition>RLIO* Gecode::Iter::Ranges::RangeListIter::rlio</definition>
+        <argsstring></argsstring>
+        <name>rlio</name>
+        <briefdescription>
+<para>Reference to shared object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="64" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae057a12f50ae94a4c0ef75ac25b975f8" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>RangeList* Gecode::Iter::Ranges::RangeListIter::h</definition>
+        <argsstring></argsstring>
+        <name>h</name>
+        <briefdescription>
+<para>Head of range list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="66" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a9f0ac227a70c273e05ebd9935f51710e" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>RangeList* Gecode::Iter::Ranges::RangeListIter::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Current list element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="68" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ad200fe736a0ddb553943eda7a0c73785" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::RangeListIter::set</definition>
+        <argsstring>(RangeList *l)</argsstring>
+        <name>set</name>
+        <param>
+          <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> range lists. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="70" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="179" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a19d9f5cd830a2d65de24db71e4decf3a" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>forceinline RangeListIter::RangeList * Gecode::Iter::Ranges::RangeListIter::get</definition>
+        <argsstring>(void) const </argsstring>
+        <name>get</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get head of current range list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="72" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="184" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a5688b76d90d5065c8c7d2aac79c16b80" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>forceinline RangeListIter::RangeList * Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(int min, int max, RangeList *&amp;f)</argsstring>
+        <name>range</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *&amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Create new range possibly from freelist <emphasis>f</emphasis> and init. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="74" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="189" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a8ac82f23a75a0bdab277222b480850fb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>forceinline RangeListIter::RangeList * Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(int min, int max)</argsstring>
+        <name>range</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Create new range possibly and init. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="76" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="202" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a8960295f95bbda1986a46b4d8e5b8434" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>RangeList* Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(I &amp;i, RangeList *&amp;f)</argsstring>
+        <name>range</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *&amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Create new range possibly from freelist <emphasis>f</emphasis> and init. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="79" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae4b849bb4e45d243c7e60e46c6c06dd4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>RangeList* Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>range</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Create new range possibly and init. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="82" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a0ea16026e9e24ffcadab8b8947355583" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>RangeListIter::RangeList * Gecode::Iter::Ranges::RangeListIter::copy</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Copy the iterator <emphasis>i</emphasis> to a range list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="85" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="222" bodyend="231"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a1a338d54c76937032760ffc35eca08e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::RangeListIter::~RangeListIter</definition>
+        <argsstring>(void)</argsstring>
+        <name>~RangeListIter</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="122" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="169" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1aad229a8c5f0f3043b4eebf9e66d0f9e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeListIter::RangeList</ref> *</type>
+        <definition>forceinline RangeListIter::RangeList* Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(I &amp;i, RangeList *&amp;f)</argsstring>
+        <name>range</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeList</ref> *&amp;</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="210" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="210" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a004c7f7a7879db6caa2790c1ce512485" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList" kindref="compound">RangeListIter::RangeList</ref> *</type>
+        <definition>forceinline RangeListIter::RangeList* Gecode::Iter::Ranges::RangeListIter::range</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>range</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-list.hpp" line="216" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="216" bodyend="218"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Iterator over range lists. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5659">
+        <label>Gecode::Iter::Ranges::Minus</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Minus"/>
+        <childnode refid="5657" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5657">
+        <label>Gecode::Iter::Ranges::RangeListIter</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter"/>
+      </node>
+      <node id="5660">
+        <label>Gecode::Iter::Ranges::NaryInter</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1NaryInter"/>
+        <childnode refid="5657" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5658">
+        <label>Gecode::Iter::Ranges::Cache</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Cache"/>
+        <childnode refid="5657" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5661">
+        <label>Gecode::Iter::Ranges::NaryUnion</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1NaryUnion"/>
+        <childnode refid="5657" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5663">
+        <label>Gecode::Iter::Ranges::RangeListIter::RangeList</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RangeList"/>
+        <childnode refid="5664" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5663" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5666">
+        <label>Gecode::Support::BlockAllocator&lt; RangeList, Region &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BlockAllocator"/>
+      </node>
+      <node id="5664">
+        <label>Gecode::Support::BlockClient&lt; RangeList, Region &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BlockClient"/>
+      </node>
+      <node id="5662">
+        <label>Gecode::Iter::Ranges::RangeListIter</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter"/>
+        <childnode refid="5663" relation="usage">
+          <edgelabel>h</edgelabel>
+          <edgelabel>c</edgelabel>
+        </childnode>
+        <childnode refid="5665" relation="usage">
+          <edgelabel>rlio</edgelabel>
+        </childnode>
+      </node>
+      <node id="5665">
+        <label>Gecode::Iter::Ranges::RangeListIter::RLIO</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1_1RLIO"/>
+        <childnode refid="5666" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-list.hpp" line="45" column="1" bodyfile="/usr/include/gecode/iter/ranges-list.hpp" bodystart="45" bodyend="123"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a9f0ac227a70c273e05ebd9935f51710e" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>c</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a0ea16026e9e24ffcadab8b8947355583" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a19d9f5cd830a2d65de24db71e4decf3a" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>get</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae057a12f50ae94a4c0ef75ac25b975f8" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>h</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1acb190d616bb87905b66f399e429f94c1" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1af9ed32d0260719a410ab6c10121d4e7c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a4720de627a62a0b2aee5361e5e13df51" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a490ee02914be1cc86a541b77f014489b" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a9acfb095575a9db1d79aa67dd380269f" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a4e5ec5bb8c6900217833bdfb4726e323" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a5688b76d90d5065c8c7d2aac79c16b80" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a8ac82f23a75a0bdab277222b480850fb" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a8960295f95bbda1986a46b4d8e5b8434" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae4b849bb4e45d243c7e60e46c6c06dd4" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1aad229a8c5f0f3043b4eebf9e66d0f9e4" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a004c7f7a7879db6caa2790c1ce512485" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>range</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a20baefe327ca3a8c60019809eb2a288b" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>RangeListIter</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ae905e6df0a16145280f8dab551fc4122" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>RangeListIter</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a40a1c7b1ad356f7565834ca82eb744fb" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>RangeListIter</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ab5d71b116cf715dadb7926e6dcc31c7d" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a72a1375ffd83558a1517a20912d7ec4a" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>rlio</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1ad200fe736a0ddb553943eda7a0c73785" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>set</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a2dcf3e47bd569f6b129a4d87e65d68dc" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>width</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeListIter_1a1a338d54c76937032760ffc35eca08e6" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::RangeListIter</scope><name>~RangeListIter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

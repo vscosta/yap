@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structstd_1_1float__helper" kind="struct" prot="public">
+    <compoundname>std::float_helper</compoundname>
+    <templateparamlist>
+      <param>
+        <type>class Number</type>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>Word</declname>
+        <defname>Word</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structstd_1_1float__helper_1af8c6d59feaec6497554e42d777dbeb46" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Number</type>
+        <definition>static Number std::float_helper&lt; Number, Word &gt;::get_word</definition>
+        <argsstring>()</argsstring>
+        <name>get_word</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="188" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="188" bodyend="194"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="187" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="187" bodyend="195"/>
+    <listofallmembers>
+      <member refid="structstd_1_1float__helper_1af8c6d59feaec6497554e42d777dbeb46" prot="public" virt="non-virtual"><scope>std::float_helper</scope><name>get_word</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,265 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Distinct_1_1Dom" kind="class" prot="public">
+    <compoundname>Gecode::Int::Distinct::Dom</compoundname>
+    <basecompoundref refid="classGecode_1_1NaryPropagator" prot="public" virt="non-virtual">Gecode::NaryPropagator&lt; View, PC_INT_DOM &gt;</basecompoundref>
+    <includes refid="int_2distinct_8hh" local="no">distinct.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1ac6988d6f4a4d1adcabdf1c640d4f2567" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl" kindref="compound">DomCtrl</ref>&lt; View &gt;</type>
+        <definition>DomCtrl&lt;View&gt; Gecode::Int::Distinct::Dom&lt; View &gt;::dc</definition>
+        <argsstring></argsstring>
+        <name>dc</name>
+        <briefdescription>
+<para>Propagation controller. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="255" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a1b1ec41ddc2f6b89e2c78f862e9802f8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::Dom&lt; View &gt;::Dom</definition>
+        <argsstring>(Space &amp;home, bool share, Dom&lt; View &gt; &amp;p)</argsstring>
+        <name>Dom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1Dom" kindref="compound">Dom</ref>&lt; View &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="257" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="64" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a66e6fbd915a4ad2c9681a6fb5eb108f9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::Dom&lt; View &gt;::Dom</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>Dom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="259" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="44" bodyend="45"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a21bc6ba4953fba431e7643e33aea23c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::Dom&lt; View &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="262" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="84" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a8657b5b35db090f1b0020a74b30a6355" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Distinct::Dom&lt; View &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1NaryPropagator_1a7e890e5ed83d35c3dad87ca049567539">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function. </para>        </briefdescription>
+        <detaileddescription>
+<para>If in stage for naive value propagation, the cost is low linear. Otherwise it is high quadratic. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="269" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="69" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a0977f24ff2970ae8f71fd1927aaa1103" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Distinct::Dom&lt; View &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="271" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Dom_1a089150d8f67be8224d74697d7bfbe99c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::Dom&lt; View &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for views <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="273" column="1" bodyfile="/usr/include/gecode/int/distinct/dom.hpp" bodystart="49" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Domain consistent distinct propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>The propagator uses staging: first it uses naive value-based propagation and only then uses domain consistent propagation.</para><para>The algorithm is taken from: Jean-Charles Régin, A filtering algorithm for constraints of difference in CSPs, Proceedings of the Twelfth National Conference on Artificial Intelligence, pages 362<ndash/>367. Seattle, WA, USA, 1994.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/distinct.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1814">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1815" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1813">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1814" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1815">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1816" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1816">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1812">
+        <label>Gecode::Int::Distinct::Dom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Dom"/>
+        <childnode refid="1813" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1819">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1820" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1821" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1818">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1819" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1820">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1821" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1821">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1817">
+        <label>Gecode::Int::Distinct::Dom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Dom"/>
+        <childnode refid="1818" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/distinct.hh" line="251" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="251" bodyend="274"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Distinct::Dom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Distinct::Dom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a0977f24ff2970ae8f71fd1927aaa1103" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a8657b5b35db090f1b0020a74b30a6355" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1ac6988d6f4a4d1adcabdf1c640d4f2567" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>dc</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a9b42f1d528629c1386e2fb287de2a1b8" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a1b1ec41ddc2f6b89e2c78f862e9802f8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>Dom</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a66e6fbd915a4ad2c9681a6fb5eb108f9" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>Dom</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a30e2cfc0a52033b042bf6e4a3a37f029" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1af0a8dfa7e9b637ab62f1a2f0c4e9a78d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a88d5a8d7b24f925919e44d31287687f1" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a089150d8f67be8224d74697d7bfbe99c" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Dom_1a21bc6ba4953fba431e7643e33aea23c6" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>size</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1afa79d87e560aea027d59b153b353ee1c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Dom</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

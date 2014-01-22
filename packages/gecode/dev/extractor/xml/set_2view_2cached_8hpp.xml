@@ -1,0 +1,549 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="set_2view_2cached_8hpp" kind="file">
+    <compoundname>cached.hpp</compoundname>
+    <includes local="no">sstream</includes>
+    <includedby refid="set_2view_8hpp" local="no">/usr/include/gecode/set/view.hpp</includedby>
+    <incdepgraph>
+      <node id="21255">
+        <label>/usr/include/gecode/set/view/cached.hpp</label>
+        <link refid="set/view/cached.hpp"/>
+        <childnode refid="21256" relation="include">
+        </childnode>
+      </node>
+      <node id="21256">
+        <label>sstream</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="21262">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="21274">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="21261" relation="include">
+        </childnode>
+        <childnode refid="21265" relation="include">
+        </childnode>
+        <childnode refid="21272" relation="include">
+        </childnode>
+        <childnode refid="21273" relation="include">
+        </childnode>
+        <childnode refid="21275" relation="include">
+        </childnode>
+      </node>
+      <node id="21267">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="21260">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="21265">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="21264">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="21273">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="21265" relation="include">
+        </childnode>
+        <childnode refid="21272" relation="include">
+        </childnode>
+      </node>
+      <node id="21270">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="21261">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="21262" relation="include">
+        </childnode>
+      </node>
+      <node id="21257">
+        <label>/usr/include/gecode/set/view/cached.hpp</label>
+        <link refid="set/view/cached.hpp"/>
+        <childnode refid="21258" relation="include">
+        </childnode>
+      </node>
+      <node id="21268">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="21267" relation="include">
+        </childnode>
+      </node>
+      <node id="21271">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="21258">
+        <label>/usr/include/gecode/set/view.hpp</label>
+        <link refid="set_2view_8hpp_source"/>
+        <childnode refid="21259" relation="include">
+        </childnode>
+      </node>
+      <node id="21269">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="21267" relation="include">
+        </childnode>
+      </node>
+      <node id="21275">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="21266">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="21267" relation="include">
+        </childnode>
+      </node>
+      <node id="21259">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="21260" relation="include">
+        </childnode>
+        <childnode refid="21261" relation="include">
+        </childnode>
+        <childnode refid="21262" relation="include">
+        </childnode>
+        <childnode refid="21263" relation="include">
+        </childnode>
+        <childnode refid="21264" relation="include">
+        </childnode>
+        <childnode refid="21265" relation="include">
+        </childnode>
+        <childnode refid="21266" relation="include">
+        </childnode>
+        <childnode refid="21268" relation="include">
+        </childnode>
+        <childnode refid="21269" relation="include">
+        </childnode>
+        <childnode refid="21267" relation="include">
+        </childnode>
+        <childnode refid="21270" relation="include">
+        </childnode>
+        <childnode refid="21271" relation="include">
+        </childnode>
+        <childnode refid="21272" relation="include">
+        </childnode>
+        <childnode refid="21273" relation="include">
+        </childnode>
+        <childnode refid="21274" relation="include">
+        </childnode>
+        <childnode refid="21275" relation="include">
+        </childnode>
+      </node>
+      <node id="21272">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="21273" relation="include">
+        </childnode>
+      </node>
+      <node id="21263">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set">Gecode::Set</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2011</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2011-07-13<sp/>21:27:53<sp/>+0200<sp/>(Wed,<sp/>13<sp/>Jul<sp/>2011)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>12201<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Set<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="44" refid="classGecode_1_1Set_1_1CachedView_1a803fcfeb2a4845609780521395a6c76d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a803fcfeb2a4845609780521395a6c76d" kindref="member">CachedView&lt;View&gt;::CachedView</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="48" refid="classGecode_1_1Set_1_1CachedView_1a5518bd93db482a26418264377de6fbf0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a803fcfeb2a4845609780521395a6c76d" kindref="member">CachedView&lt;View&gt;::CachedView</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView</ref>&lt;View&gt;(y)<sp/>{}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="classGecode_1_1Set_1_1CachedView_1a354c33b424236f9de64f744cdf6961af" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a354c33b424236f9de64f744cdf6961af" kindref="member">CachedView&lt;View&gt;::glbSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbSize();</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="classGecode_1_1Set_1_1CachedView_1aacc44b9769e617483042b95bb1dfbd98" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1aacc44b9769e617483042b95bb1dfbd98" kindref="member">CachedView&lt;View&gt;::lubSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubSize();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1Set_1_1CachedView_1a589cb8138955a917dd89346d4fa934b6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a589cb8138955a917dd89346d4fa934b6" kindref="member">CachedView&lt;View&gt;::unknownSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.unknownSize();</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1Set_1_1CachedView_1a379dc2ee7280351c16e0497d1d7e1319" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a379dc2ee7280351c16e0497d1d7e1319" kindref="member">CachedView&lt;View&gt;::contains</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.contains(n);<sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="classGecode_1_1Set_1_1CachedView_1a77c08f00d9a7c89b21c72640c120b339" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a77c08f00d9a7c89b21c72640c120b339" kindref="member">CachedView&lt;View&gt;::notContains</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.notContains(n);<sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="classGecode_1_1Set_1_1CachedView_1a5caef3dbff3dc4754a039f113ba4c74c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a5caef3dbff3dc4754a039f113ba4c74c" kindref="member">CachedView&lt;View&gt;::cardMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.cardMin();</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classGecode_1_1Set_1_1CachedView_1a58e0ce5b377bde04f4bc7706a403d0b9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a58e0ce5b377bde04f4bc7706a403d0b9" kindref="member">CachedView&lt;View&gt;::cardMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.cardMax();</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1Set_1_1CachedView_1ae87a7f51a3676da796c9ea3966e4a705" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ae87a7f51a3676da796c9ea3966e4a705" kindref="member">CachedView&lt;View&gt;::lubMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMin();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="classGecode_1_1Set_1_1CachedView_1a2ff46bd13e1057328055a2e4148887f8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a2ff46bd13e1057328055a2e4148887f8" kindref="member">CachedView&lt;View&gt;::lubMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMax();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="classGecode_1_1Set_1_1CachedView_1acd8de16ef570be91d20ed341ffc18736" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1acd8de16ef570be91d20ed341ffc18736" kindref="member">CachedView&lt;View&gt;::glbMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMin();</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="classGecode_1_1Set_1_1CachedView_1ad4a5acf6f20b55e8d289e2194499c4f6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ad4a5acf6f20b55e8d289e2194499c4f6" kindref="member">CachedView&lt;View&gt;::glbMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMax();</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="115" refid="classGecode_1_1Set_1_1CachedView_1ab2af852771224052465723a8ad6ae725" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a5caef3dbff3dc4754a039f113ba4c74c" kindref="member">CachedView&lt;View&gt;::cardMin</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.cardMin(home,m);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="121" refid="classGecode_1_1Set_1_1CachedView_1a32135ff52a2e534ae0fa6b0310c21b8c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a58e0ce5b377bde04f4bc7706a403d0b9" kindref="member">CachedView&lt;View&gt;::cardMax</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.cardMax(home,m);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="127" refid="classGecode_1_1Set_1_1CachedView_1a7015ccfa85ea33d2a37838f09ee7c39b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1acc156e862e0fca4c96d3e6d91fcb61d2" kindref="member">CachedView&lt;View&gt;::include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.include(home,i);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="133" refid="classGecode_1_1Set_1_1CachedView_1a68e0c6144136782407084aadb33bcece" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a4c64c5ebd155fd1cf78aac62153231b9" kindref="member">CachedView&lt;View&gt;::exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.exclude(home,i);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="139" refid="classGecode_1_1Set_1_1CachedView_1ab9188a32a3dd417179391aaa9f687588" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ade5e710ac78ac2875318bfb0a1159406" kindref="member">CachedView&lt;View&gt;::intersect</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.intersect(home,i);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="145" refid="classGecode_1_1Set_1_1CachedView_1ade5e710ac78ac2875318bfb0a1159406" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ade5e710ac78ac2875318bfb0a1159406" kindref="member">CachedView&lt;View&gt;::intersect</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.intersect(home,i,j);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="151" refid="classGecode_1_1Set_1_1CachedView_1acc156e862e0fca4c96d3e6d91fcb61d2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1acc156e862e0fca4c96d3e6d91fcb61d2" kindref="member">CachedView&lt;View&gt;::include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.include(home,i,j);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="157" refid="classGecode_1_1Set_1_1CachedView_1a4c64c5ebd155fd1cf78aac62153231b9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a4c64c5ebd155fd1cf78aac62153231b9" kindref="member">CachedView&lt;View&gt;::exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.exclude(home,i,j);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="163" refid="classGecode_1_1Set_1_1CachedView_1a1439812bb1292525ab17fced9b603318" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a1439812bb1292525ab17fced9b603318" kindref="member">CachedView&lt;View&gt;::excludeI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.excludeI(home,iter);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="169" refid="classGecode_1_1Set_1_1CachedView_1a89e0aaf1b21f640be0f901fb5f4e1749" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a89e0aaf1b21f640be0f901fb5f4e1749" kindref="member">CachedView&lt;View&gt;::includeI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.includeI(home,iter);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="175" refid="classGecode_1_1Set_1_1CachedView_1aa5d05765df706aa658607401144e7e25" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1aa5d05765df706aa658607401144e7e25" kindref="member">CachedView&lt;View&gt;::intersectI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.intersectI(home,iter);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="classGecode_1_1Set_1_1CachedView_1a18c7bcb1e54b20dfcec9cbb85f7df02c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a18c7bcb1e54b20dfcec9cbb85f7df02c" kindref="member">CachedView&lt;View&gt;::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc,</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>schedule)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>x.subscribe(home,p,pc,schedule);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="classGecode_1_1Set_1_1CachedView_1a503bdb4530599f9852ec8d5c93852a8a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a503bdb4530599f9852ec8d5c93852a8a" kindref="member">CachedView&lt;View&gt;::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc)<sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>x.cancel(home,p,pc);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194" refid="classGecode_1_1Set_1_1CachedView_1a6a26ce8c7beaf35bc0509f910d31e2a0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a18c7bcb1e54b20dfcec9cbb85f7df02c" kindref="member">CachedView&lt;View&gt;::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>x.subscribe(home,a);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="classGecode_1_1Set_1_1CachedView_1a7e8c446328ac279bbfcc561e0360457d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a503bdb4530599f9852ec8d5c93852a8a" kindref="member">CachedView&lt;View&gt;::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>x.cancel(home,a);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206" refid="classGecode_1_1Set_1_1CachedView_1a8a6c6d104d8b0e4a6f153a74b7fcc2bd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a8a6c6d104d8b0e4a6f153a74b7fcc2bd" kindref="member">CachedView&lt;View&gt;::schedule</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>View::schedule(home,p,me);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="211" refid="classGecode_1_1Set_1_1CachedView_1add96005d3e233df12c0125687809f3b2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1add96005d3e233df12c0125687809f3b2" kindref="member">CachedView&lt;View&gt;::me</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref>&amp;<sp/>med)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>View::me(med);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></highlight></codeline>
+<codeline lineno="217" refid="classGecode_1_1Set_1_1CachedView_1ae5741835603e639e0643b28a12395fbd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ae5741835603e639e0643b28a12395fbd" kindref="member">CachedView&lt;View&gt;::med</ref>(<ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>View::med(me);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="222"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Delta<sp/>information<sp/>for<sp/>advisors</highlight></codeline>
+<codeline lineno="223"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="224"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="228" refid="classGecode_1_1Set_1_1CachedView_1a8548151b40dc70294bfd4b9ae6273523" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a8548151b40dc70294bfd4b9ae6273523" kindref="member">CachedView&lt;View&gt;::modevent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>View::modevent(d);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="classGecode_1_1Set_1_1CachedView_1ae406578226638751d45337552d8b2777" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1acd8de16ef570be91d20ed341ffc18736" kindref="member">CachedView&lt;View&gt;::glbMin</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMin(d);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="classGecode_1_1Set_1_1CachedView_1adc6d8a3c425a8093c45548e025bb7788" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ad4a5acf6f20b55e8d289e2194499c4f6" kindref="member">CachedView&lt;View&gt;::glbMax</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMax(d);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246" refid="classGecode_1_1Set_1_1CachedView_1ab171a517f9ccac847d0f89fcec16b83d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ab171a517f9ccac847d0f89fcec16b83d" kindref="member">CachedView&lt;View&gt;::glbAny</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbAny(d);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252" refid="classGecode_1_1Set_1_1CachedView_1afd23716012f5c409e3d36286fa7c9912" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1ae87a7f51a3676da796c9ea3966e4a705" kindref="member">CachedView&lt;View&gt;::lubMin</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMin(d);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258" refid="classGecode_1_1Set_1_1CachedView_1aa792063713753403d6e45535d3030037" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a2ff46bd13e1057328055a2e4148887f8" kindref="member">CachedView&lt;View&gt;::lubMax</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMax(d);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="classGecode_1_1Set_1_1CachedView_1a8f089851b2d4ff563973735ce569de09" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a8f089851b2d4ff563973735ce569de09" kindref="member">CachedView&lt;View&gt;::lubAny</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubAny(d);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270" refid="classGecode_1_1Set_1_1CachedView_1a7340b36686621761dd9e65c4a2cd3236" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a7340b36686621761dd9e65c4a2cd3236" kindref="member">CachedView&lt;View&gt;::update</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>lubCache.update(home,y.<ref refid="classGecode_1_1Set_1_1CachedView_1a528867ba8b6043334b5710016b3e8094" kindref="member">lubCache</ref>);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>glbCache.update(home,y.<ref refid="classGecode_1_1Set_1_1CachedView_1a3237c9718dafad5893ac0707666f58f6" kindref="member">glbCache</ref>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" kindref="member">DerivedView&lt;View&gt;::update</ref>(home,share,y);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="277"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Cache<sp/>operations</highlight></codeline>
+<codeline lineno="278"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="279"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282" refid="classGecode_1_1Set_1_1CachedView_1a3376236da09658e1b39a031e4e043d63" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a3376236da09658e1b39a031e4e043d63" kindref="member">CachedView&lt;View&gt;::initCache</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>glb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>lub)<sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>glbCache.init(home);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>gr(glb);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>glbCache.includeI(home,gr);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>lubCache.init(home);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>lr(lub);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>lubCache.intersectI(home,lr);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294" refid="classGecode_1_1Set_1_1CachedView_1a34a0df38f7b36010f4c5f524508b6974" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a34a0df38f7b36010f4c5f524508b6974" kindref="member">CachedView&lt;View&gt;::cacheGlb</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;View&gt;</ref><sp/>gr(<ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView&lt;View&gt;::base</ref>());</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>glbCache.includeI(home,gr);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301" refid="classGecode_1_1Set_1_1CachedView_1a76aa42afeaff4961640fc96964a85e6d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a76aa42afeaff4961640fc96964a85e6d" kindref="member">CachedView&lt;View&gt;::cacheLub</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;View&gt;</ref><sp/>lr(<ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView&lt;View&gt;::base</ref>());</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>lubCache.intersectI(home,lr);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="308" refid="classGecode_1_1Set_1_1CachedView_1a9801b4e0debc384d3d53f2ca47e93afc" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a9801b4e0debc384d3d53f2ca47e93afc" kindref="member">CachedView&lt;View&gt;::glbModified</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>glbCache.size()<sp/>!=<sp/>glbSize();</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="314" refid="classGecode_1_1Set_1_1CachedView_1a2f4344335038382978dd7573a8078d42" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1CachedView_1a2f4344335038382978dd7573a8078d42" kindref="member">CachedView&lt;View&gt;::lubModified</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lubCache.size()<sp/>!=<sp/>lubSize();</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="323" refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt;View&gt;<sp/>&gt;<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;View&gt;<sp/>{</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="326"></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="338" refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1a150d50882502d6ff93190efbad81d23a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;CachedView&lt;View&gt;</ref><sp/>&gt;<ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">::LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>s)</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;View&gt;(s.base())<sp/>{}</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="343" refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1ab4945a9681c81415034e6e8ea19f78c0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;CachedView&lt;View&gt;</ref><sp/>&gt;::init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">LubRanges&lt;View&gt;::init</ref>(s.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>());</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="352" refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt;View&gt;<sp/>&gt;<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;View&gt;<sp/>{</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="355"></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="367" refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4_1a42d36c794fc9b5f8e82f2e6aec05f8d2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;CachedView&lt;View&gt;</ref><sp/>&gt;<ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">::GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&amp;<sp/>s)</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;View&gt;(s.base())<sp/>{}</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372" refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4_1a837d87a91e7f90d15f73d0b537741076" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;CachedView&lt;View&gt;</ref><sp/>&gt;::init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref><sp/>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">GlbRanges&lt;View&gt;::init</ref>(s.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>());</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="378" refid="classGecode_1_1Set_1_1CachedView_1adc9b51c3c90b09e8e6c411a6453d771a" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>x.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>();</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="385" refid="classGecode_1_1Set_1_1GlbDiffRanges_1a9241eebbca6a3e9c6661f89964b7481c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbDiffRanges_1a9241eebbca6a3e9c6661f89964b7481c" kindref="member">GlbDiffRanges&lt;View&gt;::GlbDiffRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>x)</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>gr(x.base()),<sp/>cr(x.glbCache)<sp/>{</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff" kindref="compound">Iter::Ranges::Diff&lt;GlbRanges&lt;View&gt;</ref>,<ref refid="classGecode_1_1Set_1_1BndSetRanges" kindref="compound">BndSetRanges</ref>&gt;<ref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1a75f6e211c6a572accb01056ab25d4901" kindref="member">::init</ref>(<ref refid="classGecode_1_1Set_1_1GlbDiffRanges_1a196c48c04c9f66b43994dc989db9541e" kindref="member">gr</ref>,<ref refid="classGecode_1_1Set_1_1GlbDiffRanges_1a610cb49132f40a7f6550e413c91aaeda" kindref="member">cr</ref>);</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="392" refid="classGecode_1_1Set_1_1LubDiffRanges_1a04d2e5a9782893c0a4a8fab1462165f4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubDiffRanges_1a04d2e5a9782893c0a4a8fab1462165f4" kindref="member">LubDiffRanges&lt;View&gt;::LubDiffRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView&lt;View&gt;</ref>&amp;<sp/>x)</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>cr(x.lubCache),<sp/>lr(x.base())<sp/>{</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff" kindref="compound">Iter::Ranges::Diff&lt;BndSetRanges,LubRanges&lt;View&gt;</ref><sp/>&gt;<ref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1a75f6e211c6a572accb01056ab25d4901" kindref="member">::init</ref>(<ref refid="classGecode_1_1Set_1_1LubDiffRanges_1a2d71c45a0b92de07ccc34ee146fadf1b" kindref="member">cr</ref>,<ref refid="classGecode_1_1Set_1_1LubDiffRanges_1a03d90d048049e02f1bf0fd314bc3cf7a" kindref="member">lr</ref>);</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>set-var</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/set/view/cached.hpp"/>
+  </compounddef>
+</doxygen>

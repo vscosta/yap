@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1SymbolEntry" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::SymbolEntry</compoundname>
+    <includes refid="parser_8hh" local="no">parser.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1SymbolEntry_1aac6d6fdd9583fdd3c81d7cbd54f1da28" prot="public" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28" kindref="member">SymbolType</ref></type>
+        <definition>SymbolType Gecode::FlatZinc::SymbolEntry::t</definition>
+        <argsstring></argsstring>
+        <name>t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="111" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1SymbolEntry_1a886b6f6bf0828bd3fa7a8d07d5d53f61" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::FlatZinc::SymbolEntry::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="112" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SymbolEntry_1a374de3d588eb6378b94775836b24b4df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SymbolEntry::SymbolEntry</definition>
+        <argsstring>(void)</argsstring>
+        <name>SymbolEntry</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="114" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="114" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SymbolEntry_1a934acb8343790261013e95f621519cb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SymbolEntry::SymbolEntry</definition>
+        <argsstring>(SymbolType t0, int i0)</argsstring>
+        <name>SymbolEntry</name>
+        <param>
+          <type><ref refid="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28" kindref="member">SymbolType</ref></type>
+          <declname>t0</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i0</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="116" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="116" bodyend="116"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Entries in the symbol table. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/flatzinc/parser.hh" line="109" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="109" bodyend="117"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1SymbolEntry_1a886b6f6bf0828bd3fa7a8d07d5d53f61" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SymbolEntry</scope><name>i</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SymbolEntry_1a374de3d588eb6378b94775836b24b4df" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SymbolEntry</scope><name>SymbolEntry</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SymbolEntry_1a934acb8343790261013e95f621519cb4" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SymbolEntry</scope><name>SymbolEntry</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SymbolEntry_1aac6d6fdd9583fdd3c81d7cbd54f1da28" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SymbolEntry</scope><name>t</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1UnknownReifyMode" kind="class" prot="public">
+    <compoundname>Gecode::Int::UnknownReifyMode</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="int_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1UnknownReifyMode_1a3817e53c45be03de8a79f38726b720b8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::UnknownReifyMode::UnknownReifyMode</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>UnknownReifyMode</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exception.hpp" line="122" column="1" bodyfile="/usr/include/gecode/int/exception.hpp" bodystart="207" bodyend="208"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Unknown reification mode passed as argument </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7280">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7281" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7281">
+        <label>std::exception</label>
+      </node>
+      <node id="7279">
+        <label>Gecode::Int::UnknownReifyMode</label>
+        <link refid="classGecode_1_1Int_1_1UnknownReifyMode"/>
+        <childnode refid="7280" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7283">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7284" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7284">
+        <label>std::exception</label>
+      </node>
+      <node id="7282">
+        <label>Gecode::Int::UnknownReifyMode</label>
+        <link refid="classGecode_1_1Int_1_1UnknownReifyMode"/>
+        <childnode refid="7283" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/exception.hpp" line="119" column="1" bodyfile="/usr/include/gecode/int/exception.hpp" bodystart="119" bodyend="123"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Int::UnknownReifyMode</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Int_1_1UnknownReifyMode_1a3817e53c45be03de8a79f38726b720b8" prot="public" virt="non-virtual"><scope>Gecode::Int::UnknownReifyMode</scope><name>UnknownReifyMode</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Int::UnknownReifyMode</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

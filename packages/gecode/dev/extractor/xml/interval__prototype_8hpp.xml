@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="interval__prototype_8hpp" kind="file">
+    <compoundname>interval_prototype.hpp</compoundname>
+    <includedby refid="arith2_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp</includedby>
+    <includedby refid="arith3_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/arith3.hpp</includedby>
+    <includedby refid="certain_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare/certain.hpp</includedby>
+    <includedby refid="explicit_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare/explicit.hpp</includedby>
+    <includedby refid="lexicographic_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare/lexicographic.hpp</includedby>
+    <includedby refid="possible_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare/possible.hpp</includedby>
+    <includedby refid="third-party_2boost_2numeric_2interval_2compare_2set_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare/set.hpp</includedby>
+    <includedby refid="division_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/detail/division.hpp</includedby>
+    <includedby refid="test__input_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp</includedby>
+    <includedby refid="interval_2interval_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp</includedby>
+    <includedby refid="transc_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp</includedby>
+    <includedby refid="numeric_2interval_2utility_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp</includedby>
+    <invincdepgraph>
+      <node id="34635">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp</label>
+        <link refid="test__input_8hpp_source"/>
+        <childnode refid="34634" relation="include">
+        </childnode>
+        <childnode refid="34618" relation="include">
+        </childnode>
+        <childnode refid="34626" relation="include">
+        </childnode>
+        <childnode refid="34627" relation="include">
+        </childnode>
+        <childnode refid="34630" relation="include">
+        </childnode>
+        <childnode refid="34631" relation="include">
+        </childnode>
+        <childnode refid="34632" relation="include">
+        </childnode>
+        <childnode refid="34633" relation="include">
+        </childnode>
+        <childnode refid="34619" relation="include">
+        </childnode>
+        <childnode refid="34636" relation="include">
+        </childnode>
+      </node>
+      <node id="34621">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="34622" relation="include">
+        </childnode>
+        <childnode refid="34623" relation="include">
+        </childnode>
+        <childnode refid="34624" relation="include">
+        </childnode>
+        <childnode refid="34625" relation="include">
+        </childnode>
+      </node>
+      <node id="34638">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp</label>
+        <link refid="policies_8hpp_source"/>
+        <childnode refid="34618" relation="include">
+        </childnode>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34626">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/arith3.hpp</label>
+        <link refid="arith3_8hpp_source"/>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34631">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/possible.hpp</label>
+        <link refid="possible_8hpp_source"/>
+        <childnode refid="34628" relation="include">
+        </childnode>
+      </node>
+      <node id="34618">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp</label>
+        <link refid="arith2_8hpp_source"/>
+        <childnode refid="34619" relation="include">
+        </childnode>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34630">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/lexicographic.hpp</label>
+        <link refid="lexicographic_8hpp_source"/>
+        <childnode refid="34628" relation="include">
+        </childnode>
+      </node>
+      <node id="34617">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp</label>
+        <link refid="interval_prototype.hpp"/>
+        <childnode refid="34618" relation="include">
+        </childnode>
+        <childnode refid="34626" relation="include">
+        </childnode>
+        <childnode refid="34627" relation="include">
+        </childnode>
+        <childnode refid="34629" relation="include">
+        </childnode>
+        <childnode refid="34630" relation="include">
+        </childnode>
+        <childnode refid="34631" relation="include">
+        </childnode>
+        <childnode refid="34632" relation="include">
+        </childnode>
+        <childnode refid="34633" relation="include">
+        </childnode>
+        <childnode refid="34635" relation="include">
+        </childnode>
+        <childnode refid="34637" relation="include">
+        </childnode>
+        <childnode refid="34619" relation="include">
+        </childnode>
+        <childnode refid="34636" relation="include">
+        </childnode>
+      </node>
+      <node id="34632">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/set.hpp</label>
+        <link refid="third-party_2boost_2numeric_2interval_2compare_2set_8hpp_source"/>
+        <childnode refid="34628" relation="include">
+        </childnode>
+      </node>
+      <node id="34620">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval.hpp</label>
+        <link refid="interval_8hpp_source"/>
+        <childnode refid="34621" relation="include">
+        </childnode>
+      </node>
+      <node id="34625">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="34622" relation="include">
+        </childnode>
+      </node>
+      <node id="34622">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="34634">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp</label>
+        <link refid="arith_8hpp_source"/>
+        <childnode refid="34618" relation="include">
+        </childnode>
+        <childnode refid="34619" relation="include">
+        </childnode>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34624">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="34629">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/explicit.hpp</label>
+        <link refid="explicit_8hpp_source"/>
+        <childnode refid="34628" relation="include">
+        </childnode>
+      </node>
+      <node id="34636">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp</label>
+        <link refid="numeric_2interval_2utility_8hpp_source"/>
+        <childnode refid="34632" relation="include">
+        </childnode>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34623">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="34627">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/certain.hpp</label>
+        <link refid="certain_8hpp_source"/>
+        <childnode refid="34628" relation="include">
+        </childnode>
+      </node>
+      <node id="34619">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp</label>
+        <link refid="transc_8hpp_source"/>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34633">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/detail/division.hpp</label>
+        <link refid="division_8hpp_source"/>
+        <childnode refid="34634" relation="include">
+        </childnode>
+        <childnode refid="34618" relation="include">
+        </childnode>
+      </node>
+      <node id="34637">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp</label>
+        <link refid="interval_2interval_8hpp_source"/>
+        <childnode refid="34634" relation="include">
+        </childnode>
+        <childnode refid="34638" relation="include">
+        </childnode>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+      <node id="34628">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare.hpp</label>
+        <link refid="compare_8hpp_source"/>
+        <childnode refid="34620" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__math" prot="public">boost::numeric::interval_lib::rounded_math</innerclass>
+    <innerclass refid="structboost_1_1numeric_1_1interval__lib_1_1checking__strict" prot="public">boost::numeric::interval_lib::checking_strict</innerclass>
+    <innerclass refid="structboost_1_1numeric_1_1interval__lib_1_1policies" prot="public">boost::numeric::interval_lib::policies</innerclass>
+    <innerclass refid="structboost_1_1numeric_1_1interval__lib_1_1default__policies" prot="public">boost::numeric::interval_lib::default_policies</innerclass>
+    <innerclass refid="classboost_1_1numeric_1_1interval" prot="public">boost::numeric::interval</innerclass>
+    <innernamespace refid="namespaceboost">boost</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric">boost::numeric</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric_1_1interval__lib">boost::numeric::interval_lib</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>Boost<sp/>interval/detail/interval_prototype.hpp<sp/>file</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2002<sp/>Hervé<sp/>Brönnimann,<sp/>Guillaume<sp/>Melquiond,<sp/>Sylvain<sp/>Pion</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Distributed<sp/>under<sp/>the<sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>(See<sp/>accompanying<sp/>file<sp/>LICENSE_1_0.txt<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_NUMERIC_INTERVAL_DETAIL_INTERVAL_PROTOTYPE_HPP</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NUMERIC_INTERVAL_DETAIL_INTERVAL_PROTOTYPE_HPP</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">boost<sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">numeric<sp/>{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">interval_lib<sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18" refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__math" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__math" kindref="compound">rounded_math</ref>;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structboost_1_1numeric_1_1interval__lib_1_1checking__strict" kindref="compound">checking_strict</ref>;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classboost_1_1numeric_1_1interval__lib_1_1comparison__error" kindref="compound">comparison_error</ref>;</highlight></codeline>
+<codeline lineno="21" refid="structboost_1_1numeric_1_1interval__lib_1_1policies" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Rounding,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Checking&gt;<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">policies</ref>;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>default<sp/>policies<sp/>class</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="28" refid="structboost_1_1numeric_1_1interval__lib_1_1default__policies" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structboost_1_1numeric_1_1interval__lib_1_1default__policies" kindref="compound">default_policies</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">policies&lt;rounded_math&lt;T&gt;</ref>,<sp/><ref refid="structboost_1_1numeric_1_1interval__lib_1_1checking__strict" kindref="compound">checking_strict&lt;T&gt;</ref><sp/>&gt;<sp/><ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">type</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>interval_lib</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">template&lt;class<sp/>T,<sp/>class<sp/>Policies<sp/>=<sp/>typename<sp/>interval_lib::default_policies&lt;T&gt;::type<sp/>&gt;</highlight></codeline>
+<codeline lineno="36" refid="classboost_1_1numeric_1_1interval" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>numeric</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>boost</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>BOOST_NUMERIC_INTERVAL_DETAIL_INTERVAL_PROTOTYPE_HPP</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp"/>
+  </compounddef>
+</doxygen>

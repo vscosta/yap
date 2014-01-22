@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1UninitializedRnd" kind="class" prot="public">
+    <compoundname>Gecode::UninitializedRnd</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="kernel_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1UninitializedRnd_1a64e81d30947d999d1d320fec3ac7e94a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::UninitializedRnd::UninitializedRnd</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>UninitializedRnd</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/exception.hpp" line="114" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="162" bodyend="163"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: uninitialized random number generator </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7188">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7189" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7189">
+        <label>std::exception</label>
+      </node>
+      <node id="7187">
+        <label>Gecode::UninitializedRnd</label>
+        <link refid="classGecode_1_1UninitializedRnd"/>
+        <childnode refid="7188" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7191">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7192" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7192">
+        <label>std::exception</label>
+      </node>
+      <node id="7190">
+        <label>Gecode::UninitializedRnd</label>
+        <link refid="classGecode_1_1UninitializedRnd"/>
+        <childnode refid="7191" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/exception.hpp" line="111" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="111" bodyend="115"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::UninitializedRnd</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1UninitializedRnd_1a64e81d30947d999d1d320fec3ac7e94a" prot="public" virt="non-virtual"><scope>Gecode::UninitializedRnd</scope><name>UninitializedRnd</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::UninitializedRnd</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

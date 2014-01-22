@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewRanges&lt; BoolView &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Singleton</basecompoundref>
+    <includes refid="int_2view_2bool_8hpp" local="no">bool.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a0754c699ead0b412b2efa31526dee192" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; BoolView &gt;::ViewRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool.hpp" line="292" column="1" bodyfile="/usr/include/gecode/int/view/bool.hpp" bodystart="301" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a7771695809fd285fe24f43b6e348f142" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; BoolView &gt;::ViewRanges</definition>
+        <argsstring>(const BoolView &amp;x)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool.hpp" line="294" column="1" bodyfile="/usr/include/gecode/int/view/bool.hpp" bodystart="304" bodyend="305"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a1b1c2a3bfec58e86797548a824feacdc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewRanges&lt; BoolView &gt;::init</definition>
+        <argsstring>(const BoolView &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool.hpp" line="296" column="1" bodyfile="/usr/include/gecode/int/view/bool.hpp" bodystart="308" bodyend="310"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for Boolean variable views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7844">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="7845" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7843">
+        <label>Gecode::Int::ViewRanges&lt; BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4"/>
+        <childnode refid="7844" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7845">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7847">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="7848" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7846">
+        <label>Gecode::Int::ViewRanges&lt; BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4"/>
+        <childnode refid="7847" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7848">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/view/bool.hpp" line="287" column="1" bodyfile="/usr/include/gecode/int/view/bool.hpp" bodystart="287" bodyend="298"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a1b1c2a3bfec58e86797548a824feacdc" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1a6efcfd9a463d1b68c56374962294061d" prot="public" virt="non-virtual" ambiguityscope="Gecode::Iter::Ranges::Singleton::"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1ad621a1dff884cfa7713d6f55e953c525" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aa3f8837538cd18a103119a2d430fdf39" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aace73d8960ffb6c43a158f68ae1fca00" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a0754c699ead0b412b2efa31526dee192" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4_1a7771695809fd285fe24f43b6e348f142" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; BoolView &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

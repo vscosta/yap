@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1IllegalOperation" kind="class" prot="public">
+    <compoundname>Gecode::Set::IllegalOperation</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="set_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1IllegalOperation_1a77466769ac16976dc1a55bfcb283be31" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::IllegalOperation::IllegalOperation</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>IllegalOperation</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/exception.hpp" line="101" column="1" bodyfile="/usr/include/gecode/set/exception.hpp" bodystart="128" bodyend="129"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Illegal operation passed as argument </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2759">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="2760" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2758">
+        <label>Gecode::Set::IllegalOperation</label>
+        <link refid="classGecode_1_1Set_1_1IllegalOperation"/>
+        <childnode refid="2759" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2760">
+        <label>std::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2762">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="2763" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2761">
+        <label>Gecode::Set::IllegalOperation</label>
+        <link refid="classGecode_1_1Set_1_1IllegalOperation"/>
+        <childnode refid="2762" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2763">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/exception.hpp" line="98" column="1" bodyfile="/usr/include/gecode/set/exception.hpp" bodystart="98" bodyend="102"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Set::IllegalOperation</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Set_1_1IllegalOperation_1a77466769ac16976dc1a55bfcb283be31" prot="public" virt="non-virtual"><scope>Gecode::Set::IllegalOperation</scope><name>IllegalOperation</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Set::IllegalOperation</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

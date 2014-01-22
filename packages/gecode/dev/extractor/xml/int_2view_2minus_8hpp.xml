@@ -1,0 +1,995 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="int_2view_2minus_8hpp" kind="file">
+    <compoundname>minus.hpp</compoundname>
+    <includedby refid="int_2view_8hpp" local="no">/usr/include/gecode/int/view.hpp</includedby>
+    <invincdepgraph>
+      <node id="6606">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6589">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="6614">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="6572" relation="include">
+        </childnode>
+      </node>
+      <node id="6612">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="6613" relation="include">
+        </childnode>
+        <childnode refid="6614" relation="include">
+        </childnode>
+      </node>
+      <node id="6613">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="6589" relation="include">
+        </childnode>
+      </node>
+      <node id="6574">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="6575" relation="include">
+        </childnode>
+        <childnode refid="6576" relation="include">
+        </childnode>
+      </node>
+      <node id="6595">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="6596" relation="include">
+        </childnode>
+      </node>
+      <node id="6643">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="6644" relation="include">
+        </childnode>
+      </node>
+      <node id="6631">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="6615" relation="include">
+        </childnode>
+      </node>
+      <node id="6639">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="6640">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="6639" relation="include">
+        </childnode>
+      </node>
+      <node id="6623">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="6637">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="6613" relation="include">
+        </childnode>
+      </node>
+      <node id="6604">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="6646">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="6605">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="6601" relation="include">
+        </childnode>
+        <childnode refid="6602" relation="include">
+        </childnode>
+        <childnode refid="6595" relation="include">
+        </childnode>
+        <childnode refid="6606" relation="include">
+        </childnode>
+        <childnode refid="6607" relation="include">
+        </childnode>
+        <childnode refid="6608" relation="include">
+        </childnode>
+        <childnode refid="6609" relation="include">
+        </childnode>
+        <childnode refid="6610" relation="include">
+        </childnode>
+      </node>
+      <node id="6583">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="6660">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="6648" relation="include">
+        </childnode>
+        <childnode refid="6617" relation="include">
+        </childnode>
+        <childnode refid="6658" relation="include">
+        </childnode>
+        <childnode refid="6659" relation="include">
+        </childnode>
+        <childnode refid="6661" relation="include">
+        </childnode>
+      </node>
+      <node id="6650">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="6585">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="6633">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="6622" relation="include">
+        </childnode>
+      </node>
+      <node id="6618">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="6625">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="6626" relation="include">
+        </childnode>
+        <childnode refid="6627" relation="include">
+        </childnode>
+        <childnode refid="6628" relation="include">
+        </childnode>
+        <childnode refid="6589" relation="include">
+        </childnode>
+        <childnode refid="6629" relation="include">
+        </childnode>
+        <childnode refid="6630" relation="include">
+        </childnode>
+        <childnode refid="6605" relation="include">
+        </childnode>
+        <childnode refid="6631" relation="include">
+        </childnode>
+        <childnode refid="6615" relation="include">
+        </childnode>
+        <childnode refid="6632" relation="include">
+        </childnode>
+        <childnode refid="6616" relation="include">
+        </childnode>
+        <childnode refid="6619" relation="include">
+        </childnode>
+        <childnode refid="6633" relation="include">
+        </childnode>
+        <childnode refid="6634" relation="include">
+        </childnode>
+        <childnode refid="6597" relation="include">
+        </childnode>
+        <childnode refid="6635" relation="include">
+        </childnode>
+        <childnode refid="6607" relation="include">
+        </childnode>
+        <childnode refid="6608" relation="include">
+        </childnode>
+        <childnode refid="6609" relation="include">
+        </childnode>
+        <childnode refid="6636" relation="include">
+        </childnode>
+        <childnode refid="6610" relation="include">
+        </childnode>
+      </node>
+      <node id="6644">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="6574" relation="include">
+        </childnode>
+      </node>
+      <node id="6627">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="6589" relation="include">
+        </childnode>
+      </node>
+      <node id="6580">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="6577" relation="include">
+        </childnode>
+        <childnode refid="6581" relation="include">
+        </childnode>
+        <childnode refid="6578" relation="include">
+        </childnode>
+        <childnode refid="6579" relation="include">
+        </childnode>
+      </node>
+      <node id="6626">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="6589" relation="include">
+        </childnode>
+      </node>
+      <node id="6622">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="6575">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="6588">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="6583" relation="include">
+        </childnode>
+        <childnode refid="6584" relation="include">
+        </childnode>
+      </node>
+      <node id="6635">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6654">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="6603">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="6587">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="6588" relation="include">
+        </childnode>
+      </node>
+      <node id="6608">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6630">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="6603" relation="include">
+        </childnode>
+      </node>
+      <node id="6617">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="6656">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="6659">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="6617" relation="include">
+        </childnode>
+        <childnode refid="6658" relation="include">
+        </childnode>
+      </node>
+      <node id="6609">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6616">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="6617" relation="include">
+        </childnode>
+      </node>
+      <node id="6601">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="6621">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="6584">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="6572">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="6573" relation="include">
+        </childnode>
+      </node>
+      <node id="6590">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="6591">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="6592" relation="include">
+        </childnode>
+        <childnode refid="6597" relation="include">
+        </childnode>
+        <childnode refid="6599" relation="include">
+        </childnode>
+      </node>
+      <node id="6647">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="6646" relation="include">
+        </childnode>
+      </node>
+      <node id="6648">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="6646" relation="include">
+        </childnode>
+      </node>
+      <node id="6634">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="6622" relation="include">
+        </childnode>
+      </node>
+      <node id="6620">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="6621" relation="include">
+        </childnode>
+      </node>
+      <node id="6582">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="6583" relation="include">
+        </childnode>
+        <childnode refid="6584" relation="include">
+        </childnode>
+        <childnode refid="6585" relation="include">
+        </childnode>
+        <childnode refid="6586" relation="include">
+        </childnode>
+        <childnode refid="6587" relation="include">
+        </childnode>
+      </node>
+      <node id="6600">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="6598">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="6629">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="6591" relation="include">
+        </childnode>
+      </node>
+      <node id="6636">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="6642">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="6605" relation="include">
+        </childnode>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6592">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="6593" relation="include">
+        </childnode>
+      </node>
+      <node id="6610">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="6611" relation="include">
+        </childnode>
+      </node>
+      <node id="6579">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="6577" relation="include">
+        </childnode>
+      </node>
+      <node id="6586">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="6577">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="6576">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="6596">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="6651">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="6650" relation="include">
+        </childnode>
+      </node>
+      <node id="6657">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="6578">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="6641">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="6622" relation="include">
+        </childnode>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6573">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="6574" relation="include">
+        </childnode>
+        <childnode refid="6577" relation="include">
+        </childnode>
+        <childnode refid="6578" relation="include">
+        </childnode>
+        <childnode refid="6579" relation="include">
+        </childnode>
+        <childnode refid="6580" relation="include">
+        </childnode>
+        <childnode refid="6582" relation="include">
+        </childnode>
+        <childnode refid="6589" relation="include">
+        </childnode>
+        <childnode refid="6590" relation="include">
+        </childnode>
+        <childnode refid="6591" relation="include">
+        </childnode>
+        <childnode refid="6600" relation="include">
+        </childnode>
+        <childnode refid="6601" relation="include">
+        </childnode>
+        <childnode refid="6602" relation="include">
+        </childnode>
+        <childnode refid="6603" relation="include">
+        </childnode>
+        <childnode refid="6604" relation="include">
+        </childnode>
+        <childnode refid="6605" relation="include">
+        </childnode>
+        <childnode refid="6612" relation="include">
+        </childnode>
+        <childnode refid="6615" relation="include">
+        </childnode>
+        <childnode refid="6616" relation="include">
+        </childnode>
+        <childnode refid="6618" relation="include">
+        </childnode>
+        <childnode refid="6619" relation="include">
+        </childnode>
+        <childnode refid="6596" relation="include">
+        </childnode>
+        <childnode refid="6620" relation="include">
+        </childnode>
+        <childnode refid="6593" relation="include">
+        </childnode>
+        <childnode refid="6622" relation="include">
+        </childnode>
+        <childnode refid="6623" relation="include">
+        </childnode>
+        <childnode refid="6598" relation="include">
+        </childnode>
+        <childnode refid="6624" relation="include">
+        </childnode>
+        <childnode refid="6625" relation="include">
+        </childnode>
+        <childnode refid="6636" relation="include">
+        </childnode>
+        <childnode refid="6611" relation="include">
+        </childnode>
+        <childnode refid="6637" relation="include">
+        </childnode>
+        <childnode refid="6638" relation="include">
+        </childnode>
+        <childnode refid="6641" relation="include">
+        </childnode>
+        <childnode refid="6642" relation="include">
+        </childnode>
+        <childnode refid="6643" relation="include">
+        </childnode>
+        <childnode refid="6645" relation="include">
+        </childnode>
+        <childnode refid="6647" relation="include">
+        </childnode>
+        <childnode refid="6648" relation="include">
+        </childnode>
+        <childnode refid="6649" relation="include">
+        </childnode>
+        <childnode refid="6651" relation="include">
+        </childnode>
+        <childnode refid="6652" relation="include">
+        </childnode>
+        <childnode refid="6653" relation="include">
+        </childnode>
+      </node>
+      <node id="6597">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6599">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6638">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="6639" relation="include">
+        </childnode>
+        <childnode refid="6640" relation="include">
+        </childnode>
+      </node>
+      <node id="6619">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="6611">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="6652">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="6650" relation="include">
+        </childnode>
+      </node>
+      <node id="6624">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="6607">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="6598" relation="include">
+        </childnode>
+      </node>
+      <node id="6581">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="6661">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="6649">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="6650" relation="include">
+        </childnode>
+      </node>
+      <node id="6594">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="6589" relation="include">
+        </childnode>
+      </node>
+      <node id="6593">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="6594" relation="include">
+        </childnode>
+        <childnode refid="6589" relation="include">
+        </childnode>
+        <childnode refid="6595" relation="include">
+        </childnode>
+      </node>
+      <node id="6615">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="6645">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="6646" relation="include">
+        </childnode>
+      </node>
+      <node id="6632">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="6616" relation="include">
+        </childnode>
+      </node>
+      <node id="6653">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="6654" relation="include">
+        </childnode>
+        <childnode refid="6648" relation="include">
+        </childnode>
+        <childnode refid="6646" relation="include">
+        </childnode>
+        <childnode refid="6655" relation="include">
+        </childnode>
+        <childnode refid="6656" relation="include">
+        </childnode>
+        <childnode refid="6617" relation="include">
+        </childnode>
+        <childnode refid="6649" relation="include">
+        </childnode>
+        <childnode refid="6651" relation="include">
+        </childnode>
+        <childnode refid="6652" relation="include">
+        </childnode>
+        <childnode refid="6650" relation="include">
+        </childnode>
+        <childnode refid="6621" relation="include">
+        </childnode>
+        <childnode refid="6657" relation="include">
+        </childnode>
+        <childnode refid="6658" relation="include">
+        </childnode>
+        <childnode refid="6659" relation="include">
+        </childnode>
+        <childnode refid="6660" relation="include">
+        </childnode>
+        <childnode refid="6661" relation="include">
+        </childnode>
+      </node>
+      <node id="6602">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="6571">
+        <label>/usr/include/gecode/int/view/minus.hpp</label>
+        <link refid="int/view/minus.hpp"/>
+        <childnode refid="6572" relation="include">
+        </childnode>
+      </node>
+      <node id="6658">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="6659" relation="include">
+        </childnode>
+      </node>
+      <node id="6628">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="6589" relation="include">
+        </childnode>
+      </node>
+      <node id="6655">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4" prot="public">Gecode::Int::ViewRanges&lt; MinusView &gt;</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int">Gecode::Int</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2003</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-02-14<sp/>16:29:11<sp/>+0100<sp/>(Thu,<sp/>14<sp/>Feb<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13292<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Int<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Constructors<sp/>and<sp/>initialization</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="45" refid="classGecode_1_1Int_1_1MinusView_1a831122ad45eebc7751f24a06a2a57ad5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a831122ad45eebc7751f24a06a2a57ad5" kindref="member">MinusView::MinusView</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="47" refid="classGecode_1_1Int_1_1MinusView_1a2c6dc981d4a0122fee2882920cb1fc70" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a831122ad45eebc7751f24a06a2a57ad5" kindref="member">MinusView::MinusView</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref>&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView</ref>&lt;<ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref>&gt;(y)<sp/>{}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Value<sp/>access</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="classGecode_1_1Int_1_1MinusView_1ae09e4a55b35135b15ab27fc95bcfeccf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ae09e4a55b35135b15ab27fc95bcfeccf" kindref="member">MinusView::min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.max();</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="classGecode_1_1Int_1_1MinusView_1ac6a086e4b74799f2c9a006023ea4e5ec" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ac6a086e4b74799f2c9a006023ea4e5ec" kindref="member">MinusView::max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.min();</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="classGecode_1_1Int_1_1MinusView_1a27ba55d1de66bdeb48e3d4b41aa75253" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a27ba55d1de66bdeb48e3d4b41aa75253" kindref="member">MinusView::val</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.val();</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="classGecode_1_1Int_1_1MinusView_1ab269a5cc966b84745615b3f99efafa50" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ab269a5cc966b84745615b3f99efafa50" kindref="member">MinusView::width</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.width();</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="classGecode_1_1Int_1_1MinusView_1a0fc7576acdbc97ed8549404978db034e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a0fc7576acdbc97ed8549404978db034e" kindref="member">MinusView::size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.size();</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="classGecode_1_1Int_1_1MinusView_1a4731d8f3ea596df4ce52df37cffa02f8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a4731d8f3ea596df4ce52df37cffa02f8" kindref="member">MinusView::regret_min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.regret_max();</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="classGecode_1_1Int_1_1MinusView_1abdb77971d6620205008599c4badfaa51" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1abdb77971d6620205008599c4badfaa51" kindref="member">MinusView::regret_max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.regret_min();</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Domain<sp/>tests</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1Int_1_1MinusView_1acc72f60e3440bdc4ddec9f9db9a11dda" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1acc72f60e3440bdc4ddec9f9db9a11dda" kindref="member">MinusView::range</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.range();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="classGecode_1_1Int_1_1MinusView_1a044a55a1b4a6924ec036e6c92daf8574" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a044a55a1b4a6924ec036e6c92daf8574" kindref="member">MinusView::in</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.in(-n);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="classGecode_1_1Int_1_1MinusView_1a235046e78f5831626804eca94fe38391" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a044a55a1b4a6924ec036e6c92daf8574" kindref="member">MinusView::in</ref>(</highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.in(-n);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="105"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Domain<sp/>update<sp/>by<sp/>value</highlight></codeline>
+<codeline lineno="106"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="107"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="109" refid="classGecode_1_1Int_1_1MinusView_1aaaf401587c6ee367103a91fd224769fa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1aaaf401587c6ee367103a91fd224769fa" kindref="member">MinusView::lq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.gq(home,-n);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="113" refid="classGecode_1_1Int_1_1MinusView_1a98fb44270c1b7af8659a00259cea8bd7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1aaaf401587c6ee367103a91fd224769fa" kindref="member">MinusView::lq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.gq(home,-n);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="118" refid="classGecode_1_1Int_1_1MinusView_1ac02fdc1b0ff0129982cd6d0865fdc6c9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ac02fdc1b0ff0129982cd6d0865fdc6c9" kindref="member">MinusView::le</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.gr(home,-n);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="122" refid="classGecode_1_1Int_1_1MinusView_1a8de0afb488ebbea5692231403d99fbb2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ac02fdc1b0ff0129982cd6d0865fdc6c9" kindref="member">MinusView::le</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.gr(home,-n);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="127" refid="classGecode_1_1Int_1_1MinusView_1ad214c5a7a2336fb381000420ec07ea29" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ad214c5a7a2336fb381000420ec07ea29" kindref="member">MinusView::gq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.lq(home,-n);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="131" refid="classGecode_1_1Int_1_1MinusView_1adeeb6889a882c83cf6fde47d9e200ab2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ad214c5a7a2336fb381000420ec07ea29" kindref="member">MinusView::gq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.lq(home,-n);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="136" refid="classGecode_1_1Int_1_1MinusView_1a3e02b86a12df11500aebf331bfe7b7a7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a3e02b86a12df11500aebf331bfe7b7a7" kindref="member">MinusView::gr</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.le(home,-n);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="140" refid="classGecode_1_1Int_1_1MinusView_1a684268a47c01abbb38ff4e2658b3a7b3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a3e02b86a12df11500aebf331bfe7b7a7" kindref="member">MinusView::gr</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.le(home,-n);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="145" refid="classGecode_1_1Int_1_1MinusView_1abc17f3e9b5218de100b9c2f5d4657301" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1abc17f3e9b5218de100b9c2f5d4657301" kindref="member">MinusView::nq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.nq(home,-n);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="149" refid="classGecode_1_1Int_1_1MinusView_1a26a3f10017ea13fbd74d136ee6f06a41" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1abc17f3e9b5218de100b9c2f5d4657301" kindref="member">MinusView::nq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.nq(home,-n);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="154" refid="classGecode_1_1Int_1_1MinusView_1a3fbe1a9aa9d7bdd93b5ca15690f72e93" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a3fbe1a9aa9d7bdd93b5ca15690f72e93" kindref="member">MinusView::eq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.eq(home,-n);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="158" refid="classGecode_1_1Int_1_1MinusView_1aac489d747fe903002cd4c9168be1df92" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a3fbe1a9aa9d7bdd93b5ca15690f72e93" kindref="member">MinusView::eq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.eq(home,-n);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Iterator-based<sp/>domain<sp/>update</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1acb8e7b05dcc9b4973a939ead9ca1ca70" kindref="member">MinusView::narrow_r</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Region" kindref="compound">Region</ref><sp/>r(home);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Minus" kindref="compound">Iter::Ranges::Minus</ref><sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.narrow_r(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1aae9186671617e792b298dfde4d160ea0" kindref="member">MinusView::inter_r</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Region" kindref="compound">Region</ref><sp/>r(home);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Minus" kindref="compound">Iter::Ranges::Minus</ref><sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.inter_r(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a6a8764298a5543c7ab1e91647b2dc7ff" kindref="member">MinusView::minus_r</ref>(Space&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/>Region<sp/>r(home);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>Iter::Ranges::Minus<sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.minus_r(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a04d38d5547e066992e14428bfd7d8a2d" kindref="member">MinusView::narrow_v</ref>(Space&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>Region<sp/>r(home);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>Iter::Values::Minus<sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.narrow_v(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a8e00647e5bd9182ddbad31ee030310f8" kindref="member">MinusView::inter_v</ref>(Space&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>Region<sp/>r(home);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>Iter::Values::Minus<sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.inter_v(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ad5cefe62abdf044659e6acd3e1483287" kindref="member">MinusView::minus_v</ref>(Space&amp;<sp/>home,<sp/>I&amp;<sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>Region<sp/>r(home);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>Iter::Values::Minus<sp/>mi(r,i);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.minus_v(home,mi,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="212"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Propagator<sp/>modification<sp/>events</highlight></codeline>
+<codeline lineno="213"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="214"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></highlight></codeline>
+<codeline lineno="216" refid="classGecode_1_1Int_1_1MinusView_1a75bb0f4cddff06dffe652f8137517df6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1aeecc6df29dc7164b4c37b6fcbdba1182" kindref="member">MinusView::med</ref>(<ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1IntView_1a8844c2395ae6301319fdced12b920914" kindref="member">IntView::med</ref>(me);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="222"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Delta<sp/>information<sp/>for<sp/>advisors</highlight></codeline>
+<codeline lineno="223"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="224"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="classGecode_1_1Int_1_1MinusView_1add8d5b51e9a796ef99633470e87e9bc0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ae09e4a55b35135b15ab27fc95bcfeccf" kindref="member">MinusView::min</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.max(d);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="classGecode_1_1Int_1_1MinusView_1a54a8c866fed356be5a01cf3d587b4d62" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1ac6a086e4b74799f2c9a006023ea4e5ec" kindref="member">MinusView::max</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.min(d);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="classGecode_1_1Int_1_1MinusView_1a438e93d8c5a1eae85232362e0eec70fd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1a438e93d8c5a1eae85232362e0eec70fd" kindref="member">MinusView::any</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.any(d);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;&gt;</highlight></codeline>
+<codeline lineno="244" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges</ref>&lt;<ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref>&gt;<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1IntVarImpBwd" kindref="compound">IntVarImpBwd</ref><sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="247"></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" kindref="member">ViewRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" kindref="member">ViewRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a9089345a78e0bc4b91382b852fe6ca9a" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="255"></codeline>
+<codeline lineno="257"></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a2cba4fdbf5859ff22afbe4f55b6ea1df" kindref="member">min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a26338b51f2f24730f2f3fa9b9ea9e1f9" kindref="member">max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="266" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1ae9dd72b2240c7b786f3f4d10314aa86a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" kindref="member">ViewRanges&lt;MinusView&gt;::ViewRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="269" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1a11795f53706b5b5f6b3006e9cdcffeb5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" kindref="member">ViewRanges&lt;MinusView&gt;::ViewRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref>&amp;<sp/>x)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Int_1_1IntVarImpBwd" kindref="compound">IntVarImpBwd</ref>(x.base().varimp())<sp/>{}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="273" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1a7ebb399d03042da4f3152f6ed9aa5bcd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a9089345a78e0bc4b91382b852fe6ca9a" kindref="member">ViewRanges&lt;MinusView&gt;::init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1IntVarImpBwd_1a318b74c70743502cc0f55d13d781b43f" kindref="member">IntVarImpBwd::init</ref>(x.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>().varimp());</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1a9acee8e21cd68cc7c566c62c2fc1b6de" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a2cba4fdbf5859ff22afbe4f55b6ea1df" kindref="member">ViewRanges&lt;MinusView&gt;::min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1Int_1_1IntVarImpBwd_1ab29f0cd911233b0b0fae5e50210779a5" kindref="member">IntVarImpBwd::max</ref>();</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282" refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1a3109498f5828fc346c6fee85cdbfd0e1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_1a26338b51f2f24730f2f3fa9b9ea9e1f9" kindref="member">ViewRanges&lt;MinusView&gt;::max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classGecode_1_1Int_1_1IntVarImpBwd_1a669846dc948f7d33a319b6ae4c48cc4a" kindref="member">IntVarImpBwd::min</ref>();</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287" refid="classGecode_1_1Int_1_1MinusView_1aeecc6df29dc7164b4c37b6fcbdba1182" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1MinusView_1aeecc6df29dc7164b4c37b6fcbdba1182" kindref="member">MinusView::med</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.range())</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Int_1_1MinusView_1ae09e4a55b35135b15ab27fc95bcfeccf" kindref="member">min</ref>()+<ref refid="classGecode_1_1Int_1_1MinusView_1ac6a086e4b74799f2c9a006023ea4e5ec" kindref="member">max</ref>())/2<sp/>-<sp/>((<ref refid="classGecode_1_1Int_1_1MinusView_1ae09e4a55b35135b15ab27fc95bcfeccf" kindref="member">min</ref>()+<ref refid="classGecode_1_1Int_1_1MinusView_1ac6a086e4b74799f2c9a006023ea4e5ec" kindref="member">max</ref>())%2<sp/>&lt;<sp/>0<sp/>?<sp/>1<sp/>:<sp/>0);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/><ref refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" kindref="member">x</ref>.size()<sp/>/<sp/>2;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Int_1_1MinusView_1a0fc7576acdbc97ed8549404978db034e" kindref="member">size</ref>()<sp/>%<sp/>2<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>i--;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4" kindref="compound">ViewRanges&lt;MinusView&gt;</ref><sp/>r(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(i<sp/>&gt;=<sp/>r.<ref refid="classGecode_1_1Int_1_1IntVarImpBwd_1a3334622207c04d0c9c17e78f11eda226" kindref="member">width</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/>-=<sp/>r.<ref refid="classGecode_1_1Int_1_1IntVarImpBwd_1a3334622207c04d0c9c17e78f11eda226" kindref="member">width</ref>();</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>++r;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>r.<ref refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4_1a9acee8e21cd68cc7c566c62c2fc1b6de" kindref="member">min</ref>()<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(i);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>int-var</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/int/view/minus.hpp"/>
+  </compounddef>
+</doxygen>

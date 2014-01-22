@@ -1,0 +1,3204 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Space" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Space</compoundname>
+    <derivedcompoundref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" prot="public" virt="non-virtual">Gecode::FlatZinc::FlatZincSpace</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1MiniModel_1_1IntOptimizeSpace" prot="public" virt="non-virtual">Gecode::MiniModel::IntOptimizeSpace&lt; irt &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <innerclass refid="classGecode_1_1Space_1_1Branchers" prot="public">Gecode::Space::Branchers</innerclass>
+    <innerclass refid="classGecode_1_1Space_1_1Propagators" prot="public">Gecode::Space::Propagators</innerclass>
+      <sectiondef kind="user-defined">
+      <header>update, and dispose variables</header>
+      <memberdef kind="function" id="classGecode_1_1Space_1afd570a73c3d81c65ddf1915126a4c4af" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::update</definition>
+        <argsstring>(ActorLink **sub)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> **</type>
+          <declname>sub</declname>
+        </param>
+        <briefdescription>
+<para>Update all cloned variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1425" column="1" bodyfile="/usr/include/gecode/kernel/var-imp.hpp" bodystart="402" bodyend="415"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Conversion from Space to Home</header>
+      <memberdef kind="function" id="classGecode_1_1Space_1a7b39464c96728bfb9f4fd0be8a011e6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+        <definition>forceinline Home Gecode::Space::operator()</definition>
+        <argsstring>(Propagator &amp;p)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Return a home for this space with the information that <emphasis>p</emphasis> is being rewritten. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1976" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2825" bodyend="2827"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="classGecode_1_1Space_1a995b57f345f83b31cf91c8dd8a4c80ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(void)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Construction routines. </para>        </briefdescription>
+        <detaileddescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using the default constructor. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2178" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a5b90d2ec34f5809121b3ac338ef04a85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using a unary constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para>The parameter is passed as a const reference. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2185" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ac5494427f1e22d7aadd17cbc04e5d093" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using a binary constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para>The parameters are passed as const references. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2192" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a381bb9c9642cfd6606c85d8feab8e12b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using a ternary constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para>The parameters are passed as const references. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2199" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a9048dc2f72ef2116e4a196b9a53343bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+          <param>
+            <type>typename A4</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3, A4 const &amp;a4)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <param>
+          <type>A4 const &amp;</type>
+          <declname>a4</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using a quaternary constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para>The parameters are passed as const references. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2206" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a9834c84a9e1345aef18522a8e2fe9243" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+          <param>
+            <type>typename A4</type>
+          </param>
+          <param>
+            <type>typename A5</type>
+          </param>
+        </templateparamlist>
+        <type>T &amp;</type>
+        <definition>T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3, A4 const &amp;a4, A5 const &amp;a5)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <param>
+          <type>A4 const &amp;</type>
+          <declname>a4</declname>
+        </param>
+        <param>
+          <type>A5 const &amp;</type>
+          <declname>a5</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single object of type <emphasis>T</emphasis> from space heap using a quinary constructor. </para>        </briefdescription>
+        <detaileddescription>
+<para>The parameters are passed as const references. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2213" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Low-level support for AFC</header>
+      <memberdef kind="function" id="classGecode_1_1Space_1a222da5f719165aa3789537fc973b9d80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::afc_decay</definition>
+        <argsstring>(double d)</argsstring>
+        <name>afc_decay</name>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> decay factor to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2268" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a685d4a0ce1964431eecce7e62d6b7437" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::Space::afc_decay</definition>
+        <argsstring>(void) const </argsstring>
+        <name>afc_decay</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> decay factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2270" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2795" bodyend="2797"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a6227bac5aeefa9d93e9e1d8530fd6a6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::afc_set</definition>
+        <argsstring>(double a)</argsstring>
+        <name>afc_set</name>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Reset <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> to <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2273" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Space_1ae4af50bf1743d112cb2c2c784bea21c8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Actor</definition>
+        <argsstring></argsstring>
+        <name>Actor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1326" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1326" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a9d01c82a7038a8c986c6b15c15b2e631" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Propagator</definition>
+        <argsstring></argsstring>
+        <name>Propagator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1327" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1ab2370b9ccb77385b5ef05776269bf082" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Brancher</definition>
+        <argsstring></argsstring>
+        <name>Brancher</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1328" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1328" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Advisor</definition>
+        <argsstring></argsstring>
+        <name>Advisor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1329" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1329" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class VIC</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class VarImp</definition>
+        <argsstring></argsstring>
+        <name>VarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1330" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a524446ac6b57974e912f498e8b688f35" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1VarImp" kindref="compound">VarImp</ref></type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class VarImpDisposer</definition>
+        <argsstring></argsstring>
+        <name>VarImpDisposer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1331" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a89bd8462b4d862762d5fe24ec383df46" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class SharedHandle</definition>
+        <argsstring></argsstring>
+        <name>SharedHandle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1332" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1332" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a2f86794f74e3da8812e17622c204c67c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class LocalObject</definition>
+        <argsstring></argsstring>
+        <name>LocalObject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1333" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1333" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1aae6f9325706131f3b6fb8accb1508d76" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Region</definition>
+        <argsstring></argsstring>
+        <name>Region</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1334" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1334" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a806bc768453abb038560f6266d773527" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class AFC</definition>
+        <argsstring></argsstring>
+        <name>AFC</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1335" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1335" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Space_1a475645cee7557d6b057a0be98a32d15f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class BrancherHandle</definition>
+        <argsstring></argsstring>
+        <name>BrancherHandle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1336" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1336" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Space_1ad2cbec6018af7a286bb15da1b5072ad4" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1SharedMemory" kindref="compound">SharedMemory</ref> *</type>
+        <definition>SharedMemory* Gecode::Space::sm</definition>
+        <argsstring></argsstring>
+        <name>sm</name>
+        <briefdescription>
+<para>Manager for shared memory areas. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1339" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1ae88cc6c9dffa44ab3f920b34823be4b5" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1MemoryManager" kindref="compound">MemoryManager</ref></type>
+        <definition>MemoryManager Gecode::Space::mm</definition>
+        <argsstring></argsstring>
+        <name>mm</name>
+        <briefdescription>
+<para>Performs memory management for space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1341" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1341" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a7e5cca6912b682e58d4b82406dc57bcd" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1GlobalAFC" kindref="compound">GlobalAFC</ref></type>
+        <definition>GlobalAFC Gecode::Space::gafc</definition>
+        <argsstring></argsstring>
+        <name>gafc</name>
+        <briefdescription>
+<para>Global <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1343" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a4e732b4a774da40f738c1e2a7761034f" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref></type>
+        <definition>ActorLink Gecode::Space::pl</definition>
+        <argsstring></argsstring>
+        <name>pl</name>
+        <briefdescription>
+<para>Doubly linked list of all propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1345" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a4d5af3582bc507d6a8d78ba44c9a9831" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref></type>
+        <definition>ActorLink Gecode::Space::bl</definition>
+        <argsstring></argsstring>
+        <name>bl</name>
+        <briefdescription>
+<para>Doubly linked list of all branchers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1347" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a38ec40083a05ef24d71f07a90e03013c" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> *</type>
+        <definition>Brancher* Gecode::Space::b_status</definition>
+        <argsstring></argsstring>
+        <name>b_status</name>
+        <briefdescription>
+<para>Points to the first brancher to be used for status. </para>        </briefdescription>
+        <detaileddescription>
+<para>If equal to &amp;bl, no brancher does exist. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1353" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1353" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a86894850c32637ddb7bc8abd83147fbe" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> *</type>
+        <definition>Brancher* Gecode::Space::b_commit</definition>
+        <argsstring></argsstring>
+        <name>b_commit</name>
+        <briefdescription>
+<para>Points to the first brancher to be used for commit. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that <emphasis>b_commit</emphasis> can point to an earlier brancher than <emphasis>b_status</emphasis>. This reflects the fact that the earlier brancher is already done (that is, status on that brancher returns false) but there might be still choices referring to the earlier brancher.</para><para>If equal to &amp;bl, no brancher does exist. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1365" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1365" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a158d89e8ed6005869375926ce8b022c1" prot="private" static="no" mutable="no">
+        <type>union Gecode::Space::@5</type>
+        <definition>union Gecode::Space::@5  Gecode::Space::pc</definition>
+        <argsstring></argsstring>
+        <name>pc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1407" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a4bcdb61f75f8c8d18f4c158040bf8895" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> **</type>
+        <definition>Actor** Gecode::Space::d_fst</definition>
+        <argsstring></argsstring>
+        <name>d_fst</name>
+        <briefdescription>
+<para>First actor for forced disposal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1429" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1429" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a132c7b4ebb57db452ade0fb53e6e9ade" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> **</type>
+        <definition>Actor** Gecode::Space::d_cur</definition>
+        <argsstring></argsstring>
+        <name>d_cur</name>
+        <briefdescription>
+<para>Current actor for forced disposal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1431" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1431" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1aae291b6b0afbc1c1047a9bdb7e06c1cd" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> **</type>
+        <definition>Actor** Gecode::Space::d_lst</definition>
+        <argsstring></argsstring>
+        <name>d_lst</name>
+        <briefdescription>
+<para>Last actor for forced disposal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1433" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1433" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1ad92481e75bde7d74f7e5cfdc27198e34" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Space::_wmp_afc</definition>
+        <argsstring></argsstring>
+        <name>_wmp_afc</name>
+        <briefdescription>
+<para>Number of weakly monotonic propagators and <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> flag. </para>        </briefdescription>
+        <detaileddescription>
+<para>The least significant bit encodes whether <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information must be collected, the remaining bits encode counting for weakly monotonic propagators as follows. If zero, none exists. If one, then none exists right now but there has been one since the last fixpoint computed. Otherwise, it gives the number of weakly monotoning propagators minus one. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1446" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1446" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Space_1ad6e7526034af3fe50a902d4d763b3a0f" prot="private" static="yes" mutable="no">
+        <type>const unsigned</type>
+        <definition>const unsigned Gecode::Space::reserved_branch_id</definition>
+        <argsstring></argsstring>
+        <name>reserved_branch_id</name>
+        <initializer>= 0U</initializer>
+        <briefdescription>
+<para>Reserved brancher id (never created) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1372" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1372" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a3ea07459ba6913a9d1184cdfe0a974d4" prot="private" static="yes" mutable="no">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref></type>
+        <definition>GECODE_KERNEL_EXPORT StatusStatistics Gecode::Space::unused_status</definition>
+        <argsstring></argsstring>
+        <name>unused_status</name>
+        <briefdescription>
+<para>Used for default argument. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1457" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1457" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1af893fb803e433d7cee41b23476702032" prot="private" static="yes" mutable="no">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref></type>
+        <definition>GECODE_KERNEL_EXPORT CloneStatistics Gecode::Space::unused_clone</definition>
+        <argsstring></argsstring>
+        <name>unused_clone</name>
+        <briefdescription>
+<para>Used for default argument. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1459" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1459" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1ad3b46680b8fe3aa2ce465911d78a3b91" prot="private" static="yes" mutable="no">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1CommitStatistics" kindref="compound">CommitStatistics</ref></type>
+        <definition>GECODE_KERNEL_EXPORT CommitStatistics Gecode::Space::unused_commit</definition>
+        <argsstring></argsstring>
+        <name>unused_commit</name>
+        <briefdescription>
+<para>Used for default argument. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1461" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1461" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Space_1ad75f70883e296f31b213b88e1319f2b6" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>ActorLink* Gecode::Space::active</definition>
+        <argsstring></argsstring>
+        <name>active</name>
+        <briefdescription>
+<para>Cost level with next propagator to be executed. </para>        </briefdescription>
+        <detaileddescription>
+<para>This maintains the following invariant (but only if the space does not perform propagation):<itemizedlist>
+<listitem><para>If active points to a queue, this queue might contain a propagator. However, there will be at least one queue containing a propagator.</para></listitem><listitem><para>Otherwise, active is smaller than the first queue or larger than the last queue. Then, the space is stable.</para></listitem><listitem><para>If active is larger than the last queue, the space is failed. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1388" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1388" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a39192893a090aa99bb82f5ffffd41372" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref></type>
+        <definition>ActorLink Gecode::Space::queue[PropCost::AC_MAX+1]</definition>
+        <argsstring>[PropCost::AC_MAX+1]</argsstring>
+        <name>queue</name>
+        <briefdescription>
+<para>Scheduled propagators according to cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1390" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1390" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a434b0316d993e29bb95d5eba0ea225e4" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Space::branch_id</definition>
+        <argsstring></argsstring>
+        <name>branch_id</name>
+        <briefdescription>
+<para>Id of next brancher to be created. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1392" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1392" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1aa98618f8afd99726665cd402aa0193d5" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Space::n_sub</definition>
+        <argsstring></argsstring>
+        <name>n_sub</name>
+        <briefdescription>
+<para>Number of subscriptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1394" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a17a17363918341429df91bbf10c5aa2a" prot="public" static="no" mutable="no">
+        <type>struct Gecode::Space::@5::@6</type>
+        <definition>struct Gecode::Space::@5::@6  Gecode::Space::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+<para>Data only available during propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1395" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a82b81b7b1c6d242df1199ebcb132e815" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> *</type>
+        <definition>VarImpBase* Gecode::Space::vars_u[AllVarConf::idx_c]</definition>
+        <argsstring>[AllVarConf::idx_c]</argsstring>
+        <name>vars_u</name>
+        <briefdescription>
+<para>Entries for updating variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1399" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1399" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a7cb06ebb1a9a0ca18814ddb1ba67910f" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> *</type>
+        <definition>VarImpBase* Gecode::Space::vars_noidx</definition>
+        <argsstring></argsstring>
+        <name>vars_noidx</name>
+        <briefdescription>
+<para>Keep variables during copying without index structure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1401" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1401" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a557fd0b662f5ecc0463f7ae4ab00f7f8" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+        <definition>SharedHandle::Object* Gecode::Space::shared</definition>
+        <argsstring></argsstring>
+        <name>shared</name>
+        <briefdescription>
+<para>Linked list of shared objects. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1403" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1403" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1a3c3120c7703ff92c62e03e5639863e1d" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1LocalObject" kindref="compound">LocalObject</ref> *</type>
+        <definition>LocalObject* Gecode::Space::local</definition>
+        <argsstring></argsstring>
+        <name>local</name>
+        <briefdescription>
+<para>Linked list of local objects. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1405" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1405" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1abab97440ae7cfce8dde5a6cf198c57a6" prot="public" static="no" mutable="no">
+        <type>struct Gecode::Space::@5::@7</type>
+        <definition>struct Gecode::Space::@5::@7  Gecode::Space::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Data available only during copying. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1406" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Space_1a0f70b058cbb9d60405d93ca7a7412e0b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> *</type>
+        <definition>forceinline Brancher * Gecode::Space::brancher</definition>
+        <argsstring>(unsigned int id)</argsstring>
+        <name>brancher</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Find brancher with identity <emphasis>id</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1367" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2964" bodyend="2996"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a2a910f85487e199a72a9ab9d1b7c9141" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::kill_brancher</definition>
+        <argsstring>(unsigned int id)</argsstring>
+        <name>kill_brancher</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Kill brancher with identity <emphasis>id</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1370" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a9c0205d63967fe4efcc5f9267a647e95" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::enqueue</definition>
+        <argsstring>(Propagator *p)</argsstring>
+        <name>enqueue</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Put propagator <emphasis>p</emphasis> into right queue. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1409" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3342" bodyend="3348"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a35e9dd7c1aba2085dd1c8832cc4e9477" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::afc_enable</definition>
+        <argsstring>(void)</argsstring>
+        <name>afc_enable</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> that <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information must be recorded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1448" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2755" bodyend="2757"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a60097b5e6d7bcb358aa50baf1083d658" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Space::afc_enabled</definition>
+        <argsstring>(void) const </argsstring>
+        <name>afc_enabled</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information must be recorded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1450" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2759" bodyend="2761"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a6cf86391e1c8f75a37e508d5ab874383" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::wmp</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>wmp</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> number of wmp propagators to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1452" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2763" bodyend="2765"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a22ceb7d9de22be1b439be47e569472b2" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Space::wmp</definition>
+        <argsstring>(void) const </argsstring>
+        <name>wmp</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of wmp propagators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1454" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2767" bodyend="2769"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ab4e8c999d8a4bc42f267f2b30deb2c76" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>GECODE_KERNEL_EXPORT Space* Gecode::Space::_clone</definition>
+        <argsstring>(bool share=true)</argsstring>
+        <name>_clone</name>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Clone space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Assumes that the space is stable and not failed. If the space is failed, an exception of type <ref refid="classGecode_1_1SpaceFailed" kindref="compound">SpaceFailed</ref> is thrown. If the space is not stable, an exception of <ref refid="classGecode_1_1SpaceNotStable" kindref="compound">SpaceNotStable</ref> is thrown.</para><para>Otherwise, a clone of the space is returned. If <emphasis>share</emphasis> is true, sharable datastructures are shared among the clone and the original space. If <emphasis>share</emphasis> is false, independent copies of the shared datastructures must be created. This means that a clone with no sharing can be used in a different thread without any interaction with the original space.</para><para>Throws an exception of type <ref refid="classGecode_1_1SpaceNotCloned" kindref="compound">SpaceNotCloned</ref> when the copy constructor of the <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> class is not invoked during cloning. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1481" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a0a85652b9c535ffb8543de3777749f06" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::_commit</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a)</argsstring>
+        <name>_commit</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Commit choice <emphasis>c</emphasis> for alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space performs a commit from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The statistics information <emphasis>stat</emphasis> is updated.</para><para>Note that no propagation is perfomed (to support path recomputation), in order to perform propagation the member function status must be used.</para><para>Committing with choices must be carried out in the same order as the choices have been obtained by the member function <ref refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" kindref="member">Space::choice()</ref>.</para><para>It is perfectly okay to add constraints interleaved with choices (provided they are in the right order). However, if propagation is performed by calling the member function status and then new choices are computed, these choices are different.</para><para>Only choices can be used that are up-to-date in the following sense: if a new choice is created (via the choice member function), no older choices can be used.</para><para>Committing throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceNoBrancher" kindref="compound">SpaceNoBrancher</ref>, if the space has no current brancher (it is already solved).</para></listitem><listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1516" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ad93112278eae08d0849089086b95d3cd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::_trycommit</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a)</argsstring>
+        <name>_trycommit</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Commit choice <emphasis>c</emphasis> for alternative <emphasis>a</emphasis> if possible. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space performs a commit from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The statistics information <emphasis>stat</emphasis> is updated.</para><para>Note that no propagation is perfomed (to support path recomputation), in order to perform propagation the member function status must be used.</para><para>Committing with choices must be carried out in the same order as the choices have been obtained by the member function <ref refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" kindref="member">Space::choice()</ref>.</para><para>It is perfectly okay to add constraints interleaved with choices (provided they are in the right order). However, if propagation is performed by calling the member function status and then new choices are computed, these choices are different.</para><para>Only choices can be used that are up-to-date in the following sense: if a new choice is created (via the choice member function), no older choices can be used.</para><para>Committing throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1549" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Space_1ab454053ed940e88caeaef8a6fda5a69a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>GECODE_KERNEL_EXPORT Gecode::Space::Space</definition>
+        <argsstring>(void)</argsstring>
+        <name>Space</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1556" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a0d880d4de2260eb263a24ea211fd42f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>virtual GECODE_KERNEL_EXPORT Gecode::Space::~Space</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Space</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1561" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1aa5f8340ebae9cc2f2424ebbf9f204c79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>GECODE_KERNEL_EXPORT Gecode::Space::Space</definition>
+        <argsstring>(bool share, Space &amp;s)</argsstring>
+        <name>Space</name>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must copy and update all data structures (such as variables and variable arrays) required by the subclass of <ref refid="classGecode_1_1Space" kindref="compound">Space</ref>.</para><para>If <emphasis>share</emphasis> is true, share all data structures among copies. Otherwise, make independent copies. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1572" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a3c33e34d39e3492b22518c3bcaa0c55f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>virtual Space* Gecode::Space::copy</definition>
+        <argsstring>(bool share)=0</argsstring>
+        <name>copy</name>
+        <reimplementedby refid="classGecode_1_1FlatZinc_1_1FlatZincSpace_1a520111c57ca4b9ef2ccdd9baddf39e85">copy</reimplementedby>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copying member function. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must create a new object using the constructor for cloning. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1579" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ad3e536fadd835f0f58d4f8b80c36f31a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>virtual GECODE_KERNEL_EXPORT void Gecode::Space::constrain</definition>
+        <argsstring>(const Space &amp;best)</argsstring>
+        <name>constrain</name>
+        <reimplementedby refid="classGecode_1_1FlatZinc_1_1FlatZincSpace_1ab56bcbf5df48fb01405f2632d509e4d4">constrain</reimplementedby>
+        <reimplementedby refid="classGecode_1_1MiniModel_1_1IntOptimizeSpace_1a601fd996de632b7e62db8ca9f7e37d27">constrain</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>best</declname>
+        </param>
+        <briefdescription>
+<para>Constrain function for best solution search. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must constrain this space to be better than the so far best solution <emphasis>best</emphasis>.</para><para>The default function does nothing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1590" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a0c0f3d73afdc8375d95f9f8991f77313" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>virtual GECODE_KERNEL_EXPORT void Gecode::Space::master</definition>
+        <argsstring>(unsigned long int i, const Space *s, NoGoods &amp;ng)</argsstring>
+        <name>master</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1NoGoods" kindref="compound">NoGoods</ref> &amp;</type>
+          <declname>ng</declname>
+        </param>
+        <briefdescription>
+<para>Master configuration function for restart meta search engine. </para>        </briefdescription>
+        <detaileddescription>
+<para>A restart meta search engine calls this function on its master space whenever it finds a solution or exploration restarts. <emphasis>i</emphasis> is the number of the restart. <emphasis>s</emphasis> is either the solution space or NULL. <emphasis>ng</emphasis> are nogoods recorded from the last restart (only if <emphasis>s</emphasis> is not a solution).</para><para>The default function does nothing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1605" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a08e3046d8d0032bf62a428cbdeb53f7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>virtual GECODE_KERNEL_EXPORT void Gecode::Space::slave</definition>
+        <argsstring>(unsigned long int i, const Space *s)</argsstring>
+        <name>slave</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Slave configuration function for restart meta search engine. </para>        </briefdescription>
+        <detaileddescription>
+<para>A restart meta search engine calls this function on its slave space whenever it finds a solution or exploration restarts. <emphasis>i</emphasis> is the number of the restart. <emphasis>s</emphasis> is either the solution space or NULL.</para><para>The default function does nothing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1620" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a3812fd0a475b63341694c44faa5e8b36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="namespaceGecode_1af2c31e4405deb7f40175130957c30585" kindref="member">SpaceStatus</ref></type>
+        <definition>GECODE_KERNEL_EXPORT SpaceStatus Gecode::Space::status</definition>
+        <argsstring>(StatusStatistics &amp;stat=unused_status)</argsstring>
+        <name>status</name>
+        <param>
+          <type><ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref> &amp;</type>
+          <declname>stat</declname>
+          <defval>unused_status</defval>
+        </param>
+        <briefdescription>
+<para>Query space status. </para>        </briefdescription>
+        <detaileddescription>
+<para>Propagates the space until fixpoint or failure; updates the statistics information <emphasis>stat</emphasis>; and:<itemizedlist>
+<listitem><para>if the space is failed, SpaceStatus::SS_FAILED is returned.</para></listitem><listitem><para>if the space is not failed but the space has no brancher left, SpaceStatus::SS_SOLVED is returned.</para></listitem><listitem><para>otherwise, SpaceStatus::SS_BRANCH is returned. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1650" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>GECODE_KERNEL_EXPORT const Choice* Gecode::Space::choice</definition>
+        <argsstring>(void)</argsstring>
+        <name>choice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create new choice for current brancher. </para>        </briefdescription>
+        <detaileddescription>
+<para>This member function can only be called after the member function <ref refid="classGecode_1_1Space_1a3812fd0a475b63341694c44faa5e8b36" kindref="member">Space::status</ref> on the same space has been called and in between no non-const member function has been called on this space.</para><para>Moreover, the member function can only be called at most once (otherwise, it might generate conflicting choices).</para><para>Note that the above invariant only pertains to calls of member functions of the same space. If the invariant is violated, the system is likely to crash (hopefully it does). In particular, if applied to a space with no current brancher, the system will crash.</para><para>After a new choice has been created, no older choices can be used on the space.</para><para>If the <ref refid="classGecode_1_1Space_1a3812fd0a475b63341694c44faa5e8b36" kindref="member">status()</ref> member function has returned that the space has no more branchers (that is, the result was either SS_FAILED or SS_SOLVED), a call to <ref refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" kindref="member">choice()</ref> will return NULL and purge all remaining branchers inside the space. This is interesting for the case SS_SOLVED, where the call to choice can serve as garbage collection.</para><para>Throws an exception of type <ref refid="classGecode_1_1SpaceNotStable" kindref="compound">SpaceNotStable</ref> when applied to a not yet stable space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1684" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a94121a005ca5d205bebb0941f8c6a9c4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>GECODE_KERNEL_EXPORT const Choice* Gecode::Space::choice</definition>
+        <argsstring>(Archive &amp;e) const </argsstring>
+        <name>choice</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Create new choice from <emphasis>e</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The archived representation <emphasis>e</emphasis> must have been created from a <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> that is compatible with this space (i.e., created from the same model). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1696" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a54f69f4d73d434c2dcea056a7e678d23" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Space::clone</definition>
+        <argsstring>(bool share=true, CloneStatistics &amp;stat=unused_clone) const </argsstring>
+        <name>clone</name>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref> &amp;</type>
+          <declname>stat</declname>
+          <defval>unused_clone</defval>
+        </param>
+        <briefdescription>
+<para>Clone space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Assumes that the space is stable and not failed. If the space is failed, an exception of type <ref refid="classGecode_1_1SpaceFailed" kindref="compound">SpaceFailed</ref> is thrown. If the space is not stable, an exception of <ref refid="classGecode_1_1SpaceNotStable" kindref="compound">SpaceNotStable</ref> is thrown.</para><para>Otherwise, a clone of the space is returned and the statistics information <emphasis>stat</emphasis> is updated. If <emphasis>share</emphasis> is true, sharable datastructures are shared among the clone and the original space. If <emphasis>share</emphasis> is false, independent copies of the shared datastructures must be created. This means that a clone with no sharing can be used in a different thread without any interaction with the original space.</para><para>Throws an exception of type <ref refid="classGecode_1_1SpaceNotCloned" kindref="compound">SpaceNotCloned</ref> when the copy constructor of the <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> class is not invoked during cloning. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1718" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2777" bodyend="2782"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1af6c5acd20d04168a04b0025da458882a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::commit</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a, CommitStatistics &amp;stat=unused_commit)</argsstring>
+        <name>commit</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1CommitStatistics" kindref="compound">CommitStatistics</ref> &amp;</type>
+          <declname>stat</declname>
+          <defval>unused_commit</defval>
+        </param>
+        <briefdescription>
+<para>Commit choice <emphasis>c</emphasis> for alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space performs a commit from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The statistics information <emphasis>stat</emphasis> is updated.</para><para>Note that no propagation is perfomed (to support path recomputation), in order to perform propagation the member function status must be used.</para><para>Committing with choices must be carried out in the same order as the choices have been obtained by the member function <ref refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" kindref="member">Space::choice()</ref>.</para><para>It is perfectly okay to add constraints interleaved with choices (provided they are in the right order). However, if propagation is performed by calling the member function status and then new choices are computed, these choices are different.</para><para>Only choices can be used that are up-to-date in the following sense: if a new choice is created (via the choice member function), no older choices can be used.</para><para>Committing throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceNoBrancher" kindref="compound">SpaceNoBrancher</ref>, if the space has no current brancher (it is already solved).</para></listitem><listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1754" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2785" bodyend="2787"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a396719fbb303438dfb7438051513b004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::trycommit</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a, CommitStatistics &amp;stat=unused_commit)</argsstring>
+        <name>trycommit</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1CommitStatistics" kindref="compound">CommitStatistics</ref> &amp;</type>
+          <declname>stat</declname>
+          <defval>unused_commit</defval>
+        </param>
+        <briefdescription>
+<para>If possible, commit choice <emphasis>c</emphasis> for alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space performs a commit from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The statistics information <emphasis>stat</emphasis> is updated.</para><para>Note that no propagation is perfomed (to support path recomputation), in order to perform propagation the member function status must be used.</para><para>Committing with choices must be carried out in the same order as the choices have been obtained by the member function <ref refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" kindref="member">Space::choice()</ref>.</para><para>It is perfectly okay to add constraints interleaved with choices (provided they are in the right order). However, if propagation is performed by calling the member function status and then new choices are computed, these choices are different.</para><para>Only choices can be used that are up-to-date in the following sense: if a new choice is created (via the choice member function), no older choices can be used.</para><para>Committing throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1788" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2790" bodyend="2792"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a794fc0be09cb350cce04ce30079f3f9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref> *</type>
+        <definition>GECODE_KERNEL_EXPORT NGL* Gecode::Space::ngl</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a)</argsstring>
+        <name>ngl</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Create no-good literal for choice <emphasis>c</emphasis> and alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space <emphasis>home</emphasis> creates a no-good literal from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The brancher has the following options:<itemizedlist>
+<listitem><para>it returns NULL for all alternatives <emphasis>a</emphasis>. This means that the brancher does not support no-good literals.</para></listitem><listitem><para>it returns NULL for the last alternative <emphasis>a</emphasis>. This means that this alternative is equivalent to the negation of the disjunction of all other alternatives.</para></listitem></itemizedlist>
+</para><para>It throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1809" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1aeaa03a7dac8eac8325dab4823a59fe23" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::print</definition>
+        <argsstring>(const Choice &amp;c, unsigned int a, std::ostream &amp;o) const </argsstring>
+        <name>print</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Print branch for choice <emphasis>c</emphasis> and alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Prints an explanation of the alternative <emphasis>a</emphasis> of choice <emphasis>c</emphasis> on the stream <emphasis>o</emphasis>.</para><para>Print throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1SpaceNoBrancher" kindref="compound">SpaceNoBrancher</ref>, if the space has no current brancher (it is already solved).</para></listitem><listitem><para><ref refid="classGecode_1_1SpaceIllegalAlternative" kindref="compound">SpaceIllegalAlternative</ref>, if <emphasis>a</emphasis> is not smaller than the number of alternatives supported by the choice <emphasis>c</emphasis>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1826" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a335b9009976a3b5c435be08a1ae3ad86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::notice</definition>
+        <argsstring>(Actor &amp;a, ActorProperty p, bool duplicate=false)</argsstring>
+        <name>notice</name>
+        <param>
+          <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a99c644746a8611a92ce7f82ff6e12bc9" kindref="member">ActorProperty</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>duplicate</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Notice actor property. </para>        </briefdescription>
+        <detaileddescription>
+<para>Make the space notice that the actor <emphasis>a</emphasis> has the property <emphasis>p</emphasis>. Note that the same property can only be noticed once for an actor unless <emphasis>duplicate</emphasis> is true. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1837" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1aab89b878dbffb5b16a50ad19add652f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::ignore</definition>
+        <argsstring>(Actor &amp;a, ActorProperty p, bool duplicate=false)</argsstring>
+        <name>ignore</name>
+        <param>
+          <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a99c644746a8611a92ce7f82ff6e12bc9" kindref="member">ActorProperty</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>duplicate</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Ignore actor property. </para>        </briefdescription>
+        <detaileddescription>
+<para>Make the space ignore that the actor <emphasis>a</emphasis> has the property <emphasis>p</emphasis>. Note that a property must be ignored before an actor is disposed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1846" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1gafc19cbf71ed90a9e0b414b875103f4c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_SUBSUMED</definition>
+        <argsstring>(Propagator &amp;p)</argsstring>
+        <name>ES_SUBSUMED</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Propagator <emphasis>p</emphasis> is subsumed</para><para>First disposes the propagator and then returns subsumption.</para><para><simplesect kind="warning"><para>Has a side-effect on the propagator. Overwrites the modification event delta of a propagator. Use only directly with returning from propagation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1859" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2896" bodyend="2899"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1gabda9bef00ac1cc77411b3766c188308a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_SUBSUMED_DISPOSED</definition>
+        <argsstring>(Propagator &amp;p, size_t s)</argsstring>
+        <name>ES_SUBSUMED_DISPOSED</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Propagator <emphasis>p</emphasis> is subsumed </para>        </briefdescription>
+        <detaileddescription>
+<para>The size of the propagator is <emphasis>s</emphasis>.</para><para>Note that the propagator must be subsumed and also disposed. So in general, there should be code such as <programlisting><codeline><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ES_SUBSUMED_DISPOSE(home,*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,dispose(home))<sp/></highlight></codeline>
+</programlisting>.</para><para><simplesect kind="warning"><para>Has a side-effect on the propagator. Overwrites the modification event delta of a propagator. Use only directly with returning from propagation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1874" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2890" bodyend="2893"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1ga3c10035661f491847349d084e967858c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_FIX_PARTIAL</definition>
+        <argsstring>(Propagator &amp;p, const ModEventDelta &amp;med)</argsstring>
+        <name>ES_FIX_PARTIAL</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Propagator <emphasis>p</emphasis> has computed partial fixpoint </para>        </briefdescription>
+        <detaileddescription>
+<para>Set modification event delta to <emphasis>med</emphasis> and schedule propagator accordingly.</para><para><simplesect kind="warning"><para>Has a side-effect on the propagator. Use only directly with returning from propagation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1885" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2902" bodyend="2906"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1ga1f9059933d5d03ecfe32a1df5c8d7e36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_NOFIX_PARTIAL</definition>
+        <argsstring>(Propagator &amp;p, const ModEventDelta &amp;med)</argsstring>
+        <name>ES_NOFIX_PARTIAL</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Propagator <emphasis>p</emphasis> has not computed partial fixpoint </para>        </briefdescription>
+        <detaileddescription>
+<para>Combine current modification event delta with <emphasis>and</emphasis> schedule propagator accordingly.</para><para><simplesect kind="warning"><para>Has a side-effect on the propagator. Use only directly with returning from propagation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1896" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2909" bodyend="2913"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1gab238e872a278f9f82dab432174897261" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Space::ES_FIX_DISPOSE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_FIX_DISPOSE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Advisor <emphasis>a</emphasis> must be disposed </para>        </briefdescription>
+        <detaileddescription>
+<para>Disposes the advisor and returns that the propagator of <emphasis>a</emphasis> need not be run.</para><para><simplesect kind="warning"><para>Has a side-effect on the advisor. Use only directly when returning from advise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1909" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1gad408b8bdc896a14b069994b1249454c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Space::ES_NOFIX_DISPOSE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_NOFIX_DISPOSE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Advisor <emphasis>a</emphasis> must be disposed and its propagator must be run </para>        </briefdescription>
+        <detaileddescription>
+<para>Disposes the advisor and returns that the propagator of <emphasis>a</emphasis> must be run.</para><para><simplesect kind="warning"><para>Has a side-effect on the advisor. Use only directly when returning from advise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1921" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorStatus_1gab8af0ee183d3b65dd8da6742e55edf18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Space::ES_NOFIX_DISPOSE_FORCE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_NOFIX_DISPOSE_FORCE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Advisor <emphasis>a</emphasis> must be disposed and its propagator must be forcefully rescheduled </para>        </briefdescription>
+        <detaileddescription>
+<para>Disposes the advisor and returns that the propagator of <emphasis>a</emphasis> must be run and must be forcefully rescheduled (including recomputation of cost).</para><para><simplesect kind="warning"><para>Has a side-effect on the advisor. Use only directly when returning from advise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1934" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a3a4907f82caf63d66144f8633e024057" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::fail</definition>
+        <argsstring>(void)</argsstring>
+        <name>fail</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Fail space. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is useful for failing outside of actors. Never use inside a propagate or commit member function. The system will crash! </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1943" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3351" bodyend="3358"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a9e1ab1eb6a0da74bd4ddc85e347af44a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Space::failed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>failed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether space is failed. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this does not perform propagation. This is useful for posting actors: only if a space is not yet failed, new actors are allowed to be created. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1952" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3365" bodyend="3367"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ad9287ff5a88f2fee290ef3d7eba4fc1b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Space::stable</definition>
+        <argsstring>(void) const </argsstring>
+        <name>stable</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return if space is stable (at fixpoint or failed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1957" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3374" bodyend="3377"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1afd6e83338a84fbe33630714580f40f9b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT unsigned int</type>
+        <definition>GECODE_KERNEL_EXPORT unsigned int Gecode::Space::propagators</definition>
+        <argsstring>(void) const </argsstring>
+        <name>propagators</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of propagators. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function takes linear time in the number of propagators. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1964" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a99d4b924513f4bedff8b304d08de5986" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT unsigned int</type>
+        <definition>GECODE_KERNEL_EXPORT unsigned int Gecode::Space::branchers</definition>
+        <argsstring>(void) const </argsstring>
+        <name>branchers</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of branchers. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function takes linear time in the number of branchers. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1971" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gacf6b71739fd13f46d8d27052d714265e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(long unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1991" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga6f3488bee9e39282ea183c815416bbf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(long int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1999" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga224d5585038cc3fb0d2604a36b67b3a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2007" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaafb3fcc6afe8ea06ded2687aa92f6380" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2015" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gada420b751340125380dc4fcde66e6d99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, long unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2026" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga60ab65c02e1ee267c055366347f49043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, long int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2037" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga3dec29b395cd716b4f9a70c1661a9aea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2048" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga2ca0a3fe06d9e805e494bfbacaeb82d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2059" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga07afdd06b5ba2683ba6e13b70bd859fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2072" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf0da4f30fc915e625eb26babf655c0eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2085" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga3bd5343264238e5d98f921435b849b22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2098" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga77a56ce59a5a70805f636e6839b97b99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2111" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga51f53c7bcc79ba5c6b90acb91be82b6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2120" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga14675d9018eaf111c45635fbf33ca4e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2129" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gae0d02943adcdd883a005de4c40262bee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2138" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf3649057dc07135e7337a21aa7b6e8c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2147" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa0195caf240d103b67bbfa607fdb8b7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Space::ralloc</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>ralloc</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory on space heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2149" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2316" bodyend="2318"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga84f600c8dfe7e187693389bdf5b5b387" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::rfree</definition>
+        <argsstring>(void *p, size_t s)</argsstring>
+        <name>rfree</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Free memory previously allocated with alloc (might be reused later) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2151" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2320" bodyend="2322"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa8583e3d36e80403521541c783373d09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Space::rrealloc</definition>
+        <argsstring>(void *b, size_t n, size_t m)</argsstring>
+        <name>rrealloc</name>
+        <param>
+          <type>void *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate memory block starting at <emphasis>b</emphasis> from size <emphasis>n</emphasis> to size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2153" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2324" bodyend="2335"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf6173b2508c63aa25d4a491fef2a2e00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void *</type>
+        <definition>void* Gecode::Space::fl_alloc</definition>
+        <argsstring>(void)</argsstring>
+        <name>fl_alloc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate from freelist-managed memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2155" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa7441fb1940f1cd23e07fa59279ce2fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::fl_dispose</definition>
+        <argsstring>(FreeList *f, FreeList *l)</argsstring>
+        <name>fl_dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Return freelist-managed memory to freelist. </para>        </briefdescription>
+        <detaileddescription>
+<para>The first list element to be retuned is <emphasis>f</emphasis>, the last is <emphasis>l</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2161" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gac240e9bb67c69d97a11917dfdb8482f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::flush</definition>
+        <argsstring>(void)</argsstring>
+        <name>flush</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Flush cached memory blocks. </para>        </briefdescription>
+        <detaileddescription>
+<para>All spaces that are obtained as non-shared clones from some same space try to cache memory blocks from failed spaces. To minimize memory consumption, these blocks can be flushed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2170" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a3d2f0b26403ceca97570aa510f4efcb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+            <declname>s</declname>
+            <defname>s</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void *</type>
+        <definition>forceinline void* Gecode::Space::fl_alloc</definition>
+        <argsstring>(void)</argsstring>
+        <name>fl_alloc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2339" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2339" bodyend="2341"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a047fdec30cae7674fbc43b63ce74584b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+            <declname>s</declname>
+            <defname>s</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Space::fl_dispose</definition>
+        <argsstring>(FreeList *f, FreeList *l)</argsstring>
+        <name>fl_dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FreeList" kindref="compound">FreeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2344" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2344" bodyend="2346"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a0add21dc4d9ce1fa0023dda4dd780f3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::alloc</definition>
+        <argsstring>(long unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2354" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2354" bodyend="2359"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1abbf9257094f42a80a2c3e868d6803ddd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::alloc</definition>
+        <argsstring>(long int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2362" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2362" bodyend="2365"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a91e8fb90c4b685c457ce5db1f67d59d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::alloc</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2368" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2368" bodyend="2370"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a2e6101d2d6e36362e3936b0f5d0a5c55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::alloc</definition>
+        <argsstring>(int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2373" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2373" bodyend="2376"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a2fb5de913db2ea3c16dfcf2558302970" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Space::free</definition>
+        <argsstring>(T *b, long unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2380" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2380" bodyend="2384"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a51c2f7df2101b2191ae152c17e0c77f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Space::free</definition>
+        <argsstring>(T *b, long int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2387" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2387" bodyend="2390"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1afe2d330d06e5b64aeac95d8590321570" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Space::free</definition>
+        <argsstring>(T *b, unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2393" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2393" bodyend="2395"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ac7660aad5ef11c065cac98249aa1db54" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Space::free</definition>
+        <argsstring>(T *b, int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2398" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2398" bodyend="2401"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a7e55595bae4d7ecd23785680f4c67a1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2405" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2405" bodyend="2418"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a355442aae7ae95789f6f0f3c0d08959d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2421" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2421" bodyend="2425"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ac706c82db0d05deb6179aa730b2f6c8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2428" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2428" bodyend="2431"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1af3850da5a47206cbbe67dc692292ef16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2434" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2434" bodyend="2438"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a156052519564ff2036e59bb751a86e72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2483" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2483" bodyend="2485"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1acafaf35849d9995dd9501c6e6675ae31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2488" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2488" bodyend="2492"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a81fee21b066cff89c3585f7106da0fc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2495" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2495" bodyend="2498"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a4c4ff9d600e67b1d981e5ff3b197589d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2501" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2501" bodyend="2505"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a21563254cd9b0b06f9fe711096ee0d4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_FIX_DISPOSE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_FIX_DISPOSE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="3201" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3201" bodyend="3204"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a205b36f2270f727ca07e36db96363376" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_NOFIX_DISPOSE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_NOFIX_DISPOSE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="3208" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3208" bodyend="3211"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a0e17ba146f5beea78545087600d753f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Space::ES_NOFIX_DISPOSE_FORCE</definition>
+        <argsstring>(Council&lt; A &gt; &amp;c, A &amp;a)</argsstring>
+        <name>ES_NOFIX_DISPOSE_FORCE</name>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="3215" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3215" bodyend="3218"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1abaa284eb4dfcdc1662d2dcf3b65a807e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(void)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4062" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4062" bodyend="4064"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ae5bf0e7fec86d99eba1b2d19ed08a5df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4067" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4067" bodyend="4071"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1ae9df796dab8adc810d4b66db379cf449" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4074" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4074" bodyend="4078"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a537cef4488e0cc4c9c5ac29c5a57c00d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4081" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4081" bodyend="4085"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1a2bfea87ad365f733ef27e650208efea5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+          <param>
+            <type>typename A4</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3, A4 const &amp;a4)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <param>
+          <type>A4 const &amp;</type>
+          <declname>a4</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4088" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4088" bodyend="4092"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1af4b47fffba5a74b9c7ac9d905e9d12cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>typename A1</type>
+          </param>
+          <param>
+            <type>typename A2</type>
+          </param>
+          <param>
+            <type>typename A3</type>
+          </param>
+          <param>
+            <type>typename A4</type>
+          </param>
+          <param>
+            <type>typename A5</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T &amp;</type>
+        <definition>forceinline T&amp; Gecode::Space::construct</definition>
+        <argsstring>(A1 const &amp;a1, A2 const &amp;a2, A3 const &amp;a3, A4 const &amp;a4, A5 const &amp;a5)</argsstring>
+        <name>construct</name>
+        <param>
+          <type>A1 const &amp;</type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type>A2 const &amp;</type>
+          <declname>a2</declname>
+        </param>
+        <param>
+          <type>A3 const &amp;</type>
+          <declname>a3</declname>
+        </param>
+        <param>
+          <type>A4 const &amp;</type>
+          <declname>a4</declname>
+        </param>
+        <param>
+          <type>A5 const &amp;</type>
+          <declname>a5</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="4095" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4095" bodyend="4099"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Space_1a2733ce7ad2563e67b2581f33028e6239" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Space::operator new</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <defname>s</defname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from heap for new space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1625" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2296" bodyend="2298"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1aa950b0ae97fd459d5fbf6757f520c18e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::operator delete</definition>
+        <argsstring>(void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <defname>p</defname>
+        </param>
+        <briefdescription>
+<para>Free memory allocated from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1630" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2300" bodyend="2302"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Computation spaces. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6569">
+        <label>Gecode::FlatZinc::FlatZincSpace</label>
+        <link refid="classGecode_1_1FlatZinc_1_1FlatZincSpace"/>
+        <childnode refid="6568" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6570">
+        <label>Gecode::MiniModel::IntOptimizeSpace&lt; irt &gt;</label>
+        <link refid="classGecode_1_1MiniModel_1_1IntOptimizeSpace"/>
+        <childnode refid="6568" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6568">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6576">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="6572">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="6573" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6575">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="6571">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="6572" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="6575" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="6576" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="6574" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="6573">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6574" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6574">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="1325" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1325" bodyend="2275"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Space_1ab4e8c999d8a4bc42f267f2b30deb2c76" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>_clone</name></member>
+      <member refid="classGecode_1_1Space_1a0a85652b9c535ffb8543de3777749f06" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>_commit</name></member>
+      <member refid="classGecode_1_1Space_1ad93112278eae08d0849089086b95d3cd" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>_trycommit</name></member>
+      <member refid="classGecode_1_1Space_1ad92481e75bde7d74f7e5cfdc27198e34" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>_wmp_afc</name></member>
+      <member refid="classGecode_1_1Space_1ad75f70883e296f31b213b88e1319f2b6" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>active</name></member>
+      <member refid="classGecode_1_1Space_1ae4af50bf1743d112cb2c2c784bea21c8" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>Actor</name></member>
+      <member refid="classGecode_1_1Space_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Space_1a806bc768453abb038560f6266d773527" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>AFC</name></member>
+      <member refid="classGecode_1_1Space_1a222da5f719165aa3789537fc973b9d80" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>afc_decay</name></member>
+      <member refid="classGecode_1_1Space_1a685d4a0ce1964431eecce7e62d6b7437" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>afc_decay</name></member>
+      <member refid="classGecode_1_1Space_1a35e9dd7c1aba2085dd1c8832cc4e9477" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>afc_enable</name></member>
+      <member refid="classGecode_1_1Space_1a60097b5e6d7bcb358aa50baf1083d658" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>afc_enabled</name></member>
+      <member refid="classGecode_1_1Space_1a6227bac5aeefa9d93e9e1d8530fd6a6f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>afc_set</name></member>
+      <member refid="group__FuncMemSpace_1gacf6b71739fd13f46d8d27052d714265e" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="group__FuncMemSpace_1ga6f3488bee9e39282ea183c815416bbf7" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="group__FuncMemSpace_1ga224d5585038cc3fb0d2604a36b67b3a5" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="group__FuncMemSpace_1gaafb3fcc6afe8ea06ded2687aa92f6380" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Space_1a0add21dc4d9ce1fa0023dda4dd780f3f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Space_1abbf9257094f42a80a2c3e868d6803ddd" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Space_1a91e8fb90c4b685c457ce5db1f67d59d3" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Space_1a2e6101d2d6e36362e3936b0f5d0a5c55" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Space_1a86894850c32637ddb7bc8abd83147fbe" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>b_commit</name></member>
+      <member refid="classGecode_1_1Space_1a38ec40083a05ef24d71f07a90e03013c" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>b_status</name></member>
+      <member refid="classGecode_1_1Space_1a4d5af3582bc507d6a8d78ba44c9a9831" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>bl</name></member>
+      <member refid="classGecode_1_1Space_1a434b0316d993e29bb95d5eba0ea225e4" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>branch_id</name></member>
+      <member refid="classGecode_1_1Space_1a0f70b058cbb9d60405d93ca7a7412e0b" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>brancher</name></member>
+      <member refid="classGecode_1_1Space_1ab2370b9ccb77385b5ef05776269bf082" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Space_1a475645cee7557d6b057a0be98a32d15f" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>BrancherHandle</name></member>
+      <member refid="classGecode_1_1Space_1a99d4b924513f4bedff8b304d08de5986" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>branchers</name></member>
+      <member refid="classGecode_1_1Space_1abab97440ae7cfce8dde5a6cf198c57a6" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>c</name></member>
+      <member refid="classGecode_1_1Space_1a18c37b971e41bc69f2e53c9d6eba7dd2" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Space_1a94121a005ca5d205bebb0941f8c6a9c4" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Space_1a54f69f4d73d434c2dcea056a7e678d23" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>clone</name></member>
+      <member refid="classGecode_1_1Space_1af6c5acd20d04168a04b0025da458882a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>commit</name></member>
+      <member refid="classGecode_1_1Space_1ad3e536fadd835f0f58d4f8b80c36f31a" prot="public" virt="virtual"><scope>Gecode::Space</scope><name>constrain</name></member>
+      <member refid="classGecode_1_1Space_1a995b57f345f83b31cf91c8dd8a4c80ae" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a5b90d2ec34f5809121b3ac338ef04a85" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1ac5494427f1e22d7aadd17cbc04e5d093" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a381bb9c9642cfd6606c85d8feab8e12b" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a9048dc2f72ef2116e4a196b9a53343bc" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a9834c84a9e1345aef18522a8e2fe9243" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1abaa284eb4dfcdc1662d2dcf3b65a807e" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1ae5bf0e7fec86d99eba1b2d19ed08a5df" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1ae9df796dab8adc810d4b66db379cf449" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a537cef4488e0cc4c9c5ac29c5a57c00d" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a2bfea87ad365f733ef27e650208efea5" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1af4b47fffba5a74b9c7ac9d905e9d12cb" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>construct</name></member>
+      <member refid="classGecode_1_1Space_1a3c33e34d39e3492b22518c3bcaa0c55f" prot="public" virt="pure-virtual"><scope>Gecode::Space</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Space_1a132c7b4ebb57db452ade0fb53e6e9ade" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>d_cur</name></member>
+      <member refid="classGecode_1_1Space_1a4bcdb61f75f8c8d18f4c158040bf8895" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>d_fst</name></member>
+      <member refid="classGecode_1_1Space_1aae291b6b0afbc1c1047a9bdb7e06c1cd" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>d_lst</name></member>
+      <member refid="classGecode_1_1Space_1a9c0205d63967fe4efcc5f9267a647e95" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>enqueue</name></member>
+      <member refid="group__TaskActorStatus_1gab238e872a278f9f82dab432174897261" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_FIX_DISPOSE</name></member>
+      <member refid="classGecode_1_1Space_1a21563254cd9b0b06f9fe711096ee0d4f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_FIX_DISPOSE</name></member>
+      <member refid="group__TaskActorStatus_1ga3c10035661f491847349d084e967858c" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_FIX_PARTIAL</name></member>
+      <member refid="group__TaskActorStatus_1gad408b8bdc896a14b069994b1249454c7" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_NOFIX_DISPOSE</name></member>
+      <member refid="classGecode_1_1Space_1a205b36f2270f727ca07e36db96363376" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_NOFIX_DISPOSE</name></member>
+      <member refid="group__TaskActorStatus_1gab8af0ee183d3b65dd8da6742e55edf18" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_NOFIX_DISPOSE_FORCE</name></member>
+      <member refid="classGecode_1_1Space_1a0e17ba146f5beea78545087600d753f4" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_NOFIX_DISPOSE_FORCE</name></member>
+      <member refid="group__TaskActorStatus_1ga1f9059933d5d03ecfe32a1df5c8d7e36" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_NOFIX_PARTIAL</name></member>
+      <member refid="group__TaskActorStatus_1gafc19cbf71ed90a9e0b414b875103f4c7" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_SUBSUMED</name></member>
+      <member refid="group__TaskActorStatus_1gabda9bef00ac1cc77411b3766c188308a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ES_SUBSUMED_DISPOSED</name></member>
+      <member refid="classGecode_1_1Space_1a3a4907f82caf63d66144f8633e024057" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>fail</name></member>
+      <member refid="classGecode_1_1Space_1a9e1ab1eb6a0da74bd4ddc85e347af44a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>failed</name></member>
+      <member refid="group__FuncMemSpace_1gaf6173b2508c63aa25d4a491fef2a2e00" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>fl_alloc</name></member>
+      <member refid="classGecode_1_1Space_1a3d2f0b26403ceca97570aa510f4efcb5" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>fl_alloc</name></member>
+      <member refid="group__FuncMemSpace_1gaa7441fb1940f1cd23e07fa59279ce2fc" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>fl_dispose</name></member>
+      <member refid="classGecode_1_1Space_1a047fdec30cae7674fbc43b63ce74584b" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>fl_dispose</name></member>
+      <member refid="group__FuncMemSpace_1gac240e9bb67c69d97a11917dfdb8482f3" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>flush</name></member>
+      <member refid="group__FuncMemSpace_1gada420b751340125380dc4fcde66e6d99" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="group__FuncMemSpace_1ga60ab65c02e1ee267c055366347f49043" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="group__FuncMemSpace_1ga3dec29b395cd716b4f9a70c1661a9aea" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="group__FuncMemSpace_1ga2ca0a3fe06d9e805e494bfbacaeb82d9" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="classGecode_1_1Space_1a2fb5de913db2ea3c16dfcf2558302970" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="classGecode_1_1Space_1a51c2f7df2101b2191ae152c17e0c77f7" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="classGecode_1_1Space_1afe2d330d06e5b64aeac95d8590321570" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="classGecode_1_1Space_1ac7660aad5ef11c065cac98249aa1db54" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>free</name></member>
+      <member refid="classGecode_1_1Space_1a7e5cca6912b682e58d4b82406dc57bcd" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>gafc</name></member>
+      <member refid="classGecode_1_1Space_1aab89b878dbffb5b16a50ad19add652f7" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ignore</name></member>
+      <member refid="classGecode_1_1Space_1a2a910f85487e199a72a9ab9d1b7c9141" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>kill_brancher</name></member>
+      <member refid="classGecode_1_1Space_1a3c3120c7703ff92c62e03e5639863e1d" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>local</name></member>
+      <member refid="classGecode_1_1Space_1a2f86794f74e3da8812e17622c204c67c" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>LocalObject</name></member>
+      <member refid="classGecode_1_1Space_1a0c0f3d73afdc8375d95f9f8991f77313" prot="public" virt="virtual"><scope>Gecode::Space</scope><name>master</name></member>
+      <member refid="classGecode_1_1Space_1ae88cc6c9dffa44ab3f920b34823be4b5" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>mm</name></member>
+      <member refid="classGecode_1_1Space_1aa98618f8afd99726665cd402aa0193d5" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>n_sub</name></member>
+      <member refid="classGecode_1_1Space_1a794fc0be09cb350cce04ce30079f3f9a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ngl</name></member>
+      <member refid="classGecode_1_1Space_1a335b9009976a3b5c435be08a1ae3ad86" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Space_1aa950b0ae97fd459d5fbf6757f520c18e" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Space_1a2733ce7ad2563e67b2581f33028e6239" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Space_1a7b39464c96728bfb9f4fd0be8a011e6a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Space_1a17a17363918341429df91bbf10c5aa2a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>p</name></member>
+      <member refid="classGecode_1_1Space_1a158d89e8ed6005869375926ce8b022c1" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>pc</name></member>
+      <member refid="classGecode_1_1Space_1a4e732b4a774da40f738c1e2a7761034f" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>pl</name></member>
+      <member refid="classGecode_1_1Space_1aeaa03a7dac8eac8325dab4823a59fe23" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>print</name></member>
+      <member refid="classGecode_1_1Space_1a9d01c82a7038a8c986c6b15c15b2e631" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Space_1afd6e83338a84fbe33630714580f40f9b" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>propagators</name></member>
+      <member refid="classGecode_1_1Space_1a39192893a090aa99bb82f5ffffd41372" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>queue</name></member>
+      <member refid="group__FuncMemSpace_1gaa0195caf240d103b67bbfa607fdb8b7f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>ralloc</name></member>
+      <member refid="group__FuncMemSpace_1ga07afdd06b5ba2683ba6e13b70bd859fe" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1gaf0da4f30fc915e625eb26babf655c0eb" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1ga3bd5343264238e5d98f921435b849b22" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1ga77a56ce59a5a70805f636e6839b97b99" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1ga51f53c7bcc79ba5c6b90acb91be82b6a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1ga14675d9018eaf111c45635fbf33ca4e4" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1gae0d02943adcdd883a005de4c40262bee" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="group__FuncMemSpace_1gaf3649057dc07135e7337a21aa7b6e8c2" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1a7e55595bae4d7ecd23785680f4c67a1f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1a355442aae7ae95789f6f0f3c0d08959d" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1ac706c82db0d05deb6179aa730b2f6c8b" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1af3850da5a47206cbbe67dc692292ef16" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1a156052519564ff2036e59bb751a86e72" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1acafaf35849d9995dd9501c6e6675ae31" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1a81fee21b066cff89c3585f7106da0fc4" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1a4c4ff9d600e67b1d981e5ff3b197589d" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Space_1aae6f9325706131f3b6fb8accb1508d76" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>Region</name></member>
+      <member refid="classGecode_1_1Space_1ad6e7526034af3fe50a902d4d763b3a0f" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>reserved_branch_id</name></member>
+      <member refid="group__FuncMemSpace_1ga84f600c8dfe7e187693389bdf5b5b387" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>rfree</name></member>
+      <member refid="group__FuncMemSpace_1gaa8583e3d36e80403521541c783373d09" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>rrealloc</name></member>
+      <member refid="classGecode_1_1Space_1a557fd0b662f5ecc0463f7ae4ab00f7f8" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>shared</name></member>
+      <member refid="classGecode_1_1Space_1a89bd8462b4d862762d5fe24ec383df46" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1Space_1a08e3046d8d0032bf62a428cbdeb53f7b" prot="public" virt="virtual"><scope>Gecode::Space</scope><name>slave</name></member>
+      <member refid="classGecode_1_1Space_1ad2cbec6018af7a286bb15da1b5072ad4" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>sm</name></member>
+      <member refid="classGecode_1_1Space_1ab454053ed940e88caeaef8a6fda5a69a" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>Space</name></member>
+      <member refid="classGecode_1_1Space_1aa5f8340ebae9cc2f2424ebbf9f204c79" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>Space</name></member>
+      <member refid="classGecode_1_1Space_1ad9287ff5a88f2fee290ef3d7eba4fc1b" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>stable</name></member>
+      <member refid="classGecode_1_1Space_1a3812fd0a475b63341694c44faa5e8b36" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>status</name></member>
+      <member refid="classGecode_1_1Space_1a396719fbb303438dfb7438051513b004" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>trycommit</name></member>
+      <member refid="classGecode_1_1Space_1af893fb803e433d7cee41b23476702032" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>unused_clone</name></member>
+      <member refid="classGecode_1_1Space_1ad3b46680b8fe3aa2ce465911d78a3b91" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>unused_commit</name></member>
+      <member refid="classGecode_1_1Space_1a3ea07459ba6913a9d1184cdfe0a974d4" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>unused_status</name></member>
+      <member refid="classGecode_1_1Space_1afd570a73c3d81c65ddf1915126a4c4af" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>update</name></member>
+      <member refid="classGecode_1_1Space_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>VarImp</name></member>
+      <member refid="classGecode_1_1Space_1a524446ac6b57974e912f498e8b688f35" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>VarImpDisposer</name></member>
+      <member refid="classGecode_1_1Space_1a7cb06ebb1a9a0ca18814ddb1ba67910f" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>vars_noidx</name></member>
+      <member refid="classGecode_1_1Space_1a82b81b7b1c6d242df1199ebcb132e815" prot="public" virt="non-virtual"><scope>Gecode::Space</scope><name>vars_u</name></member>
+      <member refid="classGecode_1_1Space_1a6cf86391e1c8f75a37e508d5ab874383" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>wmp</name></member>
+      <member refid="classGecode_1_1Space_1a22ceb7d9de22be1b439be47e569472b2" prot="private" virt="non-virtual"><scope>Gecode::Space</scope><name>wmp</name></member>
+      <member refid="classGecode_1_1Space_1a0d880d4de2260eb263a24ea211fd42f6" prot="public" virt="virtual"><scope>Gecode::Space</scope><name>~Space</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Meta_1_1NoNGL" kind="class" prot="public">
+    <compoundname>Gecode::Search::Meta::NoNGL</compoundname>
+    <basecompoundref refid="classGecode_1_1NGL" prot="public" virt="non-virtual">Gecode::NGL</basecompoundref>
+    <includes refid="nogoods_8hh" local="no">nogoods.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a9d7934ad674e948a37ac539a59e566e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Meta::NoNGL::NoNGL</definition>
+        <argsstring>(void)</argsstring>
+        <name>NoNGL</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="49" column="1" bodyfile="/usr/include/gecode/search/meta/nogoods.hh" bodystart="92" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a1a9f8eaa416b47db566a6057274b4319" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Meta::NoNGL::NoNGL</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>NoNGL</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="51" column="1" bodyfile="/usr/include/gecode/search/meta/nogoods.hh" bodystart="95" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1adcc624d7ba10e7839a0564f2fa70e0d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Meta::NoNGL::NoNGL</definition>
+        <argsstring>(Space &amp;home, bool share, NoNGL &amp;ngl)</argsstring>
+        <name>NoNGL</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Meta_1_1NoNGL" kindref="compound">NoNGL</ref> &amp;</type>
+          <declname>ngl</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>ngl</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="53" column="1" bodyfile="/usr/include/gecode/search/meta/nogoods.hh" bodystart="99" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1afe6c5040bdcc285ecbc40a2dfa8b5ed8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Search::Meta::NoNGL::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>subscribe</name>
+        <reimplements refid="classGecode_1_1NGL_1a33168f9e7e8ca3a786b86003dd141ed3">subscribe</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> to all views of the no-good literal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="55" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a4ddebaff51927463abf6f06d20011c44" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Search::Meta::NoNGL::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>cancel</name>
+        <reimplements refid="classGecode_1_1NGL_1a2979fc3a4a53cb50d1d79a3d85dd68ff">cancel</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Cancel propagator <emphasis>p</emphasis> from all views of the no-good literal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="57" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a1802583128c5f3fa65d2aa9bfc6e7a77" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1NGL_1aab4befbc70f2ae73712d48cac3038453" kindref="member">NGL::Status</ref></type>
+        <definition>virtual NGL::Status Gecode::Search::Meta::NoNGL::status</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>status</name>
+        <reimplements refid="classGecode_1_1NGL_1a4676887e6b690e021703b2c24b06c978">status</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Test the status of the no-good literal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="59" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a3e0126be4c0796d3ef14f637c1e12c3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>virtual ExecStatus Gecode::Search::Meta::NoNGL::prune</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>prune</name>
+        <reimplements refid="classGecode_1_1NGL_1a0f1fbdf22a14b796288280cb1b0f9841">prune</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the negation of the no-good literal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="61" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a762e6b8d6563db4081933caaaaf1e637" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref> *</type>
+        <definition>virtual NGL* Gecode::Search::Meta::NoNGL::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1NGL_1ad1b6fe104e32ec020e6738b1aebb8224">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Create copy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/meta/nogoods.hh" line="63" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for a sentinel no-good literal. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4488">
+        <label>Gecode::Search::Meta::NoNGL</label>
+        <link refid="classGecode_1_1Search_1_1Meta_1_1NoNGL"/>
+        <childnode refid="4489" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4489">
+        <label>Gecode::NGL</label>
+        <link refid="classGecode_1_1NGL"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4490">
+        <label>Gecode::Search::Meta::NoNGL</label>
+        <link refid="classGecode_1_1Search_1_1Meta_1_1NoNGL"/>
+        <childnode refid="4491" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4491">
+        <label>Gecode::NGL</label>
+        <link refid="classGecode_1_1NGL"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/meta/nogoods.hh" line="46" column="1" bodyfile="/usr/include/gecode/search/meta/nogoods.hh" bodystart="46" bodyend="64"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1NGL_1abf10da0a1776ea70bc0a00d099e6c5eb" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>add</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a4ddebaff51927463abf6f06d20011c44" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a762e6b8d6563db4081933caaaaf1e637" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>copy</name></member>
+      <member refid="classGecode_1_1NGL_1afd8655a06d89684571304621d06ffc50" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1NGL_1aab4befbc70f2ae73712d48cac3038453a85e8c9a66310532b7a9b5720c2ec6caa" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>FAILED</name></member>
+      <member refid="classGecode_1_1NGL_1ab493fcf7336785648d59ed027db0e13d" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>leaf</name></member>
+      <member refid="classGecode_1_1NGL_1af736c5497f09b5c1be49dd2c35e01bc4" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>leaf</name></member>
+      <member refid="classGecode_1_1NGL_1ab65889237b58594c3837f1171a50ba7d" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>next</name></member>
+      <member refid="classGecode_1_1NGL_1acadd5ea3421b6be5de007f9b8ba48714" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>next</name></member>
+      <member refid="classGecode_1_1NGL_1a05f720aed6c927bbb6f2a0287e64f94c" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NGL</name></member>
+      <member refid="classGecode_1_1NGL_1a7423f00a7d70569436a87ad15fb7ea0c" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NGL</name></member>
+      <member refid="classGecode_1_1NGL_1afe7ff58964955787759f6483ac2b82d1" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NGL</name></member>
+      <member refid="classGecode_1_1NGL_1aab4befbc70f2ae73712d48cac3038453ae802e69bb079cf2b0cdbee4bd023072a" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NONE</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a9d7934ad674e948a37ac539a59e566e9" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NoNGL</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a1a9f8eaa416b47db566a6057274b4319" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NoNGL</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1adcc624d7ba10e7839a0564f2fa70e0d8" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>NoNGL</name></member>
+      <member refid="classGecode_1_1NGL_1a3a39754c900ab2a274af11972fea45a6" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>notice</name></member>
+      <member refid="classGecode_1_1NGL_1a13852a4a7ed1d8f6db3b9a9501989342" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1NGL_1a243a4071e60a2f8a893dd918189136b0" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1NGL_1a543472a1a92ab3dfe36352cac4d576b1" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a3e0126be4c0796d3ef14f637c1e12c3e" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>prune</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1a1802583128c5f3fa65d2aa9bfc6e7a77" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>status</name></member>
+      <member refid="classGecode_1_1NGL_1aab4befbc70f2ae73712d48cac3038453" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>Status</name></member>
+      <member refid="classGecode_1_1Search_1_1Meta_1_1NoNGL_1afe6c5040bdcc285ecbc40a2dfa8b5ed8" prot="public" virt="virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1NGL_1aab4befbc70f2ae73712d48cac3038453a6e954f72d530a4730f12473184bb41f8" prot="public" virt="non-virtual"><scope>Gecode::Search::Meta::NoNGL</scope><name>SUBSUMED</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

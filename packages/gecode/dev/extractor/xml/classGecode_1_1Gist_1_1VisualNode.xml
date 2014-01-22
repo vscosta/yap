@@ -1,0 +1,1026 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1VisualNode" kind="class" prot="public">
+    <compoundname>Gecode::Gist::VisualNode</compoundname>
+    <basecompoundref refid="classGecode_1_1Gist_1_1SpaceNode" prot="public" virt="non-virtual">Gecode::Gist::SpaceNode</basecompoundref>
+    <includes refid="visualnode_8hh" local="no">visualnode.hh</includes>
+      <sectiondef kind="protected-type">
+      <memberdef kind="enum" id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6b" prot="protected" static="no">
+        <name>VisualNodeFlags</name>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6bab957ea7f3e5722f2afd7770aafd7df0d" prot="protected">
+          <name>DIRTY</name>
+          <initializer>= SpaceNode::LASTBIT+1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba8d1056ca98cff1cc879c6c99b3ea7003" prot="protected">
+          <name>CHILDRENLAYOUTDONE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba9558d7163487d3bad130bcfa8acafa3f" prot="protected">
+          <name>HIDDEN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba680362035521638f720f673057d6545f" prot="protected">
+          <name>MARKED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba1ac0be714c042272e29bb6f67e9966c5" prot="protected">
+          <name>ONPATH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6bae57451edbd26c5aedeaaf44d05db5e27" prot="protected">
+          <name>BOOKMARKED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Flags for VisualNodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="132" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hh" bodystart="132" bodyend="139"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1VisualNode_1a071982a3a040e90a0af8cd1f2257e2ab" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::VisualNode::offset</definition>
+        <argsstring></argsstring>
+        <name>offset</name>
+        <briefdescription>
+<para>Relative offset from the parent node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="142" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hh" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1VisualNode_1a4b6993e52295dc2734db1ace480c76e2" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref> *</type>
+        <definition>Shape* Gecode::Gist::VisualNode::shape</definition>
+        <argsstring></argsstring>
+        <name>shape</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref> of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="144" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hh" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ad9b624b96a8092c275bf07843f22159a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::VisualNode::containsCoordinateAtDepth</definition>
+        <argsstring>(int x, int depth)</argsstring>
+        <name>containsCoordinateAtDepth</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>depth</declname>
+        </param>
+        <briefdescription>
+<para>Check if the <emphasis>x</emphasis> at depth <emphasis>depth</emphasis> lies in this subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="147" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1aa5b2b5022197c55f2e054f26a8e02002" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::VisualNode::VisualNode</definition>
+        <argsstring>(int p)</argsstring>
+        <name>VisualNode</name>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Construct with parent <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="150" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a7212b25feaa6db8594d0ed43c327c068" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::VisualNode::VisualNode</definition>
+        <argsstring>(Space *root)</argsstring>
+        <name>VisualNode</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for root node from <emphasis>root</emphasis> and <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="152" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ab803c811afb36214ce8481f1b5dade97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::isHidden</definition>
+        <argsstring>(void)</argsstring>
+        <name>isHidden</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return if node is hidden. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="155" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="133" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a414b6a2df104f79a45ced8423a78e520" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setHidden</definition>
+        <argsstring>(bool h)</argsstring>
+        <name>setHidden</name>
+        <param>
+          <type>bool</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> hidden state to <emphasis>h</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="157" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="138" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a1b880608fc8af62dcaf46937e40d54ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setStop</definition>
+        <argsstring>(bool h)</argsstring>
+        <name>setStop</name>
+        <param>
+          <type>bool</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> stop state to <emphasis>h</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="159" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="143" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a82eac730beac2ae4a9744716fef5b71a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::dirtyUp</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>dirtyUp</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Mark all nodes up the path to the parent as dirty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="161" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a9cba9a5966082c20151cc4776d2bdd50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::layout</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>layout</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Compute layout for the subtree of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="163" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1af1c607e2ed88f7c9269d78a0cf1a3092" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Gist::VisualNode::getOffset</definition>
+        <argsstring>(void)</argsstring>
+        <name>getOffset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return offset off this node from its parent. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="165" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="151" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a5f7df5dcb5beba05f258d7f9f2b38feb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setOffset</definition>
+        <argsstring>(int n)</argsstring>
+        <name>setOffset</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> offset of this node, relative to its parent. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="167" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1af2386a00f597b0903b177f0227d4914f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::isDirty</definition>
+        <argsstring>(void)</argsstring>
+        <name>isDirty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether node is marked as dirty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="169" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="157" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a53a13292b2e1d0897d5c8f5c9643200a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setDirty</definition>
+        <argsstring>(bool d)</argsstring>
+        <name>setDirty</name>
+        <param>
+          <type>bool</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Mark node as dirty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="171" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="162" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a951fb1d1b22b6ca02e74013f8392d314" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::childrenLayoutIsDone</definition>
+        <argsstring>(void)</argsstring>
+        <name>childrenLayoutIsDone</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether the layout of the node&apos;s children has been completed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="173" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="167" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a91bbcecc5e83928d64c96fb9f3bcda1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setChildrenLayoutDone</definition>
+        <argsstring>(bool d)</argsstring>
+        <name>setChildrenLayoutDone</name>
+        <param>
+          <type>bool</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Mark node whether the layout of the node&apos;s children has been completed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="175" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="172" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ad740710fa521c958fdf3b34c7fcc98f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::isMarked</definition>
+        <argsstring>(void)</argsstring>
+        <name>isMarked</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether node is marked. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="177" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="177" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ae54662db77a2a8afa899050ba012ac68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setMarked</definition>
+        <argsstring>(bool m)</argsstring>
+        <name>setMarked</name>
+        <param>
+          <type>bool</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> mark of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="179" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="182" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a89ae02a591f3bc7b54de9d2a967b1c5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::isBookmarked</definition>
+        <argsstring>(void)</argsstring>
+        <name>isBookmarked</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether node is bookmarked. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="181" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="187" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a7946db768d383657a45c065a4d63aa81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setBookmarked</definition>
+        <argsstring>(bool m)</argsstring>
+        <name>setBookmarked</name>
+        <param>
+          <type>bool</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> bookmark of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="183" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="192" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a7f78bcfe0429dd19720f4fcb43b7ac7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::pathUp</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>pathUp</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> all nodes from the node to the root to be on the path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="185" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a106e07d0aea937a723967c7908a7294d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::unPathUp</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>unPathUp</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> all nodes from the node to the root not to be on the path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="187" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a1b30b96371106e2e4f39151f45601a0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::VisualNode::isOnPath</definition>
+        <argsstring>(void)</argsstring>
+        <name>isOnPath</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether node is on the path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="189" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="197" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a07ff365542a8aebf21f2aa593b996370" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Gist::VisualNode::getPathAlternative</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>getPathAlternative</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Return the alternative of the child that is on the path (-1 if none) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="191" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a90141240d29fec6bb61080184be0cc47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::VisualNode::setOnPath</definition>
+        <argsstring>(bool onPath0)</argsstring>
+        <name>setOnPath</name>
+        <param>
+          <type>bool</type>
+          <declname>onPath0</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> whether node is on the path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="193" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="202" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a51a54fec49f1354d965e186b962e0ea4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::toggleHidden</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>toggleHidden</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Toggle whether this node is hidden. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="196" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1aa6ac82da12b5f1d1160a218e46aedbf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::hideFailed</definition>
+        <argsstring>(const NodeAllocator &amp;na, bool onlyDirty=false)</argsstring>
+        <name>hideFailed</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>onlyDirty</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Hide all failed subtrees of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="198" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a11c8da34a6546c50d319d98f2be06483" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::unhideAll</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>unhideAll</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Unhide all nodes in the subtree of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="200" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a4464fe19bec5e02ebb52bb02498759f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::toggleStop</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>toggleStop</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Do not stop at this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="202" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a04711d9c8fac1e26b9dcc3679b2a6b2e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::unstopAll</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>unstopAll</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Do not stop at any stop node in the subtree of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="204" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ad5c066381363f25e773c5cbef44fb043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref> *</type>
+        <definition>forceinline Shape * Gecode::Gist::VisualNode::getShape</definition>
+        <argsstring>(void)</argsstring>
+        <name>getShape</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the shape of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="207" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="207" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a1696ed63ffa3c22db0b9a6f0db3c6072" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::setShape</definition>
+        <argsstring>(Shape *s)</argsstring>
+        <name>setShape</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the shape of this node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="209" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a0342a5849248d43fe3d5ddf88b2dd7c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::computeShape</definition>
+        <argsstring>(const NodeAllocator &amp;na, VisualNode *root)</argsstring>
+        <name>computeShape</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <briefdescription>
+<para>Compute the shape according to the shapes of the children. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="211" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1ab9726e4a819b0440984e4a224e7a60ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1BoundingBox" kindref="compound">BoundingBox</ref></type>
+        <definition>forceinline BoundingBox Gecode::Gist::VisualNode::getBoundingBox</definition>
+        <argsstring>(void)</argsstring>
+        <name>getBoundingBox</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the bounding box. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="213" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hpp" bodystart="212" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a9156db3c4b9f636b9bd08e4e3b5e415a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::changedStatus</definition>
+        <argsstring>(const NodeAllocator &amp;na)</argsstring>
+        <name>changedStatus</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Signal that the status has changed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="215" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a410856e31ebfb2c145f5deaf3e79f9d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+        <definition>VisualNode* Gecode::Gist::VisualNode::findNode</definition>
+        <argsstring>(const NodeAllocator &amp;na, int x, int y)</argsstring>
+        <name>findNode</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Find a node in this subtree at coordinates <emphasis>x</emphasis>, <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="217" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a45ebe501ca1eee50ea48a0df449145b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::labelBranches</definition>
+        <argsstring>(NodeAllocator &amp;na, BestNode *curBest, int c_d, int a_d)</argsstring>
+        <name>labelBranches</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+          <declname>curBest</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c_d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a_d</declname>
+        </param>
+        <briefdescription>
+<para>Create or clear branch labels in subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="220" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a76716f19664d43ceb0fea9d100c3c93a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::labelPath</definition>
+        <argsstring>(NodeAllocator &amp;na, BestNode *curBest, int c_d, int a_d)</argsstring>
+        <name>labelPath</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+          <declname>curBest</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c_d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a_d</declname>
+        </param>
+        <briefdescription>
+<para>Create or clear branch labels on path to root. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="223" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a6f4ccebf631a5f8c505fa5561375b0e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::VisualNode::getBranchLabel</definition>
+        <argsstring>(NodeAllocator &amp;na, VisualNode *p, const Choice *c, BestNode *curBest, int c_d, int a_d, int alt)</argsstring>
+        <name>getBranchLabel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+          <declname>curBest</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c_d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a_d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>alt</declname>
+        </param>
+        <briefdescription>
+<para>Return string that describes the branch. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="226" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1aa494933c7feaf06bc87e66b23d49c2ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::VisualNode::toolTip</definition>
+        <argsstring>(NodeAllocator &amp;na, BestNode *curBest, int c_d, int a_d)</argsstring>
+        <name>toolTip</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+          <declname>curBest</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c_d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a_d</declname>
+        </param>
+        <briefdescription>
+<para>Return string that is used as a tool tip. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="231" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1VisualNode_1a4c1efbe9e269e4ff47688924509ca9e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::VisualNode::dispose</definition>
+        <argsstring>(void)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Free allocated memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/visualnode.hh" line="235" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Node class that supports visual layout </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="8042">
+        <label>Gecode::Gist::VisualNode</label>
+        <link refid="classGecode_1_1Gist_1_1VisualNode"/>
+        <childnode refid="8043" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8044">
+        <label>Gecode::Gist::Node</label>
+        <link refid="classGecode_1_1Gist_1_1Node"/>
+      </node>
+      <node id="8043">
+        <label>Gecode::Gist::SpaceNode</label>
+        <link refid="classGecode_1_1Gist_1_1SpaceNode"/>
+        <childnode refid="8044" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8045">
+        <label>Gecode::Gist::VisualNode</label>
+        <link refid="classGecode_1_1Gist_1_1VisualNode"/>
+        <childnode refid="8046" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8055" relation="usage">
+          <edgelabel>shape</edgelabel>
+        </childnode>
+      </node>
+      <node id="8053">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="8049">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="8050" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8052">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="8048">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="8049" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="8052" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="8053" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="8051" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="8055">
+        <label>Gecode::Gist::Shape</label>
+        <link refid="classGecode_1_1Gist_1_1Shape"/>
+        <childnode refid="8055" relation="usage">
+          <edgelabel>hidden</edgelabel>
+          <edgelabel>leaf</edgelabel>
+        </childnode>
+      </node>
+      <node id="8047">
+        <label>Gecode::Gist::Node</label>
+        <link refid="classGecode_1_1Gist_1_1Node"/>
+      </node>
+      <node id="8054">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="8050">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="8051" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="8051">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="8046">
+        <label>Gecode::Gist::SpaceNode</label>
+        <link refid="classGecode_1_1Gist_1_1SpaceNode"/>
+        <childnode refid="8047" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8048" relation="usage">
+          <edgelabel>copy</edgelabel>
+        </childnode>
+        <childnode refid="8054" relation="usage">
+          <edgelabel>choice</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/visualnode.hh" line="129" column="1" bodyfile="/usr/include/gecode/gist/visualnode.hh" bodystart="129" bodyend="236"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a5c4ea1e84b7a801d8d7bf00f6a2f3eaf" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>acquireSpace</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6bae57451edbd26c5aedeaaf44d05db5e27" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>BOOKMARKED</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a9156db3c4b9f636b9bd08e4e3b5e415a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>changedStatus</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba8d1056ca98cff1cc879c6c99b3ea7003" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>CHILDRENLAYOUTDONE</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a951fb1d1b22b6ca02e74013f8392d314" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>childrenLayoutIsDone</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a1770518d8a6345e09d318da8af58a360" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a0342a5849248d43fe3d5ddf88b2dd7c5" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>computeShape</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ad9b624b96a8092c275bf07843f22159a" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>containsCoordinateAtDepth</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a0a172325cbe028ffb5440b13a393b5a8" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6bab957ea7f3e5722f2afd7770aafd7df0d" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>DIRTY</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a82eac730beac2ae4a9744716fef5b71a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>dirtyUp</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a4c1efbe9e269e4ff47688924509ca9e2" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a410856e31ebfb2c145f5deaf3e79f9d5" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>findNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1aec08184747286f69edbc51438714f469" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getAlternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ab9726e4a819b0440984e4a224e7a60ec" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getBoundingBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a6f4ccebf631a5f8c505fa5561375b0e9" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getBranchLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a81a3ee39115b6771a4d63edfeef2fe47" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getChild</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a799e7bc0bb7c2e99a916d47b8366990a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getChild</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a61558968dcfcbb1ae26b4d0d9bbda703" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getChoice</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a435f0efc7d9a79de130cabde4df013a4" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getDistance</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getFlag</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1adff3aae1f3bb07f9c73d23482b756ddf" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getIndex</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1af27441fca912ea5b2d95257a2199442d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getNoOfOpenChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a654df1deb4f2e68047735b2355871f0d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getNumberOfChildNodes</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1afbbbcaf065a9cf68d2bee0414468000d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getNumberOfChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1af1c607e2ed88f7c9269d78a0cf1a3092" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getOffset</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1af832b649d232c4d03b6fcf534c3482e7" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getParent</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a20e1a0cd69047563508f91e3fca0d5c2" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getParent</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a07ff365542a8aebf21f2aa593b996370" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getPathAlternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ad5c066381363f25e773c5cbef44fb043" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getShape</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a161d1ac44c65708adb034470a76de58d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getSpace</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a761b8c0b2bdfbfc3616af1fc48537250" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getStatus</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a8a28681a80b5e8575b6892b9137b3a70" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>getWorkingSpace</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a891f19abbbd7490a4c67064e0b2531d5" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hasCopy</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a2dd3836f977c8137ff81f8742016d054" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hasFailedChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a2d6672ee838fc02e84ba3312fa96da94a03e03c0865c27d68f0abdb64f2f9997d" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>HASFAILEDCHILDREN</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1ab767d5a5d1ade2a13a36f18fcb3becb0" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hasOpenChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a2d6672ee838fc02e84ba3312fa96da94a497fbf8d606e1d016376a81383585943" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>HASOPENCHILDREN</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a97366b607037285b6b6e5a821c66afd2" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hasSolvedChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a2d6672ee838fc02e84ba3312fa96da94a7dda540395845045b7fe0fb66bf8a19f" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>HASSOLVEDCHILDREN</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a8349f99edfbc56fe3823365f8ca2754f" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hasWorkingSpace</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba9558d7163487d3bad130bcfa8acafa3f" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>HIDDEN</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1aa6ac82da12b5f1d1160a218e46aedbf8" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>hideFailed</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a89ae02a591f3bc7b54de9d2a967b1c5d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isBookmarked</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a80b205319f33a23fb3e091c430175d2e" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isCurrentBest</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1af2386a00f597b0903b177f0227d4914f" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isDirty</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ab803c811afb36214ce8481f1b5dade97" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isHidden</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ad740710fa521c958fdf3b34c7fcc98f5" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isMarked</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a1b30b96371106e2e4f39151f45601a0a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isOnPath</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1aac1d94c4f2a63f5115e0f9d528198039" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isOpen</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a2b0f5b6e8ab7b1c0ca0dd91abbac7a97" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isRoot</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a3c539ac10e753095aeafa88722b9dd37" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>isUndetermined</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a45ebe501ca1eee50ea48a0df449145b2" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>labelBranches</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a76716f19664d43ceb0fea9d100c3c93a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>labelPath</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a3b2e556983d3b3e1b7c8a0ce9d709832" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>LASTBIT</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a9cba9a5966082c20151cc4776d2bdd50" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>layout</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba680362035521638f720f673057d6545f" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>MARKED</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a71b358f00310f2776ebfe4c491e4399d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>Node</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a21ef10b538b71bd34825e488a42f11b9" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>NodeAllocator</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a3b8f86c47db93ca2a991a50a3b183c76" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>nstatus</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a071982a3a040e90a0af8cd1f2257e2ab" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>offset</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6ba1ac0be714c042272e29bb6f67e9966c5" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>ONPATH</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a7f78bcfe0429dd19720f4fcb43b7ac7e" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>pathUp</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1ab19a1eeeee22227fc2d23cc088cbb1aa" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>purge</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a7946db768d383657a45c065a4d63aa81" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setBookmarked</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a91bbcecc5e83928d64c96fb9f3bcda1c" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setChildrenLayoutDone</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a53a13292b2e1d0897d5c8f5c9643200a" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setDirty</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a5309ea005af1603ca60598dba61d2311" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setDistance</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setFlag</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a414b6a2df104f79a45ced8423a78e520" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setHidden</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1ae54662db77a2a8afa899050ba012ac68" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setMarked</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a3a2592678bb1f4a4380a7456574102a9" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setNoOfOpenChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1Node_1a4d03aa68107480cfe62dedf6b369f389" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setNumberOfChildren</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a5f7df5dcb5beba05f258d7f9f2b38feb" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setOffset</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a90141240d29fec6bb61080184be0cc47" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setOnPath</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a1696ed63ffa3c22db0b9a6f0db3c6072" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setShape</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a5aa891d18a42d609b1d678c7a3ff0e8a" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setStatus</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a1b880608fc8af62dcaf46937e40d54ae" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>setStop</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a4b6993e52295dc2734db1ace480c76e2" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>shape</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1aa316b48e1d0f80c59cc5dee35a922b4b" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>SpaceNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1aa347efede99b9b965a4fa807ffa2a828" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>SpaceNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1SpaceNode_1a2d6672ee838fc02e84ba3312fa96da94" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>SpaceNodeFlags</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a51a54fec49f1354d965e186b962e0ea4" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>toggleHidden</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a4464fe19bec5e02ebb52bb02498759f9" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>toggleStop</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1aa494933c7feaf06bc87e66b23d49c2ad" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>toolTip</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a11c8da34a6546c50d319d98f2be06483" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>unhideAll</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a106e07d0aea937a723967c7908a7294d" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>unPathUp</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a04711d9c8fac1e26b9dcc3679b2a6b2e" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>unstopAll</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1aa5b2b5022197c55f2e054f26a8e02002" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>VisualNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a7212b25feaa6db8594d0ed43c327c068" prot="public" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>VisualNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1VisualNode_1a2c7d1d024fe26ca46a72eee48aa9cc6b" prot="protected" virt="non-virtual"><scope>Gecode::Gist::VisualNode</scope><name>VisualNodeFlags</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

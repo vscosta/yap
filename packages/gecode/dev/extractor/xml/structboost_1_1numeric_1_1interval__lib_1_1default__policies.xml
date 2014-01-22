@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1default__policies" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::default_policies</compoundname>
+    <templateparamlist>
+      <param>
+        <type>class T</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structboost_1_1numeric_1_1interval__lib_1_1default__policies_1a0ff33a8d987bee118b59c30c19808453" prot="public" static="no">
+        <type><ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">policies</ref>&lt; <ref refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__math" kindref="compound">rounded_math</ref>&lt; T &gt;, <ref refid="structboost_1_1numeric_1_1interval__lib_1_1checking__strict" kindref="compound">checking_strict</ref>&lt; T &gt; &gt;</type>
+        <definition>typedef policies&lt;rounded_math&lt;T&gt;, checking_strict&lt;T&gt; &gt; boost::numeric::interval_lib::default_policies&lt; T &gt;::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp" line="30" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp" line="29" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp" bodystart="28" bodyend="31"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1default__policies_1a0ff33a8d987bee118b59c30c19808453" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::default_policies</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

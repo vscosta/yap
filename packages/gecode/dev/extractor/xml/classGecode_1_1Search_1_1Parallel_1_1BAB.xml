@@ -1,0 +1,433 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Parallel_1_1BAB" kind="class" prot="public">
+    <compoundname>Gecode::Search::Parallel::BAB</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Parallel_1_1Engine" prot="public" virt="non-virtual">Gecode::Search::Parallel::Engine</basecompoundref>
+    <includes refid="parallel_2bab_8hh" local="no">bab.hh</includes>
+    <innerclass refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1_1Worker" prot="protected">Gecode::Search::Parallel::BAB::Worker</innerclass>
+      <sectiondef kind="user-defined">
+      <header>Search control</header>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1af364883399a311c6d1b34d162660feeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::BAB::solution</definition>
+        <argsstring>(Space *s)</argsstring>
+        <name>solution</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Report solution <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="82" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="172" bodyend="195"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Engine interface</header>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1acfd133e8d073c637f83cc9401f86e884" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Parallel::BAB::BAB</definition>
+        <argsstring>(Space *s, const Options &amp;o)</argsstring>
+        <name>BAB</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for space <emphasis>s</emphasis> with options <emphasis>o</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="88" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="140" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1acc9d379709bf1d402bc568c8582872a6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Statistics</ref></type>
+        <definition>virtual Statistics Gecode::Search::Parallel::BAB::statistics</definition>
+        <argsstring>(void) const </argsstring>
+        <name>statistics</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a90486627834ec4103794cf2bd2c87610">statistics</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="90" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1a7a76e7e85e7cadec7df9baf3b9a9f69b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Search::Parallel::BAB::reset</definition>
+        <argsstring>(Space *s)</argsstring>
+        <name>reset</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a0dfdae4b329fd9e00a84a81d2d1a33c2">reset</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Reset engine to restart at space <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="92" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1accc14f36e27a8e5fc7543081718663e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1NoGoods" kindref="compound">NoGoods</ref> &amp;</type>
+        <definition>virtual NoGoods&amp; Gecode::Search::Parallel::BAB::nogoods</definition>
+        <argsstring>(void)</argsstring>
+        <name>nogoods</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a8ed6f6fe44adba4285e52d3db1e0c00a">nogoods</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="94" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1ac488e48917d8875fe1f85660ca8bd747" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::Search::Parallel::BAB::~BAB</definition>
+        <argsstring>(void)</argsstring>
+        <name>~BAB</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="96" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1ad283ef747e66d1ecae3c22bdd381d8ab" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1_1Worker" kindref="compound">Worker</ref> **</type>
+        <definition>Worker** Gecode::Search::Parallel::BAB::_worker</definition>
+        <argsstring></argsstring>
+        <name>_worker</name>
+        <briefdescription>
+<para>Array of worker references. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="72" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1ab70568b19c8f9b535fe643317d079542" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>Space* Gecode::Search::Parallel::BAB::best</definition>
+        <argsstring></argsstring>
+        <name>best</name>
+        <briefdescription>
+<para>Best solution so far. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="74" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1BAB_1a08b92ab0333bf945286652460e2d9219" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1_1Worker" kindref="compound">Worker</ref> *</type>
+        <definition>forceinline BAB::Worker * Gecode::Search::Parallel::BAB::worker</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>worker</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Provide access to worker <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/bab.hh" line="77" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="110" bodyend="112"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Parallel branch-and-bound engine </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="950">
+        <label>Gecode::Search::Parallel::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Engine"/>
+        <childnode refid="951" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="951">
+        <label>Gecode::Search::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Engine"/>
+      </node>
+      <node id="949">
+        <label>Gecode::Search::Parallel::BAB</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1BAB"/>
+        <childnode refid="950" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="956">
+        <label>Gecode::Support::Event</label>
+        <link refid="classGecode_1_1Support_1_1Event"/>
+      </node>
+      <node id="966">
+        <label>Gecode::Support::Runnable</label>
+        <link refid="classGecode_1_1Support_1_1Runnable"/>
+      </node>
+      <node id="975">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="960">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="959">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="955">
+        <label>Gecode::Support::DynamicQueue&lt; Gecode::Space *, Gecode::Heap &gt;</label>
+        <link refid="classGecode_1_1Support_1_1DynamicQueue"/>
+      </node>
+      <node id="961">
+        <label>Gecode::Search::Parallel::BAB::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1_1Worker"/>
+        <childnode refid="962" relation="public-inheritance">
+        </childnode>
+        <childnode refid="970" relation="usage">
+          <edgelabel>best</edgelabel>
+        </childnode>
+      </node>
+      <node id="971">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="972" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="962">
+        <label>Gecode::Search::Parallel::Engine::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1_1Worker"/>
+        <childnode refid="963" relation="public-inheritance">
+        </childnode>
+        <childnode refid="966" relation="public-inheritance">
+        </childnode>
+        <childnode refid="967" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="970" relation="usage">
+          <edgelabel>cur</edgelabel>
+        </childnode>
+        <childnode refid="957" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+        <childnode refid="953" relation="usage">
+          <edgelabel>_engine</edgelabel>
+        </childnode>
+      </node>
+      <node id="974">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="970">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="971" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="974" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="975" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="973" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="968">
+        <label>Gecode::NoGoods</label>
+        <link refid="classGecode_1_1NoGoods"/>
+      </node>
+      <node id="964">
+        <label>Gecode::Search::Statistics</label>
+        <link refid="classGecode_1_1Search_1_1Statistics"/>
+        <childnode refid="965" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="969">
+        <label>Gecode::Support::DynamicStack&lt; Gecode::Search::Parallel::Path::Edge, Gecode::Heap &gt;</label>
+        <link refid="classGecode_1_1Support_1_1DynamicStack"/>
+      </node>
+      <node id="967">
+        <label>Gecode::Search::Parallel::Path</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Path"/>
+        <childnode refid="968" relation="public-inheritance">
+        </childnode>
+        <childnode refid="969" relation="usage">
+          <edgelabel>ds</edgelabel>
+        </childnode>
+      </node>
+      <node id="963">
+        <label>Gecode::Search::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Worker"/>
+        <childnode refid="964" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="953">
+        <label>Gecode::Search::Parallel::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Engine"/>
+        <childnode refid="954" relation="public-inheritance">
+        </childnode>
+        <childnode refid="955" relation="usage">
+          <edgelabel>solutions</edgelabel>
+        </childnode>
+        <childnode refid="956" relation="usage">
+          <edgelabel>e_reset_ack_stop</edgelabel>
+          <edgelabel>_e_term_ack</edgelabel>
+          <edgelabel>e_search</edgelabel>
+          <edgelabel>e_reset_ack_start</edgelabel>
+          <edgelabel>_e_terminate</edgelabel>
+        </childnode>
+        <childnode refid="957" relation="usage">
+          <edgelabel>_m_reset</edgelabel>
+          <edgelabel>_m_wait</edgelabel>
+          <edgelabel>_m_wait_terminate</edgelabel>
+          <edgelabel>_m_term</edgelabel>
+          <edgelabel>m_search</edgelabel>
+          <edgelabel>m_wait_reset</edgelabel>
+        </childnode>
+        <childnode refid="958" relation="usage">
+          <edgelabel>_opt</edgelabel>
+        </childnode>
+      </node>
+      <node id="972">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="973" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="973">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="965">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+      <node id="954">
+        <label>Gecode::Search::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Engine"/>
+      </node>
+      <node id="952">
+        <label>Gecode::Search::Parallel::BAB</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1BAB"/>
+        <childnode refid="953" relation="public-inheritance">
+        </childnode>
+        <childnode refid="961" relation="usage">
+          <edgelabel>_worker</edgelabel>
+        </childnode>
+        <childnode refid="970" relation="usage">
+          <edgelabel>best</edgelabel>
+        </childnode>
+      </node>
+      <node id="958">
+        <label>Gecode::Search::Options</label>
+        <link refid="classGecode_1_1Search_1_1Options"/>
+        <childnode refid="959" relation="usage">
+          <edgelabel>cutoff</edgelabel>
+        </childnode>
+        <childnode refid="960" relation="usage">
+          <edgelabel>stop</edgelabel>
+        </childnode>
+        <childnode refid="958" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="957">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/parallel/bab.hh" line="46" column="1" bodyfile="/usr/include/gecode/search/parallel/bab.hh" bodystart="46" bodyend="98"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a5eac981c888b778221e308086d5fc06c" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_cmd</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a5b107663eff682b8f2e27844cde90a1f" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_e_term_ack</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ad89510b823b56776bd0d58fb2b6106c1" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_e_terminate</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a5488b898a152484319e7f3b2cae8c0a8" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_m_reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a7a8fabfd749ce1b2b0dbe0ff48ef6d97" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_m_term</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a982e9e141adaa2bfb67df0f2255b3a63" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_m_wait</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1af3117f15676aea5ab4b5ae19066a5e68" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_m_wait_terminate</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1abe5af87e4dd02ac66e83bd02a535a196" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_n_not_terminated</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab0e5174a38053ef340ca6347456da731" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_n_reset_not_ack</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a0335fb08cad7b9d6fbb63d0b7858ca35" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_n_term_not_ack</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a36cc92d74293eb04d8c197a76a16c16a" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_opt</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1ad283ef747e66d1ecae3c22bdd381d8ab" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>_worker</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a5d38c37021bf1158ef49416e5703386d" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>ack_reset_start</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ac80be30fc27e1e98eb6ea2520ebf7052" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>ack_reset_stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a85e9e5172b3a63ef2a88ab4f0a34c8d6" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>ack_terminate</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1acfd133e8d073c637f83cc9401f86e884" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>BAB</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1ab70568b19c8f9b535fe643317d079542" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>best</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a019cee5708ec9f9c4715e9ef40c2d114" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>block</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a875750608158ba5873eb57bbbf0a9be7" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>busy</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab9b4c505e1391b07b2cee9d236a51740a5348929ecd6088bfd58f0f6887c1a192" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>C_RESET</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab9b4c505e1391b07b2cee9d236a51740a0b96bbbdf1411f08c9ac03850ec96018" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>C_TERMINATE</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab9b4c505e1391b07b2cee9d236a51740a9b1196019deaa97825ba75f18c7922be" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>C_WAIT</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab9b4c505e1391b07b2cee9d236a51740a32fbd7bad3461f12eba4d69fa41be1a3" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>C_WORK</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a1d17360c09bc85ba2d81a0d574776bc6" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>cmd</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ab9b4c505e1391b07b2cee9d236a51740" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>Cmd</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a53f6cb5f525453bf82b4e301c149cfc2" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>e_reset_ack_start</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a28be43ff783eb3a53a0a5974f62a7240" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>e_reset_ack_stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a674ecae827ba980acc5df329f10a5055" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>e_search</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a441a649423e21b5195dfd737eebb543f" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>Engine</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a2a9c20fd3d0b236ec71424b3764b4a7f" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>has_stopped</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a9a193a8d3cf7a2e0b42052e76bf1e762" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>idle</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ad6aee35e5f12f4890cd4daf06effd5e5" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>m_search</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1af4156abfb708fa315bd9ec796d1f20a7" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>m_wait_reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a5a83657df5615994c6b1385b21f6d395" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>n_busy</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a92a548a107ff9e501944cacaa162923d" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>next</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1accc14f36e27a8e5fc7543081718663e8" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a79ac9263eb1c19547f577684604c2b69" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>opt</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1ac0f5d9a7335c3ec7f4f23e0573c05060" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>release</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1a7a76e7e85e7cadec7df9baf3b9a9f69b" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1af2e15bfc6ad901090961aaedec171ccd" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>signal</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1af364883399a311c6d1b34d162660feeb" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>solution</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a33d019fdde44e32b1dd1b0f768dce34a" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>solutions</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1acc9d379709bf1d402bc568c8582872a6" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>statistics</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1af73d53cf8eb65b0ca626b6e541051f09" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a1aa45336c2883b1714d162cc97c4d95b" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>stopped</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1aa52016592ea3db4028466ad56eba661b" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>terminate</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a89b1f5d36c3ff261ad8945ff79c47945" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>terminated</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a435dbac216542e2fe4963bb65309d53f" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>wait</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a8dc3767941d08cadb56375d2a6e69945" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>wait_reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a454c9eaf51a54d96de336233b93746ab" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>wait_terminate</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1a08b92ab0333bf945286652460e2d9219" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>worker</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1a201cb68b54ddd60ea405b23717360389" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>workers</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1ac488e48917d8875fe1f85660ca8bd747" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>~BAB</name></member>
+      <member refid="classGecode_1_1Search_1_1Engine_1ae2edd144a6800328408bea4ead419840" prot="public" virt="virtual"><scope>Gecode::Search::Parallel::BAB</scope><name>~Engine</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

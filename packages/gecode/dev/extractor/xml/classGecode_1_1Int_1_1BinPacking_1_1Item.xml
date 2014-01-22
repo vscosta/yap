@@ -1,0 +1,225 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1BinPacking_1_1Item" kind="class" prot="public">
+    <compoundname>Gecode::Int::BinPacking::Item</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; IntView &gt;</basecompoundref>
+    <includes refid="bin-packing_8hh" local="no">bin-packing.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a625f31d5797d48e44061859a16b127a3" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::BinPacking::Item::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Size of item. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="57" column="1" bodyfile="/usr/include/gecode/int/bin-packing.hh" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a44e38c911ac91b41b097478a3d686714" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::BinPacking::Item::Item</definition>
+        <argsstring>(void)</argsstring>
+        <name>Item</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="60" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a4d700d2acf38362961dbaa25a8660d2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::BinPacking::Item::Item</definition>
+        <argsstring>(IntView b, int s)</argsstring>
+        <name>Item</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="62" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="48" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a7678656886b7d625c4cc67d128da1db0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+        <definition>forceinline IntView Gecode::Int::BinPacking::Item::bin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>bin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return bin of item. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="52" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a4d0cfcd2a1a1d706ebec21968ccddffb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::BinPacking::Item::bin</definition>
+        <argsstring>(IntView b)</argsstring>
+        <name>bin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> bin of item to <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="67" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="56" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1af921eb8a9257f7f0c12bdd0b3c026db3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::BinPacking::Item::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of item. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="69" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a95974f2f5b0fa26efcdcd2f20bd6ad5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::BinPacking::Item::size</definition>
+        <argsstring>(int s)</argsstring>
+        <name>size</name>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> size of item to <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="71" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1Item_1a23086081175b5c2c7551c963534d48ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::BinPacking::Item::update</definition>
+        <argsstring>(Space &amp;home, bool share, Item &amp;i)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BinPacking_1_1Item" kindref="compound">Item</ref> &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update item during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="74" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="69" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Int_1_1BinPacking_1_1Item" kindref="compound">Item</ref> combining bin and size information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3142">
+        <label>Gecode::DerivedView&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="3141">
+        <label>Gecode::Int::BinPacking::Item</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1Item"/>
+        <childnode refid="3142" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3145">
+        <label>Gecode::Int::IntView</label>
+        <link refid="classGecode_1_1Int_1_1IntView"/>
+        <childnode refid="3146" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3146">
+        <label>Gecode::VarImpView&lt; IntVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="3144">
+        <label>Gecode::DerivedView&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="3145" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="3143">
+        <label>Gecode::Int::BinPacking::Item</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1Item"/>
+        <childnode refid="3144" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/bin-packing.hh" line="53" column="1" bodyfile="/usr/include/gecode/int/bin-packing.hh" bodystart="53" bodyend="75"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>base</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a7678656886b7d625c4cc67d128da1db0" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>bin</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a4d0cfcd2a1a1d706ebec21968ccddffb" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>bin</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a44e38c911ac91b41b097478a3d686714" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>Item</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a4d700d2acf38362961dbaa25a8660d2b" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>Item</name></member>
+      <member refid="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>me</name></member>
+      <member refid="classGecode_1_1DerivedView_1a3dff6323ee18e55bd362b67cb7449318" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>med</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a625f31d5797d48e44061859a16b127a3" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>s</name></member>
+      <member refid="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1af921eb8a9257f7f0c12bdd0b3c026db3" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a95974f2f5b0fa26efcdcd2f20bd6ad5a" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>size</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1Item_1a23086081175b5c2c7551c963534d48ef" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual" ambiguityscope="DerivedView&lt; IntView &gt;::"><scope>Gecode::Int::BinPacking::Item</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::Item</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

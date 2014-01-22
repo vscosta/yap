@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Extensional_1_1Basic" kind="class" prot="public">
+    <compoundname>Gecode::Int::Extensional::Basic</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Extensional_1_1Base" prot="public" virt="non-virtual">Gecode::Int::Extensional::Base&lt; View &gt;</basecompoundref>
+    <includes refid="extensional_8hh" local="no">extensional.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>bool</type>
+        <declname>shared</declname>
+        <defname>shared</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1a2f8639508b045a9cc434583a6e58b4bb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Extensional::Basic&lt; View, shared &gt;::Basic</definition>
+        <argsstring>(Space &amp;home, bool share, Basic&lt; View, shared &gt; &amp;p)</argsstring>
+        <name>Basic</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Extensional_1_1Basic" kindref="compound">Basic</ref>&lt; View, <ref refid="namespaceGecode_1a5430dfdb1866d9506626cb0e838f0e66" kindref="member">shared</ref> &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="307" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="71" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1ae88efa6a3af653ad1a80dc9647cfad9a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Extensional::Basic&lt; View, shared &gt;::Basic</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, const TupleSet &amp;t)</argsstring>
+        <name>Basic</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1TupleSet" kindref="compound">TupleSet</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="309" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="51" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1a43e3d7d375a07b80d9ac2e924c8b1654" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Extensional::Basic&lt; View, shared &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="313" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="92" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1afed0be7d0ec222e2150dd41a1f375026" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Extensional::Basic&lt; View, shared &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a2b516241a1082fc08fb4e75933e41a50">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function. </para>        </briefdescription>
+        <detaileddescription>
+<para>If in stage for naive value propagation, the cost is high quadratic. Otherwise it is high cubic. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="320" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="77" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1acb5d47e9d032af7cd47add07fcd2fdb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Extensional::Basic&lt; View, shared &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="322" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Basic_1af007f01b0c129bab96474c2775f718de" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Extensional::Basic&lt; View, shared &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, const TupleSet &amp;t)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1TupleSet" kindref="compound">TupleSet</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for views <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="324" column="1" bodyfile="/usr/include/gecode/int/extensional/basic.hpp" bodystart="58" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Domain consistent extensional propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>This propagator implements a basic extensional propagation algorithm. It is based on GAC2001, and as such it does not fully take into account multidirectionality.</para><para>If <emphasis>shared</emphasis> is true, the same view can occur multiply.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/extensional.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1047">
+        <label>Gecode::Int::Extensional::Basic&lt; View, shared &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Basic"/>
+        <childnode refid="1048" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1048">
+        <label>Gecode::Int::Extensional::Base&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Base"/>
+        <childnode refid="1049" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1049">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1050" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1050">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1051" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1051">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1052">
+        <label>Gecode::Int::Extensional::Basic&lt; View, shared &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Basic"/>
+        <childnode refid="1053" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1053">
+        <label>Gecode::Int::Extensional::Base&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Base"/>
+        <childnode refid="1054" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1057" relation="usage">
+          <edgelabel>tupleSet</edgelabel>
+        </childnode>
+      </node>
+      <node id="1058">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="1057">
+        <label>Gecode::TupleSet</label>
+        <link refid="classGecode_1_1TupleSet"/>
+        <childnode refid="1058" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1054">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1055" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1056" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1055">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1056" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1056">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/extensional.hh" line="295" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="295" bodyend="325"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a393c6e6d272599e0655a75da69d69802" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Base</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1ad16b2004dc17d050f0b5015e324210b5" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Base</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1a2f8639508b045a9cc434583a6e58b4bb" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Basic</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1ae88efa6a3af653ad1a80dc9647cfad9a" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Basic</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Extensional::Basic</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Extensional::Basic</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1acb5d47e9d032af7cd47add07fcd2fdb4" prot="public" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1afed0be7d0ec222e2150dd41a1f375026" prot="public" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a776d9a59a0594b1a5d9dbd5f985464ad" prot="public" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a10593312be6b1492cf57331dfa888b63" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>find_support</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1ac404e77cc7b925b9a1040515d6df63db" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>init_dom</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1aacf08d8a2f61b62b42aba16309ce655c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>init_last</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a8c93b7e10bd12db690645b3c067ca57d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>last</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a9e444c2e0f26a9d1f932a1df5dd2d864" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>last_data</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a2458d2b428a19f00c599b9f437ab68f8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>last_next</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1af007f01b0c129bab96474c2775f718de" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Basic_1a43e3d7d375a07b80d9ac2e924c8b1654" prot="public" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a884b18b778f4e07097d2b32f77b7ae84" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>ts</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a1f848bb638fc625c1cea97a24349d586" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>tupleSet</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a03a802508ea0138e0a5658d34a7dff0f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>valid</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1a70a61f3ac2699efa6e497e8125e51889" prot="protected" virt="non-virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Base_1ad3f827c2ae5f6d18f2f5201441cb0682" prot="protected" virt="virtual"><scope>Gecode::Int::Extensional::Basic</scope><name>~Base</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

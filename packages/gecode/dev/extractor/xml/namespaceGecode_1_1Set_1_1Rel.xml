@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Set_1_1Rel" kind="namespace">
+    <compoundname>Gecode::Set::Rel</compoundname>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1CharacteristicSets" prot="public">Gecode::Set::Rel::CharacteristicSets</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1Subset" prot="public">Gecode::Set::Rel::Subset</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1NoSubset" prot="public">Gecode::Set::Rel::NoSubset</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1ReSubset" prot="public">Gecode::Set::Rel::ReSubset</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1Eq" prot="public">Gecode::Set::Rel::Eq</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1ReEq" prot="public">Gecode::Set::Rel::ReEq</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1Lq" prot="public">Gecode::Set::Rel::Lq</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1ReLq" prot="public">Gecode::Set::Rel::ReLq</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1Distinct" prot="public">Gecode::Set::Rel::Distinct</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Rel_1_1DistinctDoit" prot="public">Gecode::Set::Rel::DistinctDoit</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a4d68fdceadf27bd7ad8af5613aa8e672" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::subsumesME</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me2, ModEvent me)</argsstring>
+        <name>subsumesME</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me2</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="60" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="60" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1adf51ffa052fa5737663fb5309cf982ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::subsumesME</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me)</argsstring>
+        <name>subsumesME</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="65" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="65" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1aaae19f31c2df62658dbc7f998b189776" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::subsumesME</definition>
+        <argsstring>(ModEvent me0, ModEvent me)</argsstring>
+        <name>subsumesME</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="70" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="70" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1ac5dac0c08aa84a04e940f64faaf9059c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventLB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me2)</argsstring>
+        <name>testSetEventLB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="75" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="75" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a35eaca2660292b7072fce3bb11cea8eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventUB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me2)</argsstring>
+        <name>testSetEventUB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="79" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1af79e1c924711b387f1ad2e7338eb9676" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventAnyB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me2)</argsstring>
+        <name>testSetEventAnyB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="83" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="83" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1adcebbb6e67e88bde5992d869f7f6be36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventCard</definition>
+        <argsstring>(ModEvent me0, ModEvent me1, ModEvent me2)</argsstring>
+        <name>testSetEventCard</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="87" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="87" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a90642f72951ca269aad954cc842a174e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventLB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1)</argsstring>
+        <name>testSetEventLB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="91" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="91" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a7994cd10d6b8539b535a768e3d1b34a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventUB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1)</argsstring>
+        <name>testSetEventUB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="95" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="95" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1ae80eecaf2ac15a9ff9e742111320051a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventAnyB</definition>
+        <argsstring>(ModEvent me0, ModEvent me1)</argsstring>
+        <name>testSetEventAnyB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="99" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="99" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a1c2678b596fafbb056a7fdf415d0562b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventCard</definition>
+        <argsstring>(ModEvent me0, ModEvent me1)</argsstring>
+        <name>testSetEventCard</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="103" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="103" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a40db07e997623197f2a5210f7f713e6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventLB</definition>
+        <argsstring>(ModEvent me0)</argsstring>
+        <name>testSetEventLB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="107" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="107" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a6fe8af10b6d5d9535136f842b8af396c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventUB</definition>
+        <argsstring>(ModEvent me0)</argsstring>
+        <name>testSetEventUB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="111" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="111" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1a692bccffd0ffc8f946e4f99729dc9b5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventAnyB</definition>
+        <argsstring>(ModEvent me0)</argsstring>
+        <name>testSetEventAnyB</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="115" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Rel_1aa6792d84d681dedc9060d4f1833af779" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::Rel::testSetEventCard</definition>
+        <argsstring>(ModEvent me0)</argsstring>
+        <name>testSetEventCard</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/rel/common.hpp" line="119" column="1" bodyfile="/usr/include/gecode/set/rel/common.hpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Standard set relation propagators. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/rel/common.hpp" line="57" column="1"/>
+  </compounddef>
+</doxygen>

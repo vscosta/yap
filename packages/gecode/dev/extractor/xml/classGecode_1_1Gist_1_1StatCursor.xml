@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1StatCursor" kind="class" prot="public">
+    <compoundname>Gecode::Gist::StatCursor</compoundname>
+    <basecompoundref refid="classGecode_1_1Gist_1_1NodeCursor" prot="public" virt="non-virtual">Gecode::Gist::NodeCursor&lt; VisualNode &gt;</basecompoundref>
+    <includes refid="nodecursor_8hh" local="no">nodecursor.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Cursor interface</header>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StatCursor_1ae4d24e5aa06ab1de07338eae6c1065a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::StatCursor::processCurrentNode</definition>
+        <argsstring>(void)</argsstring>
+        <name>processCurrentNode</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Collect statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="185" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="235" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StatCursor_1a40360d1e062ef26503006213191f422a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::StatCursor::moveDownwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>moveDownwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move cursor to the first child node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="187" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="247" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StatCursor_1a1fde6cf4fe6fa9ff751bc45b581009c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::StatCursor::moveUpwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>moveUpwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move cursor to the parent node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="189" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="254" bodyend="257"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a969235aefbcc3880d0ccc6c4f897b6c5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::curDepth</definition>
+        <argsstring></argsstring>
+        <name>curDepth</name>
+        <briefdescription>
+<para>Current depth. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="165" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a4954a48a7f1e747c68a2a83b61628fcd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::depth</definition>
+        <argsstring></argsstring>
+        <name>depth</name>
+        <briefdescription>
+<para>Depth of the search tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="168" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a2a90785351f279defd6d562e1c79837c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::failed</definition>
+        <argsstring></argsstring>
+        <name>failed</name>
+        <briefdescription>
+<para>Number of failed nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="170" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a93172be39db0f78c904fd5bab9e00052" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::solved</definition>
+        <argsstring></argsstring>
+        <name>solved</name>
+        <briefdescription>
+<para>Number of solved nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="172" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a03f571e0a6a8b8c9a3188c3c9d37e070" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::choice</definition>
+        <argsstring></argsstring>
+        <name>choice</name>
+        <briefdescription>
+<para>Number of choice nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="174" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1StatCursor_1a8f26ca37cc88393a52f8d7622587965b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::StatCursor::open</definition>
+        <argsstring></argsstring>
+        <name>open</name>
+        <briefdescription>
+<para>Number of open nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="176" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StatCursor_1a006757a2582db9773d08f241301146eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Gist::StatCursor::StatCursor</definition>
+        <argsstring>(VisualNode *theNode, const VisualNode::NodeAllocator &amp;na)</argsstring>
+        <name>StatCursor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>theNode</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">VisualNode::NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="179" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="229" bodyend="232"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A cursor that collects statistics. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6672">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+      </node>
+      <node id="6671">
+        <label>Gecode::Gist::StatCursor</label>
+        <link refid="classGecode_1_1Gist_1_1StatCursor"/>
+        <childnode refid="6672" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6675">
+        <label>Gecode::Gist::VisualNode</label>
+        <link refid="classGecode_1_1Gist_1_1VisualNode"/>
+        <childnode refid="6676" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6685" relation="usage">
+          <edgelabel>shape</edgelabel>
+        </childnode>
+      </node>
+      <node id="6683">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="6679">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="6680" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6682">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="6678">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="6679" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="6682" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="6683" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="6681" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="6685">
+        <label>Gecode::Gist::Shape</label>
+        <link refid="classGecode_1_1Gist_1_1Shape"/>
+        <childnode refid="6685" relation="usage">
+          <edgelabel>hidden</edgelabel>
+          <edgelabel>leaf</edgelabel>
+        </childnode>
+      </node>
+      <node id="6677">
+        <label>Gecode::Gist::Node</label>
+        <link refid="classGecode_1_1Gist_1_1Node"/>
+      </node>
+      <node id="6674">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+        <childnode refid="6675" relation="usage">
+          <edgelabel>na</edgelabel>
+        </childnode>
+      </node>
+      <node id="6673">
+        <label>Gecode::Gist::StatCursor</label>
+        <link refid="classGecode_1_1Gist_1_1StatCursor"/>
+        <childnode refid="6674" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6684">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="6680">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6681" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6681">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="6676">
+        <label>Gecode::Gist::SpaceNode</label>
+        <link refid="classGecode_1_1Gist_1_1SpaceNode"/>
+        <childnode refid="6677" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6678" relation="usage">
+          <edgelabel>copy</edgelabel>
+        </childnode>
+        <childnode refid="6684" relation="usage">
+          <edgelabel>choice</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/nodecursor.hh" line="162" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="162" bodyend="192"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1af0f52939ef370ba2a509dcc9e075c442" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ae30df12f03597c90da69f21f49914aa7" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a03f571e0a6a8b8c9a3188c3c9d37e070" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a969235aefbcc3880d0ccc6c4f897b6c5" prot="private" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>curDepth</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a4954a48a7f1e747c68a2a83b61628fcd" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>depth</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a2a90785351f279defd6d562e1c79837c" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>failed</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a6ed0e3862054186bdb199491a17fe0df" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>mayMoveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a6a5b08af9795b8eae2f27ac0bd2605d1" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>mayMoveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ac09a2c1a196d04d08271b77c0f53d60c" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>mayMoveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a40360d1e062ef26503006213191f422a" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>moveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1aac74c6ac9b49167865ea1e76d0c235e0" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>moveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a1fde6cf4fe6fa9ff751bc45b581009c4" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>moveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a327325bcfef32a267cea6d3ba1416b11" prot="protected" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>na</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ab8f69a5de0bb2e4ef7e1c02b82e6b31e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a79fb7b8bc5aa9c84c6735db1154112c9" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a5f230c3e4a60f5f91bc2924dae05495d" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>NodeCursor</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a8f26ca37cc88393a52f8d7622587965b" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>open</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1ae4d24e5aa06ab1de07338eae6c1065a6" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>processCurrentNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a93172be39db0f78c904fd5bab9e00052" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>solved</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1aafd421a2dc921f0e2bed9671055abb34" prot="protected" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>startNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1StatCursor_1a006757a2582db9773d08f241301146eb" prot="public" virt="non-virtual"><scope>Gecode::Gist::StatCursor</scope><name>StatCursor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

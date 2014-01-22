@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1DFA_1_1Transitions" kind="class" prot="public">
+    <compoundname>Gecode::DFA::Transitions</compoundname>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1DFA_1_1Transitions_1a0424f1b549798b54165cd0988eb2cb39" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1DFA_1_1Transition" kindref="compound">Transition</ref> *</type>
+        <definition>const Transition* Gecode::DFA::Transitions::c_trans</definition>
+        <argsstring></argsstring>
+        <name>c_trans</name>
+        <briefdescription>
+<para>Current transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1899" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="1899" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1DFA_1_1Transitions_1a19e11a7b39d8b93482a02d2552e49172" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1DFA_1_1Transition" kindref="compound">Transition</ref> *</type>
+        <definition>const Transition* Gecode::DFA::Transitions::e_trans</definition>
+        <argsstring></argsstring>
+        <name>e_trans</name>
+        <briefdescription>
+<para>End of transitions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1901" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="1901" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a94bd4e8ab2db9296df7318a8ce280079" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::DFA::Transitions::Transitions</definition>
+        <argsstring>(const DFA &amp;d)</argsstring>
+        <name>Transitions</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1DFA" kindref="compound">DFA</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Initialize to all transitions of <ref refid="classGecode_1_1DFA" kindref="compound">DFA</ref> <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1904" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="173" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a94ac436bfe09187eaf2b3ce4a92ab17f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::DFA::Transitions::Transitions</definition>
+        <argsstring>(const DFA &amp;d, int n)</argsstring>
+        <name>Transitions</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1DFA" kindref="compound">DFA</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize to transitions of <ref refid="classGecode_1_1DFA" kindref="compound">DFA</ref> <emphasis>d</emphasis> for symbol <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1906" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="184" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a5dfec5d17cc23d4b0d24b4ca634688b1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::DFA::Transitions::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator still at a transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1908" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="199" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a0ca541024b0cee5683b0abdf8ae5a2c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DFA::Transitions::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1910" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="204" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a4aacb7d966edbad62d5d26b7887d1f1b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::DFA::Transitions::i_state</definition>
+        <argsstring>(void) const </argsstring>
+        <name>i_state</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return in-state of current transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1912" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="209" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a06cb36d9cf187a9478a402fca3c1ce99" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::DFA::Transitions::symbol</definition>
+        <argsstring>(void) const </argsstring>
+        <name>symbol</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return symbol of current transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1914" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="214" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFA_1_1Transitions_1a494b565a06691be348eb1bfe4553d1f0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::DFA::Transitions::o_state</definition>
+        <argsstring>(void) const </argsstring>
+        <name>o_state</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return out-state of current transition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1916" column="1" bodyfile="/usr/include/gecode/int/extensional/dfa.hpp" bodystart="219" bodyend="221"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Iterator for DFA transitions (sorted by symbols) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int.hh" line="1896" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="1896" bodyend="1917"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a0424f1b549798b54165cd0988eb2cb39" prot="private" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>c_trans</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a19e11a7b39d8b93482a02d2552e49172" prot="private" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>e_trans</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a4aacb7d966edbad62d5d26b7887d1f1b" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>i_state</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a494b565a06691be348eb1bfe4553d1f0" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>o_state</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a5dfec5d17cc23d4b0d24b4ca634688b1" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a0ca541024b0cee5683b0abdf8ae5a2c8" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a06cb36d9cf187a9478a402fca3c1ce99" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>symbol</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a94bd4e8ab2db9296df7318a8ce280079" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>Transitions</name></member>
+      <member refid="classGecode_1_1DFA_1_1Transitions_1a94ac436bfe09187eaf2b3ce4a92ab17f" prot="public" virt="non-virtual"><scope>Gecode::DFA::Transitions</scope><name>Transitions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

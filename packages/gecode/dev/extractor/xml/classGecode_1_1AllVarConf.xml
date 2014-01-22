@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1AllVarConf" kind="class" prot="public">
+    <compoundname>Gecode::AllVarConf</compoundname>
+    <includes refid="var-type_8hpp" local="no">var-type.hpp</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1AllVarConf_1a5c16a7c395b037199154fb39b0d2d9c5" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::AllVarConf::idx_c</definition>
+        <argsstring></argsstring>
+        <name>idx_c</name>
+        <initializer>= Gecode::Float::FloatVarImpConf::idx_c+1</initializer>
+        <briefdescription>
+<para>Index for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="459" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="459" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1AllVarConf_1a1c7542ce437b98119d61ab9d249246f2" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::AllVarConf::idx_d</definition>
+        <argsstring></argsstring>
+        <name>idx_d</name>
+        <initializer>= Gecode::Float::FloatVarImpConf::idx_d+1</initializer>
+        <briefdescription>
+<para>Index for dispose. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="461" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="461" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1AllVarConf_1aeecf00e8db1dd7f2deeff44eb0cad5fa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::AllVarConf::med_combine</definition>
+        <argsstring>(ModEventDelta med1, ModEventDelta med2)</argsstring>
+        <name>med_combine</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+          <declname>med1</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+          <declname>med2</declname>
+        </param>
+        <briefdescription>
+<para>Combine modification event delta <emphasis>med1</emphasis> with <emphasis>med2</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="463" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="889" bodyend="903"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Configuration for all variable implementations. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/var-type.hpp" line="456" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="456" bodyend="464"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1AllVarConf_1a5c16a7c395b037199154fb39b0d2d9c5" prot="public" virt="non-virtual"><scope>Gecode::AllVarConf</scope><name>idx_c</name></member>
+      <member refid="classGecode_1_1AllVarConf_1a1c7542ce437b98119d61ab9d249246f2" prot="public" virt="non-virtual"><scope>Gecode::AllVarConf</scope><name>idx_d</name></member>
+      <member refid="classGecode_1_1AllVarConf_1aeecf00e8db1dd7f2deeff44eb0cad5fa" prot="public" virt="non-virtual"><scope>Gecode::AllVarConf</scope><name>med_combine</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

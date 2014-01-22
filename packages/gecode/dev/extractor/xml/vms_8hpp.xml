@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="vms_8hpp" kind="file">
+    <compoundname>vms.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="vms_8hpp_1ada2b8c089a7d215b91eba5f2ee8624b3" prot="public" static="no">
+        <name>BOOST_PLATFORM</name>
+        <initializer>&quot;OpenVMS&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="9" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="9" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a79e0564bc29933a6d3d3379834eb4bd2" prot="public" static="no">
+        <name>BOOST_HAS_UNISTD_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="12" column="10" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1af194312cd504704cebb97772ff1d3bf3" prot="public" static="no">
+        <name>BOOST_HAS_NL_TYPES_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="13" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a991c14ee4092e592faa59c0b974c9846" prot="public" static="no">
+        <name>BOOST_HAS_GETTIMEOFDAY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="14" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="14" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a92797e3de36e2b5d28421de5d45a6a50" prot="public" static="no">
+        <name>BOOST_HAS_DIRENT_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="15" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="15" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a49216663554d2ad8e93fbcd7484527d4" prot="public" static="no">
+        <name>BOOST_HAS_PTHREADS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="16" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1aa7d42525d4bbe7d4bc7b3275cff2196d" prot="public" static="no">
+        <name>BOOST_HAS_NANOSLEEP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="17" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a74906024955003b2dd18c032c4adffc9" prot="public" static="no">
+        <name>BOOST_HAS_CLOCK_GETTIME</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="18" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a309a01b1aa16f622c0d5fdb0398ad2cf" prot="public" static="no">
+        <name>BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="19" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1ae6ad202485bf65c68edf6ec2d8a2a3fe" prot="public" static="no">
+        <name>BOOST_HAS_LOG1P</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="20" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a18f51e4fa6b8124b109349b37f2e5dba" prot="public" static="no">
+        <name>BOOST_HAS_EXPM1</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="21" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vms_8hpp_1a31b9dd28ef52d211a35039d31a4e4827" prot="public" static="no">
+        <name>BOOST_HAS_THREADS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" line="22" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/vms.hpp" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Artyom<sp/>Beilis<sp/>2010.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_CONFIG_PLATFORM_VMS_HPP<sp/></highlight></codeline>
+<codeline lineno="7"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_CONFIG_PLATFORM_VMS_HPP<sp/></highlight></codeline>
+<codeline lineno="8"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_PLATFORM<sp/>&quot;OpenVMS&quot;<sp/></highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/><sp/>BOOST_HAS_STDINT_H<sp/></highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_UNISTD_H<sp/></highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_NL_TYPES_H<sp/></highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_GETTIMEOFDAY<sp/></highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_DIRENT_H<sp/></highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_PTHREADS<sp/></highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_NANOSLEEP<sp/></highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_CLOCK_GETTIME<sp/></highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE<sp/></highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_LOG1P<sp/></highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_EXPM1<sp/></highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_THREADS<sp/></highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#undef<sp/><sp/>BOOST_HAS_SCHED_YIELD<sp/></highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/platform/vms.hpp"/>
+  </compounddef>
+</doxygen>

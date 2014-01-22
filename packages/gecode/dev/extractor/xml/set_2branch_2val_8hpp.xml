@@ -1,0 +1,253 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="set_2branch_2val_8hpp" kind="file">
+    <compoundname>val.hpp</compoundname>
+    <includedby refid="set_8hh" local="no">/usr/include/gecode/set.hh</includedby>
+    <invincdepgraph>
+      <node id="3524">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="3536">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="3523" relation="include">
+        </childnode>
+        <childnode refid="3527" relation="include">
+        </childnode>
+        <childnode refid="3534" relation="include">
+        </childnode>
+        <childnode refid="3535" relation="include">
+        </childnode>
+        <childnode refid="3537" relation="include">
+        </childnode>
+      </node>
+      <node id="3529">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="3522">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="3527">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="3526">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="3535">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="3527" relation="include">
+        </childnode>
+        <childnode refid="3534" relation="include">
+        </childnode>
+      </node>
+      <node id="3532">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="3523">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="3524" relation="include">
+        </childnode>
+      </node>
+      <node id="3530">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="3529" relation="include">
+        </childnode>
+      </node>
+      <node id="3533">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="3520">
+        <label>/usr/include/gecode/set/branch/val.hpp</label>
+        <link refid="set/branch/val.hpp"/>
+        <childnode refid="3521" relation="include">
+        </childnode>
+      </node>
+      <node id="3531">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="3529" relation="include">
+        </childnode>
+      </node>
+      <node id="3537">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="3528">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="3529" relation="include">
+        </childnode>
+      </node>
+      <node id="3521">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="3522" relation="include">
+        </childnode>
+        <childnode refid="3523" relation="include">
+        </childnode>
+        <childnode refid="3524" relation="include">
+        </childnode>
+        <childnode refid="3525" relation="include">
+        </childnode>
+        <childnode refid="3526" relation="include">
+        </childnode>
+        <childnode refid="3527" relation="include">
+        </childnode>
+        <childnode refid="3528" relation="include">
+        </childnode>
+        <childnode refid="3530" relation="include">
+        </childnode>
+        <childnode refid="3531" relation="include">
+        </childnode>
+        <childnode refid="3529" relation="include">
+        </childnode>
+        <childnode refid="3532" relation="include">
+        </childnode>
+        <childnode refid="3533" relation="include">
+        </childnode>
+        <childnode refid="3534" relation="include">
+        </childnode>
+        <childnode refid="3535" relation="include">
+        </childnode>
+        <childnode refid="3536" relation="include">
+        </childnode>
+        <childnode refid="3537" relation="include">
+        </childnode>
+      </node>
+      <node id="3534">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="3535" relation="include">
+        </childnode>
+      </node>
+      <node id="3525">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2012</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2012-09-19<sp/>15:14:28<sp/>+0200<sp/>(Wed,<sp/>19<sp/>Sep<sp/>2012)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13103<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="41" refid="classGecode_1_1SetValBranch_1a88cf703b81490e7eeaf615a9dcc1995d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1SetValBranch_1a88cf703b81490e7eeaf615a9dcc1995d" kindref="member">SetValBranch::SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1" kindref="member">Select</ref><sp/>s0)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="45" refid="classGecode_1_1SetValBranch_1a16505cbff30f1d578ac0175db81c4e4b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1SetValBranch_1a88cf703b81490e7eeaf615a9dcc1995d" kindref="member">SetValBranch::SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1" kindref="member">Select</ref><sp/>s0,<sp/><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref><sp/>r)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>(r),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="49" refid="classGecode_1_1SetValBranch_1a61a96f9634b03fbaa614211f621ed31b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1SetValBranch_1a88cf703b81490e7eeaf615a9dcc1995d" kindref="member">SetValBranch::SetValBranch</ref>(<ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref><sp/>v,<sp/><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref><sp/>c)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref>(v,c),<sp/>s(SEL_VAL_COMMIT)<sp/>{}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1" kindref="member">SetValBranch::Select</ref></highlight></codeline>
+<codeline lineno="53" refid="classGecode_1_1SetValBranch_1a09778bb88c8eb9b973a00d1cceb1fc8b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1SetValBranch_1a09778bb88c8eb9b973a00d1cceb1fc8b" kindref="member">SetValBranch::select</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch_1aa62b3986c1bf35b8da54ce3eaeced411" kindref="member">s</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref></highlight></codeline>
+<codeline lineno="59" refid="group__TaskModelSetBranchVal_1gab20a316e22a888205c4829822fadf3a6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1gab20a316e22a888205c4829822fadf3a6" kindref="member">SET_VAL_MIN_INC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1aa06221f63e6b78cddb6540555a90d81c" kindref="member">SetValBranch::SEL_MIN_INC</ref>);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="64" refid="group__TaskModelSetBranchVal_1gaf6f6101840fffe8f7014a5bac1cfbedd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1gaf6f6101840fffe8f7014a5bac1cfbedd" kindref="member">SET_VAL_MIN_EXC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1a59622acd14b87b456e2d1554fea11685" kindref="member">SetValBranch::SEL_MIN_EXC</ref>);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="69" refid="group__TaskModelSetBranchVal_1ga0286ecf5576689112306509a72dd1663" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga0286ecf5576689112306509a72dd1663" kindref="member">SET_VAL_MED_INC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1af2f438749ad82120bfbf95161f773211" kindref="member">SetValBranch::SEL_MED_INC</ref>);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="74" refid="group__TaskModelSetBranchVal_1ga907766244c0ff4a92d18d8515795fd50" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga907766244c0ff4a92d18d8515795fd50" kindref="member">SET_VAL_MED_EXC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1abb22c813f41c9573b987e6ed9a99151c" kindref="member">SetValBranch::SEL_MED_EXC</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="79" refid="group__TaskModelSetBranchVal_1ga9086c127cad66232e9fc27e07c655585" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga9086c127cad66232e9fc27e07c655585" kindref="member">SET_VAL_MAX_INC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1a1a76589ba5db27e0230cd30eecc3fe1b" kindref="member">SetValBranch::SEL_MAX_INC</ref>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="84" refid="group__TaskModelSetBranchVal_1gac47f9a0e87230f736381f880fbb2a619" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1gac47f9a0e87230f736381f880fbb2a619" kindref="member">SET_VAL_MAX_EXC</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1aa69973042c237021a5e52123fc5ccc7a" kindref="member">SetValBranch::SEL_MAX_EXC</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="89" refid="group__TaskModelSetBranchVal_1ga3d784fee5923f8f943d261777c7b3684" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga3d784fee5923f8f943d261777c7b3684" kindref="member">SET_VAL_RND_INC</ref>(<ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref><sp/>r)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1adcf3e730147d1b8fdb42fee407d6d789" kindref="member">SetValBranch::SEL_RND_INC</ref>,r);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="94" refid="group__TaskModelSetBranchVal_1ga4b22539515f3a18b57f353e8e3a388b6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga4b22539515f3a18b57f353e8e3a388b6" kindref="member">SET_VAL_RND_EXC</ref>(<ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref><sp/>r)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(<ref refid="classGecode_1_1SetValBranch_1a77ce304c556537e3ed68d0fd025985f1a7a7d8041c9fef57e38039e337034b52d" kindref="member">SetValBranch::SEL_RND_EXC</ref>,r);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>SetValBranch</highlight></codeline>
+<codeline lineno="99" refid="group__TaskModelSetBranchVal_1ga8955172a8d294390b8405a3c533e612d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelSetBranchVal_1ga8955172a8d294390b8405a3c533e612d" kindref="member">SET_VAL</ref>(<ref refid="group__TaskModelSetBranch_1gaf4fd23ef1eceb32a440e0183a2ae0346" kindref="member">SetBranchVal</ref><sp/>v,<sp/><ref refid="group__TaskModelSetBranch_1gadec0414377e8be38b2cd3113d5fd9abd" kindref="member">SetBranchCommit</ref><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1SetValBranch" kindref="compound">SetValBranch</ref>(function_cast&lt;VoidFunction&gt;(v),</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>function_cast&lt;VoidFunction&gt;(c));</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>set-branch</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/set/branch/val.hpp"/>
+  </compounddef>
+</doxygen>

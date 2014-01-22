@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_4daf4bd6b9a3d21d332dc691359c8dca" kind="dir">
+    <compoundname>/usr/include/gecode/int/task</compoundname>
+    <innerfile refid="int_2task_2array_8hpp">array.hpp</innerfile>
+    <innerfile refid="fwd-to-bwd_8hpp">fwd-to-bwd.hpp</innerfile>
+    <innerfile refid="int_2task_2iter_8hpp">iter.hpp</innerfile>
+    <innerfile refid="man-to-opt_8hpp">man-to-opt.hpp</innerfile>
+    <innerfile refid="task_2prop_8hpp">prop.hpp</innerfile>
+    <innerfile refid="purge_8hpp">purge.hpp</innerfile>
+    <innerfile refid="int_2task_2sort_8hpp">sort.hpp</innerfile>
+    <innerfile refid="task_2tree_8hpp">tree.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/task/"/>
+  </compounddef>
+</doxygen>

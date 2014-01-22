@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetConvex" kind="group">
+    <compoundname>TaskModelSetConvex</compoundname>
+    <title>Convexity constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetConvex_1ga771ee2f60db4b31b438cf30daae422fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::convex</definition>
+        <argsstring>(Home home, SetVar x)</argsstring>
+        <name>convex</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator that propagates that <emphasis>x</emphasis> is convex. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="825" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetConvex_1gab42e2c59065298c5bc45d455056d0b7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::convex</definition>
+        <argsstring>(Home home, SetVar x, SetVar y)</argsstring>
+        <name>convex</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator that propagates that <emphasis>y</emphasis> is the convex hull of <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="829" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

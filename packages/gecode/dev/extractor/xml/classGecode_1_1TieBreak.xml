@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1TieBreak" kind="class" prot="public">
+    <compoundname>Gecode::TieBreak</compoundname>
+    <includes refid="branch-tiebreak_8hpp" local="no">branch-tiebreak.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>VarBranch</declname>
+        <defname>VarBranch</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1TieBreak_1a609441eab7aaaff1ecc1593bdb32f112" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+        <definition>VarBranch Gecode::TieBreak&lt; VarBranch &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Branching criteria to try in order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="45" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TieBreak_1a5b8f5b439865c5f7d6990ffc6034ce03" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+        <definition>VarBranch Gecode::TieBreak&lt; VarBranch &gt;::b</definition>
+        <argsstring></argsstring>
+        <name>b</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="45" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TieBreak_1ac47f363f2b41571aad551dccc1f656fc" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+        <definition>VarBranch Gecode::TieBreak&lt; VarBranch &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="45" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TieBreak_1ad7b06fe6b3a228e1f1d31ed26015c6e3" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+        <definition>VarBranch Gecode::TieBreak&lt; VarBranch &gt;::d</definition>
+        <argsstring></argsstring>
+        <name>d</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="45" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1TieBreak_1a031ad0747c627d15e0c8fe69a8defc19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::TieBreak&lt; VarBranch &gt;::TieBreak</definition>
+        <argsstring>(VarBranch a0=VarBranch(), VarBranch b0=VarBranch(), VarBranch c0=VarBranch(), VarBranch d0=VarBranch())</argsstring>
+        <name>TieBreak</name>
+        <param>
+          <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+          <declname>a0</declname>
+          <defval><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>()</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+          <declname>b0</declname>
+          <defval><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>()</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+          <declname>c0</declname>
+          <defval><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>()</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref></type>
+          <declname>d0</declname>
+          <defval><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>()</defval>
+        </param>
+        <briefdescription>
+<para>Initialize with variable selection criteria. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="47" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="76" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Combine variable selection criteria for tie-breaking. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7044">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="7037">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="7038" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="7040">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="7041" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7036">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="7036" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7037" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="7043">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="7033">
+        <label>Gecode::VarBranch</label>
+        <link refid="classGecode_1_1VarBranch"/>
+        <childnode refid="7034" relation="usage">
+          <edgelabel>_rnd</edgelabel>
+        </childnode>
+        <childnode refid="7036" relation="usage">
+          <edgelabel>_act</edgelabel>
+        </childnode>
+        <childnode refid="7039" relation="usage">
+          <edgelabel>_tbl</edgelabel>
+        </childnode>
+        <childnode refid="7045" relation="usage">
+          <edgelabel>_afc</edgelabel>
+        </childnode>
+      </node>
+      <node id="7034">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="7035" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7035">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="7039">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="7040" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="7043" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="7044" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="7042" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="7032">
+        <label>Gecode::TieBreak&lt; VarBranch &gt;</label>
+        <link refid="classGecode_1_1TieBreak"/>
+        <childnode refid="7033" relation="usage">
+          <edgelabel>a</edgelabel>
+          <edgelabel>b</edgelabel>
+          <edgelabel>c</edgelabel>
+          <edgelabel>d</edgelabel>
+        </childnode>
+      </node>
+      <node id="7045">
+        <label>Gecode::AFC</label>
+        <link refid="classGecode_1_1AFC"/>
+        <childnode refid="7045" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7041">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7042" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7042">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="7038">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/branch-tiebreak.hpp" line="42" column="1" bodyfile="/usr/include/gecode/kernel/branch-tiebreak.hpp" bodystart="42" bodyend="51"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1TieBreak_1a609441eab7aaaff1ecc1593bdb32f112" prot="public" virt="non-virtual"><scope>Gecode::TieBreak</scope><name>a</name></member>
+      <member refid="classGecode_1_1TieBreak_1a5b8f5b439865c5f7d6990ffc6034ce03" prot="public" virt="non-virtual"><scope>Gecode::TieBreak</scope><name>b</name></member>
+      <member refid="classGecode_1_1TieBreak_1ac47f363f2b41571aad551dccc1f656fc" prot="public" virt="non-virtual"><scope>Gecode::TieBreak</scope><name>c</name></member>
+      <member refid="classGecode_1_1TieBreak_1ad7b06fe6b3a228e1f1d31ed26015c6e3" prot="public" virt="non-virtual"><scope>Gecode::TieBreak</scope><name>d</name></member>
+      <member refid="classGecode_1_1TieBreak_1a031ad0747c627d15e0c8fe69a8defc19" prot="public" virt="non-virtual"><scope>Gecode::TieBreak</scope><name>TieBreak</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

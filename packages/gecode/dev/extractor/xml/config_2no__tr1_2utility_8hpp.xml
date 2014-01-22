@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="config_2no__tr1_2utility_8hpp" kind="file">
+    <compoundname>utility.hpp</compoundname>
+    <includes local="no">utility</includes>
+    <includedby refid="select__stdlib__config_8hpp" local="no">/usr/include/gecode/third-party/boost/config/select_stdlib_config.hpp</includedby>
+    <includedby refid="dinkumware_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/dinkumware.hpp</includedby>
+    <includedby refid="libcomo_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp</includedby>
+    <includedby refid="modena_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/modena.hpp</includedby>
+    <includedby refid="msl_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/msl.hpp</includedby>
+    <includedby refid="roguewave_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/roguewave.hpp</includedby>
+    <includedby refid="sgi_8hpp" local="no">/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp</includedby>
+    <incdepgraph>
+      <node id="34193">
+        <label>/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp</label>
+        <link refid="config/no_tr1/utility.hpp"/>
+        <childnode refid="34194" relation="include">
+        </childnode>
+      </node>
+      <node id="34194">
+        <label>utility</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="34196">
+        <label>/usr/include/gecode/third-party/boost/config/select_stdlib_config.hpp</label>
+        <link refid="select__stdlib__config_8hpp_source"/>
+      </node>
+      <node id="34202">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/sgi.hpp</label>
+        <link refid="sgi_8hpp_source"/>
+      </node>
+      <node id="34201">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/roguewave.hpp</label>
+        <link refid="roguewave_8hpp_source"/>
+      </node>
+      <node id="34197">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/dinkumware.hpp</label>
+        <link refid="dinkumware_8hpp_source"/>
+      </node>
+      <node id="34195">
+        <label>/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp</label>
+        <link refid="config/no_tr1/utility.hpp"/>
+        <childnode refid="34196" relation="include">
+        </childnode>
+        <childnode refid="34197" relation="include">
+        </childnode>
+        <childnode refid="34198" relation="include">
+        </childnode>
+        <childnode refid="34199" relation="include">
+        </childnode>
+        <childnode refid="34200" relation="include">
+        </childnode>
+        <childnode refid="34201" relation="include">
+        </childnode>
+        <childnode refid="34202" relation="include">
+        </childnode>
+      </node>
+      <node id="34199">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/modena.hpp</label>
+        <link refid="modena_8hpp_source"/>
+      </node>
+      <node id="34200">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/msl.hpp</label>
+        <link refid="msl_8hpp_source"/>
+      </node>
+      <node id="34198">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp</label>
+        <link refid="libcomo_8hpp_source"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="config_2no__tr1_2utility_8hpp_1aeada632cd82525bbcbb3c590e69654f3" prot="public" static="no">
+        <name>BOOST_TR1_NO_RECURSION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp" line="17" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="config_2no__tr1_2utility_8hpp_1a4410238a5dbdce4d988e677199e2f6eb" prot="public" static="no">
+        <name>BOOST_CONFIG_NO_UTILITY_RECURSION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp" line="18" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2005.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>aim<sp/>of<sp/>this<sp/>header<sp/>is<sp/>just<sp/>to<sp/>include<sp/>&lt;utility&gt;<sp/>but<sp/>to<sp/>do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/>so<sp/>in<sp/>a<sp/>way<sp/>that<sp/>does<sp/>not<sp/>result<sp/>in<sp/>recursive<sp/>inclusion<sp/>of</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>Boost<sp/>TR1<sp/>components<sp/>if<sp/>boost/tr1/tr1/utility<sp/>is<sp/>in<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/>include<sp/>search<sp/>path.<sp/><sp/>We<sp/>have<sp/>to<sp/>do<sp/>this<sp/>to<sp/>avoid<sp/>circular</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/>dependencies:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_CONFIG_UTILITY</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_CONFIG_UTILITY</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>ifndef<sp/>BOOST_TR1_NO_RECURSION</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_TR1_NO_RECURSION</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_CONFIG_NO_UTILITY_RECURSION</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;utility&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>ifdef<sp/>BOOST_CONFIG_NO_UTILITY_RECURSION</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>undef<sp/>BOOST_TR1_NO_RECURSION</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>undef<sp/>BOOST_CONFIG_NO_UTILITY_RECURSION</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/no_tr1/utility.hpp"/>
+  </compounddef>
+</doxygen>

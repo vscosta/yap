@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="compaq__cxx_8hpp" kind="file">
+    <compoundname>compaq_cxx.hpp</compoundname>
+    <includes refid="common__edg_8hpp" local="yes">gecode/third-party/boost/config/compiler/common_edg.hpp</includes>
+    <incdepgraph>
+      <node id="34137">
+        <label>gecode/third-party/boost/config/compiler/common_edg.hpp</label>
+        <link refid="common__edg_8hpp_source"/>
+      </node>
+      <node id="34136">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp</label>
+        <link refid="compaq_cxx.hpp"/>
+        <childnode refid="34137" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="compaq__cxx_8hpp_1a78005f877b1cc90480de16ddfd9a0def" prot="public" static="no">
+        <name>BOOST_COMPILER</name>
+        <initializer>&quot;HP Tru64 C++ &quot; BOOST_STRINGIZE(__DECCXX_VER)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp" line="10" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp" bodystart="10" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Tru64<sp/>C++<sp/>compiler<sp/>setup<sp/>(now<sp/>HP):</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_COMPILER<sp/>&quot;HP<sp/>Tru64<sp/>C++<sp/>&quot;<sp/>BOOST_STRINGIZE(__DECCXX_VER)</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;gecode/third-party/boost/config/compiler/common_edg.hpp&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>check:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Nothing<sp/>to<sp/>do<sp/>here?</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp"/>
+  </compounddef>
+</doxygen>

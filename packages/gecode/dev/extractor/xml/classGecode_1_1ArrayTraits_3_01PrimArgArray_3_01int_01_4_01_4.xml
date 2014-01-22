@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;</compoundname>
+    <includes refid="int_2array-traits_8hpp" local="no">array-traits.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1aefc7fb7ccd9cf6e92032166c419c0df0" prot="public" static="no">
+        <type><ref refid="classGecode_1_1IntArgs" kindref="compound">IntArgs</ref></type>
+        <definition>typedef IntArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;::StorageType</definition>
+        <argsstring></argsstring>
+        <name>StorageType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="86" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1a7596b09667829b37657d4272ef4b8c3e" prot="public" static="no">
+        <type>int</type>
+        <definition>typedef int Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;::ValueType</definition>
+        <argsstring></argsstring>
+        <name>ValueType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="87" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1aa4b74ea14bfeb57a7f8c1c9ff75aefc2" prot="public" static="no">
+        <type><ref refid="classGecode_1_1IntArgs" kindref="compound">IntArgs</ref></type>
+        <definition>typedef IntArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;::ArgsType</definition>
+        <argsstring></argsstring>
+        <name>ArgsType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="88" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits of IntArgs. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/array-traits.hpp" line="84" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="84" bodyend="89"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1aa4b74ea14bfeb57a7f8c1c9ff75aefc2" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;</scope><name>ArgsType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1aefc7fb7ccd9cf6e92032166c419c0df0" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;</scope><name>StorageType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01int_01_4_01_4_1a7596b09667829b37657d4272ef4b8c3e" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; int &gt; &gt;</scope><name>ValueType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

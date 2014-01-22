@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_66ea8305173caacc89360c4bf0da0c1c" kind="dir">
+    <compoundname>/usr/include/gecode/float/view</compoundname>
+    <innerfile refid="view_2float_8hpp">float.hpp</innerfile>
+    <innerfile refid="float_2view_2minus_8hpp">minus.hpp</innerfile>
+    <innerfile refid="float_2view_2offset_8hpp">offset.hpp</innerfile>
+    <innerfile refid="float_2view_2print_8hpp">print.hpp</innerfile>
+    <innerfile refid="float_2view_2rel-test_8hpp">rel-test.hpp</innerfile>
+    <innerfile refid="float_2view_2scale_8hpp">scale.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/float/view/"/>
+  </compounddef>
+</doxygen>

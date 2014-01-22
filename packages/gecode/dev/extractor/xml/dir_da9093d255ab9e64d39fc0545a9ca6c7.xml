@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_da9093d255ab9e64d39fc0545a9ca6c7" kind="dir">
+    <compoundname>/usr/include/gecode/int/no-overlap</compoundname>
+    <innerfile refid="no-overlap_2base_8hpp">base.hpp</innerfile>
+    <innerfile refid="box_8hpp">box.hpp</innerfile>
+    <innerfile refid="dim_8hpp">dim.hpp</innerfile>
+    <innerfile refid="man_8hpp">man.hpp</innerfile>
+    <innerfile refid="opt_8hpp">opt.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/no-overlap/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_3f1040ba79010662daafd1bfaa6a4ea3" kind="dir">
+    <compoundname>/usr/include/gecode/third-party/boost/numeric/interval</compoundname>
+    <innerdir refid="dir_b88604bf198df46bfe8e3fd6ca52ccd3">/usr/include/gecode/third-party/boost/numeric/interval/compare</innerdir>
+    <innerdir refid="dir_e62db50ccf00a0c97bf746892e7ffcdd">/usr/include/gecode/third-party/boost/numeric/interval/detail</innerdir>
+    <innerfile refid="arith_8hpp">arith.hpp</innerfile>
+    <innerfile refid="arith2_8hpp">arith2.hpp</innerfile>
+    <innerfile refid="arith3_8hpp">arith3.hpp</innerfile>
+    <innerfile refid="checking_8hpp">checking.hpp</innerfile>
+    <innerfile refid="compare_8hpp">compare.hpp</innerfile>
+    <innerfile refid="constants_8hpp">constants.hpp</innerfile>
+    <innerfile refid="hw__rounding_8hpp">hw_rounding.hpp</innerfile>
+    <innerfile refid="interval_2interval_8hpp">interval.hpp</innerfile>
+    <innerfile refid="policies_8hpp">policies.hpp</innerfile>
+    <innerfile refid="rounded__arith_8hpp">rounded_arith.hpp</innerfile>
+    <innerfile refid="rounded__transc_8hpp">rounded_transc.hpp</innerfile>
+    <innerfile refid="third-party_2boost_2numeric_2interval_2rounding_8hpp">rounding.hpp</innerfile>
+    <innerfile refid="transc_8hpp">transc.hpp</innerfile>
+    <innerfile refid="numeric_2interval_2utility_8hpp">utility.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/"/>
+  </compounddef>
+</doxygen>

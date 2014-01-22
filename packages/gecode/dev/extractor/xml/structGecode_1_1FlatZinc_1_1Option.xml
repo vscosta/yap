@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structGecode_1_1FlatZinc_1_1Option" kind="struct" prot="public">
+    <compoundname>Gecode::FlatZinc::Option</compoundname>
+    <includes refid="option_8hh" local="no">option.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Val</declname>
+        <defname>Val</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structGecode_1_1FlatZinc_1_1Option_1a8bde9d655bdaa997a20c997119cbfc62" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::FlatZinc::Option&lt; Val &gt;::_some</definition>
+        <argsstring></argsstring>
+        <name>_some</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="47" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structGecode_1_1FlatZinc_1_1Option_1aec517f53b9d0007cb26e6a86edebd70c" prot="private" static="no" mutable="no">
+        <type>Val</type>
+        <definition>Val Gecode::FlatZinc::Option&lt; Val &gt;::_v</definition>
+        <argsstring></argsstring>
+        <name>_v</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="48" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structGecode_1_1FlatZinc_1_1Option_1af190b4b6fdb483827976477750a49964" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::FlatZinc::Option&lt; Val &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="50" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1FlatZinc_1_1Option_1a1f3ffe7c3c75c0ce48bd3115f69a20c3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const Val &amp;</type>
+        <definition>const Val&amp; Gecode::FlatZinc::Option&lt; Val &gt;::some</definition>
+        <argsstring>(void) const </argsstring>
+        <name>some</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="51" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="51" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structGecode_1_1FlatZinc_1_1Option_1a11a10cf33f78af01988b89a3eb99fbb3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; Val &gt;</type>
+        <definition>static Option&lt;Val&gt; Gecode::FlatZinc::Option&lt; Val &gt;::none</definition>
+        <argsstring>(void)</argsstring>
+        <name>none</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="52" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="52" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1FlatZinc_1_1Option_1a523a20f051ce6c3381ac2881eae556c2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; Val &gt;</type>
+        <definition>static Option&lt;Val&gt; Gecode::FlatZinc::Option&lt; Val &gt;::some</definition>
+        <argsstring>(const Val &amp;v)</argsstring>
+        <name>some</name>
+        <param>
+          <type>const Val &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/option.hh" line="58" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="58" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Optional value. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/flatzinc/option.hh" line="45" column="1" bodyfile="/usr/include/gecode/flatzinc/option.hh" bodystart="45" bodyend="64"/>
+    <listofallmembers>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1a8bde9d655bdaa997a20c997119cbfc62" prot="private" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>_some</name></member>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1aec517f53b9d0007cb26e6a86edebd70c" prot="private" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>_v</name></member>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1a11a10cf33f78af01988b89a3eb99fbb3" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>none</name></member>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1af190b4b6fdb483827976477750a49964" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>operator()</name></member>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1a1f3ffe7c3c75c0ce48bd3115f69a20c3" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>some</name></member>
+      <member refid="structGecode_1_1FlatZinc_1_1Option_1a523a20f051ce6c3381ac2881eae556c2" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Option</scope><name>some</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

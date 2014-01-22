@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sorted_1_1TupleMinIncExt" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sorted::TupleMinIncExt</compoundname>
+    <includes refid="sortsup_8hpp" local="no">sortsup.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1TupleMinIncExt_1a76c78a92dde4d45b29db3818c0a082da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::TupleMinIncExt&lt; View &gt;::operator()</definition>
+        <argsstring>(const ViewPair&lt; View &gt; &amp;x, const ViewPair&lt; View &gt; &amp;y)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Sorted_1_1ViewPair" kindref="compound">ViewPair</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Sorted_1_1ViewPair" kindref="compound">ViewPair</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="357" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="357" bodyend="371"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Extended view comparison on pairs of views. </para>    </briefdescription>
+    <detaileddescription>
+<para>Checks whether the lower domain bound of the first component of <emphasis>x</emphasis> (the variable itself) is smaller than the lower domain bound of the first component of <emphasis>y</emphasis>. If they are equal it checks their upper bounds. If they are also equal we sort the views by the permutation variables. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="355" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="355" bodyend="372"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1TupleMinIncExt_1a76c78a92dde4d45b29db3818c0a082da" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::TupleMinIncExt</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

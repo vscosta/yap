@@ -1,0 +1,473 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Advisor" kind="class" prot="public">
+    <compoundname>Gecode::Advisor</compoundname>
+    <basecompoundref refid="classGecode_1_1ActorLink" prot="private" virt="non-virtual">Gecode::ActorLink</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Activity_1_1Recorder_1_1Idx" prot="public" virt="non-virtual">Gecode::Activity::Recorder&lt; View &gt;::Idx</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Bool_1_1Clause_1_1Tagged" prot="public" virt="non-virtual">Gecode::Int::Bool::Clause&lt; VX, VY &gt;::Tagged</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Index" prot="public" virt="non-virtual">Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::Index</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Precede_1_1Single_1_1Index" prot="public" virt="non-virtual">Gecode::Int::Precede::Single&lt; View &gt;::Index</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index" prot="public" virt="non-virtual">Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor" prot="public" virt="non-virtual">Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor" prot="public" virt="non-virtual">Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1Precede_1_1Single_1_1Index" prot="public" virt="non-virtual">Gecode::Set::Precede::Single&lt; View &gt;::Index</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1ViewAdvisor" prot="public" virt="non-virtual">Gecode::ViewAdvisor&lt; View &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Memory management</header>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a8f3ca0c2e3fade8318a3a00d558b7b53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Advisor::dispose</definition>
+        <argsstring>(Space &amp;home, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Dispose the advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="951" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Advisor::operator new</definition>
+        <argsstring>(size_t s, Space &amp;home)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="953" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2550" bodyend="2552"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Advisor::operator delete</definition>
+        <argsstring>(void *p, Space &amp;home)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>No-op for exceptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="955" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2548" bodyend="2548"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Advisor_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class VIC</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class VarImp</definition>
+        <argsstring></argsstring>
+        <name>VarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="927" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="927" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Advisor_1ab59964461a78a32e6c64162daaffec72" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class Council</definition>
+        <argsstring></argsstring>
+        <name>Council</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="928" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="928" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Advisor_1ab52f3678bde0855d896ef3e25509198b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class Advisors</definition>
+        <argsstring></argsstring>
+        <name>Advisors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="929" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="929" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a7d47ab85cd1e0c0498993a9f54acb698" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Advisor::disposed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>disposed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Is the advisor disposed? </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="932" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3168" bodyend="3170"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1Advisor_1aaa4fc78d4a44681727087d3b7b0a6f4f" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> *</type>
+        <definition>forceinline Advisor * Gecode::Advisor::cast</definition>
+        <argsstring>(ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="934" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3173" bodyend="3175"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1acac1b5911b2e16f450e4a84f7bd8dc97" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> *</type>
+        <definition>forceinline const Advisor * Gecode::Advisor::cast</definition>
+        <argsstring>(const ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="936" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3178" bodyend="3180"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1ab0610ce83eac427e7af4f306756189b0" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Advisor::operator delete</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Not used (uses dispose instead) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="960" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2545" bodyend="2545"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a082de4ec1a1c31af9e2bec2ed409af85" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* Gecode::Advisor::operator new</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Not used. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="963" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+        <definition>forceinline Propagator &amp; Gecode::Advisor::propagator</definition>
+        <argsstring>(void) const </argsstring>
+        <name>propagator</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the advisor&apos;s propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="939" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3183" bodyend="3186"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::Advisor::Advisor</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>Advisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="943" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Advisor::Advisor</definition>
+        <argsstring>(Space &amp;home, bool share, Advisor &amp;a)</argsstring>
+        <name>Advisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Copying constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="945" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3165" bodyend="3165"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline</type>
+        <definition>forceinline Gecode::Advisor::Advisor</definition>
+        <argsstring>(Space &amp;, Propagator &amp;p, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>Advisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="3157" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3157" bodyend="3162"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisor_1af069c946f34ab92ba6837f053dedc712" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Advisor::dispose</definition>
+        <argsstring>(Space &amp;, Council&lt; A &gt; &amp;)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="3190" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3190" bodyend="3197"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for advisors. </para>    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classGecode_1_1Advisors" kindref="compound">Advisors</ref> are typically subclassed for each propagator that wants to use advisors. The actual member function that is executed when a variable is changed, must be implemented by the advisor&apos;s propagator. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="773">
+        <label>Gecode::Activity::Recorder&lt; View &gt;::Idx</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder_1_1Idx"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="781">
+        <label>Gecode::ViewAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1ViewAdvisor"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="780">
+        <label>Gecode::Set::Precede::Single&lt; View &gt;::Index</label>
+        <link refid="classGecode_1_1Set_1_1Precede_1_1Single_1_1Index"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="771">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="772" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="775">
+        <label>Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Index"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="777">
+        <label>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="779">
+        <label>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="772">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="774">
+        <label>Gecode::Int::Bool::Clause&lt; VX, VY &gt;::Tagged</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Clause_1_1Tagged"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="778">
+        <label>Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="776">
+        <label>Gecode::Int::Precede::Single&lt; View &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Precede_1_1Single_1_1Index"/>
+        <childnode refid="771" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="782">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="783" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="783">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="926" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="926" bodyend="964"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1ab52f3678bde0855d896ef3e25509198b" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>Advisors</name></member>
+      <member refid="classGecode_1_1Advisor_1aaa4fc78d4a44681727087d3b7b0a6f4f" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Advisor_1acac1b5911b2e16f450e4a84f7bd8dc97" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="private" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Advisor</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="private" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Advisor</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Advisor_1ab59964461a78a32e6c64162daaffec72" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>Council</name></member>
+      <member refid="classGecode_1_1Advisor_1a8f3ca0c2e3fade8318a3a00d558b7b53" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Advisor_1af069c946f34ab92ba6837f053dedc712" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Advisor_1a7d47ab85cd1e0c0498993a9f54acb698" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>disposed</name></member>
+      <member refid="classGecode_1_1ActorLink_1a925e990fc90855238801f5f96d3a240f" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>empty</name></member>
+      <member refid="classGecode_1_1ActorLink_1aae85e575e771a240a134254cdd6eb29e" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>head</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2a85f4b580dce95d9e53f9ea154ac43f" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>init</name></member>
+      <member refid="classGecode_1_1ActorLink_1adea733535bef2e42c18c26109e83e2c1" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>next</name></member>
+      <member refid="classGecode_1_1ActorLink_1a1db60d9d58e77e6103178e25f4a04a79" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>next</name></member>
+      <member refid="classGecode_1_1ActorLink_1abb3f921661af3f0a0810d7928b0d6e8c" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>next_ref</name></member>
+      <member refid="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ab0610ce83eac427e7af4f306756189b0" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" virt="non-virtual"><scope>Gecode::Advisor</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Advisor_1a082de4ec1a1c31af9e2bec2ed409af85" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ActorLink_1a9cc550a2655ca1ac70f35c8c9ff32cb3" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>prev</name></member>
+      <member refid="classGecode_1_1ActorLink_1afd02d9f0b576ed96dc2a56b1dcd55fba" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>prev</name></member>
+      <member refid="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" virt="non-virtual"><scope>Gecode::Advisor</scope><name>propagator</name></member>
+      <member refid="classGecode_1_1ActorLink_1a275801fb6adafe9ea77a6b3dfbf682e3" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>tail</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2d3f9ab47aff98aafd43f66f46fb5600" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>unlink</name></member>
+      <member refid="classGecode_1_1Advisor_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" virt="non-virtual"><scope>Gecode::Advisor</scope><name>VarImp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

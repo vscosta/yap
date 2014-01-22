@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sorted::OfflineMin</compoundname>
+    <includes refid="sortsup_8hpp" local="no">sortsup.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1acd04a4779ea91c67c19773ce5a833613" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" kindref="compound">OfflineMinItem</ref> *</type>
+        <definition>OfflineMinItem* Gecode::Int::Sorted::OfflineMin::sequence</definition>
+        <argsstring></argsstring>
+        <name>sequence</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="152" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1aa2d3d20a8241a7059b311e03dc815640" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* Gecode::Int::Sorted::OfflineMin::vertices</definition>
+        <argsstring></argsstring>
+        <name>vertices</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="153" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a14f1f842916bfd5a9793accd9384ace8" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::OfflineMin::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="154" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a0751a3a509c454f07c8bd4451acc0bcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Sorted::OfflineMin::OfflineMin</definition>
+        <argsstring>(void)</argsstring>
+        <name>OfflineMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="156" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="177" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1aa36103df27a5101b4af39d324f7ccdef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Sorted::OfflineMin::OfflineMin</definition>
+        <argsstring>(OfflineMinItem[], int[], int)</argsstring>
+        <name>OfflineMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" kindref="compound">OfflineMinItem</ref></type>
+          <defname>s</defname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <defname>v</defname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <defname>size</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="157" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="183" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1afa83b5bf34b2a0d3e5122bd15b63f05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Sorted::OfflineMin::find</definition>
+        <argsstring>(int x)</argsstring>
+        <name>find</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Find the set x belongs to (wihtout path compression) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="162" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="190" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a989dc546d0ffb1a973729213e6684c06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Sorted::OfflineMin::find_pc</definition>
+        <argsstring>(int x)</argsstring>
+        <name>find_pc</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Find the set x belongs to (using path compression) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="167" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="200" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a20d7faad3d507541947d99251aed947e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sorted::OfflineMin::unite</definition>
+        <argsstring>(int a, int b, int c)</argsstring>
+        <name>unite</name>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Unite two sets <emphasis>a</emphasis> and <emphasis>b</emphasis> and label the union with <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="169" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="215" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a723ed5e818e035c10e55f21adfa9c6c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sorted::OfflineMin::makeset</definition>
+        <argsstring>(void)</argsstring>
+        <name>makeset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialization of the datastructure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="171" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="232" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1ac6a788038ef06b91eacbff1a8aaac260" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Sorted::OfflineMin::size</definition>
+        <argsstring>(void)</argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the size of the Offline-Min item. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="173" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="246" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a1bbb7ab2f98046866719ac5fe27d2454" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" kindref="compound">OfflineMinItem</ref> &amp;</type>
+        <definition>forceinline OfflineMinItem &amp; Gecode::Int::Sorted::OfflineMin::operator[]</definition>
+        <argsstring>(int)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <defname>i</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="174" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="251" bodyend="253"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Offline-Min datastructure Used to compute the perfect matching between the unsorted views <emphasis>x</emphasis> and the sorted views <emphasis>y</emphasis>. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="150" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="150" bodyend="175"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1afa83b5bf34b2a0d3e5122bd15b63f05a" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>find</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a989dc546d0ffb1a973729213e6684c06" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>find_pc</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a723ed5e818e035c10e55f21adfa9c6c4" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>makeset</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a14f1f842916bfd5a9793accd9384ace8" prot="private" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>n</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a0751a3a509c454f07c8bd4451acc0bcc" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>OfflineMin</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1aa36103df27a5101b4af39d324f7ccdef" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>OfflineMin</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a1bbb7ab2f98046866719ac5fe27d2454" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1acd04a4779ea91c67c19773ce5a833613" prot="private" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>sequence</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1ac6a788038ef06b91eacbff1a8aaac260" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1a20d7faad3d507541947d99251aed947e" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>unite</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin_1aa2d3d20a8241a7059b311e03dc815640" prot="private" virt="non-virtual"><scope>Gecode::Int::Sorted::OfflineMin</scope><name>vertices</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

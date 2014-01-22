@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_ffa1678fe00cecd0dad9fefd78aa0c32" kind="dir">
+    <compoundname>/usr/include/gecode/int/cumulative</compoundname>
+    <innerfile refid="cumulative_2basic_8hpp">basic.hpp</innerfile>
+    <innerfile refid="cumulative_2edge-finding_8hpp">edge-finding.hpp</innerfile>
+    <innerfile refid="int_2cumulative_2limits_8hpp">limits.hpp</innerfile>
+    <innerfile refid="cumulative_2man-prop_8hpp">man-prop.hpp</innerfile>
+    <innerfile refid="cumulative_2opt-prop_8hpp">opt-prop.hpp</innerfile>
+    <innerfile refid="cumulative_2overload_8hpp">overload.hpp</innerfile>
+    <innerfile refid="cumulative_2task-view_8hpp">task-view.hpp</innerfile>
+    <innerfile refid="cumulative_2task_8hpp">task.hpp</innerfile>
+    <innerfile refid="cumulative_2tree_8hpp">tree.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/cumulative/"/>
+  </compounddef>
+</doxygen>

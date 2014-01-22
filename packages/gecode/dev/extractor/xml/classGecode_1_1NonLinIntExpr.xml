@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1NonLinIntExpr" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::NonLinIntExpr</compoundname>
+    <includes refid="minimodel_8hh" local="no">minimodel.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a1789ef2cd2d3b37b69e76d4e19d25f4d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+        <definition>virtual IntVar Gecode::NonLinIntExpr::post</definition>
+        <argsstring>(Home home, IntVar *ret, IntConLevel icl) const =0</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Return variable constrained to be equal to the expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="110" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1af21e62c197ae73cbc8030d7512255b97" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::NonLinIntExpr::post</definition>
+        <argsstring>(Home home, IntRelType irt, int c, IntConLevel icl) const =0</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post expression to be in relation <emphasis>irt</emphasis> with <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="112" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a76578a78aea128ce3b9b029a05429ee3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::NonLinIntExpr::post</definition>
+        <argsstring>(Home home, IntRelType irt, int c, BoolVar b, IntConLevel icl) const =0</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post reified expression to be in relation <emphasis>irt</emphasis> with <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="115" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a9cbaf70f001b687abb95001b9aebaf9e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::NonLinIntExpr::~NonLinIntExpr</definition>
+        <argsstring>(void)</argsstring>
+        <name>~NonLinIntExpr</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="118" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a45ddccd9340547136c52245b08691c49" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* Gecode::NonLinIntExpr::operator new</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Memory management. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="132" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="132" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a0f297d6d124b17d303bad7577afe7eb0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::NonLinIntExpr::operator delete</definition>
+        <argsstring>(void *p, size_t)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+<para>Memory management. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="134" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="134" bodyend="134"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a7bc51948598f054234e3f1d81ee024ad" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+        <definition>static IntVar Gecode::NonLinIntExpr::result</definition>
+        <argsstring>(Home home, IntVar *x)</argsstring>
+        <name>result</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return fresh variable if <emphasis>x</emphasis> is NULL, <emphasis>x</emphasis> otherwise. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="120" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="120" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1NonLinIntExpr_1a152df408e346d813f5d89577af16137e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+        <definition>static IntVar Gecode::NonLinIntExpr::result</definition>
+        <argsstring>(Home home, IntVar *x, IntVar y)</argsstring>
+        <name>result</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Constrain <emphasis>x</emphasis> to be equal to <emphasis>y</emphasis> if <emphasis>x</emphasis> is not NULL. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="126" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="126" bodyend="130"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for non-linear expressions over integer variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/minimodel.hh" line="107" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="107" bodyend="135"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1NonLinIntExpr_1a0f297d6d124b17d303bad7577afe7eb0" prot="public" virt="non-virtual"><scope>Gecode::NonLinIntExpr</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a45ddccd9340547136c52245b08691c49" prot="public" virt="non-virtual"><scope>Gecode::NonLinIntExpr</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a1789ef2cd2d3b37b69e76d4e19d25f4d" prot="public" virt="pure-virtual"><scope>Gecode::NonLinIntExpr</scope><name>post</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1af21e62c197ae73cbc8030d7512255b97" prot="public" virt="pure-virtual"><scope>Gecode::NonLinIntExpr</scope><name>post</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a76578a78aea128ce3b9b029a05429ee3" prot="public" virt="pure-virtual"><scope>Gecode::NonLinIntExpr</scope><name>post</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a7bc51948598f054234e3f1d81ee024ad" prot="public" virt="non-virtual"><scope>Gecode::NonLinIntExpr</scope><name>result</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a152df408e346d813f5d89577af16137e" prot="public" virt="non-virtual"><scope>Gecode::NonLinIntExpr</scope><name>result</name></member>
+      <member refid="classGecode_1_1NonLinIntExpr_1a9cbaf70f001b687abb95001b9aebaf9e" prot="public" virt="virtual"><scope>Gecode::NonLinIntExpr</scope><name>~NonLinIntExpr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

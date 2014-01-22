@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncSetValSel" kind="group">
+    <compoundname>FuncSetValSel</compoundname>
+    <title>Set value selection for brancher</title>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1ValSelMin" prot="public">Gecode::Set::Branch::ValSelMin</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1ValSelMax" prot="public">Gecode::Set::Branch::ValSelMax</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1ValSelMed" prot="public">Gecode::Set::Branch::ValSelMed</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd" prot="public">Gecode::Set::Branch::ValSelRnd</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Contains a description of value selection strategies on set views that can be used together with the generic view/value branchers.</para><para>All value selection classes require <programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

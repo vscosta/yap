@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1AST_1_1TypeError" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::AST::TypeError</compoundname>
+    <includes refid="ast_8hh" local="no">ast.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1ac72dc00b0f24288c9c84e4aab98a6f92" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string Gecode::FlatZinc::AST::TypeError::_what</definition>
+        <argsstring></argsstring>
+        <name>_what</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="61" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1a271123bf0bf165019eeebf2c32cd6745" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::AST::TypeError::TypeError</definition>
+        <argsstring>()</argsstring>
+        <name>TypeError</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="63" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1a3b42e59baa0ea21641b557d2e781f916" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::AST::TypeError::TypeError</definition>
+        <argsstring>(std::string what)</argsstring>
+        <name>TypeError</name>
+        <param>
+          <type>std::string</type>
+          <declname>what</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="64" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="64" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1ae9fe756efb6be74bf7a114637ba56d04" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::FlatZinc::AST::TypeError::what</definition>
+        <argsstring>(void) const </argsstring>
+        <name>what</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="65" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="65" bodyend="65"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception signaling type error </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/flatzinc/ast.hh" line="59" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="59" bodyend="66"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1ac72dc00b0f24288c9c84e4aab98a6f92" prot="private" virt="non-virtual"><scope>Gecode::FlatZinc::AST::TypeError</scope><name>_what</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1a271123bf0bf165019eeebf2c32cd6745" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::TypeError</scope><name>TypeError</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1a3b42e59baa0ea21641b557d2e781f916" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::TypeError</scope><name>TypeError</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1TypeError_1ae9fe756efb6be74bf7a114637ba56d04" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::TypeError</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

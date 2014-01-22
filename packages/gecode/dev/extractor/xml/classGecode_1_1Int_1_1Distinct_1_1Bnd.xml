@@ -1,0 +1,309 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Distinct_1_1Bnd" kind="class" prot="public">
+    <compoundname>Gecode::Int::Distinct::Bnd</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <includes refid="int_2distinct_8hh" local="no">distinct.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1ad9846c90df22541a688cf3e0e21bd5ed" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt;</type>
+        <definition>ViewArray&lt;View&gt; Gecode::Int::Distinct::Bnd&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Views on which to perform bounds-propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="132" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1aa23cd7302c2532c0187f90c759ca0d3b" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt;</type>
+        <definition>ViewArray&lt;View&gt; Gecode::Int::Distinct::Bnd&lt; View &gt;::y</definition>
+        <argsstring></argsstring>
+        <name>y</name>
+        <briefdescription>
+<para>Views on which to perform value-propagation (subset of <computeroutput>x</computeroutput>) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="134" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1aedc0a48dcdd2a3eedc7e8b52af0bb623" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Distinct::Bnd&lt; View &gt;::min_x</definition>
+        <argsstring></argsstring>
+        <name>min_x</name>
+        <briefdescription>
+<para>Minimum (approximation) of view in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="136" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a1685ded374c200165cb50fdf3fcfdd7b" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Distinct::Bnd&lt; View &gt;::max_x</definition>
+        <argsstring></argsstring>
+        <name>max_x</name>
+        <briefdescription>
+<para>Maximum (approximation) of view in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="138" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1ac201c4b0b34eeea81491e0e48591b478" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::Bnd&lt; View &gt;::Bnd</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>Bnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="140" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="42" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a6534c08d71921af44b78957046ef153b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::Bnd&lt; View &gt;::Bnd</definition>
+        <argsstring>(Space &amp;home, bool share, Bnd&lt; View &gt; &amp;p)</argsstring>
+        <name>Bnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1Bnd" kindref="compound">Bnd</ref>&lt; View &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="142" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="68" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a4dc05ab2735e4cd39018f1375b07df05" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::Bnd&lt; View &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for view array <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="145" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="435" bodyend="441"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a836da0df879a48116fa74fc0f1b8d942" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::Bnd&lt; View &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="147" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="355" bodyend="431"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a2ed4bcc8004d8f54f4e5fdc087f75d93" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Distinct::Bnd&lt; View &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function. </para>        </briefdescription>
+        <detaileddescription>
+<para>If in stage for naive value propagation, the cost is low linear. Otherwise it is low quadratic. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="154" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="82" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a935fe87b24ea30d13cf2d788e7973037" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Distinct::Bnd&lt; View &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="156" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a3c91d6ef9545dc52df24955e2d997c59" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Int::Distinct::Bnd&lt; View &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="158" column="1" bodyfile="/usr/include/gecode/int/distinct/bnd.hpp" bodystart="60" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Bounds consistent distinct propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>The propagator uses staging: first it uses naive value-based propagation and only then uses bounds consistent propagation. Due to using naive value-based propagation, the propagator might actually achieve stronger consistency than just bounds consistency.</para><para>The algorithm is taken from: A. Lopez-Ortiz, C.-G. Quimper, J. Tromp, and P. van Beek. A fast and simple algorithm for bounds consistency of the alldifferent constraint. IJCAI-2003.</para><para>This implementation uses the code that is provided by Peter Van Beek: <ulink url="http://ai.uwaterloo.ca/~vanbeek/software/software.html">http://ai.uwaterloo.ca/~vanbeek/software/software.html</ulink> The code (originally by John Tromp) here has only been slightly modified to fit Gecode (taking idempotent/non-idempotent propagation into account) and uses a more efficient layout of datastructures (keeping the number of different arrays small).</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/distinct.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1143">
+        <label>Gecode::Int::Distinct::Bnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Bnd"/>
+        <childnode refid="1144" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1144">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1145" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1145">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1146" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1146">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1147">
+        <label>Gecode::Int::Distinct::Bnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Bnd"/>
+        <childnode refid="1148" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1148">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1149" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1150" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1149">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1150" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1150">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/distinct.hh" line="129" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="129" bodyend="159"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1ac201c4b0b34eeea81491e0e48591b478" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>Bnd</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a6534c08d71921af44b78957046ef153b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>Bnd</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Distinct::Bnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Distinct::Bnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a935fe87b24ea30d13cf2d788e7973037" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a2ed4bcc8004d8f54f4e5fdc087f75d93" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a3c91d6ef9545dc52df24955e2d997c59" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a1685ded374c200165cb50fdf3fcfdd7b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>max_x</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>med</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1aedc0a48dcdd2a3eedc7e8b52af0bb623" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>min_x</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a4dc05ab2735e4cd39018f1375b07df05" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1a836da0df879a48116fa74fc0f1b8d942" prot="public" virt="virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1ad9846c90df22541a688cf3e0e21bd5ed" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Bnd_1aa23cd7302c2532c0187f90c759ca0d3b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Bnd</scope><name>y</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

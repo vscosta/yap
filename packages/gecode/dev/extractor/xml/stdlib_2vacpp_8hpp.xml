@@ -1,0 +1,307 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="stdlib_2vacpp_8hpp" kind="file">
+    <compoundname>vacpp.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1ae4e4629a2d4b5ed01aba3f0c497b8e1d" prot="public" static="no">
+        <name>BOOST_NO_STD_ALLOCATOR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="9" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="9" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1aa7c2f337068e7448af8ff650b1196b1b" prot="public" static="no">
+        <name>BOOST_HAS_MACRO_USE_FACET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="12" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a41d894689ba110f0812dafd4424077d7" prot="public" static="no">
+        <name>BOOST_NO_STD_MESSAGES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="13" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a2a025f67528583e3e0c30e7f9dca14a3" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_ARRAY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="27" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1af5ba0869e1d6440efcc83a7e4371c786" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CHRONO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="28" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a99a70abe45125cd77461db951af623b1" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CODECVT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="29" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1aeafca1ba0ce1c0e9a506dc5c4ae0db02" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CONDITION_VARIABLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="30" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a6a8fe3913cbbe5a9b7ec68aa4ef2f32c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FORWARD_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="31" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a78d01772010913e629fad312f3039b0c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FUTURE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="32" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1aa2c7a518048d09ee2503f0da79ca45eb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_INITIALIZER_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="33" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a3101ea14746ac1d04dbfca62eab46b37" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_MUTEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="34" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a11078fb53f856c1773a028f8ae1dbb74" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RANDOM</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="35" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a2dcba45f6486552307f6c41050949127" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RATIO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="36" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1aaea35104fb86aeb7a56e813aa4b1641a" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_REGEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="37" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a8efd9c2962dcb5b1dd0189e1581a36bb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_SYSTEM_ERROR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="38" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1ac21a1d6ab1bdf429c4f3863eb61640fd" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_THREAD</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="39" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1ac4c03c75c321273027da8aa498dc812d" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TUPLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="40" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a5e9484cc1a51f14e9c5ac50bf0321a36" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="41" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a5aa0152b7f8a0edb483120c514f24f68" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPEINDEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="42" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a5f7c16445a4a41896de19fd44d0efa0d" prot="public" static="no">
+        <name>BOOST_NO_STD_UNORDERED</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="43" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a4ae4004387f3985465752f3f8a149b89" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_MAP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="44" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a0df1997f5eadf550a841cd1e0190d841" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_SET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="45" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a53e18344e017dae60158edae1f7ce594" prot="public" static="no">
+        <name>BOOST_NO_NUMERIC_LIMITS_LOWEST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="46" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdlib_2vacpp_8hpp_1a119bfbef30b482000f193169d6ae9fee" prot="public" static="no">
+        <name>BOOST_STDLIB</name>
+        <initializer>&quot;Visual Age default standard library&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" line="48" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__IBMCPP__<sp/>&lt;=<sp/>501</highlight></codeline>
+<codeline lineno="9"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_ALLOCATOR</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_MACRO_USE_FACET</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STD_MESSAGES</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Apple<sp/>doesn&apos;t<sp/>seem<sp/>to<sp/>reliably<sp/>defined<sp/>a<sp/>*unix*<sp/>macro</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(CYGWIN)<sp/>&amp;&amp;<sp/>(<sp/><sp/>defined(__unix__)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__unix)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(unix)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__APPLE__)<sp/>\</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(__APPLE)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>||<sp/>defined(APPLE))</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>C++0x<sp/>headers<sp/>not<sp/>yet<sp/>implemented</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_ARRAY</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CHRONO</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CODECVT</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CONDITION_VARIABLE</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FORWARD_LIST</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FUTURE</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_INITIALIZER_LIST</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_MUTEX</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RANDOM</highlight></codeline>
+<codeline lineno="36"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RATIO</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_REGEX</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_SYSTEM_ERROR</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_THREAD</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TUPLE</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPEINDEX</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_UNORDERED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>deprecated;<sp/>see<sp/>following</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_MAP</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_SET</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_NUMERIC_LIMITS_LOWEST</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_STDLIB<sp/>&quot;Visual<sp/>Age<sp/>default<sp/>standard<sp/>library&quot;</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/stdlib/vacpp.hpp"/>
+  </compounddef>
+</doxygen>

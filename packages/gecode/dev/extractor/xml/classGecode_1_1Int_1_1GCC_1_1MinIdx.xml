@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1MinIdx" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::MinIdx</compoundname>
+    <includes refid="bnd-sup_8hpp" local="no">bnd-sup.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class Card</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1MinIdx_1a69e16189b6dd6d208c1c78f04b8400b8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::MinIdx&lt; Card &gt;::operator()</definition>
+        <argsstring>(const Card &amp;x, const Card &amp;y)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const Card &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const Card &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Comparison. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="229" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="229" bodyend="231"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Compares two cardinality views <emphasis><formula id="58">$ x_i $</formula></emphasis> <formula id="126">$ x_j$</formula> according to the index. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="225" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="225" bodyend="232"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1MinIdx_1a69e16189b6dd6d208c1c78f04b8400b8" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::MinIdx</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

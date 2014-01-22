@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Comparator" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Gist::Comparator</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Gist_1_1VarComparator" prot="public" virt="non-virtual">Gecode::Gist::VarComparator&lt; S &gt;</derivedcompoundref>
+    <includes refid="gist_8hh" local="no">gist.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Comparator interface</header>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Gist::Comparator::compare</definition>
+        <argsstring>(const Space &amp;s0, const Space &amp;s1)=0</argsstring>
+        <name>compare</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1VarComparator_1a80d841acbe2ca68f118c488d4e9f2e81">compare</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>s0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>s1</declname>
+        </param>
+        <briefdescription>
+<para>Call-back function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="129" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a1f04e6b2d568f088506dddbc7f533b76" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>virtual std::string Gecode::Gist::Comparator::name</definition>
+        <argsstring>(void)</argsstring>
+        <name>name</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1VarComparator_1aa394cf13d3596d485594f70a081d7159">name</reimplementedby>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Name of the comparator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="131" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a8dc097c055ca8671a5af007ebae49c43" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Gist::Comparator::finalize</definition>
+        <argsstring>(void)</argsstring>
+        <name>finalize</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1VarComparator_1ac0be6b5ea237e5a498cb0ab5fc4ac3d5">finalize</reimplementedby>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Clean up when <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref> exits. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="133" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a24950a2152e94ea488c3d0b48ae9680b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::Gist::Comparator::~Comparator</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Comparator</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="135" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Helper methods</header>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a09561deb2f55d1f9ccfee102c8955f48" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::Comparator::compare</definition>
+        <argsstring>(std::string x_n, const VarArgArray&lt; Var &gt; &amp;x, const VarArgArray&lt; Var &gt; &amp;y)</argsstring>
+        <name>compare</name>
+        <param>
+          <type>std::string</type>
+          <declname>x_n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return string representation of difference between arrays <emphasis>x</emphasis> and <emphasis>y</emphasis>, which are called <emphasis>x_n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="144" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="117" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1a9ccd8f26b26afcbb683d50ab5bf34b06" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::Comparator::compare</definition>
+        <argsstring>(std::string x_n, IntVar x, IntVar y)</argsstring>
+        <name>compare</name>
+        <param>
+          <type>std::string</type>
+          <declname>x_n</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return string representation of difference between <emphasis>x</emphasis> and <emphasis>y</emphasis>, which are called <emphasis>x_n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="147" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="70" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Comparator_1ab2b1b310507a935fbce8136c3f246492" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string Gecode::Gist::Comparator::compare</definition>
+        <argsstring>(std::string x_n, BoolVar x, BoolVar y)</argsstring>
+        <name>compare</name>
+        <param>
+          <type>std::string</type>
+          <declname>x_n</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return string representation of difference between <emphasis>x</emphasis> and <emphasis>y</emphasis>, which are called <emphasis>x_n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="149" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="80" bodyend="87"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Abstract base class for comparators. </para>    </briefdescription>
+    <detaileddescription>
+<para>A comparator provides a virtual method that is called when a node in the search tree is compared to another node. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1524">
+        <label>Gecode::Gist::Comparator</label>
+        <link refid="classGecode_1_1Gist_1_1Comparator"/>
+      </node>
+      <node id="1525">
+        <label>Gecode::Gist::VarComparator&lt; S &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1VarComparator"/>
+        <childnode refid="1524" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/gist.hh" line="123" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="123" bodyend="159"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a47f7ea3e05533d96c25cc4c22e1d9b3e" prot="public" virt="pure-virtual"><scope>Gecode::Gist::Comparator</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a09561deb2f55d1f9ccfee102c8955f48" prot="public" virt="non-virtual"><scope>Gecode::Gist::Comparator</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a9ccd8f26b26afcbb683d50ab5bf34b06" prot="public" virt="non-virtual"><scope>Gecode::Gist::Comparator</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1ab2b1b310507a935fbce8136c3f246492" prot="public" virt="non-virtual"><scope>Gecode::Gist::Comparator</scope><name>compare</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a8dc097c055ca8671a5af007ebae49c43" prot="public" virt="virtual"><scope>Gecode::Gist::Comparator</scope><name>finalize</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a1f04e6b2d568f088506dddbc7f533b76" prot="public" virt="virtual"><scope>Gecode::Gist::Comparator</scope><name>name</name></member>
+      <member refid="classGecode_1_1Gist_1_1Comparator_1a24950a2152e94ea488c3d0b48ae9680b" prot="public" virt="virtual"><scope>Gecode::Gist::Comparator</scope><name>~Comparator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

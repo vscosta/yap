@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sequence_1_1Violations" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sequence::Violations</compoundname>
+    <basecompoundref refid="classGecode_1_1Support_1_1BitSetBase" prot="public" virt="non-virtual">Gecode::Support::BitSetBase</basecompoundref>
+    <includes refid="violations_8hpp" local="no">violations.hpp</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1a8b449b0f7297731d90cd6e3d54afb501" prot="protected" static="no" mutable="yes">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Int::Sequence::Violations::fst</definition>
+        <argsstring></argsstring>
+        <name>fst</name>
+        <briefdescription>
+<para>The (possibly) first set bit (set is empty if fst == sz) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="47" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1a90f6873786c638cb35dfa377afac7b7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Sequence::Violations::Violations</definition>
+        <argsstring>(void)</argsstring>
+        <name>Violations</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="50" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1a1bdd85fbe741f0700aebac69376aaa64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sequence::Violations::init</definition>
+        <argsstring>(Space &amp;home, unsigned int n)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize violation set for <emphasis>n</emphasis> violations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="52" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="68" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1a1b1c15da428fd20ee1d32ebdf1c0cc74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sequence::Violations::update</definition>
+        <argsstring>(Space &amp;home, bool shared, Violations &amp;v)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sequence_1_1Violations" kindref="compound">Violations</ref> &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Update violation set during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="80" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1ab8a21da28c759c927ebb480b979ebcbd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Sequence::Violations::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether set is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="56" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="74" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1aa2823b27f7c62e8e7304e327fb3d1a20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sequence::Violations::add</definition>
+        <argsstring>(unsigned int i)</argsstring>
+        <name>add</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add <emphasis>i</emphasis> to violation set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="58" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1Violations_1afdbc6859a23aa99bd2ac6017cd080cc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Int::Sequence::Violations::get</definition>
+        <argsstring>(void)</argsstring>
+        <name>get</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get first element from violation set and remove it. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/violations.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="91" bodyend="97"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Simple bitsets for recording violations. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="8037">
+        <label>Gecode::Int::Sequence::Violations</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1Violations"/>
+        <childnode refid="8038" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8038">
+        <label>Gecode::Support::BitSetBase</label>
+        <link refid="classGecode_1_1Support_1_1BitSetBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8039">
+        <label>Gecode::Int::Sequence::Violations</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1Violations"/>
+        <childnode refid="8040" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8040">
+        <label>Gecode::Support::BitSetBase</label>
+        <link refid="classGecode_1_1Support_1_1BitSetBase"/>
+        <childnode refid="8041" relation="usage">
+          <edgelabel>data</edgelabel>
+        </childnode>
+      </node>
+      <node id="8041">
+        <label>Gecode::Support::BitSetData</label>
+        <link refid="classGecode_1_1Support_1_1BitSetData"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/sequence/violations.hpp" line="44" column="1" bodyfile="/usr/include/gecode/int/sequence/violations.hpp" bodystart="44" bodyend="61"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>_get</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>_set</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1aa2823b27f7c62e8e7304e327fb3d1a20" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>add</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a2733788f394588d6385c8f123935d10d" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a6dd00d33e1ba3755880113f48da129cc" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad9e47dd9c14f5465a844f754171c4928" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ae0b88d176bb94c9fadabd68644729375" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>bpb</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1afbe1fe7346b3bb27d0cc8cb268819772" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>clear</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>data</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a0b6779b7f869feb2a8860323612bb76f" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a4423f0aa99a750a9d6b0c45243caca38" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1ab8a21da28c759c927ebb480b979ebcbd" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1a8b449b0f7297731d90cd6e3d54afb501" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>fst</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1afdbc6859a23aa99bd2ac6017cd080cc2" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>get</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1adeddf343941d1e169e38b8e3b939f617" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Int::Sequence::Violations</scope><name>get</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1a1bdd85fbe741f0700aebac69376aaa64" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>init</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Int::Sequence::Violations</scope><name>init</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1aeb1175198345390b9deb787618dc34e9" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>next</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a7451a1005fd33cd0643d308feabe9a71" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>resize</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>set</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a999c515e166773bda8171ae2da1f7dc5" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>size</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ac062f6f847702b8107d3fb4d73cc478d" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>status</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>sz</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1a1b1c15da428fd20ee1d32ebdf1c0cc74" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>update</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1Violations_1a90f6873786c638cb35dfa377afac7b7a" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::Violations</scope><name>Violations</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

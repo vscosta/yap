@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1OutputOrder" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::OutputOrder</compoundname>
+    <includes refid="parser_8hh" local="no">parser.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1OutputOrder_1ae19be92c85dbdc59674ddbaed669339b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::FlatZinc::OutputOrder::operator()</definition>
+        <argsstring>(const std::pair&lt; std::string, AST::Node * &gt; &amp;x, const std::pair&lt; std::string, AST::Node * &gt; &amp;y)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const std::pair&lt; std::string, <ref refid="classGecode_1_1FlatZinc_1_1AST_1_1Node" kindref="compound">AST::Node</ref> * &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::string, <ref refid="classGecode_1_1FlatZinc_1_1AST_1_1Node" kindref="compound">AST::Node</ref> * &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return if <emphasis>x</emphasis> is less than <emphasis>y</emphasis>, based on first component. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="82" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="82" bodyend="85"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Strict weak ordering for output items. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/flatzinc/parser.hh" line="79" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="79" bodyend="86"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1OutputOrder_1ae19be92c85dbdc59674ddbaed669339b" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::OutputOrder</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

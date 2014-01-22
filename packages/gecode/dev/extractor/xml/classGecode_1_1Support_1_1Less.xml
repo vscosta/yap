@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1Less" kind="class" prot="public">
+    <compoundname>Gecode::Support::Less</compoundname>
+    <includes refid="support_2sort_8hpp" local="no">sort.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Type</declname>
+        <defname>Type</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Less_1a637bade120258553c258b7e77feab49c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Support::Less&lt; Type &gt;::operator()</definition>
+        <argsstring>(const Type &amp;lhs, const Type &amp;rhs)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const Type &amp;</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const Type &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/sort.hpp" line="167" column="1" bodyfile="/usr/include/gecode/support/sort.hpp" bodystart="167" bodyend="169"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Comparison class for sorting using <emphasis>&lt;</emphasis>. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/support/sort.hpp" line="165" column="1" bodyfile="/usr/include/gecode/support/sort.hpp" bodystart="165" bodyend="170"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1Less_1a637bade120258553c258b7e77feab49c" prot="public" virt="non-virtual"><scope>Gecode::Support::Less</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

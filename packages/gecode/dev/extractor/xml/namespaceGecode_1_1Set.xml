@@ -1,0 +1,442 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Set" kind="namespace">
+    <compoundname>Gecode::Set</compoundname>
+    <innerclass refid="classGecode_1_1Set_1_1SetVarImpConf" prot="public">Gecode::Set::SetVarImpConf</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1OutOfLimits" prot="public">Gecode::Set::OutOfLimits</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1VariableEmptyDomain" prot="public">Gecode::Set::VariableEmptyDomain</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1TooFewArguments" prot="public">Gecode::Set::TooFewArguments</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ArgumentSizeMismatch" prot="public">Gecode::Set::ArgumentSizeMismatch</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UnknownBranching" prot="public">Gecode::Set::UnknownBranching</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UnknownRelation" prot="public">Gecode::Set::UnknownRelation</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UnknownOperation" prot="public">Gecode::Set::UnknownOperation</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1IllegalOperation" prot="public">Gecode::Set::IllegalOperation</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4" prot="public">Gecode::Set::LubRanges&lt; SetVarImp * &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01SetVarImp_01_5_01_4" prot="public">Gecode::Set::GlbRanges&lt; SetVarImp * &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SetDelta" prot="public">Gecode::Set::SetDelta</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1BndSet" prot="public">Gecode::Set::BndSet</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1BndSetRanges" prot="public">Gecode::Set::BndSetRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GLBndSet" prot="public">Gecode::Set::GLBndSet</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LUBndSet" prot="public">Gecode::Set::LUBndSet</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1RangesCompl" prot="public">Gecode::Set::RangesCompl</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges" prot="public">Gecode::Set::LubRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges" prot="public">Gecode::Set::GlbRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UnknownRanges" prot="public">Gecode::Set::UnknownRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SetVarImp" prot="public">Gecode::Set::SetVarImp</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; ComplementView&lt; ComplementView&lt; View &gt; &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; ComplementView&lt; ComplementView&lt; View &gt; &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ArrayRanges" prot="public">Gecode::Set::ArrayRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01EmptyView_01_4" prot="public">Gecode::Set::LubRanges&lt; EmptyView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01EmptyView_01_4" prot="public">Gecode::Set::GlbRanges&lt; EmptyView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01UniverseView_01_4" prot="public">Gecode::Set::LubRanges&lt; UniverseView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01UniverseView_01_4" prot="public">Gecode::Set::GlbRanges&lt; UniverseView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ConstSetView_01_4" prot="public">Gecode::Set::LubRanges&lt; ConstSetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ConstSetView_01_4" prot="public">Gecode::Set::GlbRanges&lt; ConstSetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4" prot="public">Gecode::Set::LubRanges&lt; SetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01SetView_01_4" prot="public">Gecode::Set::GlbRanges&lt; SetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01SingletonView_01_4" prot="public">Gecode::Set::LubRanges&lt; SingletonView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4" prot="public">Gecode::Set::GlbRanges&lt; SingletonView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SetView" prot="public">Gecode::Set::SetView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ConstSetView" prot="public">Gecode::Set::ConstSetView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1EmptyView" prot="public">Gecode::Set::EmptyView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UniverseView" prot="public">Gecode::Set::UniverseView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SingletonView" prot="public">Gecode::Set::SingletonView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ComplementView" prot="public">Gecode::Set::ComplementView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubDiffRanges" prot="public">Gecode::Set::LubDiffRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbDiffRanges" prot="public">Gecode::Set::GlbDiffRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1CachedView" prot="public">Gecode::Set::CachedView</innerclass>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Branch">Gecode::Set::Branch</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Channel">Gecode::Set::Channel</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Convex">Gecode::Set::Convex</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Distinct">Gecode::Set::Distinct</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Element">Gecode::Set::Element</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Int">Gecode::Set::Int</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1LDSB">Gecode::Set::LDSB</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Limits">Gecode::Set::Limits</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Precede">Gecode::Set::Precede</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Rel">Gecode::Set::Rel</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1RelOp">Gecode::Set::RelOp</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set_1_1Sequence">Gecode::Set::Sequence</innernamespace>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1aec5c39a71cd47ec6bf0c73f1f7654c31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/cached.hpp" line="372" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="378" bodyend="381"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1a13bbe03c508220d881e9b556a1f5624b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ComplementView&lt; View &gt; &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="539" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="546" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1a979b96bbc19ebc96410ae6725af5f781" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>bool Gecode::Set::same</definition>
+        <argsstring>(const ConstSetView &amp;x, const ConstSetView &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="688" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="688" bodyend="696"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1ad0849df6597f9492bab2e468a909cc58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>bool Gecode::Set::before</definition>
+        <argsstring>(const ConstSetView &amp;x, const ConstSetView &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="698" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="698" bodyend="708"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1aea8dc0eb8d951ea4b983ec6060fb98c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::same</definition>
+        <argsstring>(const EmptyView &amp;, const EmptyView &amp;)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1EmptyView" kindref="compound">EmptyView</ref> &amp;</type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1EmptyView" kindref="compound">EmptyView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="712" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="712" bodyend="714"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1ac5a26d9506756420b9b5d3522a1cb5fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Set::same</definition>
+        <argsstring>(const UniverseView &amp;, const UniverseView &amp;)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="716" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="716" bodyend="718"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Set::printBound</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;s, I &amp;r)</argsstring>
+        <name>printBound</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Print bound of a set view or variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="47" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="47" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1aeeb7e775c2b55e32e0b8d8afc66436ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class IL</type>
+          </param>
+          <param>
+            <type>class IU</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Set::print</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;s, bool assigned, IL &amp;lb, IU &amp;ub, unsigned int cardMin, unsigned int cardMax)</argsstring>
+        <name>print</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>assigned</declname>
+        </param>
+        <param>
+          <type>IL &amp;</type>
+          <declname>lb</declname>
+        </param>
+        <param>
+          <type>IU &amp;</type>
+          <declname>ub</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>cardMin</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>cardMax</declname>
+        </param>
+        <briefdescription>
+<para>Print set view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="67" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1acf1dd64a87ef409ebd3f25d73d0b420b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const SetView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="85" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1ab51a6999c28db65760f11cd4c8eb3085" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const EmptyView &amp;)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1EmptyView" kindref="compound">EmptyView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1a3a51e1d03d22dce447f21e93eaedfd1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const UniverseView &amp;)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="102" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1a7af47110e6ea70bc3dcd60cdcda40743" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ConstSetView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="113" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1aff3c731f9bfeae184bf7d6ceda6d132e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Set::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const SingletonView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SingletonView" kindref="compound">SingletonView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/print.hpp" line="67" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="124" bodyend="136"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Finite integer sets. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="namespaceGecode_1_1Set" kindref="compound">Gecode::Set</ref> namespace contains all functionality required to program propagators and branchers for finite integer sets. In addition, all propagators and branchers for finite integer sets provided by Gecode are contained as nested namespaces. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/var-type.hpp" line="400" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow" kind="class" prot="public">
+    <compoundname>Gecode::Int::Arithmetic::RangesMapPow</compoundname>
+    <includes refid="nroot_8hpp" local="no">nroot.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Ops</declname>
+        <defname>Ops</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a6942f88343cfce8909aa41db3164d544" prot="protected" static="no" mutable="no">
+        <type>Ops</type>
+        <definition>Ops Gecode::Int::Arithmetic::RangesMapPow&lt; Ops &gt;::ops</definition>
+        <argsstring></argsstring>
+        <name>ops</name>
+        <briefdescription>
+<para>Power operations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic/nroot.hpp" line="258" column="1" bodyfile="/usr/include/gecode/int/arithmetic/nroot.hpp" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a97cbce73bfbca04e3b51c42baa58b785" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline</type>
+        <definition>forceinline Gecode::Int::Arithmetic::RangesMapPow&lt; Ops &gt;::RangesMapPow</definition>
+        <argsstring>(const Ops &amp;o)</argsstring>
+        <name>RangesMapPow</name>
+        <param>
+          <type>const Ops &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with operations <emphasis>o</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic/nroot.hpp" line="261" column="1" bodyfile="/usr/include/gecode/int/arithmetic/nroot.hpp" bodystart="261" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a304b775c209f2e02abc60571ddaeddbf" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Arithmetic::RangesMapPow&lt; Ops &gt;::min</definition>
+        <argsstring>(int x) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Perform mapping of minimum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic/nroot.hpp" line="263" column="1" bodyfile="/usr/include/gecode/int/arithmetic/nroot.hpp" bodystart="263" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1ab4dbc7a0fd712df23f2606f93fec3c3f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>forceinline int Gecode::Int::Arithmetic::RangesMapPow&lt; Ops &gt;::max</definition>
+        <argsstring>(int x) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Perform mapping of maximum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/arithmetic/nroot.hpp" line="267" column="1" bodyfile="/usr/include/gecode/int/arithmetic/nroot.hpp" bodystart="267" bodyend="269"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Mapping ranges to powers. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/arithmetic/nroot.hpp" line="255" column="1" bodyfile="/usr/include/gecode/int/arithmetic/nroot.hpp" bodystart="255" bodyend="270"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1ab4dbc7a0fd712df23f2606f93fec3c3f" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::RangesMapPow</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a304b775c209f2e02abc60571ddaeddbf" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::RangesMapPow</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a6942f88343cfce8909aa41db3164d544" prot="protected" virt="non-virtual"><scope>Gecode::Int::Arithmetic::RangesMapPow</scope><name>ops</name></member>
+      <member refid="classGecode_1_1Int_1_1Arithmetic_1_1RangesMapPow_1a97cbce73bfbca04e3b51c42baa58b785" prot="public" virt="non-virtual"><scope>Gecode::Int::Arithmetic::RangesMapPow</scope><name>RangesMapPow</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

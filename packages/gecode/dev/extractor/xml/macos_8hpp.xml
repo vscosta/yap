@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="macos_8hpp" kind="file">
+    <compoundname>macos.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="macos_8hpp_1ada2b8c089a7d215b91eba5f2ee8624b3" prot="public" static="no">
+        <name>BOOST_PLATFORM</name>
+        <initializer>&quot;Mac OS&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/macos.hpp" line="12" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/macos.hpp" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Darin<sp/>Adler<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Bill<sp/>Kempf<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Mac<sp/>OS<sp/>specific<sp/>config<sp/>options:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_PLATFORM<sp/>&quot;Mac<sp/>OS&quot;</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__MACH__<sp/>&amp;&amp;<sp/>!defined(_MSL_USING_MSL_C)</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Using<sp/>the<sp/>Mac<sp/>OS<sp/>X<sp/>system<sp/>BSD-style<sp/>C<sp/>library.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>ifndef<sp/>BOOST_HAS_UNISTD_H</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_UNISTD_H</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Begin<sp/>by<sp/>including<sp/>our<sp/>boilerplate<sp/>code<sp/>for<sp/>POSIX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>feature<sp/>detection,<sp/>this<sp/>is<sp/>safe<sp/>even<sp/>when<sp/>using</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>MSL<sp/>as<sp/>Metrowerks<sp/>supply<sp/>their<sp/>own<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>to<sp/>replace<sp/>the<sp/>platform-native<sp/>BSD<sp/>one.<sp/>G++<sp/>users</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//<sp/>should<sp/>also<sp/>always<sp/>be<sp/>able<sp/>to<sp/>do<sp/>this<sp/>on<sp/>MaxOS<sp/>X.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;gecode/third-party/boost/config/posix_features.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>ifndef<sp/>BOOST_HAS_STDINT_H</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_STDINT_H</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">//<sp/>BSD<sp/>runtime<sp/>has<sp/>pthreads,<sp/>sigaction,<sp/>sched_yield<sp/>and<sp/>gettimeofday,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>of<sp/>these<sp/>only<sp/>pthreads<sp/>are<sp/>advertised<sp/>in<sp/>&lt;unistd.h&gt;,<sp/>so<sp/>set<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//<sp/>other<sp/>options<sp/>explicitly:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_SCHED_YIELD</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_GETTIMEOFDAY</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_SIGACTION</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>(__GNUC__<sp/>&lt;<sp/>3)<sp/>&amp;&amp;<sp/>!defined(<sp/>__APPLE_CC__)</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">//<sp/>GCC<sp/>strange<sp/>&quot;ignore<sp/>std&quot;<sp/>mode<sp/>works<sp/>better<sp/>if<sp/>you<sp/>pretend<sp/>everything</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">//<sp/>is<sp/>in<sp/>the<sp/>std<sp/>namespace,<sp/>for<sp/>the<sp/>most<sp/>part.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_STDC_NAMESPACE</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>(__GNUC__<sp/>==<sp/>4)</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Both<sp/>gcc<sp/>and<sp/>intel<sp/>require<sp/>these.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_NANOSLEEP</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Using<sp/>the<sp/>MSL<sp/>C<sp/>library.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//<sp/>We<sp/>will<sp/>eventually<sp/>support<sp/>threads<sp/>in<sp/>non-Carbon<sp/>builds,<sp/>but<sp/>we<sp/>do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">//<sp/>not<sp/>support<sp/>this<sp/>yet.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>(<sp/>defined(TARGET_API_MAC_CARBON)<sp/>&amp;&amp;<sp/>TARGET_API_MAC_CARBON<sp/>)<sp/>||<sp/>(<sp/>defined(TARGET_CARBON)<sp/>&amp;&amp;<sp/>TARGET_CARBON<sp/>)</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(BOOST_HAS_PTHREADS)</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>MPTasks<sp/>support<sp/>is<sp/>deprecated/removed<sp/>from<sp/>Boost:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">//#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_MPTASKS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>elif<sp/>(<sp/>__dest_os<sp/>==<sp/>__mac_os_x<sp/>)</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>We<sp/>are<sp/>doing<sp/>a<sp/>Carbon/Mach-O/MSL<sp/>build<sp/>which<sp/>has<sp/>pthreads,<sp/>but<sp/>only<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>gettimeofday<sp/>and<sp/>no<sp/>posix.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_GETTIMEOFDAY</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>BOOST_HAS_PTHREADS</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_THREADS</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>remote<sp/>call<sp/>manager<sp/>depends<sp/>on<sp/>this.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_BIND_ENABLE_PASCAL</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/platform/macos.hpp"/>
+  </compounddef>
+</doxygen>

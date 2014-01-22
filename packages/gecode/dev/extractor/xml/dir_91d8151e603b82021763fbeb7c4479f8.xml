@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_91d8151e603b82021763fbeb7c4479f8" kind="dir">
+    <compoundname>/usr/include/gecode/third-party/boost/config</compoundname>
+    <innerdir refid="dir_14eb7469551f5b3171da193880fdfb02">/usr/include/gecode/third-party/boost/config/compiler</innerdir>
+    <innerdir refid="dir_04b3bd65300a5fd3e168173da533549b">/usr/include/gecode/third-party/boost/config/no_tr1</innerdir>
+    <innerdir refid="dir_d1133d1dd7168815536ca27d2e94b13e">/usr/include/gecode/third-party/boost/config/platform</innerdir>
+    <innerdir refid="dir_0ac182e5381e3ac50cf1d6803be3e7b4">/usr/include/gecode/third-party/boost/config/stdlib</innerdir>
+    <innerfile refid="posix__features_8hpp">posix_features.hpp</innerfile>
+    <innerfile refid="select__compiler__config_8hpp">select_compiler_config.hpp</innerfile>
+    <innerfile refid="select__platform__config_8hpp">select_platform_config.hpp</innerfile>
+    <innerfile refid="select__stdlib__config_8hpp">select_stdlib_config.hpp</innerfile>
+    <innerfile refid="suffix_8hpp">suffix.hpp</innerfile>
+    <innerfile refid="user_8hpp">user.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/config/"/>
+  </compounddef>
+</doxygen>

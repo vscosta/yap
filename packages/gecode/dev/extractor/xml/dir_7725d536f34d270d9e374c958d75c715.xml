@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_7725d536f34d270d9e374c958d75c715" kind="dir">
+    <compoundname>/usr/include/gecode/int/circuit</compoundname>
+    <innerfile refid="circuit_2base_8hpp">base.hpp</innerfile>
+    <innerfile refid="circuit_2dom_8hpp">dom.hpp</innerfile>
+    <innerfile refid="int_2circuit_2val_8hpp">val.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/circuit/"/>
+  </compounddef>
+</doxygen>

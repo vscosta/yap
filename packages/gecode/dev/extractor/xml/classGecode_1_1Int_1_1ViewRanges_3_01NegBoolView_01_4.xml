@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Singleton</basecompoundref>
+    <includes refid="neg-bool_8hpp" local="no">neg-bool.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1a6234a1ce71e0f739a66fcf6c7f8b94bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; NegBoolView &gt;::ViewRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/neg-bool.hpp" line="155" column="1" bodyfile="/usr/include/gecode/int/view/neg-bool.hpp" bodystart="164" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1a4d158e3471f41081e48f84272c16df6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; NegBoolView &gt;::ViewRanges</definition>
+        <argsstring>(const NegBoolView &amp;x)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/neg-bool.hpp" line="157" column="1" bodyfile="/usr/include/gecode/int/view/neg-bool.hpp" bodystart="167" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1ad8a65fe55deb2ce5d2c65588bfb95689" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewRanges&lt; NegBoolView &gt;::init</definition>
+        <argsstring>(const NegBoolView &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/neg-bool.hpp" line="159" column="1" bodyfile="/usr/include/gecode/int/view/neg-bool.hpp" bodystart="171" bodyend="173"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for negated Boolean variable views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7883">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="7884" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7882">
+        <label>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4"/>
+        <childnode refid="7883" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7884">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7886">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="7887" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7885">
+        <label>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4"/>
+        <childnode refid="7886" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7887">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/view/neg-bool.hpp" line="150" column="1" bodyfile="/usr/include/gecode/int/view/neg-bool.hpp" bodystart="150" bodyend="161"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1ad8a65fe55deb2ce5d2c65588bfb95689" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1a6efcfd9a463d1b68c56374962294061d" prot="public" virt="non-virtual" ambiguityscope="Gecode::Iter::Ranges::Singleton::"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1ad621a1dff884cfa7713d6f55e953c525" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aa3f8837538cd18a103119a2d430fdf39" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aace73d8960ffb6c43a158f68ae1fca00" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1a6234a1ce71e0f739a66fcf6c7f8b94bc" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4_1a4d158e3471f41081e48f84272c16df6a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

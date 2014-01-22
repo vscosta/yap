@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_0ac182e5381e3ac50cf1d6803be3e7b4" kind="dir">
+    <compoundname>/usr/include/gecode/third-party/boost/config/stdlib</compoundname>
+    <innerfile refid="dinkumware_8hpp">dinkumware.hpp</innerfile>
+    <innerfile refid="libcomo_8hpp">libcomo.hpp</innerfile>
+    <innerfile refid="libcpp_8hpp">libcpp.hpp</innerfile>
+    <innerfile refid="libstdcpp3_8hpp">libstdcpp3.hpp</innerfile>
+    <innerfile refid="modena_8hpp">modena.hpp</innerfile>
+    <innerfile refid="msl_8hpp">msl.hpp</innerfile>
+    <innerfile refid="roguewave_8hpp">roguewave.hpp</innerfile>
+    <innerfile refid="sgi_8hpp">sgi.hpp</innerfile>
+    <innerfile refid="stlport_8hpp">stlport.hpp</innerfile>
+    <innerfile refid="stdlib_2vacpp_8hpp">vacpp.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/config/stdlib/"/>
+  </compounddef>
+</doxygen>

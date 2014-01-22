@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1Registry" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::Registry</compoundname>
+    <includes refid="registry_8hh" local="no">registry.hh</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1FlatZinc_1_1Registry_1a40feb40b8014c759871c7f4292583dec" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* Gecode::FlatZinc::Registry::poster)(FlatZincSpace &amp;, const ConExpr &amp;, AST::Node *)</definition>
+        <argsstring>)(FlatZincSpace &amp;, const ConExpr &amp;, AST::Node *)</argsstring>
+        <name>poster</name>
+        <briefdescription>
+<para>Type of constraint posting function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/registry.hh" line="51" column="1" bodyfile="/usr/include/gecode/flatzinc/registry.hh" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1Registry_1a915ebdf27145d1cbdbcf6c0ed7bc65e8" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, <ref refid="classGecode_1_1FlatZinc_1_1Registry_1a40feb40b8014c759871c7f4292583dec" kindref="member">poster</ref> &gt;</type>
+        <definition>std::map&lt;std::string,poster&gt; Gecode::FlatZinc::Registry::r</definition>
+        <argsstring></argsstring>
+        <name>r</name>
+        <briefdescription>
+<para>The actual registry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/registry.hh" line="61" column="1" bodyfile="/usr/include/gecode/flatzinc/registry.hh" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1Registry_1a27b79dac4e494b25f69b6a4edc4121dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::FlatZinc::Registry::add</definition>
+        <argsstring>(const std::string &amp;id, poster p)</argsstring>
+        <name>add</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1Registry_1a40feb40b8014c759871c7f4292583dec" kindref="member">poster</ref></type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Add posting function <emphasis>p</emphasis> with identifier <emphasis>id</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/registry.hh" line="55" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1Registry_1a430506c43b66ab7b10ea3076975bb992" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::FlatZinc::Registry::post</definition>
+        <argsstring>(FlatZincSpace &amp;s, const ConExpr &amp;ce, AST::Node *ann)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FlatZinc_1_1ConExpr" kindref="compound">ConExpr</ref> &amp;</type>
+          <declname>ce</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1AST_1_1Node" kindref="compound">AST::Node</ref> *</type>
+          <declname>ann</declname>
+        </param>
+        <briefdescription>
+<para>Post constraint specified by <emphasis>ce</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/registry.hh" line="57" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Map from constraint identifier to constraint posting functions. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/flatzinc/registry.hh" line="48" column="1" bodyfile="/usr/include/gecode/flatzinc/registry.hh" bodystart="48" bodyend="62"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1Registry_1a27b79dac4e494b25f69b6a4edc4121dd" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Registry</scope><name>add</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1Registry_1a430506c43b66ab7b10ea3076975bb992" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Registry</scope><name>post</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1Registry_1a40feb40b8014c759871c7f4292583dec" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::Registry</scope><name>poster</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1Registry_1a915ebdf27145d1cbdbcf6c0ed7bc65e8" prot="private" virt="non-virtual"><scope>Gecode::FlatZinc::Registry</scope><name>r</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

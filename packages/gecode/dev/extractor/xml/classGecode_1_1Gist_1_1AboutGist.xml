@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1AboutGist" kind="class" prot="public">
+    <compoundname>Gecode::Gist::AboutGist</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="mainwindow_8hh" local="no">mainwindow.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1AboutGist_1ad38420080baa4cb554e4c9d617015751" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::AboutGist::AboutGist</definition>
+        <argsstring>(QWidget *parent=0)</argsstring>
+        <name>AboutGist</name>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="50" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Display information about Gist. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="13">
+        <label>Gecode::Gist::AboutGist</label>
+        <link refid="classGecode_1_1Gist_1_1AboutGist"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>QDialog</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="15">
+        <label>Gecode::Gist::AboutGist</label>
+        <link refid="classGecode_1_1Gist_1_1AboutGist"/>
+        <childnode refid="16" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>QDialog</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/mainwindow.hh" line="47" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="47" bodyend="51"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1AboutGist_1ad38420080baa4cb554e4c9d617015751" prot="public" virt="non-virtual"><scope>Gecode::Gist::AboutGist</scope><name>AboutGist</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

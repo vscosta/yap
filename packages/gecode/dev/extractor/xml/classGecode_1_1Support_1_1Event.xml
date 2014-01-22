@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1Event" kind="class" prot="public">
+    <compoundname>Gecode::Support::Event</compoundname>
+    <includes refid="thread_8hpp" local="no">thread.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1a6bee44181f2deb231062ca33b79d448a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::Event::Event</definition>
+        <argsstring>(void)</argsstring>
+        <name>Event</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="239" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1a3c9d350c4c28239ebe2ff5b3ec240a05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Event::signal</definition>
+        <argsstring>(void)</argsstring>
+        <name>signal</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Signal the event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="241" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1ae0d63ad5ddbbe0677a853bb07028da43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Event::wait</definition>
+        <argsstring>(void)</argsstring>
+        <name>wait</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Wait until the event becomes signalled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="243" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1a244fc8b05c8a8da34a3bb2f1cb706bfe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::Event::~Event</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Event</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="245" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="67" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1a6f134c828e6d91be56f239ebcf11ec96" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Support::Event::Event</definition>
+        <argsstring>(const Event &amp;)</argsstring>
+        <name>Event</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Event" kindref="compound">Event</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>An event cannot be copied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="248" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="248" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Event_1a736e832a8df2e7a269d173cf9e2d02a1" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::Event::operator=</definition>
+        <argsstring>(const Event &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Event" kindref="compound">Event</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>An event cannot be assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="250" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="250" bodyend="250"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An event for synchronization. </para>    </briefdescription>
+    <detaileddescription>
+<para>An event can be waited on by a single thread until the event is signalled. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/support/thread.hpp" line="223" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="223" bodyend="251"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1Event_1a6bee44181f2deb231062ca33b79d448a" prot="public" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>Event</name></member>
+      <member refid="classGecode_1_1Support_1_1Event_1a6f134c828e6d91be56f239ebcf11ec96" prot="private" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>Event</name></member>
+      <member refid="classGecode_1_1Support_1_1Event_1a736e832a8df2e7a269d173cf9e2d02a1" prot="private" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Support_1_1Event_1a3c9d350c4c28239ebe2ff5b3ec240a05" prot="public" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>signal</name></member>
+      <member refid="classGecode_1_1Support_1_1Event_1ae0d63ad5ddbbe0677a853bb07028da43" prot="public" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>wait</name></member>
+      <member refid="classGecode_1_1Support_1_1Event_1a244fc8b05c8a8da34a3bb2f1cb706bfe" prot="public" virt="non-virtual"><scope>Gecode::Support::Event</scope><name>~Event</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

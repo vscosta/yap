@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Extensional::LayeredGraph::LayerValues</compoundname>
+    <includes refid="extensional_8hh" local="no">extensional.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1ac4ca3f782279cb32d7832a4b6cfa6298" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Support" kindref="compound">Support</ref> *</type>
+        <definition>const Support* Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::s1</definition>
+        <argsstring></argsstring>
+        <name>s1</name>
+        <briefdescription>
+<para>Current support. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="106" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1ae46028c75de6d0fedcbebcadca0867ab" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Support" kindref="compound">Support</ref> *</type>
+        <definition>const Support* Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::s2</definition>
+        <argsstring></argsstring>
+        <name>s2</name>
+        <briefdescription>
+<para>End of support. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="107" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1afd23cba6ef7d3d78f2ca9c9bcf9731ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::LayerValues</definition>
+        <argsstring>(void)</argsstring>
+        <name>LayerValues</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="110" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="128" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a8a07dcb0544395e29b0b8b855803fb5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::LayerValues</definition>
+        <argsstring>(const Layer &amp;l)</argsstring>
+        <name>LayerValues</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Layer" kindref="compound">Layer</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for support of layer <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="112" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a7681351e58a5ced1ad7500d73efd65e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::init</definition>
+        <argsstring>(const Layer &amp;l)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Layer" kindref="compound">Layer</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for support of layer <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="114" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="136" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a7914a60855f0457d876c75e79c8ea49f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether more values supported. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="116" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="142" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a50da2b6549caad9f96f62cf20408701e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move to next supported value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="118" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="147" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a433891de7086fa8e5a7def8ac5a8e647" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::LayerValues::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return supported value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="120" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="152" bodyend="154"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Iterator for telling variable domains by scanning support. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/extensional.hh" line="104" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="104" bodyend="121"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a7681351e58a5ced1ad7500d73efd65e0" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1afd23cba6ef7d3d78f2ca9c9bcf9731ad" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>LayerValues</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a8a07dcb0544395e29b0b8b855803fb5c" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>LayerValues</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a7914a60855f0457d876c75e79c8ea49f" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a50da2b6549caad9f96f62cf20408701e" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1ac4ca3f782279cb32d7832a4b6cfa6298" prot="private" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>s1</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1ae46028c75de6d0fedcbebcadca0867ab" prot="private" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>s2</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1LayerValues_1a433891de7086fa8e5a7def8ac5a8e647" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::LayerValues</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

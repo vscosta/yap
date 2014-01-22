@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::EmptyScaleBoolArray</compoundname>
+    <includes refid="int_2linear_8hh" local="no">linear.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aee435ecaab5e36dd8c469424491e99d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Linear::EmptyScaleBoolArray::EmptyScaleBoolArray</definition>
+        <argsstring>(void)</argsstring>
+        <name>EmptyScaleBoolArray</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1165" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="121" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a0ad27132e703707261cb238f31d75daf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Linear::EmptyScaleBoolArray::EmptyScaleBoolArray</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>EmptyScaleBoolArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Create array with <emphasis>n</emphasis> elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1167" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="123" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a61ade99f8df8b190ce6854c6737ec8a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1169" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="125" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ae7624ad35b809374252bc4ef7225baac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Cancel propagator <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1171" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aff45cff5b6153c45fcba44f28b877e15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::update</definition>
+        <argsstring>(Space &amp;home, bool share, EmptyScaleBoolArray &amp;esba)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray" kindref="compound">EmptyScaleBoolArray</ref> &amp;</type>
+          <declname>esba</declname>
+        </param>
+        <briefdescription>
+<para>Update <emphasis>sba</emphasis> during copying. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1173" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="129" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ab45d4f4184e29d0005f8eb107906e4fa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1Linear_1_1ScaleBool" kindref="compound">ScaleBool</ref> *</type>
+        <definition>forceinline ScaleBool * Gecode::Int::Linear::EmptyScaleBoolArray::fst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>fst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer to first element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1175" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="131" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1afbc5a9b308e8dadbca810707e97fb234" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1Linear_1_1ScaleBool" kindref="compound">ScaleBool</ref> *</type>
+        <definition>forceinline ScaleBool * Gecode::Int::Linear::EmptyScaleBoolArray::lst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer after last element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1177" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="133" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a6fd9169dea50db3a6bbdbea8a6a754e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::fst</definition>
+        <argsstring>(ScaleBool *f)</argsstring>
+        <name>fst</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1ScaleBool" kindref="compound">ScaleBool</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> pointer to first element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1179" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="135" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ac3af8b173fc002f8474a1d3ea8a675d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::lst</definition>
+        <argsstring>(ScaleBool *l)</argsstring>
+        <name>lst</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1ScaleBool" kindref="compound">ScaleBool</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> pointer after last element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1181" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="137" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ad7e08f08750cce72585aedfbca2fe437" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::EmptyScaleBoolArray::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether array is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1183" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="139" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a3cc375d0444495742d5b80aaeb59a3dc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Linear::EmptyScaleBoolArray::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1185" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="141" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aaced05c5e4a87fe912fbfb5ced69e710" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::EmptyScaleBoolArray::sort</definition>
+        <argsstring>(void)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Sort array in decreasing order of coefficients. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1187" column="1" bodyfile="/usr/include/gecode/int/linear/bool-scale.hpp" bodystart="143" bodyend="143"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Empty array of scale Boolean views. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear.hh" line="1162" column="1" bodyfile="/usr/include/gecode/int/linear.hh" bodystart="1162" bodyend="1188"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ae7624ad35b809374252bc4ef7225baac" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ad7e08f08750cce72585aedfbca2fe437" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aee435ecaab5e36dd8c469424491e99d1" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>EmptyScaleBoolArray</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a0ad27132e703707261cb238f31d75daf" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>EmptyScaleBoolArray</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ab45d4f4184e29d0005f8eb107906e4fa" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>fst</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a6fd9169dea50db3a6bbdbea8a6a754e4" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>fst</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1afbc5a9b308e8dadbca810707e97fb234" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1ac3af8b173fc002f8474a1d3ea8a675d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a3cc375d0444495742d5b80aaeb59a3dc" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aaced05c5e4a87fe912fbfb5ced69e710" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>sort</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1a61ade99f8df8b190ce6854c6737ec8a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1EmptyScaleBoolArray_1aff45cff5b6153c45fcba44f28b877e15" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::EmptyScaleBoolArray</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

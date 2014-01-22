@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1IntSetInit" kind="class" prot="public">
+    <compoundname>Gecode::IntSetInit</compoundname>
+    <includes refid="int-set-1_8hpp" local="no">int-set-1.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class I</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1IntSetInit_1a258b10114bf3dfef6db71f12475b5d57" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::IntSetInit&lt; I &gt;::init</definition>
+        <argsstring>(IntSet &amp;s, I &amp;i)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>s</emphasis> with iterator <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/int-set-1.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/int-set-1.hpp" bodystart="60" bodyend="75"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Integer set initialization. </para>    </briefdescription>
+    <detaileddescription>
+<para>Helper class to allow partial specialization of template member function. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/int-set-1.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/int-set-1.hpp" bodystart="57" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1IntSetInit_1a258b10114bf3dfef6db71f12475b5d57" prot="public" virt="non-virtual"><scope>Gecode::IntSetInit</scope><name>init</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

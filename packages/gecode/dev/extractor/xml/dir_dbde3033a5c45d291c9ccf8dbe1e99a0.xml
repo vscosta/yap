@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_dbde3033a5c45d291c9ccf8dbe1e99a0" kind="dir">
+    <compoundname>/usr/include/gecode/set/branch</compoundname>
+    <innerfile refid="set_2branch_2activity_8hpp">activity.hpp</innerfile>
+    <innerfile refid="set_2branch_2afc_8hpp">afc.hpp</innerfile>
+    <innerfile refid="set_2branch_2assign_8hpp">assign.hpp</innerfile>
+    <innerfile refid="set_2branch_2merit_8hpp">merit.hpp</innerfile>
+    <innerfile refid="set_2branch_2ngl_8hpp">ngl.hpp</innerfile>
+    <innerfile refid="set_2branch_2traits_8hpp">traits.hpp</innerfile>
+    <innerfile refid="set_2branch_2val-commit_8hpp">val-commit.hpp</innerfile>
+    <innerfile refid="set_2branch_2val-sel_8hpp">val-sel.hpp</innerfile>
+    <innerfile refid="set_2branch_2val_8hpp">val.hpp</innerfile>
+    <innerfile refid="set_2branch_2var_8hpp">var.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/branch/"/>
+  </compounddef>
+</doxygen>

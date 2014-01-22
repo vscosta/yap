@@ -1,0 +1,1133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1CachedView" kind="class" prot="public">
+    <compoundname>Gecode::Set::CachedView</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; View &gt;</basecompoundref>
+    <includes refid="set_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a803fcfeb2a4845609780521395a6c76d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::CachedView&lt; View &gt;::CachedView</definition>
+        <argsstring>(void)</argsstring>
+        <name>CachedView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="938" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a5518bd93db482a26418264377de6fbf0" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::CachedView&lt; View &gt;::CachedView</definition>
+        <argsstring>(const View &amp;y)</argsstring>
+        <name>CachedView</name>
+        <param>
+          <type>const View &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with set view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="940" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="48" bodyend="49"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a5caef3dbff3dc4754a039f113ba4c74c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::CachedView&lt; View &gt;::cardMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="947" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a58e0ce5b377bde04f4bc7706a403d0b9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::CachedView&lt; View &gt;::cardMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="949" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="85" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ae87a7f51a3676da796c9ea3966e4a705" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::lubMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="951" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="91" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a2ff46bd13e1057328055a2e4148887f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::lubMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="953" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1af3e27baafb4ff903052a313d9c11107c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::CachedView&lt; View &gt;::lubMinN</definition>
+        <argsstring>(unsigned int n) const </argsstring>
+        <name>lubMinN</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return <emphasis>n-th</emphasis> smallest element of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="955" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1acd8de16ef570be91d20ed341ffc18736" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::glbMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="957" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="103" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ad4a5acf6f20b55e8d289e2194499c4f6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::glbMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="959" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="109" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a354c33b424236f9de64f744cdf6961af" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::CachedView&lt; View &gt;::glbSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="962" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1aacc44b9769e617483042b95bb1dfbd98" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::CachedView&lt; View &gt;::lubSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="964" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a589cb8138955a917dd89346d4fa934b6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::CachedView&lt; View &gt;::unknownSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>unknownSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of unknown elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="966" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="65" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a379dc2ee7280351c16e0497d1d7e1319" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::contains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>contains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="972" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="71" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a77c08f00d9a7c89b21c72640c120b339" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::notContains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>notContains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is not in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="974" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="75" bodyend="75"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ab2af852771224052465723a8ad6ae725" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::cardMin</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be greater than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="981" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a32135ff52a2e534ae0fa6b0310c21b8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::cardMax</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMax</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be less than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="983" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="121" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1acc156e862e0fca4c96d3e6d91fcb61d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::include</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to include all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="988" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="151" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a4c64c5ebd155fd1cf78aac62153231b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::exclude</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="993" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="157" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a7015ccfa85ea33d2a37838f09ee7c39b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::include</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="995" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="127" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a68e0c6144136782407084aadb33bcece" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::exclude</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="997" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="133" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ade5e710ac78ac2875318bfb0a1159406" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::intersect</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1002" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ab9188a32a3dd417179391aaa9f687588" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::intersect</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most the element <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1004" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="139" bodyend="141"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by range iterator</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a1439812bb1292525ab17fced9b603318" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::CachedView&lt; View &gt;::excludeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>excludeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Remove range sequence described by <emphasis>i</emphasis> from least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1011" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="163" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a89e0aaf1b21f640be0f901fb5f4e1749" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::CachedView&lt; View &gt;::includeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>includeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Include range sequence described by <emphasis>i</emphasis> in greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1013" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="169" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1aa5d05765df706aa658607401144e7e25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::CachedView&lt; View &gt;::intersectI</definition>
+        <argsstring>(Space &amp;home, I &amp;iter)</argsstring>
+        <name>intersectI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>iter</declname>
+        </param>
+        <briefdescription>
+<para>Intersect least upper bound with range sequence described by <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1015" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="175" bodyend="177"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a8a6c6d104d8b0e4a6f153a74b7fcc2bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::schedule</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, ModEvent me)</argsstring>
+        <name>schedule</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Schedule propagator <emphasis>p</emphasis> with modification event <emphasis>me</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1021" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="206" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1add96005d3e233df12c0125687809f3b2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::me</definition>
+        <argsstring>(const ModEventDelta &amp;med)</argsstring>
+        <name>me</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event for view type in <emphasis>med</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1023" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="211" bodyend="213"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ae5741835603e639e0643b28a12395fbd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Set::CachedView&lt; View &gt;::med</definition>
+        <argsstring>(ModEvent)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <defname>me</defname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1025" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="217" bodyend="219"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a18c7bcb1e54b20dfcec9cbb85f7df02c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool schedule=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>schedule</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>schedule</emphasis> is false, the propagator is just subscribed but not scheduled for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1037" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="181" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a503bdb4530599f9852ec8d5c93852a8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1039" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="188" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a6a26ce8c7beaf35bc0509f910d31e2a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1041" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="194" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a7e8c446328ac279bbfcc561e0360457d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1043" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="200" bodyend="202"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ae406578226638751d45337552d8b2777" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::glbMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1051" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="234" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1adc6d8a3c425a8093c45548e025bb7788" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::glbMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1053" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="240" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1ab171a517f9ccac847d0f89fcec16b83d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::glbAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1055" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="246" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1afd23716012f5c409e3d36286fa7c9912" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::lubMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1057" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="252" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1aa792063713753403d6e45535d3030037" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::CachedView&lt; View &gt;::lubMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1059" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="258" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a8f089851b2d4ff563973735ce569de09" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::lubAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1061" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="264" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a8548151b40dc70294bfd4b9ae6273523" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::CachedView&lt; View &gt;::modevent</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>modevent</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1049" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="228" bodyend="230"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain cache operations</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a3376236da09658e1b39a031e4e043d63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::CachedView&lt; View &gt;::initCache</definition>
+        <argsstring>(Space &amp;home, const IntSet &amp;glb, const IntSet &amp;lub)</argsstring>
+        <name>initCache</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>glb</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>lub</declname>
+        </param>
+        <briefdescription>
+<para>Initialize cache to bounds <emphasis>glb</emphasis> and <emphasis>lub</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1067" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="282" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a34a0df38f7b36010f4c5f524508b6974" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::cacheGlb</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>cacheGlb</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound cache to current domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1069" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="294" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a76aa42afeaff4961640fc96964a85e6d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::cacheLub</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>cacheLub</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound cache to current domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1071" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="301" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a9801b4e0debc384d3d53f2ca47e93afc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::glbModified</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbModified</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether greatest lower bound cache differs from current domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1073" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="308" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a2f4344335038382978dd7573a8078d42" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::CachedView&lt; View &gt;::lubModified</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubModified</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether least upper bound cache differs from current domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1075" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="314" bodyend="316"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1a7340b36686621761dd9e65c4a2cd3236" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::CachedView&lt; View &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, CachedView&lt; View &gt; &amp;y)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Update this view to be a clone of view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="1081" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="270" bodyend="274"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Set_1_1CachedView_1a69f43a0667d4328f4451cfc2c6f6cb32" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class LubDiffRanges&lt; View &gt;</definition>
+        <argsstring></argsstring>
+        <name>LubDiffRanges&lt; View &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="891" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="923" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Set_1_1CachedView_1af761aedc34ef1a62f7ddf6fef2882d3a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class GlbDiffRanges&lt; View &gt;</definition>
+        <argsstring></argsstring>
+        <name>GlbDiffRanges&lt; View &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="891" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="924" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1CachedView_1a528867ba8b6043334b5710016b3e8094" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Set_1_1LUBndSet" kindref="compound">LUBndSet</ref></type>
+        <definition>LUBndSet Gecode::Set::CachedView&lt; View &gt;::lubCache</definition>
+        <argsstring></argsstring>
+        <name>lubCache</name>
+        <briefdescription>
+<para>The cached least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="929" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="929" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1CachedView_1a3237c9718dafad5893ac0707666f58f6" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Set_1_1GLBndSet" kindref="compound">GLBndSet</ref></type>
+        <definition>GLBndSet Gecode::Set::CachedView&lt; View &gt;::glbCache</definition>
+        <argsstring></argsstring>
+        <name>glbCache</name>
+        <briefdescription>
+<para>The cached greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="931" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="931" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1CachedView_1adc9b51c3c90b09e8e6c411a6453d771a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print cached set view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="576" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="378" bodyend="381"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Cached set view. </para>    </briefdescription>
+    <detaileddescription>
+<para>A cached set view <formula id="36">$s$</formula> for a set view <formula id="399">$t$</formula> adds operations for cacheing the current domain of <formula id="399">$t$</formula> and comparing the current domain to the cached domain. Cached views make it easy to implement incremental propagation algorithms. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1351">
+        <label>Gecode::DerivedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="1350">
+        <label>Gecode::Set::CachedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1CachedView"/>
+        <childnode refid="1351" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1353">
+        <label>Gecode::DerivedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="1354" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="1354">
+        <label>View</label>
+      </node>
+      <node id="1356">
+        <label>Gecode::Set::BndSet</label>
+        <link refid="classGecode_1_1Set_1_1BndSet"/>
+      </node>
+      <node id="1357">
+        <label>Gecode::Set::LUBndSet</label>
+        <link refid="classGecode_1_1Set_1_1LUBndSet"/>
+        <childnode refid="1356" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1355">
+        <label>Gecode::Set::GLBndSet</label>
+        <link refid="classGecode_1_1Set_1_1GLBndSet"/>
+        <childnode refid="1356" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1352">
+        <label>Gecode::Set::CachedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1CachedView"/>
+        <childnode refid="1353" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1355" relation="usage">
+          <edgelabel>glbCache</edgelabel>
+        </childnode>
+        <childnode refid="1357" relation="usage">
+          <edgelabel>lubCache</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/view.hpp" line="922" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="921" bodyend="1083"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>base</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a803fcfeb2a4845609780521395a6c76d" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>CachedView</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a5518bd93db482a26418264377de6fbf0" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>CachedView</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a34a0df38f7b36010f4c5f524508b6974" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cacheGlb</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a76aa42afeaff4961640fc96964a85e6d" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cacheLub</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a503bdb4530599f9852ec8d5c93852a8a" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a7e8c446328ac279bbfcc561e0360457d" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a58e0ce5b377bde04f4bc7706a403d0b9" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a32135ff52a2e534ae0fa6b0310c21b8c" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a5caef3dbff3dc4754a039f113ba4c74c" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ab2af852771224052465723a8ad6ae725" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a379dc2ee7280351c16e0497d1d7e1319" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>contains</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a4c64c5ebd155fd1cf78aac62153231b9" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a68e0c6144136782407084aadb33bcece" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a1439812bb1292525ab17fced9b603318" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>excludeI</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ab171a517f9ccac847d0f89fcec16b83d" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbAny</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a3237c9718dafad5893ac0707666f58f6" prot="protected" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbCache</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1af761aedc34ef1a62f7ddf6fef2882d3a" prot="private" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>GlbDiffRanges&lt; View &gt;</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ad4a5acf6f20b55e8d289e2194499c4f6" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1adc6d8a3c425a8093c45548e025bb7788" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1acd8de16ef570be91d20ed341ffc18736" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ae406578226638751d45337552d8b2777" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a9801b4e0debc384d3d53f2ca47e93afc" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbModified</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a354c33b424236f9de64f744cdf6961af" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>glbSize</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1acc156e862e0fca4c96d3e6d91fcb61d2" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a7015ccfa85ea33d2a37838f09ee7c39b" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a89e0aaf1b21f640be0f901fb5f4e1749" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>includeI</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a3376236da09658e1b39a031e4e043d63" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>initCache</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ade5e710ac78ac2875318bfb0a1159406" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ab9188a32a3dd417179391aaa9f687588" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1aa5d05765df706aa658607401144e7e25" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>intersectI</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a8f089851b2d4ff563973735ce569de09" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubAny</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a528867ba8b6043334b5710016b3e8094" prot="protected" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubCache</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a69f43a0667d4328f4451cfc2c6f6cb32" prot="private" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>LubDiffRanges&lt; View &gt;</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a2ff46bd13e1057328055a2e4148887f8" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1aa792063713753403d6e45535d3030037" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ae87a7f51a3676da796c9ea3966e4a705" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1afd23716012f5c409e3d36286fa7c9912" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1af3e27baafb4ff903052a313d9c11107c" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubMinN</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a2f4344335038382978dd7573a8078d42" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubModified</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1aacc44b9769e617483042b95bb1dfbd98" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>lubSize</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1add96005d3e233df12c0125687809f3b2" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>me</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1ae5741835603e639e0643b28a12395fbd" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a8548151b40dc70294bfd4b9ae6273523" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a77c08f00d9a7c89b21c72640c120b339" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>notContains</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1adc9b51c3c90b09e8e6c411a6453d771a" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a8a6c6d104d8b0e4a6f153a74b7fcc2bd" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a18c7bcb1e54b20dfcec9cbb85f7df02c" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a6a26ce8c7beaf35bc0509f910d31e2a0" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a589cb8138955a917dd89346d4fa934b6" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>unknownSize</name></member>
+      <member refid="classGecode_1_1Set_1_1CachedView_1a7340b36686621761dd9e65c4a2cd3236" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual" ambiguityscope="Gecode::DerivedView::"><scope>Gecode::Set::CachedView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Set::CachedView</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

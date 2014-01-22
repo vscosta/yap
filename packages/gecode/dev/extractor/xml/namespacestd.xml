@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespacestd" kind="namespace">
+    <compoundname>std</compoundname>
+    <innerclass refid="classstd_1_1__Numeric__limits__base" prot="public">std::_Numeric_limits_base</innerclass>
+    <innerclass refid="classstd_1_1__Integer__limits" prot="public">std::_Integer_limits</innerclass>
+    <innerclass refid="structstd_1_1float__helper" prot="public">std::float_helper</innerclass>
+    <innerclass refid="classstd_1_1__Floating__limits" prot="public">std::_Floating_limits</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits" prot="public">std::numeric_limits</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01bool_01_4" prot="public">std::numeric_limits&lt; bool &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01char_01_4" prot="public">std::numeric_limits&lt; char &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01signed_01char_01_4" prot="public">std::numeric_limits&lt; signed char &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01unsigned_01char_01_4" prot="public">std::numeric_limits&lt; unsigned char &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01wchar__t_01_4" prot="public">std::numeric_limits&lt; wchar_t &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01short_01_4" prot="public">std::numeric_limits&lt; short &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01unsigned_01short_01_4" prot="public">std::numeric_limits&lt; unsigned short &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01int_01_4" prot="public">std::numeric_limits&lt; int &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01unsigned_01int_01_4" prot="public">std::numeric_limits&lt; unsigned int &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01long_01_4" prot="public">std::numeric_limits&lt; long &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01unsigned_01long_01_4" prot="public">std::numeric_limits&lt; unsigned long &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01float_01_4" prot="public">std::numeric_limits&lt; float &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01double_01_4" prot="public">std::numeric_limits&lt; double &gt;</innerclass>
+    <innerclass refid="classstd_1_1numeric__limits_3_01long_01double_01_4" prot="public">std::numeric_limits&lt; long double &gt;</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18" prot="public" static="no">
+        <name>float_round_style</name>
+        <enumvalue id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18a9aa7e9f8d978fbe044c24a67da2d0464" prot="public">
+          <name>round_indeterminate</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18a16cd490308c5bcba330c09f844f92f1d" prot="public">
+          <name>round_toward_zero</name>
+          <initializer>=  0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18a43219e58bf0b1438dce779ae47760772" prot="public">
+          <name>round_to_nearest</name>
+          <initializer>=  1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18a39c9297336599616c46f98eaf73c6191" prot="public">
+          <name>round_toward_infinity</name>
+          <initializer>=  2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a53dbc8572a84ca50272f9e55a1e23e18a5e57d9d7178fe199cfd05b67e9d3c69d" prot="public">
+          <name>round_toward_neg_infinity</name>
+          <initializer>=  3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="57" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="57" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacestd_1a5d4e3dd02abab45dde95b5bb4ae7fdbf" prot="public" static="no">
+        <name>float_denorm_style</name>
+        <enumvalue id="namespacestd_1a5d4e3dd02abab45dde95b5bb4ae7fdbfa33fdcd73e760174c19ab87389eb104ae" prot="public">
+          <name>denorm_indeterminate</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a5d4e3dd02abab45dde95b5bb4ae7fdbfad91095a64f12657bc911d2cecd4fab0d" prot="public">
+          <name>denorm_absent</name>
+          <initializer>=  0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacestd_1a5d4e3dd02abab45dde95b5bb4ae7fdbfa28c4fcc178853e4c66190bc2c5027de5" prot="public">
+          <name>denorm_present</name>
+          <initializer>=  1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="65" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="65" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="55" column="1"/>
+  </compounddef>
+</doxygen>

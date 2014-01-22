@@ -1,0 +1,645 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1FloatVarImp" kind="class" prot="public">
+    <compoundname>Gecode::Float::FloatVarImp</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">FloatVarImpBase</basecompoundref>
+    <includes refid="float_2var-imp_8hpp" local="no">var-imp.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1ab7996e1a0e5f6dc0328f81c1552ef374" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::FloatVarImp::domain</definition>
+        <argsstring>(void) const </argsstring>
+        <name>domain</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="93" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="95" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="71" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="97" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="75" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a9a7140847a72a25d5d71ddb096099bd7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::FloatVarImp::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return value of domain (only if assigned) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="99" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a0615ba0e1695638bbc27543bd622d11c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of domain (closest representation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="101" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="83" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1adb5fff621489f4205c04cdfcca3d918e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of domain (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="104" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::FloatVarImp::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether variable is assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="110" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a30ce245e6aad1cc3594112eb36fc81aa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::FloatVarImp::zero_in</definition>
+        <argsstring>(void) const </argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether 0 is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="113" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="104" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a6f7e7bfc9589ed12df8d30a08717b7bf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::FloatVarImp::in</definition>
+        <argsstring>(FloatNum n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="115" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="108" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1acbde12e7fbfde20d40e3737bc8d09064" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::FloatVarImp::in</definition>
+        <argsstring>(const FloatVal &amp;n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="117" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="112" bodyend="114"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a8cd94d075feb5b3daeb77093f55ae4c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::eq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="123" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="189" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1afcae34e8ea77424e3e4528d83eafe631" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::eq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="125" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="199" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a0f09373d91bda87ed29f9b87f4bd4915" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::lq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="127" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="163" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a33710860b47e961221d52359e40cdab8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::lq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="129" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="175" bodyend="185"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a76d5c37032ecccb2b4d68e63be3093b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::gq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="131" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="137" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1ac5993a33d4b7269d123db9a6924f4563" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::FloatVarImp::gq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="133" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="149" bodyend="159"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a3d14239eaa8d7ed91a260bdb9406fef9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::FloatVarImp::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool schedule=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>schedule</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to variable. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>schedule</emphasis> is false, the propagator is just subscribed but not scheduled for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="146" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="236" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a016d16184c8cde0bca344d7b836df08b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::FloatVarImp::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="148" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="240" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a08ca5b1ea6098abf6a5faa38b3be2d2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::FloatVarImp::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="150" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="245" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a673c34e958cffa47fbec5349b8db53f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::FloatVarImp::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="152" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="249" bodyend="251"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Variable implementation-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a05710c387af99a787fc6ce2adf38002a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Float::FloatVarImp::med</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="158" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="254" bodyend="256"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a51001bd1d0f8b9f41ba7f269b59f33dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref> *</type>
+        <definition>forceinline FloatVarImp * Gecode::Float::FloatVarImp::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Return copy of this variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="169" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="220" bodyend="223"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a21d61f349895b84d6285405ab5990784" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::min</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="175" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="122" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1ab91dd106f647bce9f844d63ac8509d3a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::FloatVarImp::max</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="177" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="126" bodyend="128"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Gecode::Float::FloatVarImp::dom</definition>
+        <argsstring></argsstring>
+        <name>dom</name>
+        <briefdescription>
+<para>Domain information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="83" column="1" bodyfile="/usr/include/gecode/float/var-imp.hpp" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::FloatVarImp::FloatVarImp</definition>
+        <argsstring>(Space &amp;home, bool share, FloatVarImp &amp;x)</argsstring>
+        <name>FloatVarImp</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="85" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="57" bodyend="58"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a408eed144febd33a27ddb21a60cebdb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::FloatVarImp::FloatVarImp</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;d)</argsstring>
+        <name>FloatVarImp</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with interval <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="88" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="53" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1FloatVarImp_1a4e0a9f0a64342ffe5d674e57937b37aa" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT <ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref> *</type>
+        <definition>forceinline FloatVarImp * Gecode::Float::FloatVarImp::perform_copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>perform_copy</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Return copy of not-yet copied variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/var-imp.hpp" line="164" column="1" bodyfile="/usr/include/gecode/float/var-imp/float.hpp" bodystart="227" bodyend="229"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> variable implementation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2454">
+        <label>Gecode::Float::FloatVarImp</label>
+        <link refid="classGecode_1_1Float_1_1FloatVarImp"/>
+        <childnode refid="2455" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2455">
+        <label>FloatVarImpBase</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2456">
+        <label>Gecode::Float::FloatVarImp</label>
+        <link refid="classGecode_1_1Float_1_1FloatVarImp"/>
+        <childnode refid="2457" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2458" relation="usage">
+          <edgelabel>dom</edgelabel>
+        </childnode>
+      </node>
+      <node id="2458">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="2459" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2457">
+        <label>FloatVarImpBase</label>
+      </node>
+      <node id="2459">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/var-imp.hpp" line="80" column="1" bodyfile="/usr/include/gecode/float/var-imp.hpp" bodystart="80" bodyend="179"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a016d16184c8cde0bca344d7b836df08b" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a673c34e958cffa47fbec5349b8db53f2" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a51001bd1d0f8b9f41ba7f269b59f33dd" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" prot="protected" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>dom</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1ab7996e1a0e5f6dc0328f81c1552ef374" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>domain</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a8cd94d075feb5b3daeb77093f55ae4c6" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1afcae34e8ea77424e3e4528d83eafe631" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" prot="protected" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>FloatVarImp</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a408eed144febd33a27ddb21a60cebdb5" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>FloatVarImp</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a76d5c37032ecccb2b4d68e63be3093b1" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1ac5993a33d4b7269d123db9a6924f4563" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a6f7e7bfc9589ed12df8d30a08717b7bf" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1acbde12e7fbfde20d40e3737bc8d09064" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a0f09373d91bda87ed29f9b87f4bd4915" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a33710860b47e961221d52359e40cdab8" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>max</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1ab91dd106f647bce9f844d63ac8509d3a" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>max</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a0615ba0e1695638bbc27543bd622d11c" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a05710c387af99a787fc6ce2adf38002a" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a21d61f349895b84d6285405ab5990784" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a4e0a9f0a64342ffe5d674e57937b37aa" prot="private" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>perform_copy</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1adb5fff621489f4205c04cdfcca3d918e" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>size</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a3d14239eaa8d7ed91a260bdb9406fef9" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a08ca5b1ea6098abf6a5faa38b3be2d2b" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a9a7140847a72a25d5d71ddb096099bd7" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>val</name></member>
+      <member refid="classGecode_1_1Float_1_1FloatVarImp_1a30ce245e6aad1cc3594112eb36fc81aa" prot="public" virt="non-virtual"><scope>Gecode::Float::FloatVarImp</scope><name>zero_in</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

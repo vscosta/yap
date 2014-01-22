@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;</compoundname>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1a4cb19ecd82738411959415dd2cfa1182" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1a22162e3abb33bfc0709669e9e855dbc0" kindref="member">TaskTypeArgs</ref></type>
+        <definition>typedef TaskTypeArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;::StorageType</definition>
+        <argsstring></argsstring>
+        <name>StorageType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="964" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="964" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1a2f2b333103e0122c5bbc95c57741a21e" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1a72036d0d1ce62f603451ef48e93c3433" kindref="member">TaskType</ref></type>
+        <definition>typedef TaskType Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;::ValueType</definition>
+        <argsstring></argsstring>
+        <name>ValueType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="965" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="965" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1af5b4613342f01a89b893038c1df034d9" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1a22162e3abb33bfc0709669e9e855dbc0" kindref="member">TaskTypeArgs</ref></type>
+        <definition>typedef TaskTypeArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;::ArgsType</definition>
+        <argsstring></argsstring>
+        <name>ArgsType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="966" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="966" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits of TaskTypeArgs. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int.hh" line="962" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="962" bodyend="967"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1af5b4613342f01a89b893038c1df034d9" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;</scope><name>ArgsType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1a4cb19ecd82738411959415dd2cfa1182" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;</scope><name>StorageType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01TaskType_01_4_01_4_1a2f2b333103e0122c5bbc95c57741a21e" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; TaskType &gt; &gt;</scope><name>ValueType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

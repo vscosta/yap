@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelFloatExec" kind="group">
+    <compoundname>TaskModelFloatExec</compoundname>
+    <title>Synchronized execution</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelFloatExec_1ga951f882608ea98bea6f8378132a51523" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::wait</definition>
+        <argsstring>(Home home, FloatVar x, void(*c)(Space &amp;home))</argsstring>
+        <name>wait</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(Space &amp;home)</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Execute <emphasis>c</emphasis> when <emphasis>x</emphasis> becomes assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1330" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatExec_1ga5a763782e5366d66012462f350cef987" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::wait</definition>
+        <argsstring>(Home home, const FloatVarArgs &amp;x, void(*c)(Space &amp;home))</argsstring>
+        <name>wait</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const FloatVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(Space &amp;home)</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Execute <emphasis>c</emphasis> when all variables in <emphasis>x</emphasis> become assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1333" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Synchronized execution executes a function or a static member function when a certain event happends. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewRanges" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewRanges</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4" prot="public" virt="non-virtual">Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</derivedcompoundref>
+    <includes refid="int_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::ViewRanges&lt; View &gt;::ViewRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="59" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a3ad77256e911cbc732d3c552797cfb3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::ViewRanges&lt; View &gt;::ViewRanges</definition>
+        <argsstring>(const View &amp;x)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>const View &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="61" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a9089345a78e0bc4b91382b852fe6ca9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::ViewRanges&lt; View &gt;::init</definition>
+        <argsstring>(const View &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const View &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="63" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a5cbabf4125d731fe6082e63f96a37f1b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Int::ViewRanges&lt; View &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="69" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1abb5c7b2a0ee257ef96949570cf33916c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::ViewRanges&lt; View &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="71" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a2cba4fdbf5859ff22afbe4f55b6ea1df" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Int::ViewRanges&lt; View &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="77" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a26338b51f2f24730f2f3fa9b9ea9e1f9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Int::ViewRanges&lt; View &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="79" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_1a46da8c5039f178848dcd60b86e4891e8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Int::ViewRanges&lt; View &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="81" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for integer views. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class provides (by specialization) a range iterator for all integer views.</para><para>Note that this template class serves only as a specification of the interface of the various specializations. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7841">
+        <label>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4"/>
+        <childnode refid="7840" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7840">
+        <label>Gecode::Int::ViewRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges"/>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/view.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="54" bodyend="83"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a9089345a78e0bc4b91382b852fe6ca9a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a26338b51f2f24730f2f3fa9b9ea9e1f9" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a2cba4fdbf5859ff22afbe4f55b6ea1df" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a5cbabf4125d731fe6082e63f96a37f1b" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1abb5c7b2a0ee257ef96949570cf33916c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1af04c06b8c082749e39cd87b0af40253e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a3ad77256e911cbc732d3c552797cfb3e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a46da8c5039f178848dcd60b86e4891e8" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

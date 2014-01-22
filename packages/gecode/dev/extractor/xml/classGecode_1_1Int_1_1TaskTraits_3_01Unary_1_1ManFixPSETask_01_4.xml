@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;</compoundname>
+    <includes refid="unary_8hh" local="no">unary.hh</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4_1a2dcfa31efdbbcebb7ddd6b2d2f2132b4" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1Unary_1aa8fc35dd056f6571475bb25a32110e5a" kindref="member">Unary::ManFixPSETaskFwd</ref></type>
+        <definition>typedef Unary::ManFixPSETaskFwd Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;::TaskViewFwd</definition>
+        <argsstring></argsstring>
+        <name>TaskViewFwd</name>
+        <briefdescription>
+<para>The forward task view type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="604" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="604" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4_1a5522b1b1786e88a33372dc43c7271ef1" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1Unary_1a6ebaeed0bb327c5802ff0963ce96b816" kindref="member">Unary::ManFixPSETaskBwd</ref></type>
+        <definition>typedef Unary::ManFixPSETaskBwd Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;::TaskViewBwd</definition>
+        <argsstring></argsstring>
+        <name>TaskViewBwd</name>
+        <briefdescription>
+<para>The backward task view type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="606" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="606" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Task traits for mandatory fixed tasks. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/unary.hh" line="601" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="601" bodyend="607"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4_1a5522b1b1786e88a33372dc43c7271ef1" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;</scope><name>TaskViewBwd</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4_1a2dcfa31efdbbcebb7ddd6b2d2f2132b4" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;</scope><name>TaskViewFwd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

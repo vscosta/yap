@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Delta" kind="class" prot="public">
+    <compoundname>Gecode::Delta</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Float_1_1FloatDelta" prot="public" virt="non-virtual">Gecode::Float::FloatDelta</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1IntDelta" prot="public" virt="non-virtual">Gecode::Int::IntDelta</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1SetDelta" prot="public" virt="non-virtual">Gecode::Set::SetDelta</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Delta_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class VIC</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class VarImp</definition>
+        <argsstring></argsstring>
+        <name>VarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="276" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="276" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Delta_1ab068eef2f9f126ae99d39de24a2210a9" prot="private" static="no" mutable="no">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Delta::me</definition>
+        <argsstring></argsstring>
+        <name>me</name>
+        <briefdescription>
+<para>Modification event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="279" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="279" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Generic domain change information to be supplied to advisors. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1636">
+        <label>Gecode::Int::IntDelta</label>
+        <link refid="classGecode_1_1Int_1_1IntDelta"/>
+        <childnode refid="1634" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1637">
+        <label>Gecode::Set::SetDelta</label>
+        <link refid="classGecode_1_1Set_1_1SetDelta"/>
+        <childnode refid="1634" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1634">
+        <label>Gecode::Delta</label>
+        <link refid="classGecode_1_1Delta"/>
+      </node>
+      <node id="1635">
+        <label>Gecode::Float::FloatDelta</label>
+        <link refid="classGecode_1_1Float_1_1FloatDelta"/>
+        <childnode refid="1634" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="275" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="275" bodyend="280"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Delta_1ab068eef2f9f126ae99d39de24a2210a9" prot="private" virt="non-virtual"><scope>Gecode::Delta</scope><name>me</name></member>
+      <member refid="classGecode_1_1Delta_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" virt="non-virtual"><scope>Gecode::Delta</scope><name>VarImp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,354 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</compoundname>
+    <includes refid="int-noview_8hpp" local="no">int-noview.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a07b7b80e5a0195b1334a7acb8b4bdee3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; Int::Linear::NoView &gt;::ViewArray</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor (array of size 0) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="174" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="174" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1ae33c1c6e129646742dcf82af825aa4d5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; Int::Linear::NoView &gt;::ViewArray</definition>
+        <argsstring>(Space &amp;home, int m)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Allocate array with <emphasis>m</emphasis> variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="176" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="176" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a0dbf3b4b91dd121522c6af4dbb049a12" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; Int::Linear::NoView &gt;::ViewArray</definition>
+        <argsstring>(const ViewArray&lt; Int::Linear::NoView &gt; &amp;)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="178" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="178" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a78a199950166dc8ed5e0d09fe0365da7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; Int::Linear::NoView &gt;::ViewArray</definition>
+        <argsstring>(Space &amp;, const ViewArray&lt; Int::Linear::NoView &gt; &amp;)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="180" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="180" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1ad4b73f3f52b2f0aa11d64e52c6b3f29f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref> &gt; &amp;</type>
+        <definition>const ViewArray&lt;Int::Linear::NoView&gt;&amp; Gecode::ViewArray&lt; Int::Linear::NoView &gt;::operator=</definition>
+        <argsstring>(const ViewArray&lt; Int::Linear::NoView &gt; &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref> &gt; &amp;</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="182" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="182" bodyend="182"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array size</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a382f8967a45cb6eac2531ee6d79fc791" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::ViewArray&lt; Int::Linear::NoView &gt;::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of array (number of elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="188" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="188" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a0475aa7973d3d73e5c0dd2523867b913" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::size</definition>
+        <argsstring>(int n)</argsstring>
+        <name>size</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Decrease size of array (number of elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="190" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="190" bodyend="190"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array elements</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a325a56a07239ba5ff08fa8c540ca8b43" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref></type>
+        <definition>Int::Linear::NoView Gecode::ViewArray&lt; Int::Linear::NoView &gt;::operator[]</definition>
+        <argsstring>(int i)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return view at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="196" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="196" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a110a6bf99a3e1a525196364dbf741e6e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref></type>
+        <definition>const Int::Linear::NoView Gecode::ViewArray&lt; Int::Linear::NoView &gt;::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return view at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="202" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="202" bodyend="206"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a42c1ae4306f4c308501041213cff5d24" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::subscribe</definition>
+        <argsstring>(Space &amp;, Propagator &amp;p, PropCond pc, bool process=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>process</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to all views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="212" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="212" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a94b2496502bafb65f77d16a5dc73eb47" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to all views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="216" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="216" bodyend="218"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a86cee5bb0b4ff96b74ab3f2c3ecb4c26" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::update</definition>
+        <argsstring>(Space &amp;, bool share, ViewArray&lt; Int::Linear::NoView &gt; &amp;a)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1Linear_1_1NoView" kindref="compound">Int::Linear::NoView</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Update array to be a clone of array <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>share</emphasis> is true, sharing is retained for all shared data structures. Otherwise, for each of them an independent copy is created. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="230" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="230" bodyend="232"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Moving elements</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a5390dcd022ba83e9b0ef3a4560aae136" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::move_fst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>move_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Move assigned view from position 0 to position <emphasis>i</emphasis> (shift elements to the left) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="238" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="238" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1afba7cba39c402ef737bb5ec88b5ef7b2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::move_lst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>move_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Move assigned view from position <computeroutput><ref refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a382f8967a45cb6eac2531ee6d79fc791" kindref="member">size()</ref>-1</computeroutput> to position <emphasis>i</emphasis> (truncate array by one) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="240" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="240" bodyend="240"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a28f31b82a87a6bc14ac4117c7f58fd4e" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* Gecode::ViewArray&lt; Int::Linear::NoView &gt;::operator new</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="243" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a665e05b1aef2fcfda9fc2baed546a1cc" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::ViewArray&lt; Int::Linear::NoView &gt;::operator delete</definition>
+        <argsstring>(void *, size_t)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="244" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>View array for no view (empty) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/int-noview.hpp" line="169" column="1" bodyfile="/usr/include/gecode/int/linear/int-noview.hpp" bodystart="169" bodyend="245"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a94b2496502bafb65f77d16a5dc73eb47" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a5390dcd022ba83e9b0ef3a4560aae136" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>move_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1afba7cba39c402ef737bb5ec88b5ef7b2" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>move_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a665e05b1aef2fcfda9fc2baed546a1cc" prot="private" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a28f31b82a87a6bc14ac4117c7f58fd4e" prot="private" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1ad4b73f3f52b2f0aa11d64e52c6b3f29f" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a325a56a07239ba5ff08fa8c540ca8b43" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a110a6bf99a3e1a525196364dbf741e6e" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a382f8967a45cb6eac2531ee6d79fc791" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>size</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a0475aa7973d3d73e5c0dd2523867b913" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>size</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a42c1ae4306f4c308501041213cff5d24" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a86cee5bb0b4ff96b74ab3f2c3ecb4c26" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>update</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a07b7b80e5a0195b1334a7acb8b4bdee3" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1ae33c1c6e129646742dcf82af825aa4d5" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a0dbf3b4b91dd121522c6af4dbb049a12" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_3_01Int_1_1Linear_1_1NoView_01_4_1a78a199950166dc8ed5e0d09fe0365da7" prot="public" virt="non-virtual"><scope>Gecode::ViewArray&lt; Int::Linear::NoView &gt;</scope><name>ViewArray</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

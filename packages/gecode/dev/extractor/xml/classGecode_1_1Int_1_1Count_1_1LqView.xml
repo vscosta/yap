@@ -1,0 +1,279 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Count_1_1LqView" kind="class" prot="public">
+    <compoundname>Gecode::Int::Count::LqView</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Count_1_1ViewBase" prot="public" virt="non-virtual">Gecode::Int::Count::ViewBase&lt; VX, VY, VZ &gt;</basecompoundref>
+    <includes refid="count_8hh" local="no">count.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>VX</declname>
+        <defname>VX</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VY</declname>
+        <defname>VY</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VZ</declname>
+        <defname>VZ</defname>
+      </param>
+      <param>
+        <type>bool</type>
+        <declname>shr</declname>
+        <defname>shr</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1LqView_1a47cb0956ea00b788ac3424170bddf06e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;::LqView</definition>
+        <argsstring>(Space &amp;home, bool share, LqView &amp;p)</argsstring>
+        <name>LqView</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Count_1_1LqView" kindref="compound">LqView</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="353" column="1" bodyfile="/usr/include/gecode/int/count/view-lq.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1LqView_1ae36538f8cda521167a2d333ad5a15304" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;::LqView</definition>
+        <argsstring>(Home home, ViewArray&lt; VX &gt; &amp;x, VY y, VZ z, int c)</argsstring>
+        <name>LqView</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; VX &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>VY</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>VZ</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="356" column="1" bodyfile="/usr/include/gecode/int/count/view-lq.hpp" bodystart="42" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1LqView_1a51fd16e706f23fa27e11ceb230a6c89d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Create copy during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="358" column="1" bodyfile="/usr/include/gecode/int/count/view-lq.hpp" bodystart="68" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1LqView_1af13433923bc066f74d6d429b50c982e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="360" column="1" bodyfile="/usr/include/gecode/int/count/view-lq.hpp" bodystart="74" bodyend="92"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1LqView_1a2f381097a766252a7465726e04d637ea" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; VX &gt; &amp;x, VY y, VZ z, int c)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; VX &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>VY</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>VZ</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="117">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=y\}\leq z+c$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="362" column="1" bodyfile="/usr/include/gecode/int/count/view-lq.hpp" bodystart="48" bodyend="58"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Propagator for counting views (less or equal to number of equal views) </para>    </briefdescription>
+    <detaileddescription>
+<para>Not all combinations of views are possible. The types <emphasis>VX</emphasis> and <emphasis>VY</emphasis> must be either equal, or <emphasis>VY</emphasis> must be <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref>, <ref refid="classGecode_1_1Int_1_1ZeroIntView" kindref="compound">ZeroIntView</ref>, or <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/count.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3597">
+        <label>Gecode::Int::Count::ViewBase&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1ViewBase"/>
+        <childnode refid="3598" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3598">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="3599" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3599">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3600" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3600">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="3596">
+        <label>Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1LqView"/>
+        <childnode refid="3597" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3602">
+        <label>Gecode::Int::Count::ViewBase&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1ViewBase"/>
+        <childnode refid="3603" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3606" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="3606">
+        <label>Gecode::ViewArray&lt; VX &gt;</label>
+        <link refid="classGecode_1_1ViewArray"/>
+      </node>
+      <node id="3603">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="3604" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="3604">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3605" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3605">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="3601">
+        <label>Gecode::Int::Count::LqView&lt; VX, VY, VZ, shr &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1LqView"/>
+        <childnode refid="3602" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/count.hh" line="341" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="341" bodyend="363"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Count::LqView</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a20cc99310e147f566a6ebc3dba5b1ca9" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>atleast</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a0b87e2c6b867ffad4b9245c010491c54" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>atmost</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a8fa73cf8d752a0646e0c0a56f17a9d9c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Count::LqView</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Count::LqView</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1LqView_1a51fd16e706f23fa27e11ceb230a6c89d" prot="public" virt="virtual"><scope>Gecode::Int::Count::LqView</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1ae77be81b190f91c2e172f40cc9097f5e" prot="public" virt="virtual"><scope>Gecode::Int::Count::LqView</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1acc8cedd31edec22831cbc38795dd5f8f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>count</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a62210fd0129924a170e364a61f476931" prot="public" virt="virtual"><scope>Gecode::Int::Count::LqView</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1LqView_1a47cb0956ea00b788ac3424170bddf06e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>LqView</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1LqView_1ae36538f8cda521167a2d333ad5a15304" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>LqView</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1LqView_1a2f381097a766252a7465726e04d637ea" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1LqView_1af13433923bc066f74d6d429b50c982e7" prot="public" virt="virtual"><scope>Gecode::Int::Count::LqView</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a25677bc71a4eedb5ff21997ee3bfa182" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>sharing</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a41da7a82ab04f61395be32449ea3bb88" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>ViewBase</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a2f84f511eed07c5213630626b4f36064" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>ViewBase</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a52f7c235fb97731d151156da0780a985" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a9e34833f9ae5769e35689c0851c985e4" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>y</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1ViewBase_1a7aa4ac4ae02411223fe56f1f34440bcd" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::LqView</scope><name>z</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

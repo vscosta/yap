@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1ReLqBin" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::ReLqBin</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin" prot="public" virt="non-virtual">Gecode::Int::Linear::ReLinBin&lt; Val, A, B, PC_INT_BND, BoolView &gt;</basecompoundref>
+    <includes refid="int_2linear_8hh" local="no">linear.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Val</declname>
+        <defname>Val</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>B</declname>
+        <defname>B</defname>
+      </param>
+      <param>
+        <type><ref refid="namespaceGecode_1a8904e2a3f216089daeaa60652a6429a5" kindref="member">ReifyMode</ref></type>
+        <declname>rm</declname>
+        <defname>rm</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a2394bbf8e604334856eeaf8c8f158433" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;::ReLqBin</definition>
+        <argsstring>(Space &amp;home, bool share, ReLqBin &amp;p)</argsstring>
+        <name>ReLqBin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin" kindref="compound">ReLqBin</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="313" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="421" bodyend="422"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a0c7bb1a8c0c8590dd5b91c196771948e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;::ReLqBin</definition>
+        <argsstring>(Home home, A x0, B x1, Val c, BoolView b)</argsstring>
+        <name>ReLqBin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>A</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>B</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="315" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="408" bodyend="409"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a2e5b9bfe0ad09640e900b587f7746996" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Create copy during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="318" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="426" bodyend="428"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a239678cb1e6e57556b0036aed0e417b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="320" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="432" bodyend="454"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a0c968299de8fd6d2915c3fff58c2d55b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;::post</definition>
+        <argsstring>(Home home, A x0, B x1, Val c, BoolView b)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>A</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>B</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="152">$(x_0+x_1 \leq c)\equiv \operatorname{rm}(b)$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="322" column="1" bodyfile="/usr/include/gecode/int/linear/int-bin.hpp" bodystart="413" bodyend="416"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Propagator for reified bounds consistent binary linear less or equal </para>    </briefdescription>
+    <detaileddescription>
+<para>The type <emphasis>Val</emphasis> can be either <computeroutput>long</computeroutput> long int or <computeroutput>int</computeroutput>, defining the numerical precision during propagation. The types <emphasis>A</emphasis> and <emphasis>B</emphasis> give the types of the views.</para><para>The propagation condition <emphasis>pc</emphasis> refers to both views.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/linear.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6010">
+        <label>Gecode::Int::Linear::ReLinBin&lt; Val, A, B, PC_INT_BND, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin"/>
+        <childnode refid="6011" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6009">
+        <label>Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin"/>
+        <childnode refid="6010" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6011">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6012" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6012">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6013" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6013">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6022">
+        <label>A</label>
+      </node>
+      <node id="6023">
+        <label>B</label>
+      </node>
+      <node id="6019">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="6020" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6015">
+        <label>Gecode::Int::Linear::ReLinBin&lt; Val, A, B, PC_INT_BND, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin"/>
+        <childnode refid="6016" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6019" relation="usage">
+          <edgelabel>b</edgelabel>
+        </childnode>
+        <childnode refid="6021" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+        <childnode refid="6022" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+        <childnode refid="6023" relation="usage">
+          <edgelabel>x1</edgelabel>
+        </childnode>
+      </node>
+      <node id="6020">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="6014">
+        <label>Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin"/>
+        <childnode refid="6015" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6021">
+        <label>Val</label>
+      </node>
+      <node id="6016">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6017" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6018" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="6017">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6018" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6018">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/linear.hh" line="305" column="1" bodyfile="/usr/include/gecode/int/linear.hh" bodystart="305" bodyend="323"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1a0f8ec993d460914237c09eabf05f8c66" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>b</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1a6400c19913f0b3f54f4ac8d9efb77e22" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Linear::ReLqBin</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Linear::ReLqBin</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a2e5b9bfe0ad09640e900b587f7746996" prot="public" virt="virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1af74610d0304780b28f4e2ebb5d0a454e" prot="public" virt="virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1ad79d7b2be5265cf135cd1ac655922321" prot="public" virt="virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a0c968299de8fd6d2915c3fff58c2d55b" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a239678cb1e6e57556b0036aed0e417b7" prot="public" virt="virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1afa52dbe007e536830685381c767bab7f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>ReLinBin</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1a094f94c1a3cb55b3a37a61ae0be08cd4" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>ReLinBin</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a2394bbf8e604334856eeaf8c8f158433" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>ReLqBin</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin_1a0c7bb1a8c0c8590dd5b91c196771948e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>ReLqBin</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1afa95abdd0fcdf5cc04953676a149ebf8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>x0</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin_1a3e8ceaf364c4f499f4d365ac84bd81d5" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::ReLqBin</scope><name>x1</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

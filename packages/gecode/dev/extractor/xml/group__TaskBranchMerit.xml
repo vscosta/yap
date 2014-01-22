@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskBranchMerit" kind="group">
+    <compoundname>TaskBranchMerit</compoundname>
+    <title>Generic merit for branchers based on view and value selection</title>
+    <innerclass refid="classGecode_1_1MeritBase" prot="public">Gecode::MeritBase</innerclass>
+    <innerclass refid="classGecode_1_1MeritFunction" prot="public">Gecode::MeritFunction</innerclass>
+    <innerclass refid="classGecode_1_1MeritDegree" prot="public">Gecode::MeritDegree</innerclass>
+    <innerclass refid="classGecode_1_1MeritAFC" prot="public">Gecode::MeritAFC</innerclass>
+    <innerclass refid="classGecode_1_1MeritActivity" prot="public">Gecode::MeritActivity</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

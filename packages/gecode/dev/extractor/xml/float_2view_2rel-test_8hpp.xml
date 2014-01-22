@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="float_2view_2rel-test_8hpp" kind="file">
+    <compoundname>rel-test.hpp</compoundname>
+    <includedby refid="float_2view_8hpp" local="no">/usr/include/gecode/float/view.hpp</includedby>
+    <invincdepgraph>
+      <node id="6765">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="6766" relation="include">
+        </childnode>
+        <childnode refid="6767" relation="include">
+        </childnode>
+        <childnode refid="6768" relation="include">
+        </childnode>
+        <childnode refid="6769" relation="include">
+        </childnode>
+      </node>
+      <node id="6764">
+        <label>/usr/include/gecode/float/view.hpp</label>
+        <link refid="float_2view_8hpp_source"/>
+        <childnode refid="6765" relation="include">
+        </childnode>
+      </node>
+      <node id="6769">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="6766" relation="include">
+        </childnode>
+      </node>
+      <node id="6766">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="6768">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="6763">
+        <label>/usr/include/gecode/float/view/rel-test.hpp</label>
+        <link refid="float/view/rel-test.hpp"/>
+        <childnode refid="6764" relation="include">
+        </childnode>
+      </node>
+      <node id="6767">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float">Gecode::Float</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard<sp/>&lt;Vincent.Barichard@univ-angers.fr&gt;</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2003</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard,<sp/>2012</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-01-24<sp/>19:28:06<sp/>+0100<sp/>(Thu,<sp/>24<sp/>Jan<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13235<sp/>$</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Float<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="44" refid="group__TaskActorFloatTest_1ga4185699929a83691b8f60a074e60e2f1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1ga4185699929a83691b8f60a074e60e2f1" kindref="member">rtest_eq</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.min()<sp/>&gt;<sp/>y.max())<sp/>||<sp/>(x.max()<sp/>&lt;<sp/>y.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.assigned()<sp/>&amp;&amp;<sp/>y.assigned())<sp/>?<sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref><sp/>:<sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="51" refid="group__TaskActorFloatTest_1ga7813cb9271fea939e8208001551a8534" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1ga4185699929a83691b8f60a074e60e2f1" kindref="member">rtest_eq</ref>(View<sp/>x,<sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.min()<sp/>&gt;<sp/>n.max())<sp/>||<sp/>(x.max()<sp/>&lt;<sp/>n.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.assigned()<sp/>?<sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref><sp/>:<sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="58" refid="group__TaskActorIntTest_1ga63eb2d3a830f04910c046e418146c5ff" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" kindref="member">rtest_lq</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/>y.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="66" refid="group__TaskActorFloatTest_1ga1af0aa09c6cdefaa53716d3fe3e95168" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" kindref="member">rtest_lq</ref>(View<sp/>x,<sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>n.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/>n.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="74" refid="group__TaskActorIntTest_1ga75aaaa493e5dc18c07b75fa5c77f458e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" kindref="member">rtest_le</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>y.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="82" refid="group__TaskActorFloatTest_1gaf651cb68cfa564872526992e19aec408" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" kindref="member">rtest_le</ref>(View<sp/>x,<sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/>n.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>n.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>float-var</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/float/view/rel-test.hpp"/>
+  </compounddef>
+</doxygen>

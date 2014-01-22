@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1TermLess" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::TermLess</compoundname>
+    <includes refid="int_2linear_2post_8hpp" local="no">post.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1TermLess_1a29abcd65b3ae95988f4db0a308d0289f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::TermLess&lt; View &gt;::operator()</definition>
+        <argsstring>(const Term&lt; View &gt; &amp;a, const Term&lt; View &gt; &amp;b)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Linear_1_1Term" kindref="compound">Term</ref>&lt; View &gt; &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/post.hpp" line="75" column="1" bodyfile="/usr/include/gecode/int/linear/post.hpp" bodystart="75" bodyend="77"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Sort linear terms by view. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/post.hpp" line="72" column="1" bodyfile="/usr/include/gecode/int/linear/post.hpp" bodystart="72" bodyend="78"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1TermLess_1a29abcd65b3ae95988f4db0a308d0289f" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::TermLess</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

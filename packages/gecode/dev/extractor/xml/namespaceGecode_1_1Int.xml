@@ -1,0 +1,2717 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int" kind="namespace">
+    <compoundname>Gecode::Int</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFixPTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFixPTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFixPTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFixPTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFixPSETaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFixPSETaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFixPSETaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFixPSETaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFixPTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFixPTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFixPTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFixPTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFixPSETaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFixPSETaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFixPSETaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFixPSETaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFlexTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFlexTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1ManFlexTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::ManFlexTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFlexTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFlexTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Cumulative_1_1OptFlexTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Cumulative::OptFlexTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::ManFixPTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1OptFixPTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::OptFixPTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1OptFixPSETask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::OptFixPSETask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFlexTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::ManFlexTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1OptFlexTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Cumulative::OptFlexTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1OutOfLimits" prot="public">Gecode::Int::OutOfLimits</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NotZeroOne" prot="public">Gecode::Int::NotZeroOne</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1VariableEmptyDomain" prot="public">Gecode::Int::VariableEmptyDomain</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TooFewArguments" prot="public">Gecode::Int::TooFewArguments</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" prot="public">Gecode::Int::ArgumentSizeMismatch</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ArgumentSame" prot="public">Gecode::Int::ArgumentSame</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownRelation" prot="public">Gecode::Int::UnknownRelation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownOperation" prot="public">Gecode::Int::UnknownOperation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IllegalOperation" prot="public">Gecode::Int::IllegalOperation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownBranching" prot="public">Gecode::Int::UnknownBranching</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownReifyMode" prot="public">Gecode::Int::UnknownReifyMode</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ValOfUnassignedVar" prot="public">Gecode::Int::ValOfUnassignedVar</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NotYetFinalized" prot="public">Gecode::Int::NotYetFinalized</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1LDSBUnbranchedVariable" prot="public">Gecode::Int::LDSBUnbranchedVariable</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1LDSBBadValueSelection" prot="public">Gecode::Int::LDSBBadValueSelection</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01GCC_1_1CardView_01_4" prot="public">Gecode::Int::ViewRanges&lt; GCC::CardView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ReUnaryPropagator" prot="public">Gecode::Int::ReUnaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ReBinaryPropagator" prot="public">Gecode::Int::ReBinaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ReMixBinaryPropagator" prot="public">Gecode::Int::ReMixBinaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1SupportValues" prot="public">Gecode::Int::SupportValues</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1StoEst" prot="public">Gecode::Int::StoEst</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1StoEct" prot="public">Gecode::Int::StoEct</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1StoLst" prot="public">Gecode::Int::StoLst</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1StoLct" prot="public">Gecode::Int::StoLct</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1SortMap" prot="public">Gecode::Int::SortMap</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ManToOptTask" prot="public">Gecode::Int::ManToOptTask</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1FwdToBwd" prot="public">Gecode::Int::FwdToBwd</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits" prot="public">Gecode::Int::TaskViewTraits</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits" prot="public">Gecode::Int::TaskTraits</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskArray" prot="public">Gecode::Int::TaskArray</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewArray" prot="public">Gecode::Int::TaskViewArray</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewIter" prot="public">Gecode::Int::TaskViewIter</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ManTaskViewIter" prot="public">Gecode::Int::ManTaskViewIter</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTree" prot="public">Gecode::Int::TaskTree</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskProp" prot="public">Gecode::Int::TaskProp</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFixPTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFixPTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFixPTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFixPTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFixPSETaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFixPSETaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFixPSETaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFixPSETaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFixPTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFixPTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFixPTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFixPTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFixPSETaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFixPSETaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFixPSETaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFixPSETaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFlexTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFlexTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1ManFlexTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::ManFlexTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFlexTaskFwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFlexTaskFwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskViewTraits_3_01Unary_1_1OptFlexTaskBwd_01_4" prot="public">Gecode::Int::TaskViewTraits&lt; Unary::OptFlexTaskBwd &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::ManFixPTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFixPSETask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::ManFixPSETask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1OptFixPTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::OptFixPTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1OptFixPSETask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::OptFixPSETask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1ManFlexTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::ManFlexTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TaskTraits_3_01Unary_1_1OptFlexTask_01_4" prot="public">Gecode::Int::TaskTraits&lt; Unary::OptFlexTask &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ValSet" prot="public">Gecode::Int::ValSet</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntDelta" prot="public">Gecode::Int::IntDelta</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntVarImp" prot="public">Gecode::Int::IntVarImp</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntVarImpFwd" prot="public">Gecode::Int::IntVarImpFwd</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntVarImpBwd" prot="public">Gecode::Int::IntVarImpBwd</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1BoolVarImp" prot="public">Gecode::Int::BoolVarImp</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4" prot="public">Gecode::Int::ViewRanges&lt; BoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; ConstIntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01IntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; IntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4" prot="public">Gecode::Int::ViewRanges&lt; MinusView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4" prot="public">Gecode::Int::ViewRanges&lt; NegBoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01OffsetView_01_4" prot="public">Gecode::Int::ViewRanges&lt; OffsetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01IntScaleView_01_4" prot="public">Gecode::Int::ViewRanges&lt; IntScaleView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01LLongScaleView_01_4" prot="public">Gecode::Int::ViewRanges&lt; LLongScaleView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01ZeroIntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; ZeroIntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges" prot="public">Gecode::Int::ViewRanges</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewValues" prot="public">Gecode::Int::ViewValues</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntView" prot="public">Gecode::Int::IntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1MinusView" prot="public">Gecode::Int::MinusView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1OffsetView" prot="public">Gecode::Int::OffsetView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NoOffset" prot="public">Gecode::Int::NoOffset</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Offset" prot="public">Gecode::Int::Offset</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ScaleView" prot="public">Gecode::Int::ScaleView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ConstIntView" prot="public">Gecode::Int::ConstIntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ZeroIntView" prot="public">Gecode::Int::ZeroIntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewDiffRanges" prot="public">Gecode::Int::ViewDiffRanges</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1CachedView" prot="public">Gecode::Int::CachedView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1BoolView" prot="public">Gecode::Int::BoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NegBoolView" prot="public">Gecode::Int::NegBoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntVarImpConf" prot="public">Gecode::Int::IntVarImpConf</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1BoolVarImpConf" prot="public">Gecode::Int::BoolVarImpConf</innerclass>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Arithmetic">Gecode::Int::Arithmetic</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1BinPacking">Gecode::Int::BinPacking</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Bool">Gecode::Int::Bool</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Branch">Gecode::Int::Branch</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Channel">Gecode::Int::Channel</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Circuit">Gecode::Int::Circuit</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Count">Gecode::Int::Count</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Cumulative">Gecode::Int::Cumulative</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Cumulatives">Gecode::Int::Cumulatives</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Distinct">Gecode::Int::Distinct</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Dom">Gecode::Int::Dom</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Element">Gecode::Int::Element</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Exec">Gecode::Int::Exec</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Extensional">Gecode::Int::Extensional</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1GCC">Gecode::Int::GCC</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1LDSB">Gecode::Int::LDSB</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Limits">Gecode::Int::Limits</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Linear">Gecode::Int::Linear</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Member">Gecode::Int::Member</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1NoOverlap">Gecode::Int::NoOverlap</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1NValues">Gecode::Int::NValues</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Precede">Gecode::Int::Precede</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Rel">Gecode::Int::Rel</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Sequence">Gecode::Int::Sequence</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Sorted">Gecode::Int::Sorted</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Unary">Gecode::Int::Unary</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1ViewValGraph">Gecode::Int::ViewValGraph</innernamespace>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8c" prot="public" static="no">
+        <name>SortTaskOrder</name>
+        <enumvalue id="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8ca3483c626be20d044cf29b932a0f16c8b" prot="public">
+          <name>STO_EST</name>
+          <briefdescription>
+<para>Sort by earliest start times. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8ca1ba45f5819b1b9512976d0355d84dc18" prot="public">
+          <name>STO_ECT</name>
+          <briefdescription>
+<para>Sort by earliest completion times. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8ca618fda44a59be314a8ea4b5414259c44" prot="public">
+          <name>STO_LST</name>
+          <briefdescription>
+<para>Sort by latest start times. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8cac102b63c6712688e01ccf4652946f155" prot="public">
+          <name>STO_LCT</name>
+          <briefdescription>
+<para>Sort by latest completion times. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>How to sort tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="282" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="282" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="enum" id="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" prot="public" static="no">
+        <name>RelTest</name>
+        <enumvalue id="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" prot="public">
+          <name>RT_FALSE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Relation does not hold. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" prot="public">
+          <name>RT_MAYBE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Relation may hold or not. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" prot="public">
+          <name>RT_TRUE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Relation does hold. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Result of testing relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1614" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1614" bodyend="1618"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4b" prot="public" static="no">
+        <name>BoolTest</name>
+        <enumvalue id="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4ba5b2d7c51e334529fff1c887efd9b2b95" prot="public">
+          <name>BT_NONE</name>
+          <briefdescription>
+<para>No sharing. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4baaf39ed9cbd95430d3a4a4870df2d9eb2" prot="public">
+          <name>BT_SAME</name>
+          <briefdescription>
+<para>Same variable. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4ba7f21ca9936b09b90c85f3e5d741aaca6" prot="public">
+          <name>BT_COMP</name>
+          <briefdescription>
+<para>Same variable but complement. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Boolean tests. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1664" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1664" bodyend="1668"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespaceGecode_1_1Int_1ab342b6be942d41a4aa1899f20ad3cad8" prot="public" static="no">
+        <type>unsigned int</type>
+        <definition>typedef unsigned int Gecode::Int::BoolStatus</definition>
+        <argsstring></argsstring>
+        <name>BoolStatus</name>
+        <briefdescription>
+<para>Type for status of a Boolean variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="479" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="479" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskActorIntView_1gae1f5670a4cadd9ba2a9aac81c816be73" prot="public" static="no">
+        <type><ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; int, unsigned int &gt;</type>
+        <definition>typedef ScaleView&lt;int,unsigned int&gt; Gecode::Int::IntScaleView</definition>
+        <argsstring></argsstring>
+        <name>IntScaleView</name>
+        <briefdescription>
+<para>Integer-precision integer scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="759" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="759" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskActorIntView_1ga73b715b91eb09d00c331d77d4f5334f8" prot="public" static="no">
+        <type><ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; long long int, unsigned long long int &gt;</type>
+        <definition>typedef ScaleView&lt;long long int,unsigned long long int&gt; Gecode::Int::LLongScaleView</definition>
+        <argsstring></argsstring>
+        <name>LLongScaleView</name>
+        <briefdescription>
+<para>Long long-precision integer scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="765" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="765" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a2104354fc46cdff466fe14771d6e2b86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::ceil_div_pp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_pp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>x</emphasis> and <emphasis>y</emphasis> are non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="47" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="42" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ac1233de64e5b1619e70ac81ec39b97dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::floor_div_pp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_pp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>x</emphasis> and <emphasis>y</emphasis> are non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="50" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="53" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a91a4936a487274898d86b9b840102409" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::ceil_div_px</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_px</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>x</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="53" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="60" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ae92c2903ccc1e9e6c13d28675a0299b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::floor_div_px</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_px</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>x</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="56" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="66" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a51d2c6b1a59b9246abbffcd322d3fc46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::ceil_div_xp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_xp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>y</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="59" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="73" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a57f1af32ea395d2a7ba18519609e80a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::floor_div_xp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_xp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>y</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="62" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="79" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ac9a9dd96b8ec9618d14daeb85d62fabc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::ceil_div_xx</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_xx</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a7e66090474e4d257a03ac9aaecbb56bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>IntType</type>
+        <definition>IntType Gecode::Int::floor_div_xx</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_xx</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hh" line="68" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="91" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aa2343f14c0618fc523d7962228c97daf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::ceil_div_pp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_pp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>x</emphasis> and <emphasis>y</emphasis> are non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="42" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="42" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1af7492a03009ce4e36050359793c4aa3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::floor_div_pp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_pp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>x</emphasis> and <emphasis>y</emphasis> are non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="53" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="53" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a95cbb899e7a6aa041be426bcc8f8120c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::ceil_div_px</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_px</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>x</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="60" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1afbbd9578b9c4ab505eb7092e3080f6a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::floor_div_px</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_px</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>x</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="66" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="66" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ae3cb5333d0741a59fa6d12d60319065c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::ceil_div_xp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_xp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula> where <emphasis>y</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="73" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="73" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a301cbbccfe9f9f56971d7e6ec445437d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::floor_div_xp</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_xp</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula> where <emphasis>y</emphasis> is non-negative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="79" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="79" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a33f775dfe4e8c551516240db18983676" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::ceil_div_xx</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>ceil_div_xx</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="119">$\lceil x/y\rceil$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="86" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ae5a2387860f117fa041ebfffc5892731" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class IntType</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline IntType</type>
+        <definition>forceinline IntType Gecode::Int::floor_div_xx</definition>
+        <argsstring>(IntType x, IntType y)</argsstring>
+        <name>floor_div_xx</name>
+        <param>
+          <type>IntType</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntType</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Compute <formula id="120">$\lfloor x/y\rfloor$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/div.hpp" line="91" column="1" bodyfile="/usr/include/gecode/int/div.hpp" bodystart="91" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a1e5cac620097e62ad41e968477002d79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class Task</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const TaskArray&lt; Task &gt; &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; Task &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/array.hpp" line="105" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="114" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a8240cf4a3a483f29bc758f17e812bd3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class TaskView</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/array.hpp" line="156" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="162" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a1c895c09bdbce0f7ba0ca61c410222f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class OptTask</type>
+          </param>
+          <param>
+            <type>PropCond</type>
+            <declname>pc</declname>
+            <defname>pc</defname>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::purge</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, TaskArray&lt; OptTask &gt; &amp;t)</argsstring>
+        <name>purge</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; OptTask &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Purge optional tasks that are excluded and possibly rewrite propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/purge.hpp" line="42" column="1" bodyfile="/usr/include/gecode/int/task/purge.hpp" bodystart="42" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a6a50187a6b3e3bcbd4f9dcedc4820e60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class OptTask</type>
+          </param>
+          <param>
+            <type>PropCond</type>
+            <declname>pc</declname>
+            <defname>pc</defname>
+          </param>
+          <param>
+            <type>class Cap</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::purge</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, TaskArray&lt; OptTask &gt; &amp;t, Cap c)</argsstring>
+        <name>purge</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; OptTask &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>Cap</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Purge optional tasks that are excluded and possibly rewrite propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/purge.hpp" line="55" column="1" bodyfile="/usr/include/gecode/int/task/purge.hpp" bodystart="55" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ac83f3b8d683e9de8fa833ec4a0b14395" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::sort</definition>
+        <argsstring>(TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Sort task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/sort.hpp" line="137" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="137" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a5da735d579e66592c95835e393026ddb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::sort</definition>
+        <argsstring>(int *map, const TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>int *</type>
+          <declname>map</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize and sort <emphasis>map</emphasis> for task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/sort.hpp" line="166" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="166" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a61ef0e3d32bd4aa4f2c2dc15927e529c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::sort</definition>
+        <argsstring>(int *map, int n, const TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>int *</type>
+          <declname>map</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Sort <emphasis>map</emphasis> with size <emphasis>n</emphasis> for task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/sort.hpp" line="201" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="201" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a6c8c36ec855e57c1638ce9e531a486bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline int</type>
+        <definition>int Gecode::Int::plus</definition>
+        <argsstring>(int x, int y)</argsstring>
+        <name>plus</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Safe addition in case <emphasis>x</emphasis> is -Int<ref refid="namespaceGecode_1_1Int_1_1Limits_1a5a8edf24fe7e29c7159587b7e7d0260a" kindref="member">Limits::infinity</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/tree.hpp" line="43" column="1" bodyfile="/usr/include/gecode/int/task/tree.hpp" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a6d28b7bde370f2d25a26fa41248bba8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline long long int</type>
+        <definition>long long int Gecode::Int::plus</definition>
+        <argsstring>(long long int x, long long int y)</argsstring>
+        <name>plus</name>
+        <param>
+          <type>long long int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>long long int</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Safe addition in case <emphasis>x</emphasis> is -Int<ref refid="namespaceGecode_1_1Int_1_1Limits_1ae5e93636b2a7b2defae6986b2eb85dab" kindref="member">Limits::llinfinity</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/tree.hpp" line="49" column="1" bodyfile="/usr/include/gecode/int/task/tree.hpp" bodystart="49" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a05fb503a83a685cbdefcfb7162e4c5c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::sort</definition>
+        <argsstring>(TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Sort task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="291" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="137" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1adbb27cb8feb5a6f2ccebc6378f034d47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::sort</definition>
+        <argsstring>(int *map, const TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>int *</type>
+          <declname>map</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize and sort <emphasis>map</emphasis> for task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="295" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="166" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a0f091b586a3342db5dcacb5fed311957" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class TaskView</type>
+          </param>
+          <param>
+            <type>SortTaskOrder</type>
+            <declname>sto</declname>
+            <defname>sto</defname>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>inc</declname>
+            <defname>inc</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::sort</definition>
+        <argsstring>(int *map, int n, const TaskViewArray&lt; TaskView &gt; &amp;t)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>int *</type>
+          <declname>map</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; TaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Sort <emphasis>map</emphasis> with size <emphasis>n</emphasis> for task view array <emphasis>t</emphasis> according to <emphasis>sto</emphasis> and <emphasis>inc</emphasis> (increasing or decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="299" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="201" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1afb09264a5793768487eb2721b55b97d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double Gecode::Int::plus</definition>
+        <argsstring>(double x, double y)</argsstring>
+        <name>plus</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Safe addition in case <emphasis>x</emphasis> is -Int::Limits::double_infinity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="361" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a81bb30eb8ac160c4d406b04761a8d89d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4b" kindref="member">BoolTest</ref></type>
+        <definition>forceinline BoolTest Gecode::Int::bool_test</definition>
+        <argsstring>(const BoolView &amp;b0, const BoolView &amp;b1)</argsstring>
+        <name>bool_test</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool-test.hpp" line="45" column="1" bodyfile="/usr/include/gecode/int/view/bool-test.hpp" bodystart="45" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ae3586aceb21186241c1e0e8d53e1e36d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4b" kindref="member">BoolTest</ref></type>
+        <definition>forceinline BoolTest Gecode::Int::bool_test</definition>
+        <argsstring>(const BoolView &amp;b0, const NegBoolView &amp;b1)</argsstring>
+        <name>bool_test</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool-test.hpp" line="49" column="1" bodyfile="/usr/include/gecode/int/view/bool-test.hpp" bodystart="49" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a84d752affbcf37aca84f0c5498291077" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4b" kindref="member">BoolTest</ref></type>
+        <definition>forceinline BoolTest Gecode::Int::bool_test</definition>
+        <argsstring>(const NegBoolView &amp;b0, const BoolView &amp;b1)</argsstring>
+        <name>bool_test</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool-test.hpp" line="53" column="1" bodyfile="/usr/include/gecode/int/view/bool-test.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a443e6b97469f1375c16a244ba6f3d9cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="namespaceGecode_1_1Int_1af2f4f54bca09d4f68bf1a6e17ad65a4b" kindref="member">BoolTest</ref></type>
+        <definition>forceinline BoolTest Gecode::Int::bool_test</definition>
+        <argsstring>(const NegBoolView &amp;b0, const NegBoolView &amp;b1)</argsstring>
+        <name>bool_test</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/bool-test.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/view/bool-test.hpp" bodystart="57" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a069410f0988b659666188ba67faeae8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::same</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x, const CachedView&lt; View &gt; &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/cached.hpp" line="389" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="389" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a7ca99f6699cef230f695102b4fb5be70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::before</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x, const CachedView&lt; View &gt; &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/cached.hpp" line="394" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="394" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a0b846b2c8a57d77ff78c8185dd4d25fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::same</definition>
+        <argsstring>(const ConstIntView &amp;x, const ConstIntView &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="313" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="313" bodyend="315"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a04c4a9b65442d634551ed466dc81290c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::before</definition>
+        <argsstring>(const ConstIntView &amp;x, const ConstIntView &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="317" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="317" bodyend="319"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aab5e04ecc1eb9d90e64869b9cf35750b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::same</definition>
+        <argsstring>(const OffsetView &amp;x, const OffsetView &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/offset.hpp" line="297" column="1" bodyfile="/usr/include/gecode/int/view/offset.hpp" bodystart="297" bodyend="299"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ab50ec26c1f825450239e0a5cf8a6cccf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::before</definition>
+        <argsstring>(const OffsetView &amp;x, const OffsetView &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/offset.hpp" line="301" column="1" bodyfile="/usr/include/gecode/int/view/offset.hpp" bodystart="301" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aac91332322231a28b2990da5bec27887" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::print_view</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const View &amp;x)</argsstring>
+        <name>print_view</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const View &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="44" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="44" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a794ae561c72c38546e5248fb3c61476c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class UnsVal</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::print_scale</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ScaleView&lt; Val, UnsVal &gt; &amp;x)</argsstring>
+        <name>print_scale</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; Val, UnsVal &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="71" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ad2d3dc786a9e2d069b9b160c47ff7f0d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const IntView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a254556bb826559997fd7b6f596ab1292" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const MinusView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1MinusView" kindref="compound">MinusView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="102" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a381a144ddcd10deaa793f978ebf027d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OffsetView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="107" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1af2a63be3bf8023f3f3f7d4d994bdd460" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="112" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a7cd47cdac0be98531a50fc2b36e4b4bc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const IntScaleView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="group__TaskActorIntView_1gae1f5670a4cadd9ba2a9aac81c816be73" kindref="member">IntScaleView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ae0597e70c19118953d390b68723f7a70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const LLongScaleView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="group__TaskActorIntView_1ga73b715b91eb09d00c331d77d4f5334f8" kindref="member">LLongScaleView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="124" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ad61e925acd3b997f397facd3156697e7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ConstIntView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="130" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aaeafc268e522bd2f3998e1293796da4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ZeroIntView &amp;)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ZeroIntView" kindref="compound">ZeroIntView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="135" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aa408756c2d1ef1a9c8cc2c352814ce01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const BoolView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="142" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a76124bf16d9346dd519df9581c491cac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Int::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const NegBoolView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/print.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/view/print.hpp" bodystart="151" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_eq_bnd</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="47" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="47" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1afb6d695225002eb8e1797fa42ca60d91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_dom_check</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq_dom_check</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="54" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaf6d844d961885acdbdbaccc80f500f23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_eq_dom</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="68" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="68" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaa5dce51e660fc68aa8ca747266340a57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_eq_bnd</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_eq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are equal (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="77" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="77" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aece812a49de69c8053fa00017ef94098" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_dom_check</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_eq_dom_check</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="84" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="84" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga154f20fd096a057e80e931a3d5cdbe7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_eq_dom</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_eq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are equal (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="92" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="92" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_bnd</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_nq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are different (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="107" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="107" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a94692ce571216d0e71a6dd341aea875f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_dom_check</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_nq_dom_check</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="114" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="114" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga03a9ab055cb7518b1ee6367178e32f20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_dom</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_nq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are different (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="128" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="128" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga9f93d93efbe0e44c0482f95bdc9ba9da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_bnd</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_nq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are different (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="137" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="137" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1ac684085c4ca43a3432ff9321b503bcc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_dom_check</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_nq_dom_check</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="144" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="144" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga28bb8cc0d18e726ef5f6b9d2e31bdb7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_nq_dom</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_nq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are different (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="152" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="152" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga670f12c00b2c20d3d7f3907d8ba9f91f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_lq</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="166" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="166" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_lq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="174" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="174" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga4733e985bb507c2e27a37b32d63ab143" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_le</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="182" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="182" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_le</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="190" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="190" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga3dde8766ce44746b6920063dfc491165" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_gq</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_gq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater or equal than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="198" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="198" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga484f045f3cd5623d0ad65fb633746e78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_gq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_gq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="206" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="206" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga335b4fd658ee02f95ca54b1f635b7239" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_gr</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_gr</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="214" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="214" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga5afcd94ed770ddeb34d20f5b8c3b708b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Int::rtest_gr</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_gr</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/rel-test.hpp" line="222" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="222" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1a575829145c5bcb0a1b64bd99e8d11005" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class UnsVal</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::same</definition>
+        <argsstring>(const ScaleView&lt; Val, UnsVal &gt; &amp;x, const ScaleView&lt; Val, UnsVal &gt; &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; Val, UnsVal &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; Val, UnsVal &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/scale.hpp" line="301" column="1" bodyfile="/usr/include/gecode/int/view/scale.hpp" bodystart="301" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1abe7118e84c2dc313cedc9a3007cb6021" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Val</type>
+          </param>
+          <param>
+            <type>class UnsVal</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::before</definition>
+        <argsstring>(const ScaleView&lt; Val, UnsVal &gt; &amp;x, const ScaleView&lt; Val, UnsVal &gt; &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; Val, UnsVal &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ScaleView" kindref="compound">ScaleView</ref>&lt; Val, UnsVal &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/scale.hpp" line="306" column="1" bodyfile="/usr/include/gecode/int/view/scale.hpp" bodystart="306" bodyend="309"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1aff9cbbacb5e62014ee5eb61786a1f117" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::same</definition>
+        <argsstring>(const ZeroIntView &amp;, const ZeroIntView &amp;)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ZeroIntView" kindref="compound">ZeroIntView</ref> &amp;</type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ZeroIntView" kindref="compound">ZeroIntView</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/zero.hpp" line="298" column="1" bodyfile="/usr/include/gecode/int/view/zero.hpp" bodystart="298" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_bnd</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1621" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="47" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaf6d844d961885acdbdbaccc80f500f23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_dom</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1623" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="68" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaa5dce51e660fc68aa8ca747266340a57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_bnd</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_eq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are equal (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1625" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="77" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga154f20fd096a057e80e931a3d5cdbe7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_eq_dom</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_eq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are equal (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1627" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="92" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_nq_bnd</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_nq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are different (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1630" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="107" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga03a9ab055cb7518b1ee6367178e32f20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_nq_dom</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_nq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are different (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1632" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="128" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga9f93d93efbe0e44c0482f95bdc9ba9da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_nq_bnd</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_nq_bnd</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are different (use bounds information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1634" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="137" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga28bb8cc0d18e726ef5f6b9d2e31bdb7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_nq_dom</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_nq_dom</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and integer <emphasis>n</emphasis> are different (use full domain information) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1636" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="152" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga63eb2d3a830f04910c046e418146c5ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_lq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1639" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="58" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga670f12c00b2c20d3d7f3907d8ba9f91f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_lq</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1641" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="166" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga75aaaa493e5dc18c07b75fa5c77f458e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_le</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1644" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="74" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga4733e985bb507c2e27a37b32d63ab143" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_le</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1646" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="182" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga484f045f3cd5623d0ad65fb633746e78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_gq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_gq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1649" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="206" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga3dde8766ce44746b6920063dfc491165" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_gq</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_gq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater or equal than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1651" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="198" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga5afcd94ed770ddeb34d20f5b8c3b708b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_gr</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_gr</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1654" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="222" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorIntTest_1ga335b4fd658ee02f95ca54b1f635b7239" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Int::rtest_gr</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>rtest_gr</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is greater than integer <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1656" column="1" bodyfile="/usr/include/gecode/int/view/rel-test.hpp" bodystart="214" bodyend="218"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Finite domain integers. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="namespaceGecode_1_1Int" kindref="compound">Gecode::Int</ref> namespace contains all functionality required to program propagators and branchers for finite domain integers. In addition, all propagators and branchers for finite domain integers provided by Gecode are contained as nested namespaces. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/arithmetic/abs.hpp" line="42" column="1"/>
+  </compounddef>
+</doxygen>

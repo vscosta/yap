@@ -1,0 +1,283 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Bool_1_1BoolBinary" kind="class" prot="public">
+    <compoundname>Gecode::Int::Bool::BoolBinary</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Bool_1_1BinOrTrue" prot="public" virt="non-virtual">Gecode::Int::Bool::BinOrTrue&lt; BVA, BVB &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Bool_1_1Eq" prot="public" virt="non-virtual">Gecode::Int::Bool::Eq&lt; BVA, BVB &gt;</derivedcompoundref>
+    <includes refid="bool_8hh" local="no">bool.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>BVA</declname>
+        <defname>BVA</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>BVB</declname>
+        <defname>BVB</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1ac25e6a75673c3e67093b553f10388672" prot="protected" static="no" mutable="no">
+        <type>BVA</type>
+        <definition>BVA Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::x0</definition>
+        <argsstring></argsstring>
+        <name>x0</name>
+        <briefdescription>
+<para>Boolean view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="61" column="1" bodyfile="/usr/include/gecode/int/bool.hh" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a827d03e8a8bf0f2ff4cdd423d0f9ec96" prot="protected" static="no" mutable="no">
+        <type>BVB</type>
+        <definition>BVB Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::x1</definition>
+        <argsstring></argsstring>
+        <name>x1</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean view </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="62" column="1" bodyfile="/usr/include/gecode/int/bool.hh" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a49fe87b59f29b5e7e227ba98e4af83fc" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::BoolBinary</definition>
+        <argsstring>(Home home, BVA b0, BVB b1)</argsstring>
+        <name>BoolBinary</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>BVA</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>BVB</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="64" column="1" bodyfile="/usr/include/gecode/int/bool/base.hpp" bodystart="46" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a98ed1862c29e8474d55d518a6d4af297" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::BoolBinary</definition>
+        <argsstring>(Space &amp;home, bool share, BoolBinary &amp;p)</argsstring>
+        <name>BoolBinary</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary" kindref="compound">BoolBinary</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="66" column="1" bodyfile="/usr/include/gecode/int/bool/base.hpp" bodystart="54" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a98afca96b38d3dcd270cd4ebda3e3eae" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::BoolBinary</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, BVA b0, BVB b1)</argsstring>
+        <name>BoolBinary</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>BVA</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>BVB</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for rewriting <emphasis>p</emphasis> during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="68" column="1" bodyfile="/usr/include/gecode/int/bool/base.hpp" bodystart="63" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a47ef9a9ee4b5744c9164e58db3628665" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (defined as low unary) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="72" column="1" bodyfile="/usr/include/gecode/int/bool/base.hpp" bodystart="72" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a39f81fbdfe8969b5e9c0a3b43de71b1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <reimplementedby refid="classGecode_1_1Int_1_1Bool_1_1TerOrTrue_1a7225f2382346580f631cd52551bd1626">dispose</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Bool_1_1QuadOrTrue_1afeea518891ec6786b79f64a1817f4d4b">dispose</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="74" column="1" bodyfile="/usr/include/gecode/int/bool/base.hpp" bodystart="78" bodyend="83"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for binary Boolean propagators. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1187">
+        <label>Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary"/>
+        <childnode refid="1188" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1191">
+        <label>Gecode::Int::Bool::BinOrTrue&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BinOrTrue"/>
+        <childnode refid="1187" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1188">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1189" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1189">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1190" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1190">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1192">
+        <label>Gecode::Int::Bool::Eq&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Eq"/>
+        <childnode refid="1187" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1197">
+        <label>BVA</label>
+      </node>
+      <node id="1198">
+        <label>BVB</label>
+      </node>
+      <node id="1193">
+        <label>Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary"/>
+        <childnode refid="1194" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1197" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+        <childnode refid="1198" relation="usage">
+          <edgelabel>x1</edgelabel>
+        </childnode>
+      </node>
+      <node id="1194">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1195" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1196" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1195">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1196" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1196">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/bool.hh" line="59" column="1" bodyfile="/usr/include/gecode/int/bool.hh" bodystart="59" bodyend="75"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a49fe87b59f29b5e7e227ba98e4af83fc" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>BoolBinary</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a98ed1862c29e8474d55d518a6d4af297" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>BoolBinary</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a98afca96b38d3dcd270cd4ebda3e3eae" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>BoolBinary</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Bool::BoolBinary</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Bool::BoolBinary</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a47ef9a9ee4b5744c9164e58db3628665" prot="public" virt="virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a39f81fbdfe8969b5e9c0a3b43de71b1d" prot="public" virt="virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1" prot="public" virt="pure-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1ac25e6a75673c3e67093b553f10388672" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>x0</name></member>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary_1a827d03e8a8bf0f2ff4cdd423d0f9ec96" prot="protected" virt="non-virtual"><scope>Gecode::Int::Bool::BoolBinary</scope><name>x1</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

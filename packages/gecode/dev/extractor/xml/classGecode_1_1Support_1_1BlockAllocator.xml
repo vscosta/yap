@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1BlockAllocator" kind="class" prot="public">
+    <compoundname>Gecode::Support::BlockAllocator</compoundname>
+    <includes refid="block-allocator_8hpp" local="no">block-allocator.hpp</includes>
+    <innerclass refid="classGecode_1_1Support_1_1BlockAllocator_1_1Block" prot="private">Gecode::Support::BlockAllocator::Block</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+      <param>
+        <type>int</type>
+        <declname>blocksize</declname>
+        <defname>blocksize</defname>
+        <defval>512</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BlockAllocator_1a804f7828a82f37775ada2dd51e8362fa" prot="private" static="no" mutable="no">
+        <type>A &amp;</type>
+        <definition>A&amp; Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Memory allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="52" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BlockAllocator_1addd5dcfbc8666190b82f5c9f1cf56d50" prot="private" static="no" mutable="no">
+        <type>Block *</type>
+        <definition>Block* Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::b</definition>
+        <argsstring></argsstring>
+        <name>b</name>
+        <briefdescription>
+<para>Pointer to current block. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="60" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BlockAllocator_1acf23dcec2e06741f28ad81aa66affecf" prot="private" static="no" mutable="no">
+        <type>T *</type>
+        <definition>T* Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Pointer to next part of block (decreasing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="62" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BlockAllocator_1a309aae6dd6ea65c35c6ba7f37a214045" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::_size</definition>
+        <argsstring></argsstring>
+        <name>_size</name>
+        <briefdescription>
+<para>Size of allocated blocks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="64" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a922981ac17386e9f57bfb98c73379c8d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::allocate</definition>
+        <argsstring>(void)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate additional block. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="66" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="135" bodyend="141"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a4068b27d3b76d640d27a4df0b14db0ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::BlockAllocator</definition>
+        <argsstring>(A &amp;a)</argsstring>
+        <name>BlockAllocator</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="69" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="102" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a548047c248fc9d2e2917f12840e29cec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::~BlockAllocator</definition>
+        <argsstring>(void)</argsstring>
+        <name>~BlockAllocator</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Free all allocated blocks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="71" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="111" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a81d33ebbd5e6f087b0290fd077a01ea3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>A &amp;</type>
+        <definition>forceinline A &amp; Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::allocator</definition>
+        <argsstring>(void)</argsstring>
+        <name>allocator</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return allocator used. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="73" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="120" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a4bc00d2bd525a51d5e3db1bbaea5be42" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>T *</type>
+        <definition>forceinline T * Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::operator()</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return memory of size required by <emphasis>T</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="75" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="126" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BlockAllocator_1a1fa02919c6897e1cd9880d86fabce72b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Support::BlockAllocator&lt; T, A, blocksize &gt;::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of memory required by allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/block-allocator.hpp" line="77" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Manage memory organized into block lists (allocator) </para>    </briefdescription>
+    <detaileddescription>
+<para>The allocation policy is to free all memory allocated when the block allocator is deleted. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/support/block-allocator.hpp" line="49" column="1" bodyfile="/usr/include/gecode/support/block-allocator.hpp" bodystart="49" bodyend="78"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a309aae6dd6ea65c35c6ba7f37a214045" prot="private" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>_size</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a804f7828a82f37775ada2dd51e8362fa" prot="private" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>a</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a922981ac17386e9f57bfb98c73379c8d" prot="private" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a81d33ebbd5e6f087b0290fd077a01ea3" prot="public" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>allocator</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1addd5dcfbc8666190b82f5c9f1cf56d50" prot="private" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>b</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a4068b27d3b76d640d27a4df0b14db0ef" prot="public" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>BlockAllocator</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1acf23dcec2e06741f28ad81aa66affecf" prot="private" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>n</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a4bc00d2bd525a51d5e3db1bbaea5be42" prot="public" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a1fa02919c6897e1cd9880d86fabce72b" prot="public" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>size</name></member>
+      <member refid="classGecode_1_1Support_1_1BlockAllocator_1a548047c248fc9d2e2917f12840e29cec" prot="public" virt="non-virtual"><scope>Gecode::Support::BlockAllocator</scope><name>~BlockAllocator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

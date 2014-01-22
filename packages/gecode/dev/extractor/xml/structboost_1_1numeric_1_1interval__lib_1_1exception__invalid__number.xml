@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1exception__invalid__number" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::exception_invalid_number</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1exception__invalid__number_1aa8b6fe2bc9d47cb395f4eca29e8af689" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void boost::numeric::interval_lib::exception_invalid_number::operator()</definition>
+        <argsstring>()</argsstring>
+        <name>operator()</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" line="32" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" bodystart="32" bodyend="35"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" line="31" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" bodystart="30" bodyend="36"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1exception__invalid__number_1aa8b6fe2bc9d47cb395f4eca29e8af689" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::exception_invalid_number</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

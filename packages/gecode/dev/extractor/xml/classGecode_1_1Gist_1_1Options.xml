@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Options" kind="class" prot="public">
+    <compoundname>Gecode::Gist::Options</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Options" prot="public" virt="non-virtual">Gecode::Search::Options</basecompoundref>
+    <includes refid="gist_8hh" local="no">gist.hh</includes>
+    <innerclass refid="classGecode_1_1Gist_1_1Options_1_1__I" prot="public">Gecode::Gist::Options::_I</innerclass>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1aacc2e68f476e8b8d0302de084d81cab0" prot="public" static="no" mutable="no">
+        <type>class <ref refid="classGecode_1_1Gist_1_1Options_1_1__I" kindref="compound">Gecode::Gist::Options::_I</ref></type>
+        <definition>class Gecode::Gist::Options::_I  Gecode::Gist::Options::inspect</definition>
+        <argsstring></argsstring>
+        <name>inspect</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="271" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Options_1a164b2651c69ff6aa6d01f52bce4adf7c" prot="public" static="yes" mutable="no">
+        <type>GECODE_GIST_EXPORT const <ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref></type>
+        <definition>GECODE_GIST_EXPORT const Options Gecode::Gist::Options::def</definition>
+        <argsstring></argsstring>
+        <name>def</name>
+        <briefdescription>
+<para>Default options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="273" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="273" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Options_1abf5bde69a42a7e964ccde3f765ab3e6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Gist::Options::Options</definition>
+        <argsstring>(void)</argsstring>
+        <name>Options</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize with default values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="275" column="1" bodyfile="/usr/include/gecode/gist/gist.hpp" bodystart="166" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Options for Gist </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that the <emphasis>d</emphasis> and <emphasis>stop</emphasis> fields of the <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Search::Options</ref> class are not used by <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="4953">
+        <label>Gecode::Gist::Options</label>
+        <link refid="classGecode_1_1Gist_1_1Options"/>
+        <childnode refid="4954" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4954">
+        <label>Gecode::Search::Options</label>
+        <link refid="classGecode_1_1Search_1_1Options"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4958">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="4957">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="4959">
+        <label>Gecode::Gist::Options::_I</label>
+        <link refid="classGecode_1_1Gist_1_1Options_1_1__I"/>
+      </node>
+      <node id="4955">
+        <label>Gecode::Gist::Options</label>
+        <link refid="classGecode_1_1Gist_1_1Options"/>
+        <childnode refid="4956" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4959" relation="usage">
+          <edgelabel>inspect</edgelabel>
+        </childnode>
+        <childnode refid="4955" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="4956">
+        <label>Gecode::Search::Options</label>
+        <link refid="classGecode_1_1Search_1_1Options"/>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>cutoff</edgelabel>
+        </childnode>
+        <childnode refid="4958" relation="usage">
+          <edgelabel>stop</edgelabel>
+        </childnode>
+        <childnode refid="4956" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist.hh" line="238" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="238" bodyend="276"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Options_1a9cbd39139b9565aa65780610f1b511b8" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>a_d</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a0ddf2cf2908ba6e79d0d99654bf5ea02" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>c_d</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a2cbf87912bdcdbaf43253e3ef176f74f" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>clone</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a790a21ffcc3e8caae3fbf572e06081c2" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>cutoff</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1a164b2651c69ff6aa6d01f52bce4adf7c" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>def</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a12361cf7cd94fe0f4c83ffeeb8c18319" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>expand</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1aacc2e68f476e8b8d0302de084d81cab0" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>inspect</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1ae5a8a196b955337c4217a97f05416f84" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>nogoods_limit</name></member>
+      <member refid="classGecode_1_1Gist_1_1Options_1abf5bde69a42a7e964ccde3f765ab3e6f" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>Options</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1ab339c9f1eec1a4522d9137be9cfc998a" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1afaeaddeb98d05272907b3a3b59375406" prot="public" virt="non-virtual"><scope>Gecode::Gist::Options</scope><name>threads</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,280 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="int_2view-val-graph_2node_8hpp" kind="file">
+    <compoundname>node.hpp</compoundname>
+    <includedby refid="view-val-graph_8hh" local="no">/usr/include/gecode/int/view-val-graph.hh</includedby>
+    <invincdepgraph>
+      <node id="7769">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="7770" relation="include">
+        </childnode>
+      </node>
+      <node id="7762">
+        <label>/usr/include/gecode/int/view-val-graph/node.hpp</label>
+        <link refid="int/view-val-graph/node.hpp"/>
+        <childnode refid="7763" relation="include">
+        </childnode>
+      </node>
+      <node id="7767">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="7768" relation="include">
+        </childnode>
+      </node>
+      <node id="7764">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="7765" relation="include">
+        </childnode>
+        <childnode refid="7766" relation="include">
+        </childnode>
+        <childnode refid="7767" relation="include">
+        </childnode>
+        <childnode refid="7769" relation="include">
+        </childnode>
+        <childnode refid="7771" relation="include">
+        </childnode>
+        <childnode refid="7772" relation="include">
+        </childnode>
+        <childnode refid="7773" relation="include">
+        </childnode>
+        <childnode refid="7774" relation="include">
+        </childnode>
+      </node>
+      <node id="7772">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="7770" relation="include">
+        </childnode>
+      </node>
+      <node id="7773">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="7770" relation="include">
+        </childnode>
+      </node>
+      <node id="7765">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="7770">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="7763">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="7764" relation="include">
+        </childnode>
+        <childnode refid="7770" relation="include">
+        </childnode>
+      </node>
+      <node id="7774">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="7775" relation="include">
+        </childnode>
+      </node>
+      <node id="7768">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="7775">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="7771">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="7770" relation="include">
+        </childnode>
+      </node>
+      <node id="7766">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int">Gecode::Int</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1ViewValGraph">Gecode::Int::ViewValGraph</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2003</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2011-09-08<sp/>14:34:40<sp/>+0200<sp/>(Thu,<sp/>08<sp/>Sep<sp/>2011)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>12395<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Int<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">ViewValGraph<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Nodes</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="47" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1af98cfc43cf3d04ef8887b08bd81aad11" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1af98cfc43cf3d04ef8887b08bd81aad11" kindref="member">Node&lt;View&gt;::Node</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>:<sp/>min(0)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Must<sp/>be<sp/>initialized<sp/>such<sp/>that<sp/>the<sp/>node<sp/>is<sp/>considered<sp/>unvisited<sp/>initially</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight></codeline>
+<codeline lineno="52" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a6d6f05c086e2f0da61fffb156f5f0244" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a6d6f05c086e2f0da61fffb156f5f0244" kindref="member">Node&lt;View&gt;::edge_fst</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ae21348fc4bde32c21cd1568ed7f6b43c" kindref="member">BiLink::next</ref>());</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight></codeline>
+<codeline lineno="57" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1ae675d50ab5e5ca120ba53836671f11f8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1ae675d50ab5e5ca120ba53836671f11f8" kindref="member">Node&lt;View&gt;::edge_lst</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight><highlight class="keyword">const_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" kindref="compound">Node&lt;View&gt;</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight><highlight class="keyword">this</highlight><highlight class="normal">)));</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a88898e37d5bf8f7a96a55e61b526a8b5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" kindref="compound">Node&lt;View&gt;::operator</ref><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*,<sp/>size_t)<sp/>{}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1af12b6bafa7ed362ec332789b7e11cfcd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" kindref="compound">Node&lt;View&gt;::operator</ref><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*,<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;)<sp/>{}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*</highlight></codeline>
+<codeline lineno="68" refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a19e6716675f0416f58a473b0f9a15bd1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" kindref="compound">Node&lt;View&gt;::operator</ref><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s,<sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>home.ralloc(s);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="73"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Value<sp/>nodes</highlight></codeline>
+<codeline lineno="74"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="75"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="80" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1aa62d330c89a31746a5165f0e77f29de8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1aa62d330c89a31746a5165f0e77f29de8" kindref="member">ValNode&lt;View&gt;::ValNode</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>v)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_val(v),<sp/>_matching(NULL)<sp/>{}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="84" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1acc78a18bc3cc1287d6869a271d05a572" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1aa62d330c89a31746a5165f0e77f29de8" kindref="member">ValNode&lt;View&gt;::ValNode</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>v,<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode" kindref="compound">ValNode&lt;View&gt;</ref>*<sp/>n)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_val(v),<sp/>_matching(NULL),<sp/>_next_val(n)<sp/>{}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a9ef8adc852f73293c4739bbc4e3835f3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a9ef8adc852f73293c4739bbc4e3835f3" kindref="member">ValNode&lt;View&gt;::val</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_val;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1af2969fd4c27b35fc90464d3aff11394b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1ae22b0aabed32f1f94c8c6f7ac63e6d8e" kindref="member">ValNode&lt;View&gt;::matching</ref>(<ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*<sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>_matching<sp/>=<sp/>m;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight></codeline>
+<codeline lineno="98" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1ae22b0aabed32f1f94c8c6f7ac63e6d8e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1ae22b0aabed32f1f94c8c6f7ac63e6d8e" kindref="member">ValNode&lt;View&gt;::matching</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_matching;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode" kindref="compound">ValNode&lt;View&gt;</ref>**</highlight></codeline>
+<codeline lineno="103" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a4a82f35f3180cee4b171eca0f9adacf3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a4a82f35f3180cee4b171eca0f9adacf3" kindref="member">ValNode&lt;View&gt;::next_val_ref</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;_next_val;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode" kindref="compound">ValNode&lt;View&gt;</ref>*</highlight></codeline>
+<codeline lineno="108" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a0fa1b950f677fbf0c973723c7eacd55c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a0fa1b950f677fbf0c973723c7eacd55c" kindref="member">ValNode&lt;View&gt;::next_val</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_next_val;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1af3b25cb640aaa1af2e6d3695968bfa80" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode_1a0fa1b950f677fbf0c973723c7eacd55c" kindref="member">ValNode&lt;View&gt;::next_val</ref>(<ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode" kindref="compound">ValNode&lt;View&gt;</ref>*<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>_next_val<sp/>=<sp/>n;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="120"><highlight class="comment"><sp/><sp/><sp/>*<sp/>View<sp/>nodes</highlight></codeline>
+<codeline lineno="121"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="122"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="126" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ac92086f83730c947396e2524d7cc491f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ac92086f83730c947396e2524d7cc491f" kindref="member">ViewNode&lt;View&gt;::ViewNode</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_view(View(NULL))<sp/>{}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="130" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4e10ae6f3237d48fe749ac8bbb78855b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ac92086f83730c947396e2524d7cc491f" kindref="member">ViewNode&lt;View&gt;::ViewNode</ref>(View<sp/>x)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_size(x.<ref refid="group__FuncIterRangesOp_1ga9f9ab6d72452ad86b95cd65abf463161" kindref="member">size</ref>()),<sp/>_view(x)<sp/>{}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>*</highlight></codeline>
+<codeline lineno="134" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab316323f1678f036653543c282027c88" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab316323f1678f036653543c282027c88" kindref="member">ViewNode&lt;View&gt;::val_edges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_val_edges;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge&lt;View&gt;</ref>**</highlight></codeline>
+<codeline lineno="139" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4c64acab9339a77c5c77e2048dc250f5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4c64acab9339a77c5c77e2048dc250f5" kindref="member">ViewNode&lt;View&gt;::val_edges_ref</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;_val_edges;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a671e13819ac09ab4f874d2513b7c8120" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a671e13819ac09ab4f874d2513b7c8120" kindref="member">ViewNode&lt;View&gt;::fake</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_view.varimp()<sp/>==<sp/>NULL;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>forceinline<sp/>View</highlight></codeline>
+<codeline lineno="149" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a8fa7aa9ba89ebcdd8075cc4a5556d770" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a8fa7aa9ba89ebcdd8075cc4a5556d770" kindref="member">ViewNode&lt;View&gt;::view</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_view;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abc83d69362c926c4cd24a7fd0537abb1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abc83d69362c926c4cd24a7fd0537abb1" kindref="member">ViewNode&lt;View&gt;::changed</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_size<sp/>!=<sp/>_view.size();</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab4fea6bc1e7f0cf56029625f1aa8226e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab4fea6bc1e7f0cf56029625f1aa8226e" kindref="member">ViewNode&lt;View&gt;::update</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>_size<sp/>=<sp/>_view.size();</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab5be68e172534d2c4b62c988b249a43b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab5be68e172534d2c4b62c988b249a43b" kindref="member">ViewNode&lt;View&gt;::matched</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a6d6f05c086e2f0da61fffb156f5f0244" kindref="member">Node&lt;View&gt;::edge_fst</ref>()<sp/>!=<sp/><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1ae675d50ab5e5ca120ba53836671f11f8" kindref="member">Node&lt;View&gt;::edge_lst</ref>();</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">}}}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>int-prop</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/int/view-val-graph/node.hpp"/>
+  </compounddef>
+</doxygen>

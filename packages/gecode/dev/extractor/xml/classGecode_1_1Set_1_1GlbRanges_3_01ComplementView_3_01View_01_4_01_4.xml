@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</compoundname>
+    <includes refid="complement_8hpp" local="no">complement.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a53ae38f16f5e509c3afae1e26cffcb4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::GlbRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="450" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="450" bodyend="450"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a7d85e901c7234c972e6f9aebad40be5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::GlbRanges</definition>
+        <argsstring>(const ComplementView&lt; View &gt; &amp;x)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="452" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="478" bodyend="479"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ab8d4158d80e4b01ef0da7050641f46d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::init</definition>
+        <argsstring>(const ComplementView&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="454" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="483" bodyend="486"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3d6b27c156e8d760c126bc2ee17b8db7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="460" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="490" bodyend="490"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1affb3383f6107dc23c05f2bd6d420afd9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="462" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="494" bodyend="494"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a544c71fead2b3f18aaad3f77c1c1451e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="468" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="498" bodyend="498"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ad91c052daba2ac4c8caab69ec06ff80e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="470" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="502" bodyend="502"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a809addc9b0d203d05fb966d461d20cea" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of ranges (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="472" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="506" bodyend="506"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3d3e9689b61d687cb3d1d96c83342568" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt; View &gt;</type>
+        <definition>LubRanges&lt;View&gt; Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::ub</definition>
+        <argsstring></argsstring>
+        <name>ub</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="444" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="444" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3bd264c1f966f7d86bff612654a763df" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl</ref>&lt; <ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt; View &gt; &gt;</type>
+        <definition>RangesCompl&lt;LubRanges&lt;View&gt; &gt; Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;::ubc</definition>
+        <argsstring></argsstring>
+        <name>ubc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/complement.hpp" line="445" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="445" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for greatest lower bound of complement set views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/view/complement.hpp" line="442" column="1" bodyfile="/usr/include/gecode/set/view/complement.hpp" bodystart="442" bodyend="474"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a53ae38f16f5e509c3afae1e26cffcb4f" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a7d85e901c7234c972e6f9aebad40be5f" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ab8d4158d80e4b01ef0da7050641f46d1" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ad91c052daba2ac4c8caab69ec06ff80e" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a544c71fead2b3f18aaad3f77c1c1451e" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3d6b27c156e8d760c126bc2ee17b8db7" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1affb3383f6107dc23c05f2bd6d420afd9" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3d3e9689b61d687cb3d1d96c83342568" prot="private" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>ub</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3bd264c1f966f7d86bff612654a763df" prot="private" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>ubc</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a809addc9b0d203d05fb966d461d20cea" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

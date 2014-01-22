@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntBranchSymm" kind="group">
+    <compoundname>TaskModelIntBranchSymm</compoundname>
+    <title>Symmetry declarations</title>
+    <innerclass refid="classGecode_1_1Symmetries" prot="public">Gecode::Symmetries</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga65913c3e69262087b50010d5d8c41687" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::VariableSymmetry</definition>
+        <argsstring>(const IntVarArgs &amp;x)</argsstring>
+        <name>VariableSymmetry</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Variables in <emphasis>x</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4233" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1gae4f3baa5c9ac6cf124a20ec77dc449fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::VariableSymmetry</definition>
+        <argsstring>(const BoolVarArgs &amp;x)</argsstring>
+        <name>VariableSymmetry</name>
+        <param>
+          <type>const BoolVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Variables in <emphasis>x</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4235" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1gaa1afd6244746b861271c3686387a4e27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::VariableSymmetry</definition>
+        <argsstring>(const IntVarArgs &amp;x, const IntArgs &amp;indices)</argsstring>
+        <name>VariableSymmetry</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>indices</declname>
+        </param>
+        <briefdescription>
+<para>Specified variables in <emphasis>x</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4237" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga87eba9cbefa192f5343a0adb62cab42b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::ValueSymmetry</definition>
+        <argsstring>(const IntArgs &amp;v)</argsstring>
+        <name>ValueSymmetry</name>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Values in <emphasis>v</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4240" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga3159c9df440fac56bac27da290a366cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::ValueSymmetry</definition>
+        <argsstring>(const IntSet &amp;v)</argsstring>
+        <name>ValueSymmetry</name>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Values in <emphasis>v</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4242" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga56b2e767f9ad086fd178644d4f8345dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::ValueSymmetry</definition>
+        <argsstring>(IntVar vars)</argsstring>
+        <name>ValueSymmetry</name>
+        <param>
+          <type>IntVar</type>
+          <declname>vars</declname>
+        </param>
+        <briefdescription>
+<para>All values in the domain of the given variable are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4244" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1gaabb552d4c34a90e89b71096063aee7ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::VariableSequenceSymmetry</definition>
+        <argsstring>(const IntVarArgs &amp;x, int ss)</argsstring>
+        <name>VariableSequenceSymmetry</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>ss</declname>
+        </param>
+        <briefdescription>
+<para>Variable sequences in <emphasis>x</emphasis> of size <emphasis>ss</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+<para>The size of <emphasis>x</emphasis> must be a multiple of <emphasis>ss</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4251" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1gaec53dbb4b4bad7dfbcf518df79cc0a68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::VariableSequenceSymmetry</definition>
+        <argsstring>(const BoolVarArgs &amp;x, int ss)</argsstring>
+        <name>VariableSequenceSymmetry</name>
+        <param>
+          <type>const BoolVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>ss</declname>
+        </param>
+        <briefdescription>
+<para>Variable sequences in <emphasis>x</emphasis> of size <emphasis>ss</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+<para>The size of <emphasis>x</emphasis> must be a multiple of <emphasis>ss</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4258" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga2a1c0efd5a3d9c8e200137b7fa202ad4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::ValueSequenceSymmetry</definition>
+        <argsstring>(const IntArgs &amp;v, int ss)</argsstring>
+        <name>ValueSequenceSymmetry</name>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>ss</declname>
+        </param>
+        <briefdescription>
+<para>Value sequences in <emphasis>v</emphasis> of size <emphasis>ss</emphasis> are interchangeable. </para>        </briefdescription>
+        <detaileddescription>
+<para>The size of <emphasis>v</emphasis> must be a multiple of <emphasis>ss</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4265" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga703883d775e323ff56d8b573f25f5c55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::values_reflect</definition>
+        <argsstring>(int lower, int upper)</argsstring>
+        <name>values_reflect</name>
+        <param>
+          <type>int</type>
+          <declname>lower</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>upper</declname>
+        </param>
+        <briefdescription>
+<para>The values from <emphasis>lower</emphasis> to <emphasis>upper</emphasis> (inclusive) can be reflected. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4268" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchSymm_1ga3f691e7a0c6d6201f7ed3656ac927902" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT SymmetryHandle</type>
+        <definition>GECODE_INT_EXPORT SymmetryHandle Gecode::values_reflect</definition>
+        <argsstring>(IntVar x)</argsstring>
+        <name>values_reflect</name>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>The values in the domain of  can be reflected. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4270" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Inspector" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Gist::Inspector</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Gist_1_1Print" prot="public" virt="non-virtual">Gecode::Gist::Print&lt; S &gt;</derivedcompoundref>
+    <includes refid="gist_8hh" local="no">gist.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Inspector_1a11f4564704c09cff55d6e64481c79b5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Gist::Inspector::inspect</definition>
+        <argsstring>(const Space &amp;s)=0</argsstring>
+        <name>inspect</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1Print_1a66321be95255e1fb5e885623d5b4a8e6">inspect</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Call-back function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="106" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Inspector_1a73e0ba2fd76e260d42a51f5c35538a9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::string</type>
+        <definition>virtual std::string Gecode::Gist::Inspector::name</definition>
+        <argsstring>(void)</argsstring>
+        <name>name</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1Print_1aba08d133c20caa38bd1c5186383955ad">name</reimplementedby>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Name of the inspector. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="108" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Inspector_1a164be6725b23c5534ad2cbd89606b0cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Gist::Inspector::finalize</definition>
+        <argsstring>(void)</argsstring>
+        <name>finalize</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1Print_1adfdd0d9d6214757c4c81cf50d0ac2bda">finalize</reimplementedby>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Clean up when <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref> exits. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="110" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Inspector_1a6bd4b557059bcce22a1cc1389c88cebf" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::Gist::Inspector::~Inspector</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Inspector</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist.hh" line="112" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Abstract base class for inspectors. </para>    </briefdescription>
+    <detaileddescription>
+<para>An inspector provides a virtual method that is called when a node in the search tree is inspected (e.g. by double-clicking) </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="2823">
+        <label>Gecode::Gist::Inspector</label>
+        <link refid="classGecode_1_1Gist_1_1Inspector"/>
+      </node>
+      <node id="2824">
+        <label>Gecode::Gist::Print&lt; S &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1Print"/>
+        <childnode refid="2823" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/gist.hh" line="103" column="1" bodyfile="/usr/include/gecode/gist.hh" bodystart="103" bodyend="113"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1Inspector_1a164be6725b23c5534ad2cbd89606b0cf" prot="public" virt="virtual"><scope>Gecode::Gist::Inspector</scope><name>finalize</name></member>
+      <member refid="classGecode_1_1Gist_1_1Inspector_1a11f4564704c09cff55d6e64481c79b5c" prot="public" virt="pure-virtual"><scope>Gecode::Gist::Inspector</scope><name>inspect</name></member>
+      <member refid="classGecode_1_1Gist_1_1Inspector_1a73e0ba2fd76e260d42a51f5c35538a9d" prot="public" virt="virtual"><scope>Gecode::Gist::Inspector</scope><name>name</name></member>
+      <member refid="classGecode_1_1Gist_1_1Inspector_1a6bd4b557059bcce22a1cc1389c88cebf" prot="public" virt="virtual"><scope>Gecode::Gist::Inspector</scope><name>~Inspector</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

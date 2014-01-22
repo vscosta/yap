@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1Term" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::Term</compoundname>
+    <includes refid="int_2linear_8hh" local="no">linear.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Linear_1_1Term_1a3e0595376146c28deeb2e33a3bfb802f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Linear::Term&lt; View &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Coefficient. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1313" column="1" bodyfile="/usr/include/gecode/int/linear.hh" bodystart="1313" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Linear_1_1Term_1a14e713f5148e027729a272f8ee4ebd00" prot="public" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::Linear::Term&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>View. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear.hh" line="1315" column="1" bodyfile="/usr/include/gecode/int/linear.hh" bodystart="1315" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for describing linear term <formula id="15">$a\cdot x$</formula>. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6989">
+        <label>View</label>
+      </node>
+      <node id="6988">
+        <label>Gecode::Int::Linear::Term&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Term"/>
+        <childnode refid="6989" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/linear.hh" line="1310" column="1" bodyfile="/usr/include/gecode/int/linear.hh" bodystart="1310" bodyend="1316"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1Term_1a3e0595376146c28deeb2e33a3bfb802f" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::Term</scope><name>a</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1Term_1a14e713f5148e027729a272f8ee4ebd00" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::Term</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

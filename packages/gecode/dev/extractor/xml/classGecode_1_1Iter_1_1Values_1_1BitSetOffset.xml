@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Values::BitSetOffset</compoundname>
+    <includes refid="values-bitsetoffset_8hpp" local="no">values-bitsetoffset.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class BS</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a234a82ad188fdd16b22185590e322303" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::BitSetOffset</definition>
+        <argsstring>(const BS &amp;bs)</argsstring>
+        <name>BitSetOffset</name>
+        <param>
+          <type>const BS &amp;</type>
+          <declname>bs</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with bitset <emphasis>bs</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="63" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a167078f3030c70b067c440ab89e91f4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::BitSetOffset</definition>
+        <argsstring>(const BS &amp;bs, int n, int m)</argsstring>
+        <name>BitSetOffset</name>
+        <param>
+          <type>const BS &amp;</type>
+          <declname>bs</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with bitset <emphasis>bs</emphasis> and start <emphasis>n</emphasis> and stop <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="65" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="92" bodyend="96"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a5698f3275132201a4b14948661780338" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a value or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="71" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="105" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a271d8c14091fd4b9aeec06e7850e6cfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next value (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="73" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="100" bodyend="102"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1ac88a716af4fdfc062373bc2b4faae3f4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="79" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="111" bodyend="113"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1aaaf673b7352776bdcc166c3a1b365763" prot="protected" static="no" mutable="no">
+        <type>const BS &amp;</type>
+        <definition>const BS&amp; Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::bs</definition>
+        <argsstring></argsstring>
+        <name>bs</name>
+        <briefdescription>
+<para>Bitset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="52" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a98228004992530becff511a699581379" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="54" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a01acc91de8b9978bd7d1f227fbae1569" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::limit</definition>
+        <argsstring></argsstring>
+        <name>limit</name>
+        <briefdescription>
+<para>Limit value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="56" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a4b91ff8ce0a709b84711756a59630b94" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Iter::Values::BitSetOffset&lt; BS &gt;::move</definition>
+        <argsstring>(void)</argsstring>
+        <name>move</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move to next set bit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="58" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value iterator for values in an offset bitset. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/iter/values-bitsetoffset.hpp" line="49" column="1" bodyfile="/usr/include/gecode/iter/values-bitsetoffset.hpp" bodystart="49" bodyend="81"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a234a82ad188fdd16b22185590e322303" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>BitSetOffset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a167078f3030c70b067c440ab89e91f4a" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>BitSetOffset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1aaaf673b7352776bdcc166c3a1b365763" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>bs</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a98228004992530becff511a699581379" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a01acc91de8b9978bd7d1f227fbae1569" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>limit</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a4b91ff8ce0a709b84711756a59630b94" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>move</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a5698f3275132201a4b14948661780338" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1a271d8c14091fd4b9aeec06e7850e6cfb" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1BitSetOffset_1ac88a716af4fdfc062373bc2b4faae3f4" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::BitSetOffset</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

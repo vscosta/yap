@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1TooFewArguments" kind="class" prot="public">
+    <compoundname>Gecode::Set::TooFewArguments</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="set_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1TooFewArguments_1aba4da1c4fb7a74f05ff7e2a6d2f05218" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::TooFewArguments::TooFewArguments</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>TooFewArguments</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/exception.hpp" line="66" column="1" bodyfile="/usr/include/gecode/set/exception.hpp" bodystart="120" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: No arguments available in argument array </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7054">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7055" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7053">
+        <label>Gecode::Set::TooFewArguments</label>
+        <link refid="classGecode_1_1Set_1_1TooFewArguments"/>
+        <childnode refid="7054" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7055">
+        <label>std::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7057">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7058" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7056">
+        <label>Gecode::Set::TooFewArguments</label>
+        <link refid="classGecode_1_1Set_1_1TooFewArguments"/>
+        <childnode refid="7057" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7058">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/exception.hpp" line="63" column="1" bodyfile="/usr/include/gecode/set/exception.hpp" bodystart="63" bodyend="67"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Set::TooFewArguments</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Set_1_1TooFewArguments_1aba4da1c4fb7a74f05ff7e2a6d2f05218" prot="public" virt="non-virtual"><scope>Gecode::Set::TooFewArguments</scope><name>TooFewArguments</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Set::TooFewArguments</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

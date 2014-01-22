@@ -1,0 +1,1586 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Heap" kind="class" prot="public">
+    <compoundname>Gecode::Heap</compoundname>
+    <includes refid="heap_8hpp" local="no">heap.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Typed allocation routines</header>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a9421bccf9db4f773fdef71e17d09ad51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::alloc</definition>
+        <argsstring>(long unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="79" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a88cb6c2f3f3a6f60d34b874c8de6c842" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::alloc</definition>
+        <argsstring>(long int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="87" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab65d9271b01c35742cfda18bf0714af9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::alloc</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="95" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab55afd6e064097dce3ee9bfe5c67dc04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::alloc</definition>
+        <argsstring>(int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="103" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a896fd2ab9d4304ee4f8b90de66291add" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Heap::free</definition>
+        <argsstring>(T *b, long unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="111" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1acea7ad0914d61d509f401981868cb189" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Heap::free</definition>
+        <argsstring>(T *b, long int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="119" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa3630cd9b4f4f3162536d460bfaca3e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Heap::free</definition>
+        <argsstring>(T *b, unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="127" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa20fbad579b4f953686a697bfb628656" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Heap::free</definition>
+        <argsstring>(T *b, int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="135" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1afd4c30033c627eedd31f2308466b2ead" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="148" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1afa82db446d97def1d3a6d8f4ea7c194e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="161" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa4a0dd153ae4dd781e1173cd85fa34f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="174" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a86eb92382d770f10a4777da6e5a6c528" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="187" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa32264fbaa4f98f99137b6826fc55c31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="196" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a956c005427ab3981ae43ecb2e1190541" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="205" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ac87fda6e0e874e6cf8dffe98d69f625c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="214" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a3f832cda3624df1f63ed5927b6d62b6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="223" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ac020483db8d961c48453f1686e64f63b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>static T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, long unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> objects starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the assignment operator of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Returns <emphasis>d</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="233" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a7fdae6d775d543dc791d5a5a7c964c19" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>static T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, long int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> objects starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the assignment operator of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Returns <emphasis>d</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="243" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa3f350a7bfe946eee19d4dc9f222f1f7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>static T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> objects starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the assignment operator of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Returns <emphasis>d</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="253" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a09824543a2743ff991fcb36e737bde8a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>static T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> objects starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the assignment operator of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Returns <emphasis>d</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="263" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a17c21500b62a2616520cfb30b18ce497" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>static T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, long unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> pointers starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns <emphasis>d</emphasis>.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="272" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ae7541160f951afdefc432d61e4447d3d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>static T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, long int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> pointers starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns <emphasis>d</emphasis>.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="281" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab02dcee7cdeec5793b49d5875cca91b2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>static T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> pointers starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns <emphasis>d</emphasis>.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="290" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a6a8ff9cccdcb6c2a3d33888b3791b579" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>static T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copy <emphasis>n</emphasis> pointers starting at <emphasis>s</emphasis> to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns <emphasis>d</emphasis>.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="299" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Raw allocation routines</header>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a55baad1786a0407ba0321cd37745a7a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Heap::ralloc</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>ralloc</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate <emphasis>s</emphasis> bytes from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="304" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="341" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa424ffe00ff3f52d7e66a5766db638bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Heap::rfree</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>rfree</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Free memory block starting at <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="306" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="355" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a0fe9a14a575260169a63388ea5d2b827" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Heap::rfree</definition>
+        <argsstring>(void *p, size_t s)</argsstring>
+        <name>rfree</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Free memory block starting at <emphasis>p</emphasis> with size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="308" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="365" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a01add5778d54dd188d97c24f9b211146" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Heap::rrealloc</definition>
+        <argsstring>(void *p, size_t s)</argsstring>
+        <name>rrealloc</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Change memory block starting at <emphasis>p</emphasis> to size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="310" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="375" bodyend="391"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Heap_1a409288e773a6f8cf2103e4a40bb2e7bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Heap::Heap</definition>
+        <argsstring>(void)</argsstring>
+        <name>Heap</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor (ensuring that only a single instance is created) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="69" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ac4300fca953156e75da322de1b276d4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::alloc</definition>
+        <argsstring>(long unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="400" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="400" bodyend="405"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aafa7bcefea319d28a8f6ca73c1c2a1f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::alloc</definition>
+        <argsstring>(long int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="408" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="408" bodyend="411"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a2b4f05b49823f1938456e2f6adefaf75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::alloc</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="414" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="414" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab2b07434401e8f5f6a9a8a75712cef6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::alloc</definition>
+        <argsstring>(int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="419" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="419" bodyend="422"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab7ba675a0537e7afd8591c74e97152cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Heap::free</definition>
+        <argsstring>(T *b, long unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="426" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="426" bodyend="430"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab427ac94411d08c9736d11f108f19a1a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Heap::free</definition>
+        <argsstring>(T *b, long int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="433" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="433" bodyend="436"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ad717ad0ddfda1fcbe1efee0fe1bc0485" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Heap::free</definition>
+        <argsstring>(T *b, unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="439" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="439" bodyend="441"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ac1f6e5fe190fc80cec8545151a286a49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Heap::free</definition>
+        <argsstring>(T *b, int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="444" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="444" bodyend="447"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a150d81f9883db4267fd975d6dcda97e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="451" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="451" bodyend="461"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a0c0c9fdf139749888655f79730da25a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="464" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="464" bodyend="468"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a2052826cea29ec69876e10233a20b0c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="471" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="471" bodyend="474"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a9e5c6750c1c9d262da5ff2a50df57806" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::realloc</definition>
+        <argsstring>(T *b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="477" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="477" bodyend="481"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aefa2e69e2161476e7c02c8aeeec68731" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, long unsigned int, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned</type>
+          <declname>int</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="526" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="526" bodyend="528"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aa7775e0b2d99606ce7ef38c6fe770623" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="531" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="531" bodyend="535"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1ab89df37b80ad06d142ac205c03f5bbff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="538" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="538" bodyend="541"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1aecb1d5e3dd2ea27a7f477ecd3edf390d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::realloc</definition>
+        <argsstring>(T **b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="544" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="544" bodyend="548"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a4c10fff855ee40cc4028fdbfea779b8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, long unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="552" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="552" bodyend="556"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1abc9f5511adc24139c90b267d6b222452" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, long int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="559" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="559" bodyend="562"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a73c885ced1189eff1cbd5925ad037b96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="565" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="565" bodyend="567"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a7d56f6d190717fdf71dd2d924ba852a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T *</type>
+        <definition>forceinline T* Gecode::Heap::copy</definition>
+        <argsstring>(T *d, const T *s, int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T *</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="570" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="570" bodyend="573"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a2658b4879be5ec8eb565519660feecef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, long unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="615" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="615" bodyend="617"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a52380ba4cc6b51b3f73224d1215def88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, long int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="620" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="620" bodyend="623"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a4597ecaf102a03b1edd708c261ed457e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, unsigned int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="626" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="626" bodyend="628"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a149a927dd9106a799f401d131b1c3173" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline T **</type>
+        <definition>forceinline T** Gecode::Heap::copy</definition>
+        <argsstring>(T **d, const T **s, int n)</argsstring>
+        <name>copy</name>
+        <param>
+          <type>T **</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>const T **</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="631" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="631" bodyend="634"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1Heap_1a14683eb088022fb64246e9d62192af84" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* Gecode::Heap::operator new</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+<para>Allocate memory from heap (disabled) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="314" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="314" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a4ff7de1004d8d58e72f20537ee71c018" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::Heap::operator delete</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Free memory allocated from heap (disabled) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="316" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="316" bodyend="316"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Heap_1a2e3107c5a05b45ca83ce9c6492187e6d" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Heap::Heap</definition>
+        <argsstring>(const Heap &amp;)</argsstring>
+        <name>Heap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Copy constructor (disabled) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="318" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="318" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Heap_1a06967c07c0947551f4a78db0eb1f0cc7" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &amp;</type>
+        <definition>const Heap&amp; Gecode::Heap::operator=</definition>
+        <argsstring>(const Heap &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Assignment operator (disabled) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/heap.hpp" line="320" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="320" bodyend="320"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Heap memory management class </para>    </briefdescription>
+    <detaileddescription>
+<para>All routines throw an exception of <ref refid="classGecode_1_1MemoryExhausted" kindref="compound">MemoryExhausted</ref>, if a request cannot be fulfilled. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/support/heap.hpp" line="66" column="1" bodyfile="/usr/include/gecode/support/heap.hpp" bodystart="66" bodyend="331"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Heap_1a9421bccf9db4f773fdef71e17d09ad51" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1a88cb6c2f3f3a6f60d34b874c8de6c842" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1ab65d9271b01c35742cfda18bf0714af9" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1ab55afd6e064097dce3ee9bfe5c67dc04" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1ac4300fca953156e75da322de1b276d4a" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1aafa7bcefea319d28a8f6ca73c1c2a1f5" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1a2b4f05b49823f1938456e2f6adefaf75" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1ab2b07434401e8f5f6a9a8a75712cef6e" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>alloc</name></member>
+      <member refid="classGecode_1_1Heap_1ac020483db8d961c48453f1686e64f63b" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a7fdae6d775d543dc791d5a5a7c964c19" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1aa3f350a7bfe946eee19d4dc9f222f1f7" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a09824543a2743ff991fcb36e737bde8a" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a17c21500b62a2616520cfb30b18ce497" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1ae7541160f951afdefc432d61e4447d3d" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1ab02dcee7cdeec5793b49d5875cca91b2" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a6a8ff9cccdcb6c2a3d33888b3791b579" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a4c10fff855ee40cc4028fdbfea779b8a" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1abc9f5511adc24139c90b267d6b222452" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a73c885ced1189eff1cbd5925ad037b96" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a7d56f6d190717fdf71dd2d924ba852a1" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a2658b4879be5ec8eb565519660feecef" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a52380ba4cc6b51b3f73224d1215def88" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a4597ecaf102a03b1edd708c261ed457e" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a149a927dd9106a799f401d131b1c3173" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Heap_1a896fd2ab9d4304ee4f8b90de66291add" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1acea7ad0914d61d509f401981868cb189" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1aa3630cd9b4f4f3162536d460bfaca3e3" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1aa20fbad579b4f953686a697bfb628656" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1ab7ba675a0537e7afd8591c74e97152cd" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1ab427ac94411d08c9736d11f108f19a1a" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1ad717ad0ddfda1fcbe1efee0fe1bc0485" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1ac1f6e5fe190fc80cec8545151a286a49" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>free</name></member>
+      <member refid="classGecode_1_1Heap_1a409288e773a6f8cf2103e4a40bb2e7bf" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>Heap</name></member>
+      <member refid="classGecode_1_1Heap_1a2e3107c5a05b45ca83ce9c6492187e6d" prot="private" virt="non-virtual"><scope>Gecode::Heap</scope><name>Heap</name></member>
+      <member refid="classGecode_1_1Heap_1a4ff7de1004d8d58e72f20537ee71c018" prot="private" virt="non-virtual"><scope>Gecode::Heap</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Heap_1a14683eb088022fb64246e9d62192af84" prot="private" virt="non-virtual"><scope>Gecode::Heap</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Heap_1a06967c07c0947551f4a78db0eb1f0cc7" prot="private" virt="non-virtual"><scope>Gecode::Heap</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Heap_1a55baad1786a0407ba0321cd37745a7a6" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>ralloc</name></member>
+      <member refid="classGecode_1_1Heap_1afd4c30033c627eedd31f2308466b2ead" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1afa82db446d97def1d3a6d8f4ea7c194e" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aa4a0dd153ae4dd781e1173cd85fa34f5" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a86eb92382d770f10a4777da6e5a6c528" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aa32264fbaa4f98f99137b6826fc55c31" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a956c005427ab3981ae43ecb2e1190541" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1ac87fda6e0e874e6cf8dffe98d69f625c" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a3f832cda3624df1f63ed5927b6d62b6a" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a150d81f9883db4267fd975d6dcda97e8" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a0c0c9fdf139749888655f79730da25a6" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a2052826cea29ec69876e10233a20b0c2" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1a9e5c6750c1c9d262da5ff2a50df57806" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aefa2e69e2161476e7c02c8aeeec68731" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aa7775e0b2d99606ce7ef38c6fe770623" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1ab89df37b80ad06d142ac205c03f5bbff" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aecb1d5e3dd2ea27a7f477ecd3edf390d" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>realloc</name></member>
+      <member refid="classGecode_1_1Heap_1aa424ffe00ff3f52d7e66a5766db638bf" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>rfree</name></member>
+      <member refid="classGecode_1_1Heap_1a0fe9a14a575260169a63388ea5d2b827" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>rfree</name></member>
+      <member refid="classGecode_1_1Heap_1a01add5778d54dd188d97c24f9b211146" prot="public" virt="non-virtual"><scope>Gecode::Heap</scope><name>rrealloc</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

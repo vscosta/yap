@@ -1,0 +1,1281 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ViewArray" kind="class" prot="public">
+    <compoundname>Gecode::ViewArray</compoundname>
+    <includes refid="kernel_2array_8hpp" local="no">array.hpp</includes>
+    <innerclass refid="classGecode_1_1ViewArray_1_1ViewLess" prot="private">Gecode::ViewArray::ViewLess</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Associated types</header>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a3365a1867c5d9e98488890435e80d099" prot="public" static="no">
+        <type>View</type>
+        <definition>typedef View Gecode::ViewArray&lt; View &gt;::value_type</definition>
+        <argsstring></argsstring>
+        <name>value_type</name>
+        <briefdescription>
+<para>Type of the view stored in this array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="252" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="252" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a259c7b9304610c16dd9f8d9a7f9e7f85" prot="public" static="no">
+        <type>View &amp;</type>
+        <definition>typedef View&amp; Gecode::ViewArray&lt; View &gt;::reference</definition>
+        <argsstring></argsstring>
+        <name>reference</name>
+        <briefdescription>
+<para>Type of a reference to the value type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="254" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="254" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a1bea578a067bf114f50ba455968cd574" prot="public" static="no">
+        <type>const View &amp;</type>
+        <definition>typedef const View&amp; Gecode::ViewArray&lt; View &gt;::const_reference</definition>
+        <argsstring></argsstring>
+        <name>const_reference</name>
+        <briefdescription>
+<para>Type of a constant reference to the value type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="256" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="256" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1adbc61001620ef181722d48249f1e2069" prot="public" static="no">
+        <type>View *</type>
+        <definition>typedef View* Gecode::ViewArray&lt; View &gt;::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+<para>Type of a pointer to the value type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="258" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a7302de5ba207eb21d362b542b5457dc2" prot="public" static="no">
+        <type>const View *</type>
+        <definition>typedef const View* Gecode::ViewArray&lt; View &gt;::const_pointer</definition>
+        <argsstring></argsstring>
+        <name>const_pointer</name>
+        <briefdescription>
+<para>Type of a read-only pointer to the value type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="260" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="260" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a220f735d1b7b45292fad7de9f9501b57" prot="public" static="no">
+        <type>View *</type>
+        <definition>typedef View* Gecode::ViewArray&lt; View &gt;::iterator</definition>
+        <argsstring></argsstring>
+        <name>iterator</name>
+        <briefdescription>
+<para>Type of the iterator used to iterate through this array&apos;s elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="262" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="262" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a41130e85f20e566592b9185eea911a24" prot="public" static="no">
+        <type>const View *</type>
+        <definition>typedef const View* Gecode::ViewArray&lt; View &gt;::const_iterator</definition>
+        <argsstring></argsstring>
+        <name>const_iterator</name>
+        <briefdescription>
+<para>Type of the iterator used to iterate read-only through this array&apos;s elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="264" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="264" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a59dadf28387fb3acba09b3148ea7f27f" prot="public" static="no">
+        <type>std::reverse_iterator&lt; View * &gt;</type>
+        <definition>typedef std::reverse_iterator&lt;View*&gt; Gecode::ViewArray&lt; View &gt;::reverse_iterator</definition>
+        <argsstring></argsstring>
+        <name>reverse_iterator</name>
+        <briefdescription>
+<para>Type of the iterator used to iterate backwards through this array&apos;s elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="266" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="266" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewArray_1a8336172ac493acb63eb4540b943d5ced" prot="public" static="no">
+        <type>std::reverse_iterator&lt; const View * &gt;</type>
+        <definition>typedef std::reverse_iterator&lt;const View*&gt; Gecode::ViewArray&lt; View &gt;::const_reverse_iterator</definition>
+        <argsstring></argsstring>
+        <name>const_reverse_iterator</name>
+        <briefdescription>
+<para>Type of the iterator used to iterate backwards and read-only through this array&apos;s elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="268" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="268" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a9138f22a010fa8984da176fb41abbc3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor (array of size 0) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="274" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1163" bodyend="1163"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a05bd918eaf757043165cb3c4b634f11a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Space &amp;home, int m)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Allocate array with <emphasis>m</emphasis> views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="276" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1167" bodyend="1170"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ac35d540039e92f65739eca2c678f0934" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Region &amp;r, int m)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Allocate array with <emphasis>m</emphasis> views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="278" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1173" bodyend="1176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a8b5d4b2c3e4755d6f71db019cbfbce32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(const ViewArray&lt; View &gt; &amp;a)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from view array <emphasis>a</emphasis> (share elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="280" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1203" bodyend="1204"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a4b2fdff0192e1c8a6ed0c8848d90b894" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Space &amp;home, const ViewArray&lt; View &gt; &amp;a)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from view array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="282" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1179" bodyend="1188"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ac85faf0e01c84ca986c9889110810fa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Region &amp;r, const ViewArray&lt; View &gt; &amp;a)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from view array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="284" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1190" bodyend="1199"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a6c431ee3e450672a057433413b3d71fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+        <definition>forceinline const ViewArray&lt; View &gt; &amp; Gecode::ViewArray&lt; View &gt;::operator=</definition>
+        <argsstring>(const ViewArray&lt; View &gt; &amp;a)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from view array <emphasis>a</emphasis> (share elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="286" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1208" bodyend="1211"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ad121b8949ed7beae266071e5a2d2501b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Space &amp;home, const VarArgArray&lt; Var &gt; &amp;a)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable argument array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that the view type <emphasis>View</emphasis> must provide a constructor for the associated <emphasis><ref refid="classGecode_1_1Var" kindref="compound">Var</ref></emphasis> type. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="294" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="294" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a8402c46d8c4f23060e423970440c058f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::ViewArray&lt; View &gt;::ViewArray</definition>
+        <argsstring>(Region &amp;r, const VarArgArray&lt; Var &gt; &amp;a)</argsstring>
+        <name>ViewArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable argument array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that the view type <emphasis>View</emphasis> must provide a constructor for the associated <emphasis><ref refid="classGecode_1_1Var" kindref="compound">Var</ref></emphasis> type. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="312" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="312" bodyend="322"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array size</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::ViewArray&lt; View &gt;::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of array (number of elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="328" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1215" bodyend="1217"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a4ad7152aec5f2b32f82d92fbc0d3a4db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::size</definition>
+        <argsstring>(int n)</argsstring>
+        <name>size</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Decrease size of array (number of elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="330" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1221" bodyend="1223"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array elements</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a1badeda8e27fd2c68cb4044a103cd6d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>View &amp;</type>
+        <definition>forceinline View &amp; Gecode::ViewArray&lt; View &gt;::operator[]</definition>
+        <argsstring>(int i)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return view at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="336" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1227" bodyend="1230"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a3e0a1e2a19acbb4885280644fc56a8ff" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const View &amp;</type>
+        <definition>forceinline const View &amp; Gecode::ViewArray&lt; View &gt;::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return view at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="338" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1234" bodyend="1237"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array iteration</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ae041a573651fcebc79e5822a19563040" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a220f735d1b7b45292fad7de9f9501b57" kindref="member">iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::iterator Gecode::ViewArray&lt; View &gt;::begin</definition>
+        <argsstring>(void)</argsstring>
+        <name>begin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return an iterator at the beginning of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="344" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1241" bodyend="1243"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1aedff247eaa76be251d3a5d2c27880610" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a41130e85f20e566592b9185eea911a24" kindref="member">const_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::const_iterator Gecode::ViewArray&lt; View &gt;::begin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>begin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a read-only iterator at the beginning of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="346" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1247" bodyend="1249"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ab34fad89ac8fefb283b721c390dce169" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a220f735d1b7b45292fad7de9f9501b57" kindref="member">iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::iterator Gecode::ViewArray&lt; View &gt;::end</definition>
+        <argsstring>(void)</argsstring>
+        <name>end</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return an iterator past the end of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="348" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1253" bodyend="1255"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a1119c958e76ac1ef521ceecba511b49b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a41130e85f20e566592b9185eea911a24" kindref="member">const_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::const_iterator Gecode::ViewArray&lt; View &gt;::end</definition>
+        <argsstring>(void) const </argsstring>
+        <name>end</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a read-only iterator past the end of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="350" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1259" bodyend="1261"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1abfd668d1bc26e4ad4f06c4274d8549a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a59dadf28387fb3acba09b3148ea7f27f" kindref="member">reverse_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::reverse_iterator Gecode::ViewArray&lt; View &gt;::rbegin</definition>
+        <argsstring>(void)</argsstring>
+        <name>rbegin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a reverse iterator at the end of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="352" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1265" bodyend="1267"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a39640c1a8a7ae6dfd32868dd5870dd24" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a8336172ac493acb63eb4540b943d5ced" kindref="member">const_reverse_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::const_reverse_iterator Gecode::ViewArray&lt; View &gt;::rbegin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>rbegin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a reverse and read-only iterator at the end of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="354" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1271" bodyend="1273"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a9743bc9ec9a5100c9b7f1ade50604b78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a59dadf28387fb3acba09b3148ea7f27f" kindref="member">reverse_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::reverse_iterator Gecode::ViewArray&lt; View &gt;::rend</definition>
+        <argsstring>(void)</argsstring>
+        <name>rend</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a reverse iterator past the beginning of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="356" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1277" bodyend="1279"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a190a8479f2f64d2e46769d5b7cc87e0a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ViewArray_1a8336172ac493acb63eb4540b943d5ced" kindref="member">const_reverse_iterator</ref></type>
+        <definition>forceinline ViewArray&lt; View &gt;::const_reverse_iterator Gecode::ViewArray&lt; View &gt;::rend</definition>
+        <argsstring>(void) const </argsstring>
+        <name>rend</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a reverse and read-only iterator past the beginning of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="358" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1283" bodyend="1285"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1aa19fdfd766538312ff91e49735abec86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool process=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>process</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to variable. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>process</emphasis> is false, the propagator is just subscribed but not processed for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="370" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1400" bodyend="1404"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a93da83a374fb292c5c8412292725f20d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to all views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="372" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1408" bodyend="1411"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a2296549a3958e61b41b768229ed4e9c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="374" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1415" bodyend="1418"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a0169f3b13523315951dc5842aae0f728" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="376" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1422" bodyend="1425"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1afe55a31688f656ab0b114f2342e9e313" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::update</definition>
+        <argsstring>(Space &amp;, bool share, ViewArray&lt; View &gt; &amp;a)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <defname>home</defname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Update array to be a clone of array <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>share</emphasis> is true, sharing is retained for all shared data structures. Otherwise, for each of them an independent copy is created. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="388" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1387" bodyend="1396"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Moving elements</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1ac018bd37a679ea2d9c688c6bdf6350a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_fst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>move_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position 0 to position <emphasis>i</emphasis> (shift elements to the left) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="395" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1289" bodyend="1291"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a9c230669060fb3a42b73915db078f77e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_lst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>move_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> to position <emphasis>i</emphasis> (truncate array by one) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="397" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1295" bodyend="1297"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a63979c0d0c99f3231536baf932476802" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_fst</definition>
+        <argsstring>(int i, Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>move_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position 0 to position <emphasis>i</emphasis> (shift elements to the left) </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view at position <emphasis>i</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="403" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1315" bodyend="1319"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a86b3dd9c2a227cdd2d8a4938c78bdb90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_lst</definition>
+        <argsstring>(int i, Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>move_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> to position <emphasis>i</emphasis> (truncate array by one) </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view at position <emphasis>i</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="409" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1323" bodyend="1327"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a0cd130c49893f4207b3f7fd0ee11339e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_fst</definition>
+        <argsstring>(int i, Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>move_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position 0 to position <emphasis>i</emphasis> (shift elements to the left) </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of advisor <emphasis>a</emphasis> to view at position <emphasis>i</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="415" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1351" bodyend="1355"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a3f14c27c7ba59fb972f907e07cd7ce19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::move_lst</definition>
+        <argsstring>(int i, Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>move_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Move view from position <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> to position <emphasis>i</emphasis> (truncate array by one) </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of advisor <emphasis>a</emphasis> to view at position <emphasis>i</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="421" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1359" bodyend="1363"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dropping elements</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a01b46333ae10b0aa820bd3d91708ccb2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::drop_fst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>drop_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Drop views from positions 0 to <emphasis>i-1</emphasis> from array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="427" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1301" bodyend="1304"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a56e620ab3ce85109424f1da08f5d8d62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::drop_lst</definition>
+        <argsstring>(int i)</argsstring>
+        <name>drop_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Drop views from positions <emphasis>i+1</emphasis> to <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> from array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="429" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1308" bodyend="1311"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a12bbc2e62c91bfaef149fb88c6d2e933" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::drop_fst</definition>
+        <argsstring>(int i, Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>drop_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Drop views from positions 0 to <emphasis>i-1</emphasis> from array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to views at positions 0 to <emphasis>i-1</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="435" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1331" bodyend="1337"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a474ea83eb37938c038aefb88f282d2eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::drop_lst</definition>
+        <argsstring>(int i, Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>drop_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Drop assigned views from positions <emphasis>i+1</emphasis> to <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> from array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to views at positions <emphasis>i+1</emphasis> to <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="442" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1341" bodyend="1347"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a57de06d0fb326f10e3352947c892ffaf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::drop_fst</definition>
+        <argsstring>(int i, Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>drop_fst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Drop views from positions 0 to <emphasis>i-1</emphasis> from array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of advisor <emphasis>a</emphasis> to views at positions 0 to <emphasis>i-1</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="448" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1367" bodyend="1373"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1aa60874da03541bb06e0554a1b8bfd52c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::drop_lst</definition>
+        <argsstring>(int i, Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>drop_lst</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Drop assigned views from positions <emphasis>i+1</emphasis> to <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput> from array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before moving, cancel subscription of advisor <emphasis>a</emphasis> to views at positions <emphasis>i+1</emphasis> to <computeroutput><ref refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" kindref="member">size()</ref>-1</computeroutput>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="454" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1377" bodyend="1383"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View equality</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1afe47e93700a5c1d13757ea5ed1225d22" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::ViewArray&lt; View &gt;::same</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Test whether array has multiple occurence of the same view. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that assigned views are ignored. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="467" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1468" bodyend="1483"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1af52965d1aa77a0bfa47ca629d02e3bed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::ViewArray&lt; View &gt;::same</definition>
+        <argsstring>(const Space &amp;home, const View &amp;y) const </argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const View &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether array contains a view being the same as <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that assigned views are ignored. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="473" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1487" bodyend="1494"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a76e383bb302d106fbbec6fcbe4901a4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::unique</definition>
+        <argsstring>(const Space &amp;home)</argsstring>
+        <name>unique</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Remove all duplicate views from array (changes element order) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="475" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1498" bodyend="1507"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View sharing</header>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a24bf176b393488d15aa2d979443408d7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::ViewArray&lt; View &gt;::shared</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>shared</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Test whether array contains shared views. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that assigned views are ignored. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="485" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1511" bodyend="1526"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a264341b3a3231aec919a774067186de6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class ViewY</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::ViewArray&lt; View &gt;::shared</definition>
+        <argsstring>(const Space &amp;home, const ViewY &amp;y) const </argsstring>
+        <name>shared</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const ViewY &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether array contains a view being shared with <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that assigned views are ignored. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="492" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1530" bodyend="1537"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a46deede990b3cbd70cd5aa813bc67585" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class ViewY</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::ViewArray&lt; View &gt;::shared</definition>
+        <argsstring>(const Space &amp;home, const ViewArray&lt; ViewY &gt; &amp;y) const </argsstring>
+        <name>shared</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; ViewY &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether array together with array <emphasis>y</emphasis> contains shared views. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that assigned views are ignored. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="499" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1541" bodyend="1571"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1ViewArray_1a9024afd0412b0cf5baee9292e06dfcac" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::ViewArray&lt; View &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of views (size) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="237" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="237" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ViewArray_1a2d347a25f30ec72d5f446ec999d04adf" prot="private" static="no" mutable="no">
+        <type>View *</type>
+        <definition>View* Gecode::ViewArray&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="239" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="239" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a2d6061c05d347cb08a13d16fe474dbc6" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::ViewArray&lt; View &gt;::sort</definition>
+        <argsstring>(View *x, int n)</argsstring>
+        <name>sort</name>
+        <param>
+          <type>View *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Sort <emphasis>n</emphasis> views <emphasis>x</emphasis> according to <emphasis>ViewLess</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="247" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1450" bodyend="1453"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1aa34d611b5d540ea0f7ef27e0bb10db3d" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::ViewArray&lt; View &gt;::operator new</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="503" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1575" bodyend="1577"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a8d2ffd3d3ce5bc2dfab3258b53a60df1" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ViewArray&lt; View &gt;::operator delete</definition>
+        <argsstring>(void *, size_t)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="504" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1581" bodyend="1582"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a9dceff4606ddbbec9ddb0c948781a6bb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::ViewArray&lt; View &gt;::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test if all variables are assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="458" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="1429" bodyend="1434"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1ViewArray_1a615e71123187f4a3ac2e1b100ec5d328" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print array elements enclosed in curly brackets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/array.hpp" line="829" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="2183" bodyend="2195"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>View arrays. </para>    </briefdescription>
+    <detaileddescription>
+<para>View arrays store views. They are typically used for storing the views with which propagators and branchers compute. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/array.hpp" line="234" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="234" bodyend="505"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ViewArray_1a9dceff4606ddbbec9ddb0c948781a6bb" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1ViewArray_1ae041a573651fcebc79e5822a19563040" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ViewArray_1aedff247eaa76be251d3a5d2c27880610" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ViewArray_1a93da83a374fb292c5c8412292725f20d" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1ViewArray_1a0169f3b13523315951dc5842aae0f728" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1ViewArray_1a41130e85f20e566592b9185eea911a24" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>const_iterator</name></member>
+      <member refid="classGecode_1_1ViewArray_1a7302de5ba207eb21d362b542b5457dc2" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>const_pointer</name></member>
+      <member refid="classGecode_1_1ViewArray_1a1bea578a067bf114f50ba455968cd574" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>const_reference</name></member>
+      <member refid="classGecode_1_1ViewArray_1a8336172ac493acb63eb4540b943d5ced" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>const_reverse_iterator</name></member>
+      <member refid="classGecode_1_1ViewArray_1a01b46333ae10b0aa820bd3d91708ccb2" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a12bbc2e62c91bfaef149fb88c6d2e933" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a57de06d0fb326f10e3352947c892ffaf" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a56e620ab3ce85109424f1da08f5d8d62" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a474ea83eb37938c038aefb88f282d2eb" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1aa60874da03541bb06e0554a1b8bfd52c" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>drop_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1ab34fad89ac8fefb283b721c390dce169" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>end</name></member>
+      <member refid="classGecode_1_1ViewArray_1a1119c958e76ac1ef521ceecba511b49b" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>end</name></member>
+      <member refid="classGecode_1_1ViewArray_1a220f735d1b7b45292fad7de9f9501b57" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>iterator</name></member>
+      <member refid="classGecode_1_1ViewArray_1ac018bd37a679ea2d9c688c6bdf6350a0" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a63979c0d0c99f3231536baf932476802" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a0cd130c49893f4207b3f7fd0ee11339e" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_fst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a9c230669060fb3a42b73915db078f77e" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a86b3dd9c2a227cdd2d8a4938c78bdb90" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a3f14c27c7ba59fb972f907e07cd7ce19" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>move_lst</name></member>
+      <member refid="classGecode_1_1ViewArray_1a9024afd0412b0cf5baee9292e06dfcac" prot="private" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>n</name></member>
+      <member refid="classGecode_1_1ViewArray_1a8d2ffd3d3ce5bc2dfab3258b53a60df1" prot="private" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1ViewArray_1aa34d611b5d540ea0f7ef27e0bb10db3d" prot="private" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ViewArray_1a615e71123187f4a3ac2e1b100ec5d328" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ViewArray_1a6c431ee3e450672a057433413b3d71fa" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1ViewArray_1a1badeda8e27fd2c68cb4044a103cd6d5" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ViewArray_1a3e0a1e2a19acbb4885280644fc56a8ff" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ViewArray_1adbc61001620ef181722d48249f1e2069" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>pointer</name></member>
+      <member refid="classGecode_1_1ViewArray_1abfd668d1bc26e4ad4f06c4274d8549a8" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ViewArray_1a39640c1a8a7ae6dfd32868dd5870dd24" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ViewArray_1a259c7b9304610c16dd9f8d9a7f9e7f85" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>reference</name></member>
+      <member refid="classGecode_1_1ViewArray_1a9743bc9ec9a5100c9b7f1ade50604b78" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ViewArray_1a190a8479f2f64d2e46769d5b7cc87e0a" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ViewArray_1a59dadf28387fb3acba09b3148ea7f27f" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>reverse_iterator</name></member>
+      <member refid="classGecode_1_1ViewArray_1afe47e93700a5c1d13757ea5ed1225d22" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>same</name></member>
+      <member refid="classGecode_1_1ViewArray_1af52965d1aa77a0bfa47ca629d02e3bed" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>same</name></member>
+      <member refid="classGecode_1_1ViewArray_1a24bf176b393488d15aa2d979443408d7" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>shared</name></member>
+      <member refid="classGecode_1_1ViewArray_1a264341b3a3231aec919a774067186de6" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>shared</name></member>
+      <member refid="classGecode_1_1ViewArray_1a46deede990b3cbd70cd5aa813bc67585" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>shared</name></member>
+      <member refid="classGecode_1_1ViewArray_1a65940b23e2457e97607475f8bd8f4ac6" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>size</name></member>
+      <member refid="classGecode_1_1ViewArray_1a4ad7152aec5f2b32f82d92fbc0d3a4db" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>size</name></member>
+      <member refid="classGecode_1_1ViewArray_1a2d6061c05d347cb08a13d16fe474dbc6" prot="private" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>sort</name></member>
+      <member refid="classGecode_1_1ViewArray_1aa19fdfd766538312ff91e49735abec86" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1ViewArray_1a2296549a3958e61b41b768229ed4e9c0" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1ViewArray_1a76e383bb302d106fbbec6fcbe4901a4e" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>unique</name></member>
+      <member refid="classGecode_1_1ViewArray_1afe55a31688f656ab0b114f2342e9e313" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>update</name></member>
+      <member refid="classGecode_1_1ViewArray_1a3365a1867c5d9e98488890435e80d099" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>value_type</name></member>
+      <member refid="classGecode_1_1ViewArray_1a9138f22a010fa8984da176fb41abbc3d" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1a05bd918eaf757043165cb3c4b634f11a" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1ac35d540039e92f65739eca2c678f0934" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1a8b5d4b2c3e4755d6f71db019cbfbce32" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1a4b2fdff0192e1c8a6ed0c8848d90b894" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1ac85faf0e01c84ca986c9889110810fa0" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1ad121b8949ed7beae266071e5a2d2501b" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1a8402c46d8c4f23060e423970440c058f" prot="public" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>ViewArray</name></member>
+      <member refid="classGecode_1_1ViewArray_1a2d347a25f30ec72d5f446ec999d04adf" prot="private" virt="non-virtual"><scope>Gecode::ViewArray</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_ccb7466e1cbd080cce75fc6b87ed465a" kind="dir">
+    <compoundname>/usr/include/gecode/search/meta</compoundname>
+    <innerfile refid="nogoods_8hh">nogoods.hh</innerfile>
+    <innerfile refid="rbs_8hh">rbs.hh</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/search/meta/"/>
+  </compounddef>
+</doxygen>

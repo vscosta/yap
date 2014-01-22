@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Member" kind="namespace">
+    <compoundname>Gecode::Int::Member</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Member_1_1Prop" prot="public">Gecode::Int::Member::Prop</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Member_1_1ReProp" prot="public">Gecode::Int::Member::ReProp</innerclass>
+    <briefdescription>
+<para>Membership propagators. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/member/prop.hpp" line="40" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,502 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1Node" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::Node</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1GCC_1_1ValNode" prot="public" virt="non-virtual">Gecode::Int::GCC::ValNode</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1GCC_1_1VarNode" prot="public" virt="non-virtual">Gecode::Int::GCC::VarNode</derivedcompoundref>
+    <includes refid="dom-sup_8hpp" local="no">dom-sup.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1ac2e891d6c49e0002f06faa7ea4323285" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::GCC::Node::Node</definition>
+        <argsstring>(void)</argsstring>
+        <name>Node</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="88" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="512" bodyend="512"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a1ebfc93c7997b241fc4f9ec88a31f964" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::GCC::Node::Node</definition>
+        <argsstring>(NodeFlag nf, int i)</argsstring>
+        <name>Node</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7" kindref="member">NodeFlag</ref></type>
+          <declname>nf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for index <emphasis>i</emphasis> that sets type to <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="90" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="514" bodyend="516"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1aa715558fd6a2db05fd5323cb8a4c4a62" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::Node::type</definition>
+        <argsstring>(void) const </argsstring>
+        <name>type</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the type of the node (false for a variable node) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="96" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="539" bodyend="541"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a268be12be30d0e75ec4042261d415d65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> **</type>
+        <definition>forceinline Edge ** Gecode::Int::GCC::Node::adj</definition>
+        <argsstring>(void)</argsstring>
+        <name>adj</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return reference to the incident edges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="98" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="519" bodyend="521"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a6ca3606e3c63c67e312c63958cdbc3a4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>forceinline Edge * Gecode::Int::GCC::Node::first</definition>
+        <argsstring>(void) const </argsstring>
+        <name>first</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer to the first incident edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="100" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="523" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a58e35acf8adca0c29ca96fb3040ad300" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>forceinline Edge * Gecode::Int::GCC::Node::last</definition>
+        <argsstring>(void) const </argsstring>
+        <name>last</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer to the last incident edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="102" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="527" bodyend="529"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a2a51477f91e4b7a5e961c2ca7e50434b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>forceinline Edge * Gecode::Int::GCC::Node::inedge</definition>
+        <argsstring>(void) const </argsstring>
+        <name>inedge</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer to the node&apos;s inedge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="104" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="543" bodyend="545"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a737bdc661cbb379e5cc2ff42c904df59" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::Node::index</definition>
+        <argsstring>(void) const </argsstring>
+        <name>index</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get index of either variable or value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="106" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="559" bodyend="561"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a50e057086821aaf80544b21f687ba73e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::Node::removed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>removed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>check whether a node has been removed from the graph </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="108" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="551" bodyend="553"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Update</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a11043245ac40d8d788756898830e9b18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::Node::first</definition>
+        <argsstring>(Edge *p)</argsstring>
+        <name>first</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the first edge pointer to <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="114" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="531" bodyend="533"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1aca8c02020d13fb5b110569c20e04cc94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::Node::last</definition>
+        <argsstring>(Edge *p)</argsstring>
+        <name>last</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the last edge pointer to <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="116" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="535" bodyend="537"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a2a49d3a8247a7f432c38e0fd9068a9fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::Node::inedge</definition>
+        <argsstring>(Edge *p)</argsstring>
+        <name>inedge</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the inedge pointer to <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="118" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="547" bodyend="549"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a4482bd92486fb830a6c5ad5ec5774e9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::Node::index</definition>
+        <argsstring>(int i)</argsstring>
+        <name>index</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> index of either variable or value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="120" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="555" bodyend="557"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Memory management</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1ab30b712c5523b945a3e229b01a5014e8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Int::GCC::Node::operator new</definition>
+        <argsstring>(size_t s, Space &amp;home)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="126" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="564" bodyend="566"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1a31e65604d805c4cdbd63380e3f9cb80d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::Int::GCC::Node::operator delete</definition>
+        <argsstring>(void *, Space &amp;)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Free memory (unused) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="128" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="128" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1Node_1ad930406587c2876a9e5a7c0bafd42e87" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::Int::GCC::Node::operator delete</definition>
+        <argsstring>(void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+<para>Needed for exceptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="130" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="130" bodyend="130"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-type">
+      <memberdef kind="enum" id="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7" prot="protected" static="no">
+        <name>NodeFlag</name>
+        <enumvalue id="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a912a2161ed6406de0ba0c4ee2d4501e1" prot="protected">
+          <name>NF_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>No flags set. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a605e59e130c9e5582a1772a20a444975" prot="protected">
+          <name>NF_VAL</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+<para>Whether node is a value node. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7af8e2c12a55f4415028f8b8ca3226ed05" prot="protected">
+          <name>NF_M_LBC</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+<para>Whether matched for LBC. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a57ef9affd4631f09b4703058becb1f59" prot="protected">
+          <name>NF_M_UBC</name>
+          <initializer>= 1 &lt;&lt; 2</initializer>
+          <briefdescription>
+<para>Whether matched for UBC. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Flags for nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="69" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="69" bodyend="78"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1a0d2c61bb43ea6aec77fd89305334bd10" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>Edge* Gecode::Int::GCC::Node::e</definition>
+        <argsstring></argsstring>
+        <name>e</name>
+        <briefdescription>
+<para>Stores all incident edges on the node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1a7bb2a663649ed86b55c79458f2ad31e0" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>Edge* Gecode::Int::GCC::Node::fst</definition>
+        <argsstring></argsstring>
+        <name>fst</name>
+        <briefdescription>
+<para>First edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="61" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1a17e8f77215a89c1a26e546fa3af4740c" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>Edge* Gecode::Int::GCC::Node::lst</definition>
+        <argsstring></argsstring>
+        <name>lst</name>
+        <briefdescription>
+<para>Last edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="63" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1adc4d648ab1c3d5cb74e6ced2dc977f0d" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Edge" kindref="compound">Edge</ref> *</type>
+        <definition>Edge* Gecode::Int::GCC::Node::ie</definition>
+        <argsstring></argsstring>
+        <name>ie</name>
+        <briefdescription>
+<para>Single incoming edge used for storing a path in the algorithms. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="65" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1a55c6f06c62a192f3e5431a99e1d0dc0b" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::Node::idx</definition>
+        <argsstring></argsstring>
+        <name>idx</name>
+        <briefdescription>
+<para>Index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="67" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1ac5c94cafd4b6c87f7d90026272a72db0" prot="protected" static="no" mutable="no">
+        <type>unsigned char</type>
+        <definition>unsigned char Gecode::Int::GCC::Node::nf</definition>
+        <argsstring></argsstring>
+        <name>nf</name>
+        <briefdescription>
+<para>Flags for node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="80" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1Node_1a96e897b003201faab5ecb3bae6c00a42" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::Node::noe</definition>
+        <argsstring></argsstring>
+        <name>noe</name>
+        <briefdescription>
+<para>stores the number of incident edges on the node </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="83" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for nodes in the variable-value-graph. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4425">
+        <label>Gecode::Int::GCC::Node</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Node"/>
+      </node>
+      <node id="4427">
+        <label>Gecode::Int::GCC::VarNode</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1VarNode"/>
+        <childnode refid="4425" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4426">
+        <label>Gecode::Int::GCC::ValNode</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1ValNode"/>
+        <childnode refid="4425" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4429">
+        <label>Gecode::Int::GCC::Edge</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Edge"/>
+      </node>
+      <node id="4428">
+        <label>Gecode::Int::GCC::Node</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Node"/>
+        <childnode refid="4429" relation="usage">
+          <edgelabel>fst</edgelabel>
+          <edgelabel>lst</edgelabel>
+          <edgelabel>ie</edgelabel>
+          <edgelabel>e</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="56" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="56" bodyend="132"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a268be12be30d0e75ec4042261d415d65" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>adj</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a0d2c61bb43ea6aec77fd89305334bd10" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>e</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a6ca3606e3c63c67e312c63958cdbc3a4" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>first</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a11043245ac40d8d788756898830e9b18" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>first</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a7bb2a663649ed86b55c79458f2ad31e0" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>fst</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a55c6f06c62a192f3e5431a99e1d0dc0b" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>idx</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1adc4d648ab1c3d5cb74e6ced2dc977f0d" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>ie</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a737bdc661cbb379e5cc2ff42c904df59" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>index</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a4482bd92486fb830a6c5ad5ec5774e9c" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>index</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a2a51477f91e4b7a5e961c2ca7e50434b" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>inedge</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a2a49d3a8247a7f432c38e0fd9068a9fc" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>inedge</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a58e35acf8adca0c29ca96fb3040ad300" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>last</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aca8c02020d13fb5b110569c20e04cc94" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>last</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a17e8f77215a89c1a26e546fa3af4740c" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1ac5c94cafd4b6c87f7d90026272a72db0" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>nf</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7af8e2c12a55f4415028f8b8ca3226ed05" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>NF_M_LBC</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a57ef9affd4631f09b4703058becb1f59" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>NF_M_UBC</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a912a2161ed6406de0ba0c4ee2d4501e1" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>NF_NONE</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7a605e59e130c9e5582a1772a20a444975" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>NF_VAL</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1ac2e891d6c49e0002f06faa7ea4323285" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>Node</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a1ebfc93c7997b241fc4f9ec88a31f964" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>Node</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa9b75ce9bb8914f6f32e272ad9cc93e7" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>NodeFlag</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a96e897b003201faab5ecb3bae6c00a42" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>noe</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a31e65604d805c4cdbd63380e3f9cb80d" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1ad930406587c2876a9e5a7c0bafd42e87" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1ab30b712c5523b945a3e229b01a5014e8" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1a50e057086821aaf80544b21f687ba73e" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>removed</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1Node_1aa715558fd6a2db05fd5323cb8a4c4a62" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::Node</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

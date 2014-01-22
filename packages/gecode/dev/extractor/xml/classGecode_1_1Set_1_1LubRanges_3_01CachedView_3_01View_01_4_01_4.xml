@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Set_1_1LubRanges" prot="public" virt="non-virtual">Gecode::Set::LubRanges&lt; View &gt;</basecompoundref>
+    <includes refid="set_2view_2cached_8hpp" local="no">cached.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1a35dbafa668e74d4b75aea178c6c5d2c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;::LubRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>LubRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/cached.hpp" line="328" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="328" bodyend="328"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1a150d50882502d6ff93190efbad81d23a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;::LubRanges</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>LubRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/cached.hpp" line="330" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="338" bodyend="339"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1ab4945a9681c81415034e6e8ea19f78c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;::init</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/cached.hpp" line="332" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="343" bodyend="345"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for least upper bound of cached set views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3625">
+        <label>Gecode::Set::LubRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges"/>
+      </node>
+      <node id="3624">
+        <label>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4"/>
+        <childnode refid="3625" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3627">
+        <label>Gecode::Set::LubRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges"/>
+      </node>
+      <node id="3626">
+        <label>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4"/>
+        <childnode refid="3627" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/view/cached.hpp" line="323" column="1" bodyfile="/usr/include/gecode/set/view/cached.hpp" bodystart="323" bodyend="334"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1ab4945a9681c81415034e6e8ea19f78c0" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" prot="public" virt="non-virtual" ambiguityscope="LubRanges&lt; View &gt;::"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1a35dbafa668e74d4b75aea178c6c5d2c8" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4_1a150d50882502d6ff93190efbad81d23a" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1ad28f9e5354b6ed9668df88fd1ef5c2d9" prot="public" virt="non-virtual" ambiguityscope="LubRanges&lt; View &gt;::"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1ab611285a985a7fd844c8ec6b26dcb053" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1a477d11de91d1533d86b065ab1ae285f2" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1acc9284aa4170296775d1a307bc2cf396" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1a9c0bfc0184d7392863563733f590e23b" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_1a769dbb7c7a46d121617fd0e9c0a7edea" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

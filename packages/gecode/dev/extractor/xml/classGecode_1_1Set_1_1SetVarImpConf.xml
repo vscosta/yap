@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1SetVarImpConf" kind="class" prot="public">
+    <compoundname>Gecode::Set::SetVarImpConf</compoundname>
+    <includes refid="var-type_8hpp" local="no">var-type.hpp</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1SetVarImpConf_1a0c4d2e0a5afc2dd253bdc5e7ee9c04a3" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::Set::SetVarImpConf::idx_c</definition>
+        <argsstring></argsstring>
+        <name>idx_c</name>
+        <initializer>= Gecode::Int::BoolVarImpConf::idx_c</initializer>
+        <briefdescription>
+<para>Index for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="405" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="405" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1SetVarImpConf_1af1131c512d3530680318cf5ba73f085f" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::Set::SetVarImpConf::idx_d</definition>
+        <argsstring></argsstring>
+        <name>idx_d</name>
+        <initializer>= Gecode::Int::BoolVarImpConf::idx_d</initializer>
+        <briefdescription>
+<para>Index for disposal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="407" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="407" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1SetVarImpConf_1a47e4ac91e81b3cb9ce2db79a969e43f5" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::Set::SetVarImpConf::med_lst</definition>
+        <argsstring></argsstring>
+        <name>med_lst</name>
+        <initializer>= Gecode::Int::BoolVarImpConf::med_lst</initializer>
+        <briefdescription>
+<para>End of bits for modification event delta. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/var-type.hpp" line="409" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="409" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Dummy configuration for Set-variable implementations. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/var-type.hpp" line="402" column="1" bodyfile="/usr/include/gecode/kernel/var-type.hpp" bodystart="402" bodyend="410"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1SetVarImpConf_1a0c4d2e0a5afc2dd253bdc5e7ee9c04a3" prot="public" virt="non-virtual"><scope>Gecode::Set::SetVarImpConf</scope><name>idx_c</name></member>
+      <member refid="classGecode_1_1Set_1_1SetVarImpConf_1af1131c512d3530680318cf5ba73f085f" prot="public" virt="non-virtual"><scope>Gecode::Set::SetVarImpConf</scope><name>idx_d</name></member>
+      <member refid="classGecode_1_1Set_1_1SetVarImpConf_1a47e4ac91e81b3cb9ce2db79a969e43f5" prot="public" virt="non-virtual"><scope>Gecode::Set::SetVarImpConf</scope><name>med_lst</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

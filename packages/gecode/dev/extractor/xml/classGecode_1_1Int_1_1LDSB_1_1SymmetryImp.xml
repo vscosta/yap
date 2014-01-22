@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Int::LDSB::SymmetryImp</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp" prot="public" virt="non-virtual">Gecode::Int::LDSB::ValueSequenceSymmetryImp&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp" prot="public" virt="non-virtual">Gecode::Int::LDSB::ValueSymmetryImp&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp" prot="public" virt="non-virtual">Gecode::Int::LDSB::VariableSequenceSymmetryImp&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp" prot="public" virt="non-virtual">Gecode::Int::LDSB::VariableSymmetryImp&lt; View &gt;</derivedcompoundref>
+    <includes refid="int_2ldsb_8hh" local="no">ldsb.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a5b4156b8109570a47a47514936a2ae9b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="classGecode_1_1ArgArray" kindref="compound">ArgArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1LDSB_1_1Literal" kindref="compound">Literal</ref> &gt;</type>
+        <definition>virtual ArgArray&lt;Literal&gt; Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::symmetric</definition>
+        <argsstring>(Literal, const ViewArray&lt; View &gt; &amp;) const =0</argsstring>
+        <name>symmetric</name>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp_1a2f04e55b6170ec9831d2e83fbde033ba">symmetric</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp_1afc183d79cfd3aa3bf406a348e9f42a32">symmetric</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp_1a56f6b9a241ba09769d04c008d9b4c4a3">symmetric</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp_1ae82a4f4a87009cc893a51f33eb84b76a">symmetric</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1Literal" kindref="compound">Literal</ref></type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+        </param>
+        <briefdescription>
+<para>Compute symmetric literals. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="169" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a961e598b9337397f63b8c6ca38248083" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::update</definition>
+        <argsstring>(Literal)=0</argsstring>
+        <name>update</name>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp_1a61c14e039fd9fe5f4480a5e83ae1829c">update</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp_1af54db26edb6626da517c09807416be54">update</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp_1aa1ae46a621e9d52f4cf164879af195de">update</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp_1a79696783db33a5244893e3e52c6f6322">update</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1Literal" kindref="compound">Literal</ref></type>
+        </param>
+        <briefdescription>
+<para>Left-branch update. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="171" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a7dd1e79734ce51f59ca88ecc8ba87e89" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp" kindref="compound">SymmetryImp</ref>&lt; View &gt; *</type>
+        <definition>virtual SymmetryImp&lt;View&gt;* Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share) const =0</argsstring>
+        <name>copy</name>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp_1af403555f3e562dac8c364a2080326309">copy</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp_1a06cc69d8bd9e8966622cfb6a756f3a5b">copy</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp_1a96beb07d1c9b17f3e13f177af3690730">copy</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp_1afcf01b8364d5fae00a735a0f6dc3cca7">copy</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="173" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a19f5d9ad3094d87e8de93d63ebbe2306" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>size_t</type>
+        <definition>virtual size_t Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)=0</argsstring>
+        <name>dispose</name>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp_1a878fea4eb5a5c76429b9b431e433416f">dispose</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp_1a090592dbd4324ebbce5023862113a48b">dispose</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp_1a276729839c9dbbbaaf9eabd80eafa97e">dispose</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp_1a87720908f261e0f0c724f9d4b55d9286">dispose</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Disposal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="175" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a56d65a2e6515b19ca300e4ba8b1010f4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void * Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::operator new</definition>
+        <argsstring>(size_t s, Space &amp;home)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Placement new operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="177" column="1" bodyfile="/usr/include/gecode/int/ldsb/sym-imp.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a312e7c1833bb338178d45d420e4b84bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::operator delete</definition>
+        <argsstring>(void *, Space &amp;)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Return memory to space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="179" column="1" bodyfile="/usr/include/gecode/int/ldsb/sym-imp.hpp" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1ad7bba80ed673c0c3f744a3082f7696e3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::LDSB::SymmetryImp&lt; View &gt;::operator delete</definition>
+        <argsstring>(void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+<para>Needed for exceptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="181" column="1" bodyfile="/usr/include/gecode/int/ldsb/sym-imp.hpp" bodystart="63" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Implementation of a single symmetry. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6864">
+        <label>Gecode::Int::LDSB::VariableSymmetryImp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1VariableSymmetryImp"/>
+        <childnode refid="6860" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6860">
+        <label>Gecode::Int::LDSB::SymmetryImp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp"/>
+      </node>
+      <node id="6862">
+        <label>Gecode::Int::LDSB::ValueSymmetryImp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1ValueSymmetryImp"/>
+        <childnode refid="6860" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6863">
+        <label>Gecode::Int::LDSB::VariableSequenceSymmetryImp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryImp"/>
+        <childnode refid="6860" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6861">
+        <label>Gecode::Int::LDSB::ValueSequenceSymmetryImp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1ValueSequenceSymmetryImp"/>
+        <childnode refid="6860" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/ldsb.hh" line="166" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="166" bodyend="182"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a7dd1e79734ce51f59ca88ecc8ba87e89" prot="public" virt="pure-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a19f5d9ad3094d87e8de93d63ebbe2306" prot="public" virt="pure-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a312e7c1833bb338178d45d420e4b84bd" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1ad7bba80ed673c0c3f744a3082f7696e3" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a56d65a2e6515b19ca300e4ba8b1010f4" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a5b4156b8109570a47a47514936a2ae9b" prot="public" virt="pure-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>symmetric</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp_1a961e598b9337397f63b8c6ca38248083" prot="public" virt="pure-virtual"><scope>Gecode::Int::LDSB::SymmetryImp</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

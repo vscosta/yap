@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskPropRePat" kind="group">
+    <compoundname>TaskPropRePat</compoundname>
+    <title>Reified propagator patterns</title>
+    <innerclass refid="classGecode_1_1Int_1_1ReUnaryPropagator" prot="public">Gecode::Int::ReUnaryPropagator</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ReBinaryPropagator" prot="public">Gecode::Int::ReBinaryPropagator</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

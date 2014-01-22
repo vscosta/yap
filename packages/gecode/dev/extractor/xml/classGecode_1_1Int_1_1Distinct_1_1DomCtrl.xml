@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl" kind="class" prot="public">
+    <compoundname>Gecode::Int::Distinct::DomCtrl</compoundname>
+    <includes refid="int_2distinct_8hh" local="no">distinct.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1ab14def44fbf8bcb6a78711af6c303d8b" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1Graph" kindref="compound">Graph</ref>&lt; View &gt;</type>
+        <definition>Graph&lt;View&gt; Gecode::Int::Distinct::DomCtrl&lt; View &gt;::g</definition>
+        <argsstring></argsstring>
+        <name>g</name>
+        <briefdescription>
+<para>Propagation is performed on a view-value graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="221" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a59911e8936facc44c3bc50745ed256a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::DomCtrl&lt; View &gt;::DomCtrl</definition>
+        <argsstring>(void)</argsstring>
+        <name>DomCtrl</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize with non-initialized view-value graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="224" column="1" bodyfile="/usr/include/gecode/int/distinct/dom-ctrl.hpp" bodystart="49" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2f997f5ffcc3bd1ce71fc14e77d77377" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Distinct::DomCtrl&lt; View &gt;::available</definition>
+        <argsstring>(void)</argsstring>
+        <name>available</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether a view-value graph is available. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="226" column="1" bodyfile="/usr/include/gecode/int/distinct/dom-ctrl.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a294bf92c9a673290d7bc24fc07046359" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::DomCtrl&lt; View &gt;::init</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize view-value graph for views <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="228" column="1" bodyfile="/usr/include/gecode/int/distinct/dom-ctrl.hpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2c400a19a5db223b39fe8502e5e48cbb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::DomCtrl&lt; View &gt;::sync</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>sync</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Synchronize available view-value graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="230" column="1" bodyfile="/usr/include/gecode/int/distinct/dom-ctrl.hpp" bodystart="65" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2b1be3e7880bb705eb16f4fff07a8754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Distinct::DomCtrl&lt; View &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, bool &amp;assigned)</argsstring>
+        <name>propagate</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>assigned</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation, <emphasis>assigned</emphasis> is true if a view gets assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="232" column="1" bodyfile="/usr/include/gecode/int/distinct/dom-ctrl.hpp" bodystart="72" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Propagation controller for domain consistent distinct. </para>    </briefdescription>
+    <detaileddescription>
+<para>The propagation controller provides convenient access to performing incremental domain consistent distinct propagation so that the routines can be reused easily.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/distinct.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/distinct.hh" line="218" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="218" bodyend="233"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2f997f5ffcc3bd1ce71fc14e77d77377" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>available</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a59911e8936facc44c3bc50745ed256a3" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>DomCtrl</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1ab14def44fbf8bcb6a78711af6c303d8b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>g</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a294bf92c9a673290d7bc24fc07046359" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2b1be3e7880bb705eb16f4fff07a8754" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl_1a2c400a19a5db223b39fe8502e5e48cbb" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::DomCtrl</scope><name>sync</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

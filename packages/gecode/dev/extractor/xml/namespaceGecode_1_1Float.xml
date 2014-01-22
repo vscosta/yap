@@ -1,0 +1,730 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Float" kind="namespace">
+    <compoundname>Gecode::Float</compoundname>
+    <innerclass refid="classGecode_1_1Float_1_1OutOfLimits" prot="public">Gecode::Float::OutOfLimits</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1VariableEmptyDomain" prot="public">Gecode::Float::VariableEmptyDomain</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1TooFewArguments" prot="public">Gecode::Float::TooFewArguments</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ArgumentSizeMismatch" prot="public">Gecode::Float::ArgumentSizeMismatch</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ArgumentSame" prot="public">Gecode::Float::ArgumentSame</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownRelation" prot="public">Gecode::Float::UnknownRelation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownOperation" prot="public">Gecode::Float::UnknownOperation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1IllegalOperation" prot="public">Gecode::Float::IllegalOperation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownBranching" prot="public">Gecode::Float::UnknownBranching</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ValOfUnassignedVar" prot="public">Gecode::Float::ValOfUnassignedVar</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1FloatDelta" prot="public">Gecode::Float::FloatDelta</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1FloatVarImp" prot="public">Gecode::Float::FloatVarImp</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1FloatView" prot="public">Gecode::Float::FloatView</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1MinusView" prot="public">Gecode::Float::MinusView</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1OffsetView" prot="public">Gecode::Float::OffsetView</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ScaleView" prot="public">Gecode::Float::ScaleView</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rounding" prot="public">Gecode::Float::Rounding</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1FloatVarImpConf" prot="public">Gecode::Float::FloatVarImpConf</innerclass>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Arithmetic">Gecode::Float::Arithmetic</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Branch">Gecode::Float::Branch</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Limits">Gecode::Float::Limits</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Linear">Gecode::Float::Linear</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Rel">Gecode::Float::Rel</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Transcendental">Gecode::Float::Transcendental</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float_1_1Trigonometric">Gecode::Float::Trigonometric</innernamespace>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" prot="public" static="no">
+        <name>RelTest</name>
+        <enumvalue id="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa791ab4fc88ed5c238fc741db7d8da867" prot="public">
+          <name>RT_FALSE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Relation does not hold. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfae99da4d9f79856e2c122b199f7a97481" prot="public">
+          <name>RT_MAYBE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Relation may hold or not. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskActorFloatTest_1gga19f56f2d7b44e9a21ff5ba1cf588e0bfa4d572a39bdcfac15454b42ca44e3fc6a" prot="public">
+          <name>RT_TRUE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Relation does hold. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Result of testing relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="495" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="495" bodyend="499"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1af8480e33818b74d9df21aab53121d896" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Float::subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="494" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="494" bodyend="496"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a7ae8022e5be64d3db489b5320d38da88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Float::proper_subset</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>proper_subset</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="498" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="498" bodyend="500"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a31e5e7789f0ec3d817fdd85112b2a43a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Float::overlap</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>overlap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="502" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="502" bodyend="504"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a9d9f3f872e04476cfcdb76912d514936" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::intersect</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="507" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="507" bodyend="509"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1ac28e573af450ed29cba497f480f8d600" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="511" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="511" bodyend="513"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a31533190a964786ca7c09bec2e8fd257" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::hull</definition>
+        <argsstring>(const FloatVal &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="515" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="515" bodyend="517"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a8434e3705e23d06feee09680926a3258" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatVal &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="519" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="519" bodyend="521"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a5a7ff9f1dabd984b11e0ec4db1e08020" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::hull</definition>
+        <argsstring>(const FloatNum &amp;x, const FloatNum &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/val.hpp" line="523" column="1" bodyfile="/usr/include/gecode/float/val.hpp" bodystart="523" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1ae6e6d8478da6b4914d8edc810bc31539" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::print_view</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const View &amp;x)</argsstring>
+        <name>print_view</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const View &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="49" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a5875b0ac066c579f4ef13e41e7661a5d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const FloatView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">FloatView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a70ace8da6db0889c9c6877aabc38f0f2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const MinusView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1MinusView" kindref="compound">MinusView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="68" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a115303dd66d31b240feac8194cdd6d40" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OffsetView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a768b298c0cfb7420224fb5f4e64f7315" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ScaleView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1ScaleView" kindref="compound">ScaleView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Float_1a18d4005ebbbbdba7d1868badb88776e1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt;Char,Traits&gt;&amp; Gecode::Float::operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const Linear::NoView &amp;)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const Linear::NoView &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/print.hpp" line="49" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga4185699929a83691b8f60a074e60e2f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_eq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="44" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="44" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga7813cb9271fea939e8208001551a8534" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_eq</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_eq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and <ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> <emphasis>n</emphasis> are equal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="51" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="51" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_lq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="58" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="58" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga1af0aa09c6cdefaa53716d3fe3e95168" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_lq</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than float <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="66" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="66" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_le</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="74" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="74" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1gaf651cb68cfa564872526992e19aec408" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>forceinline RelTest Gecode::Float::rtest_le</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than float <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view/rel-test.hpp" line="82" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="82" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga4185699929a83691b8f60a074e60e2f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_eq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_eq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are equal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="502" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="44" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga7813cb9271fea939e8208001551a8534" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_eq</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_eq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> and <ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> <emphasis>n</emphasis> are equal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="504" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="51" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_lq</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="507" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="58" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga1af0aa09c6cdefaa53716d3fe3e95168" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_lq</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_lq</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than float <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="509" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="66" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_le</definition>
+        <argsstring>(View x, View y)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less than view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="512" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="74" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskActorFloatTest_1gaf651cb68cfa564872526992e19aec408" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskActorFloatTest_1ga19f56f2d7b44e9a21ff5ba1cf588e0bf" kindref="member">RelTest</ref></type>
+        <definition>RelTest Gecode::Float::rtest_le</definition>
+        <argsstring>(View x, FloatVal n)</argsstring>
+        <name>rtest_le</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> is less or equal than float <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="514" column="1" bodyfile="/usr/include/gecode/float/view/rel-test.hpp" bodystart="82" bodyend="86"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Floating point numbers. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="namespaceGecode_1_1Float" kindref="compound">Gecode::Float</ref> namespace contains all functionality required to program propagators and branchers for floating point numbers. In addition, all propagators and branchers for floating point numbers provided by Gecode are contained as nested namespaces. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/float/arithmetic/div.hpp" line="40" column="1"/>
+  </compounddef>
+</doxygen>

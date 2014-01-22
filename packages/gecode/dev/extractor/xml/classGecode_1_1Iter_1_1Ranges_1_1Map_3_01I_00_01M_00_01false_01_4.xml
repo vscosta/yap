@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax" prot="public" virt="non-virtual">Gecode::Iter::Ranges::MinMax</basecompoundref>
+    <includes refid="ranges-map_8hpp" local="no">ranges-map.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class I</type>
+      </param>
+      <param>
+        <type>class M</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a0197a377bdd909306f3f66f9a4455384" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::Map</definition>
+        <argsstring>(void)</argsstring>
+        <name>Map</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="98" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="161" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a15d1b96322c6cad3ae39ef4c5883c0f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::Map</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>Map</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="100" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="191" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a4b7ed37eb9e1709e7fa53927031f5b82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::Map</definition>
+        <argsstring>(I &amp;i, const M &amp;m)</argsstring>
+        <name>Map</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const M &amp;</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and map <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="102" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="196" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1aacb2eae5d2ad9c231fe227286c461356" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::init</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="104" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="180" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a36caa59b212dd8ac2c6f53ba5bcc32bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::init</definition>
+        <argsstring>(I &amp;i, const M &amp;m)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const M &amp;</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and map <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="106" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="185" bodyend="187"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a750e762cd740e2e4a33d781512d8340a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="112" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="202" bodyend="204"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a074b3f03c8a43bcadf0dded2861a4033" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Input range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="89" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1abea01432899fdfa4d5de5f5c9cf39f5e" prot="protected" static="no" mutable="no">
+        <type>M</type>
+        <definition>M Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::m</definition>
+        <argsstring></argsstring>
+        <name>m</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Map" kindref="compound">Map</ref> for ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="91" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a53309c8b105390fba45ded4c0f3026d2" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Map&lt; I, M, false &gt;::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Find next mapped range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-map.hpp" line="93" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="165" bodyend="176"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Specialized mapping of ranges for non-strict maps. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3759">
+        <label>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4"/>
+        <childnode refid="3760" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3760">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3763">
+        <label>I</label>
+      </node>
+      <node id="3761">
+        <label>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4"/>
+        <childnode refid="3762" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3763" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+      <node id="3762">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-map.hpp" line="86" column="1" bodyfile="/usr/include/gecode/iter/ranges-map.hpp" bodystart="86" bodyend="114"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a074b3f03c8a43bcadf0dded2861a4033" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1aacb2eae5d2ad9c231fe227286c461356" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a36caa59b212dd8ac2c6f53ba5bcc32bd" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1abea01432899fdfa4d5de5f5c9cf39f5e" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>m</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a0197a377bdd909306f3f66f9a4455384" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>Map</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a15d1b96322c6cad3ae39ef4c5883c0f8" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>Map</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a4b7ed37eb9e1709e7fa53927031f5b82" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>Map</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a53309c8b105390fba45ded4c0f3026d2" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>next</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Map_3_01I_00_01M_00_01false_01_4_1a750e762cd740e2e4a33d781512d8340a" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Map&lt; I, M, false &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

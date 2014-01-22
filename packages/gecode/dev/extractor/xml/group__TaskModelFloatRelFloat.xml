@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelFloatRelFloat" kind="group">
+    <compoundname>TaskModelFloatRelFloat</compoundname>
+    <title>Simple relation constraints over float variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1gae112d89eb47c5e2aa360b2fcca92e374" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, FloatVar x0, FloatRelType frt, FloatVar x1)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x1</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="60">$ x_0 \sim_{frt} x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1105" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1ga951d138b1f3ee892bfc95cd05e797054" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, FloatVar x, FloatRelType frt, FloatVal c)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVal</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="61">$ x \sim_{frt} c$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1110" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1ga545047265df9b09a4fe31b2e688803ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, FloatVar x, FloatRelType frt, FloatVal c, Reify r)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVal</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="62">$(x \sim_{frt} c)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1115" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1ga1362bddaff012fd5b73a980ceeb7f7d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, FloatVar x0, FloatRelType frt, FloatVar x1, Reify r)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="63">$(x_0 \sim_{frt} x_1)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1120" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1ga0bb297bd839cb070bc33b0286a9d05d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const FloatVarArgs &amp;x, FloatRelType frt, FloatVal c)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const FloatVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVal</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="64">$ x_i \sim_{frt} c $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1125" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatRelFloat_1gaeb161108d774dccf9c12d207f7a8a0e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT void</type>
+        <definition>GECODE_FLOAT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const FloatVarArgs &amp;x, FloatRelType frt, FloatVar y)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const FloatVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>FloatRelType</type>
+          <declname>frt</declname>
+        </param>
+        <param>
+          <type>FloatVar</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="65">$ x_i \sim_{frt} y $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1130" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

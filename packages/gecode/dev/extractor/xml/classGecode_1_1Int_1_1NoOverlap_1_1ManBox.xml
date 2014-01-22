@@ -1,0 +1,309 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox" kind="class" prot="public">
+    <compoundname>Gecode::Int::NoOverlap::ManBox</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1NoOverlap_1_1OptBox" prot="public" virt="non-virtual">Gecode::Int::NoOverlap::OptBox&lt; Dim, n &gt;</derivedcompoundref>
+    <includes refid="no-overlap_8hh" local="no">no-overlap.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Dim</declname>
+        <defname>Dim</defname>
+      </param>
+      <param>
+        <type>int</type>
+        <declname>n</declname>
+        <defname>n</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a139c76c524084206eaab410e088b2620" prot="protected" static="no" mutable="no">
+        <type>Dim</type>
+        <definition>Dim Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::d[n]</definition>
+        <argsstring>[n]</argsstring>
+        <name>d</name>
+        <briefdescription>
+<para>Dimensions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="149" column="1" bodyfile="/usr/include/gecode/int/no-overlap.hh" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a03258d7e35a796267743804fe72fcf83" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const Dim &amp;</type>
+        <definition>forceinline const Dim &amp; Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Access to dimension <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="152" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="46" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a7257a09c18e28420d348f40e4af5741a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Dim &amp;</type>
+        <definition>forceinline Dim &amp; Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::operator[]</definition>
+        <argsstring>(int i)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Access to dimension <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="154" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a72f23bd024feb9cef1e5ab26f7ed1f74" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::mandatory</definition>
+        <argsstring>(void) const </argsstring>
+        <name>mandatory</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether box is mandatory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="159" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a303e565c4e2176aa04f6aedb69c91139" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::optional</definition>
+        <argsstring>(void) const </argsstring>
+        <name>optional</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether box is optional. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="161" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a4eccf666b0c39b49c648a14a9656a8e4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::excluded</definition>
+        <argsstring>(void) const </argsstring>
+        <name>excluded</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether box is excluded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="163" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a6b1c99be89d6eaad330cb16ffebb7def" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::exclude</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Exclude box. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="166" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a153fa7f53fc8caed2ed06f44fd62deea" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::nooverlap</definition>
+        <argsstring>(const ManBox&lt; Dim, n &gt; &amp;b) const </argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox" kindref="compound">ManBox</ref>&lt; Dim, n &gt; &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Check whether this box does not any longer overlap with <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="169" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="86" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a9191f114fe05a4604e98156ae6e04eaa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::overlap</definition>
+        <argsstring>(const ManBox&lt; Dim, n &gt; &amp;b) const </argsstring>
+        <name>overlap</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox" kindref="compound">ManBox</ref>&lt; Dim, n &gt; &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Check whether this box overlaps with <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="171" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="95" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a2ac1e5a21364542898f52521c55e9a85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::nooverlap</definition>
+        <argsstring>(Space &amp;home, ManBox&lt; Dim, n &gt; &amp;b)</argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox" kindref="compound">ManBox</ref>&lt; Dim, n &gt; &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Propagate that this box does not overlap with <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="174" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="104" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a3545ae7705827b4dbe2af7245285df5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, ManBox&lt; Dim, n &gt; &amp;r)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox" kindref="compound">ManBox</ref>&lt; Dim, n &gt; &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Update box during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="177" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="124" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a678714fabcbfe7d9a7ddd744b798d004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> to box. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="180" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="131" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1aca7009c2950a63ba027c114028738b0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Cancel propagator <emphasis>p</emphasis> from box. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="182" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="137" bodyend="140"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1ac6ca44290751a4ae335920dc32ace678" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;::dim</definition>
+        <argsstring>(void)</argsstring>
+        <name>dim</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of dimensions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/no-overlap.hh" line="156" column="1" bodyfile="/usr/include/gecode/int/no-overlap/box.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Mandatory box class. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3670">
+        <label>Gecode::Int::NoOverlap::ManBox&lt; Dim, n &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox"/>
+      </node>
+      <node id="3671">
+        <label>Gecode::Int::NoOverlap::OptBox&lt; Dim, n &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NoOverlap_1_1OptBox"/>
+        <childnode refid="3670" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/no-overlap.hh" line="146" column="1" bodyfile="/usr/include/gecode/int/no-overlap.hh" bodystart="146" bodyend="183"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1aca7009c2950a63ba027c114028738b0b" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a139c76c524084206eaab410e088b2620" prot="protected" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>d</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1ac6ca44290751a4ae335920dc32ace678" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>dim</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a6b1c99be89d6eaad330cb16ffebb7def" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a4eccf666b0c39b49c648a14a9656a8e4" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a72f23bd024feb9cef1e5ab26f7ed1f74" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a153fa7f53fc8caed2ed06f44fd62deea" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>nooverlap</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a2ac1e5a21364542898f52521c55e9a85" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>nooverlap</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a03258d7e35a796267743804fe72fcf83" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a7257a09c18e28420d348f40e4af5741a" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a303e565c4e2176aa04f6aedb69c91139" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>optional</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a9191f114fe05a4604e98156ae6e04eaa" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>overlap</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a678714fabcbfe7d9a7ddd744b798d004" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1NoOverlap_1_1ManBox_1a3545ae7705827b4dbe2af7245285df5e" prot="public" virt="non-virtual"><scope>Gecode::Int::NoOverlap::ManBox</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

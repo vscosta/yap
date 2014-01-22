@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1checking__no__nan" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::checking_no_nan</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Checking</basecompoundref>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>Checking</declname>
+        <defname>Checking</defname>
+        <defval><ref refid="structboost_1_1numeric_1_1interval__lib_1_1checking__base" kindref="compound">checking_base</ref>&lt;T&gt;</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1checking__no__nan_1a390f58c5e848666691c70cc01986624b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool boost::numeric::interval_lib::checking_no_nan&lt; T, Checking &gt;::is_nan</definition>
+        <argsstring>(const T &amp;)</argsstring>
+        <name>is_nan</name>
+        <param>
+          <type>const T &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" line="104" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" bodystart="104" bodyend="107"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1466">
+        <label>boost::numeric::interval_lib::checking_no_nan&lt; T, Checking &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1checking__no__nan"/>
+        <childnode refid="1467" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1467">
+        <label>Checking</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1468">
+        <label>boost::numeric::interval_lib::checking_no_nan&lt; T, Checking &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1checking__no__nan"/>
+        <childnode refid="1469" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1469">
+        <label>Checking</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" line="103" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/checking.hpp" bodystart="102" bodyend="108"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1checking__no__nan_1a390f58c5e848666691c70cc01986624b" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::checking_no_nan</scope><name>is_nan</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask" kind="class" prot="public">
+    <compoundname>Gecode::Int::Cumulative::OptFlexTask</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ManToOptTask" prot="public" virt="non-virtual">Gecode::Int::ManToOptTask&lt; ManFlexTask &gt;</basecompoundref>
+    <includes refid="cumulative_8hh" local="no">cumulative.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a3ec37a1c4125dce34740ca360324bf35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFlexTask::OptFlexTask</definition>
+        <argsstring>(void)</argsstring>
+        <name>OptFlexTask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="272" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="229" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a0031c0585f635f153436c56fe1dbc21e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFlexTask::OptFlexTask</definition>
+        <argsstring>(IntVar s, IntVar p, IntVar e, int c, BoolVar m)</argsstring>
+        <name>OptFlexTask</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, end time <emphasis>e</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="274" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="231" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a301ada192d6a5ccc9b71434075167ba0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Cumulative::OptFlexTask::init</definition>
+        <argsstring>(IntVar s, IntVar p, IntVar e, int c, BoolVar m)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, end time <emphasis>e</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="276" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="235" bodyend="237"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a95face8d75537097911d9292cf477693" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFlexTask::operator Unary::OptFlexTask</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator Unary::OptFlexTask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Cast to corresponding unary task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="279" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="239" bodyend="241"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1aa0c7aa57d541eaa71bdc7164106c8e97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OptFlexTask &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask" kindref="compound">OptFlexTask</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Print optional task in format est:lst:pmin:pmax:c:ect:lct:m. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="245" bodyend="252"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Cumulative optional task with flexible processing time </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4944">
+        <label>Gecode::Int::ManToOptTask&lt; ManFlexTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4945" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4945">
+        <label>ManFlexTask</label>
+      </node>
+      <node id="4943">
+        <label>Gecode::Int::Cumulative::OptFlexTask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask"/>
+        <childnode refid="4944" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4949">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="4950" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4947">
+        <label>Gecode::Int::ManToOptTask&lt; ManFlexTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4948" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4949" relation="usage">
+          <edgelabel>_m</edgelabel>
+        </childnode>
+      </node>
+      <node id="4948">
+        <label>ManFlexTask</label>
+      </node>
+      <node id="4950">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="4946">
+        <label>Gecode::Int::Cumulative::OptFlexTask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask"/>
+        <childnode refid="4947" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/cumulative.hh" line="265" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="265" bodyend="280"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a0ea4b8f9b86b8f01ba3e302e5691a348" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>_m</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af1ecff9139307da4ce7021649b4ee6ca" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a703867f96b83284fda6e10b774f7348f" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a440f22861da3f9c0b2126163b02a4736" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a03af834e0060cd08b0d94011d4e98aea" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a301ada192d6a5ccc9b71434075167ba0" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ab83738351a959982696d66371eb7b1b8" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1afda615c75635c3d28221ff0e2439403f" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1adf301f6881c6537cfbdb5330fb8d781a" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>ManToOptTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a95face8d75537097911d9292cf477693" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>operator Unary::OptFlexTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1aa0c7aa57d541eaa71bdc7164106c8e97" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classManFlexTask_1ac3b1dd91b9e9c3840ef5c9a8bc04b80c" prot="public" virt="non-virtual" ambiguityscope="ManToOptTask&lt; ManFlexTask &gt;::"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a3ec37a1c4125dce34740ca360324bf35" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>OptFlexTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFlexTask_1a0031c0585f635f153436c56fe1dbc21e" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>OptFlexTask</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af3fb279687697ed218d492215151c797" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>optional</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ae18508500f11df05627d8676f87e324b" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1aa3e3b3b021b9324114e40896bf01a911" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFlexTask</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

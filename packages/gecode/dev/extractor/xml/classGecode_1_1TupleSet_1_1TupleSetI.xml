@@ -1,0 +1,327 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1TupleSet_1_1TupleSetI" kind="class" prot="public">
+    <compoundname>Gecode::TupleSet::TupleSetI</compoundname>
+    <basecompoundref refid="classGecode_1_1SharedHandle_1_1Object" prot="public" virt="non-virtual">Gecode::SharedHandle::Object</basecompoundref>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a9f2815021acb6660ae5302cc58f77699" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::TupleSet::TupleSetI::arity</definition>
+        <argsstring></argsstring>
+        <name>arity</name>
+        <briefdescription>
+<para>Arity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2036" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2036" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1ac26743b6ced12ba3cf21b55835c7996e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::TupleSet::TupleSetI::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Number of Tuples. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2038" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2038" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a273db303ecab4916828c5203fe23dc52" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1TupleSet_1a7f22b4f0671488a21dc9f0cbafdccad2" kindref="member">Tuple</ref> **</type>
+        <definition>Tuple** Gecode::TupleSet::TupleSetI::tuples</definition>
+        <argsstring></argsstring>
+        <name>tuples</name>
+        <briefdescription>
+<para>Tuples index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2040" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2040" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a3237259a776c3906738cc98fb51c53d7" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1TupleSet_1a7f22b4f0671488a21dc9f0cbafdccad2" kindref="member">Tuple</ref> *</type>
+        <definition>Tuple* Gecode::TupleSet::TupleSetI::tuple_data</definition>
+        <argsstring></argsstring>
+        <name>tuple_data</name>
+        <briefdescription>
+<para>Tuple index data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2042" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2042" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a41d89267fcab8272dfd633c6ac7f33cd" prot="public" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* Gecode::TupleSet::TupleSetI::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Tuples data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2044" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2044" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a7ec328f85cbcdf9c8eb853df8f5202fd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::TupleSet::TupleSetI::excess</definition>
+        <argsstring></argsstring>
+        <name>excess</name>
+        <briefdescription>
+<para>Excess storage. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2046" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2046" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a4b84f035304bfba49af137060e81437f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::TupleSet::TupleSetI::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+<para>Minimum and maximum in domain-values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2048" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2048" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1ab7e9d2a7fd9b3c37c89bc671794f6550" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::TupleSet::TupleSetI::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2048" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2048" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a3f29fad4918a01ae166c9354b38d738c" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::TupleSet::TupleSetI::domsize</definition>
+        <argsstring></argsstring>
+        <name>domsize</name>
+        <briefdescription>
+<para>Domain size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2050" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2050" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1a4067194a8115f9561a6b38aca48fa606" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1TupleSet_1a7f22b4f0671488a21dc9f0cbafdccad2" kindref="member">Tuple</ref> **</type>
+        <definition>Tuple** Gecode::TupleSet::TupleSetI::last</definition>
+        <argsstring></argsstring>
+        <name>last</name>
+        <briefdescription>
+<para>Initial last structure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2052" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2052" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TupleSet_1_1TupleSetI_1ae230317000727163f23b722065c6b517" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1TupleSet_1a7f22b4f0671488a21dc9f0cbafdccad2" kindref="member">Tuple</ref> *</type>
+        <definition>Tuple* Gecode::TupleSet::TupleSetI::nullpointer</definition>
+        <argsstring></argsstring>
+        <name>nullpointer</name>
+        <briefdescription>
+<para>Pointer to NULL-pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2054" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2054" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a43e4bcd0c5fd9a334e87550852ae1977" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::TupleSet::TupleSetI::add</definition>
+        <argsstring>(T t)</argsstring>
+        <name>add</name>
+        <param>
+          <type>T</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Add Tuple. Assumes that arity matches. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2058" column="1" bodyfile="/usr/include/gecode/int/extensional/tuple-set.hpp" bodystart="67" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a8a8a26cd3745954bb3071093291fb61b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::TupleSet::TupleSetI::finalize</definition>
+        <argsstring>(void)</argsstring>
+        <name>finalize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Finalize datastructure (disallows additions of more Tuples) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2060" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a5d6eb61e1013854171c00f3d0663ccf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::TupleSet::TupleSetI::resize</definition>
+        <argsstring>(void)</argsstring>
+        <name>resize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Resize data cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2062" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a9b06d293d2272a6fe768b29f5444f690" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::TupleSet::TupleSetI::finalized</definition>
+        <argsstring>(void) const </argsstring>
+        <name>finalized</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Is datastructure finalized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2064" column="1" bodyfile="/usr/include/gecode/int/extensional/tuple-set.hpp" bodystart="43" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a9bae229516f5fad72f812223180c0448" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::TupleSet::TupleSetI::TupleSetI</definition>
+        <argsstring>(void)</argsstring>
+        <name>TupleSetI</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize as empty tuple set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2066" column="1" bodyfile="/usr/include/gecode/int/extensional/tuple-set.hpp" bodystart="50" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a055f651a87b2c48858fc533fb76d0bef" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT</type>
+        <definition>virtual GECODE_INT_EXPORT Gecode::TupleSet::TupleSetI::~TupleSetI</definition>
+        <argsstring>(void)</argsstring>
+        <name>~TupleSetI</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete implementation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2068" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TupleSet_1_1TupleSetI_1a34c8020c54534a9e3ca5db5651f22444" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+        <definition>virtual GECODE_INT_EXPORT SharedHandle::Object* Gecode::TupleSet::TupleSetI::copy</definition>
+        <argsstring>(void) const </argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1SharedHandle_1_1Object_1a0d55a432ecf99f0051ce023b7388e35a">copy</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create a copy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2070" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Data stored for a Table. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7129">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="7128">
+        <label>Gecode::TupleSet::TupleSetI</label>
+        <link refid="classGecode_1_1TupleSet_1_1TupleSetI"/>
+        <childnode refid="7129" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7131">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="7130">
+        <label>Gecode::TupleSet::TupleSetI</label>
+        <link refid="classGecode_1_1TupleSet_1_1TupleSetI"/>
+        <childnode refid="7131" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int.hh" line="2033" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="2032" bodyend="2071"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a43e4bcd0c5fd9a334e87550852ae1977" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>add</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a9f2815021acb6660ae5302cc58f77699" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>arity</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a34c8020c54534a9e3ca5db5651f22444" prot="public" virt="virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>copy</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a41d89267fcab8272dfd633c6ac7f33cd" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>data</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a3f29fad4918a01ae166c9354b38d738c" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>domsize</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a7ec328f85cbcdf9c8eb853df8f5202fd" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>excess</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a8a8a26cd3745954bb3071093291fb61b" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>finalize</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a9b06d293d2272a6fe768b29f5444f690" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>finalized</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a4067194a8115f9561a6b38aca48fa606" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>last</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1ab7e9d2a7fd9b3c37c89bc671794f6550" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>max</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a4b84f035304bfba49af137060e81437f" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>min</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1ae230317000727163f23b722065c6b517" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>nullpointer</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a74e54baaa39f46295bf5ea15eaec1212" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>Object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a2db9735b0b6a3704586e5ec1702696e2" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1aabfe1d610fe626da356724f96ea51c89" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a5d6eb61e1013854171c00f3d0663ccf4" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>resize</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1ac26743b6ced12ba3cf21b55835c7996e" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>size</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a3237259a776c3906738cc98fb51c53d7" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>tuple_data</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a273db303ecab4916828c5203fe23dc52" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>tuples</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a9bae229516f5fad72f812223180c0448" prot="public" virt="non-virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>TupleSetI</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a55569725d23dd66a356853b0ab9c6fc1" prot="public" virt="virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>~Object</name></member>
+      <member refid="classGecode_1_1TupleSet_1_1TupleSetI_1a055f651a87b2c48858fc533fb76d0bef" prot="public" virt="virtual"><scope>Gecode::TupleSet::TupleSetI</scope><name>~TupleSetI</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

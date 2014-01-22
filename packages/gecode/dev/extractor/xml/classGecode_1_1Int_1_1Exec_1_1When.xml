@@ -1,0 +1,279 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Exec_1_1When" kind="class" prot="public">
+    <compoundname>Gecode::Int::Exec::When</compoundname>
+    <basecompoundref refid="classGecode_1_1UnaryPropagator" prot="public" virt="non-virtual">Gecode::UnaryPropagator&lt; BoolView, PC_BOOL_VAL &gt;</basecompoundref>
+    <includes refid="exec_8hh" local="no">exec.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Exec_1_1When_1aa937f40f5ee6a591e13403c0feb56b40" prot="protected" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* Gecode::Int::Exec::When::t)(Space &amp;)</definition>
+        <argsstring>)(Space &amp;)</argsstring>
+        <name>t</name>
+        <briefdescription>
+<para>Then function pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="60" column="1" bodyfile="/usr/include/gecode/int/exec.hh" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Exec_1_1When_1a5abc14ab0aef711ae938ce9ef9fd2dc7" prot="protected" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* Gecode::Int::Exec::When::e)(Space &amp;)</definition>
+        <argsstring>)(Space &amp;)</argsstring>
+        <name>e</name>
+        <briefdescription>
+<para>Else function pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="62" column="1" bodyfile="/usr/include/gecode/int/exec.hh" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Exec_1_1When_1a1837c8667fb4a29ee76c4a7a3b763d67" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Exec::When::When</definition>
+        <argsstring>(Space &amp;home, bool share, When &amp;p)</argsstring>
+        <name>When</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Exec_1_1When" kindref="compound">When</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="64" column="1" bodyfile="/usr/include/gecode/int/exec/when.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Exec_1_1When_1a690dd64f392b929547d64af264a982e9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Exec::When::When</definition>
+        <argsstring>(Home home, BoolView x, void(*t0)(Space &amp;), void(*e0)(Space &amp;))</argsstring>
+        <name>When</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>t0</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>e0</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="66" column="1" bodyfile="/usr/include/gecode/int/exec/when.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Exec_1_1When_1ab71f8a27c5d703e983f8868b87df31fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>virtual GECODE_INT_EXPORT Actor* Gecode::Int::Exec::When::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Exec_1_1When_1a1ddc7c9be8b49a0e44e930f7aa32a902" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>virtual GECODE_INT_EXPORT ExecStatus Gecode::Int::Exec::When::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="73" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Exec_1_1When_1ac491ffff0c9d6de43b99cf4416c15548" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>static GECODE_INT_EXPORT ExecStatus Gecode::Int::Exec::When::post</definition>
+        <argsstring>(Home home, BoolView x, void(*t)(Space &amp;), void(*e)(Space &amp;))</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exec.hh" line="76" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Conditional propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/exec.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="8074">
+        <label>Gecode::UnaryPropagator&lt; BoolView, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="8075" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8075">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="8076" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8073">
+        <label>Gecode::Int::Exec::When</label>
+        <link refid="classGecode_1_1Int_1_1Exec_1_1When"/>
+        <childnode refid="8074" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8076">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="8077" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="8077">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8083">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="8084" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8079">
+        <label>Gecode::UnaryPropagator&lt; BoolView, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="8080" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8083" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+      </node>
+      <node id="8084">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="8080">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="8081" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8082" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="8078">
+        <label>Gecode::Int::Exec::When</label>
+        <link refid="classGecode_1_1Int_1_1Exec_1_1When"/>
+        <childnode refid="8079" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8081">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="8082" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="8082">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/exec.hh" line="56" column="1" bodyfile="/usr/include/gecode/int/exec.hh" bodystart="56" bodyend="78"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Exec::When</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Exec::When</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Exec::When</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1ab71f8a27c5d703e983f8868b87df31fb" prot="public" virt="virtual"><scope>Gecode::Int::Exec::When</scope><name>copy</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1a0838e43ac8bb0f66de238d872c82511b" prot="public" virt="virtual"><scope>Gecode::Int::Exec::When</scope><name>cost</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1ad62db373a527e43b728530667cf1282b" prot="public" virt="virtual"><scope>Gecode::Int::Exec::When</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1a5abc14ab0aef711ae938ce9ef9fd2dc7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>e</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1ac491ffff0c9d6de43b99cf4416c15548" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1a1ddc7c9be8b49a0e44e930f7aa32a902" prot="public" virt="virtual"><scope>Gecode::Int::Exec::When</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1aa937f40f5ee6a591e13403c0feb56b40" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>t</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1a1a9f50e55c28109af7f518da92a61a77" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>UnaryPropagator</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1ae234a519ca382dc0480a45e7d6a4a416" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>UnaryPropagator</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1a84a144314a5e30cec0af2b2580a47966" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>UnaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1a1837c8667fb4a29ee76c4a7a3b763d67" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>When</name></member>
+      <member refid="classGecode_1_1Int_1_1Exec_1_1When_1a690dd64f392b929547d64af264a982e9" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>When</name></member>
+      <member refid="classGecode_1_1UnaryPropagator_1a964560a9acf6bedfb83b034fe81efac7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Exec::When</scope><name>x0</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

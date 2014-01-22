@@ -1,0 +1,332 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1BitSetOffset" kind="class" prot="public">
+    <compoundname>Gecode::Support::BitSetOffset</compoundname>
+    <basecompoundref refid="classGecode_1_1Support_1_1BitSetBase" prot="public" virt="non-virtual">Gecode::Support::BitSetBase</basecompoundref>
+    <includes refid="bitset-offset_8hpp" local="no">bitset-offset.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BitSetOffset_1a84acd2bb154416d18176e9d06f004f8f" prot="protected" static="no" mutable="no">
+        <type>A &amp;</type>
+        <definition>A&amp; Gecode::Support::BitSetOffset&lt; A &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="58" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1BitSetOffset_1aa84ee30814541f4859504ada50481e7c" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Support::BitSetOffset&lt; A &gt;::_offset</definition>
+        <argsstring></argsstring>
+        <name>_offset</name>
+        <briefdescription>
+<para>Offset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="60" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a78dcca9835c8e8e23d7c325c5b99831f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::BitSetOffset&lt; A &gt;::BitSetOffset</definition>
+        <argsstring>(A &amp;a, unsigned int s, int o)</argsstring>
+        <name>BitSetOffset</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Bit set with space for <emphasis>s</emphasis> bits with offset of . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="63" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="94" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a4fbedc5108283df51c3cae1c220ac986" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::BitSetOffset&lt; A &gt;::BitSetOffset</definition>
+        <argsstring>(A &amp;a, const BitSetOffset &amp;bs)</argsstring>
+        <name>BitSetOffset</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1BitSetOffset" kindref="compound">BitSetOffset</ref> &amp;</type>
+          <declname>bs</declname>
+        </param>
+        <briefdescription>
+<para>Copy bit set <emphasis>bs</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="65" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="99" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a16926cb7abf51b11e3632bc0ef20af6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::BitSetOffset&lt; A &gt;::~BitSetOffset</definition>
+        <argsstring>(void)</argsstring>
+        <name>~BitSetOffset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="67" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="104" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a3ed97faeab765e84f406f3f4f58bb10f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Support::BitSetOffset&lt; A &gt;::get</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>get</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Access value at bit <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="74" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="110" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1ad912b9d37bbc37a090d1f5f7e3a6b1ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::BitSetOffset&lt; A &gt;::set</definition>
+        <argsstring>(int i)</argsstring>
+        <name>set</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> bit <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="76" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="114" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1af42b1482f7808d5d897358d76e8e4219" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::BitSetOffset&lt; A &gt;::clear</definition>
+        <argsstring>(int i)</argsstring>
+        <name>clear</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Clear bit <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="78" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1ac7633b8694d91050f1c75e72986a92f2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Support::BitSetOffset&lt; A &gt;::next</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>next</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return position greater or equal <emphasis>i</emphasis> of next set bit (<emphasis>i</emphasis> is allowed to be equal to size) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="80" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="122" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a71ed4ec635037103a8f704e0af3fbc76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::BitSetOffset&lt; A &gt;::resize</definition>
+        <argsstring>(A &amp;a, unsigned int n, int offset, bool set=false)</argsstring>
+        <name>resize</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>set</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Resize bitset to <emphasis>n</emphasis> elements with specified offset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="82" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="126" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1acd9381a27b857656eb8cf7d9d588eb40" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Support::BitSetOffset&lt; A &gt;::offset</definition>
+        <argsstring>(void) const </argsstring>
+        <name>offset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Retrieve the minimum valid index (the offset). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="85" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="133" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a69db3af3dd1c7b3a7ee53c8589629117" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Support::BitSetOffset&lt; A &gt;::max_bit</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max_bit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Retrieve the maximum valid index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="87" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="137" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1BitSetOffset_1a55d25145d8009c06674770652ac6ab18" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Support::BitSetOffset&lt; A &gt;::valid</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>valid</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Is the bit index valid for this bitset? </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/bitset-offset.hpp" line="89" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="141" bodyend="141"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Bitsets with index offset.</para><para>The valid range of indices for a <emphasis><ref refid="classGecode_1_1Support_1_1BitSetOffset" kindref="compound">BitSetOffset</ref></emphasis> with <emphasis>s</emphasis> bits and an offset of <emphasis>o</emphasis> is [o, o+1, ..., o+s-1]. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1122">
+        <label>Gecode::Support::BitSetOffset&lt; A &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BitSetOffset"/>
+        <childnode refid="1123" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1123">
+        <label>Gecode::Support::BitSetBase</label>
+        <link refid="classGecode_1_1Support_1_1BitSetBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1127">
+        <label>A</label>
+      </node>
+      <node id="1124">
+        <label>Gecode::Support::BitSetOffset&lt; A &gt;</label>
+        <link refid="classGecode_1_1Support_1_1BitSetOffset"/>
+        <childnode refid="1125" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1127" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="1125">
+        <label>Gecode::Support::BitSetBase</label>
+        <link refid="classGecode_1_1Support_1_1BitSetBase"/>
+        <childnode refid="1126" relation="usage">
+          <edgelabel>data</edgelabel>
+        </childnode>
+      </node>
+      <node id="1126">
+        <label>Gecode::Support::BitSetData</label>
+        <link refid="classGecode_1_1Support_1_1BitSetData"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/support/bitset-offset.hpp" line="55" column="1" bodyfile="/usr/include/gecode/support/bitset-offset.hpp" bodystart="55" bodyend="90"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>_get</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1aa84ee30814541f4859504ada50481e7c" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>_offset</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>_set</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a84acd2bb154416d18176e9d06f004f8f" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>a</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a2733788f394588d6385c8f123935d10d" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a6dd00d33e1ba3755880113f48da129cc" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad9e47dd9c14f5465a844f754171c4928" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ae0b88d176bb94c9fadabd68644729375" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetBase</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a78dcca9835c8e8e23d7c325c5b99831f" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetOffset</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a4fbedc5108283df51c3cae1c220ac986" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>BitSetOffset</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>bpb</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1af42b1482f7808d5d897358d76e8e4219" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>clear</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1afbe1fe7346b3bb27d0cc8cb268819772" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Support::BitSetOffset</scope><name>clear</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>data</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a0b6779b7f869feb2a8860323612bb76f" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a4423f0aa99a750a9d6b0c45243caca38" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a3ed97faeab765e84f406f3f4f58bb10f" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>get</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1adeddf343941d1e169e38b8e3b939f617" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Support::BitSetOffset</scope><name>get</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>init</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a4c8b81b6816fe0d60d5bcf8f98f2ca98" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>init</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a69db3af3dd1c7b3a7ee53c8589629117" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>max_bit</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1ac7633b8694d91050f1c75e72986a92f2" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>next</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1aeb1175198345390b9deb787618dc34e9" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Support::BitSetOffset</scope><name>next</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1acd9381a27b857656eb8cf7d9d588eb40" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>offset</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a71ed4ec635037103a8f704e0af3fbc76" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>resize</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a7451a1005fd33cd0643d308feabe9a71" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Support::BitSetOffset</scope><name>resize</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1ad912b9d37bbc37a090d1f5f7e3a6b1ac" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>set</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" prot="public" virt="non-virtual" ambiguityscope="Gecode::Support::BitSetBase::"><scope>Gecode::Support::BitSetOffset</scope><name>set</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1a999c515e166773bda8171ae2da1f7dc5" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>size</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ac062f6f847702b8107d3fb4d73cc478d" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>status</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" prot="protected" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>sz</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a55d25145d8009c06674770652ac6ab18" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>valid</name></member>
+      <member refid="classGecode_1_1Support_1_1BitSetOffset_1a16926cb7abf51b11e3632bc0ef20af6a" prot="public" virt="non-virtual"><scope>Gecode::Support::BitSetOffset</scope><name>~BitSetOffset</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

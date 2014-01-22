@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelFloatBranchAssign" kind="group">
+    <compoundname>TaskModelFloatBranchAssign</compoundname>
+    <title>Value selection for assigning float variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelFloatBranchAssign_1gaf75ac998e6b106f947e3c6263293df8a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>FloatAssign</type>
+        <definition>FloatAssign Gecode::FLOAT_ASSIGN_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>FLOAT_ASSIGN_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select median value of the lower part. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch/assign.hpp" line="59" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatBranchAssign_1ga83498d75d9c9678404db8bf7c70d7830" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>FloatAssign</type>
+        <definition>FloatAssign Gecode::FLOAT_ASSIGN_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>FLOAT_ASSIGN_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select median value of the upper part. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch/assign.hpp" line="64" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatBranchAssign_1gad4461af00e1ed5c64e4db8cc0103956f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>FloatAssign</type>
+        <definition>FloatAssign Gecode::FLOAT_ASSIGN_RND</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>FLOAT_ASSIGN_RND</name>
+        <param>
+          <type>Rnd</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Select median value of a randomly chosen part. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch/assign.hpp" line="69" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatBranchAssign_1ga36a13ddb9af18cfecaaa09cff794c2f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>FloatAssign</type>
+        <definition>FloatAssign Gecode::FLOAT_ASSIGN</definition>
+        <argsstring>(FloatBranchVal v, FloatBranchCommit c)</argsstring>
+        <name>FLOAT_ASSIGN</name>
+        <param>
+          <type>FloatBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>FloatBranchCommit</type>
+          <declname>c</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis> The default commit function posts the constraint that the float variable <emphasis>x</emphasis> must be less or equal than the value <emphasis>n</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch/assign.hpp" line="74" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="74" bodyend="77"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

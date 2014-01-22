@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1RangesCompl" kind="class" prot="public">
+    <compoundname>Gecode::Set::RangesCompl</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Compl" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Compl&lt; Limits::min, Limits::max, I &gt;</basecompoundref>
+    <includes refid="set_2var-imp_8hpp" local="no">var-imp.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>I</declname>
+        <defname>I</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1RangesCompl_1a7b0ade5f1eb05b70d21959ef31502edf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::RangesCompl&lt; I &gt;::RangesCompl</definition>
+        <argsstring>(void)</argsstring>
+        <name>RangesCompl</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="302" column="1" bodyfile="/usr/include/gecode/set/var-imp/integerset.hpp" bodystart="409" bodyend="409"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1RangesCompl_1a0b0731b1406702e13f215a133e859c26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::RangesCompl&lt; I &gt;::RangesCompl</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>RangesCompl</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with iterator <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="304" column="1" bodyfile="/usr/include/gecode/set/var-imp/integerset.hpp" bodystart="412" bodyend="415"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1RangesCompl_1a09a0e4e2bb3d2170eb1da376d56da111" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::RangesCompl&lt; I &gt;::init</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with iterator <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="306" column="1" bodyfile="/usr/include/gecode/set/var-imp/integerset.hpp" bodystart="418" bodyend="421"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A complement iterator spezialized for the BndSet limits. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5672">
+        <label>Gecode::Iter::Ranges::Compl&lt; Limits::min, Limits::max, I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Compl"/>
+        <childnode refid="5673" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5671">
+        <label>Gecode::Set::RangesCompl&lt; I &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RangesCompl"/>
+        <childnode refid="5672" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5673">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5677">
+        <label>I</label>
+      </node>
+      <node id="5675">
+        <label>Gecode::Iter::Ranges::Compl&lt; Limits::min, Limits::max, I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Compl"/>
+        <childnode refid="5676" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5677" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+      <node id="5674">
+        <label>Gecode::Set::RangesCompl&lt; I &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RangesCompl"/>
+        <childnode refid="5675" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5676">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/var-imp.hpp" line="297" column="1" bodyfile="/usr/include/gecode/set/var-imp.hpp" bodystart="296" bodyend="308"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Compl_1a8349517557f17096581988cd5b5e5833" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>Compl</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Compl_1a6cc33eff10e3df5c649bafb88d55d145" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>Compl</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Compl_1a1ab4e208bf654b060c62b87a311192bc" prot="protected" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>i</name></member>
+      <member refid="classGecode_1_1Set_1_1RangesCompl_1a09a0e4e2bb3d2170eb1da376d56da111" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Compl_1a251a8961346780f3b6069dd378d3a87f" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1RangesCompl_1a7b0ade5f1eb05b70d21959ef31502edf" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>RangesCompl</name></member>
+      <member refid="classGecode_1_1Set_1_1RangesCompl_1a0b0731b1406702e13f215a133e859c26" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>RangesCompl</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Compl_1a3ba32e44a71f931f7c77ba5989c7fc88" prot="protected" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>start</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Set::RangesCompl</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

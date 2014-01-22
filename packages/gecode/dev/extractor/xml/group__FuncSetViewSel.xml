@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncSetViewSel" kind="group">
+    <compoundname>FuncSetViewSel</compoundname>
+    <title>Merit-based set view selection for branchers</title>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritMin" prot="public">Gecode::Set::Branch::MeritMin</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritMax" prot="public">Gecode::Set::Branch::MeritMax</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritSize" prot="public">Gecode::Set::Branch::MeritSize</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritDegreeSize" prot="public">Gecode::Set::Branch::MeritDegreeSize</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritAFCSize" prot="public">Gecode::Set::Branch::MeritAFCSize</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize" prot="public">Gecode::Set::Branch::MeritActivitySize</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Contains merit-based view selection strategies on set views that can be used together with the generic view/value brancher classes.</para><para>All merit-based set view selection classes require <programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

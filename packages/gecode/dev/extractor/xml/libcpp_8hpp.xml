@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="libcpp_8hpp" kind="file">
+    <compoundname>libcpp.hpp</compoundname>
+    <includes local="no">ciso646</includes>
+    <incdepgraph>
+      <node id="34339">
+        <label>ciso646</label>
+      </node>
+      <node id="34338">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp</label>
+        <link refid="libcpp.hpp"/>
+        <childnode refid="34339" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="libcpp_8hpp_1a119bfbef30b482000f193169d6ae9fee" prot="public" static="no">
+        <name>BOOST_STDLIB</name>
+        <initializer>&quot;libc++ version &quot; BOOST_STRINGIZE(_LIBCPP_VERSION)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="18" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcpp_8hpp_1a31b9dd28ef52d211a35039d31a4e4827" prot="public" static="no">
+        <name>BOOST_HAS_THREADS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="20" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcpp_8hpp_1af5ba0869e1d6440efcc83a7e4371c786" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CHRONO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="29" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcpp_8hpp_1a78d01772010913e629fad312f3039b0c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FUTURE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="30" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcpp_8hpp_1a5e9484cc1a51f14e9c5ac50bf0321a36" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="31" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcpp_8hpp_1a41d894689ba110f0812dafd4424077d7" prot="public" static="no">
+        <name>BOOST_NO_STD_MESSAGES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" line="34" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Christopher<sp/>Jefferson<sp/>2011.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>config<sp/>for<sp/>libc++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Might<sp/>need<sp/>more<sp/>in<sp/>here<sp/>later.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(_LIBCPP_VERSION)</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;ciso646&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(_LIBCPP_VERSION)</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;This<sp/>is<sp/>not<sp/>libc++!&quot;</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_STDLIB<sp/>&quot;libc++<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(_LIBCPP_VERSION)</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_THREADS</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_LIBCPP_HAS_NO_VARIADICS</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TUPLE</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="comment">//<sp/>These<sp/>appear<sp/>to<sp/>be<sp/>unusable/incomplete<sp/>so<sp/>far:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CHRONO</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FUTURE</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">//<sp/>libc++<sp/>uses<sp/>a<sp/>non-standard<sp/>messages_base</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STD_MESSAGES</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>---<sp/>end<sp/>---</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcpp.hpp"/>
+  </compounddef>
+</doxygen>

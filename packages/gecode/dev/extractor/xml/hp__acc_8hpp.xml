@@ -1,0 +1,493 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="hp__acc_8hpp" kind="file">
+    <compoundname>hp_acc.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="hp__acc_8hpp_1a40e34f5b29d993126f603d507c961281" prot="public" static="no">
+        <name>BOOST_NO_INTEGRAL_INT64_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="20" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a25d8d60e1db05bae6eac2c6ceb38f3f3" prot="public" static="no">
+        <name>BOOST_NO_OPERATORS_IN_NAMESPACE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="21" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a2d148b59e36d2b9f45ff2f72e9e58868" prot="public" static="no">
+        <name>BOOST_NO_STD_LOCALE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="23" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a0fb0da2b6161ee6f82cb894bd863f827" prot="public" static="no">
+        <name>BOOST_NO_STRINGSTREAM</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="24" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a93a875ae992d0054ef9924ee79663627" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="30" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1aa085b1956c23c0f151e03bc81fed0f7b" prot="public" static="no">
+        <name>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="31" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a70d1e5731ccdf61ad6f89278b213e15f" prot="public" static="no">
+        <name>BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="32" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a9203431bad3691de147b7584c284cd1f" prot="public" static="no">
+        <name>BOOST_NO_TWO_PHASE_NAME_LOOKUP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="36" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1ae603f16d34ddcc19ede66d2e8d862fdc" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_TEMPLATE_KEYWORD</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="55" column="13" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a78005f877b1cc90480de16ddfd9a0def" prot="public" static="no">
+        <name>BOOST_COMPILER</name>
+        <initializer>&quot;HP aCC version &quot; BOOST_STRINGIZE(__HP_aCC)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="67" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a454e263333ba0a545af8b803fd1a8a53" prot="public" static="no">
+        <name>BOOST_NO_AUTO_DECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="95" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1abee59fa974ed5df6c79e90ad5d2935a2" prot="public" static="no">
+        <name>BOOST_NO_AUTO_MULTIDECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="96" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a7f33717514f6be9134295a6976c17ab0" prot="public" static="no">
+        <name>BOOST_NO_CHAR16_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="97" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a58c90dea21e43297b322244141749bb3" prot="public" static="no">
+        <name>BOOST_NO_CHAR32_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="98" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a2ab158f48b5ebc962868ca4fae0e235e" prot="public" static="no">
+        <name>BOOST_NO_CONSTEXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="99" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a5265b73b38627ec9f12a526bc43a53a7" prot="public" static="no">
+        <name>BOOST_NO_DECLTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="100" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a1e33c4ee8a0e882792a1ab749898fc25" prot="public" static="no">
+        <name>BOOST_NO_DEFAULTED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="101" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1ac6990e4e38c813084b7fb78af7ce1225" prot="public" static="no">
+        <name>BOOST_NO_DELETED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="102" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a86822fbd4a31972ef0b6c1ded3a4405e" prot="public" static="no">
+        <name>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="103" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a0e4b840afc76df158ce1024b265ee136" prot="public" static="no">
+        <name>BOOST_NO_EXTERN_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="104" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a1afa1eecb86fade06c2c9d679c2acd99" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="105" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="106" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a16e1e4611bfbfa7240467ed9d4a7c9d0" prot="public" static="no">
+        <name>BOOST_NO_LAMBDAS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="107" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a0579c4e6a9f145f7bfbbdf63b1cb115a" prot="public" static="no">
+        <name>BOOST_NO_NOEXCEPT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="108" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1aaf1c53a1bb595a0379a07db8f2c38353" prot="public" static="no">
+        <name>BOOST_NO_NULLPTR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="109" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a7f6939964e1d2ff8d7a4f5f3d98f807a" prot="public" static="no">
+        <name>BOOST_NO_RAW_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="110" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1aab711e4e53ece4b8ff79a12ace10492f" prot="public" static="no">
+        <name>BOOST_NO_RVALUE_REFERENCES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="111" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a673f164000ed2c207f200528add4f736" prot="public" static="no">
+        <name>BOOST_NO_SCOPED_ENUMS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="112" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1aff4c6e7a6a9d7bad9905ce7b9c100ae9" prot="public" static="no">
+        <name>BOOST_NO_SFINAE_EXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="113" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a982d85c01772e8754849378db91f4f1c" prot="public" static="no">
+        <name>BOOST_NO_STATIC_ASSERT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="114" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1ab6ce230323006d1a142b49de8090dda8" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_ALIASES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="115" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a4080e71a9718560d54bdffbd2a9a3cb2" prot="public" static="no">
+        <name>BOOST_NO_UNICODE_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="116" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1ac6f562f47e6a764127297fdec648165e" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="117" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hp__acc_8hpp_1a0097578e1d5220624588d3573312a3ba" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_MACROS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" line="125" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Jens<sp/>Maurer<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Aleksey<sp/>Gurtovoy<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>David<sp/>Abrahams<sp/>2002<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Toon<sp/>Knapen<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Boris<sp/>Gubenko<sp/>2006<sp/>-<sp/>2007.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>HP<sp/>aCC<sp/>C++<sp/>compiler<sp/>setup:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__EDG__)</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&quot;gecode/third-party/boost/config/compiler/common_edg.hpp&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&lt;=<sp/>33100)</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_INTEGRAL_INT64_T</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_OPERATORS_IN_NAMESPACE</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(_NAMESPACE_STD)</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_STD_LOCALE</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_STRINGSTREAM</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&lt;=<sp/>33300)</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>member<sp/>templates<sp/>are<sp/>sufficiently<sp/>broken<sp/>that<sp/>we<sp/>disable<sp/>them<sp/>for<sp/>now</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATES</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&lt;=<sp/>38000)</highlight></codeline>
+<codeline lineno="36"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_TWO_PHASE_NAME_LOOKUP</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&gt;<sp/>50000)<sp/>&amp;&amp;<sp/>(__HP_aCC<sp/>&lt;<sp/>60000)</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_UNREACHABLE_RETURN_DETECTION</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_TEMPLATE_TEMPLATES</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_SWPRINTF</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_IS_ABSTRACT</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATE_FRIENDS</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif<sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">//<sp/>optional<sp/>features<sp/>rather<sp/>than<sp/>defects:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&gt;=<sp/>33900)</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_LONG_LONG</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_PARTIAL_STD_ALLOCATOR</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&gt;=<sp/>50000<sp/>)<sp/>&amp;&amp;<sp/>(__HP_aCC<sp/>&lt;=<sp/>53800<sp/>)<sp/>||<sp/>(__HP_aCC<sp/>&lt;<sp/>31300<sp/>)</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATE_KEYWORD</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>should<sp/>not<sp/>be<sp/>defined<sp/>when<sp/>compiling<sp/>in<sp/>strict<sp/>ansi</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//<sp/>mode,<sp/>but,<sp/>currently,<sp/>we<sp/>don&apos;t<sp/>have<sp/>the<sp/>ability<sp/>to<sp/>determine</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>what<sp/>standard<sp/>mode<sp/>we<sp/>are<sp/>compiling<sp/>with.<sp/>Some<sp/>future<sp/>version</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">//<sp/>of<sp/>aCC6<sp/>compiler<sp/>will<sp/>provide<sp/>predefined<sp/>macros<sp/>reflecting<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//<sp/>compilation<sp/>options,<sp/>including<sp/>the<sp/>standard<sp/>mode.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&gt;=<sp/>60000)<sp/>||<sp/>((__HP_aCC<sp/>&gt;<sp/>38000)<sp/>&amp;&amp;<sp/>defined(__hpxstd98))</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_TWO_PHASE_NAME_LOOKUP</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_COMPILER<sp/>&quot;HP<sp/>aCC<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(__HP_aCC)</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>check:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>we<sp/>don&apos;t<sp/>support<sp/>HP<sp/>aCC<sp/>prior<sp/>to<sp/>version<sp/>33000:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__HP_aCC<sp/>&lt;<sp/>33000</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>&quot;Compiler<sp/>not<sp/>supported<sp/>or<sp/>configured<sp/>-<sp/>please<sp/>reconfigure&quot;</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Extended<sp/>checks<sp/>for<sp/>supporting<sp/>aCC<sp/>on<sp/>PA-RISC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__HP_aCC<sp/>&gt;<sp/>30000<sp/>&amp;&amp;<sp/>__HP_aCC<sp/>&lt;<sp/>50000</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>__HP_aCC<sp/>&lt;<sp/>38000</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>versions<sp/>prior<sp/>to<sp/>version<sp/>A.03.80<sp/>not<sp/>supported</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Compiler<sp/>version<sp/>not<sp/>supported<sp/>-<sp/>version<sp/>A.03.80<sp/>or<sp/>higher<sp/>is<sp/>required&quot;</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>elif<sp/>!defined(__hpxstd98)</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>must<sp/>compile<sp/>using<sp/>the<sp/>option<sp/>+hpxstd98<sp/>with<sp/>version<sp/>A.03.80<sp/>and<sp/>above</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Compiler<sp/>option<sp/>&apos;+hpxstd98&apos;<sp/>is<sp/>required<sp/>for<sp/>proper<sp/>support&quot;</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif<sp/>//PA-RISC</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">//<sp/>C++0x<sp/>features</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>See<sp/>boost\config\suffix.hpp<sp/>for<sp/>BOOST_NO_LONG_LONG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__EDG__)</highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_DECLARATIONS</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_MULTIDECLARATIONS</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR16_T</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR32_T</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CONSTEXPR</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DECLTYPE</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DEFAULTED_FUNCTIONS</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DELETED_FUNCTIONS</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXTERN_TEMPLATE</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_LAMBDAS</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NOEXCEPT</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NULLPTR</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RAW_LITERALS</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RVALUE_REFERENCES</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SCOPED_ENUMS</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SFINAE_EXPR</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_TEMPLATE_ALIASES</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNICODE_LITERALS</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_TEMPLATES</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/></highlight></codeline>
+<codeline lineno="120"><highlight class="comment"><sp/><sp/>See<sp/>https://forums13.itrc.hp.com/service/forums/questionanswer.do?threadId=1443331<sp/>and</highlight></codeline>
+<codeline lineno="121"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>https://forums13.itrc.hp.com/service/forums/questionanswer.do?threadId=1443436</highlight></codeline>
+<codeline lineno="122"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__HP_aCC<sp/>&lt;<sp/>62500)<sp/>||<sp/>!defined(HP_CXX0x_SOURCE)</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>BOOST_NO_VARIADIC_MACROS</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/>last<sp/>known<sp/>and<sp/>checked<sp/>version<sp/>for<sp/>HP-UX/ia64<sp/>is<sp/>61300</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">//<sp/>last<sp/>known<sp/>and<sp/>checked<sp/>version<sp/>for<sp/>PA-RISC<sp/>is<sp/>38000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>((__HP_aCC<sp/>&gt;<sp/>61300)<sp/>||<sp/>((__HP_aCC<sp/>&gt;<sp/>38000)<sp/>&amp;&amp;<sp/>defined(__hpxstd98)))</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Unknown<sp/>compiler<sp/>version<sp/>-<sp/>please<sp/>run<sp/>the<sp/>configure<sp/>tests<sp/>and<sp/>report<sp/>the<sp/>results&quot;</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/hp_acc.hpp"/>
+  </compounddef>
+</doxygen>

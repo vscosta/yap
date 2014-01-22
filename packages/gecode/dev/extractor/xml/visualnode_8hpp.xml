@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="visualnode_8hpp" kind="file">
+    <compoundname>visualnode.hpp</compoundname>
+    <includedby refid="visualnode_8hh" local="no">/usr/include/gecode/gist/visualnode.hh</includedby>
+    <invincdepgraph>
+      <node id="9046">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="9043">
+        <label>/usr/include/gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="9042" relation="include">
+        </childnode>
+        <childnode refid="9041" relation="include">
+        </childnode>
+      </node>
+      <node id="9040">
+        <label>/usr/include/gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="9041" relation="include">
+        </childnode>
+        <childnode refid="9043" relation="include">
+        </childnode>
+        <childnode refid="9044" relation="include">
+        </childnode>
+        <childnode refid="9048" relation="include">
+        </childnode>
+      </node>
+      <node id="9045">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="9046" relation="include">
+        </childnode>
+        <childnode refid="9047" relation="include">
+        </childnode>
+      </node>
+      <node id="9048">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="9045" relation="include">
+        </childnode>
+      </node>
+      <node id="9044">
+        <label>/usr/include/gecode/gist/nodestats.hh</label>
+        <link refid="nodestats_8hh_source"/>
+        <childnode refid="9045" relation="include">
+        </childnode>
+      </node>
+      <node id="9047">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="9039">
+        <label>/usr/include/gecode/gist/visualnode.hpp</label>
+        <link refid="visualnode.hpp"/>
+        <childnode refid="9040" relation="include">
+        </childnode>
+      </node>
+      <node id="9041">
+        <label>/usr/include/gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="9042" relation="include">
+        </childnode>
+      </node>
+      <node id="9042">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Gist">Gecode::Gist</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2006</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-05-06<sp/>09:02:17<sp/>+0200<sp/>(Mon,<sp/>06<sp/>May<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13613<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gist<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="41" refid="classGecode_1_1Gist_1_1Extent_1ab43d48a41b43f21281435157f0c92098" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1ab43d48a41b43f21281435157f0c92098" kindref="member">Extent::Extent</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>:<sp/>l(-1),<sp/>r(-1)<sp/>{}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="44" refid="classGecode_1_1Gist_1_1Extent_1a57b337fc5455a2a58f756a52620e4c43" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1ab43d48a41b43f21281435157f0c92098" kindref="member">Extent::Extent</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>l0,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r0)<sp/>:<sp/>l(l0),<sp/>r(r0)<sp/>{}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="classGecode_1_1Gist_1_1Extent_1a73229905b722ee4b6bb114973c6ae918" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1ab43d48a41b43f21281435157f0c92098" kindref="member">Extent::Extent</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>halfWidth<sp/>=<sp/>width<sp/>/<sp/>2;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a1c4fb2bc96aeed143e02c5807a804518" kindref="member">l</ref><sp/>=<sp/>0<sp/>-<sp/>halfWidth;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a58705c351c523393b782f6b7273c7b34" kindref="member">r</ref><sp/>=<sp/>0<sp/>+<sp/>halfWidth;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classGecode_1_1Gist_1_1Extent_1a7bb55f1141ec47f1d8efe23e670c644c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a7bb55f1141ec47f1d8efe23e670c644c" kindref="member">Extent::extend</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>deltaL,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>deltaR)<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a1c4fb2bc96aeed143e02c5807a804518" kindref="member">l</ref><sp/>+=<sp/>deltaL;<sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a58705c351c523393b782f6b7273c7b34" kindref="member">r</ref><sp/>+=<sp/>deltaR;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="classGecode_1_1Gist_1_1Extent_1ada280741f9444436f57a766b3ed1fb01" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1ada280741f9444436f57a766b3ed1fb01" kindref="member">Extent::move</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>delta)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a1c4fb2bc96aeed143e02c5807a804518" kindref="member">l</ref><sp/>+=<sp/>delta;<sp/><ref refid="classGecode_1_1Gist_1_1Extent_1a58705c351c523393b782f6b7273c7b34" kindref="member">r</ref><sp/>+=<sp/>delta;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="classGecode_1_1Gist_1_1Shape_1ae40d2e6fdd6c3f0ecca98af422c58d9b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1ae40d2e6fdd6c3f0ecca98af422c58d9b" kindref="member">Shape::depth</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_depth;<sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="classGecode_1_1Gist_1_1Shape_1a181ae197f974e83d06024d119c9c266a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a181ae197f974e83d06024d119c9c266a" kindref="member">Shape::setDepth</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(d<sp/>&lt;=<sp/>_depth);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>_depth<sp/>=<sp/>d;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref>&amp;</highlight></codeline>
+<codeline lineno="73" refid="classGecode_1_1Gist_1_1Shape_1a4172154f573d68b1e6c6dfb91197e380" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a4172154f573d68b1e6c6dfb91197e380" kindref="member">Shape::operator []</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/>_depth);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>shape[i];</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref>&amp;</highlight></codeline>
+<codeline lineno="79" refid="classGecode_1_1Gist_1_1Shape_1add775993119cdef96233bcfa08e3cc8f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a4172154f573d68b1e6c6dfb91197e380" kindref="member">Shape::operator []</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/>_depth);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>shape[i];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>*</highlight></codeline>
+<codeline lineno="85" refid="classGecode_1_1Gist_1_1Shape_1a55206c22581eace18712d05652897777" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a55206c22581eace18712d05652897777" kindref="member">Shape::allocate</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(d<sp/>&gt;=<sp/>1);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>*<sp/>ret;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>ret<sp/>=<sp/></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>.<ref refid="classGecode_1_1Heap_1a55baad1786a0407ba0321cd37745a7a6" kindref="member">ralloc</ref>(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>)+(d-1)*</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref>)));</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>ret-&gt;_depth<sp/>=<sp/>d;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>Shape::deallocate(<ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>*<sp/>shape)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(shape<sp/>!=<sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a2fb3b4e7250a010127fe82d56721d74f" kindref="member">hidden</ref><sp/>&amp;&amp;<sp/>shape<sp/>!=<sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a47b68b7233f3c7233feedfaca6a563cf" kindref="member">leaf</ref>)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1a6595368d634d0db095ad8dee79f14d2c" kindref="member">heap</ref>.<ref refid="classGecode_1_1Heap_1aa424ffe00ff3f52d7e66a5766db638bf" kindref="member">rfree</ref>(shape);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="classGecode_1_1Gist_1_1Shape_1ac58a516c87c05e626a4e7f5752f48502" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1ac58a516c87c05e626a4e7f5752f48502" kindref="member">Shape::getExtentAtDepth</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref>&amp;<sp/>extent)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(d<sp/>&gt;<sp/><ref refid="classGecode_1_1Gist_1_1Shape_1ae40d2e6fdd6c3f0ecca98af422c58d9b" kindref="member">depth</ref>())</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>extent<sp/>=<sp/><ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref>(0,0);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i<sp/>&lt;=<sp/>d;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Extent" kindref="compound">Extent</ref><sp/>currentExtent<sp/>=<sp/>(*this)[i];</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>extent.<ref refid="classGecode_1_1Gist_1_1Extent_1a1c4fb2bc96aeed143e02c5807a804518" kindref="member">l</ref><sp/>+=<sp/>currentExtent.<ref refid="classGecode_1_1Gist_1_1Extent_1a1c4fb2bc96aeed143e02c5807a804518" kindref="member">l</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>extent.<ref refid="classGecode_1_1Gist_1_1Extent_1a58705c351c523393b782f6b7273c7b34" kindref="member">r</ref><sp/>+=<sp/>currentExtent.<ref refid="classGecode_1_1Gist_1_1Extent_1a58705c351c523393b782f6b7273c7b34" kindref="member">r</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="classGecode_1_1Gist_1_1Shape_1a39a5895e9ad83624b63acdfe23759d8b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a39a5895e9ad83624b63acdfe23759d8b" kindref="member">Shape::computeBoundingBox</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lastLeft<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lastRight<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1ab90350c0f7e122e354f2d8ceaba94366" kindref="member">left</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1a996520c7cdddd99a7e1bac0f289eda37" kindref="member">right</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i&lt;<ref refid="classGecode_1_1Gist_1_1Shape_1ae40d2e6fdd6c3f0ecca98af422c58d9b" kindref="member">depth</ref>();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>lastLeft<sp/>=<sp/>lastLeft<sp/>+<sp/>(*this)[i].l;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>lastRight<sp/>=<sp/>lastRight<sp/>+<sp/>(*this)[i].r;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1ab90350c0f7e122e354f2d8ceaba94366" kindref="member">left</ref><sp/>=<sp/><ref refid="group__TaskModelFloatArith_1ga121700708772a60191be6256c3c0d151" kindref="member">std::min</ref>(bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1ab90350c0f7e122e354f2d8ceaba94366" kindref="member">left</ref>,lastLeft);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1a996520c7cdddd99a7e1bac0f289eda37" kindref="member">right</ref><sp/>=<sp/><ref refid="group__TaskModelFloatArith_1ga958cb25ae9754d6cc35c7c6e34ebc1e3" kindref="member">std::max</ref>(bb.<ref refid="classGecode_1_1Gist_1_1BoundingBox_1a996520c7cdddd99a7e1bac0f289eda37" kindref="member">right</ref>,lastRight);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1BoundingBox" kindref="compound">BoundingBox</ref>&amp;</highlight></codeline>
+<codeline lineno="128" refid="classGecode_1_1Gist_1_1Shape_1afa6a497861bb064d72f595576d82f73e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Shape_1afa6a497861bb064d72f595576d82f73e" kindref="member">Shape::getBoundingBox</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bb;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="classGecode_1_1Gist_1_1VisualNode_1ab803c811afb36214ce8481f1b5dade97" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ab803c811afb36214ce8481f1b5dade97" kindref="member">VisualNode::isHidden</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(HIDDEN);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="classGecode_1_1Gist_1_1VisualNode_1a414b6a2df104f79a45ced8423a78e520" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a414b6a2df104f79a45ced8423a78e520" kindref="member">VisualNode::setHidden</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>h)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(HIDDEN,<sp/>h);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="classGecode_1_1Gist_1_1VisualNode_1a1b880608fc8af62dcaf46937e40d54ae" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a1b880608fc8af62dcaf46937e40d54ae" kindref="member">VisualNode::setStop</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>h)<sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Gist_1_1SpaceNode_1a761b8c0b2bdfbfc3616af1fc48537250" kindref="member">getStatus</ref>()<sp/>==<sp/><ref refid="namespaceGecode_1_1Gist_1a579d345f937ff0b19a2a4157995931f2ae308a0588594d6179c3e38c8a719bc16" kindref="member">BRANCH</ref><sp/>&amp;&amp;<sp/>h)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a5aa891d18a42d609b1d678c7a3ff0e8a" kindref="member">setStatus</ref>(<ref refid="namespaceGecode_1_1Gist_1a579d345f937ff0b19a2a4157995931f2aaeeabebe4a3c4d07bbca0a7ed595759d" kindref="member">STOP</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Gist_1_1SpaceNode_1a761b8c0b2bdfbfc3616af1fc48537250" kindref="member">getStatus</ref>()<sp/>==<sp/><ref refid="namespaceGecode_1_1Gist_1a579d345f937ff0b19a2a4157995931f2aaeeabebe4a3c4d07bbca0a7ed595759d" kindref="member">STOP</ref><sp/>&amp;&amp;<sp/>!h)</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a5aa891d18a42d609b1d678c7a3ff0e8a" kindref="member">setStatus</ref>(<ref refid="namespaceGecode_1_1Gist_1a579d345f937ff0b19a2a4157995931f2a2faef17b9a7e90b988acb1a047e155c8" kindref="member">UNSTOP</ref>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151" refid="classGecode_1_1Gist_1_1VisualNode_1af1c607e2ed88f7c9269d78a0cf1a3092" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1af1c607e2ed88f7c9269d78a0cf1a3092" kindref="member">VisualNode::getOffset</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a071982a3a040e90a0af8cd1f2257e2ab" kindref="member">offset</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classGecode_1_1Gist_1_1VisualNode_1a5f7df5dcb5beba05f258d7f9f2b38feb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a5f7df5dcb5beba05f258d7f9f2b38feb" kindref="member">VisualNode::setOffset</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{<sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a071982a3a040e90a0af8cd1f2257e2ab" kindref="member">offset</ref><sp/>=<sp/>n;<sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="classGecode_1_1Gist_1_1VisualNode_1af2386a00f597b0903b177f0227d4914f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1af2386a00f597b0903b177f0227d4914f" kindref="member">VisualNode::isDirty</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(DIRTY);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162" refid="classGecode_1_1Gist_1_1VisualNode_1a53a13292b2e1d0897d5c8f5c9643200a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a53a13292b2e1d0897d5c8f5c9643200a" kindref="member">VisualNode::setDirty</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(DIRTY,<sp/>d);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167" refid="classGecode_1_1Gist_1_1VisualNode_1a951fb1d1b22b6ca02e74013f8392d314" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a951fb1d1b22b6ca02e74013f8392d314" kindref="member">VisualNode::childrenLayoutIsDone</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(CHILDRENLAYOUTDONE);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="classGecode_1_1Gist_1_1VisualNode_1a91bbcecc5e83928d64c96fb9f3bcda1c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a91bbcecc5e83928d64c96fb9f3bcda1c" kindref="member">VisualNode::setChildrenLayoutDone</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(CHILDRENLAYOUTDONE,<sp/>d);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="classGecode_1_1Gist_1_1VisualNode_1ad740710fa521c958fdf3b34c7fcc98f5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ad740710fa521c958fdf3b34c7fcc98f5" kindref="member">VisualNode::isMarked</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(MARKED);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="classGecode_1_1Gist_1_1VisualNode_1ae54662db77a2a8afa899050ba012ac68" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ae54662db77a2a8afa899050ba012ac68" kindref="member">VisualNode::setMarked</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(MARKED,<sp/>m);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187" refid="classGecode_1_1Gist_1_1VisualNode_1a89ae02a591f3bc7b54de9d2a967b1c5d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a89ae02a591f3bc7b54de9d2a967b1c5d" kindref="member">VisualNode::isBookmarked</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(BOOKMARKED);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192" refid="classGecode_1_1Gist_1_1VisualNode_1a7946db768d383657a45c065a4d63aa81" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a7946db768d383657a45c065a4d63aa81" kindref="member">VisualNode::setBookmarked</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(BOOKMARKED,<sp/>m);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197" refid="classGecode_1_1Gist_1_1VisualNode_1a1b30b96371106e2e4f39151f45601a0a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a1b30b96371106e2e4f39151f45601a0a" kindref="member">VisualNode::isOnPath</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a3cd555ecf0715b588c9b2aa1112fc89c" kindref="member">getFlag</ref>(ONPATH);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202" refid="classGecode_1_1Gist_1_1VisualNode_1a90141240d29fec6bb61080184be0cc47" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a90141240d29fec6bb61080184be0cc47" kindref="member">VisualNode::setOnPath</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b)<sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SpaceNode_1a82fd1d1d433bb8f7e12014edd38c3d37" kindref="member">setFlag</ref>(ONPATH,<sp/>b);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1Shape" kindref="compound">Shape</ref>*</highlight></codeline>
+<codeline lineno="207" refid="classGecode_1_1Gist_1_1VisualNode_1ad5c066381363f25e773c5cbef44fb043" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ad5c066381363f25e773c5cbef44fb043" kindref="member">VisualNode::getShape</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ab803c811afb36214ce8481f1b5dade97" kindref="member">isHidden</ref>()<sp/>?<sp/><ref refid="classGecode_1_1Gist_1_1Shape_1a2fb3b4e7250a010127fe82d56721d74f" kindref="member">Shape::hidden</ref><sp/>:<sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1a4b6993e52295dc2734db1ace480c76e2" kindref="member">shape</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Gist_1_1BoundingBox" kindref="compound">BoundingBox</ref></highlight></codeline>
+<codeline lineno="212" refid="classGecode_1_1Gist_1_1VisualNode_1ab9726e4a819b0440984e4a224e7a60ec" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ab9726e4a819b0440984e4a224e7a60ec" kindref="member">VisualNode::getBoundingBox</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode_1ad5c066381363f25e773c5cbef44fb043" kindref="member">getShape</ref>()-&gt;<ref refid="classGecode_1_1Gist_1_1Shape_1afa6a497861bb064d72f595576d82f73e" kindref="member">getBoundingBox</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>gist-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/gist/visualnode.hpp"/>
+  </compounddef>
+</doxygen>

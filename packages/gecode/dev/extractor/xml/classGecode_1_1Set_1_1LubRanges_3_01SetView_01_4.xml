@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Set::LubRanges&lt; SetView &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4" prot="public" virt="non-virtual">Gecode::Set::LubRanges&lt; SetVarImp * &gt;</basecompoundref>
+    <includes refid="set_2view_2set_8hpp" local="no">set.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1adcecb36bbc7329952b3db00c80f9066e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::LubRanges&lt; SetView &gt;::LubRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>LubRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/set.hpp" line="210" column="1" bodyfile="/usr/include/gecode/set/view/set.hpp" bodystart="219" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1aee9dd82a00872f1fbb15c2cdee1ec76a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::LubRanges&lt; SetView &gt;::LubRanges</definition>
+        <argsstring>(const SetView &amp;x)</argsstring>
+        <name>LubRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/set.hpp" line="212" column="1" bodyfile="/usr/include/gecode/set/view/set.hpp" bodystart="222" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1a6d20e93a63f60dc357e7656b3d806d35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::LubRanges&lt; SetView &gt;::init</definition>
+        <argsstring>(const SetView &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/set.hpp" line="214" column="1" bodyfile="/usr/include/gecode/set/view/set.hpp" bodystart="226" bodyend="228"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for least upper bound of set variable views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3653">
+        <label>Gecode::Iter::Ranges::RangeList</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList"/>
+      </node>
+      <node id="3652">
+        <label>Gecode::Set::BndSetRanges</label>
+        <link refid="classGecode_1_1Set_1_1BndSetRanges"/>
+        <childnode refid="3653" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3650">
+        <label>Gecode::Set::LubRanges&lt; SetView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4"/>
+        <childnode refid="3651" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3651">
+        <label>Gecode::Set::LubRanges&lt; SetVarImp * &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4"/>
+        <childnode refid="3652" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3657">
+        <label>Gecode::Iter::Ranges::RangeList</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList"/>
+        <childnode refid="3658" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+      </node>
+      <node id="3656">
+        <label>Gecode::Set::BndSetRanges</label>
+        <link refid="classGecode_1_1Set_1_1BndSetRanges"/>
+        <childnode refid="3657" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3658">
+        <label>Gecode::RangeList</label>
+        <link refid="classGecode_1_1RangeList"/>
+        <childnode refid="3659" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3654">
+        <label>Gecode::Set::LubRanges&lt; SetView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4"/>
+        <childnode refid="3655" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3655">
+        <label>Gecode::Set::LubRanges&lt; SetVarImp * &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4"/>
+        <childnode refid="3656" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3659">
+        <label>Gecode::FreeList</label>
+        <link refid="classGecode_1_1FreeList"/>
+        <childnode refid="3659" relation="usage">
+          <edgelabel>_next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/view/set.hpp" line="205" column="1" bodyfile="/usr/include/gecode/set/view/set.hpp" bodystart="205" bodyend="216"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1BndSetRanges_1a67c31ddbcd9c5b10d3d9e0b42dc7503c" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>BndSetRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1BndSetRanges_1afcba05259951b0434ed03d92ac9667e4" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>BndSetRanges</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1a74e61b5e9fca52890aadd9caa7671cf8" prot="protected" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>c</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1a6d20e93a63f60dc357e7656b3d806d35" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4_1ae0077839a195742db8b224a2ce060fc1" prot="public" virt="non-virtual" ambiguityscope="Gecode::Set::LubRanges&lt; SetVarImp * &gt;::"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1BndSetRanges_1ad8507922bff01066c6e58782a34d7093" prot="public" virt="non-virtual" ambiguityscope="Gecode::Set::BndSetRanges::"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1a4a87b002930eb61bfbb67dd84360ce55" prot="public" virt="non-virtual" ambiguityscope="Gecode::Iter::Ranges::RangeList::"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1adcecb36bbc7329952b3db00c80f9066e" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4_1aee9dd82a00872f1fbb15c2cdee1ec76a" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1LubRanges_3_01SetVarImp_01_5_01_4_1a6513ddf2c6d37d37d462f9bd116fa79b" prot="public" virt="non-virtual" ambiguityscope="Gecode::Set::LubRanges&lt; SetVarImp * &gt;::"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>LubRanges</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1af4b4e3c2750f27e83828f4d41af423bb" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1a4e2d3426a06c1db40a2a7d58c4919a04" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1a736c2a9d2f6c77dc33d047117db78e4e" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1ac5ba43769c345eddb341df2743d0feef" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1a7ab9ed0db8b901c91f8acd9497ca8da2" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>RangeList</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1aba5f2d9f0f2087d9b7c4cd0d2d14bcec" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>RangeList</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList_1abbe88d5ccc87d65f1276fa753a21af41" prot="public" virt="non-virtual"><scope>Gecode::Set::LubRanges&lt; SetView &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

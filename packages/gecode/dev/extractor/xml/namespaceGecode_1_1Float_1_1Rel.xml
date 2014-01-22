@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Float_1_1Rel" kind="namespace">
+    <compoundname>Gecode::Float::Rel</compoundname>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1Eq" prot="public">Gecode::Float::Rel::Eq</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1NaryEq" prot="public">Gecode::Float::Rel::NaryEq</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1ReEq" prot="public">Gecode::Float::Rel::ReEq</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat" prot="public">Gecode::Float::Rel::ReEqFloat</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1Nq" prot="public">Gecode::Float::Rel::Nq</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1NqFloat" prot="public">Gecode::Float::Rel::NqFloat</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1Lq" prot="public">Gecode::Float::Rel::Lq</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1Le" prot="public">Gecode::Float::Rel::Le</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1ReLqFloat" prot="public">Gecode::Float::Rel::ReLqFloat</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1ReLeFloat" prot="public">Gecode::Float::Rel::ReLeFloat</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1Rel_1_1ReLq" prot="public">Gecode::Float::Rel::ReLq</innerclass>
+    <briefdescription>
+<para>Simple relation propagators. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/float/rel/eq.hpp" line="40" column="1"/>
+  </compounddef>
+</doxygen>

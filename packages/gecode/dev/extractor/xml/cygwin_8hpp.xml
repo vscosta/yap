@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="cygwin_8hpp" kind="file">
+    <compoundname>cygwin.hpp</compoundname>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes refid="posix__features_8hpp" local="no">gecode/third-party/boost/config/posix_features.hpp</includes>
+    <incdepgraph>
+      <node id="34237">
+        <label>gecode/third-party/boost/config/posix_features.hpp</label>
+        <link refid="posix__features_8hpp_source"/>
+      </node>
+      <node id="34236">
+        <label>sys/types.h</label>
+      </node>
+      <node id="34235">
+        <label>unistd.h</label>
+      </node>
+      <node id="34234">
+        <label>/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp</label>
+        <link refid="cygwin.hpp"/>
+        <childnode refid="34235" relation="include">
+        </childnode>
+        <childnode refid="34236" relation="include">
+        </childnode>
+        <childnode refid="34237" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="cygwin_8hpp_1ada2b8c089a7d215b91eba5f2ee8624b3" prot="public" static="no">
+        <name>BOOST_PLATFORM</name>
+        <initializer>&quot;Cygwin&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="10" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="10" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1a92797e3de36e2b5d28421de5d45a6a50" prot="public" static="no">
+        <name>BOOST_HAS_DIRENT_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="11" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="11" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1ae6ad202485bf65c68edf6ec2d8a2a3fe" prot="public" static="no">
+        <name>BOOST_HAS_LOG1P</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="12" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1a18f51e4fa6b8124b109349b37f2e5dba" prot="public" static="no">
+        <name>BOOST_HAS_EXPM1</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="13" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1a79e0564bc29933a6d3d3379834eb4bd2" prot="public" static="no">
+        <name>BOOST_HAS_UNISTD_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="19" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1ad94862f407295039f4a3a85c49977485" prot="public" static="no">
+        <name>BOOST_HAS_WINTHREADS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="29" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1a5b0e6b87a1d1c09343937b9a4babb23c" prot="public" static="no">
+        <name>BOOST_HAS_FTIME</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="31" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cygwin_8hpp_1a82c7df258bbdbe4a09ce17dabfc4a451" prot="public" static="no">
+        <name>BOOST_NO_FENV_H</name>
+        <briefdescription>
+<para>Cygwin has no fenv.h. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" line="43" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>cygwin<sp/>specific<sp/>config<sp/>options:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_PLATFORM<sp/>&quot;Cygwin&quot;</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_DIRENT_H</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_LOG1P</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_EXPM1</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Threading<sp/>API:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>See<sp/>if<sp/>we<sp/>have<sp/>POSIX<sp/>threads,<sp/>if<sp/>we<sp/>do<sp/>use<sp/>them,<sp/>otherwise</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>revert<sp/>to<sp/>native<sp/>Win<sp/>threads.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_UNISTD_H</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(_POSIX_THREADS)<sp/>&amp;&amp;<sp/>(_POSIX_THREADS+0<sp/>&gt;=<sp/>0)<sp/>&amp;&amp;<sp/>!defined(BOOST_HAS_WINTHREADS)</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_PTHREADS</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_SCHED_YIELD</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_GETTIMEOFDAY</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_SIGACTION</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(BOOST_HAS_WINTHREADS)</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_WINTHREADS</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_FTIME</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>find<sp/>out<sp/>if<sp/>we<sp/>have<sp/>a<sp/>stdint.h,<sp/>there<sp/>should<sp/>be<sp/>a<sp/>better<sp/>way<sp/>to<sp/>do<sp/>this:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_STDINT_H</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_STDINT_H</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor">#define<sp/>BOOST_NO_FENV_H</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">//<sp/>boilerplate<sp/>code:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/third-party/boost/config/posix_features.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Cygwin<sp/>lies<sp/>about<sp/>XSI<sp/>conformance,<sp/>there<sp/>is<sp/>no<sp/>nl_types.h:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>BOOST_HAS_NL_TYPES_H</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>undef<sp/>BOOST_HAS_NL_TYPES_H</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/platform/cygwin.hpp"/>
+  </compounddef>
+</doxygen>

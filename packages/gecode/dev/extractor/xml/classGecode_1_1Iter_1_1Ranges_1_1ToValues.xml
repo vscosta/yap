@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1ToValues" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::ToValues</compoundname>
+    <includes refid="ranges-values_8hpp" local="no">ranges-values.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>I</declname>
+        <defname>I</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a2f982a3472c33f9d307f6cf022d4386c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::ToValues&lt; I &gt;::ToValues</definition>
+        <argsstring>(void)</argsstring>
+        <name>ToValues</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="86" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a3b805d8c29438203b2b39899d6db898e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::ToValues&lt; I &gt;::ToValues</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>ToValues</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with values from range iterator <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="62" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a69101588ed811500333c7f4665b2ac92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::ToValues&lt; I &gt;::init</definition>
+        <argsstring>(I &amp;i)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with values from range iterator <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="64" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="107" bodyend="110"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a50fa378df150df75141ac11248098555" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Ranges::ToValues&lt; I &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a value or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="70" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a32a966ed4de5aa2f33043552fa55cd5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::ToValues&lt; I &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next value (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="72" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="121" bodyend="129"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a0fa7a1051bf37c3d44d7971292ff0dd4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Ranges::ToValues&lt; I &gt;::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="78" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="133" bodyend="135"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1acd80b668915f6e523711006466ae00d1" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::ToValues&lt; I &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Range iterator used. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="49" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1afb5c8776435b24e9a012538590cbd3c0" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::ToValues&lt; I &gt;::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1ac5ed0706decdd255940f93e1b5025abc" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::ToValues&lt; I &gt;::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+<para>End of current range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a4f463131c31637b1927351c36005dac0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::ToValues&lt; I &gt;::start</definition>
+        <argsstring>(void)</argsstring>
+        <name>start</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-values.hpp" line="55" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="90" bodyend="96"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value iterator from range iterator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7090">
+        <label>I</label>
+      </node>
+      <node id="7089">
+        <label>Gecode::Iter::Ranges::ToValues&lt; I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues"/>
+        <childnode refid="7090" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-values.hpp" line="46" column="1" bodyfile="/usr/include/gecode/iter/ranges-values.hpp" bodystart="46" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1afb5c8776435b24e9a012538590cbd3c0" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1acd80b668915f6e523711006466ae00d1" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a69101588ed811500333c7f4665b2ac92" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1ac5ed0706decdd255940f93e1b5025abc" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a50fa378df150df75141ac11248098555" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a32a966ed4de5aa2f33043552fa55cd5a" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a4f463131c31637b1927351c36005dac0" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>start</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a2f982a3472c33f9d307f6cf022d4386c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>ToValues</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a3b805d8c29438203b2b39899d6db898e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>ToValues</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ToValues_1a0fa7a1051bf37c3d44d7971292ff0dd4" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ToValues</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

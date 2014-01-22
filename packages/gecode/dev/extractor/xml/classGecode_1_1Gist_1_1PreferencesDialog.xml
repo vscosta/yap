@@ -1,0 +1,372 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1PreferencesDialog" kind="class" prot="public">
+    <compoundname>Gecode::Gist::PreferencesDialog</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QDialog</basecompoundref>
+    <includes refid="preferences_8hh" local="no">preferences.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ae6b2d5fccf161bd8628e2d8dee2e5b1a" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::hideCheck</definition>
+        <argsstring></argsstring>
+        <name>hideCheck</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="56" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ab92d4c7b4575ecb27bc5afd639af6328" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::zoomCheck</definition>
+        <argsstring></argsstring>
+        <name>zoomCheck</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="57" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a1562b25aefc900d3ef1a4e4768672264" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::smoothCheck</definition>
+        <argsstring></argsstring>
+        <name>smoothCheck</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="58" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ae9b545f05bb3686ca584111794d855b1" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::copiesCheck</definition>
+        <argsstring></argsstring>
+        <name>copiesCheck</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="59" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ad6a23047b26469dd088ce829032c0c31" prot="protected" static="no" mutable="no">
+        <type>QSpinBox *</type>
+        <definition>QSpinBox* Gecode::Gist::PreferencesDialog::refreshBox</definition>
+        <argsstring></argsstring>
+        <name>refreshBox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="60" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a4b4973b64c998c3493fb3b2a1b42177a" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::slowBox</definition>
+        <argsstring></argsstring>
+        <name>slowBox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="61" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ae73a2c7bb8cafc81ae7b3b096e42c10e" prot="protected" static="no" mutable="no">
+        <type>QCheckBox *</type>
+        <definition>QCheckBox* Gecode::Gist::PreferencesDialog::moveDuringSearchBox</definition>
+        <argsstring></argsstring>
+        <name>moveDuringSearchBox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="62" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ae5ebaebc9bac72d6ddaa34cf54b3ae6c" prot="protected" static="no" mutable="no">
+        <type>QSpinBox *</type>
+        <definition>QSpinBox* Gecode::Gist::PreferencesDialog::cdBox</definition>
+        <argsstring></argsstring>
+        <name>cdBox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="63" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a08323b2db3e8d8f9fb3a8304ec824c5d" prot="protected" static="no" mutable="no">
+        <type>QSpinBox *</type>
+        <definition>QSpinBox* Gecode::Gist::PreferencesDialog::adBox</definition>
+        <argsstring></argsstring>
+        <name>adBox</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="64" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a35385aa171bbedc593615bcd1b7432ee" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::PreferencesDialog::hideFailed</definition>
+        <argsstring></argsstring>
+        <name>hideFailed</name>
+        <briefdescription>
+<para>Whether to automatically hide failed subtrees during search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="77" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1aa6d9529a99ca18f88cd974152b68b43a" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::PreferencesDialog::zoom</definition>
+        <argsstring></argsstring>
+        <name>zoom</name>
+        <briefdescription>
+<para>Whether to automatically zoom during search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="79" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1ac791fc639f0f7d5d0671e245529ab634" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::PreferencesDialog::copies</definition>
+        <argsstring></argsstring>
+        <name>copies</name>
+        <briefdescription>
+<para>Whether to show where copies are in the tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="81" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1aea65fcfbaf1f54ffbd02b352c6645bc4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::PreferencesDialog::refresh</definition>
+        <argsstring></argsstring>
+        <name>refresh</name>
+        <briefdescription>
+<para>How often to refresh the display during search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="83" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1af97f0f61b84a9c264555f6f1c5009523" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::PreferencesDialog::refreshPause</definition>
+        <argsstring></argsstring>
+        <name>refreshPause</name>
+        <briefdescription>
+<para>Milliseconds to wait after each refresh (to slow down search) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="85" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a9f1a9b3bc447f83e6f63790c3a06fe8b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::PreferencesDialog::smoothScrollAndZoom</definition>
+        <argsstring></argsstring>
+        <name>smoothScrollAndZoom</name>
+        <briefdescription>
+<para>Whether to use smooth scrolling and zooming. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="87" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a7d01733d9e58bc3c8bc93b0ec3cf83d7" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::PreferencesDialog::moveDuringSearch</definition>
+        <argsstring></argsstring>
+        <name>moveDuringSearch</name>
+        <briefdescription>
+<para>Whether to move cursor during search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="89" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a6ca599ef2098a2a04522a7ac4a3b573f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::PreferencesDialog::c_d</definition>
+        <argsstring></argsstring>
+        <name>c_d</name>
+        <briefdescription>
+<para>The copying distance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="92" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1PreferencesDialog_1a8d446597c6c46a1d788e06156c1bf7c6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::PreferencesDialog::a_d</definition>
+        <argsstring></argsstring>
+        <name>a_d</name>
+        <briefdescription>
+<para>The adaptive recomputation distance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="94" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-slot">
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1PreferencesDialog_1a09bca2c176583365454a899da95bd0b4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::PreferencesDialog::writeBack</definition>
+        <argsstring>(void)</argsstring>
+        <name>writeBack</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Write settings. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="67" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1PreferencesDialog_1a8151464514bd82677438ccd21cde17d1" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::PreferencesDialog::defaults</definition>
+        <argsstring>(void)</argsstring>
+        <name>defaults</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset to defaults. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="69" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1PreferencesDialog_1a2339ca3a4126d4053df9225b184c6e36" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::PreferencesDialog::toggleSlow</definition>
+        <argsstring>(int state)</argsstring>
+        <name>toggleSlow</name>
+        <param>
+          <type>int</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Toggle slow down setting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="71" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1PreferencesDialog_1ac2c4b4dcaec4adcc6d5d2903be033593" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::PreferencesDialog::PreferencesDialog</definition>
+        <argsstring>(const Options &amp;opt, QWidget *parent=0)</argsstring>
+        <name>PreferencesDialog</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>opt</declname>
+        </param>
+        <param>
+          <type>QWidget *</type>
+          <declname>parent</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/preferences.hh" line="74" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Preferences dialog for Gist. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5240">
+        <label>Gecode::Gist::PreferencesDialog</label>
+        <link refid="classGecode_1_1Gist_1_1PreferencesDialog"/>
+        <childnode refid="5241" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5241">
+        <label>QDialog</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5242">
+        <label>Gecode::Gist::PreferencesDialog</label>
+        <link refid="classGecode_1_1Gist_1_1PreferencesDialog"/>
+        <childnode refid="5243" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5243">
+        <label>QDialog</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/preferences.hh" line="52" column="1" bodyfile="/usr/include/gecode/gist/preferences.hh" bodystart="52" bodyend="96"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a8d446597c6c46a1d788e06156c1bf7c6" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>a_d</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a08323b2db3e8d8f9fb3a8304ec824c5d" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>adBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a6ca599ef2098a2a04522a7ac4a3b573f" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>c_d</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ae5ebaebc9bac72d6ddaa34cf54b3ae6c" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>cdBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ac791fc639f0f7d5d0671e245529ab634" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>copies</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ae9b545f05bb3686ca584111794d855b1" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>copiesCheck</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a8151464514bd82677438ccd21cde17d1" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>defaults</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ae6b2d5fccf161bd8628e2d8dee2e5b1a" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>hideCheck</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a35385aa171bbedc593615bcd1b7432ee" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>hideFailed</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a7d01733d9e58bc3c8bc93b0ec3cf83d7" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>moveDuringSearch</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ae73a2c7bb8cafc81ae7b3b096e42c10e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>moveDuringSearchBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ac2c4b4dcaec4adcc6d5d2903be033593" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>PreferencesDialog</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1aea65fcfbaf1f54ffbd02b352c6645bc4" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>refresh</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ad6a23047b26469dd088ce829032c0c31" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>refreshBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1af97f0f61b84a9c264555f6f1c5009523" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>refreshPause</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a4b4973b64c998c3493fb3b2a1b42177a" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>slowBox</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a1562b25aefc900d3ef1a4e4768672264" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>smoothCheck</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a9f1a9b3bc447f83e6f63790c3a06fe8b" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>smoothScrollAndZoom</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a2339ca3a4126d4053df9225b184c6e36" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>toggleSlow</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1a09bca2c176583365454a899da95bd0b4" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>writeBack</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1aa6d9529a99ca18f88cd974152b68b43a" prot="public" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>zoom</name></member>
+      <member refid="classGecode_1_1Gist_1_1PreferencesDialog_1ab92d4c7b4575ecb27bc5afd639af6328" prot="protected" virt="non-virtual"><scope>Gecode::Gist::PreferencesDialog</scope><name>zoomCheck</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

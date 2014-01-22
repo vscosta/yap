@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1VarImpDisposer" kind="class" prot="public">
+    <compoundname>Gecode::VarImpDisposer</compoundname>
+    <basecompoundref refid="classGecode_1_1VarImpDisposerBase" prot="public" virt="non-virtual">Gecode::VarImpDisposerBase</basecompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class <ref refid="classGecode_1_1VarImp" kindref="compound">VarImp</ref></type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1VarImpDisposer_1a0bad6cb4dceb98b1aab72a877bd10040" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::VarImpDisposer&lt; VarImp &gt;::VarImpDisposer</definition>
+        <argsstring>(void)</argsstring>
+        <name>VarImpDisposer</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor (registers disposer with kernel) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="269" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3840" bodyend="3844"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpDisposer_1adcf598c31396b3559ee969d98804be97" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void Gecode::VarImpDisposer&lt; VarImp &gt;::dispose</definition>
+        <argsstring>(Space &amp;home, VarImpBase *x)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1VarImpDisposerBase_1a8f4c92079be15f67c96a06ea10fa8d13">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Dispose list of variable implementations starting at <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="271" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3848" bodyend="3853"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Variable implementation disposer </para>    </briefdescription>
+    <detaileddescription>
+<para>Controls disposal of variable implementations. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7710">
+        <label>Gecode::VarImpDisposerBase</label>
+        <link refid="classGecode_1_1VarImpDisposerBase"/>
+      </node>
+      <node id="7709">
+        <label>Gecode::VarImpDisposer&lt; VarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpDisposer"/>
+        <childnode refid="7710" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7712">
+        <label>Gecode::VarImpDisposerBase</label>
+        <link refid="classGecode_1_1VarImpDisposerBase"/>
+      </node>
+      <node id="7711">
+        <label>Gecode::VarImpDisposer&lt; VarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpDisposer"/>
+        <childnode refid="7712" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="266" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="266" bodyend="272"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1VarImpDisposer_1adcf598c31396b3559ee969d98804be97" prot="public" virt="virtual"><scope>Gecode::VarImpDisposer</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1VarImpDisposer_1a0bad6cb4dceb98b1aab72a877bd10040" prot="public" virt="non-virtual"><scope>Gecode::VarImpDisposer</scope><name>VarImpDisposer</name></member>
+      <member refid="classGecode_1_1VarImpDisposerBase_1a4bc9ed05ee1e874edc6914d5f96718c6" prot="public" virt="virtual"><scope>Gecode::VarImpDisposer</scope><name>~VarImpDisposerBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

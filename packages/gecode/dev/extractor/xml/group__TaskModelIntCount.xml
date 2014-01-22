@@ -1,0 +1,480 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntCount" kind="group">
+    <compoundname>TaskModelIntCount</compoundname>
+    <title>Counting constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga1ed6f089699260b994a25197199337a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, int n, IntRelType irt, int m, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="249">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=n\}\sim_{irt} m$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1615" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga19137fef029a0bdc303b9150c00158ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntSet &amp;y, IntRelType irt, int m, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="250">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i\in y\}\sim_{irt} m$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1622" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1gaf88b0ffd3f1b53f40272a0aadec44d23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntVar y, IntRelType irt, int m, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="251">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=y\}\sim_{irt} m$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation (<emphasis>icl</emphasis> = ICL_DOM, default) and slightly less domain propagation (all other values for <emphasis>icl</emphasis>), where <emphasis>y</emphasis> is not pruned. Note that in both cases propagation is not comain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1632" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1gab0e16924d019568614c052e347e80434" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntArgs &amp;y, IntRelType irt, int m, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="252">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=y_i\}\sim_{irt} m$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent.</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>x</emphasis> and <emphasis>y</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1642" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga853737a9aa2fa692231c513e02259e0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, int n, IntRelType irt, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="253">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=n\}\sim_{irt} z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1649" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga0a1888fb9973c889486cde01ad25b53f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntSet &amp;y, IntRelType irt, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="254">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i\in y\}\sim_{irt} z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1656" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1gadb364a1368493fbc3b560bff0552a7e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntVar y, IntRelType irt, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="255">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=y\}\sim_{irt} z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation (<emphasis>icl</emphasis> = ICL_DOM, default) and slightly less domain propagation (all other values for <emphasis>icl</emphasis>), where <emphasis>y</emphasis> is not pruned. Note that in both cases propagation is not comain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1666" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga30a59054095263fa3ccb5b19c510276d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntArgs &amp;y, IntRelType irt, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="256">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=y_i\}\sim_{irt} z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Performs domain propagation but is not domain consistent.</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>x</emphasis> and <emphasis>y</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1676" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga4fd4197faad67eda32e1dee441e4d67a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntVarArgs &amp;c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Posts a global count (cardinality) constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Posts the constraint that <formula id="257">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=j\}=c_j$</formula> and <formula id="258">$ \bigcup_i \{x_i\} \subseteq \{0,\ldots,|c|-1\}$</formula> (no other value occurs).</para><para>Supports value (<emphasis>icl</emphasis> = ICL_VAL, default), bounds (<emphasis>icl</emphasis> = ICL_BND), and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1693" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga2316b4f771d2017b9af305387a9f4d75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntSetArgs &amp;c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntSetArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Posts a global count (cardinality) constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Posts the constraint that <formula id="259">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=j\}\in c_j$</formula> and <formula id="258">$ \bigcup_i \{x_i\} \subseteq \{0,\ldots,|c|-1\}$</formula> (no other value occurs).</para><para>Supports value (<emphasis>icl</emphasis> = ICL_VAL, default), bounds (<emphasis>icl</emphasis> = ICL_BND), and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1710" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1ga27e479f61235a3ed386317adb332718d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntVarArgs &amp;c, const IntArgs &amp;v, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Posts a global count (cardinality) constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Posts the constraint that <formula id="260">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=v_j\}=c_j$</formula> and <formula id="261">$ \bigcup_i \{x_i\} \subseteq \bigcup_j \{v_j\}$</formula> (no other value occurs).</para><para>Supports value (<emphasis>icl</emphasis> = ICL_VAL, default), bounds (<emphasis>icl</emphasis> = ICL_BND), and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>c</emphasis> and <emphasis>v</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1730" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1gad92d3079cd8295c13dd45d2452d1683c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntSetArgs &amp;c, const IntArgs &amp;v, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntSetArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Posts a global count (cardinality) constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Posts the constraint that <formula id="262">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=v_j\}\in c_j$</formula> and <formula id="261">$ \bigcup_i \{x_i\} \subseteq \bigcup_j \{v_j\}$</formula> (no other value occurs).</para><para>Supports value (<emphasis>icl</emphasis> = ICL_VAL, default), bounds (<emphasis>icl</emphasis> = ICL_BND), and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>c</emphasis> and <emphasis>v</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1751" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntCount_1gafc87338a01cc14facff92fab0b358ce5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::count</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntSet &amp;c, const IntArgs &amp;v, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>count</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Posts a global count (cardinality) constraint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Posts the constraint that <formula id="263">$\#\{i\in\{0,\ldots,|x|-1\}\;|\;x_i=v_j\}\in c$</formula> and <formula id="261">$ \bigcup_i \{x_i\} \subseteq \bigcup_j \{v_j\}$</formula> (no other value occurs).</para><para>Supports value (<emphasis>icl</emphasis> = ICL_VAL, default), bounds (<emphasis>icl</emphasis> = ICL_BND), and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>c</emphasis> and <emphasis>v</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1772" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="note"><para>Domain consistency on the extended cardinality variables of the Global Cardinality <ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> is only obtained if they are bounds consistent, otherwise the problem of enforcing domain consistency on the cardinality variables is NP-complete as proved by Qumiper et. al. in &apos;&apos;Improved Algorithms for the Global Cardinality Constraint&apos;&apos;. </para></simplesect>
+</para>    </detaileddescription>
+  </compounddef>
+</doxygen>

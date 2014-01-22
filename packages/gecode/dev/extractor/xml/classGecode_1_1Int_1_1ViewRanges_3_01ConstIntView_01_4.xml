@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</compoundname>
+    <includes refid="constint_8hpp" local="no">constint.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a3eddffb034ee2b4df55a0e8f9589b96a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; ConstIntView &gt;::ViewRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="253" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="280" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a01bac6dd91f822c0fb96ba9c551fcc5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; ConstIntView &gt;::ViewRanges</definition>
+        <argsstring>(const ConstIntView &amp;x)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="255" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="283" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ad87f5cd063268ac8c97d6d0f169ea3de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::ViewRanges&lt; ConstIntView &gt;::init</definition>
+        <argsstring>(const ConstIntView &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1ConstIntView" kindref="compound">ConstIntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="257" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a477e39f87c9f60ca4096e202fd73e074" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewRanges&lt; ConstIntView &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="263" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="287" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1aae6f53ee45af00914aa601e8d6bd609c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewRanges&lt; ConstIntView &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="265" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="291" bodyend="293"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a03ba061fcdd4a2d6c21d0e3669db987e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::ViewRanges&lt; ConstIntView &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="271" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="296" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1aa343f95f26b8faeb4aa106c40493a401" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::ViewRanges&lt; ConstIntView &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="273" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="300" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ae14d24b9f04ebfc392a9478a017eb489" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Int::ViewRanges&lt; ConstIntView &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of ranges (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="275" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="304" bodyend="306"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ac32b6475cf6175fe5ce96f45e4a80179" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::ViewRanges&lt; ConstIntView &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>The single integer to iterate. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/constint.hpp" line="248" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for constant integer views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/view/constint.hpp" line="245" column="1" bodyfile="/usr/include/gecode/int/view/constint.hpp" bodystart="245" bodyend="277"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ad87f5cd063268ac8c97d6d0f169ea3de" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1aa343f95f26b8faeb4aa106c40493a401" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a03ba061fcdd4a2d6c21d0e3669db987e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ac32b6475cf6175fe5ce96f45e4a80179" prot="private" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>n</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a477e39f87c9f60ca4096e202fd73e074" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1aae6f53ee45af00914aa601e8d6bd609c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a3eddffb034ee2b4df55a0e8f9589b96a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1a01bac6dd91f822c0fb96ba9c551fcc5d" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4_1ae14d24b9f04ebfc392a9478a017eb489" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; ConstIntView &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

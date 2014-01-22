@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1DynamicArray" kind="class" prot="public">
+    <compoundname>Gecode::Support::DynamicArray</compoundname>
+    <includes refid="dynamic-array_8hpp" local="no">dynamic-array.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1DynamicArray_1a9dc047f6cd52829ce143bc09b90baeb4" prot="private" static="no" mutable="no">
+        <type>A &amp;</type>
+        <definition>A&amp; Gecode::Support::DynamicArray&lt; T, A &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Memory allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="51" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1DynamicArray_1aec870ecf00479c2bd3eb068f872dccd1" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Support::DynamicArray&lt; T, A &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Size of array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="53" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1DynamicArray_1a05cb0d50fe6e448732d09670ecdb1f2c" prot="private" static="no" mutable="no">
+        <type>T *</type>
+        <definition>T* Gecode::Support::DynamicArray&lt; T, A &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Array elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="55" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1a238fea89bd55b6c651604d0873381fe7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::DynamicArray&lt; T, A &gt;::resize</definition>
+        <argsstring>(int n)</argsstring>
+        <name>resize</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Resize to at least <emphasis>n</emphasis> + 1 elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="57" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="111" bodyend="115"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1a7d13f5b665c5a8906e66fc9ac9f92ec5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::DynamicArray&lt; T, A &gt;::DynamicArray</definition>
+        <argsstring>(A &amp;a0, int n=32)</argsstring>
+        <name>DynamicArray</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a0</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+          <defval>32</defval>
+        </param>
+        <briefdescription>
+<para>Initialize with size <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="60" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="81" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1abcd3a28bc481512a1d5b1cc1b509ccbf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::DynamicArray&lt; T, A &gt;::DynamicArray</definition>
+        <argsstring>(const DynamicArray&lt; T, A &gt; &amp;da)</argsstring>
+        <name>DynamicArray</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">DynamicArray</ref>&lt; T, A &gt; &amp;</type>
+          <declname>da</declname>
+        </param>
+        <briefdescription>
+<para>Copy elements from array <emphasis>da</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="62" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="86" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1a5a3c5c94d2f444d7e78e4f6d31e68bdb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::DynamicArray&lt; T, A &gt;::~DynamicArray</definition>
+        <argsstring>(void)</argsstring>
+        <name>~DynamicArray</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Release memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="64" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1a757a41ca960490b96bbf0ce52ca79949" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">DynamicArray</ref>&lt; T, A &gt; &amp;</type>
+        <definition>forceinline const DynamicArray&lt; T, A &gt; &amp; Gecode::Support::DynamicArray&lt; T, A &gt;::operator=</definition>
+        <argsstring>(const DynamicArray&lt; T, A &gt; &amp;da)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1DynamicArray" kindref="compound">DynamicArray</ref>&lt; T, A &gt; &amp;</type>
+          <declname>da</declname>
+        </param>
+        <briefdescription>
+<para>Assign array (copy elements from <emphasis>a</emphasis>) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="67" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="99" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1a9448d50be508a90ba8106bc50f7e6ba8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>T &amp;</type>
+        <definition>forceinline T &amp; Gecode::Support::DynamicArray&lt; T, A &gt;::operator[]</definition>
+        <argsstring>(int i)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return element at position <emphasis>i</emphasis> (possibly resize) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="70" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="119" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1afeecffd68e7721ad737cf6058831af42" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const T &amp;</type>
+        <definition>forceinline const T &amp; Gecode::Support::DynamicArray&lt; T, A &gt;::operator[]</definition>
+        <argsstring>(int) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <defname>i</defname>
+        </param>
+        <briefdescription>
+<para>Return element at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="72" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="127" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1DynamicArray_1aaaacef28db2ab6e7cf6b86f8fc17ba32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::DynamicArray&lt; T, A &gt;::operator T *</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator T *</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Cast in to pointer of type <emphasis>T</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/dynamic-array.hpp" line="75" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="134" bodyend="136"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Array with arbitrary number of elements. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/support/dynamic-array.hpp" line="48" column="1" bodyfile="/usr/include/gecode/support/dynamic-array.hpp" bodystart="48" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a9dc047f6cd52829ce143bc09b90baeb4" prot="private" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>a</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a7d13f5b665c5a8906e66fc9ac9f92ec5" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>DynamicArray</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1abcd3a28bc481512a1d5b1cc1b509ccbf" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>DynamicArray</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1aec870ecf00479c2bd3eb068f872dccd1" prot="private" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>n</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1aaaacef28db2ab6e7cf6b86f8fc17ba32" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>operator T *</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a757a41ca960490b96bbf0ce52ca79949" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a9448d50be508a90ba8106bc50f7e6ba8" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1afeecffd68e7721ad737cf6058831af42" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a238fea89bd55b6c651604d0873381fe7" prot="private" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>resize</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a05cb0d50fe6e448732d09670ecdb1f2c" prot="private" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>x</name></member>
+      <member refid="classGecode_1_1Support_1_1DynamicArray_1a5a3c5c94d2f444d7e78e4f6d31e68bdb" prot="public" virt="non-virtual"><scope>Gecode::Support::DynamicArray</scope><name>~DynamicArray</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Circuit_1_1Dom" kind="class" prot="public">
+    <compoundname>Gecode::Int::Circuit::Dom</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Circuit_1_1Base" prot="public" virt="non-virtual">Gecode::Int::Circuit::Base&lt; View, Offset &gt;</basecompoundref>
+    <includes refid="circuit_8hh" local="no">circuit.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>Offset</declname>
+        <defname>Offset</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1a87a4b7b71b6ce29c051b14f2c2846e0e" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Distinct_1_1DomCtrl" kindref="compound">Int::Distinct::DomCtrl</ref>&lt; View &gt;</type>
+        <definition>Int::Distinct::DomCtrl&lt;View&gt; Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::dc</definition>
+        <argsstring></argsstring>
+        <name>dc</name>
+        <briefdescription>
+<para>Propagation controller for propagating distinct. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="131" column="1" bodyfile="/usr/include/gecode/int/circuit.hh" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1ad94406be492954d7b04ef580455b8017" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::Dom</definition>
+        <argsstring>(Space &amp;home, bool share, Dom &amp;p)</argsstring>
+        <name>Dom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Circuit_1_1Dom" kindref="compound">Dom</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="133" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1a6ca205137e11f0ef09fc91d516a60a7c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::Dom</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, Offset &amp;o)</argsstring>
+        <name>Dom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="135" column="1" bodyfile="/usr/include/gecode/int/circuit/dom.hpp" bodystart="46" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1add4d9b1d169b8e13dc44b35b301d6e01" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="138" column="1" bodyfile="/usr/include/gecode/int/circuit/dom.hpp" bodystart="56" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1a528d96a26759cd42811122a0f37af91d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1NaryPropagator_1a7e890e5ed83d35c3dad87ca049567539">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function. </para>        </briefdescription>
+        <detaileddescription>
+<para>If in stage for naive value propagation, the cost is low linear. Otherwise it is high quadratic. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="145" column="1" bodyfile="/usr/include/gecode/int/circuit/dom.hpp" bodystart="62" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1afab1d2dbf0cf9e79cc22f0eb3b9839bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="147" column="1" bodyfile="/usr/include/gecode/int/circuit/dom.hpp" bodystart="71" bodyend="103"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Dom_1a4bafda08f664d77bd72f5f3c271ac5c5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Circuit::Dom&lt; View, Offset &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, Offset &amp;o)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for circuit on <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="149" column="1" bodyfile="/usr/include/gecode/int/circuit/dom.hpp" bodystart="107" bodyend="123"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>&quot;Domain consistent&quot; circuit propagator </para>    </briefdescription>
+    <detaileddescription>
+<para>Propagates domain consistent distinct, checks that the induced variable value graph is stronlgy connected, and prunes too shot cycles.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/circuit.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1800">
+        <label>Gecode::Int::Circuit::Base&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Base"/>
+        <childnode refid="1801" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1801">
+        <label>Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1802" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1802">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1803" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1799">
+        <label>Gecode::Int::Circuit::Dom&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Dom"/>
+        <childnode refid="1800" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1803">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1804" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1804">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1811">
+        <label>Gecode::Int::Offset</label>
+        <link refid="classGecode_1_1Int_1_1Offset"/>
+      </node>
+      <node id="1806">
+        <label>Gecode::Int::Circuit::Base&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Base"/>
+        <childnode refid="1807" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1811" relation="usage">
+          <edgelabel>o</edgelabel>
+        </childnode>
+      </node>
+      <node id="1807">
+        <label>Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1808" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1808">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1809" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1810" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1805">
+        <label>Gecode::Int::Circuit::Dom&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Dom"/>
+        <childnode refid="1806" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1809">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1810" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1810">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/circuit.hh" line="123" column="1" bodyfile="/usr/include/gecode/int/circuit.hh" bodystart="123" bodyend="150"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a810f51147ffc90ccf2389c9c9d405727" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Base</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1aed2ee453a8a5cf66e89862acdcc8db86" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Base</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Circuit::Dom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Circuit::Dom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a0c9bb1180369dd767b11d448c8119efb" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>connected</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1add4d9b1d169b8e13dc44b35b301d6e01" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1a528d96a26759cd42811122a0f37af91d" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1a87a4b7b71b6ce29c051b14f2c2846e0e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>dc</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1afa2d53af7e78f948bd0eff7162ffd881" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1ad94406be492954d7b04ef580455b8017" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Dom</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1a6ca205137e11f0ef09fc91d516a60a7c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Dom</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a30e2cfc0a52033b042bf6e4a3a37f029" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1af0a8dfa7e9b637ab62f1a2f0c4e9a78d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a88d5a8d7b24f925919e44d31287687f1" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a407b4e311d3680e09e9e1a69e30d6833" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>o</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1ab28f020285bab07698c61b658b103c28" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>path</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1a4bafda08f664d77bd72f5f3c271ac5c5" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Dom_1afab1d2dbf0cf9e79cc22f0eb3b9839bf" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>size</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1afa79d87e560aea027d59b153b353ee1c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a3407cab6debf0b486f00d7dd65277dc8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Dom</scope><name>y</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

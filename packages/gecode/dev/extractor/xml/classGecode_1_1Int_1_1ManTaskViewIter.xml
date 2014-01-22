@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ManTaskViewIter" kind="class" prot="public">
+    <compoundname>Gecode::Int::ManTaskViewIter</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1TaskViewIter" prot="public" virt="non-virtual">Gecode::Int::TaskViewIter&lt; OptTaskView, sto, inc &gt;</basecompoundref>
+    <includes refid="task_8hh" local="no">task.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>OptTaskView</declname>
+        <defname>OptTaskView</defname>
+      </param>
+      <param>
+        <type><ref refid="namespaceGecode_1_1Int_1a1e8b71a38da1d7be2e533a16ed672f8c" kindref="member">SortTaskOrder</ref></type>
+        <declname>sto</declname>
+        <defname>sto</defname>
+      </param>
+      <param>
+        <type>bool</type>
+        <declname>inc</declname>
+        <defname>inc</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ManTaskViewIter_1aea6127952fb41b6c810fbd14b926ce18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ManTaskViewIter&lt; OptTaskView, sto, inc &gt;::ManTaskViewIter</definition>
+        <argsstring>(Region &amp;r, const TaskViewArray&lt; OptTaskView &gt; &amp;t)</argsstring>
+        <name>ManTaskViewIter</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskViewArray" kindref="compound">TaskViewArray</ref>&lt; OptTaskView &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize iterator with mandatory tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="345" column="1" bodyfile="/usr/include/gecode/int/task/iter.hpp" bodystart="80" bodyend="87"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Allows to iterate over mandatory task views according to a specified order. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3745">
+        <label>Gecode::Int::TaskViewIter&lt; OptTaskView, sto, inc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskViewIter"/>
+      </node>
+      <node id="3744">
+        <label>Gecode::Int::ManTaskViewIter&lt; OptTaskView, sto, inc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManTaskViewIter"/>
+        <childnode refid="3745" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3747">
+        <label>Gecode::Int::TaskViewIter&lt; OptTaskView, sto, inc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskViewIter"/>
+      </node>
+      <node id="3746">
+        <label>Gecode::Int::ManTaskViewIter&lt; OptTaskView, sto, inc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManTaskViewIter"/>
+        <childnode refid="3747" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/task.hh" line="339" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="339" bodyend="346"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1aa3b285249a1bc582200d205d68c1cf28" prot="protected" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>i</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1a57e91513aa6054aef3e22e99523385a4" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>left</name></member>
+      <member refid="classGecode_1_1Int_1_1ManTaskViewIter_1aea6127952fb41b6c810fbd14b926ce18" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>ManTaskViewIter</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1a432dd77d0114abd0feeff530da7dcdb6" prot="protected" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>map</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1a44b002c7d8e870c922706443dc8d7eb2" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1ac905ad51134b09d152bf2bddfc2e3cbe" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1ad9dcd38e2636b72c0a73f45c97af4f73" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>task</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1a1f246f4afefd5fe11d212ecb5dcbedc9" prot="protected" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>TaskViewIter</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskViewIter_1ab202acbc135ee511d9be214111e921ee" prot="public" virt="non-virtual"><scope>Gecode::Int::ManTaskViewIter</scope><name>TaskViewIter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

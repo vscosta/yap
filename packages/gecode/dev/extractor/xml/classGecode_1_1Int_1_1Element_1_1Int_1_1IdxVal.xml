@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Element::Int::IdxVal</compoundname>
+    <includes refid="int_2element_8hh" local="no">element.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1ad8a3cea4e6b9e781c6789beeef068903" prot="public" static="no" mutable="no">
+        <type>Idx</type>
+        <definition>Idx Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::idx_next</definition>
+        <argsstring></argsstring>
+        <name>idx_next</name>
+        <briefdescription>
+<para>The position of the next pair in index order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="72" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a8618f4cae74e6bd5f447a2c32d8f1306" prot="public" static="no" mutable="no">
+        <type>Idx</type>
+        <definition>Idx Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::val_next</definition>
+        <argsstring></argsstring>
+        <name>val_next</name>
+        <briefdescription>
+<para>The position of the next pair in value order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="73" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a3d73a9f78de3c3734c1119c0ab268a16" prot="public" static="no" mutable="no">
+        <type>Idx</type>
+        <definition>Idx Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::idx</definition>
+        <argsstring></argsstring>
+        <name>idx</name>
+        <briefdescription>
+<para>The index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="74" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1ad4235c332685d17d9e602bedd1cc5d01" prot="public" static="no" mutable="no">
+        <type>Val</type>
+        <definition>Val Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The value </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="75" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a6b0414bf36499b183032f4cf1ad52d57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::mark</definition>
+        <argsstring>(void)</argsstring>
+        <name>mark</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark that this pair should be removed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="77" column="1" bodyfile="/usr/include/gecode/int/element/int.hpp" bodystart="44" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a9964ab41aae1c5c255e0b8d7f26c9176" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal::marked</definition>
+        <argsstring>(void) const </argsstring>
+        <name>marked</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether this pair is marked for removal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="79" column="1" bodyfile="/usr/include/gecode/int/element/int.hpp" bodystart="49" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Linked index-value pairs. </para>    </briefdescription>
+    <detaileddescription>
+<para>Data structure linking pairs of index and value (index,value) where pairs are linked in order of both index and value (to allow for easy removal while keeping both index and value sorted). </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="2727">
+        <label>Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal"/>
+        <childnode refid="2728" relation="usage">
+          <edgelabel>val</edgelabel>
+        </childnode>
+      </node>
+      <node id="2728">
+        <label>Val</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/element.hh" line="70" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="70" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a3d73a9f78de3c3734c1119c0ab268a16" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>idx</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1ad8a3cea4e6b9e781c6789beeef068903" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>idx_next</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a6b0414bf36499b183032f4cf1ad52d57" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>mark</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a9964ab41aae1c5c255e0b8d7f26c9176" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>marked</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1ad4235c332685d17d9e602bedd1cc5d01" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>val</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal_1a8618f4cae74e6bd5f447a2c32d8f1306" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::IdxVal</scope><name>val_next</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

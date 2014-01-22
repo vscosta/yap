@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncIntValCommit" kind="group">
+    <compoundname>FuncIntValCommit</compoundname>
+    <title>Integer value commit classes</title>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitEq" prot="public">Gecode::Int::Branch::ValCommitEq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitLq" prot="public">Gecode::Int::Branch::ValCommitLq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitGq" prot="public">Gecode::Int::Branch::ValCommitGq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitGr" prot="public">Gecode::Int::Branch::ValCommitGr</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Contains the value commit classes for integer and Boolean views that can be used together with the generic view/value branchers.</para><para>All value commit classes require <programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

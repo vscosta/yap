@@ -1,0 +1,395 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structGecode_1_1region__allocator" kind="struct" prot="public">
+    <compoundname>Gecode::region_allocator</compoundname>
+    <includes refid="allocators_8hpp" local="no">allocators.hpp</includes>
+    <innerclass refid="structGecode_1_1region__allocator_1_1rebind" prot="public">Gecode::region_allocator::rebind</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1a4b99471b554f6e2a870f57f1f9d990f9" prot="public" static="no">
+        <type>T</type>
+        <definition>typedef T Gecode::region_allocator&lt; T &gt;::value_type</definition>
+        <argsstring></argsstring>
+        <name>value_type</name>
+        <briefdescription>
+<para>Type of objects the allocator creates. This is identical to <emphasis>T</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="340" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" prot="public" static="no">
+        <type>size_t</type>
+        <definition>typedef size_t Gecode::region_allocator&lt; T &gt;::size_type</definition>
+        <argsstring></argsstring>
+        <name>size_type</name>
+        <briefdescription>
+<para>Type that can represent the size of the largest object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="342" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="342" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1ac184f0dd464f14cb727f0392fd2c4b6a" prot="public" static="no">
+        <type>ptrdiff_t</type>
+        <definition>typedef ptrdiff_t Gecode::region_allocator&lt; T &gt;::difference_type</definition>
+        <argsstring></argsstring>
+        <name>difference_type</name>
+        <briefdescription>
+<para>Type that can represent the difference between any two pointers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="344" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="344" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" prot="public" static="no">
+        <type>T *</type>
+        <definition>typedef T* Gecode::region_allocator&lt; T &gt;::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+<para>Type of pointers returned by the allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="346" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1a8c56fb682e33f3f7c4ffde94b2b5b39a" prot="public" static="no">
+        <type>T const *</type>
+        <definition>typedef T const* Gecode::region_allocator&lt; T &gt;::const_pointer</definition>
+        <argsstring></argsstring>
+        <name>const_pointer</name>
+        <briefdescription>
+<para>Const version of pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="348" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="348" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1adfc064ac2a5c6b979a58a10fe1a3bb12" prot="public" static="no">
+        <type>T &amp;</type>
+        <definition>typedef T&amp; Gecode::region_allocator&lt; T &gt;::reference</definition>
+        <argsstring></argsstring>
+        <name>reference</name>
+        <briefdescription>
+<para>Non-const reference to <emphasis>T</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="350" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_1aa70b9be9bbaf3683ef1ac03740c82952" prot="public" static="no">
+        <type>T const &amp;</type>
+        <definition>typedef T const&amp; Gecode::region_allocator&lt; T &gt;::const_reference</definition>
+        <argsstring></argsstring>
+        <name>const_reference</name>
+        <briefdescription>
+<para>Const reference to <emphasis>T</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="352" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="352" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structGecode_1_1region__allocator_1a15801f5a526fb1a7524b99872bd36ac8" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+        <definition>Region&amp; Gecode::region_allocator&lt; T &gt;::region</definition>
+        <argsstring></argsstring>
+        <name>region</name>
+        <briefdescription>
+<para>The region that we allocate objects from. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="361" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="361" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a6465fc179e9bd6f58f62c38fa4c7a9e5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::region_allocator&lt; T &gt;::region_allocator</definition>
+        <argsstring>(Region &amp;region)</argsstring>
+        <name>region_allocator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>region</declname>
+        </param>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+<para>Construction. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>region</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The region to allocate objects from. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="367" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="367" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1abe1fd9958a4f2f924cfdd3c3adc4119e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::region_allocator&lt; T &gt;::region_allocator</definition>
+        <argsstring>(region_allocator const &amp;al)</argsstring>
+        <name>region_allocator</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator" kindref="compound">region_allocator</ref> const &amp;</type>
+          <declname>al</declname>
+        </param>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+<para>Copy construction. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>al</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The allocator to copy. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="373" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="373" bodyend="374"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a27b19739e7c4e70ba07d9865688dc990" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class U</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::region_allocator&lt; T &gt;::region_allocator</definition>
+        <argsstring>(region_allocator&lt; U &gt; const &amp;al)</argsstring>
+        <name>region_allocator</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator" kindref="compound">region_allocator</ref>&lt; U &gt; const &amp;</type>
+          <declname>al</declname>
+        </param>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+<para>Copy from other instantiation. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>al</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The source allocator. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="380" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="380" bodyend="381"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a252b9f3ca28e585c963ce82a829381ab" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref></type>
+        <definition>pointer Gecode::region_allocator&lt; T &gt;::address</definition>
+        <argsstring>(reference x) const </argsstring>
+        <name>address</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1adfc064ac2a5c6b979a58a10fe1a3bb12" kindref="member">reference</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Convert a reference <emphasis>x</emphasis> to a pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="384" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="384" bodyend="384"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a8ae5a2abb9355b15bdac2ae0e345bc32" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1region__allocator_1a8c56fb682e33f3f7c4ffde94b2b5b39a" kindref="member">const_pointer</ref></type>
+        <definition>const_pointer Gecode::region_allocator&lt; T &gt;::address</definition>
+        <argsstring>(const_reference x) const </argsstring>
+        <name>address</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1aa70b9be9bbaf3683ef1ac03740c82952" kindref="member">const_reference</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Convert a const reference <emphasis>x</emphasis> to a const pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="386" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="386" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1ae9be539582d47596d5031ba7d4298ba6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" kindref="member">size_type</ref></type>
+        <definition>size_type Gecode::region_allocator&lt; T &gt;::max_size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max_size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+<para>Returns the largest size for which a call to allocate might succeed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="388" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="388" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1abb72601b28a41ebfce2d19e37ad4e6e7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref></type>
+        <definition>pointer Gecode::region_allocator&lt; T &gt;::allocate</definition>
+        <argsstring>(size_type count)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" kindref="member">size_type</ref></type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Allocates storage. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns a pointer to the first element in a block of storage <computeroutput>count*sizeof(T)</computeroutput> bytes in size. The block is aligned appropriately for objects of type <emphasis>T</emphasis>. Throws the exception <emphasis>bad_alloc</emphasis> if the storage is unavailable. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="401" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="401" bodyend="403"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a9804db2402a2d1b31b8b5965e3fd981a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref></type>
+        <definition>pointer Gecode::region_allocator&lt; T &gt;::allocate</definition>
+        <argsstring>(size_type count, const void *const hint)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" kindref="member">size_type</ref></type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type>const void *const</type>
+          <declname>hint</declname>
+        </param>
+        <briefdescription>
+<para>Allocates storage. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns a pointer to the first element in a block of storage <computeroutput>count*sizeof(T)</computeroutput> bytes in size. The block is aligned appropriately for objects of type <emphasis>T</emphasis>. Throws the exception <emphasis>bad_alloc</emphasis> if the storage is unavailable.</para><para>The (unused) parameter could be used as an allocation hint, but this allocator ignores it. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="416" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="416" bodyend="419"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a56f866a33bd89c453cda378164bdc04f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::region_allocator&lt; T &gt;::deallocate</definition>
+        <argsstring>(pointer *p, size_type count)</argsstring>
+        <name>deallocate</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" kindref="member">size_type</ref></type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Deallocates storage. </para>        </briefdescription>
+        <detaileddescription>
+<para>Deallocates storage obtained by a call to <ref refid="structGecode_1_1region__allocator_1abb72601b28a41ebfce2d19e37ad4e6e7" kindref="member">allocate()</ref> with arguments <emphasis>count</emphasis> and <emphasis>p</emphasis>. Note that region allocator never actually deallocates memory (so this function does nothing); the memory is released when the region is destroyed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="429" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="429" bodyend="431"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a4f50c9ce8b7b859c163fb69a788a7311" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::region_allocator&lt; T &gt;::construct</definition>
+        <argsstring>(pointer element, const_reference t)</argsstring>
+        <name>construct</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref></type>
+          <declname>element</declname>
+        </param>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1aa70b9be9bbaf3683ef1ac03740c82952" kindref="member">const_reference</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Constructs an object. </para>        </briefdescription>
+        <detaileddescription>
+<para>Constructs an object of type <emphasis>T</emphasis> with the initial value of <emphasis>t</emphasis> at the location specified by <emphasis>element</emphasis>. This function calls the <emphasis>placement new()</emphasis> operator. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="440" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="440" bodyend="442"/>
+      </memberdef>
+      <memberdef kind="function" id="structGecode_1_1region__allocator_1a9bcb1e8d95b0229f8372f1e4b7b68bd5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::region_allocator&lt; T &gt;::destroy</definition>
+        <argsstring>(pointer element)</argsstring>
+        <name>destroy</name>
+        <param>
+          <type><ref refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" kindref="member">pointer</ref></type>
+          <declname>element</declname>
+        </param>
+        <briefdescription>
+<para>Calls the destructor on the object pointed to by <emphasis>element</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="445" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="445" bodyend="447"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Allocator that allocates memory from a region. </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that this allocator may be used to construct dynamic data structures that allocate memory from the region, or even reside in the region as a whole. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="5862">
+        <label>Gecode::region_allocator&lt; T &gt;</label>
+        <link refid="structGecode_1_1region__allocator"/>
+        <childnode refid="5863" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+      </node>
+      <node id="5863">
+        <label>Gecode::Region</label>
+        <link refid="classGecode_1_1Region"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/allocators.hpp" line="310" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="310" bodyend="-1"/>
+    <listofallmembers>
+      <member refid="structGecode_1_1region__allocator_1a252b9f3ca28e585c963ce82a829381ab" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>address</name></member>
+      <member refid="structGecode_1_1region__allocator_1a8ae5a2abb9355b15bdac2ae0e345bc32" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>address</name></member>
+      <member refid="structGecode_1_1region__allocator_1abb72601b28a41ebfce2d19e37ad4e6e7" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>allocate</name></member>
+      <member refid="structGecode_1_1region__allocator_1a9804db2402a2d1b31b8b5965e3fd981a" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>allocate</name></member>
+      <member refid="structGecode_1_1region__allocator_1a8c56fb682e33f3f7c4ffde94b2b5b39a" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>const_pointer</name></member>
+      <member refid="structGecode_1_1region__allocator_1aa70b9be9bbaf3683ef1ac03740c82952" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>const_reference</name></member>
+      <member refid="structGecode_1_1region__allocator_1a4f50c9ce8b7b859c163fb69a788a7311" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>construct</name></member>
+      <member refid="structGecode_1_1region__allocator_1a56f866a33bd89c453cda378164bdc04f" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>deallocate</name></member>
+      <member refid="structGecode_1_1region__allocator_1a9bcb1e8d95b0229f8372f1e4b7b68bd5" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>destroy</name></member>
+      <member refid="structGecode_1_1region__allocator_1ac184f0dd464f14cb727f0392fd2c4b6a" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>difference_type</name></member>
+      <member refid="structGecode_1_1region__allocator_1ae9be539582d47596d5031ba7d4298ba6" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>max_size</name></member>
+      <member refid="structGecode_1_1region__allocator_1abdcf5f68ebad5fd94797c9e52b4e714e" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>pointer</name></member>
+      <member refid="structGecode_1_1region__allocator_1adfc064ac2a5c6b979a58a10fe1a3bb12" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>reference</name></member>
+      <member refid="structGecode_1_1region__allocator_1a15801f5a526fb1a7524b99872bd36ac8" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>region</name></member>
+      <member refid="structGecode_1_1region__allocator_1a6465fc179e9bd6f58f62c38fa4c7a9e5" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>region_allocator</name></member>
+      <member refid="structGecode_1_1region__allocator_1abe1fd9958a4f2f924cfdd3c3adc4119e" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>region_allocator</name></member>
+      <member refid="structGecode_1_1region__allocator_1a27b19739e7c4e70ba07d9865688dc990" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>region_allocator</name></member>
+      <member refid="structGecode_1_1region__allocator_1a96b74a50ffffc8a1c050cbf18f7d4c7b" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>size_type</name></member>
+      <member refid="structGecode_1_1region__allocator_1a4b99471b554f6e2a870f57f1f9d990f9" prot="public" virt="non-virtual"><scope>Gecode::region_allocator</scope><name>value_type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

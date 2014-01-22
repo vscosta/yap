@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="set-op_8hpp" kind="file">
+    <compoundname>set-op.hpp</compoundname>
+    <includedby refid="int_2sequence_8hh" local="no">/usr/include/gecode/int/sequence.hh</includedby>
+    <invincdepgraph>
+      <node id="19279">
+        <label>/usr/include/gecode/int/sequence/set-op.hpp</label>
+        <link refid="set-op.hpp"/>
+        <childnode refid="19280" relation="include">
+        </childnode>
+      </node>
+      <node id="19280">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int">Gecode::Int</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int_1_1Sequence">Gecode::Int::Sequence</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2009</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2010-03-03<sp/>16:38:41<sp/>+0100<sp/>(Wed,<sp/>03<sp/>Mar<sp/>2010)<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>10359<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Int<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Sequence<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2a" kindref="member">TakesStatus</ref><sp/>{</highlight></codeline>
+<codeline lineno="42" refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2cd9339646dab728374d9143d21b0096" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2cd9339646dab728374d9143d21b0096" kindref="member">TS_NO</ref>,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aaf63685cb26a4e6c03c58f0ad9d7a7d3f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aaf63685cb26a4e6c03c58f0ad9d7a7d3f" kindref="member">TS_YES</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2456e3ce83d86886e41cdba858db41e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2456e3ce83d86886e41cdba858db41e3" kindref="member">TS_MAYBE</ref><sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2a" kindref="member">TakesStatus</ref></highlight></codeline>
+<codeline lineno="50" refid="namespaceGecode_1_1Int_1_1Sequence_1ac9fc00c381343d8316a543b77761c899" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1ac9fc00c381343d8316a543b77761c899" kindref="member">takes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.in(s))</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.assigned()<sp/>?<sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aaf63685cb26a4e6c03c58f0ad9d7a7d3f" kindref="member">TS_YES</ref><sp/>:<sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2456e3ce83d86886e41cdba858db41e3" kindref="member">TS_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2cd9339646dab728374d9143d21b0096" kindref="member">TS_NO</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2a" kindref="member">TakesStatus</ref></highlight></codeline>
+<codeline lineno="59" refid="namespaceGecode_1_1Int_1_1Sequence_1a6d33caea68089a0655954581c475317d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1ac9fc00c381343d8316a543b77761c899" kindref="member">takes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.max()<sp/>&lt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a4489c522db083acd3564c62f273e7e00" kindref="member">min</ref>())<sp/>||<sp/>(x.min()<sp/>&gt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a116eb1bf6dbeac4826dae8bcad0fc2cb" kindref="member">max</ref>()))</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2cd9339646dab728374d9143d21b0096" kindref="member">TS_NO</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges&lt;View&gt;</ref><sp/>ix(x);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="group__FuncIterRangesOp_1ga544c763f5400045d10bf8affc0768df4" kindref="member">Iter::Ranges::compare</ref>(ix,is))<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1gga231b2059e20903d95675dab6351c0694a2638a08c99d74d5c11119e1c3aa82056" kindref="member">Iter::Ranges::CS_SUBSET</ref>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aaf63685cb26a4e6c03c58f0ad9d7a7d3f" kindref="member">TS_YES</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1gga231b2059e20903d95675dab6351c0694a5dbce948b4886b5ad1caf216d1ca4d3d" kindref="member">Iter::Ranges::CS_DISJOINT</ref>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2cd9339646dab728374d9143d21b0096" kindref="member">TS_NO</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1gga231b2059e20903d95675dab6351c0694a1823ed20e48255de4d5a0cf6644e8fa7" kindref="member">Iter::Ranges::CS_NONE</ref>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2456e3ce83d86886e41cdba858db41e3" kindref="member">TS_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/>GECODE_NEVER;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a299b9e2a107fc8f097e84320307a7d2aa2456e3ce83d86886e41cdba858db41e3" kindref="member">TS_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="namespaceGecode_1_1Int_1_1Sequence_1a7f5ef0cb1ce7ea6682de28e4ccfc26ab" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a7f5ef0cb1ce7ea6682de28e4ccfc26ab" kindref="member">includes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.assigned()<sp/>&amp;&amp;<sp/>x.in(s);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="namespaceGecode_1_1Int_1_1Sequence_1a8c67f6eb542e2d6bf1d11b0bdbc29491" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a7f5ef0cb1ce7ea6682de28e4ccfc26ab" kindref="member">includes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.max()<sp/>&lt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a4489c522db083acd3564c62f273e7e00" kindref="member">min</ref>())<sp/>||<sp/>(x.min()<sp/>&gt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a116eb1bf6dbeac4826dae8bcad0fc2cb" kindref="member">max</ref>()))</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges&lt;View&gt;</ref><sp/>ix(x);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1ga3e3d455a5dfd24404184fa2914cf3c60" kindref="member">Iter::Ranges::subset</ref>(ix,is);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="namespaceGecode_1_1Int_1_1Sequence_1af4cbe2ae8218a477162b5245df0b3d3e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1af4cbe2ae8218a477162b5245df0b3d3e" kindref="member">excludes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!x.in(s);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="namespaceGecode_1_1Int_1_1Sequence_1a3b053eedfffcf972d3d914ba3e13d187" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1af4cbe2ae8218a477162b5245df0b3d3e" kindref="member">excludes</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.max()<sp/>&lt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a4489c522db083acd3564c62f273e7e00" kindref="member">min</ref>())<sp/>||<sp/>(x.min()<sp/>&gt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a116eb1bf6dbeac4826dae8bcad0fc2cb" kindref="member">max</ref>()))</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges&lt;View&gt;</ref><sp/>ix(x);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1gae894b09d56b4a24232d79b577c8fffce" kindref="member">Iter::Ranges::disjoint</ref>(ix,is);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="namespaceGecode_1_1Int_1_1Sequence_1aa9e0590adb9cab66933b36de7896aced" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1aa9e0590adb9cab66933b36de7896aced" kindref="member">undecided</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!x.assigned()<sp/>&amp;&amp;<sp/>x.in(s);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="namespaceGecode_1_1Int_1_1Sequence_1aa7e5c73012a96353e99f8d1ea3a80421" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1aa9e0590adb9cab66933b36de7896aced" kindref="member">undecided</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.max()<sp/>&lt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a4489c522db083acd3564c62f273e7e00" kindref="member">min</ref>())<sp/>||<sp/>(x.min()<sp/>&gt;<sp/>s.<ref refid="classGecode_1_1IntSet_1a116eb1bf6dbeac4826dae8bcad0fc2cb" kindref="member">max</ref>()))</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges&lt;View&gt;</ref><sp/>ix(x);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__FuncIterRangesOp_1ga544c763f5400045d10bf8affc0768df4" kindref="member">Iter::Ranges::compare</ref>(ix,is)<sp/>==<sp/><ref refid="group__FuncIterRangesOp_1gga231b2059e20903d95675dab6351c0694a1823ed20e48255de4d5a0cf6644e8fa7" kindref="member">Iter::Ranges::CS_NONE</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="127" refid="namespaceGecode_1_1Int_1_1Sequence_1a65867c2766fa2b73dc0af71e36a02a28" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a65867c2766fa2b73dc0af71e36a02a28" kindref="member">include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.eq(home,s);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="133" refid="namespaceGecode_1_1Int_1_1Sequence_1aacd6d082acf357016b0682a06f38a4c6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1a65867c2766fa2b73dc0af71e36a02a28" kindref="member">include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.inter_r(home,is,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="141" refid="namespaceGecode_1_1Int_1_1Sequence_1ab8a0f81a9b8b4d3b0bbc06dce3809a49" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1ab8a0f81a9b8b4d3b0bbc06dce3809a49" kindref="member">exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.nq(home,s);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="147" refid="namespaceGecode_1_1Int_1_1Sequence_1aabadd631298a62a91229adf677afba77" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Int_1_1Sequence_1ab8a0f81a9b8b4d3b0bbc06dce3809a49" kindref="member">exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/>View&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntSetRanges" kindref="compound">IntSetRanges</ref><sp/>is(s);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.minus_r(home,is,</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}}}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>int-prop</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/int/sequence/set-op.hpp"/>
+  </compounddef>
+</doxygen>

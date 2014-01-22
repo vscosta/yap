@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1StopChoice" kind="class" prot="public">
+    <compoundname>Gecode::Gist::StopChoice</compoundname>
+    <basecompoundref refid="classGecode_1_1Choice" prot="public" virt="non-virtual">Gecode::Choice</basecompoundref>
+    <includes refid="stopbrancher_8hh" local="no">stopbrancher.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StopChoice_1a2858d6a4fa3d9907762a5846343c6d90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::StopChoice::StopChoice</definition>
+        <argsstring>(const Brancher &amp;b)</argsstring>
+        <name>StopChoice</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Initialize choice for brancher <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/stopbrancher.hh" line="47" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StopChoice_1ad8122c8947ddc0ca4496891bb1191da8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>virtual size_t Gecode::Gist::StopChoice::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <reimplements refid="classGecode_1_1Choice_1a078e7e946fdf708a7d31537a434ad2ce">size</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Report size occupied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/stopbrancher.hh" line="49" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1StopChoice_1a79617264f37a652768bf7152019b21b6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Gist::StopChoice::archive</definition>
+        <argsstring>(Archive &amp;e) const </argsstring>
+        <name>archive</name>
+        <reimplements refid="classGecode_1_1Choice_1a6875e7d99bdd505ac44291af3f0a4df3">archive</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> into <emphasis>e</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/stopbrancher.hh" line="51" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Choice for StopBrancher </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6739">
+        <label>Gecode::Gist::StopChoice</label>
+        <link refid="classGecode_1_1Gist_1_1StopChoice"/>
+        <childnode refid="6740" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6740">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6741">
+        <label>Gecode::Gist::StopChoice</label>
+        <link refid="classGecode_1_1Gist_1_1StopChoice"/>
+        <childnode refid="6742" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6742">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/stopbrancher.hh" line="44" column="1" bodyfile="/usr/include/gecode/gist/stopbrancher.hh" bodystart="44" bodyend="52"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Choice_1af192a0eaa577e0faff6249bba3846048" prot="public" virt="non-virtual"><scope>Gecode::Gist::StopChoice</scope><name>alternatives</name></member>
+      <member refid="classGecode_1_1Gist_1_1StopChoice_1a79617264f37a652768bf7152019b21b6" prot="public" virt="virtual"><scope>Gecode::Gist::StopChoice</scope><name>archive</name></member>
+      <member refid="classGecode_1_1Choice_1ab7f6d213ee8ba98e8ac7af0d3c22f31e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::StopChoice</scope><name>Choice</name></member>
+      <member refid="classGecode_1_1Choice_1ad2a15f523c6a971e83a4e996fe20dd76" prot="public" virt="non-virtual"><scope>Gecode::Gist::StopChoice</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Choice_1a6e73d127bcd5d68cecf1fbee490b7175" prot="public" virt="non-virtual"><scope>Gecode::Gist::StopChoice</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Gist_1_1StopChoice_1ad8122c8947ddc0ca4496891bb1191da8" prot="public" virt="virtual"><scope>Gecode::Gist::StopChoice</scope><name>size</name></member>
+      <member refid="classGecode_1_1Gist_1_1StopChoice_1a2858d6a4fa3d9907762a5846343c6d90" prot="public" virt="non-virtual"><scope>Gecode::Gist::StopChoice</scope><name>StopChoice</name></member>
+      <member refid="classGecode_1_1Choice_1acad447b380ef518f1e391044080cfceb" prot="public" virt="virtual"><scope>Gecode::Gist::StopChoice</scope><name>~Choice</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

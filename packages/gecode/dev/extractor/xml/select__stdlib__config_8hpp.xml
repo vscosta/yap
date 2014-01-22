@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="select__stdlib__config_8hpp" kind="file">
+    <compoundname>select_stdlib_config.hpp</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includes refid="config_2no__tr1_2utility_8hpp" local="no">gecode/third-party/boost/config/no_tr1/utility.hpp</includes>
+    <incdepgraph>
+      <node id="34324">
+        <label>/usr/include/gecode/third-party/boost/config/select_stdlib_config.hpp</label>
+        <link refid="select_stdlib_config.hpp"/>
+        <childnode refid="34325" relation="include">
+        </childnode>
+        <childnode refid="34326" relation="include">
+        </childnode>
+      </node>
+      <node id="34325">
+        <label>stddef.h</label>
+      </node>
+      <node id="34326">
+        <label>gecode/third-party/boost/config/no_tr1/utility.hpp</label>
+        <link refid="config_2no__tr1_2utility_8hpp_source"/>
+        <childnode refid="34327" relation="include">
+        </childnode>
+      </node>
+      <node id="34327">
+        <label>utility</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>Boost<sp/>compiler<sp/>configuration<sp/>selection<sp/>header<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Jens<sp/>Maurer<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/>locate<sp/>which<sp/>std<sp/>lib<sp/>we<sp/>are<sp/>using<sp/>and<sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>as<sp/>needed:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//<sp/>First<sp/>include<sp/>&lt;cstddef&gt;<sp/>to<sp/>determine<sp/>if<sp/>some<sp/>version<sp/>of<sp/>STLport<sp/>is<sp/>in<sp/>use<sp/>as<sp/>the<sp/>std<sp/>lib</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(do<sp/>not<sp/>rely<sp/>on<sp/>this<sp/>header<sp/>being<sp/>included<sp/>since<sp/>users<sp/>can<sp/>short-circuit<sp/>this<sp/>header<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>if<sp/>they<sp/>know<sp/>whose<sp/>std<sp/>lib<sp/>they<sp/>are<sp/>using.)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;cstddef&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__SGI_STL_PORT)<sp/>||<sp/>defined(_STLPORT_VERSION)</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>STLPort<sp/>library;<sp/>this<sp/>_must_<sp/>come<sp/>first,<sp/>otherwise<sp/>since</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STLport<sp/>typically<sp/>sits<sp/>on<sp/>top<sp/>of<sp/>some<sp/>other<sp/>library,<sp/>we</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//<sp/>can<sp/>end<sp/>up<sp/>detecting<sp/>that<sp/>first<sp/>rather<sp/>than<sp/>STLport:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/stlport.hpp&quot;</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">//<sp/>If<sp/>our<sp/>std<sp/>lib<sp/>was<sp/>not<sp/>some<sp/>version<sp/>of<sp/>STLport,<sp/>then<sp/>include<sp/>&lt;utility&gt;<sp/>as<sp/>it<sp/>is<sp/>about<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>smallest<sp/>of<sp/>the<sp/>std<sp/>lib<sp/>headers<sp/>that<sp/>includes<sp/>real<sp/>C++<sp/>stuff.<sp/><sp/>(Some<sp/>std<sp/>libs<sp/>do<sp/>not</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">//<sp/>include<sp/>their<sp/>C++-related<sp/>macros<sp/>in<sp/>&lt;cstddef&gt;<sp/>so<sp/>this<sp/>additional<sp/>include<sp/>makes<sp/>sure</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">//<sp/>we<sp/>get<sp/>those<sp/>definitions)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(again<sp/>do<sp/>not<sp/>rely<sp/>on<sp/>this<sp/>header<sp/>being<sp/>included<sp/>since<sp/>users<sp/>can<sp/>short-circuit<sp/>this<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>header<sp/>if<sp/>they<sp/>know<sp/>whose<sp/>std<sp/>lib<sp/>they<sp/>are<sp/>using.)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/third-party/boost/config/no_tr1/utility.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__LIBCOMO__)</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Comeau<sp/>STL:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/libcomo.hpp&quot;</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__STD_RWCOMPILER_H__)<sp/>||<sp/>defined(_RWSTD_VER)</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Rogue<sp/>Wave<sp/>library:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/roguewave.hpp&quot;</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(_LIBCPP_VERSION)</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>libc++</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/libcpp.hpp&quot;</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GLIBCPP__)<sp/>||<sp/>defined(__GLIBCXX__)</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>GNU<sp/>libstdc++<sp/>3</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/libstdcpp3.hpp&quot;</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__STL_CONFIG_H)</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>generic<sp/>SGI<sp/>STL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/sgi.hpp&quot;</highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__MSL_CPP__)</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>MSL<sp/>standard<sp/>lib:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/msl.hpp&quot;</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__IBMCPP__)</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>take<sp/>the<sp/>default<sp/>VACPP<sp/>std<sp/>lib</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/vacpp.hpp&quot;</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(MSIPL_COMPILE_H)</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Modena<sp/>C++<sp/>standard<sp/>library</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/modena.hpp&quot;</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>(defined(_YVALS)<sp/>&amp;&amp;<sp/>!defined(__IBMCPP__))<sp/>||<sp/>defined(_CPPLIB_VER)</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Dinkumware<sp/>Library<sp/>(this<sp/>has<sp/>to<sp/>appear<sp/>after<sp/>any<sp/>possible<sp/>replacement<sp/>libraries):</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_STDLIB_CONFIG<sp/>&quot;gecode/third-party/boost/config/stdlib/dinkumware.hpp&quot;</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined<sp/>(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>this<sp/>must<sp/>come<sp/>last<sp/>-<sp/>generate<sp/>an<sp/>error<sp/>if<sp/>we<sp/>don&apos;t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//<sp/>recognise<sp/>the<sp/>library:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>&quot;Unknown<sp/>standard<sp/>library<sp/>-<sp/>please<sp/>configure<sp/>and<sp/>report<sp/>the<sp/>results<sp/>to<sp/>boost.org&quot;</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/select_stdlib_config.hpp"/>
+  </compounddef>
+</doxygen>

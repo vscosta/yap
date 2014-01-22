@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1CutoffRepeat" kind="class" prot="public">
+    <compoundname>Gecode::Search::CutoffRepeat</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Cutoff" prot="public" virt="non-virtual">Gecode::Search::Cutoff</basecompoundref>
+    <includes refid="cutoff_8hpp" local="no">cutoff.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Search_1_1CutoffRepeat_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Cutoff</definition>
+        <argsstring></argsstring>
+        <name>Cutoff</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="152" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffRepeat_1a1435fee490ebce095eb49df735074f74" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> *</type>
+        <definition>Cutoff* Gecode::Search::CutoffRepeat::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Actual cutoff generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="155" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffRepeat_1a3557b3d6dda5ab6ad7be9fc3923a1c19" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::CutoffRepeat::cutoff</definition>
+        <argsstring></argsstring>
+        <name>cutoff</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="157" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffRepeat_1adf09e1c9d43659adfcfbad196a3994e4" prot="private" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffRepeat::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="159" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffRepeat_1a1ac62000f9d1018fa284c94baa282afa" prot="private" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffRepeat::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="161" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffRepeat_1a01ff58d5fa63bb0c7303f91e16ee4e91" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Search::CutoffRepeat::CutoffRepeat</definition>
+        <argsstring>(Cutoff *c, unsigned long int n)</argsstring>
+        <name>CutoffRepeat</name>
+        <param>
+          <type><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="163" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffRepeat_1a0c93b94d75b214c2b4a97ce1fa0c842d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>unsigned long int</type>
+        <definition>virtual unsigned long int Gecode::Search::CutoffRepeat::operator()</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator()</name>
+        <reimplements refid="classGecode_1_1Search_1_1Cutoff_1a7e1d541d27ed0ad898710cf93f0d7dfe">operator()</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next cutoff value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="166" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffRepeat_1a1f4ac724fd134ae83dc7d2e1e47f3942" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::Search::CutoffRepeat::~CutoffRepeat</definition>
+        <argsstring>(void)</argsstring>
+        <name>~CutoffRepeat</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="168" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> generator that repeats a cutoff from another cutoff generator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1627">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1626">
+        <label>Gecode::Search::CutoffRepeat</label>
+        <link refid="classGecode_1_1Search_1_1CutoffRepeat"/>
+        <childnode refid="1627" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1629">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1628">
+        <label>Gecode::Search::CutoffRepeat</label>
+        <link refid="classGecode_1_1Search_1_1CutoffRepeat"/>
+        <childnode refid="1629" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/cutoff.hpp" line="151" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="151" bodyend="169"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ac04e4f94337cfaa9f85856882344ae00" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>append</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a1435fee490ebce095eb49df735074f74" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>c</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a5455a3eddfff0ffc12f2a9ee4d818cdb" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>constant</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1adbdeedd37dbed288a1939d298ae85d59" prot="public" virt="non-virtual" ambiguityscope="Gecode::Search::Cutoff::"><scope>Gecode::Search::CutoffRepeat</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a3557b3d6dda5ab6ad7be9fc3923a1c19" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a01ff58d5fa63bb0c7303f91e16ee4e91" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>CutoffRepeat</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1aba528d42a535d93d09eef542436a66b3" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>geometric</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1adf09e1c9d43659adfcfbad196a3994e4" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>i</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a0883d328f3b4e244c3bbceddf254894f" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>linear</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a4ea6244a477d2ba7660678c294824958" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>luby</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a1ac62000f9d1018fa284c94baa282afa" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>n</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7a4fb6ec7a783741da21d7f679274b34" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7ba125c485433d1973ac8aebb9a5ab6d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a0c93b94d75b214c2b4a97ce1fa0c842d" prot="public" virt="virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ad6e46afed39447ad22491b35f25c8f07" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>repeat</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a19c2a1a8bc742b6e3a8f5c7bfe98a26d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1afd0c25ec38c36dd6ba3c2d0d05ad9db9" prot="public" virt="virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>~Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffRepeat_1a1f4ac724fd134ae83dc7d2e1e47f3942" prot="public" virt="virtual"><scope>Gecode::Search::CutoffRepeat</scope><name>~CutoffRepeat</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

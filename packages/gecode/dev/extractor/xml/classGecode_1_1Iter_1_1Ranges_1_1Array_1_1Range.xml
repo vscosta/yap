@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1Array_1_1Range" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::Array::Range</compoundname>
+    <includes refid="ranges-array_8hpp" local="no">ranges-array.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Array_1_1Range_1a54b96a1b925cc1ac00f88603257b168f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::Array::Range::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-array.hpp" line="55" column="1" bodyfile="/usr/include/gecode/iter/ranges-array.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Array_1_1Range_1abe3d0244e43e1dd6eabbaeab2e9ee307" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::Array::Range::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-array.hpp" line="55" column="1" bodyfile="/usr/include/gecode/iter/ranges-array.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Ranges for array </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/iter/ranges-array.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/ranges-array.hpp" bodystart="53" bodyend="56"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Array_1_1Range_1abe3d0244e43e1dd6eabbaeab2e9ee307" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Array::Range</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Array_1_1Range_1a54b96a1b925cc1ac00f88603257b168f" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Array::Range</scope><name>min</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

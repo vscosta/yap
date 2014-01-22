@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelBranch" kind="group">
+    <compoundname>TaskModelBranch</compoundname>
+    <title>Generic branching support</title>
+    <innerclass refid="classGecode_1_1ValBranch" prot="public">Gecode::ValBranch</innerclass>
+    <innerclass refid="classGecode_1_1VarBranch" prot="public">Gecode::VarBranch</innerclass>
+    <innergroup refid="group__TaskModelBranchTieBreak">Tie-breaking for variable selection</innergroup>
+    <innergroup refid="group__TaskModelBranchExec">Branch with a function</innergroup>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" prot="public" static="no">
+        <type>double(*</type>
+        <definition>typedef double(* Gecode::BranchTbl)(const Space &amp;home, double w, double b)</definition>
+        <argsstring>)(const Space &amp;home, double w, double b)</argsstring>
+        <name>BranchTbl</name>
+        <briefdescription>
+<para>Tie-break limit function. </para>        </briefdescription>
+        <detaileddescription>
+<para>Here the value <emphasis>w</emphasis> is the worst and <bold>is</bold> the best merit value found. The function must return the merit value that is considered the limit for breaking ties. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="49" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Support for randomization and tie-breaking that are independent of a particular variable domain. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

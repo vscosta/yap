@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1IntValBranch" kind="class" prot="public">
+    <compoundname>Gecode::IntValBranch</compoundname>
+    <basecompoundref refid="classGecode_1_1ValBranch" prot="public" virt="non-virtual">Gecode::ValBranch</basecompoundref>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" prot="public" static="no">
+        <name>Select</name>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a5771a50d9f99eca47d2dc12dcc4517ab" prot="public">
+          <name>SEL_MIN</name>
+          <briefdescription>
+<para>Select smallest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8fb6fce502d0b0ea59cc7b8dbfe73ac9" prot="public">
+          <name>SEL_MED</name>
+          <briefdescription>
+<para>Select greatest value not greater than the median. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a5e3c4dcff049479bc13ff653ef0f31df" prot="public">
+          <name>SEL_MAX</name>
+          <briefdescription>
+<para>Select largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a0bc9e7262c767476b2970608525a7b6e" prot="public">
+          <name>SEL_RND</name>
+          <briefdescription>
+<para>Select random value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401ad66d354199780c64eb073b4bf85bf17b" prot="public">
+          <name>SEL_SPLIT_MIN</name>
+          <briefdescription>
+<para>Select values not greater than mean of smallest and largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a261e190226467765fa5b54f5a1e73b08" prot="public">
+          <name>SEL_SPLIT_MAX</name>
+          <briefdescription>
+<para>Select values greater than mean of smallest and largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a71933cd2462f70f52e0b53c151ed821b" prot="public">
+          <name>SEL_RANGE_MIN</name>
+          <briefdescription>
+<para>Select the smallest range of the variable domain if it has several ranges, otherwise select values not greater than mean of smallest and largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a608b0199cb8e15adc0bef3ec8ac2e3f3" prot="public">
+          <name>SEL_RANGE_MAX</name>
+          <briefdescription>
+<para>Select the largest range of the variable domain if it has several ranges, otherwise select values greater than mean of smallest and largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8f3a69c34e09c6612478dbef438fb588" prot="public">
+          <name>SEL_VAL_COMMIT</name>
+          <briefdescription>
+<para>Select value according to user-defined functions. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a05c755bbfb1684de33c1e5de4ccf2ae8" prot="public">
+          <name>SEL_VALUES_MIN</name>
+          <briefdescription>
+<para>Select all values starting from smallest. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a73c6b9ff9fe76b48a9a28ece47e60cfe" prot="public">
+          <name>SEL_VALUES_MAX</name>
+          <briefdescription>
+<para>Select all values starting from largest. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8b445f200e534af36e97a361e82c7f47" prot="public">
+          <name>SEL_NEAR_MIN</name>
+          <briefdescription>
+<para>Select value nearest to a given value, use smaller one in case of ties. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a9072d82b477158b4b48b3fb337d3923d" prot="public">
+          <name>SEL_NEAR_MAX</name>
+          <briefdescription>
+<para>Select value nearest to a given value, use larger one in case of ties. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401ad448b6c1de9bcfad0a22783650cea72a" prot="public">
+          <name>SEL_NEAR_INC</name>
+          <briefdescription>
+<para>Select value near to a given value, increment values first. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a89795191f93ac779b04c8e5b9daf1ba7" prot="public">
+          <name>SEL_NEAR_DEC</name>
+          <briefdescription>
+<para>Select value near to a given value, decrement values first. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Which value selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3912" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="3912" bodyend="3928"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1IntValBranch_1ae30e39cf5c51b762e2cfb00c517e2965" prot="protected" static="no" mutable="no">
+        <type><ref refid="group__TaskModelIntElement_1ga43a69cc22f6483357a3cb7febc7b0866" kindref="member">IntSharedArray</ref></type>
+        <definition>IntSharedArray Gecode::IntValBranch::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Array of values for near strategies. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3931" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="3931" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1IntValBranch_1afc7eb5120b6b44639f42c9682c53636d" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" kindref="member">Select</ref></type>
+        <definition>Select Gecode::IntValBranch::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Which value to select. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3933" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="3933" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1a7860f3c02703bf9bf02e7ab3a329dcaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntValBranch::IntValBranch</definition>
+        <argsstring>(Select s=SEL_MIN)</argsstring>
+        <name>IntValBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" kindref="member">Select</ref></type>
+          <declname>s</declname>
+          <defval><ref refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a5771a50d9f99eca47d2dc12dcc4517ab" kindref="member">SEL_MIN</ref></defval>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3936" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1acf1dc2adaf4379b8e2384d7dc1e8a077" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntValBranch::IntValBranch</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>IntValBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3938" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1a619bca62fa0377978688c17fa34ecfb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntValBranch::IntValBranch</definition>
+        <argsstring>(VoidFunction v, VoidFunction c)</argsstring>
+        <name>IntValBranch</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value function <emphasis>f</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3940" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1a2fa9b6e21c1cc68f080e4b5e92b76e84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntValBranch::IntValBranch</definition>
+        <argsstring>(Select s, IntSharedArray n)</argsstring>
+        <name>IntValBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelIntElement_1ga43a69cc22f6483357a3cb7febc7b0866" kindref="member">IntSharedArray</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection startegy <emphasis>s</emphasis> and values <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3942" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="53" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1a8101d10407e44dd175f51c3f6290b81b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" kindref="member">Select</ref></type>
+        <definition>forceinline IntValBranch::Select Gecode::IntValBranch::select</definition>
+        <argsstring>(void) const </argsstring>
+        <name>select</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return selection strategy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3944" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="57" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntValBranch_1a04118ca2048614d24142d76602186610" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskModelIntElement_1ga43a69cc22f6483357a3cb7febc7b0866" kindref="member">IntSharedArray</ref></type>
+        <definition>forceinline IntSharedArray Gecode::IntValBranch::values</definition>
+        <argsstring>(void) const </argsstring>
+        <name>values</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return shared array of values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3946" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Which values to select for branching first. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3005">
+        <label>Gecode::IntValBranch</label>
+        <link refid="classGecode_1_1IntValBranch"/>
+        <childnode refid="3006" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3006">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3007">
+        <label>Gecode::IntValBranch</label>
+        <link refid="classGecode_1_1IntValBranch"/>
+        <childnode refid="3008" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3011" relation="usage">
+          <edgelabel>n</edgelabel>
+        </childnode>
+      </node>
+      <node id="3008">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+        <childnode refid="3009" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+      <node id="3009">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="3010" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3010">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="3011">
+        <label>Gecode::SharedArray&lt; int &gt;</label>
+        <link refid="classGecode_1_1SharedArray"/>
+        <childnode refid="3010" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int.hh" line="3909" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="3909" bodyend="3947"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValBranch_1a3f210c407c95b73613c588a9ccad63de" prot="protected" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>cf</name></member>
+      <member refid="classGecode_1_1ValBranch_1a4e8a56a907d7d9a9bd71f5762b994407" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>commit</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a7860f3c02703bf9bf02e7ab3a329dcaa" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>IntValBranch</name></member>
+      <member refid="classGecode_1_1IntValBranch_1acf1dc2adaf4379b8e2384d7dc1e8a077" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>IntValBranch</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a619bca62fa0377978688c17fa34ecfb9" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>IntValBranch</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a2fa9b6e21c1cc68f080e4b5e92b76e84" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>IntValBranch</name></member>
+      <member refid="classGecode_1_1IntValBranch_1ae30e39cf5c51b762e2cfb00c517e2965" prot="protected" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>n</name></member>
+      <member refid="classGecode_1_1ValBranch_1a3e83e74c785cf1a2224abfa67de186fc" prot="protected" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>r</name></member>
+      <member refid="classGecode_1_1ValBranch_1acfc0a641a55ee13ab778ff5fbb5327ce" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1IntValBranch_1afc7eb5120b6b44639f42c9682c53636d" prot="protected" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>s</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a5e3c4dcff049479bc13ff653ef0f31df" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_MAX</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8fb6fce502d0b0ea59cc7b8dbfe73ac9" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_MED</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a5771a50d9f99eca47d2dc12dcc4517ab" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_MIN</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a89795191f93ac779b04c8e5b9daf1ba7" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_NEAR_DEC</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401ad448b6c1de9bcfad0a22783650cea72a" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_NEAR_INC</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a9072d82b477158b4b48b3fb337d3923d" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_NEAR_MAX</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8b445f200e534af36e97a361e82c7f47" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_NEAR_MIN</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a608b0199cb8e15adc0bef3ec8ac2e3f3" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_RANGE_MAX</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a71933cd2462f70f52e0b53c151ed821b" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_RANGE_MIN</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a0bc9e7262c767476b2970608525a7b6e" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_RND</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a261e190226467765fa5b54f5a1e73b08" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_SPLIT_MAX</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401ad66d354199780c64eb073b4bf85bf17b" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_SPLIT_MIN</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a8f3a69c34e09c6612478dbef438fb588" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_VAL_COMMIT</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a73c6b9ff9fe76b48a9a28ece47e60cfe" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_VALUES_MAX</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401a05c755bbfb1684de33c1e5de4ccf2ae8" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>SEL_VALUES_MIN</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a8101d10407e44dd175f51c3f6290b81b" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>select</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a1e378efff78213983d14a191b5598401" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>Select</name></member>
+      <member refid="classGecode_1_1ValBranch_1a0359f6d8d698d621f2b04f1e099f6a91" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValBranch_1aee3d20ec60e0914116719487eab754cc" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1acbef5d412d3065c6b868e54f96954a96" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1ab7f529dafc943daf32e482aa95bda06b" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1IntValBranch_1a04118ca2048614d24142d76602186610" prot="public" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>values</name></member>
+      <member refid="classGecode_1_1ValBranch_1a777978a1be672670ef25af6f3a4ef135" prot="protected" virt="non-virtual"><scope>Gecode::IntValBranch</scope><name>vf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

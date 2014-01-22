@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Options" kind="class" prot="public">
+    <compoundname>Gecode::Search::Options</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Gist_1_1Options" prot="public" virt="non-virtual">Gecode::Gist::Options</derivedcompoundref>
+    <includes refid="search_8hh" local="no">search.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1a2cbf87912bdcdbaf43253e3ef176f74f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Search::Options::clone</definition>
+        <argsstring></argsstring>
+        <name>clone</name>
+        <briefdescription>
+<para>Whether engines create a clone when being initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="207" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1afaeaddeb98d05272907b3a3b59375406" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::Search::Options::threads</definition>
+        <argsstring></argsstring>
+        <name>threads</name>
+        <briefdescription>
+<para>Number of threads to use. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="209" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="209" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1a0ddf2cf2908ba6e79d0d99654bf5ea02" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Options::c_d</definition>
+        <argsstring></argsstring>
+        <name>c_d</name>
+        <briefdescription>
+<para>Create a clone after every <emphasis>c_d</emphasis> commits (commit distance) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="211" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1a9cbd39139b9565aa65780610f1b511b8" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Options::a_d</definition>
+        <argsstring></argsstring>
+        <name>a_d</name>
+        <briefdescription>
+<para>Create a clone during recomputation if distance is greater than <emphasis>a_d</emphasis> (adaptive distance) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="213" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1ae5a8a196b955337c4217a97f05416f84" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Options::nogoods_limit</definition>
+        <argsstring></argsstring>
+        <name>nogoods_limit</name>
+        <briefdescription>
+<para>Depth limit for extraction of no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="215" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1ab339c9f1eec1a4522d9137be9cfc998a" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Stop" kindref="compound">Stop</ref> *</type>
+        <definition>Stop* Gecode::Search::Options::stop</definition>
+        <argsstring></argsstring>
+        <name>stop</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Stop" kindref="compound">Stop</ref> object for stopping search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="217" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1a790a21ffcc3e8caae3fbf572e06081c2" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> *</type>
+        <definition>Cutoff* Gecode::Search::Options::cutoff</definition>
+        <argsstring></argsstring>
+        <name>cutoff</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> for restart-based search. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="219" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Options_1a728fe5135c29f829246e5db81bc81f7f" prot="public" static="yes" mutable="no">
+        <type>GECODE_SEARCH_EXPORT const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref></type>
+        <definition>GECODE_SEARCH_EXPORT const Options Gecode::Search::Options::def</definition>
+        <argsstring></argsstring>
+        <name>def</name>
+        <briefdescription>
+<para>Default options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="221" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Options_1a2b72a60c7a9e79b982e0e9f6218d62d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Options::Options</definition>
+        <argsstring>(void)</argsstring>
+        <name>Options</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize with default values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="223" column="1" bodyfile="/usr/include/gecode/search/options.hpp" bodystart="41" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Options_1a12361cf7cd94fe0f4c83ffeeb8c18319" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SEARCH_EXPORT <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref></type>
+        <definition>GECODE_SEARCH_EXPORT Options Gecode::Search::Options::expand</definition>
+        <argsstring>(void) const </argsstring>
+        <name>expand</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Expand with real number of threads. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="226" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Search engine options </para>    </briefdescription>
+    <detaileddescription>
+<para>Defines options for search engines. Not all search engines might honor all option values.</para><para><itemizedlist>
+<listitem><para><emphasis>c_d</emphasis> as minimal recomputation distance: this guarantees that a path between two nodes in the search tree for which copies are stored has at least length <emphasis>c_d</emphasis>. That is, in order to recompute a node in the search tree, <emphasis>c_d</emphasis> recomputation steps are needed. The minimal recomputation distance yields a guarantee on saving memory compared to full copying: it stores <emphasis>c_d</emphasis> times less nodes than full copying.</para></listitem><listitem><para><emphasis>a_d</emphasis> as adaptive recomputation distance: when a node needs to be recomputed and the path is longer than <emphasis>a_d</emphasis>, an intermediate copy is created (approximately in the middle of the path) to speed up future recomputation. Note that small values of <emphasis>a_d</emphasis> can increase the memory consumption considerably.</para></listitem></itemizedlist>
+</para><para>Full copying corresponds to a maximal recomputation distance <emphasis>c_d</emphasis> of 1.</para><para>All recomputation performed is based on batch recomputation: batch recomputation performs propagation only once for an entire path used in recomputation.</para><para>The number of threads to be used is controlled by a double <formula id="202">$n$</formula> (assume that <formula id="30">$m$</formula> is the number of processing units available). If <formula id="350">$1 \leq n$</formula>, <formula id="202">$n$</formula> threads are chosen (of course with rounding). If <formula id="351">$n \leq -1$</formula>, then <formula id="352">$m + n$</formula> threads are chosen (all but <formula id="353">$-n$</formula> processing units get a thread). If <formula id="202">$n$</formula> is zero, <formula id="30">$m$</formula> threads are chosen. If <formula id="354">$0&lt;n&lt;1$</formula>, <formula id="355">$n \times m$</formula> threads are chosen. If <formula id="356">$-1 &lt;n&lt;0$</formula>, <formula id="357">$(1+n)\times m$</formula> threads are chosen. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="4974">
+        <label>Gecode::Gist::Options</label>
+        <link refid="classGecode_1_1Gist_1_1Options"/>
+        <childnode refid="4973" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4973">
+        <label>Gecode::Search::Options</label>
+        <link refid="classGecode_1_1Search_1_1Options"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4977">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="4976">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="4975">
+        <label>Gecode::Search::Options</label>
+        <link refid="classGecode_1_1Search_1_1Options"/>
+        <childnode refid="4976" relation="usage">
+          <edgelabel>cutoff</edgelabel>
+        </childnode>
+        <childnode refid="4977" relation="usage">
+          <edgelabel>stop</edgelabel>
+        </childnode>
+        <childnode refid="4975" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search.hh" line="204" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="204" bodyend="227"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Options_1a9cbd39139b9565aa65780610f1b511b8" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>a_d</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a0ddf2cf2908ba6e79d0d99654bf5ea02" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>c_d</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a2cbf87912bdcdbaf43253e3ef176f74f" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>clone</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a790a21ffcc3e8caae3fbf572e06081c2" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a728fe5135c29f829246e5db81bc81f7f" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>def</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a12361cf7cd94fe0f4c83ffeeb8c18319" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>expand</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1ae5a8a196b955337c4217a97f05416f84" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>nogoods_limit</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1a2b72a60c7a9e79b982e0e9f6218d62d5" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>Options</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1ab339c9f1eec1a4522d9137be9cfc998a" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Options_1afaeaddeb98d05272907b3a3b59375406" prot="public" virt="non-virtual"><scope>Gecode::Search::Options</scope><name>threads</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ValOfUnassignedVar" kind="class" prot="public">
+    <compoundname>Gecode::Int::ValOfUnassignedVar</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="int_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ValOfUnassignedVar_1a826f93849d08a1ea5144e335ee1cc517" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::ValOfUnassignedVar::ValOfUnassignedVar</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>ValOfUnassignedVar</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/exception.hpp" line="129" column="1" bodyfile="/usr/include/gecode/int/exception.hpp" bodystart="211" bodyend="212"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Attempt to access value of unassigned variable </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7444">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7445" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7445">
+        <label>std::exception</label>
+      </node>
+      <node id="7443">
+        <label>Gecode::Int::ValOfUnassignedVar</label>
+        <link refid="classGecode_1_1Int_1_1ValOfUnassignedVar"/>
+        <childnode refid="7444" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7447">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7448" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7448">
+        <label>std::exception</label>
+      </node>
+      <node id="7446">
+        <label>Gecode::Int::ValOfUnassignedVar</label>
+        <link refid="classGecode_1_1Int_1_1ValOfUnassignedVar"/>
+        <childnode refid="7447" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/exception.hpp" line="126" column="1" bodyfile="/usr/include/gecode/int/exception.hpp" bodystart="126" bodyend="130"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Int::ValOfUnassignedVar</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Int_1_1ValOfUnassignedVar_1a826f93849d08a1ea5144e335ee1cc517" prot="public" virt="non-virtual"><scope>Gecode::Int::ValOfUnassignedVar</scope><name>ValOfUnassignedVar</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Int::ValOfUnassignedVar</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

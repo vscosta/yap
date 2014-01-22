@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1Branch_1_1ValSelGq" kind="class" prot="public">
+    <compoundname>Gecode::Float::Branch::ValSelGq</compoundname>
+    <basecompoundref refid="classGecode_1_1ValSel" prot="public" virt="non-virtual">Gecode::ValSel&lt; FloatView, FloatNumBranch &gt;</basecompoundref>
+    <includes refid="float_2branch_8hh" local="no">branch.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1a7bd39c2a9d3b7c746fdd7ce656fda48d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::Branch::ValSelGq::ValSelGq</definition>
+        <argsstring>(Space &amp;home, const ValBranch &amp;vb)</argsstring>
+        <name>ValSelGq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch.hh" line="225" column="1" bodyfile="/usr/include/gecode/float/branch/val-sel.hpp" bodystart="70" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1aeb96c1e72e2d98a1eb110dcf8c000e82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::Branch::ValSelGq::ValSelGq</definition>
+        <argsstring>(Space &amp;home, bool shared, ValSelGq &amp;vs)</argsstring>
+        <name>ValSelGq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq" kindref="compound">ValSelGq</ref> &amp;</type>
+          <declname>vs</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch.hh" line="227" column="1" bodyfile="/usr/include/gecode/float/branch/val-sel.hpp" bodystart="73" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1a1d630d44ac1a15fcf541c0347486450d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatNumBranch" kindref="compound">FloatNumBranch</ref></type>
+        <definition>forceinline FloatNumBranch Gecode::Float::Branch::ValSelGq::val</definition>
+        <argsstring>(const Space &amp;home, FloatView x, int i)</argsstring>
+        <name>val</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">FloatView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return value of view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/branch.hh" line="229" column="1" bodyfile="/usr/include/gecode/float/branch/val-sel.hpp" bodystart="76" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value selection class for values smaller than median of view. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/float/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7474">
+        <label>Gecode::ValSel&lt; FloatView, FloatNumBranch &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+      <node id="7473">
+        <label>Gecode::Float::Branch::ValSelGq</label>
+        <link refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq"/>
+        <childnode refid="7474" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7476">
+        <label>Gecode::ValSel&lt; FloatView, FloatNumBranch &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+      <node id="7475">
+        <label>Gecode::Float::Branch::ValSelGq</label>
+        <link refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq"/>
+        <childnode refid="7476" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/branch.hh" line="222" column="1" bodyfile="/usr/include/gecode/float/branch.hh" bodystart="222" bodyend="230"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValSel_1a97b5efe17b08958952219d3cf73cf980" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1ValSel_1a424857898f7ae1df27fc6cbe5ab6523a" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>notice</name></member>
+      <member refid="classGecode_1_1ValSel_1a1ab3056f51deae75a156bc1fa7d1b993" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>Val</name></member>
+      <member refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1a1d630d44ac1a15fcf541c0347486450d" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValSel_1ae84207620c76b1e288ae8843dae769be" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1ValSel_1a6658df4b1d1a10a8e61d6960a1432e77" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1a7bd39c2a9d3b7c746fdd7ce656fda48d" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>ValSelGq</name></member>
+      <member refid="classGecode_1_1Float_1_1Branch_1_1ValSelGq_1aeb96c1e72e2d98a1eb110dcf8c000e82" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>ValSelGq</name></member>
+      <member refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" prot="public" virt="non-virtual"><scope>Gecode::Float::Branch::ValSelGq</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

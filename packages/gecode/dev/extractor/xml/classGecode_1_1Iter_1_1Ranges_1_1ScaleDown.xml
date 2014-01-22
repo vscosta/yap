@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::ScaleDown</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax" prot="public" virt="non-virtual">Gecode::Iter::Ranges::MinMax</basecompoundref>
+    <includes refid="ranges-scale_8hpp" local="no">ranges-scale.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class I</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1ac46a27e826c6ebfc7c104e4536b2ccfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::ScaleDown</definition>
+        <argsstring>(void)</argsstring>
+        <name>ScaleDown</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="109" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="219" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a70ccecfb65a92af9a517c70f256046b1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::ScaleDown</definition>
+        <argsstring>(I &amp;i, int a)</argsstring>
+        <name>ScaleDown</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and scale factor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="111" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="230" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a8934e6539d08844f903cca98e20b3a78" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::init</definition>
+        <argsstring>(I &amp;i, int a)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and scale factor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="113" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="223" bodyend="226"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a8c6a563b3a116a4fc0fb543628155fff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="119" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="198" bodyend="215"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a7ac7deb03b8629bfae1b4392a39ea239" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Iterator to be scaled down. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="102" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a7964a5bc22c9cdd8ce36ecd51ef96ec7" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::ScaleDown&lt; I &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Divide by this factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="104" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for pointwise division by a positive integer. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6298">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="6297">
+        <label>Gecode::Iter::Ranges::ScaleDown&lt; I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown"/>
+        <childnode refid="6298" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6301">
+        <label>I</label>
+      </node>
+      <node id="6300">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="6299">
+        <label>Gecode::Iter::Ranges::ScaleDown&lt; I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown"/>
+        <childnode refid="6300" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6301" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="99" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="99" bodyend="121"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a7964a5bc22c9cdd8ce36ecd51ef96ec7" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>a</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a7ac7deb03b8629bfae1b4392a39ea239" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a8934e6539d08844f903cca98e20b3a78" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a8c6a563b3a116a4fc0fb543628155fff" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1ac46a27e826c6ebfc7c104e4536b2ccfb" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>ScaleDown</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleDown_1a70ccecfb65a92af9a517c70f256046b1" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>ScaleDown</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleDown</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

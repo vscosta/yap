@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetExec" kind="group">
+    <compoundname>TaskModelSetExec</compoundname>
+    <title>Synchronized execution</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetExec_1gae1450c668e421012160de8dfbdd999a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::wait</definition>
+        <argsstring>(Home home, SetVar x, void(*c)(Space &amp;home))</argsstring>
+        <name>wait</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(Space &amp;home)</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Execute <emphasis>c</emphasis> when <emphasis>x</emphasis> becomes assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1079" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetExec_1ga320ab3611def4ae35dac2d31f7d0c8d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::wait</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, void(*c)(Space &amp;home))</argsstring>
+        <name>wait</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(Space &amp;home)</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Execute <emphasis>c</emphasis> when all variables in <emphasis>x</emphasis> become assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1082" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Synchronized execution executes a function or a static member function when a certain event happends. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

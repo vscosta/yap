@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Rnd_1_1IMP" kind="class" prot="private">
+    <compoundname>Gecode::Rnd::IMP</compoundname>
+    <basecompoundref refid="classGecode_1_1SharedHandle_1_1Object" prot="public" virt="non-virtual">Gecode::SharedHandle::Object</basecompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Rnd_1_1IMP_1a2a85ee1f73b74dddfc0bc0f9b00598eb" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1LinearCongruentialGenerator" kindref="compound">Support::RandomGenerator</ref></type>
+        <definition>Support::RandomGenerator Gecode::Rnd::IMP::rg</definition>
+        <argsstring></argsstring>
+        <name>rg</name>
+        <briefdescription>
+<para>The actual generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="52" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Rnd_1_1IMP_1afc842ef552956430ab369a8b12d9be2e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Rnd::IMP::IMP</definition>
+        <argsstring>(unsigned int s)</argsstring>
+        <name>IMP</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Initialize generator with seed <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="54" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="84" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1_1IMP_1a0355af38e8552a9e405ec765ec90d052" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>forceinline Gecode::Rnd::IMP::~IMP</definition>
+        <argsstring>(void)</argsstring>
+        <name>~IMP</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete implemenentation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="56" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="88" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1_1IMP_1a50b7be213a49292ba17c9dc25a9f1540" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+        <definition>virtual GECODE_KERNEL_EXPORT SharedHandle::Object* Gecode::Rnd::IMP::copy</definition>
+        <argsstring>(void) const </argsstring>
+        <name>copy</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create a copy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="59" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Implementation of generator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2765">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2764">
+        <label>Gecode::Rnd::IMP</label>
+        <childnode refid="2765" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2767">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2766">
+        <label>Gecode::Rnd::IMP</label>
+        <childnode refid="2767" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/rnd.hpp" line="49" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="49" bodyend="60"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Rnd_1_1IMP_1a50b7be213a49292ba17c9dc25a9f1540" prot="public" virt="virtual"><scope>Gecode::Rnd::IMP</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Rnd_1_1IMP_1afc842ef552956430ab369a8b12d9be2e" prot="public" virt="non-virtual"><scope>Gecode::Rnd::IMP</scope><name>IMP</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a74e54baaa39f46295bf5ea15eaec1212" prot="public" virt="non-virtual"><scope>Gecode::Rnd::IMP</scope><name>Object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a2db9735b0b6a3704586e5ec1702696e2" prot="public" virt="non-virtual"><scope>Gecode::Rnd::IMP</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1aabfe1d610fe626da356724f96ea51c89" prot="public" virt="non-virtual"><scope>Gecode::Rnd::IMP</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Rnd_1_1IMP_1a2a85ee1f73b74dddfc0bc0f9b00598eb" prot="public" virt="non-virtual"><scope>Gecode::Rnd::IMP</scope><name>rg</name></member>
+      <member refid="classGecode_1_1Rnd_1_1IMP_1a0355af38e8552a9e405ec765ec90d052" prot="public" virt="virtual"><scope>Gecode::Rnd::IMP</scope><name>~IMP</name></member>
+      <member refid="classGecode_1_1SharedHandle_1_1Object_1a55569725d23dd66a356853b0ab9c6fc1" prot="public" virt="virtual"><scope>Gecode::Rnd::IMP</scope><name>~Object</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

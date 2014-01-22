@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelMiniModelArith" kind="group">
+    <compoundname>TaskModelMiniModelArith</compoundname>
+    <title>Arithmetic functions</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga401d3dd65573d724092ae8d514fb052a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::abs</definition>
+        <argsstring>(const LinIntExpr &amp;e)</argsstring>
+        <name>abs</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="317">$|e|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1470" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga8f8117e06722cb2d4eed90dad67d9be1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::min</definition>
+        <argsstring>(const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="318">$\min(x,y)$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1473" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga1908d02cb49f242ca7017f3a183d7384" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::min</definition>
+        <argsstring>(const IntVarArgs &amp;x)</argsstring>
+        <name>min</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="319">$\min(x)$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1476" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga6b5925eaca8625e217a1118d21d0e3f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::max</definition>
+        <argsstring>(const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="320">$\max(x,y)$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1479" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga810c7b5aad44e631c7792fa07b856b9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::max</definition>
+        <argsstring>(const IntVarArgs &amp;x)</argsstring>
+        <name>max</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="321">$\max(x)$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1482" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1gaf974b49ad90ef31739b86603e55fe3f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::operator*</definition>
+        <argsstring>(const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="322">$x\cdot y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1496" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga604258cd35486366f28378c0e9ddc4fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::operator/</definition>
+        <argsstring>(const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="323">$x\ \mathrm{div}\ y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1499" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga0b1935a8cab3f15566c717f4687d6828" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::operator%</definition>
+        <argsstring>(const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>operator%</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="324">$x\ \mathrm{mod}\ y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1502" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga824e95c14c48cdbde349aa0d3a18f544" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::sqr</definition>
+        <argsstring>(const LinIntExpr &amp;x)</argsstring>
+        <name>sqr</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="88">$x^2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1505" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1gae9acc022ddb722670c47fcf5052f24a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::sqrt</definition>
+        <argsstring>(const LinIntExpr &amp;x)</argsstring>
+        <name>sqrt</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="325">$\lfloor\sqrt{x}\rfloor$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1508" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1gab7319c2c59c9323b50973f9376a8a32c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::pow</definition>
+        <argsstring>(const LinIntExpr &amp;x, int n)</argsstring>
+        <name>pow</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="94">$x^n$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1511" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1gacfbdaac9c7e8d76d83cf49d555636d1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::nroot</definition>
+        <argsstring>(const LinIntExpr &amp;x, int n)</argsstring>
+        <name>nroot</name>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="326">$\lfloor\sqrt[n]{x}\rfloor$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1514" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga7bb296cb21af749c5e9479b978d75de4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::element</definition>
+        <argsstring>(const IntVarArgs &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>element</name>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="327">$x[y]$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1517" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1gac74f8e1c41a45e02fcc5a963a4055f96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::element</definition>
+        <argsstring>(const BoolVarArgs &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>element</name>
+        <param>
+          <type>const BoolVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="327">$x[y]$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1520" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga65b46dd3ac46a2b0f9b8e4d2eb81a1ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::element</definition>
+        <argsstring>(const IntArgs &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>element</name>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for <formula id="327">$x[y]$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1523" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelArith_1ga2fd11f9414e6e4a84e7f85fbb57e38c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT LinIntExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT LinIntExpr Gecode::ite</definition>
+        <argsstring>(const BoolExpr &amp;b, const LinIntExpr &amp;x, const LinIntExpr &amp;y)</argsstring>
+        <name>ite</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Return expression for if-then-else <formula id="328">$b?x:y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1526" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

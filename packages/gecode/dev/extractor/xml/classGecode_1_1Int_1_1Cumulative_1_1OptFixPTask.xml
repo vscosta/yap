@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask" kind="class" prot="public">
+    <compoundname>Gecode::Int::Cumulative::OptFixPTask</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ManToOptTask" prot="public" virt="non-virtual">Gecode::Int::ManToOptTask&lt; ManFixPTask &gt;</basecompoundref>
+    <includes refid="cumulative_8hh" local="no">cumulative.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a9714da12149813d1783f7e04738f5be2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFixPTask::OptFixPTask</definition>
+        <argsstring>(void)</argsstring>
+        <name>OptFixPTask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="220" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="171" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a1cfdccf8116ffa93e7824b72915c3cc0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFixPTask::OptFixPTask</definition>
+        <argsstring>(IntVar s, int p, int c, BoolVar m)</argsstring>
+        <name>OptFixPTask</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, required capacity <emphasis>c</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="222" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="173" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a2a2923e7ffa35a04282bd43fb11afbe6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Cumulative::OptFixPTask::init</definition>
+        <argsstring>(IntVar s, int p, int c, BoolVar m)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, required capacity <emphasis>c</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="224" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="177" bodyend="179"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a8dc9b1d67683a408c479856a9d0c7df6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Cumulative::OptFixPTask::operator Unary::OptFixPTask</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator Unary::OptFixPTask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Cast to corresponding unary task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="227" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="181" bodyend="183"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a50cf34a570a3e70eec51465c91b3decc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OptFixPTask &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask" kindref="compound">OptFixPTask</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Print optional task in format est:[p,c]:lct:m. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/cumulative/task.hpp" bodystart="187" bodyend="193"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="namespaceGecode_1_1Int_1_1Cumulative" kindref="compound">Cumulative</ref> optional task with fixed processing time. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4927">
+        <label>Gecode::Int::Cumulative::OptFixPTask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask"/>
+        <childnode refid="4928" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4928">
+        <label>Gecode::Int::ManToOptTask&lt; ManFixPTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4929" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4929">
+        <label>ManFixPTask</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4930">
+        <label>Gecode::Int::Cumulative::OptFixPTask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask"/>
+        <childnode refid="4931" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4933">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="4934" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4934">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="4931">
+        <label>Gecode::Int::ManToOptTask&lt; ManFixPTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4932" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4933" relation="usage">
+          <edgelabel>_m</edgelabel>
+        </childnode>
+      </node>
+      <node id="4932">
+        <label>ManFixPTask</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/cumulative.hh" line="213" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="213" bodyend="228"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a0ea4b8f9b86b8f01ba3e302e5691a348" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>_m</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af1ecff9139307da4ce7021649b4ee6ca" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a703867f96b83284fda6e10b774f7348f" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a440f22861da3f9c0b2126163b02a4736" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a03af834e0060cd08b0d94011d4e98aea" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a2a2923e7ffa35a04282bd43fb11afbe6" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ab83738351a959982696d66371eb7b1b8" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1afda615c75635c3d28221ff0e2439403f" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1adf301f6881c6537cfbdb5330fb8d781a" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>ManToOptTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a8dc9b1d67683a408c479856a9d0c7df6" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>operator Unary::OptFixPTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a50cf34a570a3e70eec51465c91b3decc" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classManFixPTask_1a563555b3cad6e0c867d572c282cd52b9" prot="public" virt="non-virtual" ambiguityscope="ManToOptTask&lt; ManFixPTask &gt;::"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a9714da12149813d1783f7e04738f5be2" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>OptFixPTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OptFixPTask_1a1cfdccf8116ffa93e7824b72915c3cc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>OptFixPTask</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af3fb279687697ed218d492215151c797" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>optional</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ae18508500f11df05627d8676f87e324b" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1aa3e3b3b021b9324114e40896bf01a911" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::OptFixPTask</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Extensional::LayeredGraph::IndexRange</compoundname>
+    <includes refid="extensional_8hh" local="no">extensional.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a45abc6b44ccf4733f86557b0bb682513" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::_fst</definition>
+        <argsstring></argsstring>
+        <name>_fst</name>
+        <briefdescription>
+<para>First index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="135" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a98fa473e11946eb8758d4b26ba6bc480" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::_lst</definition>
+        <argsstring></argsstring>
+        <name>_lst</name>
+        <briefdescription>
+<para>Last index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="136" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a5f9d4f48b58257237c68b694fd415b4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::IndexRange</definition>
+        <argsstring>(void)</argsstring>
+        <name>IndexRange</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize range as empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="139" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="181" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a5dbda5620d281be899986fde8c57b19b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::reset</definition>
+        <argsstring>(void)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset range to be empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="141" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="185" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a0c4c2b33b13517a228112c78b3aeca3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::add</definition>
+        <argsstring>(int i)</argsstring>
+        <name>add</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add index <emphasis>i</emphasis> to range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="143" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="190" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a0bbd7440365ab30dd29b7236de1fe989" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::add</definition>
+        <argsstring>(const IndexRange &amp;ir)</argsstring>
+        <name>add</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange" kindref="compound">IndexRange</ref> &amp;</type>
+          <declname>ir</declname>
+        </param>
+        <briefdescription>
+<para>Add index range <emphasis>ir</emphasis> to range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="145" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a8e2f4eccc50d7e6047f5603972732ca8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::lshift</definition>
+        <argsstring>(int n)</argsstring>
+        <name>lshift</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Shift index range by <emphasis>n</emphasis> elements to the left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="147" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="206" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a8ebd4ec83c7ead3724552a98a4e8eb60" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether range is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="149" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="201" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1aa8af3f8de0e43913cc0cbd5439efb40e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::fst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>fst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return first position. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="151" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="218" bodyend="220"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a4d83098ad60ee771641c20a987726da6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::IndexRange::lst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return last position. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="153" column="1" bodyfile="/usr/include/gecode/int/extensional/layered-graph.hpp" bodystart="223" bodyend="225"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range approximation of which positions have changed. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/extensional.hh" line="133" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="133" bodyend="154"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a45abc6b44ccf4733f86557b0bb682513" prot="private" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>_fst</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a98fa473e11946eb8758d4b26ba6bc480" prot="private" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>_lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a0c4c2b33b13517a228112c78b3aeca3b" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>add</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a0bbd7440365ab30dd29b7236de1fe989" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>add</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a8ebd4ec83c7ead3724552a98a4e8eb60" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1aa8af3f8de0e43913cc0cbd5439efb40e" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>fst</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a5f9d4f48b58257237c68b694fd415b4e" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>IndexRange</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a8e2f4eccc50d7e6047f5603972732ca8" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>lshift</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a4d83098ad60ee771641c20a987726da6" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1IndexRange_1a5dbda5620d281be899986fde8c57b19b" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::IndexRange</scope><name>reset</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

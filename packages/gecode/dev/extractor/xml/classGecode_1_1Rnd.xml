@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Rnd" kind="class" prot="public">
+    <compoundname>Gecode::Rnd</compoundname>
+    <basecompoundref refid="classGecode_1_1SharedHandle" prot="public" virt="non-virtual">Gecode::SharedHandle</basecompoundref>
+    <includes refid="rnd_8hpp" local="no">rnd.hpp</includes>
+    <innerclass refid="classGecode_1_1Rnd_1_1IMP" prot="private">Gecode::Rnd::IMP</innerclass>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Rnd_1ae4a7524dda8d37cc8f4053dcbc91cc2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Rnd::Rnd</definition>
+        <argsstring>(void)</argsstring>
+        <name>Rnd</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor that does not initialize the generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="63" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="91" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a274653c8ec4fd43372b8b1bc4e023751" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>GECODE_KERNEL_EXPORT Gecode::Rnd::Rnd</definition>
+        <argsstring>(unsigned int s)</argsstring>
+        <name>Rnd</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with seed <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="65" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a1133f167db460cc1a35a69391c108b15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Rnd::Rnd</definition>
+        <argsstring>(const Rnd &amp;r)</argsstring>
+        <name>Rnd</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="67" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="93" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a167349dac11709ae0d364df36e42a9f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Rnd::seed</definition>
+        <argsstring>(unsigned int s)</argsstring>
+        <name>seed</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the current seed to <emphasis>s</emphasis> (initializes if needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a88b3b2cefc6e99ed08e90bbd9747d8b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Rnd::time</definition>
+        <argsstring>(void)</argsstring>
+        <name>time</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> current seed based on time (initializes if needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="72" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1ad45d4118df3fcb76f0a1365687b1a039" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Rnd::hw</definition>
+        <argsstring>(void)</argsstring>
+        <name>hw</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> current seed to hardware-based random number (initializes if needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="74" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="100" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a0ad6c38489e69bd6bacb39f2b7114693" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Rnd::seed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>seed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current seed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="76" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="104" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a68505091a80444db87f217e30f8c66fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Rnd::operator()</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return a random integer from the interval [0..n) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="78" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="109" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Rnd_1a27899968fcca8cce469aaab0500ae25d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Rnd::initialized</definition>
+        <argsstring>(void) const </argsstring>
+        <name>initialized</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether generator has been properly initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/rnd.hpp" line="80" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="114" bodyend="116"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Random number generator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6165">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="6166" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6166">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6167">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="6168" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6168">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/rnd.hpp" line="46" column="1" bodyfile="/usr/include/gecode/kernel/rnd.hpp" bodystart="46" bodyend="81"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Rnd_1ad45d4118df3fcb76f0a1365687b1a039" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>hw</name></member>
+      <member refid="classGecode_1_1Rnd_1a27899968fcca8cce469aaab0500ae25d" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>initialized</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a703f11794c6cac8c22bfc4a4136eb4f8" prot="protected" virt="non-virtual"><scope>Gecode::Rnd</scope><name>object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a688e41d609c30fe5517ca35cf908ddee" prot="protected" virt="non-virtual"><scope>Gecode::Rnd</scope><name>object</name></member>
+      <member refid="classGecode_1_1Rnd_1a68505091a80444db87f217e30f8c66fe" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1SharedHandle_1ae484ef9621e41e100aa778b8c908f65e" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Rnd_1ae4a7524dda8d37cc8f4053dcbc91cc2f" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>Rnd</name></member>
+      <member refid="classGecode_1_1Rnd_1a274653c8ec4fd43372b8b1bc4e023751" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>Rnd</name></member>
+      <member refid="classGecode_1_1Rnd_1a1133f167db460cc1a35a69391c108b15" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>Rnd</name></member>
+      <member refid="classGecode_1_1Rnd_1a167349dac11709ae0d364df36e42a9f0" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>seed</name></member>
+      <member refid="classGecode_1_1Rnd_1a0ad6c38489e69bd6bacb39f2b7114693" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>seed</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a421b3931301cdbd047737c7eb920097c" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a7af0bf287aedc0181643f91ee7f94b92" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1aad7da499195487bdf3085d61ed83d004" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1Rnd_1a88b3b2cefc6e99ed08e90bbd9747d8b0" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>time</name></member>
+      <member refid="classGecode_1_1SharedHandle_1afeb40b81ba09fed2539490f1035788f8" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>update</name></member>
+      <member refid="classGecode_1_1SharedHandle_1abdf052ec870b883c26b79538296819f8" prot="public" virt="non-virtual"><scope>Gecode::Rnd</scope><name>~SharedHandle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

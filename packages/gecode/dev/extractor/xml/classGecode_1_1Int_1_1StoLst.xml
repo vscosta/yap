@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1StoLst" kind="class" prot="public">
+    <compoundname>Gecode::Int::StoLst</compoundname>
+    <includes refid="int_2task_2sort_8hpp" local="no">sort.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>TaskView</declname>
+        <defname>TaskView</defname>
+      </param>
+      <param>
+        <type>bool</type>
+        <declname>inc</declname>
+        <defname>inc</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1StoLst_1a16b555de6e14e520db413a362adbac83" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::StoLst&lt; TaskView, inc &gt;::operator()</definition>
+        <argsstring>(const TaskView &amp;t1, const TaskView &amp;t2) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const TaskView &amp;</type>
+          <declname>t1</declname>
+        </param>
+        <param>
+          <type>const TaskView &amp;</type>
+          <declname>t2</declname>
+        </param>
+        <briefdescription>
+<para>Sort order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task/sort.hpp" line="63" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="110" bodyend="114"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Sort by latest start times. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/task/sort.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/task/sort.hpp" bodystart="60" bodyend="64"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1StoLst_1a16b555de6e14e520db413a362adbac83" prot="public" virt="non-virtual"><scope>Gecode::Int::StoLst</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

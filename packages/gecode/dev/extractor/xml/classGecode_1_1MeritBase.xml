@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1MeritBase" kind="class" prot="public">
+    <compoundname>Gecode::MeritBase</compoundname>
+    <includes refid="brancher-merit_8hpp" local="no">brancher-merit.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>_View</declname>
+        <defname>_View</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>_Val</declname>
+        <defname>_Val</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" prot="public" static="no">
+        <type>_View</type>
+        <definition>typedef _View Gecode::MeritBase&lt; _View, _Val &gt;::View</definition>
+        <argsstring></argsstring>
+        <name>View</name>
+        <briefdescription>
+<para>View type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="53" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1MeritBase_1a5f83e32f550fdca23acf1a2a3904ef0a" prot="public" static="no">
+        <type>_Val</type>
+        <definition>typedef _Val Gecode::MeritBase&lt; _View, _Val &gt;::Val</definition>
+        <argsstring></argsstring>
+        <name>Val</name>
+        <briefdescription>
+<para>Type of merit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="55" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1MeritBase_1a0dd42399c470eef9ee7a23f238ad8fa9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::MeritBase&lt; View, Val &gt;::MeritBase</definition>
+        <argsstring>(Space &amp;home, const VarBranch &amp;vb)</argsstring>
+        <name>MeritBase</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="57" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="149" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MeritBase_1ae8ab6cc04c2cd2b34701e1deba2236b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::MeritBase&lt; View, Val &gt;::MeritBase</definition>
+        <argsstring>(Space &amp;home, bool share, MeritBase &amp;mb)</argsstring>
+        <name>MeritBase</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1MeritBase" kindref="compound">MeritBase</ref> &amp;</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="59" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="152" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MeritBase_1a386345c2a920535002f34ae4dbc96501" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::MeritBase&lt; View, Val &gt;::notice</definition>
+        <argsstring>(void) const </argsstring>
+        <name>notice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether dispose must always be called (that is, notice is needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="61" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1MeritBase_1a3b04ddc669a22b449129b2a835eefe26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::MeritBase&lt; View, Val &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete view merit class. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="63" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="160" bodyend="160"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for merit class. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/brancher-merit.hpp" line="50" column="1" bodyfile="/usr/include/gecode/kernel/brancher-merit.hpp" bodystart="50" bodyend="64"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MeritBase_1a3b04ddc669a22b449129b2a835eefe26" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1MeritBase_1a0dd42399c470eef9ee7a23f238ad8fa9" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1MeritBase_1ae8ab6cc04c2cd2b34701e1deba2236b4" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1MeritBase_1a386345c2a920535002f34ae4dbc96501" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>notice</name></member>
+      <member refid="classGecode_1_1MeritBase_1a5f83e32f550fdca23acf1a2a3904ef0a" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>Val</name></member>
+      <member refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" prot="public" virt="non-virtual"><scope>Gecode::MeritBase</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

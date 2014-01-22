@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sorted_1_1Rank" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sorted::Rank</compoundname>
+    <includes refid="sortsup_8hpp" local="no">sortsup.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1Rank_1ab44408d166f34077159846a84c75daa0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::Rank::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+<para>stores the mininmum of a variable </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="46" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1Rank_1a13cbee823959be7e02aac56623d69728" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::Rank::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+<para>stores the mininmum of a variable </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="48" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Storage class for mininmum and maximum of a variable. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="43" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="43" bodyend="49"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1Rank_1a13cbee823959be7e02aac56623d69728" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::Rank</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1Rank_1ab44408d166f34077159846a84c75daa0" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::Rank</scope><name>min</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

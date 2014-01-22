@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="lexicographic_8hpp" kind="file">
+    <compoundname>lexicographic.hpp</compoundname>
+    <includes refid="interval__prototype_8hpp" local="no">gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp</includes>
+    <includes refid="test__input_8hpp" local="no">gecode/third-party/boost/numeric/interval/detail/test_input.hpp</includes>
+    <includedby refid="compare_8hpp" local="no">/usr/include/gecode/third-party/boost/numeric/interval/compare.hpp</includedby>
+    <incdepgraph>
+      <node id="34525">
+        <label>gecode/third-party/boost/numeric/interval/detail/test_input.hpp</label>
+        <link refid="test__input_8hpp_source"/>
+        <childnode refid="34524" relation="include">
+        </childnode>
+      </node>
+      <node id="34523">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/lexicographic.hpp</label>
+        <link refid="lexicographic.hpp"/>
+        <childnode refid="34524" relation="include">
+        </childnode>
+        <childnode refid="34525" relation="include">
+        </childnode>
+      </node>
+      <node id="34524">
+        <label>gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp</label>
+        <link refid="interval__prototype_8hpp_source"/>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="34529">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="34530" relation="include">
+        </childnode>
+        <childnode refid="34531" relation="include">
+        </childnode>
+        <childnode refid="34532" relation="include">
+        </childnode>
+        <childnode refid="34533" relation="include">
+        </childnode>
+      </node>
+      <node id="34526">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare/lexicographic.hpp</label>
+        <link refid="lexicographic.hpp"/>
+        <childnode refid="34527" relation="include">
+        </childnode>
+      </node>
+      <node id="34528">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval.hpp</label>
+        <link refid="interval_8hpp_source"/>
+        <childnode refid="34529" relation="include">
+        </childnode>
+      </node>
+      <node id="34533">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="34530" relation="include">
+        </childnode>
+      </node>
+      <node id="34530">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="34532">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="34531">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="34527">
+        <label>/usr/include/gecode/third-party/boost/numeric/interval/compare.hpp</label>
+        <link refid="compare_8hpp_source"/>
+        <childnode refid="34528" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceboost">boost</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric">boost::numeric</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric_1_1interval__lib">boost::numeric::interval_lib</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric_1_1interval__lib_1_1compare">boost::numeric::interval_lib::compare</innernamespace>
+    <innernamespace refid="namespaceboost_1_1numeric_1_1interval__lib_1_1compare_1_1lexicographic">boost::numeric::interval_lib::compare::lexicographic</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>Boost<sp/>interval/compare/lexicographic.hpp<sp/>template<sp/>implementation<sp/>file</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2002-2003<sp/>Guillaume<sp/>Melquiond</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Distributed<sp/>under<sp/>the<sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>(See<sp/>accompanying<sp/>file<sp/>LICENSE_1_0.txt<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_NUMERIC_INTERVAL_COMPARE_LEXICOGRAPHIC_HPP</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NUMERIC_INTERVAL_COMPARE_LEXICOGRAPHIC_HPP</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/third-party/boost/numeric/interval/detail/interval_prototype.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/third-party/boost/numeric/interval/detail/test_input.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">boost<sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">numeric<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">interval_lib<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="group__FuncIterRangesOp_1ga544c763f5400045d10bf8affc0768df4" kindref="member">compare</ref><sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">lexicographic<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator&lt;(const<sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>yl<sp/>=<sp/>y.lower();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&lt;<sp/>yl<sp/>||<sp/>(xl<sp/>==<sp/>yl<sp/>&amp;&amp;<sp/>x.upper()<sp/>&lt;<sp/>y.upper());</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator&lt;(const<sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>&lt;<sp/>y;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator&lt;=(const<sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>yl<sp/>=<sp/>y.lower();</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&lt;<sp/>yl<sp/>||<sp/>(xl<sp/>==<sp/>yl<sp/>&amp;&amp;<sp/>x.upper()<sp/>&lt;=<sp/>y.upper());</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>operator&lt;=(const<sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&lt;<sp/>y<sp/>||<sp/>(xl<sp/>==<sp/>y<sp/>&amp;&amp;<sp/>x.upper()<sp/>&lt;=<sp/>y);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga2f20bafbf9ca125cf5be1404bc443ff0" kindref="member">operator&gt;</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>yl<sp/>=<sp/>y.lower();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&gt;<sp/>yl<sp/>||<sp/>(xl<sp/>==<sp/>yl<sp/>&amp;&amp;<sp/>x.upper()<sp/>&gt;<sp/>y.upper());</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga2f20bafbf9ca125cf5be1404bc443ff0" kindref="member">operator&gt;</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&gt;<sp/>y<sp/>||<sp/>(xl<sp/>==<sp/>y<sp/>&amp;&amp;<sp/>x.upper()<sp/>&gt;<sp/>y);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1gaaf2c1688fe50735366b9df02278a9e63" kindref="member">operator&gt;=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>xl<sp/>=<sp/>x.lower();</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>yl<sp/>=<sp/>y.lower();</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xl<sp/>&gt;<sp/>yl<sp/>||<sp/>(xl<sp/>==<sp/>yl<sp/>&amp;&amp;<sp/>x.upper()<sp/>&gt;=<sp/>y.upper());</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1gaaf2c1688fe50735366b9df02278a9e63" kindref="member">operator&gt;=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>&gt;=<sp/>y;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga6095e71acafa0a71ff3b6c021cfa0ff3" kindref="member">operator==</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>==<sp/>y.lower()<sp/>&amp;&amp;<sp/>x.upper()<sp/>==<sp/>y.upper();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga6095e71acafa0a71ff3b6c021cfa0ff3" kindref="member">operator==</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>==<sp/>y<sp/>&amp;&amp;<sp/>x.upper()<sp/>==<sp/>y;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies1,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies2&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga64786781fae4ff3bc2d902c63cfaa04f" kindref="member">operator!=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies1&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies2&gt;&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>!=<sp/>y.lower()<sp/>||<sp/>x.upper()<sp/>!=<sp/>y.upper();</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Policies&gt;<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="group__TaskModelMiniModelLin_1ga64786781fae4ff3bc2d902c63cfaa04f" kindref="member">operator!=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>interval&lt;T,<sp/>Policies&gt;&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detail::test_input(x,<sp/>y))<sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>comparison_error();</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lower()<sp/>!=<sp/>y<sp/>||<sp/>x.upper()<sp/>!=<sp/>y;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>lexicographic</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>compare</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>interval_lib</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>numeric</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>boost</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>BOOST_NUMERIC_INTERVAL_COMPARE_LEXICOGRAPHIC_HPP</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/compare/lexicographic.hpp"/>
+  </compounddef>
+</doxygen>

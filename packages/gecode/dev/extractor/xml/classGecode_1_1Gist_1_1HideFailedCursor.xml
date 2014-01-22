@@ -1,0 +1,214 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1HideFailedCursor" kind="class" prot="public">
+    <compoundname>Gecode::Gist::HideFailedCursor</compoundname>
+    <basecompoundref refid="classGecode_1_1Gist_1_1NodeCursor" prot="public" virt="non-virtual">Gecode::Gist::NodeCursor&lt; VisualNode &gt;</basecompoundref>
+    <includes refid="nodecursor_8hh" local="no">nodecursor.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Cursor interface</header>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1HideFailedCursor_1a3fb41c1d0a899eaa7dcfd34fc88d792a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::HideFailedCursor::mayMoveDownwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>mayMoveDownwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test if the cursor may move to the first child node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="101" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="119" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1HideFailedCursor_1a95bda2b8088d780133f7ea540f0ca419" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::HideFailedCursor::processCurrentNode</definition>
+        <argsstring>(void)</argsstring>
+        <name>processCurrentNode</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Process node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="103" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="134" bodyend="143"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1HideFailedCursor_1a992399ea356cbaea17aee61038c4219c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::HideFailedCursor::onlyDirty</definition>
+        <argsstring></argsstring>
+        <name>onlyDirty</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="92" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1HideFailedCursor_1ac539a0bf138bc862aec9ca47b929fa3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Gist::HideFailedCursor::HideFailedCursor</definition>
+        <argsstring>(VisualNode *theNode, const VisualNode::NodeAllocator &amp;na, bool onlyDirtyNodes)</argsstring>
+        <name>HideFailedCursor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>theNode</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">VisualNode::NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>onlyDirtyNodes</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/nodecursor.hh" line="95" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hpp" bodystart="128" bodyend="131"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A cursor that marks failed subtrees as hidden. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2697">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+      </node>
+      <node id="2696">
+        <label>Gecode::Gist::HideFailedCursor</label>
+        <link refid="classGecode_1_1Gist_1_1HideFailedCursor"/>
+        <childnode refid="2697" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2700">
+        <label>Gecode::Gist::VisualNode</label>
+        <link refid="classGecode_1_1Gist_1_1VisualNode"/>
+        <childnode refid="2701" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2710" relation="usage">
+          <edgelabel>shape</edgelabel>
+        </childnode>
+      </node>
+      <node id="2708">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2704">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="2705" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2707">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="2703">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="2704" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="2707" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="2708" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="2706" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="2710">
+        <label>Gecode::Gist::Shape</label>
+        <link refid="classGecode_1_1Gist_1_1Shape"/>
+        <childnode refid="2710" relation="usage">
+          <edgelabel>hidden</edgelabel>
+          <edgelabel>leaf</edgelabel>
+        </childnode>
+      </node>
+      <node id="2702">
+        <label>Gecode::Gist::Node</label>
+        <link refid="classGecode_1_1Gist_1_1Node"/>
+      </node>
+      <node id="2699">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+        <childnode refid="2700" relation="usage">
+          <edgelabel>na</edgelabel>
+        </childnode>
+      </node>
+      <node id="2709">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="2705">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="2706" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2706">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="2698">
+        <label>Gecode::Gist::HideFailedCursor</label>
+        <link refid="classGecode_1_1Gist_1_1HideFailedCursor"/>
+        <childnode refid="2699" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2701">
+        <label>Gecode::Gist::SpaceNode</label>
+        <link refid="classGecode_1_1Gist_1_1SpaceNode"/>
+        <childnode refid="2702" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2703" relation="usage">
+          <edgelabel>copy</edgelabel>
+        </childnode>
+        <childnode refid="2709" relation="usage">
+          <edgelabel>choice</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/nodecursor.hh" line="90" column="1" bodyfile="/usr/include/gecode/gist/nodecursor.hh" bodystart="90" bodyend="105"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1af0f52939ef370ba2a509dcc9e075c442" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ae30df12f03597c90da69f21f49914aa7" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1HideFailedCursor_1ac539a0bf138bc862aec9ca47b929fa3e" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>HideFailedCursor</name></member>
+      <member refid="classGecode_1_1Gist_1_1HideFailedCursor_1a3fb41c1d0a899eaa7dcfd34fc88d792a" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>mayMoveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a6a5b08af9795b8eae2f27ac0bd2605d1" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>mayMoveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ac09a2c1a196d04d08271b77c0f53d60c" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>mayMoveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1add0fd81655e62118548be719e0869809" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>moveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1aac74c6ac9b49167865ea1e76d0c235e0" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>moveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a51383e2a893a05d6260cf2bfc3850481" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>moveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a327325bcfef32a267cea6d3ba1416b11" prot="protected" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>na</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ab8f69a5de0bb2e4ef7e1c02b82e6b31e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a79fb7b8bc5aa9c84c6735db1154112c9" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a5f230c3e4a60f5f91bc2924dae05495d" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>NodeCursor</name></member>
+      <member refid="classGecode_1_1Gist_1_1HideFailedCursor_1a992399ea356cbaea17aee61038c4219c" prot="private" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>onlyDirty</name></member>
+      <member refid="classGecode_1_1Gist_1_1HideFailedCursor_1a95bda2b8088d780133f7ea540f0ca419" prot="public" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>processCurrentNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1aafd421a2dc921f0e2bed9671055abb34" prot="protected" virt="non-virtual"><scope>Gecode::Gist::HideFailedCursor</scope><name>startNode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

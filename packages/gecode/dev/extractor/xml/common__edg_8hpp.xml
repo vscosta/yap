@@ -1,0 +1,503 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="common__edg_8hpp" kind="file">
+    <compoundname>common_edg.hpp</compoundname>
+    <includedby refid="comeau_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/comeau.hpp</includedby>
+    <includedby refid="compaq__cxx_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp</includedby>
+    <includedby refid="greenhills_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/greenhills.hpp</includedby>
+    <includedby refid="intel_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/intel.hpp</includedby>
+    <includedby refid="kai_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/kai.hpp</includedby>
+    <includedby refid="sgi__mipspro_8hpp" local="yes">/usr/include/gecode/third-party/boost/config/compiler/sgi_mipspro.hpp</includedby>
+    <invincdepgraph>
+      <node id="34134">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/kai.hpp</label>
+        <link refid="kai_8hpp_source"/>
+      </node>
+      <node id="34133">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/intel.hpp</label>
+        <link refid="intel_8hpp_source"/>
+      </node>
+      <node id="34129">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp</label>
+        <link refid="common_edg.hpp"/>
+        <childnode refid="34130" relation="include">
+        </childnode>
+        <childnode refid="34131" relation="include">
+        </childnode>
+        <childnode refid="34132" relation="include">
+        </childnode>
+        <childnode refid="34133" relation="include">
+        </childnode>
+        <childnode refid="34134" relation="include">
+        </childnode>
+        <childnode refid="34135" relation="include">
+        </childnode>
+      </node>
+      <node id="34130">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/comeau.hpp</label>
+        <link refid="comeau_8hpp_source"/>
+      </node>
+      <node id="34132">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/greenhills.hpp</label>
+        <link refid="greenhills_8hpp_source"/>
+      </node>
+      <node id="34131">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/compaq_cxx.hpp</label>
+        <link refid="compaq__cxx_8hpp_source"/>
+      </node>
+      <node id="34135">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/sgi_mipspro.hpp</label>
+        <link refid="sgi__mipspro_8hpp_source"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="common__edg_8hpp_1a40e34f5b29d993126f603d507c961281" prot="public" static="no">
+        <name>BOOST_NO_INTEGRAL_INT64_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="22" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1ad9e3e12fc5596d1a311a7722d5922965" prot="public" static="no">
+        <name>BOOST_NO_SFINAE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="23" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1afa9e0a1b4df251ce2ad2c9baeeacd49c" prot="public" static="no">
+        <name>BOOST_NO_VOID_RETURNS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="27" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1aa99187953099a7367b049b37c324c8fb" prot="public" static="no">
+        <name>BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="31" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a02fc9e0bc2a3608904bcaee55a9a7e4b" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="35" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a9ad74291543f98f61de8cadbc0a6f42c" prot="public" static="no">
+        <name>BOOST_NO_IS_ABSTRACT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="39" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a46ba1c641f5c462710169ed1c6f0da06" prot="public" static="no">
+        <name>BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="43" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1ad9e644e01e76c0a2b950bac6e3d2cf0e" prot="public" static="no">
+        <name>BOOST_NO_EXCEPTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="48" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a5e895c2171cf8ac7f794734689f29095" prot="public" static="no">
+        <name>BOOST_HAS_LONG_LONG</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="52" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a0e4b840afc76df158ce1024b265ee136" prot="public" static="no">
+        <name>BOOST_NO_EXTERN_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="63" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="67" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a0097578e1d5220624588d3573312a3ba" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_MACROS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="70" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a454e263333ba0a545af8b803fd1a8a53" prot="public" static="no">
+        <name>BOOST_NO_AUTO_DECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="73" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1abee59fa974ed5df6c79e90ad5d2935a2" prot="public" static="no">
+        <name>BOOST_NO_AUTO_MULTIDECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="74" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a7f33717514f6be9134295a6976c17ab0" prot="public" static="no">
+        <name>BOOST_NO_CHAR16_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="75" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a58c90dea21e43297b322244141749bb3" prot="public" static="no">
+        <name>BOOST_NO_CHAR32_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="76" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a2ab158f48b5ebc962868ca4fae0e235e" prot="public" static="no">
+        <name>BOOST_NO_CONSTEXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="77" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a5265b73b38627ec9f12a526bc43a53a7" prot="public" static="no">
+        <name>BOOST_NO_DECLTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="78" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a1e33c4ee8a0e882792a1ab749898fc25" prot="public" static="no">
+        <name>BOOST_NO_DEFAULTED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="79" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1ac6990e4e38c813084b7fb78af7ce1225" prot="public" static="no">
+        <name>BOOST_NO_DELETED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="80" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a86822fbd4a31972ef0b6c1ded3a4405e" prot="public" static="no">
+        <name>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="81" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a1afa1eecb86fade06c2c9d679c2acd99" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="82" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a16e1e4611bfbfa7240467ed9d4a7c9d0" prot="public" static="no">
+        <name>BOOST_NO_LAMBDAS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="83" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a0579c4e6a9f145f7bfbbdf63b1cb115a" prot="public" static="no">
+        <name>BOOST_NO_NOEXCEPT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="84" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1aaf1c53a1bb595a0379a07db8f2c38353" prot="public" static="no">
+        <name>BOOST_NO_NULLPTR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="85" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a7f6939964e1d2ff8d7a4f5f3d98f807a" prot="public" static="no">
+        <name>BOOST_NO_RAW_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="86" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1aab711e4e53ece4b8ff79a12ace10492f" prot="public" static="no">
+        <name>BOOST_NO_RVALUE_REFERENCES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="87" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a673f164000ed2c207f200528add4f736" prot="public" static="no">
+        <name>BOOST_NO_SCOPED_ENUMS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="88" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1aff4c6e7a6a9d7bad9905ce7b9c100ae9" prot="public" static="no">
+        <name>BOOST_NO_SFINAE_EXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="89" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a982d85c01772e8754849378db91f4f1c" prot="public" static="no">
+        <name>BOOST_NO_STATIC_ASSERT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="90" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1ab6ce230323006d1a142b49de8090dda8" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_ALIASES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="91" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a4080e71a9718560d54bdffbd2a9a3cb2" prot="public" static="no">
+        <name>BOOST_NO_UNICODE_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="92" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1ac6f562f47e6a764127297fdec648165e" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="93" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="common__edg_8hpp_1a7501099fcfc0a918e188478cac7d6f31" prot="public" static="no">
+        <name>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" line="94" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Jens<sp/>Maurer<sp/>2001.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>David<sp/>Abrahams<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Aleksey<sp/>Gurtovoy<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Markus<sp/>Schoepflin<sp/>2005.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Options<sp/>common<sp/>to<sp/>all<sp/>edg<sp/>based<sp/>compilers.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>is<sp/>included<sp/>from<sp/>within<sp/>the<sp/>individual<sp/>compiler<sp/>mini-configs.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/><sp/>__EDG_VERSION__</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>This<sp/>file<sp/>requires<sp/>that<sp/>__EDG_VERSION__<sp/>be<sp/>defined.</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>238)</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_INTEGRAL_INT64_T</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_SFINAE</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>240)</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_VOID_RETURNS</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>241)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>244)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_TEMPLATE_TEMPLATES)</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_TEMPLATE_TEMPLATES</highlight></codeline>
+<codeline lineno="36"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif<sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;<sp/>300)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_IS_ABSTRACT)</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_IS_ABSTRACT</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif<sp/></highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>303)<sp/>&amp;&amp;<sp/>!defined(BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL)</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif<sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">//<sp/>See<sp/>also<sp/>kai.hpp<sp/>which<sp/>checks<sp/>a<sp/>Kai-specific<sp/>symbol<sp/>for<sp/>EH</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/>if<sp/>!defined(__KCC)<sp/>&amp;&amp;<sp/>!defined(__EXCEPTIONS)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_EXCEPTIONS)</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_EXCEPTIONS</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>endif</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/>if<sp/>!defined(__NO_LONG_LONG)</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_HAS_LONG_LONG</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>else</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_LONG_LONG</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>endif</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">//<sp/>C++0x<sp/>features</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>See<sp/>above<sp/>for<sp/>BOOST_NO_LONG_LONG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;<sp/>310)</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_EXTERN_TEMPLATE</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;=<sp/>310)</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>No<sp/>support<sp/>for<sp/>initializer<sp/>lists</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#if<sp/>(__EDG_VERSION__<sp/>&lt;<sp/>400)</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_VARIADIC_MACROS</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_DECLARATIONS</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_MULTIDECLARATIONS</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR16_T</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR32_T</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CONSTEXPR</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DECLTYPE</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DEFAULTED_FUNCTIONS</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DELETED_FUNCTIONS</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_LAMBDAS</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NOEXCEPT</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NULLPTR</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RAW_LITERALS</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RVALUE_REFERENCES</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SCOPED_ENUMS</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SFINAE_EXPR</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_TEMPLATE_ALIASES</highlight></codeline>
+<codeline lineno="92"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNICODE_LITERALS</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_TEMPLATES</highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>c_plusplus</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>EDG<sp/>has<sp/>&quot;long<sp/>long&quot;<sp/>in<sp/>non-strict<sp/>mode</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="comment">//<sp/>However,<sp/>some<sp/>libraries<sp/>have<sp/>insufficient<sp/>&quot;long<sp/>long&quot;<sp/>support</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="comment">//<sp/>#define<sp/>BOOST_HAS_LONG_LONG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/common_edg.hpp"/>
+  </compounddef>
+</doxygen>

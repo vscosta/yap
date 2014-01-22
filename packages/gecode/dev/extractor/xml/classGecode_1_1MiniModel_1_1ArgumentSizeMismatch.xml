@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch" kind="class" prot="public">
+    <compoundname>Gecode::MiniModel::ArgumentSizeMismatch</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="minimodel_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch_1a4ae2412d1074c67e13e5869d275e8d4c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::MiniModel::ArgumentSizeMismatch::ArgumentSizeMismatch</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>ArgumentSizeMismatch</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel/exception.hpp" line="59" column="1" bodyfile="/usr/include/gecode/minimodel/exception.hpp" bodystart="75" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Sizes of arguments does not match </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="856">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="857" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="857">
+        <label>std::exception</label>
+      </node>
+      <node id="855">
+        <label>Gecode::MiniModel::ArgumentSizeMismatch</label>
+        <link refid="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch"/>
+        <childnode refid="856" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="859">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="860" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="860">
+        <label>std::exception</label>
+      </node>
+      <node id="858">
+        <label>Gecode::MiniModel::ArgumentSizeMismatch</label>
+        <link refid="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch"/>
+        <childnode refid="859" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/minimodel/exception.hpp" line="56" column="1" bodyfile="/usr/include/gecode/minimodel/exception.hpp" bodystart="56" bodyend="60"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch_1a4ae2412d1074c67e13e5869d275e8d4c" prot="public" virt="non-virtual"><scope>Gecode::MiniModel::ArgumentSizeMismatch</scope><name>ArgumentSizeMismatch</name></member>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::MiniModel::ArgumentSizeMismatch</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::MiniModel::ArgumentSizeMismatch</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

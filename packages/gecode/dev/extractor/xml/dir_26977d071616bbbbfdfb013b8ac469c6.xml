@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_26977d071616bbbbfdfb013b8ac469c6" kind="dir">
+    <compoundname>/usr/include/gecode/int/extensional</compoundname>
+    <innerfile refid="extensional_2base_8hpp">base.hpp</innerfile>
+    <innerfile refid="extensional_2basic_8hpp">basic.hpp</innerfile>
+    <innerfile refid="dfa_8hpp">dfa.hpp</innerfile>
+    <innerfile refid="incremental_8hpp">incremental.hpp</innerfile>
+    <innerfile refid="layered-graph_8hpp">layered-graph.hpp</innerfile>
+    <innerfile refid="tuple-set_8hpp">tuple-set.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/extensional/"/>
+  </compounddef>
+</doxygen>

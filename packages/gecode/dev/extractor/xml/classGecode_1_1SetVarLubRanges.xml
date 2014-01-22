@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SetVarLubRanges" kind="class" prot="public">
+    <compoundname>Gecode::SetVarLubRanges</compoundname>
+    <includes refid="set_8hh" local="no">set.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a8d24d1db055d78a7a0509a519567a004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SetVarLubRanges::SetVarLubRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>SetVarLubRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="311" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="134" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a94c72bcaa34fb2534eaf74933b713477" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SetVarLubRanges::SetVarLubRanges</definition>
+        <argsstring>(const SetVar &amp;x)</argsstring>
+        <name>SetVarLubRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize to iterate ranges of variable <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="313" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="137" bodyend="138"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a4dcbe0e89b3e53d68e109edc65e0a8e4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::SetVarLubRanges::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="319" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="142" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a0b4ccfcd41e5e605514b2c6400354e1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::SetVarLubRanges::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="321" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="146" bodyend="146"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a416ea3fc6043246b93cd7c7410281090" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::SetVarLubRanges::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="327" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="150" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1a24c1d46c43aa3b20d5a43987b5e0407a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::SetVarLubRanges::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="329" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="154" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarLubRanges_1ab1115acc1916c30f1dea8379e3fa1f54" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::SetVarLubRanges::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="331" column="1" bodyfile="/usr/include/gecode/set/var/set.hpp" bodystart="158" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1SetVarLubRanges_1aec3df0c7185c09d0976c4282c94d4caa" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">Set::LubRanges</ref>&lt; <ref refid="classGecode_1_1Set_1_1SetVarImp" kindref="compound">Set::SetVarImp</ref> * &gt;</type>
+        <definition>Set::LubRanges&lt;Set::SetVarImp*&gt; Gecode::SetVarLubRanges::iter</definition>
+        <argsstring></argsstring>
+        <name>iter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="306" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="306" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Iterator for the least upper bound ranges of a set variable. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set.hh" line="304" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="304" bodyend="333"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1SetVarLubRanges_1aec3df0c7185c09d0976c4282c94d4caa" prot="private" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>iter</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a24c1d46c43aa3b20d5a43987b5e0407a" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>max</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a416ea3fc6043246b93cd7c7410281090" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>min</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a4dcbe0e89b3e53d68e109edc65e0a8e4" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a0b4ccfcd41e5e605514b2c6400354e1e" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a8d24d1db055d78a7a0509a519567a004" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>SetVarLubRanges</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1a94c72bcaa34fb2534eaf74933b713477" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>SetVarLubRanges</name></member>
+      <member refid="classGecode_1_1SetVarLubRanges_1ab1115acc1916c30f1dea8379e3fa1f54" prot="public" virt="non-virtual"><scope>Gecode::SetVarLubRanges</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

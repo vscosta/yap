@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1AST_1_1IntLit" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::AST::IntLit</compoundname>
+    <basecompoundref refid="classGecode_1_1FlatZinc_1_1AST_1_1Node" prot="public" virt="non-virtual">Gecode::FlatZinc::AST::Node</basecompoundref>
+    <includes refid="ast_8hh" local="no">ast.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1aae250428841935a24a74be666e0d3915" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::FlatZinc::AST::IntLit::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="159" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1a32332902bf2767608cb862b7983ae8c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::AST::IntLit::IntLit</definition>
+        <argsstring>(int i0)</argsstring>
+        <name>IntLit</name>
+        <param>
+          <type>int</type>
+          <declname>i0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="160" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="160" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1a7b0eb9f1dcaebc24cb65c459e52f04be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::FlatZinc::AST::IntLit::print</definition>
+        <argsstring>(std::ostream &amp;os)</argsstring>
+        <name>print</name>
+        <reimplements refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1ae71c6ef7039fea81ca018418796b7944">print</reimplements>
+        <param>
+          <type>std::ostream &amp;</type>
+        </param>
+        <briefdescription>
+<para>Output string representation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/ast.hh" line="161" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="161" bodyend="163"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Integer literal node. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2953">
+        <label>Gecode::FlatZinc::AST::Node</label>
+        <link refid="classGecode_1_1FlatZinc_1_1AST_1_1Node"/>
+      </node>
+      <node id="2952">
+        <label>Gecode::FlatZinc::AST::IntLit</label>
+        <link refid="classGecode_1_1FlatZinc_1_1AST_1_1IntLit"/>
+        <childnode refid="2953" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2955">
+        <label>Gecode::FlatZinc::AST::Node</label>
+        <link refid="classGecode_1_1FlatZinc_1_1AST_1_1Node"/>
+      </node>
+      <node id="2954">
+        <label>Gecode::FlatZinc::AST::IntLit</label>
+        <link refid="classGecode_1_1FlatZinc_1_1AST_1_1IntLit"/>
+        <childnode refid="2955" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/flatzinc/ast.hh" line="157" column="1" bodyfile="/usr/include/gecode/flatzinc/ast.hh" bodystart="157" bodyend="164"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a714f7b290019908fe5ef0efec1d84e04" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>append</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a271e09414e30895a48ab802a09cfdc1a" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getArray</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1abe48b355694673ed8bc23e6694901d10" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getAtom</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1afb8daa455fb1050bb9457641bcd4a081" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getBool</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1add750d6f11c96d89c18337ca9a616c96" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getBoolVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1ad025ea160c39a800eb3b499a29f4e9c4" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getCall</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a8edf0c873287d0f92ebafa414f652ca0" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getCall</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a44345c8a2177546a322a5fa5061be53e" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getFloat</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a63a64bde7ed095c11403636acb68822c" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getFloatVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1abc83be8a0565da08bbe8848643d8fdb0" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getInt</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1abea8ae716612604e0b9561aae57251b5" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getIntVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a7f4606088f447c00d584bc293d73d84d" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getSet</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1aea769788996bcbe3d35530e3393f0011" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getSetVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1afc337aafc540f0222506ee3eacd4a920" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getString</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1ad95fac54f5eeb6bec728e380177734d2" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>getVarName</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a88260fd0eabb620956c29f7c7b05e183" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>hasAtom</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a4ddcd813748efd7e612914cfc61454c1" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>hasCall</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1aae250428841935a24a74be666e0d3915" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>i</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1a32332902bf2767608cb862b7983ae8c7" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>IntLit</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a6e6c1cdd56b55530ef42b5f29d5b824c" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isArray</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1abd2e0fb263a47f3364e9e209851dcc46" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isAtom</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a29cabd825fb460caed03d51b624cf670" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isBool</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1ac58bdd215ef30a3fce05ab8958e813a0" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isBoolVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a95ebcdf87b7e46a1756f85905e9e444c" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isCall</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a9afcc32c6ae96e19b4dd69766de2e08b" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isFloat</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a7fcd5032ca4d07c686e1f915c2f3ea33" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isFloat</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a350b36414263a1dd65a3021a870ae4c6" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isFloatVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1aa5957d93c9016a66cb8218391c3a224b" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isInt</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a91f7d7849685cc5d7a3ed9a731ad91c4" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isInt</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1abd4ed66a4647062f3090048a973cabb7" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isIntVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a39f04e9a92bac33e0b34f3955ca6d979" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isSet</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a024fd8db719dd7e6a75751b7bf623730" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isSetVar</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1a8713492078dff6e5e50aa0bdca303997" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>isString</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1IntLit_1a7b0eb9f1dcaebc24cb65c459e52f04be" prot="public" virt="virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>print</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1AST_1_1Node_1aa18417070f57c9af4011b86a90dd9963" prot="public" virt="virtual"><scope>Gecode::FlatZinc::AST::IntLit</scope><name>~Node</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

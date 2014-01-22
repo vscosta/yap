@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewDiffRanges" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewDiffRanges</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff" prot="public" virt="non-virtual">Gecode::Iter::Ranges::Diff&lt; Iter::Ranges::RangeList, ViewRanges&lt; View &gt; &gt;</basecompoundref>
+    <includes refid="int_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewDiffRanges_1aa23764b2e5d067f0c8bdddfa720a0bd6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewDiffRanges&lt; View &gt;::ViewDiffRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewDiffRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1301" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="366" bodyend="366"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewDiffRanges_1a48bf1f3723953285a55f297fea76c3a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewDiffRanges&lt; View &gt;::ViewDiffRanges</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>ViewDiffRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1303" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="370" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewDiffRanges_1af3a36352c7d3db65f343672205ccbd93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewDiffRanges&lt; View &gt;::init</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1305" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="377" bodyend="381"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1ViewDiffRanges_1aaf472a7ec37259f4129840ed2be41291" prot="private" static="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Diff" kindref="compound">Iter::Ranges::Diff</ref>&lt; <ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList" kindref="compound">Iter::Ranges::RangeList</ref>, <ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges</ref>&lt; View &gt; &gt;</type>
+        <definition>typedef Iter::Ranges::Diff&lt;Iter::Ranges::RangeList,ViewRanges&lt;View&gt; &gt; Gecode::Int::ViewDiffRanges&lt; View &gt;::Super</definition>
+        <argsstring></argsstring>
+        <name>Super</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1291" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1291" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewDiffRanges_1a5650c7c80b86cfc10fd622c791afa0b4" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList" kindref="compound">Iter::Ranges::RangeList</ref></type>
+        <definition>Iter::Ranges::RangeList Gecode::Int::ViewDiffRanges&lt; View &gt;::cr</definition>
+        <argsstring></argsstring>
+        <name>cr</name>
+        <briefdescription>
+<para>Cached domain iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1294" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1294" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewDiffRanges_1a162047bd956f1971f4e17854ed7dd501" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1ViewRanges" kindref="compound">ViewRanges</ref>&lt; View &gt;</type>
+        <definition>ViewRanges&lt;View&gt; Gecode::Int::ViewDiffRanges&lt; View &gt;::dr</definition>
+        <argsstring></argsstring>
+        <name>dr</name>
+        <briefdescription>
+<para>Current domain iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="1296" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1296" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for cached integer views </para>    </briefdescription>
+    <detaileddescription>
+<para>This iterator iterates the difference between the cached domain and the current domain of an integer view. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7806">
+        <label>Gecode::Int::ViewDiffRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewDiffRanges"/>
+        <childnode refid="7807" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7808">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="7807">
+        <label>Gecode::Iter::Ranges::Diff&lt; Iter::Ranges::RangeList, ViewRanges&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Diff"/>
+        <childnode refid="7808" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7812">
+        <label>Gecode::Iter::Ranges::RangeList</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1RangeList"/>
+        <childnode refid="7813" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+      </node>
+      <node id="7809">
+        <label>Gecode::Int::ViewDiffRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewDiffRanges"/>
+        <childnode refid="7810" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7812" relation="usage">
+          <edgelabel>cr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7811">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="7813">
+        <label>Gecode::RangeList</label>
+        <link refid="classGecode_1_1RangeList"/>
+        <childnode refid="7814" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7810">
+        <label>Gecode::Iter::Ranges::Diff&lt; Iter::Ranges::RangeList, ViewRanges&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Diff"/>
+        <childnode refid="7811" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7812" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+      <node id="7814">
+        <label>Gecode::FreeList</label>
+        <link refid="classGecode_1_1FreeList"/>
+        <childnode refid="7814" relation="usage">
+          <edgelabel>_next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/view.hpp" line="1094" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="1094" bodyend="-1"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1a5650c7c80b86cfc10fd622c791afa0b4" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>cr</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1ab100c7efbfec17b4473b1bfc28bbedcb" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>Diff</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1a974df2dcb514ebe53a818913048f2903" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>Diff</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1a162047bd956f1971f4e17854ed7dd501" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>dr</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1ad0df50e4aed98cd2a5be775f43abc6d3" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>i</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1af3a36352c7d3db65f343672205ccbd93" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1a75f6e211c6a572accb01056ab25d4901" prot="public" virt="non-virtual" ambiguityscope="Diff&lt; Iter::Ranges::RangeList, ViewRanges&lt; View &gt; &gt;::"><scope>Gecode::Int::ViewDiffRanges</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1aad368355200b2dd95c27585c9a4dd70d" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>j</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Diff_1abaf9611507e1977fda13ad8f25fe748c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1aaf472a7ec37259f4129840ed2be41291" prot="private" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>Super</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1aa23764b2e5d067f0c8bdddfa720a0bd6" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>ViewDiffRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewDiffRanges_1a48bf1f3723953285a55f297fea76c3a0" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>ViewDiffRanges</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewDiffRanges</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

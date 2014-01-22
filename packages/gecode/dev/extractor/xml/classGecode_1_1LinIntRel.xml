@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1LinIntRel" kind="class" prot="public">
+    <compoundname>Gecode::LinIntRel</compoundname>
+    <includes refid="minimodel_8hh" local="no">minimodel.hh</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1LinIntRel_1a97a8a6cbd7451e632aba5fc559d71646" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class BoolExpr</definition>
+        <argsstring></argsstring>
+        <name>BoolExpr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="228" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1LinIntRel_1a8197d157cec2cfc3cb88d093515a30c1" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1LinIntExpr" kindref="compound">LinIntExpr</ref></type>
+        <definition>LinIntExpr Gecode::LinIntRel::e</definition>
+        <argsstring></argsstring>
+        <name>e</name>
+        <briefdescription>
+<para>Linear expression describing the entire relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="231" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1LinIntRel_1a0370b00188f5c4e761f4febfdc6f76f7" prot="private" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+        <definition>IntRelType Gecode::LinIntRel::irt</definition>
+        <argsstring></argsstring>
+        <name>irt</name>
+        <briefdescription>
+<para>Which relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="233" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1aea9b7c95e936858fb54a67f3162c5743" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+        <definition>forceinline IntRelType Gecode::LinIntRel::neg</definition>
+        <argsstring>(IntRelType irt)</argsstring>
+        <name>neg</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <briefdescription>
+<para>Negate relation type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="235" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="60" bodyend="71"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a6f6bd466bb26db7cec27c65a621cb895" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LinIntRel::LinIntRel</definition>
+        <argsstring>(void)</argsstring>
+        <name>LinIntRel</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="237" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="45" bodyend="45"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a340fa02bf177b1d529209920a9bb14c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LinIntRel::LinIntRel</definition>
+        <argsstring>(const LinIntExpr &amp;l, IntRelType irt, const LinIntExpr &amp;r)</argsstring>
+        <name>LinIntRel</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1LinIntExpr" kindref="compound">LinIntExpr</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1LinIntExpr" kindref="compound">LinIntExpr</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Create linear relation for expressions <emphasis>l</emphasis> and <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="240" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="48" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a010e94a952a3b52c4c86ecb5e35660c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LinIntRel::LinIntRel</definition>
+        <argsstring>(const LinIntExpr &amp;l, IntRelType irt, int r)</argsstring>
+        <name>LinIntRel</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1LinIntExpr" kindref="compound">LinIntExpr</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Create linear relation for expression <emphasis>l</emphasis> and integer <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="242" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="52" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a1c537f8df444f2c51c5219574b01f983" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LinIntRel::LinIntRel</definition>
+        <argsstring>(int l, IntRelType irt, const LinIntExpr &amp;r)</argsstring>
+        <name>LinIntRel</name>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a2a4b3317737fd8ffb4dfdf43d1bb87aa" kindref="member">IntRelType</ref></type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1LinIntExpr" kindref="compound">LinIntExpr</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Create linear relation for integer <emphasis>l</emphasis> and expression <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="244" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="56" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a26976dcb9ccff3c29740a4df7c6ca6e8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::LinIntRel::post</definition>
+        <argsstring>(Home home, bool t, IntConLevel icl) const </argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for relation (if <emphasis>t</emphasis> is false for negated relation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="246" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LinIntRel_1a03990ea260f5d5cd32cf49c49564e82e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::LinIntRel::post</definition>
+        <argsstring>(Home home, const BoolVar &amp;b, bool t, IntConLevel icl) const </argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post reified propagator for relation (if <emphasis>t</emphasis> is false for negated relation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="248" column="1" bodyfile="/usr/include/gecode/minimodel/int-rel.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Linear relations over integer variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/minimodel.hh" line="227" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="227" bodyend="249"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1LinIntRel_1a97a8a6cbd7451e632aba5fc559d71646" prot="private" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a8197d157cec2cfc3cb88d093515a30c1" prot="private" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>e</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a0370b00188f5c4e761f4febfdc6f76f7" prot="private" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>irt</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a6f6bd466bb26db7cec27c65a621cb895" prot="private" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>LinIntRel</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a340fa02bf177b1d529209920a9bb14c6" prot="public" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>LinIntRel</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a010e94a952a3b52c4c86ecb5e35660c3" prot="public" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>LinIntRel</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a1c537f8df444f2c51c5219574b01f983" prot="public" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>LinIntRel</name></member>
+      <member refid="classGecode_1_1LinIntRel_1aea9b7c95e936858fb54a67f3162c5743" prot="private" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>neg</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a26976dcb9ccff3c29740a4df7c6ca6e8" prot="public" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>post</name></member>
+      <member refid="classGecode_1_1LinIntRel_1a03990ea260f5d5cd32cf49c49564e82e" prot="public" virt="non-virtual"><scope>Gecode::LinIntRel</scope><name>post</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

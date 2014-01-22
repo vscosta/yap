@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Branch" kind="namespace">
+    <compoundname>Gecode::Int::Branch</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice" prot="public">Gecode::Int::Branch::PosValuesChoice</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritMin" prot="public">Gecode::Int::Branch::MeritMin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritMax" prot="public">Gecode::Int::Branch::MeritMax</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritSize" prot="public">Gecode::Int::Branch::MeritSize</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize" prot="public">Gecode::Int::Branch::MeritDegreeSize</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritAFCSize" prot="public">Gecode::Int::Branch::MeritAFCSize</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritActivitySize" prot="public">Gecode::Int::Branch::MeritActivitySize</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritRegretMin" prot="public">Gecode::Int::Branch::MeritRegretMin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1MeritRegretMax" prot="public">Gecode::Int::Branch::MeritRegretMax</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin" prot="public">Gecode::Int::Branch::ValSelMin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelMax" prot="public">Gecode::Int::Branch::ValSelMax</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelMed" prot="public">Gecode::Int::Branch::ValSelMed</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelAvg" prot="public">Gecode::Int::Branch::ValSelAvg</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelRnd" prot="public">Gecode::Int::Branch::ValSelRnd</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelRangeMin" prot="public">Gecode::Int::Branch::ValSelRangeMin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelRangeMax" prot="public">Gecode::Int::Branch::ValSelRangeMax</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelNearMinMax" prot="public">Gecode::Int::Branch::ValSelNearMinMax</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValSelNearIncDec" prot="public">Gecode::Int::Branch::ValSelNearIncDec</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1EqNGL" prot="public">Gecode::Int::Branch::EqNGL</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1NqNGL" prot="public">Gecode::Int::Branch::NqNGL</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1LqNGL" prot="public">Gecode::Int::Branch::LqNGL</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1GqNGL" prot="public">Gecode::Int::Branch::GqNGL</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitEq" prot="public">Gecode::Int::Branch::ValCommitEq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitLq" prot="public">Gecode::Int::Branch::ValCommitLq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitGq" prot="public">Gecode::Int::Branch::ValCommitGq</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ValCommitGr" prot="public">Gecode::Int::Branch::ValCommitGr</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher" prot="public">Gecode::Int::Branch::ViewValuesBrancher</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1a4e05abad72c13cfe8de2a2b3a7a0c4ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; *</type>
+        <definition>GECODE_INT_EXPORT ViewSel&lt;IntView&gt;* Gecode::Int::Branch::viewselint</definition>
+        <argsstring>(Space &amp;home, const IntVarBranch &amp;ivb)</argsstring>
+        <name>viewselint</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref> &amp;</type>
+          <declname>ivb</declname>
+        </param>
+        <briefdescription>
+<para>Return view selectors for integer views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="220" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1aba36cb303f6bb144c2817f6e7d00d2cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref> &gt; *</type>
+        <definition>GECODE_INT_EXPORT ViewSel&lt;BoolView&gt;* Gecode::Int::Branch::viewselbool</definition>
+        <argsstring>(Space &amp;home, const IntVarBranch &amp;ivb)</argsstring>
+        <name>viewselbool</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref> &amp;</type>
+          <declname>ivb</declname>
+        </param>
+        <briefdescription>
+<para>Return view selectors for Boolean views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="223" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1a71d88def20c53c10e62386433b4c00c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref>, int &gt; *</type>
+        <definition>GECODE_INT_EXPORT ValSelCommitBase&lt;IntView,int&gt;* Gecode::Int::Branch::valselcommitint</definition>
+        <argsstring>(Space &amp;home, int n, const IntValBranch &amp;ivb)</argsstring>
+        <name>valselcommitint</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntValBranch" kindref="compound">IntValBranch</ref> &amp;</type>
+          <declname>ivb</declname>
+        </param>
+        <briefdescription>
+<para>Return value and commit for integer views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="606" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1a7e4f39522af45b32cc5dffdca14c54aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref>, int &gt; *</type>
+        <definition>GECODE_INT_EXPORT ValSelCommitBase&lt;BoolView,int&gt;* Gecode::Int::Branch::valselcommitbool</definition>
+        <argsstring>(Space &amp;home, int n, const IntValBranch &amp;ivb)</argsstring>
+        <name>valselcommitbool</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntValBranch" kindref="compound">IntValBranch</ref> &amp;</type>
+          <declname>ivb</declname>
+        </param>
+        <briefdescription>
+<para>Return value and commit for Boolean views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="611" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1a8fd70e704adfc1be1790173ba86c135c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref>, int &gt; *</type>
+        <definition>GECODE_INT_EXPORT ValSelCommitBase&lt;IntView,int&gt;* Gecode::Int::Branch::valselcommitint</definition>
+        <argsstring>(Space &amp;home, const IntAssign &amp;ia)</argsstring>
+        <name>valselcommitint</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntAssign" kindref="compound">IntAssign</ref> &amp;</type>
+          <declname>ia</declname>
+        </param>
+        <briefdescription>
+<para>Return value and commit for integer views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="616" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Branch_1a36f208e500adc25a1da2eebd5ba654a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT <ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; <ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref>, int &gt; *</type>
+        <definition>GECODE_INT_EXPORT ValSelCommitBase&lt;BoolView,int&gt;* Gecode::Int::Branch::valselcommitbool</definition>
+        <argsstring>(Space &amp;home, const IntAssign &amp;ia)</argsstring>
+        <name>valselcommitbool</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntAssign" kindref="compound">IntAssign</ref> &amp;</type>
+          <declname>ia</declname>
+        </param>
+        <briefdescription>
+<para>Return value and commit for Boolean views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="621" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Integer branchers. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/branch/merit.hpp" line="38" column="1"/>
+  </compounddef>
+</doxygen>

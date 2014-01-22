@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_2de6540d8315da9483cf39c88cd94c30" kind="dir">
+    <compoundname>/usr/include/gecode/search/parallel</compoundname>
+    <innerfile refid="parallel_2bab_8hh">bab.hh</innerfile>
+    <innerfile refid="parallel_2dfs_8hh">dfs.hh</innerfile>
+    <innerfile refid="engine_8hh">engine.hh</innerfile>
+    <innerfile refid="parallel_2path_8hh">path.hh</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/search/parallel/"/>
+  </compounddef>
+</doxygen>

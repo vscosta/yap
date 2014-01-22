@@ -1,0 +1,603 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask" kind="class" prot="public">
+    <compoundname>Gecode::Int::Unary::ManFixPTask</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Cumulative_1_1ManFixPTask" prot="public" virt="non-virtual">Gecode::Int::Cumulative::ManFixPTask</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Unary_1_1ManFixPSETask" prot="public" virt="non-virtual">Gecode::Int::Unary::ManFixPSETask</derivedcompoundref>
+    <includes refid="unary_8hh" local="no">unary.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a57dc0b173eecb294460aa39235736610" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline ManFixPTask::ManFixPTask</definition>
+        <argsstring>(void)</argsstring>
+        <name>ManFixPTask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="68" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a2bcbcd7f25a615f7392094425d004c7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline ManFixPTask::ManFixPTask</definition>
+        <argsstring>(IntVar s, int p)</argsstring>
+        <name>ManFixPTask</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis> and processing time <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="70" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="49" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a5af4e1381ec95cfe571bb457fdb2b59d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void ManFixPTask::init</definition>
+        <argsstring>(IntVar s, int p)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis> and processing time <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="72" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="51" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1add96656950b2715801e35d74b660dbad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void ManFixPTask::init</definition>
+        <argsstring>(const ManFixPTask &amp;t)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask" kindref="compound">ManFixPTask</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from task <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="74" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="55" bodyend="57"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a787d918d67c9b434fd429cfc0c0bddeb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::est</definition>
+        <argsstring>(void) const </argsstring>
+        <name>est</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return earliest start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="80" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1aea353b3412118ed27d15a4f6991b6e51" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::ect</definition>
+        <argsstring>(void) const </argsstring>
+        <name>ect</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return earliest completion time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="82" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7cb7adeb9023ee83182715387f031c33" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::lst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return latest start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="84" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="68" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a0621e626f322fa59580ef51cd41756ba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::lct</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lct</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return latest completion time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="86" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="72" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad06583b8f832a976eb1d67fb6963702d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::pmin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>pmin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum processing time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="88" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ae8a74662df55eaf4257f0aaa3e0b7731" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int ManFixPTask::pmax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>pmax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum processing time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="90" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ac40a3d02f50d0bc34ace6d1da4b70694" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+        <definition>forceinline IntVar ManFixPTask::st</definition>
+        <argsstring>(void) const </argsstring>
+        <name>st</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="92" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="84" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a542a5cf37fb21c823e16cc9ed61e9946" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool ManFixPTask::mandatory</definition>
+        <argsstring>(void) const </argsstring>
+        <name>mandatory</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether task is mandatory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="94" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="89" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a418d13169351dc7067aa96d9e7e1e3f0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool ManFixPTask::excluded</definition>
+        <argsstring>(void) const </argsstring>
+        <name>excluded</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether task is excluded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="96" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a676c529d16e786c600dacce317969b95" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool ManFixPTask::optional</definition>
+        <argsstring>(void) const </argsstring>
+        <name>optional</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether task can still be optional. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="98" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a2aa65a98da035b475b4ab0faf05cbeb8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool ManFixPTask::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether task is assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="104" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="102" bodyend="104"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value update</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1abde7cf11e214077b6a7e85dc27eb4043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::est</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>est</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update earliest start time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="110" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="107" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a1aeec2e72ea3788a6c23ea26dd8bacd7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::ect</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>ect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update earliest completion time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="112" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="111" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7905149c4682fa3d7d2c5790cf5edd63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::lst</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lst</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update latest start time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="114" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7aba2dbf1f1b81abc0c5586d8d0d4c23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::lct</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lct</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update latest completion time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="116" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad3f68631f6fcf47c0c9988845e30d533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::norun</definition>
+        <argsstring>(Space &amp;home, int e, int l)</argsstring>
+        <name>norun</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Update such that task cannot run from <emphasis>e</emphasis> to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="118" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="123" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad1ff341b455afc62f85c1d7d44b5d79c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::mandatory</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>mandatory</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Mark task as mandatory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="120" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="134" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1aed52e17d37e41360bb9d15b503c5b4ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent ManFixPTask::excluded</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>excluded</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Mark task as excluded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="122" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="138" bodyend="140"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a13a07481f0690fbccea73760fa22cd6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void ManFixPTask::update</definition>
+        <argsstring>(Space &amp;home, bool share, ManFixPTask &amp;t)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask" kindref="compound">ManFixPTask</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Update this task to be a clone of task <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="128" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="143" bodyend="145"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1af18c6ff57406fae618fbeef88e2db91e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void ManFixPTask::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc=Int::PC_INT_BND)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+          <defval>Int::PC_INT_BND</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> to task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="134" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="148" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a6726af90ff53c2e1f0b2c0e46ba07410" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void ManFixPTask::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc=Int::PC_INT_BND)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+          <defval>Int::PC_INT_BND</defval>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> for task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="136" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="152" bodyend="154"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a6b5eb149ff775b8529f53237a7f97795" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">Int::IntView</ref></type>
+        <definition>Int::IntView Gecode::Int::Unary::ManFixPTask::_s</definition>
+        <argsstring></argsstring>
+        <name>_s</name>
+        <briefdescription>
+<para>Start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="61" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a70e311b8496e0cb797a161a4b8c27e1d" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Unary::ManFixPTask::_p</definition>
+        <argsstring></argsstring>
+        <name>_p</name>
+        <briefdescription>
+<para>Processing time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="63" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Unary (mandatory) task with fixed processing time </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3690">
+        <label>Gecode::Int::Unary::ManFixPSETask</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1ManFixPSETask"/>
+        <childnode refid="3688" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3691">
+        <label>Gecode::Int::Cumulative::ManFixPSETask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ManFixPSETask"/>
+        <childnode refid="3690" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3688">
+        <label>Gecode::Int::Unary::ManFixPTask</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask"/>
+      </node>
+      <node id="3689">
+        <label>Gecode::Int::Cumulative::ManFixPTask</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ManFixPTask"/>
+        <childnode refid="3688" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3693">
+        <label>Gecode::Int::IntView</label>
+        <link refid="classGecode_1_1Int_1_1IntView"/>
+        <childnode refid="3694" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3694">
+        <label>Gecode::VarImpView&lt; IntVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="3692">
+        <label>Gecode::Int::Unary::ManFixPTask</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask"/>
+        <childnode refid="3693" relation="usage">
+          <edgelabel>_s</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/unary.hh" line="58" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="58" bodyend="139"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a70e311b8496e0cb797a161a4b8c27e1d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>_p</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a6b5eb149ff775b8529f53237a7f97795" prot="protected" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>_s</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a2aa65a98da035b475b4ab0faf05cbeb8" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a6726af90ff53c2e1f0b2c0e46ba07410" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1aea353b3412118ed27d15a4f6991b6e51" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>ect</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a1aeec2e72ea3788a6c23ea26dd8bacd7" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>ect</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a787d918d67c9b434fd429cfc0c0bddeb" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>est</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1abde7cf11e214077b6a7e85dc27eb4043" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>est</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a418d13169351dc7067aa96d9e7e1e3f0" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1aed52e17d37e41360bb9d15b503c5b4ce" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a5af4e1381ec95cfe571bb457fdb2b59d" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1add96656950b2715801e35d74b660dbad" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a0621e626f322fa59580ef51cd41756ba" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>lct</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7aba2dbf1f1b81abc0c5586d8d0d4c23" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>lct</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7cb7adeb9023ee83182715387f031c33" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a7905149c4682fa3d7d2c5790cf5edd63" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a542a5cf37fb21c823e16cc9ed61e9946" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad1ff341b455afc62f85c1d7d44b5d79c" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a57dc0b173eecb294460aa39235736610" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>ManFixPTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a2bcbcd7f25a615f7392094425d004c7e" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>ManFixPTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad3f68631f6fcf47c0c9988845e30d533" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>norun</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a676c529d16e786c600dacce317969b95" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>optional</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ae8a74662df55eaf4257f0aaa3e0b7731" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>pmax</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ad06583b8f832a976eb1d67fb6963702d" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>pmin</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1ac40a3d02f50d0bc34ace6d1da4b70694" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>st</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1af18c6ff57406fae618fbeef88e2db91e" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1ManFixPTask_1a13a07481f0690fbccea73760fa22cd6e" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::ManFixPTask</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

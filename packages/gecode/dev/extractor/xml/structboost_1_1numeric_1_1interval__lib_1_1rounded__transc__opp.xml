@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1rounded__transc__opp" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::rounded_transc_opp</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Rounding</basecompoundref>
+    <templateparamlist>
+      <param>
+        <type>class T</type>
+      </param>
+      <param>
+        <type>class Rounding</type>
+      </param>
+    </templateparamlist>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6219">
+        <label>boost::numeric::interval_lib::rounded_transc_opp&lt; T, Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__transc__opp"/>
+        <childnode refid="6220" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6220">
+        <label>Rounding</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6221">
+        <label>boost::numeric::interval_lib::rounded_transc_opp&lt; T, Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__transc__opp"/>
+        <childnode refid="6222" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6222">
+        <label>Rounding</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_transc.hpp" line="85" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_transc.hpp" bodystart="84" bodyend="134"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Stop" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Search::Stop</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Driver_1_1CombinedStop" prot="public" virt="non-virtual">Gecode::Driver::CombinedStop</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Search_1_1FailStop" prot="public" virt="non-virtual">Gecode::Search::FailStop</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Search_1_1MetaStop" prot="public" virt="non-virtual">Gecode::Search::MetaStop</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Search_1_1NodeStop" prot="public" virt="non-virtual">Gecode::Search::NodeStop</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Search_1_1TimeStop" prot="public" virt="non-virtual">Gecode::Search::TimeStop</derivedcompoundref>
+    <includes refid="search_8hh" local="no">search.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Stop_1ae302d43fef2d669d9b8176acbcf9b73c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Stop::Stop</definition>
+        <argsstring>(void)</argsstring>
+        <name>Stop</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="265" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Stop_1a463768870e6d105a5db82bef6e46a38b" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool Gecode::Search::Stop::stop</definition>
+        <argsstring>(const Statistics &amp;s, const Options &amp;o)=0</argsstring>
+        <name>stop</name>
+        <reimplementedby refid="classGecode_1_1Driver_1_1CombinedStop_1a6b0780d8bd0d3c3d45148970e4667fed">stop</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Search_1_1NodeStop_1a702ce360938a61f3ce0cd7459b227786">stop</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Search_1_1FailStop_1a21d604498c6f74fd912ff37cfb59f915">stop</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Search_1_1TimeStop_1a4c21b4920b1f8565b7dace0289467778">stop</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Search_1_1MetaStop_1a20b284ba9877c98d013a79f4a3f53efc">stop</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Statistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Stop" kindref="compound">Stop</ref> search, if returns true. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="267" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Stop_1ad90885b245e012bf606761acce005547" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Stop::~Stop</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Stop</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="269" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="47" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Stop_1aa6e564f2ae9520dd15caf301ae1f973a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Search::Stop::operator new</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="271" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="49" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Stop_1adcf14604abab854cd1b655114baf6f2c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Stop::operator delete</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Free memory allocated from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="273" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for Stop-object. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6724">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="6727">
+        <label>Gecode::Search::MetaStop</label>
+        <link refid="classGecode_1_1Search_1_1MetaStop"/>
+        <childnode refid="6724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6728">
+        <label>Gecode::Search::NodeStop</label>
+        <link refid="classGecode_1_1Search_1_1NodeStop"/>
+        <childnode refid="6724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6729">
+        <label>Gecode::Search::TimeStop</label>
+        <link refid="classGecode_1_1Search_1_1TimeStop"/>
+        <childnode refid="6724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6726">
+        <label>Gecode::Search::FailStop</label>
+        <link refid="classGecode_1_1Search_1_1FailStop"/>
+        <childnode refid="6724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6725">
+        <label>Gecode::Driver::CombinedStop</label>
+        <link refid="classGecode_1_1Driver_1_1CombinedStop"/>
+        <childnode refid="6724" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/search.hh" line="262" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="262" bodyend="274"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Stop_1adcf14604abab854cd1b655114baf6f2c" prot="public" virt="non-virtual"><scope>Gecode::Search::Stop</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1aa6e564f2ae9520dd15caf301ae1f973a" prot="public" virt="non-virtual"><scope>Gecode::Search::Stop</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1a463768870e6d105a5db82bef6e46a38b" prot="public" virt="pure-virtual"><scope>Gecode::Search::Stop</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1ae302d43fef2d669d9b8176acbcf9b73c" prot="public" virt="non-virtual"><scope>Gecode::Search::Stop</scope><name>Stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1ad90885b245e012bf606761acce005547" prot="public" virt="virtual"><scope>Gecode::Search::Stop</scope><name>~Stop</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

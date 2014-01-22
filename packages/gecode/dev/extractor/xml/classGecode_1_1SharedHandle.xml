@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SharedHandle" kind="class" prot="public">
+    <compoundname>Gecode::SharedHandle</compoundname>
+    <derivedcompoundref refid="classGecode_1_1DFA" prot="public" virt="non-virtual">Gecode::DFA</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1FlatZinc_1_1BranchInformation" prot="public" virt="non-virtual">Gecode::FlatZinc::BranchInformation</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntSet" prot="public" virt="non-virtual">Gecode::IntSet</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Rnd" prot="public" virt="non-virtual">Gecode::Rnd</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SharedArray" prot="public" virt="non-virtual">Gecode::SharedArray&lt; T &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1TupleSet" prot="public" virt="non-virtual">Gecode::TupleSet</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SharedArray" prot="public" virt="non-virtual">Gecode::SharedArray&lt; int &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <innerclass refid="classGecode_1_1SharedHandle_1_1Object" prot="public">Gecode::SharedHandle::Object</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1SharedHandle_1a756813d7717ad74c2c2bb6d2b7a84253" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">Object</ref> *</type>
+        <definition>Object* Gecode::SharedHandle::o</definition>
+        <argsstring></argsstring>
+        <name>o</name>
+        <briefdescription>
+<para>The shared object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="112" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a513b69e41b35709a39953e26154b6e42" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::SharedHandle::subscribe</definition>
+        <argsstring>(void)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Subscribe handle to object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="114" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2580" bodyend="2582"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a68e124708b8481a8b0bdd48cc9da9426" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::SharedHandle::cancel</definition>
+        <argsstring>(void)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of handle to object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="116" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2584" bodyend="2588"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a421b3931301cdbd047737c7eb920097c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SharedHandle::SharedHandle</definition>
+        <argsstring>(void)</argsstring>
+        <name>SharedHandle</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create shared handle with no object pointing to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="119" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2596" bodyend="2596"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a7af0bf287aedc0181643f91ee7f94b92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SharedHandle::SharedHandle</definition>
+        <argsstring>(SharedHandle::Object *so)</argsstring>
+        <name>SharedHandle</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+          <declname>so</declname>
+        </param>
+        <briefdescription>
+<para>Create shared handle that points to shared object <emphasis>so</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="121" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2598" bodyend="2600"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1aad7da499195487bdf3085d61ed83d004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SharedHandle::SharedHandle</definition>
+        <argsstring>(const SharedHandle &amp;sh)</argsstring>
+        <name>SharedHandle</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SharedHandle" kindref="compound">SharedHandle</ref> &amp;</type>
+          <declname>sh</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor maintaining reference count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="123" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2602" bodyend="2604"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1ae484ef9621e41e100aa778b8c908f65e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1SharedHandle" kindref="compound">SharedHandle</ref> &amp;</type>
+        <definition>forceinline SharedHandle &amp; Gecode::SharedHandle::operator=</definition>
+        <argsstring>(const SharedHandle &amp;sh)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SharedHandle" kindref="compound">SharedHandle</ref> &amp;</type>
+          <declname>sh</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator maintaining reference count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="125" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2606" bodyend="2611"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1afeb40b81ba09fed2539490f1035788f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::SharedHandle::update</definition>
+        <argsstring>(Space &amp;home, bool share, SharedHandle &amp;sh)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1SharedHandle" kindref="compound">SharedHandle</ref> &amp;</type>
+          <declname>sh</declname>
+        </param>
+        <briefdescription>
+<para>Updating during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="127" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2613" bodyend="2627"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1abdf052ec870b883c26b79538296819f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SharedHandle::~SharedHandle</definition>
+        <argsstring>(void)</argsstring>
+        <name>~SharedHandle</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor that maintains reference count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="129" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2629" bodyend="2631"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a703f11794c6cac8c22bfc4a4136eb4f8" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+        <definition>forceinline SharedHandle::Object * Gecode::SharedHandle::object</definition>
+        <argsstring>(void) const </argsstring>
+        <name>object</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Access to the shared object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="132" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2576" bodyend="2578"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SharedHandle_1a688e41d609c30fe5517ca35cf908ddee" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::SharedHandle::object</definition>
+        <argsstring>(SharedHandle::Object *n)</argsstring>
+        <name>object</name>
+        <param>
+          <type><ref refid="classGecode_1_1SharedHandle_1_1Object" kindref="compound">SharedHandle::Object</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Modify shared object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="134" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2590" bodyend="2594"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The shared handle. </para>    </briefdescription>
+    <detaileddescription>
+<para>A shared handle provides access to an object that lives outside a space, and is shared between entities that possibly reside inside different spaces. The handle has an update mechanism that supports updates with and without sharing. An update without sharing makes sure that a single copy of the object is created when the space is copied.</para><para>This is the base class that all shared handles must inherit from. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6482">
+        <label>Gecode::SharedArray&lt; T &gt;</label>
+        <link refid="classGecode_1_1SharedArray"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6481">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6477">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="6478">
+        <label>Gecode::DFA</label>
+        <link refid="classGecode_1_1DFA"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6483">
+        <label>Gecode::TupleSet</label>
+        <link refid="classGecode_1_1TupleSet"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6479">
+        <label>Gecode::FlatZinc::BranchInformation</label>
+        <link refid="classGecode_1_1FlatZinc_1_1BranchInformation"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6480">
+        <label>Gecode::IntSet</label>
+        <link refid="classGecode_1_1IntSet"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6484">
+        <label>Gecode::SharedArray&lt; int &gt;</label>
+        <link refid="classGecode_1_1SharedArray"/>
+        <childnode refid="6477" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="79" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="79" bodyend="135"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1SharedHandle_1a68e124708b8481a8b0bdd48cc9da9426" prot="private" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a756813d7717ad74c2c2bb6d2b7a84253" prot="private" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>o</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a703f11794c6cac8c22bfc4a4136eb4f8" prot="protected" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a688e41d609c30fe5517ca35cf908ddee" prot="protected" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1ae484ef9621e41e100aa778b8c908f65e" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a421b3931301cdbd047737c7eb920097c" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a7af0bf287aedc0181643f91ee7f94b92" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1aad7da499195487bdf3085d61ed83d004" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a513b69e41b35709a39953e26154b6e42" prot="private" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1SharedHandle_1afeb40b81ba09fed2539490f1035788f8" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>update</name></member>
+      <member refid="classGecode_1_1SharedHandle_1abdf052ec870b883c26b79538296819f8" prot="public" virt="non-virtual"><scope>Gecode::SharedHandle</scope><name>~SharedHandle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1Statistics" kind="class" prot="public">
+    <compoundname>Gecode::Gist::Statistics</compoundname>
+    <basecompoundref refid="classGecode_1_1StatusStatistics" prot="public" virt="non-virtual">Gecode::StatusStatistics</basecompoundref>
+    <includes refid="spacenode_8hh" local="no">spacenode.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Statistics_1a490fe77dac8bc90cf965a87e5c7ff70e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::Statistics::solutions</definition>
+        <argsstring></argsstring>
+        <name>solutions</name>
+        <briefdescription>
+<para>Number of solutions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="66" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Statistics_1a2073bfbc496431093f27517120dbce62" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::Statistics::failures</definition>
+        <argsstring></argsstring>
+        <name>failures</name>
+        <briefdescription>
+<para>Number of failures. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="68" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Statistics_1a05598d56c3304ed3d201083c3c250944" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::Statistics::choices</definition>
+        <argsstring></argsstring>
+        <name>choices</name>
+        <briefdescription>
+<para>Number of choice nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="70" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Statistics_1a5a41c6b66d1e0f3470f751a1c0c4f862" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::Statistics::undetermined</definition>
+        <argsstring></argsstring>
+        <name>undetermined</name>
+        <briefdescription>
+<para>Number of open, undetermined nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="72" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1Statistics_1a8c97aeeca985796424551271bda34c63" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::Statistics::maxDepth</definition>
+        <argsstring></argsstring>
+        <name>maxDepth</name>
+        <briefdescription>
+<para>Maximum depth of the tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="74" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1Statistics_1a6cbcd559a6728746b82ed68ed2ef2481" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::Statistics::Statistics</definition>
+        <argsstring>(void)</argsstring>
+        <name>Statistics</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/spacenode.hh" line="77" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="77" bodyend="78"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Statistics about the search tree </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6690">
+        <label>Gecode::Gist::Statistics</label>
+        <link refid="classGecode_1_1Gist_1_1Statistics"/>
+        <childnode refid="6691" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6691">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6692">
+        <label>Gecode::Gist::Statistics</label>
+        <link refid="classGecode_1_1Gist_1_1Statistics"/>
+        <childnode refid="6693" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6693">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/spacenode.hh" line="63" column="1" bodyfile="/usr/include/gecode/gist/spacenode.hh" bodystart="63" bodyend="79"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a05598d56c3304ed3d201083c3c250944" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>choices</name></member>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a2073bfbc496431093f27517120dbce62" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>failures</name></member>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a8c97aeeca985796424551271bda34c63" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>maxDepth</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a048ae1675c694c98db9f67ea0bf92a97" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a1965d4b44fac926eb385f28a8e42c4e4" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a9fbb7e9a20cfc211fc94f7945b725285" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a07ef9be5e6a80f0ce88ef20865160564" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a490fe77dac8bc90cf965a87e5c7ff70e" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>solutions</name></member>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a6cbcd559a6728746b82ed68ed2ef2481" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>Statistics</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a506ae402cb397456e7dcc33c3aee4003" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>StatusStatistics</name></member>
+      <member refid="classGecode_1_1Gist_1_1Statistics_1a5a41c6b66d1e0f3470f751a1c0c4f862" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>undetermined</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1ac5cf5589641e40dfda1b5c55f308191e" prot="public" virt="non-virtual"><scope>Gecode::Gist::Statistics</scope><name>wmp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

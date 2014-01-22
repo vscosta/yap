@@ -1,0 +1,344 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SizeOptions" kind="class" prot="public">
+    <compoundname>Gecode::SizeOptions</compoundname>
+    <basecompoundref refid="classGecode_1_1Options" prot="public" virt="non-virtual">Gecode::Options</basecompoundref>
+    <includes refid="driver_8hh" local="no">driver.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1SizeOptions_1a9662d3530fff1877d1c6327588e3feff" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::SizeOptions::_size</definition>
+        <argsstring></argsstring>
+        <name>_size</name>
+        <briefdescription>
+<para>Size value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="569" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="569" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1SizeOptions_1a76dfef0eb2c1f7ded629656a7c735e96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SizeOptions::SizeOptions</definition>
+        <argsstring>(const char *s)</argsstring>
+        <name>SizeOptions</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Initialize options for script with name <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="572" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SizeOptions_1a5a8d8afe9af34e3e4652b952738bbf87" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::SizeOptions::help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <reimplements refid="classGecode_1_1BaseOptions_1a40e2d5279d2d04b78af526cce4e63cb9">help</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Print help text. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="574" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SizeOptions_1af3a296932e0a4223fb965e8e4849bb9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::SizeOptions::parse</definition>
+        <argsstring>(int &amp;argc, char *argv[])</argsstring>
+        <name>parse</name>
+        <param>
+          <type>int &amp;</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Parse options from arguments <emphasis>argv</emphasis> (number is <emphasis>argc</emphasis>) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="576" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SizeOptions_1abe7f63b7121485fc57c0d57616a5b57e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::SizeOptions::size</definition>
+        <argsstring>(unsigned int s)</argsstring>
+        <name>size</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> default size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="579" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="467" bodyend="469"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SizeOptions_1a232659e5e6cb55fcc53ef293887117b2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::SizeOptions::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="581" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="471" bodyend="473"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Options for scripts with additional size parameter </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6537">
+        <label>Gecode::Options</label>
+        <link refid="classGecode_1_1Options"/>
+        <childnode refid="6538" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6536">
+        <label>Gecode::SizeOptions</label>
+        <link refid="classGecode_1_1SizeOptions"/>
+        <childnode refid="6537" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6538">
+        <label>Gecode::BaseOptions</label>
+        <link refid="classGecode_1_1BaseOptions"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6540">
+        <label>Gecode::Options</label>
+        <link refid="classGecode_1_1Options"/>
+        <childnode refid="6541" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6543" relation="usage">
+          <edgelabel>_threads</edgelabel>
+          <edgelabel>_r_base</edgelabel>
+          <edgelabel>_decay</edgelabel>
+        </childnode>
+        <childnode refid="6544" relation="usage">
+          <edgelabel>_iterations</edgelabel>
+          <edgelabel>_r_scale</edgelabel>
+          <edgelabel>_nogoods_limit</edgelabel>
+          <edgelabel>_a_d</edgelabel>
+          <edgelabel>_time</edgelabel>
+          <edgelabel>_fail</edgelabel>
+          <edgelabel>_c_d</edgelabel>
+          <edgelabel>_solutions</edgelabel>
+          <edgelabel>_samples</edgelabel>
+          <edgelabel>_node</edgelabel>
+          <edgelabel>...</edgelabel>
+        </childnode>
+        <childnode refid="6545" relation="usage">
+          <edgelabel>_search</edgelabel>
+          <edgelabel>_icl</edgelabel>
+          <edgelabel>_propagation</edgelabel>
+          <edgelabel>_symmetry</edgelabel>
+          <edgelabel>_branching</edgelabel>
+          <edgelabel>_model</edgelabel>
+          <edgelabel>_mode</edgelabel>
+          <edgelabel>_restart</edgelabel>
+        </childnode>
+        <childnode refid="6547" relation="usage">
+          <edgelabel>_log_file</edgelabel>
+          <edgelabel>_out_file</edgelabel>
+        </childnode>
+        <childnode refid="6548" relation="usage">
+          <edgelabel>_print_last</edgelabel>
+          <edgelabel>_nogoods</edgelabel>
+          <edgelabel>_interrupt</edgelabel>
+        </childnode>
+      </node>
+      <node id="6542">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+        <childnode refid="6542" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="6539">
+        <label>Gecode::SizeOptions</label>
+        <link refid="classGecode_1_1SizeOptions"/>
+        <childnode refid="6540" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6544">
+        <label>Gecode::Driver::UnsignedIntOption</label>
+        <link refid="classGecode_1_1Driver_1_1UnsignedIntOption"/>
+        <childnode refid="6542" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6545">
+        <label>Gecode::Driver::StringOption</label>
+        <link refid="classGecode_1_1Driver_1_1StringOption"/>
+        <childnode refid="6542" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6546" relation="usage">
+          <edgelabel>fst</edgelabel>
+          <edgelabel>lst</edgelabel>
+        </childnode>
+      </node>
+      <node id="6547">
+        <label>Gecode::Driver::StringValueOption</label>
+        <link refid="classGecode_1_1Driver_1_1StringValueOption"/>
+        <childnode refid="6542" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6541">
+        <label>Gecode::BaseOptions</label>
+        <link refid="classGecode_1_1BaseOptions"/>
+        <childnode refid="6542" relation="usage">
+          <edgelabel>fst</edgelabel>
+          <edgelabel>lst</edgelabel>
+        </childnode>
+      </node>
+      <node id="6548">
+        <label>Gecode::Driver::BoolOption</label>
+        <link refid="classGecode_1_1Driver_1_1BoolOption"/>
+        <childnode refid="6542" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6546">
+        <label>Gecode::Driver::StringOption::Value</label>
+        <link refid="classGecode_1_1Driver_1_1StringOption_1_1Value"/>
+        <childnode refid="6546" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="6543">
+        <label>Gecode::Driver::DoubleOption</label>
+        <link refid="classGecode_1_1Driver_1_1DoubleOption"/>
+        <childnode refid="6542" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/driver.hh" line="567" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="567" bodyend="582"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Options_1aaf27375ff617de46648e8f9aee1ae579" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_a_d</name></member>
+      <member refid="classGecode_1_1Options_1a8e973a36893fdb510debc1119074d52e" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_branching</name></member>
+      <member refid="classGecode_1_1Options_1a76c3bf8200de75f988d633375c1ade23" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_c_d</name></member>
+      <member refid="classGecode_1_1Options_1a35ea1e29afce067a81dc08a97cf8fa27" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_decay</name></member>
+      <member refid="classGecode_1_1Options_1ae518d431a9609e6c8bb006c0701441bf" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_fail</name></member>
+      <member refid="classGecode_1_1Options_1af5f59214e8255a4ffb733204895373ef" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_icl</name></member>
+      <member refid="classGecode_1_1Options_1aa2f735c5b7246f8fdbaefad132a81390" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_interrupt</name></member>
+      <member refid="classGecode_1_1Options_1a68a60e63f5b444d055c40ef98539621d" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_iterations</name></member>
+      <member refid="classGecode_1_1Options_1a10ab92f75e54cf32d746e95ab0f9d723" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_log_file</name></member>
+      <member refid="classGecode_1_1Options_1a246c549626570cc27244a9d9144377d2" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_mode</name></member>
+      <member refid="classGecode_1_1Options_1a159330e12a455b30c4b6a695c6a330a6" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_model</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a56fabecd29f21c2a01c7bf611b76944d" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_name</name></member>
+      <member refid="classGecode_1_1Options_1ac93924178146f2682b486b466ce6cd3d" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_node</name></member>
+      <member refid="classGecode_1_1Options_1a3e38bba060d6e54f31c5f8c7c4ed9c81" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_nogoods</name></member>
+      <member refid="classGecode_1_1Options_1a37f520b817af22d60a6aed42c1e49f6d" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_nogoods_limit</name></member>
+      <member refid="classGecode_1_1Options_1ac2773554fc0898a4563d2f398dfb412b" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_out_file</name></member>
+      <member refid="classGecode_1_1Options_1a75da0493055999179a3309e4b96a74d4" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_print_last</name></member>
+      <member refid="classGecode_1_1Options_1a6ad695b0058a145db4861ddbbefa968b" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_propagation</name></member>
+      <member refid="classGecode_1_1Options_1ab8c92f6671929b74418c1f4b1094308c" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_r_base</name></member>
+      <member refid="classGecode_1_1Options_1a99f553d7e80193bec725776d7c78e2ec" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_r_scale</name></member>
+      <member refid="classGecode_1_1Options_1a900fbb09f9f21130c9b37484e93fc96c" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_restart</name></member>
+      <member refid="classGecode_1_1Options_1ad5e2cdf2d97032ffa185952c5cd816ce" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_samples</name></member>
+      <member refid="classGecode_1_1Options_1a6a70bab34b8f7ef96604a41554f46bd2" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_search</name></member>
+      <member refid="classGecode_1_1SizeOptions_1a9662d3530fff1877d1c6327588e3feff" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_size</name></member>
+      <member refid="classGecode_1_1Options_1a57ac4b42726565a81dd8572d27a0e4d0" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_solutions</name></member>
+      <member refid="classGecode_1_1Options_1aba17b865dd06a5da02dbb21faca18ed5" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_symmetry</name></member>
+      <member refid="classGecode_1_1Options_1a8e8ade701c8f5ee939cb0b51cea3acf0" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_threads</name></member>
+      <member refid="classGecode_1_1Options_1a95744dc31c0c029eba876ab1d63cb6bd" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>_time</name></member>
+      <member refid="classGecode_1_1Options_1a38bf58c0a1750be26f704051391bf04e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>a_d</name></member>
+      <member refid="classGecode_1_1Options_1a66fddec66ac0f78555593780df89adde" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>a_d</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a4042881bc50ab401ac8f49956c22dd0e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>add</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a28b1289dd92349b88a30350f6158b1f5" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>BaseOptions</name></member>
+      <member refid="classGecode_1_1Options_1a40474cb65da03afabc7ce6321c4a1c97" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>branching</name></member>
+      <member refid="classGecode_1_1Options_1a5ece138f930cdf151539807ee7296c72" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>branching</name></member>
+      <member refid="classGecode_1_1Options_1a93dd9122d5c4eba31a1d62c813ef419a" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>branching</name></member>
+      <member refid="classGecode_1_1Options_1a156e8a02921ea05957d4dd1540eb1479" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>c_d</name></member>
+      <member refid="classGecode_1_1Options_1a26d89a9d9cd5da82df628e3e61443708" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>c_d</name></member>
+      <member refid="classGecode_1_1Options_1aacf4fc58c9a4ce6aed39f72712d10ac0" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>decay</name></member>
+      <member refid="classGecode_1_1Options_1acaed246bf4ba1abf4d3f8500e07c36da" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>decay</name></member>
+      <member refid="classGecode_1_1Options_1a411e74d97e3109b728ee5a608d79b1f6" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>fail</name></member>
+      <member refid="classGecode_1_1Options_1acf01577639b0d37a8a0444dc68d1fc7b" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>fail</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a98a52c677ab5f6492a3a577e1234d2ec" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>fst</name></member>
+      <member refid="classGecode_1_1SizeOptions_1a5a8d8afe9af34e3e4652b952738bbf87" prot="public" virt="virtual"><scope>Gecode::SizeOptions</scope><name>help</name></member>
+      <member refid="classGecode_1_1Options_1a9058dbaf68de50b21edaaaabb000e3b8" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>icl</name></member>
+      <member refid="classGecode_1_1Options_1a434f273d60928eed1debfc06f2293adb" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>icl</name></member>
+      <member refid="classGecode_1_1Options_1aa1feb2ee415ab7feec754a11f4a02512" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>interrupt</name></member>
+      <member refid="classGecode_1_1Options_1aca494bb01d85ed3bb10ec72a28e954e4" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>interrupt</name></member>
+      <member refid="classGecode_1_1Options_1a30991ed0b01c3364967d09af155c6c64" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>iterations</name></member>
+      <member refid="classGecode_1_1Options_1a9dae4ca48f13b48393ea418ee4f43b41" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>iterations</name></member>
+      <member refid="classGecode_1_1Options_1a19bc4d7bef854213c954bb1d57255a6f" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>log_file</name></member>
+      <member refid="classGecode_1_1Options_1a3cd6356cc6623d432ef01e186935d49a" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>log_file</name></member>
+      <member refid="classGecode_1_1BaseOptions_1aa4591f00b5af57b454bf2b2f8f2cb33d" prot="protected" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Options_1ad8fbb397d14c850005aa4fe78982b2d8" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>mode</name></member>
+      <member refid="classGecode_1_1Options_1a6108e8a9b64018f570621d7040ca72be" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>mode</name></member>
+      <member refid="classGecode_1_1Options_1aa85cc40b94b449c2a8bea2c0f7649d9b" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>model</name></member>
+      <member refid="classGecode_1_1Options_1a68695029e6b2ad8b52b1b00eb445c092" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>model</name></member>
+      <member refid="classGecode_1_1Options_1a6c6dafa53805d8ee9c6dd5622727cc15" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>model</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a26247d022d5ae58b30290295c9eba7a3" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>name</name></member>
+      <member refid="classGecode_1_1BaseOptions_1aab8306708754be79c3675760127756e0" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>name</name></member>
+      <member refid="classGecode_1_1Options_1ab1ef1270ca940f24eaf8b4795f766db2" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>node</name></member>
+      <member refid="classGecode_1_1Options_1af0d05310bdf2f08bfb062db0b8629f90" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>node</name></member>
+      <member refid="classGecode_1_1Options_1a58a62f053ba98eecaf0a78d0af8c6d2c" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1Options_1a5fd66074d08ca66fe658c031ba6cfa28" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1Options_1a78f7e9def2b43fb2f05c37f9782e64e5" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>nogoods_limit</name></member>
+      <member refid="classGecode_1_1Options_1aac088916427f7828c27c3c899c4eae78" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>nogoods_limit</name></member>
+      <member refid="classGecode_1_1Options_1a716be3c03388a6de152f60533d50c992" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>Options</name></member>
+      <member refid="classGecode_1_1Options_1ab563f9fcc33491f62714e0deb40451b0" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>out_file</name></member>
+      <member refid="classGecode_1_1Options_1a62c057117fdd8134dfd26a506efe21da" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>out_file</name></member>
+      <member refid="classGecode_1_1SizeOptions_1af3a296932e0a4223fb965e8e4849bb9e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>parse</name></member>
+      <member refid="classGecode_1_1Options_1a2288db66ec19c25d308c9e752db15b08" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>print_last</name></member>
+      <member refid="classGecode_1_1Options_1ab4765cc949080958cfd8b63adf56c044" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>print_last</name></member>
+      <member refid="classGecode_1_1Options_1a30941a817e27df7ce5d14f770bb56832" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>propagation</name></member>
+      <member refid="classGecode_1_1Options_1a5a6a266b43e49f5cd8b638e430d1b167" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>propagation</name></member>
+      <member refid="classGecode_1_1Options_1a502edff1197b7db9d3f7d67439be8831" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>propagation</name></member>
+      <member refid="classGecode_1_1Options_1a6d39f8e6fee7b77af1003e97049c769f" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart</name></member>
+      <member refid="classGecode_1_1Options_1ab163e73c63ae09c11307896ea3ad2c57" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart</name></member>
+      <member refid="classGecode_1_1Options_1aa2d483e1c5653753e0c8d7b3eae58a78" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart_base</name></member>
+      <member refid="classGecode_1_1Options_1a938a4389c4fe0582d497d6dbfacb53e7" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart_base</name></member>
+      <member refid="classGecode_1_1Options_1a9e7ae38a9e2256aeca73ece8056ddca5" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart_scale</name></member>
+      <member refid="classGecode_1_1Options_1aa3076deacc9d9b4ea0ee2370808ce3dc" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>restart_scale</name></member>
+      <member refid="classGecode_1_1Options_1ab4ebc20850383a26d484e8b0070e8e37" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>samples</name></member>
+      <member refid="classGecode_1_1Options_1ad81fed2b6662ac272555ff341fa1c85e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>samples</name></member>
+      <member refid="classGecode_1_1Options_1a53ba9e286090f41d72944102086e994b" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>search</name></member>
+      <member refid="classGecode_1_1Options_1a3573e1904d6626bdb5847b8a72bb0471" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>search</name></member>
+      <member refid="classGecode_1_1Options_1a40a33519e797648c671416082b55f081" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>search</name></member>
+      <member refid="classGecode_1_1SizeOptions_1abe7f63b7121485fc57c0d57616a5b57e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>size</name></member>
+      <member refid="classGecode_1_1SizeOptions_1a232659e5e6cb55fcc53ef293887117b2" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>size</name></member>
+      <member refid="classGecode_1_1SizeOptions_1a76dfef0eb2c1f7ded629656a7c735e96" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>SizeOptions</name></member>
+      <member refid="classGecode_1_1Options_1a41b3cf0e456a7b9149ed3db2e00fe9ad" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>solutions</name></member>
+      <member refid="classGecode_1_1Options_1a4ed4d46779cf8acf94f83645ca6609f2" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>solutions</name></member>
+      <member refid="classGecode_1_1Options_1a5b784e05b16ca744a6e024ed0bc8d4dc" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>symmetry</name></member>
+      <member refid="classGecode_1_1Options_1a3068fa1ee520f0382e06408a5e568dc9" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>symmetry</name></member>
+      <member refid="classGecode_1_1Options_1ae50149ae7169507c371f3dcd222a348d" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>symmetry</name></member>
+      <member refid="classGecode_1_1Options_1af3915a2215e093ec328a97b4242b0fde" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>threads</name></member>
+      <member refid="classGecode_1_1Options_1acca35b2dc30d83e66156f8533102c19d" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>threads</name></member>
+      <member refid="classGecode_1_1Options_1aba5a26c14a9cb1cdffccaf4e7de399d3" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>time</name></member>
+      <member refid="classGecode_1_1Options_1a9528059e6cea6ac474c6b5fe6d5a9a8e" prot="public" virt="non-virtual"><scope>Gecode::SizeOptions</scope><name>time</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a2f46fbae606aa775022ea0a289ba4170" prot="public" virt="virtual"><scope>Gecode::SizeOptions</scope><name>~BaseOptions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

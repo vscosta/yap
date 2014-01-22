@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Space_1_1Branchers" kind="class" prot="public">
+    <compoundname>Gecode::Space::Branchers</compoundname>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Space_1_1Branchers_1a491eaf052deecc218792f0e31b37f22a" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>const ActorLink* Gecode::Space::Branchers::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>current brancher </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2250" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2250" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Space_1_1Branchers_1a9650411013b76887d48578e2bbed7857" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>const ActorLink* Gecode::Space::Branchers::e</definition>
+        <argsstring></argsstring>
+        <name>e</name>
+        <briefdescription>
+<para>end mark </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2252" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2252" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Space_1_1Branchers_1aa445bcbc50cb6e884141015826d0be65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Space::Branchers::Branchers</definition>
+        <argsstring>(const Space &amp;home)</argsstring>
+        <name>Branchers</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2255" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4041" bodyend="4042"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1_1Branchers_1a695addf8fe35d17562d068bc2ad30b84" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Space::Branchers::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether there are branchers left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2257" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4044" bodyend="4046"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1_1Branchers_1ab417aafee5cab9bad9e5b4992c1dc483" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::Branchers::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next brancher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2259" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4048" bodyend="4050"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Space_1_1Branchers_1a750f9a5cb03d49f6e2024ceff60f5b5e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> &amp;</type>
+        <definition>forceinline const Brancher &amp; Gecode::Space::Branchers::brancher</definition>
+        <argsstring>(void) const </argsstring>
+        <name>brancher</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2261" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="4052" bodyend="4054"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to iterate over branchers of a space. </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that the iterator cannot be used during cloning. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="2247" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2247" bodyend="2262"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Space_1_1Branchers_1a750f9a5cb03d49f6e2024ceff60f5b5e" prot="public" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>brancher</name></member>
+      <member refid="classGecode_1_1Space_1_1Branchers_1aa445bcbc50cb6e884141015826d0be65" prot="public" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>Branchers</name></member>
+      <member refid="classGecode_1_1Space_1_1Branchers_1a491eaf052deecc218792f0e31b37f22a" prot="private" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>c</name></member>
+      <member refid="classGecode_1_1Space_1_1Branchers_1a9650411013b76887d48578e2bbed7857" prot="private" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>e</name></member>
+      <member refid="classGecode_1_1Space_1_1Branchers_1a695addf8fe35d17562d068bc2ad30b84" prot="public" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Space_1_1Branchers_1ab417aafee5cab9bad9e5b4992c1dc483" prot="public" virt="non-virtual"><scope>Gecode::Space::Branchers</scope><name>operator++</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelMiniModelChannel" kind="group">
+    <compoundname>TaskModelMiniModelChannel</compoundname>
+    <title>Channel functions</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelMiniModelChannel_1ga90a82817841f1548fe3c764edcd507c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>BoolVar</type>
+        <definition>BoolVar Gecode::channel</definition>
+        <argsstring>(Home home, IntVar x, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>channel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Return Boolean variable equal to <formula id="31">$x$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1616" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="1616" bodyend="1621"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelChannel_1gaf112cd4bdbd86db0220b7a17b60799b7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntVar</type>
+        <definition>IntVar Gecode::channel</definition>
+        <argsstring>(Home home, BoolVar b, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>channel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>BoolVar</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Return integer variable equal to <formula id="146">$b$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1624" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="1624" bodyend="1629"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

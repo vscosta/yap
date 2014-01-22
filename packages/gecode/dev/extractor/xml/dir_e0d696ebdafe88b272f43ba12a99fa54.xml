@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_e0d696ebdafe88b272f43ba12a99fa54" kind="dir">
+    <compoundname>/usr/include/gecode/int/linear</compoundname>
+    <innerfile refid="bool-int_8hpp">bool-int.hpp</innerfile>
+    <innerfile refid="bool-scale_8hpp">bool-scale.hpp</innerfile>
+    <innerfile refid="bool-view_8hpp">bool-view.hpp</innerfile>
+    <innerfile refid="int-bin_8hpp">int-bin.hpp</innerfile>
+    <innerfile refid="int-dom_8hpp">int-dom.hpp</innerfile>
+    <innerfile refid="int-nary_8hpp">int-nary.hpp</innerfile>
+    <innerfile refid="int-noview_8hpp">int-noview.hpp</innerfile>
+    <innerfile refid="int-ter_8hpp">int-ter.hpp</innerfile>
+    <innerfile refid="int_2linear_2post_8hpp">post.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,501 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntGraph" kind="group">
+    <compoundname>TaskModelIntGraph</compoundname>
+    <title>Graph constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gaa47ac0ccce6fe5ca21a1b1410fb7a294" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> has a single cycle covering all nodes.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis>.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3143" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gacec6666dd73e825ea242f7639ba00517" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, int offset, const IntVarArgs &amp;x, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> has a single cycle covering all nodes.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis>.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3161" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gab641498125baeb9112ef2dfbc882bd2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, const IntVarArgs &amp;x, const IntVarArgs &amp;y, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit with costs <emphasis>y</emphasis> and <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> has a single cycle covering all nodes. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire circuit. The variables <emphasis>y</emphasis> define the cost of the edge in <emphasis>x:</emphasis> that is, if <formula id="305">$x_i=j$</formula> then <formula id="308">$y_i=c_{i*n+j}$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <emphasis>x</emphasis> and <emphasis>y</emphasis> do not have the same size or if <formula id="309">$|x|\times|x|\neq|c|$</formula>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3185" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gaffa7182e0bd1ec349bb40e13b6b46f77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, int offset, const IntVarArgs &amp;x, const IntVarArgs &amp;y, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit with costs <emphasis>y</emphasis> and <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> has a single cycle covering all nodes. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire circuit. The variables <emphasis>y</emphasis> define the cost of the edge in <emphasis>x:</emphasis> that is, if <formula id="305">$x_i=j$</formula> then <formula id="308">$y_i=c_{i*n+j}$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <emphasis>x</emphasis> and <emphasis>y</emphasis> do not have the same size or if <formula id="309">$|x|\times|x|\neq|c|$</formula>.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3212" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gac4c07858656c2f4636b4f41fcd2b24b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, const IntVarArgs &amp;x, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit with cost <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> has a single cycle covering all nodes. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire circuit.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <formula id="309">$|x|\times|x|\neq|c|$</formula>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3235" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gaf23478dbb1da434e76ab0392ce29115a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::circuit</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, int offset, const IntVarArgs &amp;x, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>circuit</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a circuit with cost <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a circuit if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> has a single cycle covering all nodes. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire circuit.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <formula id="309">$|x|\times|x|\neq|c|$</formula>.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3260" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gae5733c359a61d5e3532265e3b5f187da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntVar s, IntVar e, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="310">$|x|$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis>.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3280" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1ga3e0334f228e730d23b4fac296038bc89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, int offset, const IntVarArgs &amp;x, IntVar s, IntVar e, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="311">$|x|+\text{offset}$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis>.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3300" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1ga1bfb15c4243bc93ead7aa745f241039d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, const IntVarArgs &amp;x, IntVar s, IntVar e, const IntVarArgs &amp;y, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path with costs <emphasis>y</emphasis> and <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="310">$|x|$</formula>. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire path. The variables <emphasis>y</emphasis> define the cost of the edge in <emphasis>x:</emphasis> that is, if <formula id="305">$x_i=j$</formula> then <formula id="308">$y_i=c_{i*n+j}$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <emphasis>x</emphasis> and <emphasis>y</emphasis> do not have the same size or if <formula id="309">$|x|\times|x|\neq|c|$</formula>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3325" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1gaaaa9301a87a6536f62cd2ac480c5d657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, int offset, const IntVarArgs &amp;x, IntVar s, IntVar e, const IntVarArgs &amp;y, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path with costs <emphasis>y</emphasis> and <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="311">$|x|+\text{offset}$</formula>. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire path. The variables <emphasis>y</emphasis> define the cost of the edge in <emphasis>x:</emphasis> that is, if <formula id="305">$x_i=j$</formula> then <formula id="308">$y_i=c_{i*n+j}$</formula>.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <emphasis>x</emphasis> and <emphasis>y</emphasis> do not have the same size or if <formula id="309">$|x|\times|x|\neq|c|$</formula>.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3354" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1ga9874141a0d059b57b156c8f119b92489" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, const IntVarArgs &amp;x, IntVar s, IntVar e, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path with cost <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="305">$x_i=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="310">$|x|$</formula>. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire path.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <formula id="309">$|x|\times|x|\neq|c|$</formula>. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3379" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGraph_1ga9fa7da9ca8b7cbec7d5dcaa241df5ecf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::path</definition>
+        <argsstring>(Home home, const IntArgs &amp;c, int offset, const IntVarArgs &amp;x, IntVar s, IntVar e, IntVar z, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>path</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator such that <emphasis>x</emphasis> forms a Hamiltonian path with cost <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>x</emphasis> forms a Hamiltonian path if the graph with edges <formula id="304">$i\to j$</formula> where <formula id="306">$x_{i-\text{offset}}=j$</formula> visits all nodes exactly once. The path starts at node <emphasis>s</emphasis> and the successor of the last node <emphasis>e</emphasis> is equal to <formula id="311">$|x|+\text{offset}$</formula>. The integer array <emphasis>c</emphasis> gives the costs of all possible edges where <formula id="307">$c_{i*|x|+j}$</formula> is the cost of the edge <formula id="304">$i\to j$</formula>. The variable <emphasis>z</emphasis> is the cost of the entire circuit.</para><para>Supports domain (<emphasis>icl</emphasis> = ICL_DOM) and value propagation (all other values for <emphasis>icl</emphasis>), where this refers to whether value or domain consistent distinct in enforced on <emphasis>x</emphasis> for circuit.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para><ref refid="classGecode_1_1Int_1_1ArgumentSame" kindref="compound">Int::ArgumentSame</ref>, if <emphasis>x</emphasis> contains the same unassigned variable multiply.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref>, if <emphasis>x</emphasis> has no elements.</para></listitem><listitem><para>Int::ArgumentSizeMismacth, if <formula id="309">$|x|\times|x|\neq|c|$</formula>.</para></listitem><listitem><para><ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>offset</emphasis> is negative. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="3406" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

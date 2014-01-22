@@ -1,0 +1,443 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1AFC" kind="class" prot="public">
+    <compoundname>Gecode::AFC</compoundname>
+    <derivedcompoundref refid="classGecode_1_1FloatAFC" prot="public" virt="non-virtual">Gecode::FloatAFC</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntAFC" prot="public" virt="non-virtual">Gecode::IntAFC</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SetAFC" prot="public" virt="non-virtual">Gecode::SetAFC</derivedcompoundref>
+    <includes refid="kernel_2afc_8hpp" local="no">afc.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="variable" id="classGecode_1_1AFC_1af8b27b9245b3c6d5bbd340212d0c1616" prot="public" static="yes" mutable="no">
+        <type>GECODE_KERNEL_EXPORT const <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+        <definition>GECODE_KERNEL_EXPORT const AFC Gecode::AFC::def</definition>
+        <argsstring></argsstring>
+        <name>def</name>
+        <briefdescription>
+<para>Default (empty) <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="74" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1aefa3ba6c008245bc2e3ab318f521b9d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::AFC::AFC</definition>
+        <argsstring>(void)</argsstring>
+        <name>AFC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Construct as not yet intialized. </para>        </briefdescription>
+        <detaileddescription>
+<para>The only member functions that can be used on a constructed but not yet initialized activity storage is init and the assignment operator. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="58" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="120" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a928268d69861797a867d61ee48266bb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::AFC::AFC</definition>
+        <argsstring>(const AFC &amp;a)</argsstring>
+        <name>AFC</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="60" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="146" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a324deeaf0c1b26935c3a81c12de9d37c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> &amp;</type>
+        <definition>forceinline AFC &amp; Gecode::AFC::operator=</definition>
+        <argsstring>(const AFC &amp;a)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="62" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1adbf716a0b860d387841c1083ad8ee545" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::AFC::AFC</definition>
+        <argsstring>(Home home, const VarArgArray&lt; Var &gt; &amp;x, double d)</argsstring>
+        <name>AFC</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for variables <emphasis>x</emphasis> and decay factor <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="65" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a10bd15c9de08ff82a46e88cd7c8ff67d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::AFC::init</definition>
+        <argsstring>(Home home, const VarArgArray&lt; Var &gt; &amp;x, double d)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for views <emphasis>x</emphasis> and decay factor <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="68" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1aca72aeed93beceb88a7d65e72c4f5606" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::AFC::initialized</definition>
+        <argsstring>(void) const </argsstring>
+        <name>initialized</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether already initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="70" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="123" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a635324f8be33802229d1a0c0eb2f5b8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::AFC::set</definition>
+        <argsstring>(Space &amp;home, double a=1.0)</argsstring>
+        <name>set</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>a</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information to <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="72" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="169" bodyend="171"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Update and delete activity information</header>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a862d408e9e7f8549d123e134aa7ebd41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::AFC::update</definition>
+        <argsstring>(Space &amp;home, bool share, AFC &amp;a)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Updating during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="80" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="157" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1abae745ac3626d292fcb4fb5ca1b837dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::AFC::~AFC</definition>
+        <argsstring>(void)</argsstring>
+        <name>~AFC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="82" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="154" bodyend="154"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Information access</header>
+      <memberdef kind="function" id="classGecode_1_1AFC_1afa2e995e5cbe8e6a7d48e330abe5dd35" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::AFC::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="88" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="114" bodyend="117"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Decay factor for aging</header>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a558dbc1b812306d986ee46c8c7a47917" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::AFC::decay</definition>
+        <argsstring>(Space &amp;home, double d)</argsstring>
+        <name>decay</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> decay factor to <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="94" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="162" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1ae4e2b27b1b11c9a4a16bf2460844b114" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::AFC::decay</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>decay</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return decay factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="96" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="174" bodyend="176"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1AFC_1a58b892db096e1da4811e5fba18a791e7" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::AFC::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="47" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1AFC_1ab23973b2f240390a8a8641a43348845d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type>forceinline</type>
+        <definition>forceinline Gecode::AFC::AFC</definition>
+        <argsstring>(Home home, const VarArgArray&lt; Var &gt; &amp;x, double d)</argsstring>
+        <name>AFC</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="129" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="129" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1AFC_1a0984a5d3f8c8ec510f2e4ea82977b9c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::AFC::init</definition>
+        <argsstring>(Home home, const VarArgArray&lt; Var &gt; &amp;x, double d)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArgArray" kindref="compound">VarArgArray</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="137" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="137" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1AFC_1a9496fbbef2137dd69b3d7ae9ddef5d51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const AFC &amp;a)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Print <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information (prints nothing) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/afc.hpp" line="63" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="181" bodyend="185"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> (accumulated failure count) management. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="789">
+        <label>Gecode::SetAFC</label>
+        <link refid="classGecode_1_1SetAFC"/>
+        <childnode refid="786" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="787">
+        <label>Gecode::FloatAFC</label>
+        <link refid="classGecode_1_1FloatAFC"/>
+        <childnode refid="786" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="786">
+        <label>Gecode::AFC</label>
+        <link refid="classGecode_1_1AFC"/>
+      </node>
+      <node id="788">
+        <label>Gecode::IntAFC</label>
+        <link refid="classGecode_1_1IntAFC"/>
+        <childnode refid="786" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="790">
+        <label>Gecode::AFC</label>
+        <link refid="classGecode_1_1AFC"/>
+        <childnode refid="790" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/afc.hpp" line="44" column="1" bodyfile="/usr/include/gecode/kernel/afc.hpp" bodystart="44" bodyend="98"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1AFC_1aefa3ba6c008245bc2e3ab318f521b9d0" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>AFC</name></member>
+      <member refid="classGecode_1_1AFC_1a928268d69861797a867d61ee48266bb0" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>AFC</name></member>
+      <member refid="classGecode_1_1AFC_1adbf716a0b860d387841c1083ad8ee545" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>AFC</name></member>
+      <member refid="classGecode_1_1AFC_1ab23973b2f240390a8a8641a43348845d" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>AFC</name></member>
+      <member refid="classGecode_1_1AFC_1a558dbc1b812306d986ee46c8c7a47917" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>decay</name></member>
+      <member refid="classGecode_1_1AFC_1ae4e2b27b1b11c9a4a16bf2460844b114" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>decay</name></member>
+      <member refid="classGecode_1_1AFC_1af8b27b9245b3c6d5bbd340212d0c1616" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>def</name></member>
+      <member refid="classGecode_1_1AFC_1a10bd15c9de08ff82a46e88cd7c8ff67d" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>init</name></member>
+      <member refid="classGecode_1_1AFC_1a0984a5d3f8c8ec510f2e4ea82977b9c9" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>init</name></member>
+      <member refid="classGecode_1_1AFC_1aca72aeed93beceb88a7d65e72c4f5606" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>initialized</name></member>
+      <member refid="classGecode_1_1AFC_1a58b892db096e1da4811e5fba18a791e7" prot="protected" virt="non-virtual"><scope>Gecode::AFC</scope><name>n</name></member>
+      <member refid="classGecode_1_1AFC_1a9496fbbef2137dd69b3d7ae9ddef5d51" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1AFC_1a324deeaf0c1b26935c3a81c12de9d37c" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1AFC_1a635324f8be33802229d1a0c0eb2f5b8e" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>set</name></member>
+      <member refid="classGecode_1_1AFC_1afa2e995e5cbe8e6a7d48e330abe5dd35" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>size</name></member>
+      <member refid="classGecode_1_1AFC_1a862d408e9e7f8549d123e134aa7ebd41" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>update</name></member>
+      <member refid="classGecode_1_1AFC_1abae745ac3626d292fcb4fb5ca1b837dc" prot="public" virt="non-virtual"><scope>Gecode::AFC</scope><name>~AFC</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

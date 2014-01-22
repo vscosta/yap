@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1OperatingSystemError" kind="class" prot="public">
+    <compoundname>Gecode::OperatingSystemError</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="support_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1OperatingSystemError_1a0323f5aaa00a96fb285a0de4fdd28512" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::OperatingSystemError::OperatingSystemError</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>OperatingSystemError</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/exception.hpp" line="80" column="1" bodyfile="/usr/include/gecode/support/exception.hpp" bodystart="97" bodyend="98"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: operating system error </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4892">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="4893" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4893">
+        <label>std::exception</label>
+      </node>
+      <node id="4891">
+        <label>Gecode::OperatingSystemError</label>
+        <link refid="classGecode_1_1OperatingSystemError"/>
+        <childnode refid="4892" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4895">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="4896" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4896">
+        <label>std::exception</label>
+      </node>
+      <node id="4894">
+        <label>Gecode::OperatingSystemError</label>
+        <link refid="classGecode_1_1OperatingSystemError"/>
+        <childnode refid="4895" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/support/exception.hpp" line="77" column="1" bodyfile="/usr/include/gecode/support/exception.hpp" bodystart="77" bodyend="81"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::OperatingSystemError</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1OperatingSystemError_1a0323f5aaa00a96fb285a0de4fdd28512" prot="public" virt="non-virtual"><scope>Gecode::OperatingSystemError</scope><name>OperatingSystemError</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::OperatingSystemError</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

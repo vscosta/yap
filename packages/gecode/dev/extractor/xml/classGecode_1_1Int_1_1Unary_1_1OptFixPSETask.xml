@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask" kind="class" prot="public">
+    <compoundname>Gecode::Int::Unary::OptFixPSETask</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ManToOptTask" prot="public" virt="non-virtual">Gecode::Int::ManToOptTask&lt; ManFixPSETask &gt;</basecompoundref>
+    <includes refid="unary_8hh" local="no">unary.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a7b6ce0f0338c89f754cd1922b73527de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Unary::OptFixPSETask::OptFixPSETask</definition>
+        <argsstring>(void)</argsstring>
+        <name>OptFixPSETask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="255" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="484" bodyend="484"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1afeef5aeb83f42f444a273c0dec9aa260" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Unary::OptFixPSETask::OptFixPSETask</definition>
+        <argsstring>(TaskType t, IntVar s, int p, BoolVar m)</argsstring>
+        <name>OptFixPSETask</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a72036d0d1ce62f603451ef48e93c3433" kindref="member">TaskType</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="257" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="486" bodyend="488"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a1a9c7d640ff53ddc40323b9bb48ed623" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Unary::OptFixPSETask::init</definition>
+        <argsstring>(TaskType t, IntVar s, int p, BoolVar m)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a72036d0d1ce62f603451ef48e93c3433" kindref="member">TaskType</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with start time <emphasis>s</emphasis>, processing time <emphasis>p</emphasis>, and mandatory flag <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="259" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="490" bodyend="492"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a8383fbd11a14bead02befa484b7339c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OptFixPSETask &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask" kindref="compound">OptFixPSETask</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Print optional task in format est:p:lct:m. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="223" column="1" bodyfile="/usr/include/gecode/int/unary/task.hpp" bodystart="496" bodyend="502"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="namespaceGecode_1_1Int_1_1Unary" kindref="compound">Unary</ref> optional task with fixed processing, start or end time. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4904">
+        <label>Gecode::Int::ManToOptTask&lt; ManFixPSETask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4905" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4903">
+        <label>Gecode::Int::Unary::OptFixPSETask</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask"/>
+        <childnode refid="4904" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4905">
+        <label>ManFixPSETask</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4907">
+        <label>Gecode::Int::ManToOptTask&lt; ManFixPSETask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ManToOptTask"/>
+        <childnode refid="4908" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4909" relation="usage">
+          <edgelabel>_m</edgelabel>
+        </childnode>
+      </node>
+      <node id="4909">
+        <label>Gecode::Int::BoolView</label>
+        <link refid="classGecode_1_1Int_1_1BoolView"/>
+        <childnode refid="4910" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4906">
+        <label>Gecode::Int::Unary::OptFixPSETask</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask"/>
+        <childnode refid="4907" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4910">
+        <label>Gecode::VarImpView&lt; BoolVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="4908">
+        <label>ManFixPSETask</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/unary.hh" line="248" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="248" bodyend="261"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a0ea4b8f9b86b8f01ba3e302e5691a348" prot="protected" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>_m</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af1ecff9139307da4ce7021649b4ee6ca" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a703867f96b83284fda6e10b774f7348f" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a440f22861da3f9c0b2126163b02a4736" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1a03af834e0060cd08b0d94011d4e98aea" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>excluded</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a1a9c7d640ff53ddc40323b9bb48ed623" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ab83738351a959982696d66371eb7b1b8" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1afda615c75635c3d28221ff0e2439403f" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>mandatory</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1adf301f6881c6537cfbdb5330fb8d781a" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>ManToOptTask</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a8383fbd11a14bead02befa484b7339c6" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classManFixPSETask_1ac0716e63851a48247dc668921f20b321" prot="public" virt="non-virtual" ambiguityscope="ManToOptTask&lt; ManFixPSETask &gt;::"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1a7b6ce0f0338c89f754cd1922b73527de" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>OptFixPSETask</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OptFixPSETask_1afeef5aeb83f42f444a273c0dec9aa260" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>OptFixPSETask</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1af3fb279687697ed218d492215151c797" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>optional</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1ae18508500f11df05627d8676f87e324b" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1ManToOptTask_1aa3e3b3b021b9324114e40896bf01a911" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OptFixPSETask</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

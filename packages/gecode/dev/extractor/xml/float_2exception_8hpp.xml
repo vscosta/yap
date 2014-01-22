@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="float_2exception_8hpp" kind="file">
+    <compoundname>exception.hpp</compoundname>
+    <includedby refid="float_8hh" local="no">/usr/include/gecode/float.hh</includedby>
+    <invincdepgraph>
+      <node id="3773">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="3774" relation="include">
+        </childnode>
+        <childnode refid="3775" relation="include">
+        </childnode>
+        <childnode refid="3776" relation="include">
+        </childnode>
+        <childnode refid="3777" relation="include">
+        </childnode>
+      </node>
+      <node id="3772">
+        <label>/usr/include/gecode/float/exception.hpp</label>
+        <link refid="float/exception.hpp"/>
+        <childnode refid="3773" relation="include">
+        </childnode>
+      </node>
+      <node id="3777">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="3774" relation="include">
+        </childnode>
+      </node>
+      <node id="3774">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="3776">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="3775">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Float_1_1OutOfLimits" prot="public">Gecode::Float::OutOfLimits</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1VariableEmptyDomain" prot="public">Gecode::Float::VariableEmptyDomain</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1TooFewArguments" prot="public">Gecode::Float::TooFewArguments</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ArgumentSizeMismatch" prot="public">Gecode::Float::ArgumentSizeMismatch</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ArgumentSame" prot="public">Gecode::Float::ArgumentSame</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownRelation" prot="public">Gecode::Float::UnknownRelation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownOperation" prot="public">Gecode::Float::UnknownOperation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1IllegalOperation" prot="public">Gecode::Float::IllegalOperation</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1UnknownBranching" prot="public">Gecode::Float::UnknownBranching</innerclass>
+    <innerclass refid="classGecode_1_1Float_1_1ValOfUnassignedVar" prot="public">Gecode::Float::ValOfUnassignedVar</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float">Gecode::Float</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard<sp/>&lt;Vincent.Barichard@univ-angers.fr&gt;</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2010</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard,<sp/>2012</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-01-25<sp/>14:48:07<sp/>+0100<sp/>(Fri,<sp/>25<sp/>Jan<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13238<sp/>$</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Float<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"></codeline>
+<codeline lineno="50" refid="classGecode_1_1Float_1_1OutOfLimits" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1OutOfLimits" kindref="compound">OutOfLimits</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1OutOfLimits" kindref="compound">OutOfLimits</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="classGecode_1_1Float_1_1VariableEmptyDomain" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1VariableEmptyDomain" kindref="compound">VariableEmptyDomain</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1VariableEmptyDomain" kindref="compound">VariableEmptyDomain</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="classGecode_1_1Float_1_1TooFewArguments" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1TooFewArguments" kindref="compound">TooFewArguments</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1TooFewArguments" kindref="compound">TooFewArguments</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1Float_1_1ArgumentSizeMismatch" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1ArgumentSizeMismatch" kindref="compound">ArgumentSizeMismatch</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1ArgumentSizeMismatch" kindref="compound">ArgumentSizeMismatch</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="classGecode_1_1Float_1_1ArgumentSame" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1ArgumentSame" kindref="compound">ArgumentSame</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1ArgumentSame" kindref="compound">ArgumentSame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classGecode_1_1Float_1_1UnknownRelation" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1UnknownRelation" kindref="compound">UnknownRelation</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownRelation" kindref="compound">UnknownRelation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="classGecode_1_1Float_1_1UnknownOperation" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1UnknownOperation" kindref="compound">UnknownOperation</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownOperation" kindref="compound">UnknownOperation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="classGecode_1_1Float_1_1IllegalOperation" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1IllegalOperation" kindref="compound">IllegalOperation</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1IllegalOperation" kindref="compound">IllegalOperation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="classGecode_1_1Float_1_1UnknownBranching" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1UnknownBranching" kindref="compound">UnknownBranching</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownBranching" kindref="compound">UnknownBranching</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classGecode_1_1Float_1_1ValOfUnassignedVar" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_VTABLE_EXPORT<sp/><ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">ValOfUnassignedVar</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref><sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">ValOfUnassignedVar</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="126"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Classes<sp/>for<sp/>exceptions<sp/>raised<sp/>by<sp/>integer<sp/>module</highlight></codeline>
+<codeline lineno="127"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="128"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="classGecode_1_1Float_1_1OutOfLimits_1ac817ddfd6602c0a6f64f1bac875c61d9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1OutOfLimits_1ac817ddfd6602c0a6f64f1bac875c61d9" kindref="member">OutOfLimits::OutOfLimits</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Number<sp/>out<sp/>of<sp/>limits&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="classGecode_1_1Float_1_1VariableEmptyDomain_1aa1f13948f95b8703d4684754e23a497e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1VariableEmptyDomain_1aa1f13948f95b8703d4684754e23a497e" kindref="member">VariableEmptyDomain::VariableEmptyDomain</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Attempt<sp/>to<sp/>create<sp/>variable<sp/>with<sp/>empty<sp/>domain&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="classGecode_1_1Float_1_1TooFewArguments_1a93553d71aff398a6ef30ad1bf4647ef5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1TooFewArguments_1a93553d71aff398a6ef30ad1bf4647ef5" kindref="member">TooFewArguments::TooFewArguments</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Passed<sp/>argument<sp/>array<sp/>has<sp/>too<sp/>few<sp/>elements&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classGecode_1_1Float_1_1ArgumentSizeMismatch_1a43b4b734282d004ad52b8c1930a789fa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1ArgumentSizeMismatch_1a43b4b734282d004ad52b8c1930a789fa" kindref="member">ArgumentSizeMismatch::ArgumentSizeMismatch</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Sizes<sp/>of<sp/>argument<sp/>arrays<sp/>mismatch&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="classGecode_1_1Float_1_1ArgumentSame_1a0b014e8bfd151eb5caf127c573d31d67" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1ArgumentSame_1a0b014e8bfd151eb5caf127c573d31d67" kindref="member">ArgumentSame::ArgumentSame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Argument<sp/>array<sp/>contains<sp/>same<sp/>variable<sp/>multiply&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="classGecode_1_1Float_1_1UnknownRelation_1a86821abdf2323f0f941f80cb76ec991e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownRelation_1a86821abdf2323f0f941f80cb76ec991e" kindref="member">UnknownRelation::UnknownRelation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Unknown<sp/>relation<sp/>type&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="classGecode_1_1Float_1_1UnknownOperation_1afce20fe68576792c22e61f3d0ce2e921" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownOperation_1afce20fe68576792c22e61f3d0ce2e921" kindref="member">UnknownOperation::UnknownOperation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Unknown<sp/>operation<sp/>type&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="classGecode_1_1Float_1_1IllegalOperation_1a846719f23696986c3557de4252bf28ba" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1IllegalOperation_1a846719f23696986c3557de4252bf28ba" kindref="member">IllegalOperation::IllegalOperation</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Illegal<sp/>operation<sp/>type&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="classGecode_1_1Float_1_1UnknownBranching_1ab1a0ab280eb5c9e87792c74d6cd66751" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1UnknownBranching_1ab1a0ab280eb5c9e87792c74d6cd66751" kindref="member">UnknownBranching::UnknownBranching</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Unknown<sp/>branching<sp/>type&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="classGecode_1_1Float_1_1ValOfUnassignedVar_1a3ed32781279f1592d86c7302698e69f8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar_1a3ed32781279f1592d86c7302698e69f8" kindref="member">ValOfUnassignedVar::ValOfUnassignedVar</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>l)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1Exception" kindref="compound">Exception</ref>(l,</highlight><highlight class="stringliteral">&quot;Attempt<sp/>to<sp/>access<sp/>value<sp/>of<sp/>unassigned<sp/>variable&quot;</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>float-other</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/float/exception.hpp"/>
+  </compounddef>
+</doxygen>

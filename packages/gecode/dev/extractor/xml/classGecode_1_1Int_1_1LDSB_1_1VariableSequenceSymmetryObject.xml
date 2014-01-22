@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject" kind="class" prot="public">
+    <compoundname>Gecode::Int::LDSB::VariableSequenceSymmetryObject</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject" prot="public" virt="non-virtual">Gecode::Int::LDSB::SymmetryObject</basecompoundref>
+    <includes refid="int_2ldsb_8hh" local="no">ldsb.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1ad3f36ae7309c76da0a4840c8436a883e" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> **</type>
+        <definition>VarImpBase** Gecode::Int::LDSB::VariableSequenceSymmetryObject::xs</definition>
+        <argsstring></argsstring>
+        <name>xs</name>
+        <briefdescription>
+<para>Array of variables in symmetry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="143" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1abd30933565f99cc1b70727d214544cfd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::LDSB::VariableSequenceSymmetryObject::nxs</definition>
+        <argsstring></argsstring>
+        <name>nxs</name>
+        <briefdescription>
+<para>Number of variables in symmetry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="145" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1a229a95c9f5dfbceedb5cb070fd510b32" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::LDSB::VariableSequenceSymmetryObject::seq_size</definition>
+        <argsstring></argsstring>
+        <name>seq_size</name>
+        <briefdescription>
+<para>Size of each sequence in symmetry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="147" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1adb93554d8cefea7c60f7049c230781d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::LDSB::VariableSequenceSymmetryObject::VariableSequenceSymmetryObject</definition>
+        <argsstring>(ArgArray&lt; VarImpBase * &gt; vars, int ss)</argsstring>
+        <name>VariableSequenceSymmetryObject</name>
+        <param>
+          <type><ref refid="classGecode_1_1ArgArray" kindref="compound">ArgArray</ref>&lt; <ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> * &gt;</type>
+          <declname>vars</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>ss</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="149" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1aa78d4560b2b37b13a37b05cc64f79a23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::LDSB::VariableSequenceSymmetryObject::~VariableSequenceSymmetryObject</definition>
+        <argsstring>()</argsstring>
+        <name>~VariableSequenceSymmetryObject</name>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="151" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Implementation of a variable sequence symmetry at the modelling level. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7678">
+        <label>Gecode::Int::LDSB::VariableSequenceSymmetryObject</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject"/>
+        <childnode refid="7679" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7679">
+        <label>Gecode::Int::LDSB::SymmetryObject</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7680">
+        <label>Gecode::Int::LDSB::VariableSequenceSymmetryObject</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject"/>
+        <childnode refid="7681" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7682" relation="usage">
+          <edgelabel>xs</edgelabel>
+        </childnode>
+      </node>
+      <node id="7682">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="7681">
+        <label>Gecode::Int::LDSB::SymmetryObject</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/ldsb.hh" line="140" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="140" bodyend="152"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject_1a67f2470de94872c148a63c9edf0213de" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>nrefs</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1abd30933565f99cc1b70727d214544cfd" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>nxs</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1a229a95c9f5dfbceedb5cb070fd510b32" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>seq_size</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject_1abc9085669aeb10eb32e02be6b3893cab" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>SymmetryObject</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1adb93554d8cefea7c60f7049c230781d4" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>VariableSequenceSymmetryObject</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1ad3f36ae7309c76da0a4840c8436a883e" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>xs</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryObject_1afd8c4434a3068ac74bd018068ede4ae4" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>~SymmetryObject</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1VariableSequenceSymmetryObject_1aa78d4560b2b37b13a37b05cc64f79a23" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::VariableSequenceSymmetryObject</scope><name>~VariableSequenceSymmetryObject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

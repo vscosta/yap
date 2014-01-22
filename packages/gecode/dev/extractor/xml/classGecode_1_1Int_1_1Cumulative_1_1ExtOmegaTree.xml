@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree" kind="class" prot="public">
+    <compoundname>Gecode::Int::Cumulative::ExtOmegaTree</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1TaskTree" prot="public" virt="non-virtual">Gecode::Int::TaskTree&lt; TaskView, ExtOmegaNode &gt;</basecompoundref>
+    <includes refid="cumulative_8hh" local="no">cumulative.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class TaskView</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a3d63af392a9c906d7aa1d6ba6d66daae" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Capacity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="616" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="616" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a4c7f76c0474756745422aebb01500e0e" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;::ci</definition>
+        <argsstring></argsstring>
+        <name>ci</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="616" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="616" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a885c21cce4159088e1e32edea6204561" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Node</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;::ExtOmegaTree</definition>
+        <argsstring>(Region &amp;r, int c, const TaskTree&lt; TaskView, Node &gt; &amp;t)</argsstring>
+        <name>ExtOmegaTree</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskTree" kindref="compound">TaskTree</ref>&lt; TaskView, Node &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize tree for tasks <emphasis>t</emphasis> and capacity <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="620" column="1" bodyfile="/usr/include/gecode/int/cumulative/tree.hpp" bodystart="118" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a90a52c1c5af52e4e6a46500467a0075e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;::init</definition>
+        <argsstring>(int ci)</argsstring>
+        <name>init</name>
+        <param>
+          <type>int</type>
+          <declname>ci</declname>
+        </param>
+        <briefdescription>
+<para>Initialize tasks for current capacity <emphasis>ci</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="622" column="1" bodyfile="/usr/include/gecode/int/cumulative/tree.hpp" bodystart="108" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a254f11d30b5d46b4509415dc5d3efadb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>long long int</type>
+        <definition>forceinline long long int Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;::env</definition>
+        <argsstring>(int i)</argsstring>
+        <name>env</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Compute update for task with index <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="624" column="1" bodyfile="/usr/include/gecode/int/cumulative/tree.hpp" bodystart="124" bodyend="169"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Omega trees for computing ect of task sets. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2297">
+        <label>Gecode::Int::TaskTree&lt; TaskView, ExtOmegaNode &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskTree"/>
+      </node>
+      <node id="2296">
+        <label>Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree"/>
+        <childnode refid="2297" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2300">
+        <label>Gecode::Int::Cumulative::ExtOmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode"/>
+        <childnode refid="2301" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2299">
+        <label>Gecode::Int::TaskTree&lt; TaskView, ExtOmegaNode &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskTree"/>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>node</edgelabel>
+        </childnode>
+      </node>
+      <node id="2301">
+        <label>Gecode::Int::Cumulative::OmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode"/>
+      </node>
+      <node id="2298">
+        <label>Gecode::Int::Cumulative::ExtOmegaTree&lt; TaskView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree"/>
+        <childnode refid="2299" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/cumulative.hh" line="598" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="598" bodyend="625"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ad3ffc82407eb8b4c9c0f4edd63ae91f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>_leaf</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a3d63af392a9c906d7aa1d6ba6d66daae" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>c</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a4c7f76c0474756745422aebb01500e0e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>ci</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a254f11d30b5d46b4509415dc5d3efadb" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>env</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a885c21cce4159088e1e32edea6204561" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>ExtOmegaTree</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaTree_1a90a52c1c5af52e4e6a46500467a0075e" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ac3c4f8d8062e3f4184e0dc0f8e3f0780" prot="protected" virt="non-virtual" ambiguityscope="TaskTree&lt; TaskView, ExtOmegaNode &gt;::"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1aab3d5439983995ce1a163f34acff2da4" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>leaf</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ac1e2d7451276c8c66cb0f878245322a8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>left</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ab462844f872a2e3ef78f1f19935828bc" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_inner</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a48ca346b6fb17041f6071f19918551d3" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_leaf</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a042af8749ab881f8177a7dd6bb652493" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_left</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ae6d009044ed117d747b162c2c382f5ac" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_nodes</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ae9aef5acf922e6023ed343a6067106bc" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_parent</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a8c5cba14df5398d4afb7bb3e39daa091" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_right</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a53b4a92e7008ccebc5fe6743850ebce3" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>n_root</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1aa28702bb62f0ca56d396c62ab932e149" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>node</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a02d1b8bd53d7fe4e96aac12157821e68" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>right</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a130379d0eb9b561fd8c2ecd34a1e6e85" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>root</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a588d7ff506e04319c9730a20686c5736" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>tasks</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ac9f29e170e81a1b0eab3cfff1c49c69a" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>TaskTree</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1a928c59b923d120bbae1544164f6f0e70" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>TaskTree</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1abfa208a7d67585ae6556caf8831de6e4" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>update</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTree_1ae19f603654fbcfb07f639fc1b235872f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaTree</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

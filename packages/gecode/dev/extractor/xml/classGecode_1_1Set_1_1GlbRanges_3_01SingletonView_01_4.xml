@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Set::GlbRanges&lt; SingletonView &gt;</compoundname>
+    <includes refid="singleton_8hpp" local="no">singleton.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ab98743c45735b8999ab7369e6d7177d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::GlbRanges&lt; SingletonView &gt;::GlbRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="342" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="368" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a5615545d4b57496bdbfe73de6c0e1e25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::GlbRanges&lt; SingletonView &gt;::GlbRanges</definition>
+        <argsstring>(const SingletonView &amp;x)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SingletonView" kindref="compound">SingletonView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="344" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="382" bodyend="384"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ae76c2d28ac7d717e870c249f2d79830d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::GlbRanges&lt; SingletonView &gt;::init</definition>
+        <argsstring>(const SingletonView &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SingletonView" kindref="compound">SingletonView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="346" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="371" bodyend="379"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ae70e6ae1e336462e446ac9f2f73a0caf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::GlbRanges&lt; SingletonView &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="351" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="387" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a3d7e1351a5fc288f84bd3acb70cfa067" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::GlbRanges&lt; SingletonView &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="353" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="390" bodyend="390"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1aced5786ffd42fe07120b5c57d1e651d0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::GlbRanges&lt; SingletonView &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="359" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="393" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1adf1cfa378be244fd5d2d784786adb17b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::GlbRanges&lt; SingletonView &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="361" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="395" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1aff83048af76029ffde9db26d425e7a99" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::GlbRanges&lt; SingletonView &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of ranges (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="363" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="397" bodyend="397"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a4b1286118c242412e1e804282d53d705" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Set::GlbRanges&lt; SingletonView &gt;::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="336" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a60bcdaa112f5a00a7c11b6a8a2e33238" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Set::GlbRanges&lt; SingletonView &gt;::flag</definition>
+        <argsstring></argsstring>
+        <name>flag</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/singleton.hpp" line="337" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="337" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for greatest lower bound of singleton set view </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/view/singleton.hpp" line="334" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="334" bodyend="365"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a60bcdaa112f5a00a7c11b6a8a2e33238" prot="private" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>flag</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ab98743c45735b8999ab7369e6d7177d0" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a5615545d4b57496bdbfe73de6c0e1e25" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ae76c2d28ac7d717e870c249f2d79830d" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1adf1cfa378be244fd5d2d784786adb17b" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1aced5786ffd42fe07120b5c57d1e651d0" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1ae70e6ae1e336462e446ac9f2f73a0caf" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a3d7e1351a5fc288f84bd3acb70cfa067" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1a4b1286118c242412e1e804282d53d705" prot="private" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>val</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4_1aff83048af76029ffde9db26d425e7a99" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges&lt; SingletonView &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

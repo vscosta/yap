@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Channel_1_1DomInfo" kind="class" prot="public">
+    <compoundname>Gecode::Int::Channel::DomInfo</compoundname>
+    <includes refid="channel_2dom_8hpp" local="no">dom.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>Offset</declname>
+        <defname>Offset</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a0570e9a52e02279b5e90e5a28b565865" prot="public" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::view</definition>
+        <argsstring></argsstring>
+        <name>view</name>
+        <briefdescription>
+<para>The view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="52" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a2fa0620d42a1b36fd86f911c048ad590" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Last propagated size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a807e159ac792e88e113dc23a923a71f1" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+<para>Last propagated minimum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="56" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae84ad42f9b992ad0078cbf6fc6f1c1b0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+<para>Last propagated maximum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="58" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a883cc5cf060393439a476004a90ae49b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::init</definition>
+        <argsstring>(View x, int n)</argsstring>
+        <name>init</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="77" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a29c8d9cc47405878d7888c906596b5d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, DomInfo&lt; View, Offset &gt; &amp;vcb)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Channel_1_1DomInfo" kindref="compound">DomInfo</ref>&lt; View, <ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> &gt; &amp;</type>
+          <declname>vcb</declname>
+        </param>
+        <briefdescription>
+<para>Update during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="62" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="86" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a85b47a7d779492744c67fa7ff6713aba" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::doval</definition>
+        <argsstring>(void) const </argsstring>
+        <name>doval</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether propagation for assignment is to be done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="64" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae1c5adfa7d3171f42f6088c969820bf8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::dodom</definition>
+        <argsstring>(void) const </argsstring>
+        <name>dodom</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether propagation for domain is to be done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="66" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="102" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae73482f70296628eadbed4c6136a9cf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::assigned</definition>
+        <argsstring>(void)</argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Record that view got assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="68" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="108" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a7f34aa30bf9ad74bdf14a339b4c2af73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::removed</definition>
+        <argsstring>(int i)</argsstring>
+        <name>removed</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Record that one value got removed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="70" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="114" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a65a8e142a462093210bd4aea6e818f98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;::done</definition>
+        <argsstring>(Offset &amp;o)</argsstring>
+        <name>done</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Update the size and bounds information after pruning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/channel/dom.hpp" line="72" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="124" bodyend="128"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Combine view with information for domain propagation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1846">
+        <label>Gecode::Int::Channel::DomInfo&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1DomInfo"/>
+        <childnode refid="1847" relation="usage">
+          <edgelabel>view</edgelabel>
+        </childnode>
+      </node>
+      <node id="1847">
+        <label>View</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/channel/dom.hpp" line="49" column="1" bodyfile="/usr/include/gecode/int/channel/dom.hpp" bodystart="49" bodyend="73"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae73482f70296628eadbed4c6136a9cf8" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae1c5adfa7d3171f42f6088c969820bf8" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>dodom</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a65a8e142a462093210bd4aea6e818f98" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>done</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a85b47a7d779492744c67fa7ff6713aba" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>doval</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a883cc5cf060393439a476004a90ae49b" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1ae84ad42f9b992ad0078cbf6fc6f1c1b0" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a807e159ac792e88e113dc23a923a71f1" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a7f34aa30bf9ad74bdf14a339b4c2af73" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>removed</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a2fa0620d42a1b36fd86f911c048ad590" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a29c8d9cc47405878d7888c906596b5d8" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>update</name></member>
+      <member refid="classGecode_1_1Int_1_1Channel_1_1DomInfo_1a0570e9a52e02279b5e90e5a28b565865" prot="public" virt="non-virtual"><scope>Gecode::Int::Channel::DomInfo</scope><name>view</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

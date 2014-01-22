@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1LocalObject" kind="class" prot="public">
+    <compoundname>Gecode::LocalObject</compoundname>
+    <basecompoundref refid="classGecode_1_1Actor" prot="public" virt="non-virtual">Gecode::Actor</basecompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1LocalObject_1a5b1f597fab80ad6eb2598c89b75ad63c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class ActorLink</definition>
+        <argsstring></argsstring>
+        <name>ActorLink</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1184" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1LocalObject_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Space</definition>
+        <argsstring></argsstring>
+        <name>Space</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1185" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1LocalObject_1a9d4c177774da4fbfdce93d5607f24258" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class LocalHandle</definition>
+        <argsstring></argsstring>
+        <name>LocalHandle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1186" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1a824a73baab847bb9dba72c3167725ef6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LocalObject::LocalObject</definition>
+        <argsstring>(Home home)</argsstring>
+        <name>LocalObject</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1189" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3048" bodyend="3050"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1ad3bb4577aa627a1fa0ac37cd680f0d3e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::LocalObject::LocalObject</definition>
+        <argsstring>(Space &amp;home, bool share, LocalObject &amp;l)</argsstring>
+        <name>LocalObject</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1LocalObject" kindref="compound">LocalObject</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1191" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3053" bodyend="3055"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-static-func">
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1a21d97126c01b48e3c25a1d5157a94439" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1LocalObject" kindref="compound">LocalObject</ref> *</type>
+        <definition>forceinline LocalObject * Gecode::LocalObject::cast</definition>
+        <argsstring>(ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1193" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3032" bodyend="3037"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1aadc41c94507950888609e5201c3f4bc5" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1LocalObject" kindref="compound">LocalObject</ref> *</type>
+        <definition>forceinline const LocalObject * Gecode::LocalObject::cast</definition>
+        <argsstring>(const ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1195" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3040" bodyend="3045"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1a31aebb5a0bc9a4406793335ad02d462f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::LocalObject::fwdcopy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>fwdcopy</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Make copy and set forwarding pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1198" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1LocalObject_1a1a50c75f03a693a7b4943ef695dff193" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1LocalObject" kindref="compound">LocalObject</ref> *</type>
+        <definition>forceinline LocalObject * Gecode::LocalObject::fwd</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>fwd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Return forwarding pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1201" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3058" bodyend="3062"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Local (space-shared) object. </para>    </briefdescription>
+    <detaileddescription>
+<para>Local objects must inherit from this base class. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3430">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="3431" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3431">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3432" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3432">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3433">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="3434" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3434">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3435" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3435">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="1183" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1183" bodyend="1202"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1LocalObject_1a5b1f597fab80ad6eb2598c89b75ad63c" prot="private" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>ActorLink</name></member>
+      <member refid="classGecode_1_1LocalObject_1a21d97126c01b48e3c25a1d5157a94439" prot="protected" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>cast</name></member>
+      <member refid="classGecode_1_1LocalObject_1aadc41c94507950888609e5201c3f4bc5" prot="protected" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::LocalObject</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::LocalObject</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::LocalObject</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9" prot="public" virt="virtual"><scope>Gecode::LocalObject</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1LocalObject_1a1a50c75f03a693a7b4943ef695dff193" prot="public" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1LocalObject_1a31aebb5a0bc9a4406793335ad02d462f" prot="private" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>fwdcopy</name></member>
+      <member refid="classGecode_1_1LocalObject_1a9d4c177774da4fbfdce93d5607f24258" prot="private" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>LocalHandle</name></member>
+      <member refid="classGecode_1_1LocalObject_1a824a73baab847bb9dba72c3167725ef6" prot="protected" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>LocalObject</name></member>
+      <member refid="classGecode_1_1LocalObject_1ad3bb4577aa627a1fa0ac37cd680f0d3e" prot="protected" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>LocalObject</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1LocalObject_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" virt="non-virtual"><scope>Gecode::LocalObject</scope><name>Space</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

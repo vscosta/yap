@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1SupportValues" kind="class" prot="public">
+    <compoundname>Gecode::Int::SupportValues</compoundname>
+    <includes refid="support-values_8hh" local="no">support-values.hh</includes>
+    <innerclass refid="classGecode_1_1Int_1_1SupportValues_1_1RangePos" prot="private">Gecode::Int::SupportValues::RangePos</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1SupportValues_1_1Unsupported" prot="private">Gecode::Int::SupportValues::Unsupported</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1aaa27f4c83eb6785898bfc8ed73767a8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::SupportValues&lt; View, A &gt;::reset</definition>
+        <argsstring>(void)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="121" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="42" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1ab483685172705c03bc4fb0038f54b937" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::SupportValues&lt; View, A &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a value or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="123" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a65b32ce10aedc813fd5b5161dc83f38c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::SupportValues&lt; View, A &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next value (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="125" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="76" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a9e681cfcff7f7badef23e6021cae8005" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::SupportValues&lt; View, A &gt;::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="131" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="92" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Support control</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a87170fe4782551097f75630fc5bfe97f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::SupportValues&lt; View, A &gt;::support</definition>
+        <argsstring>(void)</argsstring>
+        <name>support</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark current (iterator) value as supported. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="137" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="98" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a0ba77def53ee106306caa1aa5838fe47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::SupportValues&lt; View, A &gt;::support</definition>
+        <argsstring>(int n)</argsstring>
+        <name>support</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Mark <emphasis>n</emphasis> as supported if possible. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="139" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="127" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1ae204a7ba3d67f1265093c51f1f503be5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::SupportValues&lt; View, A &gt;::support</definition>
+        <argsstring>(long long int n)</argsstring>
+        <name>support</name>
+        <param>
+          <type>long long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Mark <emphasis>n</emphasis> as supported if possible. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="141" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="135" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a7b601934fe3c3935f049eeac1fa5d900" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Int::SupportValues&lt; View, A &gt;::tell</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>tell</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Remove all unsupported values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="143" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="179" bodyend="182"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1acb342d78261ed9b0a2028f14a8416171" prot="private" static="no" mutable="no">
+        <type>A &amp;</type>
+        <definition>A&amp; Gecode::Int::SupportValues&lt; View, A &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Memory allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="55" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a7c3bd17f61619f06874f36a185257da5" prot="private" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::SupportValues&lt; View, A &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>The view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="96" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a6e690a4e2708901288df069c1caee46d" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">Gecode::Support::BitSetBase</ref></type>
+        <definition>Gecode::Support::BitSetBase Gecode::Int::SupportValues&lt; View, A &gt;::bs</definition>
+        <argsstring></argsstring>
+        <name>bs</name>
+        <briefdescription>
+<para>Bit set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="98" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a0cdfd8c07713fef23815676a61cba06e" prot="private" static="no" mutable="no">
+        <type>RangePos *</type>
+        <definition>RangePos* Gecode::Int::SupportValues&lt; View, A &gt;::rp_fst</definition>
+        <argsstring></argsstring>
+        <name>rp_fst</name>
+        <briefdescription>
+<para>Start of range and position information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="100" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a498931b193c74d61a5a40d5c7fd327d8" prot="private" static="no" mutable="no">
+        <type>RangePos *</type>
+        <definition>RangePos* Gecode::Int::SupportValues&lt; View, A &gt;::rp_lst</definition>
+        <argsstring></argsstring>
+        <name>rp_lst</name>
+        <briefdescription>
+<para>End of range and position information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="102" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a259c7b76798da93fe1550667aa692dd2" prot="private" static="no" mutable="no">
+        <type>RangePos *</type>
+        <definition>RangePos* Gecode::Int::SupportValues&lt; View, A &gt;::rp</definition>
+        <argsstring></argsstring>
+        <name>rp</name>
+        <briefdescription>
+<para>Current range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="104" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1aceb49c6245301ddc6249323198c44bfc" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::SupportValues&lt; View, A &gt;::v</definition>
+        <argsstring></argsstring>
+        <name>v</name>
+        <briefdescription>
+<para>Current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="106" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1SupportValues_1a49b1db3f82dc6a1ee7d13239eb1c32e4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::SupportValues&lt; View, A &gt;::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+<para>Current maximum of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="108" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a1f63b611a779b818c917b85e2d4018d7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::SupportValues&lt; View, A &gt;::_support</definition>
+        <argsstring>(int n)</argsstring>
+        <name>_support</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Mark <emphasis>n</emphasis> as supported and return whether value can be supported. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="111" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="104" bodyend="123"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1a601807f5721d7c2a079db0aaadae519d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::SupportValues&lt; View, A &gt;::SupportValues</definition>
+        <argsstring>(A &amp;a, View x)</argsstring>
+        <name>SupportValues</name>
+        <param>
+          <type>A &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="114" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="49" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1SupportValues_1afd1116d04f3e6850d354ec7baa6d582b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::SupportValues&lt; View, A &gt;::~SupportValues</definition>
+        <argsstring>(void)</argsstring>
+        <name>~SupportValues</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/support-values.hh" line="116" column="1" bodyfile="/usr/include/gecode/int/support-values.hpp" bodystart="69" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Support value iterator and recorder </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/support-values.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/support-values.hh" line="52" column="1" bodyfile="/usr/include/gecode/int/support-values.hh" bodystart="52" bodyend="145"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a1f63b611a779b818c917b85e2d4018d7" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>_support</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1acb342d78261ed9b0a2028f14a8416171" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>a</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a6e690a4e2708901288df069c1caee46d" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>bs</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a49b1db3f82dc6a1ee7d13239eb1c32e4" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1ab483685172705c03bc4fb0038f54b937" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a65b32ce10aedc813fd5b5161dc83f38c" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1aaa27f4c83eb6785898bfc8ed73767a8b" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a259c7b76798da93fe1550667aa692dd2" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>rp</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a0cdfd8c07713fef23815676a61cba06e" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>rp_fst</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a498931b193c74d61a5a40d5c7fd327d8" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>rp_lst</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a87170fe4782551097f75630fc5bfe97f" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>support</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a0ba77def53ee106306caa1aa5838fe47" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>support</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1ae204a7ba3d67f1265093c51f1f503be5" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>support</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a601807f5721d7c2a079db0aaadae519d" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>SupportValues</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a7b601934fe3c3935f049eeac1fa5d900" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>tell</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1aceb49c6245301ddc6249323198c44bfc" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>v</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a9e681cfcff7f7badef23e6021cae8005" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>val</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1a7c3bd17f61619f06874f36a185257da5" prot="private" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1SupportValues_1afd1116d04f3e6850d354ec7baa6d582b" prot="public" virt="non-virtual"><scope>Gecode::Int::SupportValues</scope><name>~SupportValues</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="amigaos_8hpp" kind="file">
+    <compoundname>amigaos.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="amigaos_8hpp_1ada2b8c089a7d215b91eba5f2ee8624b3" prot="public" static="no">
+        <name>BOOST_PLATFORM</name>
+        <initializer>&quot;AmigaOS&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" line="8" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" bodystart="8" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="amigaos_8hpp_1af55ef1ce0d6778b2b6447299329433fd" prot="public" static="no">
+        <name>BOOST_DISABLE_THREADS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" line="10" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" bodystart="10" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="amigaos_8hpp_1afbe58d464746d36d7a40268cc04370ac" prot="public" static="no">
+        <name>BOOST_NO_CWCHAR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" line="11" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" bodystart="11" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="amigaos_8hpp_1a17f5f21da04d3286810cfdc30799e262" prot="public" static="no">
+        <name>BOOST_NO_STD_WSTRING</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" line="12" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="amigaos_8hpp_1a7741217677869546396dfa921c058be9" prot="public" static="no">
+        <name>BOOST_NO_INTRINSIC_WCHAR_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" line="13" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_PLATFORM<sp/>&quot;AmigaOS&quot;</highlight></codeline>
+<codeline lineno="9"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_DISABLE_THREADS</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CWCHAR</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STD_WSTRING</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INTRINSIC_WCHAR_T</highlight></codeline>
+<codeline lineno="14"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/platform/amigaos.hpp"/>
+  </compounddef>
+</doxygen>

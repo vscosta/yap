@@ -1,0 +1,574 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncMemSpace" kind="group">
+    <compoundname>FuncMemSpace</compoundname>
+    <title>Space-memory management</title>
+    <innerclass refid="classGecode_1_1FreeList" prot="public">Gecode::FreeList</innerclass>
+    <innerclass refid="classGecode_1_1RangeList" prot="public">Gecode::RangeList</innerclass>
+    <innernamespace refid="namespaceGecode_1_1MemoryConfig">Gecode::MemoryConfig</innernamespace>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__FuncMemSpace_1gacf6b71739fd13f46d8d27052d714265e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(long unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1991" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga6f3488bee9e39282ea183c815416bbf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(long int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1999" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga224d5585038cc3fb0d2604a36b67b3a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2007" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaafb3fcc6afe8ea06ded2687aa92f6380" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::alloc</definition>
+        <argsstring>(int n)</argsstring>
+        <name>alloc</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate block of <emphasis>n</emphasis> objects of type <emphasis>T</emphasis> from space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the default constructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2015" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gada420b751340125380dc4fcde66e6d99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, long unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2026" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga60ab65c02e1ee267c055366347f49043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, long int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2037" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga3dec29b395cd716b4f9a70c1661a9aea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, unsigned int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2048" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga2ca0a3fe06d9e805e494bfbacaeb82d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::free</definition>
+        <argsstring>(T *b, int n)</argsstring>
+        <name>free</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis>n</emphasis> objects allocated from space heap starting at <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the destructor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects.</para><para>Note that the memory is not freed, it is just scheduled for later reusal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2059" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga07afdd06b5ba2683ba6e13b70bd859fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2072" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf0da4f30fc915e625eb26babf655c0eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2085" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga3bd5343264238e5d98f921435b849b22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2098" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga77a56ce59a5a70805f636e6839b97b99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T *</type>
+        <definition>T* Gecode::Space::realloc</definition>
+        <argsstring>(T *b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> objects starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this function implements C++ semantics: the copy constructor of <emphasis>T</emphasis> is run for all <formula id="315">$\min(n,m)$</formula> objects, the default constructor of <emphasis>T</emphasis> is run for all remaining <formula id="316">$\max(n,m)-\min(n,m)$</formula> objects, and the destrucor of <emphasis>T</emphasis> is run for all <emphasis>n</emphasis> objects in <emphasis>b</emphasis>.</para><para>Returns the address of the new block. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2111" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga51f53c7bcc79ba5c6b90acb91be82b6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long unsigned int n, long unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2120" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga14675d9018eaf111c45635fbf33ca4e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, long int n, long int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>long int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2129" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gae0d02943adcdd883a005de4c40262bee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, unsigned int n, unsigned int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2138" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf3649057dc07135e7337a21aa7b6e8c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T **</type>
+        <definition>T** Gecode::Space::realloc</definition>
+        <argsstring>(T **b, int n, int m)</argsstring>
+        <name>realloc</name>
+        <param>
+          <type>T **</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate block of <emphasis>n</emphasis> pointers starting at <emphasis>b</emphasis> to <emphasis>m</emphasis> objects of type <emphasis>T*</emphasis> from the space heap. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns the address of the new block.</para><para>This is a specialization for performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2147" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa0195caf240d103b67bbfa607fdb8b7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Space::ralloc</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>ralloc</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory on space heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2149" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2316" bodyend="2318"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1ga84f600c8dfe7e187693389bdf5b5b387" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Space::rfree</definition>
+        <argsstring>(void *p, size_t s)</argsstring>
+        <name>rfree</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Free memory previously allocated with alloc (might be reused later) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2151" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2320" bodyend="2322"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa8583e3d36e80403521541c783373d09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Space::rrealloc</definition>
+        <argsstring>(void *b, size_t n, size_t m)</argsstring>
+        <name>rrealloc</name>
+        <param>
+          <type>void *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Reallocate memory block starting at <emphasis>b</emphasis> from size <emphasis>n</emphasis> to size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2153" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2324" bodyend="2335"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaf6173b2508c63aa25d4a491fef2a2e00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void *</type>
+        <definition>void* Gecode::Space::fl_alloc</definition>
+        <argsstring>(void)</argsstring>
+        <name>fl_alloc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate from freelist-managed memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2155" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gaa7441fb1940f1cd23e07fa59279ce2fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>size_t</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Space::fl_dispose</definition>
+        <argsstring>(FreeList *f, FreeList *l)</argsstring>
+        <name>fl_dispose</name>
+        <param>
+          <type>FreeList *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>FreeList *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Return freelist-managed memory to freelist. </para>        </briefdescription>
+        <detaileddescription>
+<para>The first list element to be retuned is <emphasis>f</emphasis>, the last is <emphasis>l</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2161" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__FuncMemSpace_1gac240e9bb67c69d97a11917dfdb8482f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Space::flush</definition>
+        <argsstring>(void)</argsstring>
+        <name>flush</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Flush cached memory blocks. </para>        </briefdescription>
+        <detaileddescription>
+<para>All spaces that are obtained as non-shared clones from some same space try to cache memory blocks from failed spaces. To minimize memory consumption, these blocks can be flushed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2170" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

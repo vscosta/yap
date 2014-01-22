@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne" kind="class" prot="public">
+    <compoundname>Gecode::Int::BinPacking::SizeSetMinusOne</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet" prot="public" virt="non-virtual">Gecode::Int::BinPacking::SizeSet</basecompoundref>
+    <includes refid="bin-packing_8hh" local="no">bin-packing.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a947dbc35813b777b73e8536c853f89b5" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::BinPacking::SizeSetMinusOne::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+<para>Position of discarded item. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="114" column="1" bodyfile="/usr/include/gecode/int/bin-packing.hh" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a584d1438ac73f95e92f5a3f35ccc3732" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::BinPacking::SizeSetMinusOne::SizeSetMinusOne</definition>
+        <argsstring>(void)</argsstring>
+        <name>SizeSetMinusOne</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="117" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="119" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1afc3e1b00690d1e7b3c5b979a3c296592" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::BinPacking::SizeSetMinusOne::SizeSetMinusOne</definition>
+        <argsstring>(Region &amp;region, int n)</argsstring>
+        <name>SizeSetMinusOne</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>region</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for at most <linebreak/>
+ n_max entries. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="119" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="121" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1acb1bac056375650769bd71afdc37d17e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::BinPacking::SizeSetMinusOne::minus</definition>
+        <argsstring>(int s)</argsstring>
+        <name>minus</name>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Discard size <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="121" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="124" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a1e17ebfa84f2f0e7359a42fd8b25440a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::BinPacking::SizeSetMinusOne::card</definition>
+        <argsstring>(void) const </argsstring>
+        <name>card</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return cardinality of set (number of entries) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="123" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="132" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a6004baf8577ddeb4a289ce70015b16d3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::BinPacking::SizeSetMinusOne::total</definition>
+        <argsstring>(void) const </argsstring>
+        <name>total</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return total size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="125" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="137" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a1007bce50e8d547d1a9633722a1ebbc2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::BinPacking::SizeSetMinusOne::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return size of item <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bin-packing.hh" line="127" column="1" bodyfile="/usr/include/gecode/int/bin-packing/propagate.hpp" bodystart="142" bodyend="145"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Size sets with one element discarded. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6552">
+        <label>Gecode::Int::BinPacking::SizeSetMinusOne</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne"/>
+        <childnode refid="6553" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6553">
+        <label>Gecode::Int::BinPacking::SizeSet</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6554">
+        <label>Gecode::Int::BinPacking::SizeSetMinusOne</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne"/>
+        <childnode refid="6555" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6555">
+        <label>Gecode::Int::BinPacking::SizeSet</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/bin-packing.hh" line="111" column="1" bodyfile="/usr/include/gecode/int/bin-packing.hh" bodystart="111" bodyend="128"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1a8a83cd592e3ba0f3e622fa31c82ec480" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>add</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a1e17ebfa84f2f0e7359a42fd8b25440a" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>card</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1acb1bac056375650769bd71afdc37d17e" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>minus</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1aa3d97c24e5438f469c77654b8133ac9b" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>n</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a1007bce50e8d547d1a9633722a1ebbc2" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a947dbc35813b777b73e8536c853f89b5" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>p</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1ad4d5f2655635c136fea637f2bc4e89f6" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>s</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1a693b3cbf30653f15418ff6be105b6be1" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>SizeSet</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1a21d337e334903c018407b0fc289edae8" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>SizeSet</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a584d1438ac73f95e92f5a3f35ccc3732" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>SizeSetMinusOne</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1afc3e1b00690d1e7b3c5b979a3c296592" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>SizeSetMinusOne</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSet_1a1b52a1b2e641684a8d775b3fd0c6d5d3" prot="protected" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>t</name></member>
+      <member refid="classGecode_1_1Int_1_1BinPacking_1_1SizeSetMinusOne_1a6004baf8577ddeb4a289ce70015b16d3" prot="public" virt="non-virtual"><scope>Gecode::Int::BinPacking::SizeSetMinusOne</scope><name>total</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

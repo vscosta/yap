@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Edge" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Extensional::LayeredGraph::Edge</compoundname>
+    <includes refid="extensional_8hh" local="no">extensional.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Edge_1a50e897f0a2f9e32ec161603b89628fde" prot="public" static="no" mutable="no">
+        <type>StateIdx</type>
+        <definition>StateIdx Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::Edge::i_state</definition>
+        <argsstring></argsstring>
+        <name>i_state</name>
+        <briefdescription>
+<para>Number of in-state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="82" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Edge_1a039b08f5d0fcc009846dd69373ad8b6a" prot="public" static="no" mutable="no">
+        <type>StateIdx</type>
+        <definition>StateIdx Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::Edge::o_state</definition>
+        <argsstring></argsstring>
+        <name>o_state</name>
+        <briefdescription>
+<para>Number of out-state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="83" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Edge defined by in-state and out-state </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/extensional.hh" line="80" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="80" bodyend="84"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Edge_1a50e897f0a2f9e32ec161603b89628fde" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::Edge</scope><name>i_state</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Edge_1a039b08f5d0fcc009846dd69373ad8b6a" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::LayeredGraph::Edge</scope><name>o_state</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

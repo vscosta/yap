@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;</compoundname>
+    <includes refid="int_2array-traits_8hpp" local="no">array-traits.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1a41319d4c52fb48a8ebd07a14f345b4f1" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntArgs_1ga07f276f408888e46205328c9ec668bea" kindref="member">IntSetArgs</ref></type>
+        <definition>typedef IntSetArgs Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;::StorageType</definition>
+        <argsstring></argsstring>
+        <name>StorageType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="95" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1a74f6d1c81d19e9805afad12fc0b5c656" prot="public" static="no">
+        <type><ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref></type>
+        <definition>typedef IntSet Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;::ValueType</definition>
+        <argsstring></argsstring>
+        <name>ValueType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="96" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1aadb0e6f94cb167e9d12e11e2284f819e" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntArgs_1ga07f276f408888e46205328c9ec668bea" kindref="member">IntSetArgs</ref></type>
+        <definition>typedef IntSetArgs Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;::ArgsType</definition>
+        <argsstring></argsstring>
+        <name>ArgsType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/array-traits.hpp" line="97" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits of IntSetArgs. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/array-traits.hpp" line="93" column="1" bodyfile="/usr/include/gecode/int/array-traits.hpp" bodystart="93" bodyend="98"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1aadb0e6f94cb167e9d12e11e2284f819e" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;</scope><name>ArgsType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1a41319d4c52fb48a8ebd07a14f345b4f1" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;</scope><name>StorageType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01ArgArray_3_01IntSet_01_4_01_4_1a74f6d1c81d19e9805afad12fc0b5c656" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; ArgArray&lt; IntSet &gt; &gt;</scope><name>ValueType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

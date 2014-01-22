@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Pos" kind="class" prot="public">
+    <compoundname>Gecode::Pos</compoundname>
+    <includes refid="brancher-view_8hpp" local="no">brancher-view.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Pos_1a76dca77bffd691ac8f098b0951fc214c" prot="public" static="no" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::Pos::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <briefdescription>
+<para>Position of view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="51" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Pos_1adf6ba699eed46b58df7122b3d284a8f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Pos::Pos</definition>
+        <argsstring>(int p)</argsstring>
+        <name>Pos</name>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Create position information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="53" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="115" bodyend="115"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Position information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="48" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="48" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Pos_1a76dca77bffd691ac8f098b0951fc214c" prot="public" virt="non-virtual"><scope>Gecode::Pos</scope><name>pos</name></member>
+      <member refid="classGecode_1_1Pos_1adf6ba699eed46b58df7122b3d284a8f5" prot="public" virt="non-virtual"><scope>Gecode::Pos</scope><name>Pos</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

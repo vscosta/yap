@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1TaskTraits" kind="class" prot="public">
+    <compoundname>Gecode::Int::TaskTraits</compoundname>
+    <includes refid="task_8hh" local="no">task.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class Task</type>
+      </param>
+    </templateparamlist>
+    <briefdescription>
+<para>Traits class for mapping tasks to task views. </para>    </briefdescription>
+    <detaileddescription>
+<para>Each task must specialize this traits class and add<programlisting><codeline><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> for the task views corresponding to this task. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/task.hh" line="159" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="159" bodyend="159"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Values_1_1Singleton" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Values::Singleton</compoundname>
+    <includes refid="values-singleton_8hpp" local="no">values-singleton.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1a571e615c80daa4a79b87c71c7103ddec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::Singleton::Singleton</definition>
+        <argsstring>(void)</argsstring>
+        <name>Singleton</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="56" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1a991a813b5967682ba9fb64366d616c1a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::Singleton::Singleton</definition>
+        <argsstring>(int v)</argsstring>
+        <name>Singleton</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="58" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="83" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1ac558769bacb8f68e4e2907aab576b947" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Values::Singleton::init</definition>
+        <argsstring>(int v)</argsstring>
+        <name>init</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="87" bodyend="89"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1aef37cead1b2c41a08094e21e1736051d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Values::Singleton::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a value or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="66" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1ac98855b6e67b7fb893e0bb108f2b4066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Values::Singleton::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next value (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="68" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="92" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>%Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1acf4e11d1207bd493bbd7e08e63777da6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Values::Singleton::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="74" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="101" bodyend="103"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1a272e00128c3e0a66abb69d4b3aa4d545" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Iter::Values::Singleton::done</definition>
+        <argsstring></argsstring>
+        <name>done</name>
+        <briefdescription>
+<para>Whether the iterator is done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="49" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1Singleton_1a3a14cd751618de91ea1e9752b7f8502e" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Values::Singleton::v</definition>
+        <argsstring></argsstring>
+        <name>v</name>
+        <briefdescription>
+<para>The single value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-singleton.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value iterator for single value. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/iter/values-singleton.hpp" line="46" column="1" bodyfile="/usr/include/gecode/iter/values-singleton.hpp" bodystart="46" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1a272e00128c3e0a66abb69d4b3aa4d545" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>done</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1ac558769bacb8f68e4e2907aab576b947" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1aef37cead1b2c41a08094e21e1736051d" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1ac98855b6e67b7fb893e0bb108f2b4066" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1a571e615c80daa4a79b87c71c7103ddec" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1a991a813b5967682ba9fb64366d616c1a" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1a3a14cd751618de91ea1e9752b7f8502e" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>v</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Singleton_1acf4e11d1207bd493bbd7e08e63777da6" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Singleton</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

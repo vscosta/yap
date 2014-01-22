@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1IntDelta" kind="class" prot="public">
+    <compoundname>Gecode::Int::IntDelta</compoundname>
+    <basecompoundref refid="classGecode_1_1Delta" prot="public" virt="non-virtual">Gecode::Delta</basecompoundref>
+    <includes refid="int_2var-imp_8hpp" local="no">var-imp.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Int_1_1IntDelta_1ad4e93e9d7927f35f6c1ac13a4040c731" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class IntVarImp</definition>
+        <argsstring></argsstring>
+        <name>IntVarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="56" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Int_1_1IntDelta_1a932c844df8feedbceb660e35fdedd64d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class BoolVarImp</definition>
+        <argsstring></argsstring>
+        <name>BoolVarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1IntDelta_1a09d2a24342d391cacdd13840582d32f4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::IntDelta::_min</definition>
+        <argsstring></argsstring>
+        <name>_min</name>
+        <briefdescription>
+<para>Minimum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1IntDelta_1a0aa60afeee3083dc6dfc612c2bfd1100" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::IntDelta::_max</definition>
+        <argsstring></argsstring>
+        <name>_max</name>
+        <briefdescription>
+<para>Largest value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1aa45b9b5f7e35068b245ad77de7595d41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::IntDelta::IntDelta</definition>
+        <argsstring>(void)</argsstring>
+        <name>IntDelta</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create integer delta as providing no information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="63" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1a1541555a8c822cab7dd41eab5c3fcb7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::IntDelta::IntDelta</definition>
+        <argsstring>(int min, int max)</argsstring>
+        <name>IntDelta</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Create integer delta with <emphasis>min</emphasis> and <emphasis>max</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="65" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="44" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1aae95aa62d0aafac178d3556bba5be951" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::IntDelta::IntDelta</definition>
+        <argsstring>(int min)</argsstring>
+        <name>IntDelta</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <briefdescription>
+<para>Create integer delta with <emphasis>min</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="67" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="47" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1aaeb194c803fee5e55a9c988b45ecf9ca" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::IntDelta::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="70" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="50" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1a715a8cd2e5fdca867bd2b7c230aab172" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::IntDelta::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="72" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="54" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntDelta_1aa45833d75e3224f12f464ab0a8543089" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::IntDelta::any</definition>
+        <argsstring>(void) const </argsstring>
+        <name>any</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether any domain change has happened. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="74" column="1" bodyfile="/usr/include/gecode/int/var-imp/delta.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Integer delta information for advisors. </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that the same delta information is used for both integer and Boolean variables and views. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="2905">
+        <label>Gecode::Int::IntDelta</label>
+        <link refid="classGecode_1_1Int_1_1IntDelta"/>
+        <childnode refid="2906" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2906">
+        <label>Gecode::Delta</label>
+        <link refid="classGecode_1_1Delta"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2907">
+        <label>Gecode::Int::IntDelta</label>
+        <link refid="classGecode_1_1Int_1_1IntDelta"/>
+        <childnode refid="2908" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2908">
+        <label>Gecode::Delta</label>
+        <link refid="classGecode_1_1Delta"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/var-imp.hpp" line="55" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="55" bodyend="75"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1a0aa60afeee3083dc6dfc612c2bfd1100" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>_max</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1a09d2a24342d391cacdd13840582d32f4" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>_min</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1aa45833d75e3224f12f464ab0a8543089" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>any</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1a932c844df8feedbceb660e35fdedd64d" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>BoolVarImp</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1aa45b9b5f7e35068b245ad77de7595d41" prot="public" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>IntDelta</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1a1541555a8c822cab7dd41eab5c3fcb7e" prot="public" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>IntDelta</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1aae95aa62d0aafac178d3556bba5be951" prot="public" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>IntDelta</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1ad4e93e9d7927f35f6c1ac13a4040c731" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>IntVarImp</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1a715a8cd2e5fdca867bd2b7c230aab172" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1IntDelta_1aaeb194c803fee5e55a9c988b45ecf9ca" prot="private" virt="non-virtual"><scope>Gecode::Int::IntDelta</scope><name>min</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

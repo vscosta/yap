@@ -1,0 +1,208 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1IntAssign" kind="class" prot="public">
+    <compoundname>Gecode::IntAssign</compoundname>
+    <basecompoundref refid="classGecode_1_1ValBranch" prot="public" virt="non-virtual">Gecode::ValBranch</basecompoundref>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbb" prot="public" static="no">
+        <name>Select</name>
+        <enumvalue id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba70ee791dd86bb937a6af0ba783b424fb" prot="public">
+          <name>SEL_MIN</name>
+          <briefdescription>
+<para>Select smallest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba7fc46342faa8ee46c5b820e2979157e9" prot="public">
+          <name>SEL_MED</name>
+          <briefdescription>
+<para>Select greatest value not greater than the median. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbbae9f0c008d397612824a1ebb1e8103f53" prot="public">
+          <name>SEL_MAX</name>
+          <briefdescription>
+<para>Select largest value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbbaab6e434096709b789661285a08e4e183" prot="public">
+          <name>SEL_RND</name>
+          <briefdescription>
+<para>Select random value. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba1896421879c60bdbffeb05cf7d74820d" prot="public">
+          <name>SEL_VAL_COMMIT</name>
+          <briefdescription>
+<para>Select value according to user-defined functions. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Which value selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4012" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="4012" bodyend="4018"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1IntAssign_1a2053572a637679c90a7a764cd9f4b4ed" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbb" kindref="member">Select</ref></type>
+        <definition>Select Gecode::IntAssign::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Which value to select. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4021" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="4021" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1IntAssign_1ad2e932088dde3a54ce0bee6bc19118d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntAssign::IntAssign</definition>
+        <argsstring>(Select s=SEL_MIN)</argsstring>
+        <name>IntAssign</name>
+        <param>
+          <type><ref refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbb" kindref="member">Select</ref></type>
+          <declname>s</declname>
+          <defval><ref refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba70ee791dd86bb937a6af0ba783b424fb" kindref="member">SEL_MIN</ref></defval>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4024" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntAssign_1ab7c123a6253963b34778faa98b7eeae1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntAssign::IntAssign</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>IntAssign</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4026" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntAssign_1af54d2232ead350c0012622df25c41f5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::IntAssign::IntAssign</definition>
+        <argsstring>(VoidFunction v, VoidFunction c)</argsstring>
+        <name>IntAssign</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value function <emphasis>f</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4028" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1IntAssign_1abe3c4c776aaab61c725b1fb8ad6b7474" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbb" kindref="member">Select</ref></type>
+        <definition>forceinline IntAssign::Select Gecode::IntAssign::select</definition>
+        <argsstring>(void) const </argsstring>
+        <name>select</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return selection strategy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="4030" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Which values to select for assignment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2871">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+      </node>
+      <node id="2870">
+        <label>Gecode::IntAssign</label>
+        <link refid="classGecode_1_1IntAssign"/>
+        <childnode refid="2871" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2873">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+        <childnode refid="2874" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+      <node id="2874">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="2875" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2875">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="2872">
+        <label>Gecode::IntAssign</label>
+        <link refid="classGecode_1_1IntAssign"/>
+        <childnode refid="2873" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int.hh" line="4009" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="4009" bodyend="4031"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValBranch_1a3f210c407c95b73613c588a9ccad63de" prot="protected" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>cf</name></member>
+      <member refid="classGecode_1_1ValBranch_1a4e8a56a907d7d9a9bd71f5762b994407" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>commit</name></member>
+      <member refid="classGecode_1_1IntAssign_1ad2e932088dde3a54ce0bee6bc19118d9" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>IntAssign</name></member>
+      <member refid="classGecode_1_1IntAssign_1ab7c123a6253963b34778faa98b7eeae1" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>IntAssign</name></member>
+      <member refid="classGecode_1_1IntAssign_1af54d2232ead350c0012622df25c41f5b" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>IntAssign</name></member>
+      <member refid="classGecode_1_1ValBranch_1a3e83e74c785cf1a2224abfa67de186fc" prot="protected" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>r</name></member>
+      <member refid="classGecode_1_1ValBranch_1acfc0a641a55ee13ab778ff5fbb5327ce" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1IntAssign_1a2053572a637679c90a7a764cd9f4b4ed" prot="protected" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>s</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbbae9f0c008d397612824a1ebb1e8103f53" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>SEL_MAX</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba7fc46342faa8ee46c5b820e2979157e9" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>SEL_MED</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba70ee791dd86bb937a6af0ba783b424fb" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>SEL_MIN</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbbaab6e434096709b789661285a08e4e183" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>SEL_RND</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbba1896421879c60bdbffeb05cf7d74820d" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>SEL_VAL_COMMIT</name></member>
+      <member refid="classGecode_1_1IntAssign_1ada22b4a3d52b033c3731bde319f31dbb" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>Select</name></member>
+      <member refid="classGecode_1_1IntAssign_1abe3c4c776aaab61c725b1fb8ad6b7474" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>select</name></member>
+      <member refid="classGecode_1_1ValBranch_1a0359f6d8d698d621f2b04f1e099f6a91" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValBranch_1aee3d20ec60e0914116719487eab754cc" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1acbef5d412d3065c6b868e54f96954a96" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1ab7f529dafc943daf32e482aa95bda06b" prot="public" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1a777978a1be672670ef25af6f3a4ef135" prot="protected" virt="non-virtual"><scope>Gecode::IntAssign</scope><name>vf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

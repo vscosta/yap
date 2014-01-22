@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1UnknownOperation" kind="class" prot="public">
+    <compoundname>Gecode::Float::UnknownOperation</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="float_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1UnknownOperation_1afce20fe68576792c22e61f3d0ce2e921" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Float::UnknownOperation::UnknownOperation</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>UnknownOperation</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/exception.hpp" line="95" column="1" bodyfile="/usr/include/gecode/float/exception.hpp" bodystart="157" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Unknown operation passed as argument </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7256">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7257" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7255">
+        <label>Gecode::Float::UnknownOperation</label>
+        <link refid="classGecode_1_1Float_1_1UnknownOperation"/>
+        <childnode refid="7256" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7257">
+        <label>std::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7259">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="7260" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7258">
+        <label>Gecode::Float::UnknownOperation</label>
+        <link refid="classGecode_1_1Float_1_1UnknownOperation"/>
+        <childnode refid="7259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7260">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/exception.hpp" line="92" column="1" bodyfile="/usr/include/gecode/float/exception.hpp" bodystart="92" bodyend="96"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Float::UnknownOperation</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Float_1_1UnknownOperation_1afce20fe68576792c22e61f3d0ce2e921" prot="public" virt="non-virtual"><scope>Gecode::Float::UnknownOperation</scope><name>UnknownOperation</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Float::UnknownOperation</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

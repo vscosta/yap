@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::rounding_control</compoundname>
+    <templateparamlist>
+      <param>
+        <type>class T</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a18e25ce7b6d54d46147506cd59bb2e75" prot="public" static="no">
+        <type>int</type>
+        <definition>typedef int boost::numeric::interval_lib::rounding_control&lt; T &gt;::rounding_mode</definition>
+        <argsstring></argsstring>
+        <name>rounding_mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="24" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a4c3d9f8d5304579ef7ffaef00fced67d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::rounding_control&lt; T &gt;::get_rounding_mode</definition>
+        <argsstring>(rounding_mode &amp;)</argsstring>
+        <name>get_rounding_mode</name>
+        <param>
+          <type>rounding_mode &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="25" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="25" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a2a6a8d90d79c20479ee4933acc818896" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::rounding_control&lt; T &gt;::set_rounding_mode</definition>
+        <argsstring>(rounding_mode)</argsstring>
+        <name>set_rounding_mode</name>
+        <param>
+          <type>rounding_mode</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="26" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="26" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a55d7edff8525e44f6e13404cec4ee577" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::rounding_control&lt; T &gt;::upward</definition>
+        <argsstring>()</argsstring>
+        <name>upward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="27" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="27" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1afc1f94703263811afefa27b28277ff84" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::rounding_control&lt; T &gt;::downward</definition>
+        <argsstring>()</argsstring>
+        <name>downward</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="28" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="28" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a048f632f21cb79a616112909caa62000" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void boost::numeric::interval_lib::rounding_control&lt; T &gt;::to_nearest</definition>
+        <argsstring>()</argsstring>
+        <name>to_nearest</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="29" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="29" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a3cd42cde848375f6e42d4b2a24de4e62" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const T &amp;</type>
+        <definition>static const T&amp; boost::numeric::interval_lib::rounding_control&lt; T &gt;::to_int</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>to_int</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="30" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="30" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a4b7d9bf3eb2adea6793fbc76a31c63c1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const T &amp;</type>
+        <definition>static const T&amp; boost::numeric::interval_lib::rounding_control&lt; T &gt;::force_rounding</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>force_rounding</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="31" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="31" bodyend="31"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" line="23" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounding.hpp" bodystart="22" bodyend="32"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1afc1f94703263811afefa27b28277ff84" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>downward</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a4b7d9bf3eb2adea6793fbc76a31c63c1" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>force_rounding</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a4c3d9f8d5304579ef7ffaef00fced67d" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>get_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a18e25ce7b6d54d46147506cd59bb2e75" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a2a6a8d90d79c20479ee4933acc818896" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>set_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a3cd42cde848375f6e42d4b2a24de4e62" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>to_int</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a048f632f21cb79a616112909caa62000" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>to_nearest</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounding__control_1a55d7edff8525e44f6e13404cec4ee577" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounding_control</scope><name>upward</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

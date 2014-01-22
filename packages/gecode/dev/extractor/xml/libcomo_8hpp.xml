@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="libcomo_8hpp" kind="file">
+    <compoundname>libcomo.hpp</compoundname>
+    <includes refid="config_2no__tr1_2utility_8hpp" local="no">gecode/third-party/boost/config/no_tr1/utility.hpp</includes>
+    <incdepgraph>
+      <node id="34335">
+        <label>gecode/third-party/boost/config/no_tr1/utility.hpp</label>
+        <link refid="config_2no__tr1_2utility_8hpp_source"/>
+        <childnode refid="34336" relation="include">
+        </childnode>
+      </node>
+      <node id="34336">
+        <label>utility</label>
+      </node>
+      <node id="34334">
+        <label>/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp</label>
+        <link refid="libcomo.hpp"/>
+        <childnode refid="34335" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="libcomo_8hpp_1a4d5a952e5263bcdbf5fd3aef881ed02d" prot="public" static="no">
+        <name>BOOST_NO_STD_WSTREAMBUF</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="24" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a2a025f67528583e3e0c30e7f9dca14a3" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_ARRAY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="38" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1af5ba0869e1d6440efcc83a7e4371c786" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CHRONO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="39" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a99a70abe45125cd77461db951af623b1" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CODECVT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="40" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1aeafca1ba0ce1c0e9a506dc5c4ae0db02" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_CONDITION_VARIABLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="41" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a6a8fe3913cbbe5a9b7ec68aa4ef2f32c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FORWARD_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="42" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a78d01772010913e629fad312f3039b0c" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_FUTURE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="43" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1aa2c7a518048d09ee2503f0da79ca45eb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_INITIALIZER_LIST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="44" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a3101ea14746ac1d04dbfca62eab46b37" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_MUTEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="45" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a11078fb53f856c1773a028f8ae1dbb74" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RANDOM</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="46" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a2dcba45f6486552307f6c41050949127" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_RATIO</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="47" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1aaea35104fb86aeb7a56e813aa4b1641a" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_REGEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="48" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a8efd9c2962dcb5b1dd0189e1581a36bb" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_SYSTEM_ERROR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="49" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1ac21a1d6ab1bdf429c4f3863eb61640fd" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_THREAD</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="50" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1ac4c03c75c321273027da8aa498dc812d" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TUPLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="51" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a5e9484cc1a51f14e9c5ac50bf0321a36" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="52" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a5aa0152b7f8a0edb483120c514f24f68" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_TYPEINDEX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="53" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a5f7c16445a4a41896de19fd44d0efa0d" prot="public" static="no">
+        <name>BOOST_NO_STD_UNORDERED</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="54" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a4ae4004387f3985465752f3f8a149b89" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_MAP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="55" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a0df1997f5eadf550a841cd1e0190d841" prot="public" static="no">
+        <name>BOOST_NO_0X_HDR_UNORDERED_SET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="56" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a53e18344e017dae60158edae1f7ce594" prot="public" static="no">
+        <name>BOOST_NO_NUMERIC_LIMITS_LOWEST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="57" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1ad6cfb0103737b8d6da95fadd6f24f710" prot="public" static="no">
+        <name>BOOST_HAS_SGI_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="65" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="libcomo_8hpp_1a119bfbef30b482000f193169d6ae9fee" prot="public" static="no">
+        <name>BOOST_STDLIB</name>
+        <initializer>&quot;Comeau standard library &quot; BOOST_STRINGIZE(__LIBCOMO_VERSION__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" line="67" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2002<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Jens<sp/>Maurer<sp/>2002<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Beman<sp/>Dawes<sp/>2002<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Comeau<sp/>STL:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__LIBCOMO__)</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;gecode/third-party/boost/config/no_tr1/utility.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>!defined(__LIBCOMO__)</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;This<sp/>is<sp/>not<sp/>the<sp/>Comeau<sp/>STL!&quot;</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>std::streambuf&lt;wchar_t&gt;<sp/>is<sp/>non-standard</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>NOTE:<sp/>versions<sp/>of<sp/>libcomo<sp/>prior<sp/>to<sp/>beta28<sp/>have<sp/>octal<sp/>version<sp/>numbering,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>e.g.<sp/>version<sp/>25<sp/>is<sp/>21<sp/>(dec)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__LIBCOMO_VERSION__<sp/>&lt;=<sp/>22</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_WSTREAMBUF</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__LIBCOMO_VERSION__<sp/>&lt;=<sp/>31)<sp/>&amp;&amp;<sp/>defined(_WIN32)</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SWPRINTF</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__LIBCOMO_VERSION__<sp/>&gt;=<sp/>31</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_HASH</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_SLIST</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>C++0x<sp/>headers<sp/>not<sp/>yet<sp/>implemented</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_ARRAY</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CHRONO</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CODECVT</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_CONDITION_VARIABLE</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FORWARD_LIST</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_FUTURE</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_INITIALIZER_LIST</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_MUTEX</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RANDOM</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_RATIO</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_REGEX</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_SYSTEM_ERROR</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_THREAD</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TUPLE</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_TYPEINDEX</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_STD_UNORDERED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>deprecated;<sp/>see<sp/>following</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_MAP</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_0X_HDR_UNORDERED_SET</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_NUMERIC_LIMITS_LOWEST</highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Intrinsic<sp/>type_traits<sp/>support.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>SGI<sp/>STL<sp/>has<sp/>it&apos;s<sp/>own<sp/>__type_traits<sp/>class,<sp/>which</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//<sp/>has<sp/>intrinsic<sp/>compiler<sp/>support<sp/>with<sp/>SGI&apos;s<sp/>compilers.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Whatever<sp/>map<sp/>SGI<sp/>style<sp/>type<sp/>traits<sp/>to<sp/>boost<sp/>equivalents:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_SGI_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_STDLIB<sp/>&quot;Comeau<sp/>standard<sp/>library<sp/>&quot;<sp/>BOOST_STRINGIZE(__LIBCOMO_VERSION__)</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/stdlib/libcomo.hpp"/>
+  </compounddef>
+</doxygen>

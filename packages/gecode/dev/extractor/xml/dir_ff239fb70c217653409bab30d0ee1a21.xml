@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_ff239fb70c217653409bab30d0ee1a21" kind="dir">
+    <compoundname>/usr/include/gecode/int/bool</compoundname>
+    <innerfile refid="bool_2base_8hpp">base.hpp</innerfile>
+    <innerfile refid="clause_8hpp">clause.hpp</innerfile>
+    <innerfile refid="int_2bool_2eq_8hpp">eq.hpp</innerfile>
+    <innerfile refid="eqv_8hpp">eqv.hpp</innerfile>
+    <innerfile refid="ite_8hpp">ite.hpp</innerfile>
+    <innerfile refid="int_2bool_2lq_8hpp">lq.hpp</innerfile>
+    <innerfile refid="or_8hpp">or.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/bool/"/>
+  </compounddef>
+</doxygen>

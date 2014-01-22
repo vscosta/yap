@@ -1,0 +1,664 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="complement_8hpp" kind="file">
+    <compoundname>complement.hpp</compoundname>
+    <includes local="no">sstream</includes>
+    <includedby refid="set_2view_8hpp" local="no">/usr/include/gecode/set/view.hpp</includedby>
+    <incdepgraph>
+      <node id="31690">
+        <label>/usr/include/gecode/set/view/complement.hpp</label>
+        <link refid="complement.hpp"/>
+        <childnode refid="31691" relation="include">
+        </childnode>
+      </node>
+      <node id="31691">
+        <label>sstream</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="31697">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="31709">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="31696" relation="include">
+        </childnode>
+        <childnode refid="31700" relation="include">
+        </childnode>
+        <childnode refid="31707" relation="include">
+        </childnode>
+        <childnode refid="31708" relation="include">
+        </childnode>
+        <childnode refid="31710" relation="include">
+        </childnode>
+      </node>
+      <node id="31702">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="31695">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="31700">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="31699">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="31708">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="31700" relation="include">
+        </childnode>
+        <childnode refid="31707" relation="include">
+        </childnode>
+      </node>
+      <node id="31705">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="31696">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="31697" relation="include">
+        </childnode>
+      </node>
+      <node id="31692">
+        <label>/usr/include/gecode/set/view/complement.hpp</label>
+        <link refid="complement.hpp"/>
+        <childnode refid="31693" relation="include">
+        </childnode>
+      </node>
+      <node id="31703">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="31702" relation="include">
+        </childnode>
+      </node>
+      <node id="31706">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="31693">
+        <label>/usr/include/gecode/set/view.hpp</label>
+        <link refid="set_2view_8hpp_source"/>
+        <childnode refid="31694" relation="include">
+        </childnode>
+      </node>
+      <node id="31704">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="31702" relation="include">
+        </childnode>
+      </node>
+      <node id="31710">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="31701">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="31702" relation="include">
+        </childnode>
+      </node>
+      <node id="31694">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="31695" relation="include">
+        </childnode>
+        <childnode refid="31696" relation="include">
+        </childnode>
+        <childnode refid="31697" relation="include">
+        </childnode>
+        <childnode refid="31698" relation="include">
+        </childnode>
+        <childnode refid="31699" relation="include">
+        </childnode>
+        <childnode refid="31700" relation="include">
+        </childnode>
+        <childnode refid="31701" relation="include">
+        </childnode>
+        <childnode refid="31703" relation="include">
+        </childnode>
+        <childnode refid="31704" relation="include">
+        </childnode>
+        <childnode refid="31702" relation="include">
+        </childnode>
+        <childnode refid="31705" relation="include">
+        </childnode>
+        <childnode refid="31706" relation="include">
+        </childnode>
+        <childnode refid="31707" relation="include">
+        </childnode>
+        <childnode refid="31708" relation="include">
+        </childnode>
+        <childnode refid="31709" relation="include">
+        </childnode>
+        <childnode refid="31710" relation="include">
+        </childnode>
+      </node>
+      <node id="31707">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="31708" relation="include">
+        </childnode>
+      </node>
+      <node id="31698">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; ComplementView&lt; ComplementView&lt; View &gt; &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; ComplementView&lt; ComplementView&lt; View &gt; &gt; &gt;</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set">Gecode::Set</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Contributing<sp/>authors:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2004</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2004</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2011-05-02<sp/>00:24:42<sp/>+0200<sp/>(Mon,<sp/>02<sp/>May<sp/>2011)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>11973<sp/>$</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Set<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="48" refid="classGecode_1_1Set_1_1ComplementView_1a7a0dee20dcaaacd2b18d8d11d410b62b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a7a0dee20dcaaacd2b18d8d11d410b62b" kindref="member">ComplementView&lt;View&gt;::ComplementView</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="52" refid="classGecode_1_1Set_1_1ComplementView_1a393034c784f29665df6a4279def13a97" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a7a0dee20dcaaacd2b18d8d11d410b62b" kindref="member">ComplementView&lt;View&gt;::ComplementView</ref>(View&amp;<sp/>y)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView</ref>&lt;View&gt;(y)<sp/>{}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="57" refid="classGecode_1_1Set_1_1ComplementView_1af07368bb0030264e0cc540ba1cc1b0d2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1af07368bb0030264e0cc540ba1cc1b0d2" kindref="member">ComplementView&lt;View&gt;::me_negateset</ref>(<ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal">(me)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>ME_SET_LUB<sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_GLB;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>ME_SET_GLB<sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_LUB;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>ME_SET_CLUB<sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_CGLB;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>ME_SET_CGLB<sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_CLUB;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></highlight></codeline>
+<codeline lineno="69" refid="classGecode_1_1Set_1_1ComplementView_1a2014bcffd4e9ac11a40ec42b565a8221" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a2014bcffd4e9ac11a40ec42b565a8221" kindref="member">ComplementView&lt;View&gt;::pc_negateset</ref>(<ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal">(pc)<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>PC_SET_CLUB<sp/><sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>PC_SET_CGLB;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>PC_SET_CGLB<sp/><sp/>:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>PC_SET_CLUB;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pc;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="classGecode_1_1Set_1_1ComplementView_1ab9a56e2e3bc0d08d4ea8f1881c313ca3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ab9a56e2e3bc0d08d4ea8f1881c313ca3" kindref="member">ComplementView&lt;View&gt;::glbSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>x.lubSize();</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classGecode_1_1Set_1_1ComplementView_1a105b15f34cdbca94157234f4bb62b0c9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a105b15f34cdbca94157234f4bb62b0c9" kindref="member">ComplementView&lt;View&gt;::lubSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>x.glbSize();</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1Set_1_1ComplementView_1a4bed45238768e892e0c54d146cb7246b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a4bed45238768e892e0c54d146cb7246b" kindref="member">ComplementView&lt;View&gt;::unknownSize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lubSize()<sp/>-<sp/>glbSize();</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="classGecode_1_1Set_1_1ComplementView_1a21ce4ee6fcf6a6cda549c9ccce7cb28e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a21ce4ee6fcf6a6cda549c9ccce7cb28e" kindref="member">ComplementView&lt;View&gt;::contains</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.notContains(n);<sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="classGecode_1_1Set_1_1ComplementView_1a6543534c8acb668ec87020500bb2ebd8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a6543534c8acb668ec87020500bb2ebd8" kindref="member">ComplementView&lt;View&gt;::notContains</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.contains(n);<sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="classGecode_1_1Set_1_1ComplementView_1a3dcf8a890626abe3def7750186913da0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a3dcf8a890626abe3def7750186913da0" kindref="member">ComplementView&lt;View&gt;::cardMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>x.cardMax();</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="classGecode_1_1Set_1_1ComplementView_1abf4381f8fcf6b1873db04b3da7a51007" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abf4381f8fcf6b1873db04b3da7a51007" kindref="member">ComplementView&lt;View&gt;::cardMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>x.cardMin();</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="classGecode_1_1Set_1_1ComplementView_1a70b7ae80b73243ae2ccc7ce90c9ff9f4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a70b7ae80b73243ae2ccc7ce90c9ff9f4" kindref="member">ComplementView&lt;View&gt;::lubMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;View&gt;</ref><sp/>lb(x);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;GlbRanges&lt;View&gt;</ref><sp/>&gt;<sp/>lbc(lb);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lbc())<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" kindref="member">min</ref>();</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1BndSet_1ac506e1f8224563cc4090b7465acbe14b" kindref="member">BndSet::MIN_OF_EMPTY</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="classGecode_1_1Set_1_1ComplementView_1abe78ca21ae3e391a8a0c311d72f02765" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abe78ca21ae3e391a8a0c311d72f02765" kindref="member">ComplementView&lt;View&gt;::lubMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;View&gt;</ref><sp/>lb(x);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;GlbRanges&lt;View&gt;</ref><sp/>&gt;<sp/>lbc(lb);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lbc())<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal">(lbc())<sp/>++lbc;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" kindref="member">max</ref>();</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1BndSet_1a2a0b1c8d9863a9650eda7b1066d85943" kindref="member">BndSet::MAX_OF_EMPTY</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="classGecode_1_1Set_1_1ComplementView_1a60d84dbdade6c6c36ff59f21819b81a6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a60d84dbdade6c6c36ff59f21819b81a6" kindref="member">ComplementView&lt;View&gt;::glbMin</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;View&gt;</ref><sp/>ub(x);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;LubRanges&lt;View&gt;</ref><sp/>&gt;<sp/>ubc(ub);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ubc())<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" kindref="member">min</ref>();</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1BndSet_1ac506e1f8224563cc4090b7465acbe14b" kindref="member">BndSet::MIN_OF_EMPTY</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classGecode_1_1Set_1_1ComplementView_1aceed610c24e59a4c2b6bec1724d8d105" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1aceed610c24e59a4c2b6bec1724d8d105" kindref="member">ComplementView&lt;View&gt;::glbMax</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;View&gt;</ref><sp/>ub(x);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;LubRanges&lt;View&gt;</ref><sp/>&gt;<sp/>ubc(ub);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ubc())<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(ubc())<sp/>++ubc;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc.<ref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" kindref="member">max</ref>();</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1BndSet_1a2a0b1c8d9863a9650eda7b1066d85943" kindref="member">BndSet::MAX_OF_EMPTY</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="167" refid="classGecode_1_1Set_1_1ComplementView_1ae355e1bf9d0d078ae994f5bba35393b4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a3dcf8a890626abe3def7750186913da0" kindref="member">ComplementView&lt;View&gt;::cardMin</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>&lt;<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref>)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.cardMax(home,<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>c));</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_NONE;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="175" refid="classGecode_1_1Set_1_1ComplementView_1aba6431e4b169575be7814616affefceb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abf4381f8fcf6b1873db04b3da7a51007" kindref="member">ComplementView&lt;View&gt;::cardMax</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>&lt;<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref>)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.cardMin(home,<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Limits::card</ref><sp/>-<sp/>c));</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_SET_NONE;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="183" refid="classGecode_1_1Set_1_1ComplementView_1aee7657c8d2630297e95d86f8f2e62593" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a6a826b77867593281bb58d11ead1fb05" kindref="member">ComplementView&lt;View&gt;::include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset((x.exclude(home,<sp/>c)));</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="189" refid="classGecode_1_1Set_1_1ComplementView_1a6d1df83e0cdcc6653e82e6d01b48a533" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abb8e3eef59fdbfaa9da1ab7507663081" kindref="member">ComplementView&lt;View&gt;::exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset((x.include(home,<sp/>c)));</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="195" refid="classGecode_1_1Set_1_1ComplementView_1a3b6bf08b0b022b7b18f5d7e436624702" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ae2d4927c9cda7b4a4a5be4cb60fc06c8" kindref="member">ComplementView&lt;View&gt;::intersect</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)<sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton" kindref="compound">Iter::Ranges::Singleton</ref><sp/>si(c,c);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;Iter::Ranges::Singleton&gt;</ref><sp/>csi(si);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset((x.includeI(home,<sp/>csi)));</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="203" refid="classGecode_1_1Set_1_1ComplementView_1ae2d4927c9cda7b4a4a5be4cb60fc06c8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ae2d4927c9cda7b4a4a5be4cb60fc06c8" kindref="member">ComplementView&lt;View&gt;::intersect</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j)<sp/>{</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton" kindref="compound">Iter::Ranges::Singleton</ref><sp/>si(i,j);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;Iter::Ranges::Singleton&gt;</ref><sp/>csi(si);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset((x.includeI(home,<sp/>csi)));</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="211" refid="classGecode_1_1Set_1_1ComplementView_1a6a826b77867593281bb58d11ead1fb05" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a6a826b77867593281bb58d11ead1fb05" kindref="member">ComplementView&lt;View&gt;::include</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>k)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.exclude(home,j,k));</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="217" refid="classGecode_1_1Set_1_1ComplementView_1abb8e3eef59fdbfaa9da1ab7507663081" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abb8e3eef59fdbfaa9da1ab7507663081" kindref="member">ComplementView&lt;View&gt;::exclude</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>k)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.include(home,j,k));</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="223" refid="classGecode_1_1Set_1_1ComplementView_1adbdec8281d20b9dafe8d0e2210aa7e24" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1adbdec8281d20b9dafe8d0e2210aa7e24" kindref="member">ComplementView&lt;View&gt;::excludeI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.includeI(home,iter));</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="229" refid="classGecode_1_1Set_1_1ComplementView_1af0377a5619abe1e2c9fba6bab049e49a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1af0377a5619abe1e2c9fba6bab049e49a" kindref="member">ComplementView&lt;View&gt;::includeI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.excludeI(home,iter));</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="235" refid="classGecode_1_1Set_1_1ComplementView_1a99e1fd468dfede9412f665e34ec18371" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a99e1fd468dfede9412f665e34ec18371" kindref="member">ComplementView&lt;View&gt;::intersectI</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,I&amp;<sp/>iter)<sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;I&gt;</ref><sp/>c(iter);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(x.includeI(home,c));</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242" refid="classGecode_1_1Set_1_1ComplementView_1ad9cbae8934503f3356a519b02c7ffef4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ad9cbae8934503f3356a519b02c7ffef4" kindref="member">ComplementView&lt;View&gt;::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc,</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>schedule)<sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>x.subscribe(home,p,<sp/>pc_negateset(pc),schedule);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249" refid="classGecode_1_1Set_1_1ComplementView_1ab63afcdcf42944e6ddaca39dfa392cd6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ab63afcdcf42944e6ddaca39dfa392cd6" kindref="member">ComplementView&lt;View&gt;::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc)<sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>x.cancel(home,p,<sp/>pc_negateset(pc));</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="255" refid="classGecode_1_1Set_1_1ComplementView_1a3d41f4e52f5bbbd337c975f09065b0c8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ad9cbae8934503f3356a519b02c7ffef4" kindref="member">ComplementView&lt;View&gt;::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/>x.subscribe(home,a);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261" refid="classGecode_1_1Set_1_1ComplementView_1a0a00c7ba90272a1306b337f01189f8d7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ab63afcdcf42944e6ddaca39dfa392cd6" kindref="member">ComplementView&lt;View&gt;::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>x.cancel(home,a);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="classGecode_1_1Set_1_1ComplementView_1aeca84dd22ca99566360ce1b811ebe4ca" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1aeca84dd22ca99566360ce1b811ebe4ca" kindref="member">ComplementView&lt;View&gt;::schedule</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>View::schedule(home,p,me_negateset(me));</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="272" refid="classGecode_1_1Set_1_1ComplementView_1af5689f87645b8cc41b44a54fd6521b36" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1af5689f87645b8cc41b44a54fd6521b36" kindref="member">ComplementView&lt;View&gt;::me</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref>&amp;<sp/>med)<sp/>{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(View::me(med));</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></highlight></codeline>
+<codeline lineno="278" refid="classGecode_1_1Set_1_1ComplementView_1a5447604726d4a176e6164838ef0c972e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a5447604726d4a176e6164838ef0c972e" kindref="member">ComplementView&lt;View&gt;::med</ref>(<ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(View::med(me));</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="283"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Delta<sp/>information<sp/>for<sp/>advisors</highlight></codeline>
+<codeline lineno="284"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="285"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="289" refid="classGecode_1_1Set_1_1ComplementView_1ab1437ead1175f4762943d8238f098973" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1ab1437ead1175f4762943d8238f098973" kindref="member">ComplementView&lt;View&gt;::modevent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>me_negateset(View::modevent(d));</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295" refid="classGecode_1_1Set_1_1ComplementView_1a9eb1e4950742823d40401883d5145822" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a60d84dbdade6c6c36ff59f21819b81a6" kindref="member">ComplementView&lt;View&gt;::glbMin</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMin(d);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301" refid="classGecode_1_1Set_1_1ComplementView_1a090f99f391cd8d0d14b8b804697e3a10" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1aceed610c24e59a4c2b6bec1724d8d105" kindref="member">ComplementView&lt;View&gt;::glbMax</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubMax(d);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307" refid="classGecode_1_1Set_1_1ComplementView_1a700f85d2556504fb6507c88f82689199" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a700f85d2556504fb6507c88f82689199" kindref="member">ComplementView&lt;View&gt;::glbAny</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.lubAny(d);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="313" refid="classGecode_1_1Set_1_1ComplementView_1a585f569b8ceb5dac5a0c8a9b0a4147cf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1a70b7ae80b73243ae2ccc7ce90c9ff9f4" kindref="member">ComplementView&lt;View&gt;::lubMin</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMin(d);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="319" refid="classGecode_1_1Set_1_1ComplementView_1aab9338c1244bde79ace0145d9e1b50c8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1abe78ca21ae3e391a8a0c311d72f02765" kindref="member">ComplementView&lt;View&gt;::lubMax</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbMax(d);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="325" refid="classGecode_1_1Set_1_1ComplementView_1acffcdd799f49242c03f72abcccde7cec" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1ComplementView_1acffcdd799f49242c03f72abcccde7cec" kindref="member">ComplementView&lt;View&gt;::lubAny</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.glbAny(d);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="335" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;View&gt;<sp/>&gt;<sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;View&gt;</ref><sp/>lb;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;GlbRanges&lt;View&gt;</ref><sp/>&gt;<sp/>lbc;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="341"></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="349"></codeline>
+<codeline lineno="351"></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1acc9284aa4170296775d1a307bc2cf396" kindref="member">operator ()</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a9c0bfc0184d7392863563733f590e23b" kindref="member">operator ++</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="357"></codeline>
+<codeline lineno="359"></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a477d11de91d1533d86b065ab1ae285f2" kindref="member">min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1ab611285a985a7fd844c8ec6b26dcb053" kindref="member">max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a769dbb7c7a46d121617fd0e9c0a7edea" kindref="member">width</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="371" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1ac422fe66a1b7d3e02b107e25d480b3c2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">::LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref>&amp;<sp/>s)</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>lb(s.base()),<sp/>lbc(lb)<sp/>{}</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="376" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1a00bd6e8d3515481378904638a34a7f47" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/>lb.<ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">init</ref>(s.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>());</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/>lbc.init(lb);</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="383" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1a3382b51d130196e114145ee3ea010762" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::operator<sp/>()(void)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc();<sp/>}</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="387" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1aac3555198c4a02cef67ad21e14117422" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::operator<sp/>++(void)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>++lbc;<sp/>}</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="391" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1adc5e9df26cce99593ef011401b3c939b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::min(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc.<ref refid="classGecode_1_1Set_1_1LubRanges_1a477d11de91d1533d86b065ab1ae285f2" kindref="member">min</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="395" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1acd2c14ea66594c69bf6551fd473a59db" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::max(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc.<ref refid="classGecode_1_1Set_1_1LubRanges_1ab611285a985a7fd844c8ec6b26dcb053" kindref="member">max</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="399" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4_1a44ad7764d3bff630bc0857827dc4f0a0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::width(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lbc.<ref refid="classGecode_1_1Set_1_1LubRanges_1a769dbb7c7a46d121617fd0e9c0a7edea" kindref="member">width</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="410" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;View&gt;<sp/>&gt;<sp/>&gt;<sp/>:</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;View&gt;<sp/>{</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="414"></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a6083dba6e8813bcb693f1885725ae0a9" kindref="member">LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<sp/>&gt;<ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">::</ref></highlight></codeline>
+<codeline lineno="427" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4_1a4ff3eeb52e374e66674dfe5a284f6c77" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">  LubRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x)<sp/>:</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges</ref>&lt;View&gt;(x)<sp/>{}</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="432"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;ComplementView&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<sp/>&gt;::</highlight></codeline>
+<codeline lineno="433" refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4_1a3c634a4d61b119de1514a39e7a64a204" refkind="member"><highlight class="normal"><sp/><sp/>init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_1a613882fc8749ed95bf7843ce24bbb187" kindref="member">LubRanges&lt;View&gt;::init</ref>(x);</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="442" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;View&gt;<sp/>&gt;<sp/>{</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges" kindref="compound">LubRanges&lt;View&gt;</ref><sp/>ub;</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1RangesCompl" kindref="compound">RangesCompl&lt;LubRanges&lt;View&gt;</ref><sp/>&gt;<sp/>ubc;</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="448"></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="456"></codeline>
+<codeline lineno="458"></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a933e1ea61ff0b2ec23b68c0203542102" kindref="member">operator ()</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1ae2929d6847925cdcfedea14edc6ebb5a" kindref="member">operator ++</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="464"></codeline>
+<codeline lineno="466"></codeline>
+<codeline lineno="467"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1ae636e7329cca394ccb4380ec9bf7889f" kindref="member">min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a34b4975643d2d0534a0525ebc01a03cf" kindref="member">max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a08a640381d45e15d76874f4b22518903" kindref="member">width</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="478" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a7d85e901c7234c972e6f9aebad40be5f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">::GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&amp;<sp/>s)</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>ub(s.base()),<sp/>ubc(ub)<sp/>{}</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"></highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="483" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ab8d4158d80e4b01ef0da7050641f46d1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/>ub.<ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">init</ref>(s.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>());</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/>ubc.init(ub);</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"></highlight></codeline>
+<codeline lineno="488"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="490" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a3d6b27c156e8d760c126bc2ee17b8db7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::operator<sp/>()(void)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc();<sp/>}</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="494" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1affb3383f6107dc23c05f2bd6d420afd9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::operator<sp/>++(void)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>++ubc;<sp/>}</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="498" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a544c71fead2b3f18aaad3f77c1c1451e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::min(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc.<ref refid="classGecode_1_1Set_1_1GlbRanges_1ae636e7329cca394ccb4380ec9bf7889f" kindref="member">min</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"></highlight></codeline>
+<codeline lineno="500"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="502" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1ad91c052daba2ac4c8caab69ec06ff80e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::max(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc.<ref refid="classGecode_1_1Set_1_1GlbRanges_1a34b4975643d2d0534a0525ebc01a03cf" kindref="member">max</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="506" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4_1a809addc9b0d203d05fb966d461d20cea" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;::width(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ubc.<ref refid="classGecode_1_1Set_1_1GlbRanges_1a08a640381d45e15d76874f4b22518903" kindref="member">width</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="507"><highlight class="normal"></highlight></codeline>
+<codeline lineno="516"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="517" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;View&gt;<sp/>&gt;<sp/>&gt;<sp/>:</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;View&gt;<sp/>{</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="521"></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" kindref="member">GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">init</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x);</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<sp/>&gt;<ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">::</ref></highlight></codeline>
+<codeline lineno="534" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4_1afe7c303a97acb0b56e9dfd618bff748d" refkind="member"><highlight class="normal"><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">  GlbRanges</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x)<sp/>:</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges</ref>&lt;View&gt;(x)<sp/>{}</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"></highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="539"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges" kindref="compound">GlbRanges&lt;ComplementView&lt;ComplementView&lt;View&gt;</ref><sp/>&gt;<sp/>&gt;::</highlight></codeline>
+<codeline lineno="540" refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01ComplementView_3_01View_01_4_01_4_01_4_1ac3b1cf63bc48816588b831cbed9da20f" refkind="member"><highlight class="normal"><sp/><sp/>init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView</ref>&lt;<ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref><sp/>&gt;&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="541"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" kindref="member">GlbRanges&lt;View&gt;::init</ref>(x);</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="543"><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="545"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="546" refid="classGecode_1_1Set_1_1ComplementView_1a520ee7dc67f3c4e5775fcd9a9b27b2a6" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ComplementView" kindref="compound">ComplementView&lt;View&gt;</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.width(0);</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;(&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x.<ref refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" kindref="member">base</ref>()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;)^C&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"></highlight></codeline>
+<codeline lineno="554"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"></highlight></codeline>
+<codeline lineno="556"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>set-var</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/set/view/complement.hpp"/>
+  </compounddef>
+</doxygen>

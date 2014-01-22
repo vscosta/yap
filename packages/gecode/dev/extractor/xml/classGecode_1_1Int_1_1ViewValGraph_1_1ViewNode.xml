@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewValGraph::ViewNode</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Node&lt; View &gt;</basecompoundref>
+    <includes refid="view-val-graph_8hh" local="no">view-val-graph.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a72c7cd2e12e70cc28b39fc4ce50298e1" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::_size</definition>
+        <argsstring></argsstring>
+        <name>_size</name>
+        <briefdescription>
+<para>The size of the view after last change. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="181" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a085a6d02eadc5254dc311837fb91fab0" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::_view</definition>
+        <argsstring></argsstring>
+        <name>_view</name>
+        <briefdescription>
+<para>The node&apos;s view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="183" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abe0bff1fef3e5eb29668670366403993" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge</ref>&lt; View &gt; *</type>
+        <definition>Edge&lt;View&gt;* Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::_val_edges</definition>
+        <argsstring></argsstring>
+        <name>_val_edges</name>
+        <briefdescription>
+<para>The first value edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="185" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ac92086f83730c947396e2524d7cc491f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::ViewNode</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewNode</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize node for a non-view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="188" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="126" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4e10ae6f3237d48fe749ac8bbb78855b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::ViewNode</definition>
+        <argsstring>(View x)</argsstring>
+        <name>ViewNode</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize new node for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="190" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="130" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab316323f1678f036653543c282027c88" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge</ref>&lt; View &gt; *</type>
+        <definition>forceinline Edge&lt; View &gt; * Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::val_edges</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val_edges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return first edge of all value edges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="192" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="134" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4c64acab9339a77c5c77e2048dc250f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" kindref="compound">Edge</ref>&lt; View &gt; **</type>
+        <definition>forceinline Edge&lt; View &gt; ** Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::val_edges_ref</definition>
+        <argsstring>(void)</argsstring>
+        <name>val_edges_ref</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return pointer to first edge fields of all value edges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="194" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="139" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a671e13819ac09ab4f874d2513b7c8120" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::fake</definition>
+        <argsstring>(void) const </argsstring>
+        <name>fake</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether node has a fake view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="196" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="144" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a8fa7aa9ba89ebcdd8075cc4a5556d770" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>View</type>
+        <definition>forceinline View Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::view</definition>
+        <argsstring>(void) const </argsstring>
+        <name>view</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="198" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="149" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab4fea6bc1e7f0cf56029625f1aa8226e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::update</definition>
+        <argsstring>(void)</argsstring>
+        <name>update</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Update size of view after change. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="200" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="159" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abc83d69362c926c4cd24a7fd0537abb1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::changed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>changed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether view has changed its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="202" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="154" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab5be68e172534d2c4b62c988b249a43b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;::matched</definition>
+        <argsstring>(void) const </argsstring>
+        <name>matched</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether the node is matched. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="204" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/node.hpp" bodystart="164" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>View nodes in view-value graph. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7830">
+        <label>Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode"/>
+        <childnode refid="7831" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7832">
+        <label>Gecode::Int::ViewValGraph::BiLink</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink"/>
+      </node>
+      <node id="7831">
+        <label>Gecode::Int::ViewValGraph::Node&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node"/>
+        <childnode refid="7832" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7833">
+        <label>Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode"/>
+        <childnode refid="7834" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7836" relation="usage">
+          <edgelabel>_view</edgelabel>
+        </childnode>
+      </node>
+      <node id="7836">
+        <label>View</label>
+      </node>
+      <node id="7835">
+        <label>Gecode::Int::ViewValGraph::BiLink</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink"/>
+      </node>
+      <node id="7834">
+        <label>Gecode::Int::ViewValGraph::Node&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node"/>
+        <childnode refid="7835" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/view-val-graph.hh" line="178" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="178" bodyend="205"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a72c7cd2e12e70cc28b39fc4ce50298e1" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>_size</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abe0bff1fef3e5eb29668670366403993" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>_val_edges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a085a6d02eadc5254dc311837fb91fab0" prot="protected" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>_view</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1abf6e776a761e4cbba3d2e47c2fa05b2c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>add</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a2c45d8f046c5ef13f19bc8bc63eee530" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>BiLink</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1abc83d69362c926c4cd24a7fd0537abb1" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>changed</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a44d84b270e60d5082a0fc46532a9e3b4" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>comp</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a6d6f05c086e2f0da61fffb156f5f0244" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>edge_fst</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1ae675d50ab5e5ca120ba53836671f11f8" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>edge_lst</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1af6a7e72170b5f244ee6e57e26ca1f04f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a671e13819ac09ab4f874d2513b7c8120" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>fake</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a34103c5992ecb4801094b8653e124b71" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>iter</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a9c7de4c378c4f078c0d58a852eeb0d80" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>low</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ac1c5ef03c95a7232a921179e4506622a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>mark</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a477043f919a199f146ebc2825845d8be" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>marked</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab5be68e172534d2c4b62c988b249a43b" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>matched</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a29d734f314bd7106a2bf5eb78e71064b" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ae21348fc4bde32c21cd1568ed7f6b43c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>next</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a676227782d04bba0fd9b28f154d4555f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>next</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1af98cfc43cf3d04ef8887b08bd81aad11" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>Node</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a88898e37d5bf8f7a96a55e61b526a8b5" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1af12b6bafa7ed362ec332789b7e11cfcd" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node_1a19e6716675f0416f58a473b0f9a15bd1" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a9623cbba17d117289eebb6f2c2b5c4ae" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>prev</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a903bfd23c708d3848f61697ff4435cc7" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>prev</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1afc99ce400e8b5f69717cd7358c85aaa6" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>unlink</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab4fea6bc1e7f0cf56029625f1aa8226e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>update</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ab316323f1678f036653543c282027c88" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>val_edges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4c64acab9339a77c5c77e2048dc250f5" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>val_edges_ref</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a8fa7aa9ba89ebcdd8075cc4a5556d770" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>view</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1ac92086f83730c947396e2524d7cc491f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>ViewNode</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode_1a4e10ae6f3237d48fe749ac8bbb78855b" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::ViewNode</scope><name>ViewNode</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

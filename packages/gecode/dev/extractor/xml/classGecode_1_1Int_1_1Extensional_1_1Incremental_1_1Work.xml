@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Extensional::Incremental::Work</compoundname>
+    <includes refid="extensional_8hh" local="no">extensional.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1af663e55023e0914693e7ad3ae0c11b4e" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1WorkEntry" kindref="compound">WorkEntry</ref> *</type>
+        <definition>WorkEntry* Gecode::Int::Extensional::Incremental&lt; View &gt;::Work::we</definition>
+        <argsstring></argsstring>
+        <name>we</name>
+        <briefdescription>
+<para>Next work entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="428" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="428" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1aa851e7a25bc4719210a21d4024fa3c29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Extensional::Incremental&lt; View &gt;::Work::Work</definition>
+        <argsstring>(void)</argsstring>
+        <name>Work</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize as empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="431" column="1" bodyfile="/usr/include/gecode/int/extensional/incremental.hpp" bodystart="175" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1a431ae5af3ac58bc5ed825b3180ecab90" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Extensional::Incremental&lt; View &gt;::Work::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether work stack is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="433" column="1" bodyfile="/usr/include/gecode/int/extensional/incremental.hpp" bodystart="179" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1a104f064e9ae63d98ade71d135dbfe863" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::Incremental&lt; View &gt;::Work::push</definition>
+        <argsstring>(Space &amp;home, int i, int n)</argsstring>
+        <name>push</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Push new work entry for position <emphasis>i</emphasis> and value <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="435" column="1" bodyfile="/usr/include/gecode/int/extensional/incremental.hpp" bodystart="184" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1aa1b526354e4398460b0fc733e90eef67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Extensional::Incremental&lt; View &gt;::Work::pop</definition>
+        <argsstring>(Space &amp;home, int &amp;i, int &amp;n)</argsstring>
+        <name>pop</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Pop current top entry and set position <emphasis>i</emphasis> and value <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/extensional.hh" line="437" column="1" bodyfile="/usr/include/gecode/int/extensional/incremental.hpp" bodystart="189" bodyend="194"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Work stack </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/extensional.hh" line="425" column="1" bodyfile="/usr/include/gecode/int/extensional.hh" bodystart="425" bodyend="438"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1a431ae5af3ac58bc5ed825b3180ecab90" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Incremental::Work</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1aa1b526354e4398460b0fc733e90eef67" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Incremental::Work</scope><name>pop</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1a104f064e9ae63d98ade71d135dbfe863" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Incremental::Work</scope><name>push</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1af663e55023e0914693e7ad3ae0c11b4e" prot="private" virt="non-virtual"><scope>Gecode::Int::Extensional::Incremental::Work</scope><name>we</name></member>
+      <member refid="classGecode_1_1Int_1_1Extensional_1_1Incremental_1_1Work_1aa851e7a25bc4719210a21d4024fa3c29" prot="public" virt="non-virtual"><scope>Gecode::Int::Extensional::Incremental::Work</scope><name>Work</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

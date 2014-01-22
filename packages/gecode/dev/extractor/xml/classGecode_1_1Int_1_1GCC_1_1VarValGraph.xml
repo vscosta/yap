@@ -1,0 +1,540 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1VarValGraph" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::VarValGraph</compoundname>
+    <includes refid="dom-sup_8hpp" local="no">dom-sup.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class Card</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and Destructors</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ae6499fa8443049edc57141b7bb7c06b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::GCC::VarValGraph&lt; Card &gt;::VarValGraph</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; Card &gt; &amp;k, int smin, int smax)</argsstring>
+        <name>VarValGraph</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>smin</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>smax</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for the variable-value-graph. </para>        </briefdescription>
+        <detaileddescription>
+<para>The variable parition is initialized with the variables from <emphasis>x</emphasis>, the value partition is initialized with the values from <emphasis>k</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="438" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1009" bodyend="1078"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Graph-interface</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a48e205f62c8119b4e584fb7ea126a9d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::GCC::VarValGraph&lt; Card &gt;::min_require</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; Card &gt; &amp;k)</argsstring>
+        <name>min_require</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+<para>Check whether minimum requirements shrink variable domains. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="445" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1083" bodyend="1145"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ac7c87ace7b4ed1a45519b67c6516d4f2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::GCC::VarValGraph&lt; Card &gt;::sync</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; Card &gt; &amp;k)</argsstring>
+        <name>sync</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+<para>Synchronization of the graph. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the graph has already been constructed and some edges have been removed during propagation, this function removes those edges that do not longer belong to the graph associated with the current variable domains. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="456" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1149" bodyend="1324"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a7f5d82ac5cd5dec53c3fa8fb79d2b2d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::GCC::VarValGraph&lt; Card &gt;::narrow</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; IntView &gt; &amp;x, ViewArray&lt; Card &gt; &amp;k)</argsstring>
+        <name>narrow</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+<para>Remove edges that do not belong to any maximal matching. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="460" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1328" bodyend="1418"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1aa153a3c4dd30ae1ad4694d9b5fcd2af7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::GCC::VarValGraph&lt; Card &gt;::maximum_matching</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>maximum_matching</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Compute a maximum matching M on the graph. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>If BC=UBC then <formula id="136">$|M|= |X|$</formula></para></listitem><listitem><para>If BC=LBC then <formula id="137">$|M|= \sum_{i\in \{ 0, \dots, |X|-1\}} k[i].min()$</formula> </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="470" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1514" bodyend="1573"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a15393f37ca1ac03615575b863b09c1f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::free_alternating_paths</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>free_alternating_paths</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Compute possible free alternating paths in the graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="474" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1aff26df79d05e41d225d66c498b8d359f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::strongly_connected_components</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>strongly_connected_components</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Compute possible strongly connected components of the graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="477" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a867c4015a2adadd9b1566301c99f3563" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::GCC::VarValGraph&lt; Card &gt;::augmenting_path</definition>
+        <argsstring>(Space &amp;home, Node *)</argsstring>
+        <name>augmenting_path</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Node" kindref="compound">Node</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Test whether the current maximal matching on the graph can be augmented by an alternating path starting and ending with a free node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="484" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a8dd08f55c53dcfcd42e7240ba11f9756" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::dfs</definition>
+        <argsstring>(Node *, BitSet &amp;, BitSet &amp;, int[], NodeStack &amp;, NodeStack &amp;, int &amp;)</argsstring>
+        <name>dfs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Node" kindref="compound">Node</ref> *</type>
+          <defname>v</defname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1BitSet" kindref="compound">BitSet</ref> &amp;</type>
+          <defname>inscc</defname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1BitSet" kindref="compound">BitSet</ref> &amp;</type>
+          <defname>in_unfinished</defname>
+        </param>
+        <param>
+          <type>int</type>
+          <defname>dfsnum</defname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1StaticStack" kindref="compound">NodeStack</ref> &amp;</type>
+          <defname>roots</defname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1StaticStack" kindref="compound">NodeStack</ref> &amp;</type>
+          <defname>unfinished</defname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <defname>count</defname>
+        </param>
+        <briefdescription>
+<para>Perform depth-first search on the graph. </para>        </briefdescription>
+        <detaileddescription>
+<para>Depth first search used to compute the strongly connected components of the graph. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="494" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1684" bodyend="1744"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1afed5e8e7fe252618662dded5734dc1ef" prot="private" static="no">
+        <type><ref refid="classGecode_1_1Support_1_1StaticStack" kindref="compound">Support::StaticStack</ref>&lt; <ref refid="classGecode_1_1Int_1_1GCC_1_1Node" kindref="compound">Node</ref> *, <ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &gt;</type>
+        <definition>typedef Support::StaticStack&lt;Node*,Region&gt; Gecode::Int::GCC::VarValGraph&lt; Card &gt;::NodeStack</definition>
+        <argsstring></argsstring>
+        <name>NodeStack</name>
+        <briefdescription>
+<para>Temporary stack for nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="394" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a0fdaa6eb986a29feb542e590740c54d6" prot="private" static="no">
+        <type><ref refid="classGecode_1_1Support_1_1BitSet" kindref="compound">Support::BitSet</ref>&lt; <ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &gt;</type>
+        <definition>typedef Support::BitSet&lt;Region&gt; Gecode::Int::GCC::VarValGraph&lt; Card &gt;::BitSet</definition>
+        <argsstring></argsstring>
+        <name>BitSet</name>
+        <briefdescription>
+<para>Bitset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="396" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="396" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a1d316ad19db97457ce5811b6024e24c5" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1VarNode" kindref="compound">VarNode</ref> **</type>
+        <definition>VarNode** Gecode::Int::GCC::VarValGraph&lt; Card &gt;::vars</definition>
+        <argsstring></argsstring>
+        <name>vars</name>
+        <briefdescription>
+<para>Variable partition representing the problem variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="398" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="398" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a78f4e3ff4391f8e52e7d94c28b28eeca" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1GCC_1_1ValNode" kindref="compound">ValNode</ref> **</type>
+        <definition>ValNode** Gecode::Int::GCC::VarValGraph&lt; Card &gt;::vals</definition>
+        <argsstring></argsstring>
+        <name>vals</name>
+        <briefdescription>
+<para>Value partition For each value <formula id="132">$ v_i\in V=\left(\bigcup_\{0, \dots, |x|-1\}\right) D_i $</formula> in the domains of the problem variables there is a node in the graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="406" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="406" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1af64d86d85adfb8a16dd7d65da7adcf96" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::VarValGraph&lt; Card &gt;::n_var</definition>
+        <argsstring></argsstring>
+        <name>n_var</name>
+        <briefdescription>
+<para>Cardinality of the variable partition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="408" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="408" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a1cb2bb317f03e3d3e44f417b9ecf8d1e" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::VarValGraph&lt; Card &gt;::n_val</definition>
+        <argsstring></argsstring>
+        <name>n_val</name>
+        <briefdescription>
+<para>Cardinality of the value partition. </para>        </briefdescription>
+        <detaileddescription>
+<para>Computed as <formula id="133">$ |V| = \left(\bigcup_\{0, \dots, |x|-1\}\right) D_i $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="414" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="414" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1acf90d276cc89dd24b0cc0f79416b4c68" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::VarValGraph&lt; Card &gt;::n_node</definition>
+        <argsstring></argsstring>
+        <name>n_node</name>
+        <briefdescription>
+<para>Total number of nodes in the graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="416" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="416" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ad8e556e37a20cbb759566be0edcba4f9" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::VarValGraph&lt; Card &gt;::sum_min</definition>
+        <argsstring></argsstring>
+        <name>sum_min</name>
+        <briefdescription>
+<para>The sum over the minimal capacities of all value nodes. </para>        </briefdescription>
+        <detaileddescription>
+<para><formula id="134">$sum_min = \sum_{v_i \in V} l_i= k[i].min() $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="422" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="422" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ac2af9d59ed56d7d88eebd214235d7aa2" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::VarValGraph&lt; Card &gt;::sum_max</definition>
+        <argsstring></argsstring>
+        <name>sum_max</name>
+        <briefdescription>
+<para>The sum over the maximal capacities of all value nodes. </para>        </briefdescription>
+        <detaileddescription>
+<para><formula id="135">$sum_max = \sum_{v_i \in V} l_i= k[i].max() $</formula> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="428" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="428" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1af3c633fa0b3dd8b252d84340d3b823a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Int::GCC::VarValGraph&lt; Card &gt;::operator new</definition>
+        <argsstring>(size_t t, Space &amp;home)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory for the graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="500" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1768" bodyend="1770"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a58f65a37f68e3694e7af791c8ae074ab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::operator delete</definition>
+        <argsstring>(void *, Space &amp;)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>Deallocation (void) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="502" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="502" bodyend="502"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ab8b5fd8eb4ab945b748a58af36175123" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+            <declname>bc</declname>
+            <defname>bc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::VarValGraph&lt; Card &gt;::augmenting_path</definition>
+        <argsstring>(Space &amp;home, Node *v)</argsstring>
+        <name>augmenting_path</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1Node" kindref="compound">Node</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="1422" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1422" bodyend="1510"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a8a59343513a74d3d210fc00238dbb524" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+            <declname>bc</declname>
+            <defname>bc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::free_alternating_paths</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>free_alternating_paths</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="1578" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1578" bodyend="1680"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1adf79de217429eee4db14b7fde97e7062" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type><ref refid="namespaceGecode_1_1Int_1_1GCC_1a4e75bf3ac1c08f27964f54f5361f4cab" kindref="member">BC</ref></type>
+            <declname>bc</declname>
+            <defname>bc</defname>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Int::GCC::VarValGraph&lt; Card &gt;::strongly_connected_components</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>strongly_connected_components</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="1748" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="1748" bodyend="1764"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Variable-value-graph used during propagation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/gcc/dom-sup.hpp" line="391" column="1" bodyfile="/usr/include/gecode/int/gcc/dom-sup.hpp" bodystart="391" bodyend="503"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a867c4015a2adadd9b1566301c99f3563" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>augmenting_path</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ab8b5fd8eb4ab945b748a58af36175123" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>augmenting_path</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a0fdaa6eb986a29feb542e590740c54d6" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>BitSet</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a8dd08f55c53dcfcd42e7240ba11f9756" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>dfs</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a15393f37ca1ac03615575b863b09c1f7" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>free_alternating_paths</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a8a59343513a74d3d210fc00238dbb524" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>free_alternating_paths</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1aa153a3c4dd30ae1ad4694d9b5fcd2af7" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>maximum_matching</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a48e205f62c8119b4e584fb7ea126a9d1" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>min_require</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1acf90d276cc89dd24b0cc0f79416b4c68" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>n_node</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a1cb2bb317f03e3d3e44f417b9ecf8d1e" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>n_val</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1af64d86d85adfb8a16dd7d65da7adcf96" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>n_var</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a7f5d82ac5cd5dec53c3fa8fb79d2b2d9" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>narrow</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1afed5e8e7fe252618662dded5734dc1ef" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>NodeStack</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a58f65a37f68e3694e7af791c8ae074ab" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1af3c633fa0b3dd8b252d84340d3b823a2" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1aff26df79d05e41d225d66c498b8d359f" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>strongly_connected_components</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1adf79de217429eee4db14b7fde97e7062" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>strongly_connected_components</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ac2af9d59ed56d7d88eebd214235d7aa2" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>sum_max</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ad8e556e37a20cbb759566be0edcba4f9" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>sum_min</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ac7c87ace7b4ed1a45519b67c6516d4f2" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>sync</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a78f4e3ff4391f8e52e7d94c28b28eeca" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>vals</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1a1d316ad19db97457ce5811b6024e24c5" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>vars</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1VarValGraph_1ae6499fa8443049edc57141b7bb7c06b0" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::VarValGraph</scope><name>VarValGraph</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

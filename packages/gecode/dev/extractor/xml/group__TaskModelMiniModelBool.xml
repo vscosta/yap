@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelMiniModelBool" kind="group">
+    <compoundname>TaskModelMiniModelBool</compoundname>
+    <title>Boolean expressions</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1gabccb898815dbb7cae4e70dc24d676fc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator!</definition>
+        <argsstring>(const BoolExpr &amp;)</argsstring>
+        <name>operator!</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Negated Boolean expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1329" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1ga213da66c75b893acda25e597820bac25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator&amp;&amp;</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator&amp;&amp;</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Conjunction of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1332" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1ga07d7b202ea241d4deafa072fb9f90da0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator||</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator||</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Disjunction of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1335" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1ga2f52baeb06ef25eb79a4ea83a77f8f9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator^</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator^</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Exclusive-or of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1338" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1gae24158e9eaca93c103298cc5959125d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator!=</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator!=</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Non-equivalence of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1342" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1ga18157a135a27c94d1fb83b413b58fc6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator==</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Equivalence of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1345" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1gac3b01cfee49d087d674d1715fd3539fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator&gt;&gt;</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Implication of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1348" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelBool_1gaa188ee83fe078f07244a06c16cd05c77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolExpr</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolExpr Gecode::operator&lt;&lt;</definition>
+        <argsstring>(const BoolExpr &amp;, const BoolExpr &amp;)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+        </param>
+        <briefdescription>
+<para>Reverse implication of Boolean expressions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1350" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Boolean expressions can be freely composed of variables with the usual connectives and reified linear expressions. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

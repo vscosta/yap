@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor" kind="class" prot="protected">
+    <compoundname>Gecode::Set::Channel::ChannelBool::IndexAdvisor</compoundname>
+    <basecompoundref refid="classGecode_1_1Advisor" prot="public" virt="non-virtual">Gecode::Advisor</basecompoundref>
+    <includes refid="set_2channel_8hh" local="no">channel.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a3efa36e1ba592bbaefced401c5a8d061" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::idx</definition>
+        <argsstring></argsstring>
+        <name>idx</name>
+        <briefdescription>
+<para>The single index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel.hh" line="169" column="1" bodyfile="/usr/include/gecode/set/channel.hh" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a0d4192f71d7aa586deff6b7b59b66fd3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::IndexAdvisor</definition>
+        <argsstring>(Space &amp;home, ChannelBool&lt; View &gt; &amp;p, Council&lt; A &gt; &amp;c, int index)</argsstring>
+        <name>IndexAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool" kindref="compound">ChannelBool</ref>&lt; View &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel.hh" line="173" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a42d73a8258b0c120e3d7a6daea6655d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::IndexAdvisor</definition>
+        <argsstring>(Space &amp;home, bool share, IndexAdvisor &amp;a)</argsstring>
+        <name>IndexAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor" kindref="compound">IndexAdvisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel.hh" line="176" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a353b580a154d2ac93e26002c912e2d48" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::index</definition>
+        <argsstring>(void) const </argsstring>
+        <name>index</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Access index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel.hh" line="178" column="1" bodyfile="/usr/include/gecode/set/channel/bool.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a7a7fea81b81cc0dc8325d9f2906cab77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::dispose</definition>
+        <argsstring>(Space &amp;home, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Delete advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel.hh" line="181" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1ae1c85f7a1bbf33cb6708fc60fbbbda4c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline</type>
+        <definition>forceinline Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::IndexAdvisor</definition>
+        <argsstring>(Space &amp;home, ChannelBool&lt; View &gt; &amp;p, Council&lt; A &gt; &amp;c, int index)</argsstring>
+        <name>IndexAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool" kindref="compound">ChannelBool</ref>&lt; View &gt; &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel/bool.hpp" line="45" column="1" bodyfile="/usr/include/gecode/set/channel/bool.hpp" bodystart="45" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1ac57b359d781956ada2405884ded9859c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline</type>
+        <definition>forceinline Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::IndexAdvisor</definition>
+        <argsstring>(Space &amp;home, bool share, IndexAdvisor &amp;a)</argsstring>
+        <name>IndexAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor" kindref="compound">IndexAdvisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel/bool.hpp" line="58" column="1" bodyfile="/usr/include/gecode/set/channel/bool.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1afda688c7fb95c98b85c56218d4f48279" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class A</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline void</type>
+        <definition>forceinline void Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor::dispose</definition>
+        <argsstring>(Space &amp;home, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/channel/bool.hpp" line="71" column="1" bodyfile="/usr/include/gecode/set/channel/bool.hpp" bodystart="71" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Advisor storing a single index </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2816">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2817" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2815">
+        <label>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor"/>
+        <childnode refid="2816" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2817">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2819">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2820" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2818">
+        <label>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor"/>
+        <childnode refid="2819" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2820">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/channel.hh" line="166" column="1" bodyfile="/usr/include/gecode/set/channel.hh" bodystart="166" bodyend="182"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a7a7fea81b81cc0dc8325d9f2906cab77" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1afda688c7fb95c98b85c56218d4f48279" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a3efa36e1ba592bbaefced401c5a8d061" prot="protected" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>idx</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a353b580a154d2ac93e26002c912e2d48" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>index</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a0d4192f71d7aa586deff6b7b59b66fd3" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>IndexAdvisor</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1a42d73a8258b0c120e3d7a6daea6655d7" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>IndexAdvisor</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1ae1c85f7a1bbf33cb6708fc60fbbbda4c" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>IndexAdvisor</name></member>
+      <member refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor_1ac57b359d781956ada2405884ded9859c" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>IndexAdvisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" virt="non-virtual"><scope>Gecode::Set::Channel::ChannelBool::IndexAdvisor</scope><name>propagator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

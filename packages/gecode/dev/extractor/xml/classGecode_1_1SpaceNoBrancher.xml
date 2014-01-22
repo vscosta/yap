@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SpaceNoBrancher" kind="class" prot="public">
+    <compoundname>Gecode::SpaceNoBrancher</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="kernel_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1SpaceNoBrancher_1affd4777d685c348ef20f4da173f83cd4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SpaceNoBrancher::SpaceNoBrancher</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>SpaceNoBrancher</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/exception.hpp" line="72" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="150" bodyend="151"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Commit when no brancher present </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6600">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="6601" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6601">
+        <label>std::exception</label>
+      </node>
+      <node id="6599">
+        <label>Gecode::SpaceNoBrancher</label>
+        <link refid="classGecode_1_1SpaceNoBrancher"/>
+        <childnode refid="6600" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6603">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="6604" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6604">
+        <label>std::exception</label>
+      </node>
+      <node id="6602">
+        <label>Gecode::SpaceNoBrancher</label>
+        <link refid="classGecode_1_1SpaceNoBrancher"/>
+        <childnode refid="6603" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/exception.hpp" line="69" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="69" bodyend="73"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::SpaceNoBrancher</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1SpaceNoBrancher_1affd4777d685c348ef20f4da173f83cd4" prot="public" virt="non-virtual"><scope>Gecode::SpaceNoBrancher</scope><name>SpaceNoBrancher</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::SpaceNoBrancher</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

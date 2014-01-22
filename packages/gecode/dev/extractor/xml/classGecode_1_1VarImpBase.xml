@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1VarImpBase" kind="class" prot="public">
+    <compoundname>Gecode::VarImpBase</compoundname>
+    <derivedcompoundref refid="classGecode_1_1VarImp" prot="public" virt="non-virtual">Gecode::VarImp&lt; VIC &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <briefdescription>
+<para>Base-class for variable implementations. </para>    </briefdescription>
+    <detaileddescription>
+<para>Serves as base-class that can be used without having to know any template arguments. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7706">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="7707">
+        <label>Gecode::VarImp&lt; VIC &gt;</label>
+        <link refid="classGecode_1_1VarImp"/>
+        <childnode refid="7706" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="243" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="243" bodyend="243"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

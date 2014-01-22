@@ -1,0 +1,739 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="codegear_8hpp" kind="file">
+    <compoundname>codegear.hpp</compoundname>
+    <includes local="no">errno.h</includes>
+    <incdepgraph>
+      <node id="34122">
+        <label>/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp</label>
+        <link refid="codegear.hpp"/>
+        <childnode refid="34123" relation="include">
+        </childnode>
+      </node>
+      <node id="34123">
+        <label>errno.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="codegear_8hpp_1a40e34f5b29d993126f603d507c961281" prot="public" static="no">
+        <name>BOOST_NO_INTEGRAL_INT64_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="33" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aa085b1956c23c0f151e03bc81fed0f7b" prot="public" static="no">
+        <name>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="34" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a59f227a9f847d45362512a0bf8866a2b" prot="public" static="no">
+        <name>BOOST_NO_PRIVATE_IN_AGGREGATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="35" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a70d1e5731ccdf61ad6f89278b213e15f" prot="public" static="no">
+        <name>BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="36" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a5d8d4a434c60a37c520052bdec610220" prot="public" static="no">
+        <name>BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="39" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a015e42f1ee6f43de6e4b26191fcb9296" prot="public" static="no">
+        <name>BOOST_SP_NO_SP_CONVERTIBLE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="40" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a937296af03979319344f768450a2faf3" prot="public" static="no">
+        <name>BOOST_NO_TYPENAME_WITH_CTOR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="45" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a46ba1c641f5c462710169ed1c6f0da06" prot="public" static="no">
+        <name>BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="46" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a87b0cfb2911dd4eab0dad69587ab88f1" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_TEMPLATE_FRIENDS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="47" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ac3ca37d5ff9b6264bee4c87169e4543e" prot="public" static="no">
+        <name>BOOST_NO_NESTED_FRIENDSHIP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="48" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a47037116433d33b0622f800cdee64765" prot="public" static="no">
+        <name>BOOST_NO_USING_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="49" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a9203431bad3691de147b7584c284cd1f" prot="public" static="no">
+        <name>BOOST_NO_TWO_PHASE_NAME_LOOKUP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="50" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a5cfc0a80bcb9c742a4dd13252e8e70b2" prot="public" static="no">
+        <name>BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="52" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a8362230957f5055eac60910faa6c0990" prot="public" static="no">
+        <name>BOOST_NO_COMPLETE_VALUE_INITIALIZATION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="61" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ab03f640d90fbc5bcb75285d08a0f25ed" prot="public" static="no">
+        <name>errno</name>
+        <initializer>errno</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="71" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a982d85c01772e8754849378db91f4f1c" prot="public" static="no">
+        <name>BOOST_NO_STATIC_ASSERT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="79" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1abccddd98bdce5cc5292c8dc7a922869c" prot="public" static="no">
+        <name>BOOST_HAS_CHAR16_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="83" column="10" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aafe8c006ee54b5845d1a2d493c0f2a5d" prot="public" static="no">
+        <name>BOOST_HAS_CHAR32_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="84" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a5e895c2171cf8ac7f794734689f29095" prot="public" static="no">
+        <name>BOOST_HAS_LONG_LONG</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="85" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a9037d32334589549ea8d1a0081fd9c95" prot="public" static="no">
+        <name>BOOST_HAS_DECLTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="87" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ad38cbd4e1588b1c1f4dfd084631a039f" prot="public" static="no">
+        <name>BOOST_HAS_EXPLICIT_CONVERSION_OPS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="88" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ace457d83621769ab57bf1d58031409d8" prot="public" static="no">
+        <name>BOOST_HAS_SCOPED_ENUM</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="90" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aa3dcf1eb3022a67d4d45192768ba599c" prot="public" static="no">
+        <name>BOOST_HAS_STD_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="92" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a454e263333ba0a545af8b803fd1a8a53" prot="public" static="no">
+        <name>BOOST_NO_AUTO_DECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="94" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1abee59fa974ed5df6c79e90ad5d2935a2" prot="public" static="no">
+        <name>BOOST_NO_AUTO_MULTIDECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="95" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a2ab158f48b5ebc962868ca4fae0e235e" prot="public" static="no">
+        <name>BOOST_NO_CONSTEXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="96" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a1e33c4ee8a0e882792a1ab749898fc25" prot="public" static="no">
+        <name>BOOST_NO_DEFAULTED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="97" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ac6990e4e38c813084b7fb78af7ce1225" prot="public" static="no">
+        <name>BOOST_NO_DELETED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="98" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a0e4b840afc76df158ce1024b265ee136" prot="public" static="no">
+        <name>BOOST_NO_EXTERN_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="99" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a1afa1eecb86fade06c2c9d679c2acd99" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="100" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="101" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a16e1e4611bfbfa7240467ed9d4a7c9d0" prot="public" static="no">
+        <name>BOOST_NO_LAMBDAS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="102" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a0579c4e6a9f145f7bfbbdf63b1cb115a" prot="public" static="no">
+        <name>BOOST_NO_NOEXCEPT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="103" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aaf1c53a1bb595a0379a07db8f2c38353" prot="public" static="no">
+        <name>BOOST_NO_NULLPTR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="104" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a7f6939964e1d2ff8d7a4f5f3d98f807a" prot="public" static="no">
+        <name>BOOST_NO_RAW_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="105" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aab711e4e53ece4b8ff79a12ace10492f" prot="public" static="no">
+        <name>BOOST_NO_RVALUE_REFERENCES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="106" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aff4c6e7a6a9d7bad9905ce7b9c100ae9" prot="public" static="no">
+        <name>BOOST_NO_SFINAE_EXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="107" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ab6ce230323006d1a142b49de8090dda8" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_ALIASES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="108" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a4080e71a9718560d54bdffbd2a9a3cb2" prot="public" static="no">
+        <name>BOOST_NO_UNICODE_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="109" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ac6f562f47e6a764127297fdec648165e" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="110" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a7501099fcfc0a918e188478cac7d6f31" prot="public" static="no">
+        <name>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="111" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1acf04404692b916c6776e56e350ceeec5" prot="public" static="no">
+        <name>BOOST_HAS_TR1_HASH</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="116" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a7d90d376338a63549fb88c75c29fa618" prot="public" static="no">
+        <name>BOOST_HAS_TR1_TYPE_TRAITS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="117" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a52454a446a60eaf85783448d642357ce" prot="public" static="no">
+        <name>BOOST_HAS_TR1_UNORDERED_MAP</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="118" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ac142f65386c630a5f21c60b0aa9822df" prot="public" static="no">
+        <name>BOOST_HAS_TR1_UNORDERED_SET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="119" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1aa7c2f337068e7448af8ff650b1196b1b" prot="public" static="no">
+        <name>BOOST_HAS_MACRO_USE_FACET</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="121" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="123" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a9bacdabdf05251a873ef9dabf8b884e4" prot="public" static="no">
+        <name>BOOST_HAS_MS_INT64</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="134" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1ad9e644e01e76c0a2b950bac6e3d2cf0e" prot="public" static="no">
+        <name>BOOST_NO_EXCEPTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="140" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a92797e3de36e2b5d28421de5d45a6a50" prot="public" static="no">
+        <name>BOOST_HAS_DIRENT_H</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="146" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a67d32ad680b0e57b6318bcc4a8b6f662" prot="public" static="no">
+        <name>BOOST_ABI_PREFIX</name>
+        <initializer>&quot;gecode/third-party/boost/config/abi/borland_prefix.hpp&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="159" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a931631b0b0f9e7c96b7e571ee61f9d72" prot="public" static="no">
+        <name>BOOST_ABI_SUFFIX</name>
+        <initializer>&quot;gecode/third-party/boost/config/abi/borland_suffix.hpp&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="162" column="11" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="codegear_8hpp_1a78005f877b1cc90480de16ddfd9a0def" prot="public" static="no">
+        <name>BOOST_COMPILER</name>
+        <initializer>&quot;CodeGear C++ version &quot; BOOST_STRINGIZE(__CODEGEARC__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" line="177" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001<sp/>-<sp/>2003.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>David<sp/>Abrahams<sp/>2002<sp/>-<sp/>2003.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Aleksey<sp/>Gurtovoy<sp/>2002.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>CodeGear<sp/>C++<sp/>compiler<sp/>setup:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(<sp/>BOOST_WITH_CODEGEAR_WARNINGS<sp/>)</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>these<sp/>warnings<sp/>occur<sp/>frequently<sp/>in<sp/>optimized<sp/>template<sp/>code</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/>pragma<sp/>warn<sp/>-8004<sp/>//<sp/>var<sp/>assigned<sp/>value,<sp/>but<sp/>never<sp/>used</highlight></codeline>
+<codeline lineno="15"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>pragma<sp/>warn<sp/>-8008<sp/>//<sp/>condition<sp/>always<sp/>true/false</highlight></codeline>
+<codeline lineno="16"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>pragma<sp/>warn<sp/>-8066<sp/>//<sp/>dead<sp/>code<sp/>can<sp/>never<sp/>execute</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>pragma<sp/>warn<sp/>-8104<sp/>//<sp/>static<sp/>members<sp/>with<sp/>ctors<sp/>not<sp/>threadsafe</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/>pragma<sp/>warn<sp/>-8105<sp/>//<sp/>reference<sp/>member<sp/>in<sp/>class<sp/>without<sp/>ctors</highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="20"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>check:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>last<sp/>known<sp/>and<sp/>checked<sp/>version<sp/>is<sp/>0x621</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__CODEGEARC__<sp/>&gt;<sp/>0x621)</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Unknown<sp/>compiler<sp/>version<sp/>-<sp/>please<sp/>run<sp/>the<sp/>configure<sp/>tests<sp/>and<sp/>report<sp/>the<sp/>results&quot;</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>else</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>pragma<sp/>message(<sp/>&quot;Unknown<sp/>compiler<sp/>version<sp/>-<sp/>please<sp/>run<sp/>the<sp/>configure<sp/>tests<sp/>and<sp/>report<sp/>the<sp/>results&quot;)</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CodeGear<sp/>C++<sp/>Builder<sp/>2009</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__CODEGEARC__<sp/>&lt;=<sp/>0x613)</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_INTEGRAL_INT64_T</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_NESTED_DERIVATIONS</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_PRIVATE_IN_AGGREGATE</highlight></codeline>
+<codeline lineno="36"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>we<sp/>shouldn&apos;t<sp/>really<sp/>need<sp/>this<sp/>-<sp/>but<sp/>too<sp/>many<sp/>things<sp/>choke</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>without<sp/>it,<sp/>this<sp/>needs<sp/>more<sp/>investigation:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_SP_NO_SP_CONVERTIBLE</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CodeGear<sp/>C++<sp/>Builder<sp/>2010</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__CODEGEARC__<sp/>&lt;=<sp/>0x621)</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_TYPENAME_WITH_CTOR<sp/><sp/><sp/><sp/>//<sp/>Cannot<sp/>use<sp/>typename<sp/>keyword<sp/>when<sp/>making<sp/>temporaries<sp/>of<sp/>a<sp/>dependant<sp/>type</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATE_FRIENDS</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_NESTED_FRIENDSHIP<sp/><sp/><sp/><sp/><sp/>//<sp/>TC1<sp/>gives<sp/>nested<sp/>classes<sp/>access<sp/>rights<sp/>as<sp/>any<sp/>other<sp/>member</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_USING_TEMPLATE</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_TWO_PHASE_NAME_LOOKUP</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>Temporary<sp/>hack,<sp/>until<sp/>specific<sp/>MPL<sp/>preprocessed<sp/>headers<sp/>are<sp/>generated</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CodeGear<sp/>has<sp/>not<sp/>yet<sp/>completely<sp/>implemented<sp/>value-initialization,<sp/>for</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">//<sp/>example<sp/>for<sp/>array<sp/>types,<sp/>as<sp/>I<sp/>reported<sp/>in<sp/>2010:<sp/>Embarcadero<sp/>Report<sp/>83751,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">//<sp/>&quot;Value-initialization:<sp/>arrays<sp/>should<sp/>have<sp/>each<sp/>element<sp/>value-initialized&quot;,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">//<sp/>http://qc.embarcadero.com/wc/qcmain.aspx?d=83751</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Last<sp/>checked<sp/>version:<sp/>Embarcadero<sp/>C++<sp/>6.21</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//<sp/>See<sp/>also:<sp/>http://www.boost.org/libs/utility/value_init.htm#compiler_issues</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>(Niels<sp/>Dekker,<sp/>LKEB,<sp/>April<sp/>2010)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_COMPLETE_VALUE_INITIALIZATION</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(NDEBUG)<sp/>&amp;&amp;<sp/>defined(__cplusplus)</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>fix<sp/>broken<sp/>&lt;cstring&gt;<sp/>so<sp/>that<sp/>Boost.test<sp/>works:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>include<sp/>&lt;cstring&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>undef<sp/>strcmp</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>fix<sp/>broken<sp/>errno<sp/>declaration:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>ifndef<sp/>errno</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>errno<sp/>errno</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//<sp/>C++0x<sp/>macros:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__CODEGEARC__<sp/>&lt;=<sp/>0x620)</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_CHAR16_T</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_CHAR32_T</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_LONG_LONG</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>#define<sp/>BOOST_HAS_ALIGNOF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_DECLTYPE</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_EXPLICIT_CONVERSION_OPS</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>#define<sp/>BOOST_HAS_RVALUE_REFS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_SCOPED_ENUM</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>#define<sp/>BOOST_HAS_STATIC_ASSERT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_STD_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_DECLARATIONS</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_MULTIDECLARATIONS</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CONSTEXPR</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DEFAULTED_FUNCTIONS</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DELETED_FUNCTIONS</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXTERN_TEMPLATE</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_LAMBDAS</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NOEXCEPT</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NULLPTR</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RAW_LITERALS</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RVALUE_REFERENCES</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SFINAE_EXPR</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_TEMPLATE_ALIASES</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNICODE_LITERALS</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_TEMPLATES</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="comment">//<sp/>TR1<sp/>macros:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_TR1_HASH</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_TR1_TYPE_TRAITS</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_TR1_UNORDERED_MAP</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_TR1_UNORDERED_SET</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_HAS_MACRO_USE_FACET</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="comment">//<sp/>On<sp/>non-Win32<sp/>platforms<sp/>let<sp/>the<sp/>platform<sp/>config<sp/>figure<sp/>this<sp/>out:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_WIN32</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_STDINT_H</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/>__int64:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STRICT_ANSI__)</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_MS_INT64</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">//<sp/>check<sp/>for<sp/>exception<sp/>handling<sp/>support:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(_CPPUNWIND)<sp/>&amp;&amp;<sp/>!defined(BOOST_CPPUNWIND)<sp/>&amp;&amp;<sp/>!defined(__EXCEPTIONS)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_EXCEPTIONS)</highlight></codeline>
+<codeline lineno="140"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_EXCEPTIONS</highlight></codeline>
+<codeline lineno="141"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="142"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="comment">//<sp/>all<sp/>versions<sp/>have<sp/>a<sp/>&lt;dirent.h&gt;:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(__STRICT_ANSI__)</highlight></codeline>
+<codeline lineno="146"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_DIRENT_H</highlight></codeline>
+<codeline lineno="147"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="148"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="comment">//<sp/>all<sp/>versions<sp/>support<sp/>__declspec:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__STRICT_ANSI__)</highlight></codeline>
+<codeline lineno="152"><highlight class="preprocessor"></highlight><highlight class="comment">//<sp/>config/platform/win32.hpp<sp/>will<sp/>define<sp/>BOOST_SYMBOL_EXPORT,<sp/>etc.,<sp/>unless<sp/>already<sp/>defined<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_SYMBOL_EXPORT</highlight></codeline>
+<codeline lineno="154"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="155"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ABI<sp/>fixing<sp/>headers:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_ABI_PREFIX</highlight></codeline>
+<codeline lineno="159"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_ABI_PREFIX<sp/>&quot;gecode/third-party/boost/config/abi/borland_prefix.hpp&quot;</highlight></codeline>
+<codeline lineno="160"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="161"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#ifndef<sp/>BOOST_ABI_SUFFIX</highlight></codeline>
+<codeline lineno="162"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_ABI_SUFFIX<sp/>&quot;gecode/third-party/boost/config/abi/borland_suffix.hpp&quot;</highlight></codeline>
+<codeline lineno="163"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="164"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Disable<sp/>Win32<sp/>support<sp/>in<sp/>ANSI<sp/>mode:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>pragma<sp/>defineonoption<sp/>BOOST_DISABLE_WIN32<sp/>-A</highlight></codeline>
+<codeline lineno="168"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="comment">//<sp/>MSVC<sp/>compatibility<sp/>mode<sp/>does<sp/>some<sp/>nasty<sp/>things:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="comment">//<sp/>TODO:<sp/>look<sp/>up<sp/>if<sp/>this<sp/>doesn&apos;t<sp/>apply<sp/>to<sp/>the<sp/>whole<sp/>12xx<sp/>range</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(_MSC_VER)<sp/>&amp;&amp;<sp/>(_MSC_VER<sp/>&lt;=<sp/>1200)</highlight></codeline>
+<codeline lineno="173"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP</highlight></codeline>
+<codeline lineno="174"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_VOID_RETURNS</highlight></codeline>
+<codeline lineno="175"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="176"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_COMPILER<sp/>&quot;CodeGear<sp/>C++<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(__CODEGEARC__)</highlight></codeline>
+<codeline lineno="178"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/codegear.hpp"/>
+  </compounddef>
+</doxygen>

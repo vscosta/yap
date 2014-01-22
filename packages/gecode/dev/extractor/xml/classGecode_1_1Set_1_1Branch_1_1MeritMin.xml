@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1Branch_1_1MeritMin" kind="class" prot="public">
+    <compoundname>Gecode::Set::Branch::MeritMin</compoundname>
+    <basecompoundref refid="classGecode_1_1MeritBase" prot="public" virt="non-virtual">Gecode::MeritBase&lt; SetView, int &gt;</basecompoundref>
+    <includes refid="set_2branch_8hh" local="no">branch.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritMin_1a289540986fa59d0cf09ce0664ac1195b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::MeritMin::MeritMin</definition>
+        <argsstring>(Space &amp;home, const VarBranch &amp;vb)</argsstring>
+        <name>MeritMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="77" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="48" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritMin_1a76d9f26ab9753c9aca16efb430e744a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::MeritMin::MeritMin</definition>
+        <argsstring>(Space &amp;home, bool shared, MeritMin &amp;m)</argsstring>
+        <name>MeritMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Branch_1_1MeritMin" kindref="compound">MeritMin</ref> &amp;</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="79" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="51" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritMin_1acb34be697c2a51932700c5d3d0e6a8dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::Branch::MeritMin::operator()</definition>
+        <argsstring>(const Space &amp;home, SetView x, int i)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum as merit for view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="81" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="54" bodyend="57"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Merit class for mimimum of set views. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3919">
+        <label>Gecode::MeritBase&lt; SetView, int &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+      <node id="3918">
+        <label>Gecode::Set::Branch::MeritMin</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1MeritMin"/>
+        <childnode refid="3919" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3921">
+        <label>Gecode::MeritBase&lt; SetView, int &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+      <node id="3920">
+        <label>Gecode::Set::Branch::MeritMin</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1MeritMin"/>
+        <childnode refid="3921" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/branch.hh" line="74" column="1" bodyfile="/usr/include/gecode/set/branch.hh" bodystart="74" bodyend="82"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MeritBase_1a3b04ddc669a22b449129b2a835eefe26" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1MeritBase_1a0dd42399c470eef9ee7a23f238ad8fa9" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1MeritBase_1ae8ab6cc04c2cd2b34701e1deba2236b4" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritMin_1a289540986fa59d0cf09ce0664ac1195b" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>MeritMin</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritMin_1a76d9f26ab9753c9aca16efb430e744a3" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>MeritMin</name></member>
+      <member refid="classGecode_1_1MeritBase_1a386345c2a920535002f34ae4dbc96501" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritMin_1acb34be697c2a51932700c5d3d0e6a8dc" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1MeritBase_1a5f83e32f550fdca23acf1a2a3904ef0a" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>Val</name></member>
+      <member refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritMin</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,430 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Brancher" kind="class" prot="public" abstract="yes">
+    <compoundname>Gecode::Brancher</compoundname>
+    <basecompoundref refid="classGecode_1_1Actor" prot="public" virt="non-virtual">Gecode::Actor</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Gist_1_1StopBrancher" prot="public" virt="non-virtual">Gecode::Gist::StopBrancher</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1ViewBrancher" prot="public" virt="non-virtual">Gecode::ViewBrancher&lt; View, n &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1ViewBrancher" prot="public" virt="non-virtual">Gecode::ViewBrancher&lt; IntView, n &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Brancher</header>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1abf3e7cd63277085696ce0a48ae1c840d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Brancher::id</definition>
+        <argsstring>(void) const </argsstring>
+        <name>id</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return unsigned brancher id. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1091" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2959" bodyend="2961"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1aa1a46e39f3974b663b45b98c6e457387" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool Gecode::Brancher::status</definition>
+        <argsstring>(const Space &amp;home) const =0</argsstring>
+        <name>status</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1StopBrancher_1a02552d3c9ecf37eaa08090097369de74">status</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewBrancher_1ab06acc3718206ef2dd69f2a5fbd29ff9">status</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewBrancher_1ab06acc3718206ef2dd69f2a5fbd29ff9">status</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Check status of brancher, return true if alternatives left. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method is called when <ref refid="classGecode_1_1Space_1a3812fd0a475b63341694c44faa5e8b36" kindref="member">Space::status</ref> is called, it determines whether to continue branching with this brancher or move on to the (possibly) next brancher. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1100" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a268f77feb1a24032ce46a8edde97d986" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>virtual const Choice* Gecode::Brancher::choice</definition>
+        <argsstring>(Space &amp;home)=0</argsstring>
+        <name>choice</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1StopBrancher_1af064fde0caf7390a12e87b479b4c4e2c">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher_1a66e128c5005ab10f536c4abe2f2c2772">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a95b8a227d5cadb7ae16d30dd9174ef64">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher_1a14c38ee6d73a2a7109369a93fed82f5c">choice</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return choice. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that this method relies on the fact that it is called immediately after a previous call to status. Moreover, the member function can only be called once. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1108" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1ac4d93468b5d836cea115149e2128a646" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>virtual const Choice* Gecode::Brancher::choice</definition>
+        <argsstring>(const Space &amp;home, Archive &amp;e)=0</argsstring>
+        <name>choice</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1StopBrancher_1a0735e29287c94a2c7ccb7a440fa6efbc">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1a50ffb6bee3aa645335bfa8285211ebe0">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ab4bc607d3fb770864f52ec9c0554acd3">choice</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher_1af65e3067ef200bca5146ca91c2ff1b1e">choice</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Return choice from <emphasis>e</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1110" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a56fc00c1123d15ee979363b2a8126cca" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>virtual ExecStatus Gecode::Brancher::commit</definition>
+        <argsstring>(Space &amp;home, const Choice &amp;c, unsigned int a)=0</argsstring>
+        <name>commit</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1StopBrancher_1a484b596ca94ec786982e43fce4f3e8c7">commit</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher_1a2e7997c8381ffcac6713342f7e75f087">commit</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882">commit</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1af9017341283acdaf6c99532458c7d495">commit</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher_1a740cead4323953ac998c31c8aec19143">commit</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Commit for choice <emphasis>c</emphasis> and alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space <emphasis>home</emphasis> performs a commit from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1117" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a8d426b216e3273202ca46fc1ed4fd345" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref> *</type>
+        <definition>virtual GECODE_KERNEL_EXPORT NGL* Gecode::Brancher::ngl</definition>
+        <argsstring>(Space &amp;home, const Choice &amp;c, unsigned int a) const </argsstring>
+        <name>ngl</name>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8">ngl</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher_1a52d6002589dcc5650b09890a26accae3">ngl</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Create no-good literal for choice <emphasis>c</emphasis> and alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The current brancher in the space <emphasis>home</emphasis> creates a no-good literal from the information provided by the choice <emphasis>c</emphasis> and the alternative <emphasis>a</emphasis>. The brancher has the following options:<itemizedlist>
+<listitem><para>it returns NULL for all alternatives <emphasis>a</emphasis>. This means that the brancher does not support no-good literals (default).</para></listitem><listitem><para>it returns NULL for the last alternative <emphasis>a</emphasis>. This means that this alternative is equivalent to the negation of the disjunction of all other alternatives. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1133" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1ad578d17b478416450835db84421f92e1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>virtual GECODE_KERNEL_EXPORT void Gecode::Brancher::print</definition>
+        <argsstring>(const Space &amp;home, const Choice &amp;c, unsigned int a, std::ostream &amp;o) const </argsstring>
+        <name>print</name>
+        <reimplementedby refid="classGecode_1_1Gist_1_1StopBrancher_1acb5dad635ad165558b47c158c399b7c6">print</reimplementedby>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98">print</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher_1a4164936d6e0ef3b9c81ab8de371f2750">print</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Print branch for choice <emphasis>c</emphasis> and alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Prints an explanation of the alternative <emphasis>a</emphasis> of choice <emphasis>c</emphasis> on the stream <emphasis>o</emphasis>.</para><para>The default function prints nothing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1144" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Brancher_1a5b1f597fab80ad6eb2598c89b75ad63c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class ActorLink</definition>
+        <argsstring></argsstring>
+        <name>ActorLink</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1072" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1072" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Brancher_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Space</definition>
+        <argsstring></argsstring>
+        <name>Space</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1073" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1073" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Brancher_1af8084f88f5641132057732496deab026" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Choice</definition>
+        <argsstring></argsstring>
+        <name>Choice</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1074" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1074" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Brancher_1a1e0244168459a3fba41f5c306e0e2cd1" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Brancher::_id</definition>
+        <argsstring></argsstring>
+        <name>_id</name>
+        <briefdescription>
+<para>Unique identity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1077" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1077" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1Brancher_1aaea98d6877b5c08ebcccc03290881653" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> *</type>
+        <definition>forceinline Brancher * Gecode::Brancher::cast</definition>
+        <argsstring>(ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1079" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2922" bodyend="2927"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a3c09b945f3ee4534853ff4f735172117" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> *</type>
+        <definition>forceinline const Brancher * Gecode::Brancher::cast</definition>
+        <argsstring>(const ActorLink *al)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1081" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2930" bodyend="2935"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a7bbaf1f4df629265dade447af948298e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Brancher::Brancher</definition>
+        <argsstring>(Home home)</argsstring>
+        <name>Brancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1084" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2938" bodyend="2949"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Brancher_1a837e2b189b53fe84794a3b0da82b790a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Brancher::Brancher</definition>
+        <argsstring>(Space &amp;home, bool share, Brancher &amp;b)</argsstring>
+        <name>Brancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1086" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2952" bodyend="2956"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for branchers. </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that branchers cannot be created inside a propagator (no idea why one would like to do that anyway). If you do that the system will explode in a truly interesting way. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1288">
+        <label>Gecode::ViewBrancher&lt; IntView, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="1280" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1283">
+        <label>Gecode::Gist::StopBrancher</label>
+        <link refid="classGecode_1_1Gist_1_1StopBrancher"/>
+        <childnode refid="1280" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1280">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="1281" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1284">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="1280" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1286">
+        <label>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher"/>
+        <childnode refid="1285" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1281">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1282" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1285">
+        <label>Gecode::ViewValBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewValBrancher"/>
+        <childnode refid="1284" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1282">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1289">
+        <label>Gecode::Int::Branch::ViewValuesBrancher&lt; n, min &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher"/>
+        <childnode refid="1288" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1287">
+        <label>Gecode::Set::LDSB::LDSBSetBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher"/>
+        <childnode refid="1286" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1290">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="1291" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1291">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1292" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1292">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="1071" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1071" bodyend="1147"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Brancher_1a1e0244168459a3fba41f5c306e0e2cd1" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>_id</name></member>
+      <member refid="classGecode_1_1Brancher_1a5b1f597fab80ad6eb2598c89b75ad63c" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>ActorLink</name></member>
+      <member refid="classGecode_1_1Brancher_1a7bbaf1f4df629265dade447af948298e" prot="protected" virt="non-virtual"><scope>Gecode::Brancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Brancher_1a837e2b189b53fe84794a3b0da82b790a" prot="protected" virt="non-virtual"><scope>Gecode::Brancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Brancher_1aaea98d6877b5c08ebcccc03290881653" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Brancher_1a3c09b945f3ee4534853ff4f735172117" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Brancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Brancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Brancher_1a268f77feb1a24032ce46a8edde97d986" prot="public" virt="pure-virtual"><scope>Gecode::Brancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Brancher_1ac4d93468b5d836cea115149e2128a646" prot="public" virt="pure-virtual"><scope>Gecode::Brancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Brancher_1af8084f88f5641132057732496deab026" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>Choice</name></member>
+      <member refid="classGecode_1_1Brancher_1a56fc00c1123d15ee979363b2a8126cca" prot="public" virt="pure-virtual"><scope>Gecode::Brancher</scope><name>commit</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::Brancher</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9" prot="public" virt="virtual"><scope>Gecode::Brancher</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Brancher_1abf3e7cd63277085696ce0a48ae1c840d" prot="public" virt="non-virtual"><scope>Gecode::Brancher</scope><name>id</name></member>
+      <member refid="classGecode_1_1Brancher_1a8d426b216e3273202ca46fc1ed4fd345" prot="public" virt="virtual"><scope>Gecode::Brancher</scope><name>ngl</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Brancher</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Brancher</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Brancher_1ad578d17b478416450835db84421f92e1" prot="public" virt="virtual"><scope>Gecode::Brancher</scope><name>print</name></member>
+      <member refid="classGecode_1_1Brancher_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" virt="non-virtual"><scope>Gecode::Brancher</scope><name>Space</name></member>
+      <member refid="classGecode_1_1Brancher_1aa1a46e39f3974b663b45b98c6e457387" prot="public" virt="pure-virtual"><scope>Gecode::Brancher</scope><name>status</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1BranchTraits" kind="class" prot="public">
+    <compoundname>Gecode::BranchTraits</compoundname>
+    <includes refid="branch-traits_8hpp" local="no">branch-traits.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class <ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+      </param>
+    </templateparamlist>
+    <briefdescription>
+<para>Traits for branching. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class collects the traits for branching, depending on the variable type.</para><para>The traits used concern various functions:<itemizedlist>
+<listitem><para><computeroutput>typedef Type Filter</computeroutput> where <computeroutput>Type</computeroutput> is the type of an appropriate branch filter function for the variable type.</para></listitem><listitem><para><computeroutput>typedef Type Merit</computeroutput> where <computeroutput>Type</computeroutput> is the type of an appropriate branch merit function for the variable type.</para></listitem><listitem><para><computeroutput>typedef Type Val</computeroutput> where <computeroutput>Type</computeroutput> is the type of an appropriate branch value function for the variable type.</para></listitem><listitem><para><computeroutput>typedef Type ValType</computeroutput> where <computeroutput>Type</computeroutput> is the return type of the branch value function for the variable type.</para></listitem><listitem><para><computeroutput>typedef Type Commit</computeroutput> where <computeroutput>Type</computeroutput> is the type of an appropriate branch commit function for the variable type. </para></listitem></itemizedlist>
+</para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/branch-traits.hpp" line="59" column="1" bodyfile="/usr/include/gecode/kernel/branch-traits.hpp" bodystart="59" bodyend="59"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

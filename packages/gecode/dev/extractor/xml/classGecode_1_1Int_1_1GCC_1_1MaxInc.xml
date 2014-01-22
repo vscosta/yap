@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1MaxInc" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::MaxInc</compoundname>
+    <includes refid="bnd-sup_8hpp" local="no">bnd-sup.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a1319b0b765010e4b676203fec8b0841b" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt;</type>
+        <definition>ViewArray&lt;View&gt; Gecode::Int::GCC::MaxInc&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>View array for comparison. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="183" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a3c8dcc210c58e36a1d48519f6f6a8e7f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::GCC::MaxInc&lt; View &gt;::MaxInc</definition>
+        <argsstring>(const ViewArray&lt; View &gt; &amp;x0)</argsstring>
+        <name>MaxInc</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x0</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="186" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="186" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a68e4c9b1f7a7e0cc4f7e04c1765f5d7b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::MaxInc&lt; View &gt;::operator()</definition>
+        <argsstring>(const int i, const int j)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="189" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="189" bodyend="191"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Compares two indices <emphasis>i</emphasis>, <emphasis>j</emphasis> of two views <emphasis><formula id="58">$ x_i $</formula></emphasis> <formula id="126">$ x_j$</formula> according to the ascending order of the views upper bounds. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="180" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="180" bodyend="192"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a3c8dcc210c58e36a1d48519f6f6a8e7f" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::MaxInc</scope><name>MaxInc</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a68e4c9b1f7a7e0cc4f7e04c1765f5d7b" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::MaxInc</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1MaxInc_1a1319b0b765010e4b676203fec8b0841b" prot="protected" virt="non-virtual"><scope>Gecode::Int::GCC::MaxInc</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

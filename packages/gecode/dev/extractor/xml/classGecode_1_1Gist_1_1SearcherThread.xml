@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1SearcherThread" kind="class" prot="public">
+    <compoundname>Gecode::Gist::SearcherThread</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QThread</basecompoundref>
+    <includes refid="treecanvas_8hh" local="no">treecanvas.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1SearcherThread_1a695eaf4529c8caaab7db5726fa5c3926" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+        <definition>VisualNode* Gecode::Gist::SearcherThread::node</definition>
+        <argsstring></argsstring>
+        <name>node</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="71" column="1" bodyfile="/usr/include/gecode/gist/treecanvas.hh" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1SearcherThread_1a1b5f8830cb7eae9f9bf2c249b9f60a4f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::SearcherThread::depth</definition>
+        <argsstring></argsstring>
+        <name>depth</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="72" column="1" bodyfile="/usr/include/gecode/gist/treecanvas.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1SearcherThread_1ac04988c5b92492e9e9f258b979438643" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::SearcherThread::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="73" column="1" bodyfile="/usr/include/gecode/gist/treecanvas.hh" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1SearcherThread_1ac342842901e983308e30984dc8f1f5c1" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref> *</type>
+        <definition>TreeCanvas* Gecode::Gist::SearcherThread::t</definition>
+        <argsstring></argsstring>
+        <name>t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="74" column="1" bodyfile="/usr/include/gecode/gist/treecanvas.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1SearcherThread_1a4fbe358c3d6ca9155a83a0ae990ecd8c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::updateCanvas</definition>
+        <argsstring>(void)</argsstring>
+        <name>updateCanvas</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="75" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1SearcherThread_1a6a8106b723c00874aae380e18ac6d37d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::search</definition>
+        <argsstring>(VisualNode *n, bool all, TreeCanvas *ti)</argsstring>
+        <name>search</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>all</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref> *</type>
+          <declname>ti</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="77" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="signal">
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a1d220c93db3dff3d5eb5c2c45c461491" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::update</definition>
+        <argsstring>(int w, int h, int scale0)</argsstring>
+        <name>update</name>
+        <param>
+          <type>int</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scale0</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="80" column="1"/>
+      </memberdef>
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a16c12d0786567d42f5ecd7423167c8a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::statusChanged</definition>
+        <argsstring>(bool)</argsstring>
+        <name>statusChanged</name>
+        <param>
+          <type>bool</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="81" column="1"/>
+      </memberdef>
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a7e3262b742ff8c7c4475bb700a1a3a3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::scaleChanged</definition>
+        <argsstring>(int)</argsstring>
+        <name>scaleChanged</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="82" column="1"/>
+      </memberdef>
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a5217cce9e9e089e58bac9dccd9ecd4f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::solution</definition>
+        <argsstring>(const Space *)</argsstring>
+        <name>solution</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="83" column="1"/>
+      </memberdef>
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a54b0a25dc80569134fe9fa746a02ea43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::searchFinished</definition>
+        <argsstring>(void)</argsstring>
+        <name>searchFinished</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="84" column="1"/>
+      </memberdef>
+      <memberdef kind="signal" id="classGecode_1_1Gist_1_1SearcherThread_1a9dab145900163e832246d025a6fcf09a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::moveToNode</definition>
+        <argsstring>(VisualNode *n, bool)</argsstring>
+        <name>moveToNode</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="85" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1SearcherThread_1a7c93982f1e573571115f37b1d2fff522" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::SearcherThread::run</definition>
+        <argsstring>(void)</argsstring>
+        <name>run</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/treecanvas.hh" line="87" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A thread that concurrently explores the tree. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6327">
+        <label>QThread</label>
+      </node>
+      <node id="6326">
+        <label>Gecode::Gist::SearcherThread</label>
+        <link refid="classGecode_1_1Gist_1_1SearcherThread"/>
+        <childnode refid="6327" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6329">
+        <label>QThread</label>
+      </node>
+      <node id="6328">
+        <label>Gecode::Gist::SearcherThread</label>
+        <link refid="classGecode_1_1Gist_1_1SearcherThread"/>
+        <childnode refid="6329" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/treecanvas.hh" line="68" column="1" bodyfile="/usr/include/gecode/gist/treecanvas.hh" bodystart="68" bodyend="88"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1ac04988c5b92492e9e9f258b979438643" prot="private" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>a</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a1b5f8830cb7eae9f9bf2c249b9f60a4f" prot="private" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>depth</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a9dab145900163e832246d025a6fcf09a" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>moveToNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a695eaf4529c8caaab7db5726fa5c3926" prot="private" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a7c93982f1e573571115f37b1d2fff522" prot="protected" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>run</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a7e3262b742ff8c7c4475bb700a1a3a3a" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>scaleChanged</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a6a8106b723c00874aae380e18ac6d37d" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>search</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a54b0a25dc80569134fe9fa746a02ea43" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>searchFinished</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a5217cce9e9e089e58bac9dccd9ecd4f9" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>solution</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a16c12d0786567d42f5ecd7423167c8a9" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>statusChanged</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1ac342842901e983308e30984dc8f1f5c1" prot="private" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>t</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a1d220c93db3dff3d5eb5c2c45c461491" prot="public" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>update</name></member>
+      <member refid="classGecode_1_1Gist_1_1SearcherThread_1a4fbe358c3d6ca9155a83a0ae990ecd8c" prot="private" virt="non-virtual"><scope>Gecode::Gist::SearcherThread</scope><name>updateCanvas</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

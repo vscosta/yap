@@ -1,0 +1,287 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1TernaryPropagator" kind="class" prot="public">
+    <compoundname>Gecode::TernaryPropagator</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <includes refid="kernel_2propagator_8hpp" local="no">propagator.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+        <declname>pc</declname>
+        <defname>pc</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1TernaryPropagator_1a5120a0740d569e33544e4264451400a7" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::TernaryPropagator&lt; View, pc &gt;::x0</definition>
+        <argsstring></argsstring>
+        <name>x0</name>
+        <briefdescription>
+<para>Three views. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="118" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TernaryPropagator_1a1e051ae6d883df51e680af30edb8827e" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::TernaryPropagator&lt; View, pc &gt;::x1</definition>
+        <argsstring></argsstring>
+        <name>x1</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="118" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1TernaryPropagator_1a0cffe8cc6ab8ee119d2dee78409ad943" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::TernaryPropagator&lt; View, pc &gt;::x2</definition>
+        <argsstring></argsstring>
+        <name>x2</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="118" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1TernaryPropagator_1ae4558e675ca1faa77a0a955b08f17055" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::TernaryPropagator&lt; View, pc &gt;::TernaryPropagator</definition>
+        <argsstring>(Space &amp;home, bool share, TernaryPropagator &amp;p)</argsstring>
+        <name>TernaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1TernaryPropagator" kindref="compound">TernaryPropagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="120" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="402" bodyend="407"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TernaryPropagator_1aead4856e179dfe5be33ed3ea5b3cdc98" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::TernaryPropagator&lt; View, pc &gt;::TernaryPropagator</definition>
+        <argsstring>(Home home, View x0, View x1, View x2)</argsstring>
+        <name>TernaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x2</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="122" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="390" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TernaryPropagator_1a0bdc25e3e349eb7e071304bea0c8fcac" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::TernaryPropagator&lt; View, pc &gt;::TernaryPropagator</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, View x0, View x1, View x2)</argsstring>
+        <name>TernaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x2</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for rewriting <emphasis>p</emphasis> during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="124" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="412" bodyend="417"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1TernaryPropagator_1a59e18e9721868fe8c7d8852bdb2d2c2f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::TernaryPropagator&lt; View, pc &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <reimplementedby refid="classGecode_1_1Int_1_1Arithmetic_1_1MaxDom_1af66593ce7a38dedf010a9242ba09aee9">cost</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1Arithmetic_1_1MultDom_1a8a32d8f27e99e1a9fbb54ced1dd8fe68">cost</reimplementedby>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (defined as low ternary) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="128" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="421" bodyend="423"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1TernaryPropagator_1ac0a610a73e73518f54203ff5a201bfba" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::TernaryPropagator&lt; View, pc &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/propagator.hpp" line="130" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="427" bodyend="435"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Ternary propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Stores three views of type <emphasis>View</emphasis> with propagation condition <emphasis>pc</emphasis>.</para><para>If the propagation condition <emphasis>pc</emphasis> has the value PC_GEN_NONE, no subscriptions are created. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6998">
+        <label>Gecode::TernaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="6999" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6999">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7000" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7000">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7001" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7001">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7002">
+        <label>Gecode::TernaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="7003" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7006" relation="usage">
+          <edgelabel>x0</edgelabel>
+          <edgelabel>x1</edgelabel>
+          <edgelabel>x2</edgelabel>
+        </childnode>
+      </node>
+      <node id="7006">
+        <label>View</label>
+      </node>
+      <node id="7003">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7004" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7005" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="7004">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7005" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7005">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/propagator.hpp" line="115" column="1" bodyfile="/usr/include/gecode/kernel/propagator.hpp" bodystart="115" bodyend="131"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::TernaryPropagator</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::TernaryPropagator</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::TernaryPropagator</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::TernaryPropagator</scope><name>copy</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1a59e18e9721868fe8c7d8852bdb2d2c2f" prot="public" virt="virtual"><scope>Gecode::TernaryPropagator</scope><name>cost</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1ac0a610a73e73518f54203ff5a201bfba" prot="public" virt="virtual"><scope>Gecode::TernaryPropagator</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1" prot="public" virt="pure-virtual"><scope>Gecode::TernaryPropagator</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>size</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1ae4558e675ca1faa77a0a955b08f17055" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>TernaryPropagator</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1aead4856e179dfe5be33ed3ea5b3cdc98" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>TernaryPropagator</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1a0bdc25e3e349eb7e071304bea0c8fcac" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>TernaryPropagator</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1a5120a0740d569e33544e4264451400a7" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>x0</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1a1e051ae6d883df51e680af30edb8827e" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>x1</name></member>
+      <member refid="classGecode_1_1TernaryPropagator_1a0cffe8cc6ab8ee119d2dee78409ad943" prot="protected" virt="non-virtual"><scope>Gecode::TernaryPropagator</scope><name>x2</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1MemoryChunk" kind="class" prot="public">
+    <compoundname>Gecode::MemoryChunk</compoundname>
+    <derivedcompoundref refid="classGecode_1_1HeapChunk" prot="public" virt="non-virtual">Gecode::HeapChunk</derivedcompoundref>
+    <includes refid="memory-manager_8hpp" local="no">memory-manager.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1MemoryChunk_1ab1111ac3a474b7d74513756bf3655e16" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1MemoryChunk" kindref="compound">MemoryChunk</ref> *</type>
+        <definition>MemoryChunk* Gecode::MemoryChunk::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Next chunk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="51" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1MemoryChunk_1a7217524cd448d68aaaa5d492894a4107" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Gecode::MemoryChunk::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Size of chunk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="53" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Memory chunk with size information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3821">
+        <label>Gecode::MemoryChunk</label>
+        <link refid="classGecode_1_1MemoryChunk"/>
+      </node>
+      <node id="3822">
+        <label>Gecode::HeapChunk</label>
+        <link refid="classGecode_1_1HeapChunk"/>
+        <childnode refid="3821" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3823">
+        <label>Gecode::MemoryChunk</label>
+        <link refid="classGecode_1_1MemoryChunk"/>
+        <childnode refid="3823" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/memory-manager.hpp" line="48" column="1" bodyfile="/usr/include/gecode/kernel/memory-manager.hpp" bodystart="48" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MemoryChunk_1ab1111ac3a474b7d74513756bf3655e16" prot="public" virt="non-virtual"><scope>Gecode::MemoryChunk</scope><name>next</name></member>
+      <member refid="classGecode_1_1MemoryChunk_1a7217524cd448d68aaaa5d492894a4107" prot="public" virt="non-virtual"><scope>Gecode::MemoryChunk</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

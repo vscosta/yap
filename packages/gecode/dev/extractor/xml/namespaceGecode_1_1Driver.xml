@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Driver" kind="namespace">
+    <compoundname>Gecode::Driver</compoundname>
+    <innerclass refid="classGecode_1_1Driver_1_1CombinedStop" prot="public">Gecode::Driver::CombinedStop</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1EngineToMeta" prot="public">Gecode::Driver::EngineToMeta</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1BaseOption" prot="public">Gecode::Driver::BaseOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1StringValueOption" prot="public">Gecode::Driver::StringValueOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1StringOption" prot="public">Gecode::Driver::StringOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1IntOption" prot="public">Gecode::Driver::IntOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1UnsignedIntOption" prot="public">Gecode::Driver::UnsignedIntOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1DoubleOption" prot="public">Gecode::Driver::DoubleOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1BoolOption" prot="public">Gecode::Driver::BoolOption</innerclass>
+    <innerclass refid="classGecode_1_1Driver_1_1ScriptBase" prot="public">Gecode::Driver::ScriptBase</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Driver_1a82c7fc83a113f4a02bb5253b9112fa05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_DRIVER_EXPORT void</type>
+        <definition>GECODE_DRIVER_EXPORT void Gecode::Driver::stop</definition>
+        <argsstring>(Support::Timer &amp;t, std::ostream &amp;os)</argsstring>
+        <name>stop</name>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1Timer" kindref="compound">Support::Timer</ref> &amp;</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>os</declname>
+        </param>
+        <briefdescription>
+<para>Get time since start of timer and print user friendly time information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver/script.hpp" line="140" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Driver_1ab5d0d18ceb9eb771e7ae928540d0795d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_DRIVER_EXPORT double</type>
+        <definition>GECODE_DRIVER_EXPORT double Gecode::Driver::am</definition>
+        <argsstring>(double t[], int n)</argsstring>
+        <name>am</name>
+        <param>
+          <type>double</type>
+          <declname>t</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Compute arithmetic mean of <emphasis>n</emphasis> elements in <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver/script.hpp" line="146" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Driver_1a07a04115bfab261e01a12c852ae3584c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_DRIVER_EXPORT double</type>
+        <definition>GECODE_DRIVER_EXPORT double Gecode::Driver::dev</definition>
+        <argsstring>(double t[], int n)</argsstring>
+        <name>dev</name>
+        <param>
+          <type>double</type>
+          <declname>t</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Compute deviation of <emphasis>n</emphasis> elements in <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver/script.hpp" line="152" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Driver_1ac2a20e6a5d2d932abcf63777447b3412" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Options</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Search::Cutoff</ref> *</type>
+        <definition>Search::Cutoff* Gecode::Driver::createCutoff</definition>
+        <argsstring>(const Options &amp;o)</argsstring>
+        <name>createCutoff</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Create cutoff object from options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver/script.hpp" line="157" column="1" bodyfile="/usr/include/gecode/driver/script.hpp" bodystart="157" bodyend="172"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Script commandline driver. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="namespaceGecode_1_1Driver" kindref="compound">Gecode::Driver</ref> namespace contains support for passing common commandline options and for scripts that use the commandline options. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/driver/options.hpp" line="43" column="1"/>
+  </compounddef>
+</doxygen>

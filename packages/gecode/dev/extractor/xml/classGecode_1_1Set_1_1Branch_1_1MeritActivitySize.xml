@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize" kind="class" prot="public">
+    <compoundname>Gecode::Set::Branch::MeritActivitySize</compoundname>
+    <basecompoundref refid="classGecode_1_1MeritBase" prot="public" virt="non-virtual">Gecode::MeritBase&lt; SetView, double &gt;</basecompoundref>
+    <includes refid="set_2branch_8hh" local="no">branch.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a901019c5ebc1d348bfc2352b9d5cb97e" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+        <definition>Activity Gecode::Set::Branch::MeritActivitySize::activity</definition>
+        <argsstring></argsstring>
+        <name>activity</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref> information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="164" column="1" bodyfile="/usr/include/gecode/set/branch.hh" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a90529a05607256889ce95d489f9683b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::MeritActivitySize::MeritActivitySize</definition>
+        <argsstring>(Space &amp;home, const VarBranch &amp;vb)</argsstring>
+        <name>MeritActivitySize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="167" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="124" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1aa11a18d6974774e1f29d46ca70a6a34e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::MeritActivitySize::MeritActivitySize</definition>
+        <argsstring>(Space &amp;home, bool shared, MeritActivitySize &amp;m)</argsstring>
+        <name>MeritActivitySize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize" kindref="compound">MeritActivitySize</ref> &amp;</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="169" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="128" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a1621f8829cf5547719a89483c9638f30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::Set::Branch::MeritActivitySize::operator()</definition>
+        <argsstring>(const Space &amp;home, SetView x, int i)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return size over activity as merit for view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="171" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="134" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a96f5d215e700e296dd64c4435c51fb29" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::Branch::MeritActivitySize::notice</definition>
+        <argsstring>(void) const </argsstring>
+        <name>notice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether dispose must always be called (that is, notice is needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="173" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="138" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1af42c734ed607216cf39de59f807ea38d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::Branch::MeritActivitySize::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Dispose view selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="175" column="1" bodyfile="/usr/include/gecode/set/branch/merit.hpp" bodystart="142" bodyend="144"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Merit class for size over activity. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3847">
+        <label>Gecode::MeritBase&lt; SetView, double &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+      <node id="3846">
+        <label>Gecode::Set::Branch::MeritActivitySize</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize"/>
+        <childnode refid="3847" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3851">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="3852" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="3850">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="3850" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="3851" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="3849">
+        <label>Gecode::MeritBase&lt; SetView, double &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+      <node id="3848">
+        <label>Gecode::Set::Branch::MeritActivitySize</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize"/>
+        <childnode refid="3849" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3850" relation="usage">
+          <edgelabel>activity</edgelabel>
+        </childnode>
+      </node>
+      <node id="3852">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/branch.hh" line="161" column="1" bodyfile="/usr/include/gecode/set/branch.hh" bodystart="161" bodyend="176"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a901019c5ebc1d348bfc2352b9d5cb97e" prot="protected" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>activity</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1af42c734ed607216cf39de59f807ea38d" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a90529a05607256889ce95d489f9683b5" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>MeritActivitySize</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1aa11a18d6974774e1f29d46ca70a6a34e" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>MeritActivitySize</name></member>
+      <member refid="classGecode_1_1MeritBase_1a0dd42399c470eef9ee7a23f238ad8fa9" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1MeritBase_1ae8ab6cc04c2cd2b34701e1deba2236b4" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a96f5d215e700e296dd64c4435c51fb29" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1MeritActivitySize_1a1621f8829cf5547719a89483c9638f30" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1MeritBase_1a5f83e32f550fdca23acf1a2a3904ef0a" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>Val</name></member>
+      <member refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::MeritActivitySize</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

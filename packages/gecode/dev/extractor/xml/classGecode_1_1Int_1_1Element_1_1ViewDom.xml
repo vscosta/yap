@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Element_1_1ViewDom" kind="class" prot="public">
+    <compoundname>Gecode::Int::Element::ViewDom</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Element_1_1View" prot="public" virt="non-virtual">Gecode::Int::Element::View&lt; VA, VB, VC, PC_INT_DOM &gt;</basecompoundref>
+    <includes refid="int_2element_8hh" local="no">element.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>VA</declname>
+        <defname>VA</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VB</declname>
+        <defname>VB</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VC</declname>
+        <defname>VC</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1afa5255f42b034fb86cb3e0be382933b6" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::ViewDom</definition>
+        <argsstring>(Space &amp;home, bool share, ViewDom &amp;p)</argsstring>
+        <name>ViewDom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Element_1_1ViewDom" kindref="compound">ViewDom</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="324" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="493" bodyend="494"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1a0b7c4512f569758ce68961f8ddd24e2f" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::ViewDom</definition>
+        <argsstring>(Home home, IdxViewArray&lt; VA &gt; &amp;iv, VB x0, VC x1)</argsstring>
+        <name>ViewDom</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Element_1_1IdxViewArray" kindref="compound">IdxViewArray</ref>&lt; VA &gt; &amp;</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>VB</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>VC</type>
+          <declname>x1</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="326" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="470" bodyend="472"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1a71052ea3a5013e0ffc55b3195599f90b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Perform copying during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="329" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="498" bodyend="500"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1ae5396804981e34fc57591677655bd586" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Int_1_1Element_1_1View_1a2b332c375dc3f76b46dae60175e52dee">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function. </para>        </briefdescription>
+        <detaileddescription>
+<para>If in stage for bounds-propagation defined as low linear, otherwise as high linear. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="337" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="505" bodyend="508"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1a4969ba2cd205d46983f98b3e373bc4f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="339" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="512" bodyend="562"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1ViewDom_1a9a1188aae19a5d73f0d637d37b2b9294" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;::post</definition>
+        <argsstring>(Home home, IdxViewArray&lt; VA &gt; &amp;iv, VB x0, VC x1)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Element_1_1IdxViewArray" kindref="compound">IdxViewArray</ref>&lt; VA &gt; &amp;</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>VB</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>VC</type>
+          <declname>x1</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="124">$iv_{x_0}=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="341" column="1" bodyfile="/usr/include/gecode/int/element/view.hpp" bodystart="476" bodyend="488"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Domain consistent element propagator for array of views. </para>    </briefdescription>
+    <detaileddescription>
+<para>The propagator uses staging: first it uses bounds-propagation on the array of views and the uses domain-propagation on the array of views.</para><para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/element.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7817">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7818" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7816">
+        <label>Gecode::Int::Element::View&lt; VA, VB, VC, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1View"/>
+        <childnode refid="7817" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7815">
+        <label>Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1ViewDom"/>
+        <childnode refid="7816" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7818">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7819" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7819">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7826">
+        <label>VB</label>
+      </node>
+      <node id="7827">
+        <label>VC</label>
+      </node>
+      <node id="7822">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7823" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7824" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="7821">
+        <label>Gecode::Int::Element::View&lt; VA, VB, VC, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1View"/>
+        <childnode refid="7822" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7825" relation="usage">
+          <edgelabel>iv</edgelabel>
+        </childnode>
+        <childnode refid="7826" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+        <childnode refid="7827" relation="usage">
+          <edgelabel>x1</edgelabel>
+        </childnode>
+      </node>
+      <node id="7820">
+        <label>Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1ViewDom"/>
+        <childnode refid="7821" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7825">
+        <label>Gecode::Int::Element::IdxViewArray&lt; VA &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1IdxViewArray"/>
+      </node>
+      <node id="7823">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7824" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7824">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/element.hh" line="317" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="317" bodyend="343"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Element::ViewDom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Element::ViewDom</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1a71052ea3a5013e0ffc55b3195599f90b" prot="public" virt="virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1ae5396804981e34fc57591677655bd586" prot="public" virt="virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1a996f385e07e4ca4ca20e5b2534f1ec29" prot="public" virt="virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1a14b399ae468904254a15b93d3546ee71" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>iv</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1a9a1188aae19a5d73f0d637d37b2b9294" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1a4969ba2cd205d46983f98b3e373bc4f4" prot="public" virt="virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1ae668fd249ca377fc97039afd46a05045" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>View</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1a66c74842115a11a7dfcf9304ff6f843d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>View</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1afa5255f42b034fb86cb3e0be382933b6" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>ViewDom</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1ViewDom_1a0b7c4512f569758ce68961f8ddd24e2f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>ViewDom</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1aec718eba677b57f87a10f827e3816eb6" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>x0</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1View_1ad6fddae37c75e824e3b89960bd38792e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::ViewDom</scope><name>x1</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sorted_1_1SccComponent" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sorted::SccComponent</compoundname>
+    <includes refid="sortsup_8hpp" local="no">sortsup.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1a468801ad4b107cbf03fd0001d8286519" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::SccComponent::leftmost</definition>
+        <argsstring></argsstring>
+        <name>leftmost</name>
+        <briefdescription>
+<para>Leftmost y-node in a scc. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1a8db49110c7b738e5fbee38188cab9f0a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::SccComponent::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <briefdescription>
+<para>Direct left neighbour of an y-node in a scc. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="62" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1ab690a24e559719ebcdf69e48ef842064" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::SccComponent::right</definition>
+        <argsstring></argsstring>
+        <name>right</name>
+        <briefdescription>
+<para>Direct right neighbour of an y-node in a scc. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="64" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1abee8dfd036d1febb73233fb8a6f4f700" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sorted::SccComponent::rightmost</definition>
+        <argsstring></argsstring>
+        <name>rightmost</name>
+        <briefdescription>
+<para>Rightmost reachable y-node in a scc. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="66" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Representation of a strongly connected component. </para>    </briefdescription>
+    <detaileddescription>
+<para>Used with the implicit array representation of the bipartite oriented intersection graph. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="57" bodyend="67"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1a8db49110c7b738e5fbee38188cab9f0a" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::SccComponent</scope><name>left</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1a468801ad4b107cbf03fd0001d8286519" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::SccComponent</scope><name>leftmost</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1ab690a24e559719ebcdf69e48ef842064" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::SccComponent</scope><name>right</name></member>
+      <member refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent_1abee8dfd036d1febb73233fb8a6f4f700" prot="public" virt="non-virtual"><scope>Gecode::Int::Sorted::SccComponent</scope><name>rightmost</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

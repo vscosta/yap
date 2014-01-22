@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1borland__workaround" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::detail::borland_workaround</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1borland__workaround_1af8cf6afcf62a57ca7015402c59acb83c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>boost::numeric::interval_lib::detail::borland_workaround::borland_workaround</definition>
+        <argsstring>()</argsstring>
+        <name>borland_workaround</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/bcc_rounding_control.hpp" line="33" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/bcc_rounding_control.hpp" bodystart="33" bodyend="33"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/bcc_rounding_control.hpp" line="32" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/bcc_rounding_control.hpp" bodystart="32" bodyend="34"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1borland__workaround_1af8cf6afcf62a57ca7015402c59acb83c" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::borland_workaround</scope><name>borland_workaround</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

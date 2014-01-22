@@ -1,0 +1,994 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="int_2branch_2var_8hpp" kind="file">
+    <compoundname>var.hpp</compoundname>
+    <includedby refid="int_8hh" local="no">/usr/include/gecode/int.hh</includedby>
+    <invincdepgraph>
+      <node id="3580">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3563">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="3588">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="3589" relation="include">
+        </childnode>
+      </node>
+      <node id="3586">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="3587" relation="include">
+        </childnode>
+        <childnode refid="3588" relation="include">
+        </childnode>
+      </node>
+      <node id="3587">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="3563" relation="include">
+        </childnode>
+      </node>
+      <node id="3548">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="3549" relation="include">
+        </childnode>
+        <childnode refid="3550" relation="include">
+        </childnode>
+      </node>
+      <node id="3569">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="3570" relation="include">
+        </childnode>
+      </node>
+      <node id="3618">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="3619" relation="include">
+        </childnode>
+      </node>
+      <node id="3606">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="3590" relation="include">
+        </childnode>
+      </node>
+      <node id="3614">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="3615">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="3614" relation="include">
+        </childnode>
+      </node>
+      <node id="3598">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="3612">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="3587" relation="include">
+        </childnode>
+      </node>
+      <node id="3578">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="3621">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="3579">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="3575" relation="include">
+        </childnode>
+        <childnode refid="3576" relation="include">
+        </childnode>
+        <childnode refid="3569" relation="include">
+        </childnode>
+        <childnode refid="3580" relation="include">
+        </childnode>
+        <childnode refid="3581" relation="include">
+        </childnode>
+        <childnode refid="3582" relation="include">
+        </childnode>
+        <childnode refid="3583" relation="include">
+        </childnode>
+        <childnode refid="3584" relation="include">
+        </childnode>
+      </node>
+      <node id="3557">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="3635">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="3623" relation="include">
+        </childnode>
+        <childnode refid="3592" relation="include">
+        </childnode>
+        <childnode refid="3633" relation="include">
+        </childnode>
+        <childnode refid="3634" relation="include">
+        </childnode>
+        <childnode refid="3636" relation="include">
+        </childnode>
+      </node>
+      <node id="3625">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="3559">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="3608">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="3597" relation="include">
+        </childnode>
+      </node>
+      <node id="3593">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="3600">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="3601" relation="include">
+        </childnode>
+        <childnode refid="3602" relation="include">
+        </childnode>
+        <childnode refid="3603" relation="include">
+        </childnode>
+        <childnode refid="3563" relation="include">
+        </childnode>
+        <childnode refid="3604" relation="include">
+        </childnode>
+        <childnode refid="3605" relation="include">
+        </childnode>
+        <childnode refid="3579" relation="include">
+        </childnode>
+        <childnode refid="3606" relation="include">
+        </childnode>
+        <childnode refid="3590" relation="include">
+        </childnode>
+        <childnode refid="3607" relation="include">
+        </childnode>
+        <childnode refid="3591" relation="include">
+        </childnode>
+        <childnode refid="3594" relation="include">
+        </childnode>
+        <childnode refid="3608" relation="include">
+        </childnode>
+        <childnode refid="3609" relation="include">
+        </childnode>
+        <childnode refid="3571" relation="include">
+        </childnode>
+        <childnode refid="3610" relation="include">
+        </childnode>
+        <childnode refid="3581" relation="include">
+        </childnode>
+        <childnode refid="3582" relation="include">
+        </childnode>
+        <childnode refid="3583" relation="include">
+        </childnode>
+        <childnode refid="3611" relation="include">
+        </childnode>
+        <childnode refid="3584" relation="include">
+        </childnode>
+      </node>
+      <node id="3619">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="3548" relation="include">
+        </childnode>
+      </node>
+      <node id="3602">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="3563" relation="include">
+        </childnode>
+      </node>
+      <node id="3554">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="3551" relation="include">
+        </childnode>
+        <childnode refid="3555" relation="include">
+        </childnode>
+        <childnode refid="3552" relation="include">
+        </childnode>
+        <childnode refid="3553" relation="include">
+        </childnode>
+      </node>
+      <node id="3601">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="3563" relation="include">
+        </childnode>
+      </node>
+      <node id="3597">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="3549">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="3562">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="3557" relation="include">
+        </childnode>
+        <childnode refid="3558" relation="include">
+        </childnode>
+      </node>
+      <node id="3610">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3629">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="3577">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="3561">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="3562" relation="include">
+        </childnode>
+      </node>
+      <node id="3582">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3605">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="3577" relation="include">
+        </childnode>
+      </node>
+      <node id="3592">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="3631">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="3634">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="3592" relation="include">
+        </childnode>
+        <childnode refid="3633" relation="include">
+        </childnode>
+      </node>
+      <node id="3583">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3591">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="3592" relation="include">
+        </childnode>
+      </node>
+      <node id="3575">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="3596">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="3558">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="3589">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="3547" relation="include">
+        </childnode>
+      </node>
+      <node id="3564">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="3565">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="3566" relation="include">
+        </childnode>
+        <childnode refid="3571" relation="include">
+        </childnode>
+        <childnode refid="3573" relation="include">
+        </childnode>
+      </node>
+      <node id="3622">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="3621" relation="include">
+        </childnode>
+      </node>
+      <node id="3623">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="3621" relation="include">
+        </childnode>
+      </node>
+      <node id="3609">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="3597" relation="include">
+        </childnode>
+      </node>
+      <node id="3595">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="3596" relation="include">
+        </childnode>
+      </node>
+      <node id="3556">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="3557" relation="include">
+        </childnode>
+        <childnode refid="3558" relation="include">
+        </childnode>
+        <childnode refid="3559" relation="include">
+        </childnode>
+        <childnode refid="3560" relation="include">
+        </childnode>
+        <childnode refid="3561" relation="include">
+        </childnode>
+      </node>
+      <node id="3574">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="3572">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="3546">
+        <label>/usr/include/gecode/int/branch/var.hpp</label>
+        <link refid="int/branch/var.hpp"/>
+        <childnode refid="3547" relation="include">
+        </childnode>
+      </node>
+      <node id="3604">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="3565" relation="include">
+        </childnode>
+      </node>
+      <node id="3611">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="3617">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="3579" relation="include">
+        </childnode>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3566">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="3567" relation="include">
+        </childnode>
+      </node>
+      <node id="3584">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="3585" relation="include">
+        </childnode>
+      </node>
+      <node id="3553">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="3551" relation="include">
+        </childnode>
+      </node>
+      <node id="3560">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="3551">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="3550">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="3570">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="3626">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="3625" relation="include">
+        </childnode>
+      </node>
+      <node id="3632">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="3552">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="3616">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="3597" relation="include">
+        </childnode>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3547">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="3548" relation="include">
+        </childnode>
+        <childnode refid="3551" relation="include">
+        </childnode>
+        <childnode refid="3552" relation="include">
+        </childnode>
+        <childnode refid="3553" relation="include">
+        </childnode>
+        <childnode refid="3554" relation="include">
+        </childnode>
+        <childnode refid="3556" relation="include">
+        </childnode>
+        <childnode refid="3563" relation="include">
+        </childnode>
+        <childnode refid="3564" relation="include">
+        </childnode>
+        <childnode refid="3565" relation="include">
+        </childnode>
+        <childnode refid="3574" relation="include">
+        </childnode>
+        <childnode refid="3575" relation="include">
+        </childnode>
+        <childnode refid="3576" relation="include">
+        </childnode>
+        <childnode refid="3577" relation="include">
+        </childnode>
+        <childnode refid="3578" relation="include">
+        </childnode>
+        <childnode refid="3579" relation="include">
+        </childnode>
+        <childnode refid="3586" relation="include">
+        </childnode>
+        <childnode refid="3590" relation="include">
+        </childnode>
+        <childnode refid="3591" relation="include">
+        </childnode>
+        <childnode refid="3593" relation="include">
+        </childnode>
+        <childnode refid="3594" relation="include">
+        </childnode>
+        <childnode refid="3570" relation="include">
+        </childnode>
+        <childnode refid="3595" relation="include">
+        </childnode>
+        <childnode refid="3567" relation="include">
+        </childnode>
+        <childnode refid="3597" relation="include">
+        </childnode>
+        <childnode refid="3598" relation="include">
+        </childnode>
+        <childnode refid="3572" relation="include">
+        </childnode>
+        <childnode refid="3599" relation="include">
+        </childnode>
+        <childnode refid="3600" relation="include">
+        </childnode>
+        <childnode refid="3611" relation="include">
+        </childnode>
+        <childnode refid="3585" relation="include">
+        </childnode>
+        <childnode refid="3612" relation="include">
+        </childnode>
+        <childnode refid="3613" relation="include">
+        </childnode>
+        <childnode refid="3616" relation="include">
+        </childnode>
+        <childnode refid="3617" relation="include">
+        </childnode>
+        <childnode refid="3618" relation="include">
+        </childnode>
+        <childnode refid="3620" relation="include">
+        </childnode>
+        <childnode refid="3622" relation="include">
+        </childnode>
+        <childnode refid="3623" relation="include">
+        </childnode>
+        <childnode refid="3624" relation="include">
+        </childnode>
+        <childnode refid="3626" relation="include">
+        </childnode>
+        <childnode refid="3627" relation="include">
+        </childnode>
+        <childnode refid="3628" relation="include">
+        </childnode>
+      </node>
+      <node id="3571">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3573">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3613">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="3614" relation="include">
+        </childnode>
+        <childnode refid="3615" relation="include">
+        </childnode>
+      </node>
+      <node id="3594">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="3585">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="3627">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="3625" relation="include">
+        </childnode>
+      </node>
+      <node id="3599">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="3581">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="3572" relation="include">
+        </childnode>
+      </node>
+      <node id="3555">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="3636">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="3624">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="3625" relation="include">
+        </childnode>
+      </node>
+      <node id="3568">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="3563" relation="include">
+        </childnode>
+      </node>
+      <node id="3567">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="3568" relation="include">
+        </childnode>
+        <childnode refid="3563" relation="include">
+        </childnode>
+        <childnode refid="3569" relation="include">
+        </childnode>
+      </node>
+      <node id="3590">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="3620">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="3621" relation="include">
+        </childnode>
+      </node>
+      <node id="3607">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="3591" relation="include">
+        </childnode>
+      </node>
+      <node id="3628">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="3629" relation="include">
+        </childnode>
+        <childnode refid="3623" relation="include">
+        </childnode>
+        <childnode refid="3621" relation="include">
+        </childnode>
+        <childnode refid="3630" relation="include">
+        </childnode>
+        <childnode refid="3631" relation="include">
+        </childnode>
+        <childnode refid="3592" relation="include">
+        </childnode>
+        <childnode refid="3624" relation="include">
+        </childnode>
+        <childnode refid="3626" relation="include">
+        </childnode>
+        <childnode refid="3627" relation="include">
+        </childnode>
+        <childnode refid="3625" relation="include">
+        </childnode>
+        <childnode refid="3596" relation="include">
+        </childnode>
+        <childnode refid="3632" relation="include">
+        </childnode>
+        <childnode refid="3633" relation="include">
+        </childnode>
+        <childnode refid="3634" relation="include">
+        </childnode>
+        <childnode refid="3635" relation="include">
+        </childnode>
+        <childnode refid="3636" relation="include">
+        </childnode>
+      </node>
+      <node id="3576">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="3633">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="3634" relation="include">
+        </childnode>
+      </node>
+      <node id="3603">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="3563" relation="include">
+        </childnode>
+      </node>
+      <node id="3630">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2012</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-02-19<sp/>13:26:08<sp/>+0100<sp/>(Tue,<sp/>19<sp/>Feb<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13313<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="41" refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(NULL),<sp/>s(SEL_NONE)<sp/>{}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="45" refid="classGecode_1_1IntVarBranch_1aa9119f190df710bded8c0f822b9e115d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">Select</ref><sp/>s0,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>t)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(t),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="49" refid="classGecode_1_1IntVarBranch_1a56a933c2087dd5d28675feee7dff3e28" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref><sp/>r)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(r),<sp/>s(SEL_RND)<sp/>{}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="53" refid="classGecode_1_1IntVarBranch_1a03eed2b9a43200f9cb94e8378f0879aa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">Select</ref><sp/>s0,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>t)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(d,t),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="57" refid="classGecode_1_1IntVarBranch_1ae2ceebbd31ea37f5ffb27ca885120b75" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">Select</ref><sp/>s0,<sp/><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>t)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(a,t),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="61" refid="classGecode_1_1IntVarBranch_1a2882dbf1365d94af49c2e9828b2199ce" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">Select</ref><sp/>s0,<sp/><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>t)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(a,t),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1IntVarBranch_1aa0290a16edf2686b77e26c4bb785715c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a22edf4beda7a61714f8a860982ee1582" kindref="member">IntVarBranch::IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">Select</ref><sp/>s0,<sp/><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref><sp/>mf,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>t)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref>(mf,t),<sp/>s(s0)<sp/>{}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872" kindref="member">IntVarBranch::Select</ref></highlight></codeline>
+<codeline lineno="69" refid="classGecode_1_1IntVarBranch_1a0942d9b7f242c3c0e3c45396943a559c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a0942d9b7f242c3c0e3c45396943a559c" kindref="member">IntVarBranch::select</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a98e102b9958b378dbfbb5bfb7d850491" kindref="member">s</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="classGecode_1_1IntVarBranch_1a2ca745793dee0013a4c733df003fea49" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a2ca745793dee0013a4c733df003fea49" kindref="member">IntVarBranch::expand</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarArgs" kindref="compound">IntVarArgs</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1IntVarBranch_1a0942d9b7f242c3c0e3c45396943a559c" kindref="member">select</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a62bdb99e7bc64d28e1f86bd68a916463" kindref="member">SEL_AFC_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a7589f16dafda64341677cc669799f080" kindref="member">SEL_AFC_MAX</ref>:</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a3af35facbe66a15a882b0ab3b7c448b5" kindref="member">SEL_AFC_SIZE_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a17f7eca5747799d1734757a212c7368f" kindref="member">SEL_AFC_SIZE_MAX</ref>:</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" kindref="member">_afc</ref>.<ref refid="classGecode_1_1AFC_1aca72aeed93beceb88a7d65e72c4f5606" kindref="member">initialized</ref>())</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" kindref="member">_afc</ref><sp/>=<sp/><ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref>(home,x,<ref refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" kindref="member">decay</ref>());</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9a85ae9919e2ba5b0d8492b948ab8a17" kindref="member">SEL_ACTIVITY_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9844872c23e839559b463fb448c6b00c" kindref="member">SEL_ACTIVITY_MAX</ref>:</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a81a105201c1bb37bf9033c41c2682108" kindref="member">SEL_ACTIVITY_SIZE_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a42619846214c8ffc927e6ab5950f18a5" kindref="member">SEL_ACTIVITY_SIZE_MAX</ref>:</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" kindref="member">_act</ref>.<ref refid="classGecode_1_1Activity_1a08e51b93b51a678716a27fe086cb5907" kindref="member">initialized</ref>())</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" kindref="member">_act</ref><sp/>=<sp/><ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref>(home,x,<ref refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" kindref="member">decay</ref>());</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1IntVarBranch_1a1db45052f62cef506086e708acfb3660" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1IntVarBranch_1a2ca745793dee0013a4c733df003fea49" kindref="member">IntVarBranch::expand</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1BoolVarArgs" kindref="compound">BoolVarArgs</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1IntVarBranch_1a0942d9b7f242c3c0e3c45396943a559c" kindref="member">select</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a62bdb99e7bc64d28e1f86bd68a916463" kindref="member">SEL_AFC_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a7589f16dafda64341677cc669799f080" kindref="member">SEL_AFC_MAX</ref>:</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a3af35facbe66a15a882b0ab3b7c448b5" kindref="member">SEL_AFC_SIZE_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a17f7eca5747799d1734757a212c7368f" kindref="member">SEL_AFC_SIZE_MAX</ref>:</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" kindref="member">_afc</ref>.<ref refid="classGecode_1_1AFC_1aca72aeed93beceb88a7d65e72c4f5606" kindref="member">initialized</ref>())</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" kindref="member">_afc</ref><sp/>=<sp/><ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref>(home,x,<ref refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" kindref="member">decay</ref>());</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9a85ae9919e2ba5b0d8492b948ab8a17" kindref="member">SEL_ACTIVITY_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9844872c23e839559b463fb448c6b00c" kindref="member">SEL_ACTIVITY_MAX</ref>:</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a81a105201c1bb37bf9033c41c2682108" kindref="member">SEL_ACTIVITY_SIZE_MIN</ref>:<sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a42619846214c8ffc927e6ab5950f18a5" kindref="member">SEL_ACTIVITY_SIZE_MAX</ref>:</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" kindref="member">_act</ref>.<ref refid="classGecode_1_1Activity_1a08e51b93b51a678716a27fe086cb5907" kindref="member">initialized</ref>())</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" kindref="member">_act</ref><sp/>=<sp/><ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref>(home,x,<ref refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" kindref="member">decay</ref>());</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref></highlight></codeline>
+<codeline lineno="108" refid="group__TaskModelIntBranchVar_1ga574ea1d466bb781fa0bb59e535edb3e2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga574ea1d466bb781fa0bb59e535edb3e2" kindref="member">INT_VAR_NONE</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ac67c224ec93a84fda31d01f0c666a158" kindref="member">IntVarBranch::SEL_NONE</ref>,NULL);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="113" refid="group__TaskModelIntBranchVar_1gaaca7b912984950379b0c9da0425298d7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gaaca7b912984950379b0c9da0425298d7" kindref="member">INT_VAR_RND</ref>(<ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref><sp/>r)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(r);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="118" refid="group__TaskModelIntBranchVar_1ga3932a59a226542c9882c1f316baf332e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga3932a59a226542c9882c1f316baf332e" kindref="member">INT_VAR_MERIT_MIN</ref>(<ref refid="group__TaskModelIntBranch_1gabd2629d15afdee6f6cb998c1647b210f" kindref="member">IntBranchMerit</ref><sp/>bm,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ac68c481e768e10bac52a02f5ccb5e38b" kindref="member">IntVarBranch::SEL_MERIT_MIN</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>function_cast&lt;VoidFunction&gt;(bm),tbl);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="124" refid="group__TaskModelIntBranchVar_1gabaa0f333bd0bfcb5c23f77903f1483b1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga3932a59a226542c9882c1f316baf332e" kindref="member">INT_VAR_MERIT_MIN</ref>(<ref refid="group__TaskModelIntBranch_1ga9626c7a69aa0213a0a1191dfdb7b9efc" kindref="member">BoolBranchMerit</ref><sp/>bm,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ac68c481e768e10bac52a02f5ccb5e38b" kindref="member">IntVarBranch::SEL_MERIT_MIN</ref>,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>function_cast&lt;VoidFunction&gt;(bm),tbl);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="130" refid="group__TaskModelIntBranchVar_1gaa230b32190e5a95cc29176a4fa6283a1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gaa230b32190e5a95cc29176a4fa6283a1" kindref="member">INT_VAR_MERIT_MAX</ref>(<ref refid="group__TaskModelIntBranch_1gabd2629d15afdee6f6cb998c1647b210f" kindref="member">IntBranchMerit</ref><sp/>bm,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a781161d8462e47b26fe199c5bb2eb4d2" kindref="member">IntVarBranch::SEL_MERIT_MAX</ref>,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>function_cast&lt;VoidFunction&gt;(bm),tbl);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="136" refid="group__TaskModelIntBranchVar_1ga900e23f586b80cf3803e653eb7fa4340" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gaa230b32190e5a95cc29176a4fa6283a1" kindref="member">INT_VAR_MERIT_MAX</ref>(<ref refid="group__TaskModelIntBranch_1ga9626c7a69aa0213a0a1191dfdb7b9efc" kindref="member">BoolBranchMerit</ref><sp/>bm,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a781161d8462e47b26fe199c5bb2eb4d2" kindref="member">IntVarBranch::SEL_MERIT_MAX</ref>,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>function_cast&lt;VoidFunction&gt;(bm),tbl);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="142" refid="group__TaskModelIntBranchVar_1gadf041b512af5c3cdb19d0490ed240d6c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gadf041b512af5c3cdb19d0490ed240d6c" kindref="member">INT_VAR_DEGREE_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ae0425ca8f67ac498e0ddc5b7fd6ebe85" kindref="member">IntVarBranch::SEL_DEGREE_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="147" refid="group__TaskModelIntBranchVar_1gaf42431fa703648134a08f127ec915542" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gaf42431fa703648134a08f127ec915542" kindref="member">INT_VAR_DEGREE_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a78a754ef5ba1d52754a25ec33cecf8ad" kindref="member">IntVarBranch::SEL_DEGREE_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="152" refid="group__TaskModelIntBranchVar_1gafc0a891a3d3b4c9ae2c38e6c97ebe2bc" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gafc0a891a3d3b4c9ae2c38e6c97ebe2bc" kindref="member">INT_VAR_AFC_MIN</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a62bdb99e7bc64d28e1f86bd68a916463" kindref="member">IntVarBranch::SEL_AFC_MIN</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="157" refid="group__TaskModelIntBranchVar_1ga8d0668b49db2ae2a3f06e23a104d20bb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gafc0a891a3d3b4c9ae2c38e6c97ebe2bc" kindref="member">INT_VAR_AFC_MIN</ref>(<ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a62bdb99e7bc64d28e1f86bd68a916463" kindref="member">IntVarBranch::SEL_AFC_MIN</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="162" refid="group__TaskModelIntBranchVar_1gacf713f0f7d8a07778c3f690a77cd5149" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gacf713f0f7d8a07778c3f690a77cd5149" kindref="member">INT_VAR_AFC_MAX</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a7589f16dafda64341677cc669799f080" kindref="member">IntVarBranch::SEL_AFC_MAX</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="167" refid="group__TaskModelIntBranchVar_1gaa797c6bc7d8b58056aa561df940b6ac1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gacf713f0f7d8a07778c3f690a77cd5149" kindref="member">INT_VAR_AFC_MAX</ref>(<ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a7589f16dafda64341677cc669799f080" kindref="member">IntVarBranch::SEL_AFC_MAX</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="172" refid="group__TaskModelIntBranchVar_1gace5856efbbf848f0843f35632292a217" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gace5856efbbf848f0843f35632292a217" kindref="member">INT_VAR_ACTIVITY_MIN</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9a85ae9919e2ba5b0d8492b948ab8a17" kindref="member">IntVarBranch::SEL_ACTIVITY_MIN</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="177" refid="group__TaskModelIntBranchVar_1ga62026d1d4665a1134769140b6044a943" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gace5856efbbf848f0843f35632292a217" kindref="member">INT_VAR_ACTIVITY_MIN</ref>(<ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9a85ae9919e2ba5b0d8492b948ab8a17" kindref="member">IntVarBranch::SEL_ACTIVITY_MIN</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="182" refid="group__TaskModelIntBranchVar_1ga0473f8c025f6fdcdf3ed3bbda96344c1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga0473f8c025f6fdcdf3ed3bbda96344c1" kindref="member">INT_VAR_ACTIVITY_MAX</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9844872c23e839559b463fb448c6b00c" kindref="member">IntVarBranch::SEL_ACTIVITY_MAX</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="187" refid="group__TaskModelIntBranchVar_1ga35d98794d90c93cb72bbf087803eb7d5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga0473f8c025f6fdcdf3ed3bbda96344c1" kindref="member">INT_VAR_ACTIVITY_MAX</ref>(<ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a9844872c23e839559b463fb448c6b00c" kindref="member">IntVarBranch::SEL_ACTIVITY_MAX</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="192" refid="group__TaskModelIntBranchVar_1ga182df297911cdb82e40103f9dee427f2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga182df297911cdb82e40103f9dee427f2" kindref="member">INT_VAR_MIN_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a2a4fd4a55bd162d1132145db1f6bca30" kindref="member">IntVarBranch::SEL_MIN_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="197" refid="group__TaskModelIntBranchVar_1ga06b56d96f0abf8a70cd039885e8c726f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga06b56d96f0abf8a70cd039885e8c726f" kindref="member">INT_VAR_MIN_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a4b8f01da0ecdb1d1c53da5d6a61af030" kindref="member">IntVarBranch::SEL_MIN_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="202" refid="group__TaskModelIntBranchVar_1ga2bb9a2f111678f099cea980d918fd959" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga2bb9a2f111678f099cea980d918fd959" kindref="member">INT_VAR_MAX_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a0babe990fefcf48dc6ba93636d2c36e9" kindref="member">IntVarBranch::SEL_MAX_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="207" refid="group__TaskModelIntBranchVar_1ga517de4cc53606623e4ca0da49a47d8e1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga517de4cc53606623e4ca0da49a47d8e1" kindref="member">INT_VAR_MAX_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a5b23cc918143f2cdc2f3ee77e90259be" kindref="member">IntVarBranch::SEL_MAX_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="212" refid="group__TaskModelIntBranchVar_1ga76001af59f0b9c98e69d7b25c7b1d2e9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga76001af59f0b9c98e69d7b25c7b1d2e9" kindref="member">INT_VAR_SIZE_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a6de335df0511040c52995d19dd667a8e" kindref="member">IntVarBranch::SEL_SIZE_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="217" refid="group__TaskModelIntBranchVar_1ga26f02b9d0d4ee78acaa8f8822c4b4eaf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga26f02b9d0d4ee78acaa8f8822c4b4eaf" kindref="member">INT_VAR_SIZE_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a8165182c52ce53c0a89c710f58ffa482" kindref="member">IntVarBranch::SEL_SIZE_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="222" refid="group__TaskModelIntBranchVar_1ga741dde8a2e842bc741538d7ebe0ad567" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga741dde8a2e842bc741538d7ebe0ad567" kindref="member">INT_VAR_DEGREE_SIZE_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a4b0842b19c16de20fc399ce570a43898" kindref="member">IntVarBranch::SEL_DEGREE_SIZE_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="227" refid="group__TaskModelIntBranchVar_1gaa8d156c484a3625a136eebc4a1b1b101" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gaa8d156c484a3625a136eebc4a1b1b101" kindref="member">INT_VAR_DEGREE_SIZE_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872afbdbf561ded5be83289fabefefae27ec" kindref="member">IntVarBranch::SEL_DEGREE_SIZE_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="232" refid="group__TaskModelIntBranchVar_1ga9ec9f27195237db9642da08f0cb4ffdd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga9ec9f27195237db9642da08f0cb4ffdd" kindref="member">INT_VAR_AFC_SIZE_MIN</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a3af35facbe66a15a882b0ab3b7c448b5" kindref="member">IntVarBranch::SEL_AFC_SIZE_MIN</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="237" refid="group__TaskModelIntBranchVar_1ga7e267fb498378380c29d701c703271db" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga9ec9f27195237db9642da08f0cb4ffdd" kindref="member">INT_VAR_AFC_SIZE_MIN</ref>(<ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a3af35facbe66a15a882b0ab3b7c448b5" kindref="member">IntVarBranch::SEL_AFC_SIZE_MIN</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="242" refid="group__TaskModelIntBranchVar_1gab63facc4f4aebd91981d979c73386ad9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gab63facc4f4aebd91981d979c73386ad9" kindref="member">INT_VAR_AFC_SIZE_MAX</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a17f7eca5747799d1734757a212c7368f" kindref="member">IntVarBranch::SEL_AFC_SIZE_MAX</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="247" refid="group__TaskModelIntBranchVar_1gae518800a6c8f016eb5bccf2258eb2658" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gab63facc4f4aebd91981d979c73386ad9" kindref="member">INT_VAR_AFC_SIZE_MAX</ref>(<ref refid="classGecode_1_1IntAFC" kindref="compound">IntAFC</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a17f7eca5747799d1734757a212c7368f" kindref="member">IntVarBranch::SEL_AFC_SIZE_MAX</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="252" refid="group__TaskModelIntBranchVar_1ga99e1d4deafb053984e12eb5dbab51430" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga99e1d4deafb053984e12eb5dbab51430" kindref="member">INT_VAR_ACTIVITY_SIZE_MIN</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a81a105201c1bb37bf9033c41c2682108" kindref="member">IntVarBranch::SEL_ACTIVITY_SIZE_MIN</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="257" refid="group__TaskModelIntBranchVar_1ga218f481051a7e70666f0de015e38a2cb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga99e1d4deafb053984e12eb5dbab51430" kindref="member">INT_VAR_ACTIVITY_SIZE_MIN</ref>(<ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a81a105201c1bb37bf9033c41c2682108" kindref="member">IntVarBranch::SEL_ACTIVITY_SIZE_MIN</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="262" refid="group__TaskModelIntBranchVar_1ga2431d9e6dba953e664dd95e87a8e12da" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga2431d9e6dba953e664dd95e87a8e12da" kindref="member">INT_VAR_ACTIVITY_SIZE_MAX</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a42619846214c8ffc927e6ab5950f18a5" kindref="member">IntVarBranch::SEL_ACTIVITY_SIZE_MAX</ref>,d,tbl);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="267" refid="group__TaskModelIntBranchVar_1ga7f32d8d6780ee3b232a01de2c836d514" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga2431d9e6dba953e664dd95e87a8e12da" kindref="member">INT_VAR_ACTIVITY_SIZE_MAX</ref>(<ref refid="classGecode_1_1IntActivity" kindref="compound">IntActivity</ref><sp/>a,<sp/><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a42619846214c8ffc927e6ab5950f18a5" kindref="member">IntVarBranch::SEL_ACTIVITY_SIZE_MAX</ref>,a,tbl);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="272" refid="group__TaskModelIntBranchVar_1ga34fe5f945e96b77d58f3607e7e1b109b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga34fe5f945e96b77d58f3607e7e1b109b" kindref="member">INT_VAR_REGRET_MIN_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a48b6421fb8c2d79912c879bb86df43dd" kindref="member">IntVarBranch::SEL_REGRET_MIN_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="277" refid="group__TaskModelIntBranchVar_1ga3013c4aebd712550247a22160d1f7a6f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga3013c4aebd712550247a22160d1f7a6f" kindref="member">INT_VAR_REGRET_MIN_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872a4bee47b42f37485b1b23c5891be873c0" kindref="member">IntVarBranch::SEL_REGRET_MIN_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="282" refid="group__TaskModelIntBranchVar_1gabc5752e8e7ef6aefeb3c07b884fc2471" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1gabc5752e8e7ef6aefeb3c07b884fc2471" kindref="member">INT_VAR_REGRET_MAX_MIN</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ad13cc686e53e6e8bb91710bbcc4d960e" kindref="member">IntVarBranch::SEL_REGRET_MAX_MIN</ref>,tbl);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>IntVarBranch</highlight></codeline>
+<codeline lineno="287" refid="group__TaskModelIntBranchVar_1ga84b1287813bdaf9941b7295e02b1bcbd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntBranchVar_1ga84b1287813bdaf9941b7295e02b1bcbd" kindref="member">INT_VAR_REGRET_MAX_MAX</ref>(<ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref><sp/>tbl)<sp/>{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1IntVarBranch" kindref="compound">IntVarBranch</ref>(<ref refid="classGecode_1_1IntVarBranch_1a6303b96b4c88838582c23dbb66aa2872ae398eb32bab641da32f498ad47c5349f" kindref="member">IntVarBranch::SEL_REGRET_MAX_MAX</ref>,tbl);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>int-branch</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/int/branch/var.hpp"/>
+  </compounddef>
+</doxygen>

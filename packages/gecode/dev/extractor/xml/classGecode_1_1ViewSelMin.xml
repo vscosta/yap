@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ViewSelMin" kind="class" prot="public">
+    <compoundname>Gecode::ViewSelMin</compoundname>
+    <basecompoundref refid="classGecode_1_1ViewSelChoose" prot="public" virt="non-virtual">Gecode::ViewSelChoose&lt; ChooseMin, Merit &gt;</basecompoundref>
+    <includes refid="brancher-view-sel_8hpp" local="no">brancher-view-sel.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Merit</declname>
+        <defname>Merit</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Initialization</header>
+      <memberdef kind="function" id="classGecode_1_1ViewSelMin_1a0ded5a796272aa5ddc6ea5eed65672e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewSelMin&lt; Merit &gt;::ViewSelMin</definition>
+        <argsstring>(Space &amp;home, const VarBranch &amp;vb)</argsstring>
+        <name>ViewSelMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="286" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="806" bodyend="807"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewSelMin_1a3a49bda87726a5b7b02dc0525d34b5c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewSelMin&lt; Merit &gt;::ViewSelMin</definition>
+        <argsstring>(Space &amp;home, bool shared, ViewSelMin&lt; Merit &gt; &amp;vs)</argsstring>
+        <name>ViewSelMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewSelMin" kindref="compound">ViewSelMin</ref>&lt; Merit &gt; &amp;</type>
+          <declname>vs</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for copying during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="288" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="811" bodyend="813"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Resource management and cloning</header>
+      <memberdef kind="function" id="classGecode_1_1ViewSelMin_1acc41091a7c60db570d7c78598809314c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; View &gt; *</type>
+        <definition>ViewSel&lt; typename ViewSelMin&lt; Merit &gt;::View &gt; * Gecode::ViewSelMin&lt; Merit &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool shared)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1ViewSel_1a67747297fd08692609d43b1970a9e616">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <briefdescription>
+<para>Create copy during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="293" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="817" bodyend="819"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classGecode_1_1ViewSelMin_1a188733804bb8d1436c7cb395668be82d" prot="private" static="no">
+        <type><ref refid="classGecode_1_1ViewSelChoose" kindref="compound">ViewSelChoose</ref>&lt; <ref refid="classGecode_1_1ChooseMin" kindref="compound">ChooseMin</ref>, Merit &gt;::View</type>
+        <definition>typedef ViewSelChoose&lt;ChooseMin,Merit&gt;::View Gecode::ViewSelMin&lt; Merit &gt;::View</definition>
+        <argsstring></argsstring>
+        <name>View</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="280" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="280" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ViewSelMin_1a3211e1cb4f12a61a44bc5fd68bfd54de" prot="private" static="no">
+        <type><ref refid="classGecode_1_1ViewSelChoose" kindref="compound">ViewSelChoose</ref>&lt; <ref refid="classGecode_1_1ChooseMin" kindref="compound">ChooseMin</ref>, Merit &gt;::BranchFilter</type>
+        <definition>typedef ViewSelChoose&lt;ChooseMin,Merit&gt;::BranchFilter Gecode::ViewSelMin&lt; Merit &gt;::BranchFilter</definition>
+        <argsstring></argsstring>
+        <name>BranchFilter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="281" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="281" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Select view with least merit. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7945">
+        <label>Gecode::ViewSel&lt; Merit::View &gt;</label>
+        <link refid="classGecode_1_1ViewSel"/>
+      </node>
+      <node id="7943">
+        <label>Gecode::ViewSelMin&lt; Merit &gt;</label>
+        <link refid="classGecode_1_1ViewSelMin"/>
+        <childnode refid="7944" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7944">
+        <label>Gecode::ViewSelChoose&lt; ChooseMin, Merit &gt;</label>
+        <link refid="classGecode_1_1ViewSelChoose"/>
+        <childnode refid="7945" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7948">
+        <label>Gecode::ViewSel&lt; Merit::View &gt;</label>
+        <link refid="classGecode_1_1ViewSel"/>
+      </node>
+      <node id="7949">
+        <label>Gecode::ChooseMin</label>
+        <link refid="classGecode_1_1ChooseMin"/>
+      </node>
+      <node id="7946">
+        <label>Gecode::ViewSelMin&lt; Merit &gt;</label>
+        <link refid="classGecode_1_1ViewSelMin"/>
+        <childnode refid="7947" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7947">
+        <label>Gecode::ViewSelChoose&lt; ChooseMin, Merit &gt;</label>
+        <link refid="classGecode_1_1ViewSelChoose"/>
+        <childnode refid="7948" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7949" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+        <childnode refid="7950" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="7950">
+        <label>Merit</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/brancher-view-sel.hpp" line="279" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view-sel.hpp" bodystart="279" bodyend="295"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ViewSelMin_1a3211e1cb4f12a61a44bc5fd68bfd54de" prot="private" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>BranchFilter</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a0e597f75daf3c629d6d6884a09fdf9f7" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>brk</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a5ba4cc5527ef5b74c37af63bacd2d5d7" prot="protected" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>c</name></member>
+      <member refid="classGecode_1_1ViewSelMin_1acc41091a7c60db570d7c78598809314c" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>copy</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a6e8f334559841dc006c074992239fb4f" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a89ab459a4e11f54f907a83508d8f987e" prot="protected" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>m</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1afdf2deb6f6dbe3388d49ffb62ab2e068" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>notice</name></member>
+      <member refid="classGecode_1_1ViewSel_1a69d8f83ed5f3a52160524060ccb7b834" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1ViewSel_1ad332dc2aa6584a404d832715598a0ecd" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1ViewSel_1ac843be459641c947da1acb3d8a1b635f" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1adb97adf60a1e08dfd88920b4dfa4c7e0" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>select</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a8b0af6f1907fddbde869a27d6375bbc3" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>select</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1aa691832daa19098515a8ca9ebb655fd6" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>select</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1ac6ad609a65f4b3e64cdb775262674c2f" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>ties</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a757323fe77ae99eb580367b3fb440602" prot="public" virt="virtual"><scope>Gecode::ViewSelMin</scope><name>ties</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a4a4d3d1ba3c1c25eaed7606481a3eaf5" prot="protected" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>Val</name></member>
+      <member refid="classGecode_1_1ViewSelMin_1a188733804bb8d1436c7cb395668be82d" prot="private" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>View</name></member>
+      <member refid="classGecode_1_1ViewSel_1a5e6312d9ebe2a24d73cef47eab9866be" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSel</name></member>
+      <member refid="classGecode_1_1ViewSel_1a5459dc8a5f1a0d606819e334d384e2bc" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSel</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a6d3621c59427bb9fa140d13452092d4a" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSelChoose</name></member>
+      <member refid="classGecode_1_1ViewSelChoose_1a0ec8047e2929da07ebbaa79a98f667d4" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSelChoose</name></member>
+      <member refid="classGecode_1_1ViewSelMin_1a0ded5a796272aa5ddc6ea5eed65672e6" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSelMin</name></member>
+      <member refid="classGecode_1_1ViewSelMin_1a3a49bda87726a5b7b02dc0525d34b5c8" prot="public" virt="non-virtual"><scope>Gecode::ViewSelMin</scope><name>ViewSelMin</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

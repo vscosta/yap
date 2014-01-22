@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd" kind="class" prot="public">
+    <compoundname>Gecode::Int::Rel::ReEqBnd</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ReBinaryPropagator" prot="public" virt="non-virtual">Gecode::Int::ReBinaryPropagator&lt; View, PC_INT_BND, CtrlView &gt;</basecompoundref>
+    <includes refid="int_2rel_8hh" local="no">rel.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+      <param>
+        <type>class CtrlView</type>
+      </param>
+      <param>
+        <type><ref refid="namespaceGecode_1a8904e2a3f216089daeaa60652a6429a5" kindref="member">ReifyMode</ref></type>
+        <declname>rm</declname>
+        <defname>rm</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a747a65be5f454760ac8e8b2bb6be4a26" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;::ReEqBnd</definition>
+        <argsstring>(Space &amp;home, bool share, ReEqBnd &amp;p)</argsstring>
+        <name>ReEqBnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd" kindref="compound">ReEqBnd</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="351" column="1" bodyfile="/usr/include/gecode/int/rel/eq.hpp" bodystart="534" bodyend="535"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a05b88c8c5d56243f7f2513de5ad62ccd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;::ReEqBnd</definition>
+        <argsstring>(Home home, View x0, View x1, CtrlView b)</argsstring>
+        <name>ReEqBnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="353" column="1" bodyfile="/usr/include/gecode/int/rel/eq.hpp" bodystart="507" bodyend="508"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a50689baaa0a95dadb712f66e5e514599" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="356" column="1" bodyfile="/usr/include/gecode/int/rel/eq.hpp" bodystart="539" bodyend="541"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a4951e69f535b748012579a70022613e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="358" column="1" bodyfile="/usr/include/gecode/int/rel/eq.hpp" bodystart="545" bodyend="570"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a8553da337998f73e2896354155e29889" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;::post</definition>
+        <argsstring>(Home home, View x0, View x1, CtrlView b)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Post bounds consistent propagator <formula id="21">$ (x_0 = x_1)\Leftrightarrow b$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="360" column="1" bodyfile="/usr/include/gecode/int/rel/eq.hpp" bodystart="512" bodyend="529"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Reified binary bounds consistent equality propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/rel.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="5783">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, PC_INT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="5784" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5784">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5785" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5785">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5786" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5786">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="5782">
+        <label>Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd"/>
+        <childnode refid="5783" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5788">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, PC_INT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="5789" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5792" relation="usage">
+          <edgelabel>b</edgelabel>
+        </childnode>
+        <childnode refid="5793" relation="usage">
+          <edgelabel>x0</edgelabel>
+          <edgelabel>x1</edgelabel>
+        </childnode>
+      </node>
+      <node id="5793">
+        <label>View</label>
+      </node>
+      <node id="5789">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="5790" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5791" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="5790">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="5791" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="5792">
+        <label>CtrlView</label>
+      </node>
+      <node id="5791">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="5787">
+        <label>Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd"/>
+        <childnode refid="5788" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/rel.hh" line="344" column="1" bodyfile="/usr/include/gecode/int/rel.hh" bodystart="344" bodyend="361"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1ab42f9df1aaa52431e1c2f10060924a6d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>b</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a50689baaa0a95dadb712f66e5e514599" prot="public" virt="virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1a7bcc3ff3ee4c617fbd2cc77b9a55b789" prot="public" virt="virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1ad3e155ba8c16f8b6843164f9ac809d90" prot="public" virt="virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a8553da337998f73e2896354155e29889" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>post</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a4951e69f535b748012579a70022613e5" prot="public" virt="virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1a56a6d4e926f9fea6790833be5c662db3" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>ReBinaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1a56eaef3b0f475bb8154f55ef26c479e5" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>ReBinaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1a83b038c4881d3f4960164be9860a84c0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>ReBinaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a747a65be5f454760ac8e8b2bb6be4a26" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>ReEqBnd</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd_1a05b88c8c5d56243f7f2513de5ad62ccd" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>ReEqBnd</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1a9cbebaf26e62bdabd1d1bf4b55545d68" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>x0</name></member>
+      <member refid="classGecode_1_1Int_1_1ReBinaryPropagator_1adac59e8d2959da9237bfb24845bd3b42" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::ReEqBnd</scope><name>x1</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

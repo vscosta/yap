@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1Sequence_1_1Seq" kind="class" prot="public">
+    <compoundname>Gecode::Set::Sequence::Seq</compoundname>
+    <basecompoundref refid="classGecode_1_1NaryPropagator" prot="public" virt="non-virtual">Gecode::NaryPropagator&lt; SetView, PC_SET_ANY &gt;</basecompoundref>
+    <includes refid="set_2sequence_8hh" local="no">sequence.hh</includes>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Sequence_1_1Seq_1add1e58019fd9124af2bf80a13f4e75a9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Sequence::Seq::Seq</definition>
+        <argsstring>(Space &amp;home, bool share, Seq &amp;p)</argsstring>
+        <name>Seq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Sequence_1_1Seq" kindref="compound">Seq</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence.hh" line="66" column="1" bodyfile="/usr/include/gecode/set/sequence/seq.hpp" bodystart="56" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Sequence_1_1Seq_1a5cdcf2d194a0753de238d7b46824b9c9" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Sequence::Seq::Seq</definition>
+        <argsstring>(Home home, ViewArray&lt; SetView &gt; &amp;)</argsstring>
+        <name>Seq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &gt; &amp;</type>
+          <defname>x</defname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence.hh" line="68" column="1" bodyfile="/usr/include/gecode/set/sequence/seq.hpp" bodystart="52" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Sequence_1_1Seq_1a7412f5bec525849107006c823d77371c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_SET_EXPORT <ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>virtual GECODE_SET_EXPORT Actor* Gecode::Set::Sequence::Seq::copy</definition>
+        <argsstring>(Space &amp;home, bool)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+        </param>
+        <briefdescription>
+<para>Copy propagator during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence.hh" line="71" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Sequence_1_1Seq_1a7f82cb2bd16b8b01f53224446659b92b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_SET_EXPORT <ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>virtual GECODE_SET_EXPORT ExecStatus Gecode::Set::Sequence::Seq::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence.hh" line="73" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Sequence_1_1Seq_1ada3b74a30e726c8a328d649c699821c1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Set::Sequence::Seq::post</definition>
+        <argsstring>(Home home, ViewArray&lt; SetView &gt;)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &gt;</type>
+          <defname>x</defname>
+        </param>
+        <briefdescription>
+<para>Post propagator <formula id="390">$\forall 0\leq i&lt; |x|-1 : \max(x_i)&lt;\min(x_{i+1})$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence.hh" line="75" column="1" bodyfile="/usr/include/gecode/set/sequence/seq.hpp" bodystart="60" bodyend="65"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Propagator for the sequence constraint </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/sequence.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6331">
+        <label>Gecode::NaryPropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="6332" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6330">
+        <label>Gecode::Set::Sequence::Seq</label>
+        <link refid="classGecode_1_1Set_1_1Sequence_1_1Seq"/>
+        <childnode refid="6331" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6332">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6333" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6333">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6334" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6334">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6336">
+        <label>Gecode::NaryPropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="6337" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6340" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6335">
+        <label>Gecode::Set::Sequence::Seq</label>
+        <link refid="classGecode_1_1Set_1_1Sequence_1_1Seq"/>
+        <childnode refid="6336" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6337">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6338" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6339" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="6340">
+        <label>Gecode::ViewArray&lt; SetView &gt;</label>
+        <link refid="classGecode_1_1ViewArray"/>
+      </node>
+      <node id="6338">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6339" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6339">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/sequence.hh" line="63" column="1" bodyfile="/usr/include/gecode/set/sequence.hh" bodystart="63" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Set::Sequence::Seq</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Set::Sequence::Seq</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Set_1_1Sequence_1_1Seq_1a7412f5bec525849107006c823d77371c" prot="public" virt="virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>copy</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a7e890e5ed83d35c3dad87ca049567539" prot="public" virt="virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>cost</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a9b42f1d528629c1386e2fb287de2a1b8" prot="public" virt="virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a30e2cfc0a52033b042bf6e4a3a37f029" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1af0a8dfa7e9b637ab62f1a2f0c4e9a78d" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a88d5a8d7b24f925919e44d31287687f1" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Set_1_1Sequence_1_1Seq_1ada3b74a30e726c8a328d649c699821c1" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>post</name></member>
+      <member refid="classGecode_1_1Set_1_1Sequence_1_1Seq_1a7f82cb2bd16b8b01f53224446659b92b" prot="public" virt="virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Set_1_1Sequence_1_1Seq_1add1e58019fd9124af2bf80a13f4e75a9" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>Seq</name></member>
+      <member refid="classGecode_1_1Set_1_1Sequence_1_1Seq_1a5cdcf2d194a0753de238d7b46824b9c9" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>Seq</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>size</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1afa79d87e560aea027d59b153b353ee1c" prot="protected" virt="non-virtual"><scope>Gecode::Set::Sequence::Seq</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

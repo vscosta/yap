@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ReUnaryPropagator" kind="class" prot="public">
+    <compoundname>Gecode::Int::ReUnaryPropagator</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <includes refid="int_2propagator_8hpp" local="no">propagator.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+        <declname>pc</declname>
+        <defname>pc</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>CtrlView</declname>
+        <defname>CtrlView</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ReUnaryPropagator_1ac299c8d19dedc67b54742776d36b03d4" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::x0</definition>
+        <argsstring></argsstring>
+        <name>x0</name>
+        <briefdescription>
+<para>Single view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="61" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ReUnaryPropagator_1a67942f5e0ce29ad2ed50bcdbbf8d0a21" prot="protected" static="no" mutable="no">
+        <type>CtrlView</type>
+        <definition>CtrlView Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::b</definition>
+        <argsstring></argsstring>
+        <name>b</name>
+        <briefdescription>
+<para>Boolean control view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="63" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ReUnaryPropagator_1af6e31a70189c8a39e12eefe27e365be4" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::ReUnaryPropagator</definition>
+        <argsstring>(Space &amp;home, bool share, ReUnaryPropagator &amp;p)</argsstring>
+        <name>ReUnaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1ReUnaryPropagator" kindref="compound">ReUnaryPropagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="65" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="163" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ReUnaryPropagator_1adc287dd26211932234555a2899c1b02b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::ReUnaryPropagator</definition>
+        <argsstring>(Space &amp;home, bool share, Propagator &amp;p, View x0, CtrlView b)</argsstring>
+        <name>ReUnaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for rewriting <emphasis>p</emphasis> during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="67" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="172" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ReUnaryPropagator_1a69a8ed8a8cb59a7e78c1d4cf4a98392d" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::ReUnaryPropagator</definition>
+        <argsstring>(Home home, View x0, CtrlView b)</argsstring>
+        <name>ReUnaryPropagator</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>CtrlView</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="70" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="153" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ReUnaryPropagator_1a6edc70dd620caa8ae23c925e3d56b094" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (defined as low unary) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="73" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="180" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ReUnaryPropagator_1aedaf560e612a72d2c50468e178a0e774" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <reimplementedby refid="classGecode_1_1Int_1_1Dom_1_1ReIntSet_1ab603df66b77b59c82c3e1112ab1ffac2">dispose</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/propagator.hpp" line="75" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="186" bodyend="192"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Reified unary propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Stores single view of type <emphasis>View</emphasis> with propagation condition <emphasis>pc</emphasis> and a Boolean control view of type <emphasis>CtrlView</emphasis>.</para><para>If the propagation condition <emphasis>pc</emphasis> has the value PC_GEN_NONE, no subscriptions are created for <emphasis>View</emphasis>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6151">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="6152" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6152">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6153" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6153">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6154" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6154">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6155">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="6156" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6159" relation="usage">
+          <edgelabel>b</edgelabel>
+        </childnode>
+        <childnode refid="6160" relation="usage">
+          <edgelabel>x0</edgelabel>
+        </childnode>
+      </node>
+      <node id="6160">
+        <label>View</label>
+      </node>
+      <node id="6156">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="6157" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6158" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="6157">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="6158" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6159">
+        <label>CtrlView</label>
+      </node>
+      <node id="6158">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/propagator.hpp" line="58" column="1" bodyfile="/usr/include/gecode/int/propagator.hpp" bodystart="58" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a67942f5e0ce29ad2ed50bcdbbf8d0a21" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>b</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::ReUnaryPropagator</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::ReUnaryPropagator</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a6edc70dd620caa8ae23c925e3d56b094" prot="public" virt="virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1aedaf560e612a72d2c50468e178a0e774" prot="public" virt="virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1" prot="public" virt="pure-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1af6e31a70189c8a39e12eefe27e365be4" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1adc287dd26211932234555a2899c1b02b" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1a69a8ed8a8cb59a7e78c1d4cf4a98392d" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>ReUnaryPropagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1ReUnaryPropagator_1ac299c8d19dedc67b54742776d36b03d4" prot="protected" virt="non-virtual"><scope>Gecode::Int::ReUnaryPropagator</scope><name>x0</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

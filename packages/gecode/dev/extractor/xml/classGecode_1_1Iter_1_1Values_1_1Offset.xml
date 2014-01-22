@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Values_1_1Offset" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Values::Offset</compoundname>
+    <includes refid="values-offset_8hpp" local="no">values-offset.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class I</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a28b1f0a3201493af8a34345de3c39e77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::Offset&lt; I &gt;::Offset</definition>
+        <argsstring>(void)</argsstring>
+        <name>Offset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="56" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="81" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a00a20a0d84abb4714f7e73d7b5aab194" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Values::Offset&lt; I &gt;::Offset</definition>
+        <argsstring>(I &amp;i, int c)</argsstring>
+        <name>Offset</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with values from <emphasis>i</emphasis> and offset <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="58" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="91" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1ae7298f7fc08a3553d5c540be7fd36164" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Values::Offset&lt; I &gt;::init</definition>
+        <argsstring>(I &amp;i, int c)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with values from <emphasis>i</emphasis> and offset <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="85" bodyend="87"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1aace2653c39cfb1afcc653b739c330100" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Values::Offset&lt; I &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a value or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="66" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="100" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a0258cef467686a450c4af05251156f8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Values::Offset&lt; I &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next value (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="68" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="95" bodyend="97"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a6e6c30d2146716cae80290be40495270" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Values::Offset&lt; I &gt;::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="74" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="106" bodyend="108"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a0fbc22947e299f1e774a0d7a1a8acfe4" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Values::Offset&lt; I &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Input iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="49" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Values_1_1Offset_1a0dc1f3d12ebe93ce9f4454d4ccd47a4b" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Values::Offset&lt; I &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Iter_1_1Values_1_1Offset" kindref="compound">Offset</ref> for ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/values-offset.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value iterator for pointwise offset (by some constant) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4841">
+        <label>I</label>
+      </node>
+      <node id="4840">
+        <label>Gecode::Iter::Values::Offset&lt; I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Values_1_1Offset"/>
+        <childnode refid="4841" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/values-offset.hpp" line="46" column="1" bodyfile="/usr/include/gecode/iter/values-offset.hpp" bodystart="46" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a0dc1f3d12ebe93ce9f4454d4ccd47a4b" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>c</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a0fbc22947e299f1e774a0d7a1a8acfe4" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1ae7298f7fc08a3553d5c540be7fd36164" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a28b1f0a3201493af8a34345de3c39e77" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>Offset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a00a20a0d84abb4714f7e73d7b5aab194" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>Offset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1aace2653c39cfb1afcc653b739c330100" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a0258cef467686a450c4af05251156f8d" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Values_1_1Offset_1a6e6c30d2146716cae80290be40495270" prot="public" virt="non-virtual"><scope>Gecode::Iter::Values::Offset</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

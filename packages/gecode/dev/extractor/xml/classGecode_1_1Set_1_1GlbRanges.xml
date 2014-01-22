@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1GlbRanges" kind="class" prot="public">
+    <compoundname>Gecode::Set::GlbRanges</compoundname>
+    <includes refid="set_2var-imp_8hpp" local="no">var-imp.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::GlbRanges&lt; T &gt;::GlbRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="368" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1ae4f1c8d7990bda5635c3da27101c6533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Set::GlbRanges&lt; T &gt;::GlbRanges</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>GlbRanges</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with greatest lower bound ranges for set variable <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="370" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::GlbRanges&lt; T &gt;::init</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with greatest lower bound ranges for set variable <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="372" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1a933e1ea61ff0b2ec23b68c0203542102" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Set::GlbRanges&lt; T &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="378" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1ae2929d6847925cdcfedea14edc6ebb5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Set::GlbRanges&lt; T &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="380" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1ae636e7329cca394ccb4380ec9bf7889f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::GlbRanges&lt; T &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="386" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1a34b4975643d2d0534a0525ebc01a03cf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::GlbRanges&lt; T &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="388" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1GlbRanges_1a08a640381d45e15d76874f4b22518903" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Set::GlbRanges&lt; T &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/var-imp.hpp" line="390" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for the greatest lower bound. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class provides (by specialization) a range iterator for the greatest lower bounds of all set views.</para><para>Note that this template class serves only as a specification of the interface of the various specializations. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/set/var-imp.hpp" line="363" column="1" bodyfile="/usr/include/gecode/set/var-imp.hpp" bodystart="363" bodyend="392"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1af0c7f91066fe8cfd88501966992b3343" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1ae4f1c8d7990bda5635c3da27101c6533" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>GlbRanges</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1a61789b27deee1ce8d98cc6dece8d8c01" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>init</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1a34b4975643d2d0534a0525ebc01a03cf" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>max</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1ae636e7329cca394ccb4380ec9bf7889f" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>min</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1a933e1ea61ff0b2ec23b68c0203542102" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1ae2929d6847925cdcfedea14edc6ebb5a" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Set_1_1GlbRanges_1a08a640381d45e15d76874f4b22518903" prot="public" virt="non-virtual"><scope>Gecode::Set::GlbRanges</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

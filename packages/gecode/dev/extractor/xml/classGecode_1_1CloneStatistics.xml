@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1CloneStatistics" kind="class" prot="public">
+    <compoundname>Gecode::CloneStatistics</compoundname>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1CloneStatistics_1a6b69c3ca4aced2b50620fe47aeaf2fc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::CloneStatistics::CloneStatistics</definition>
+        <argsstring>(void)</argsstring>
+        <name>CloneStatistics</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1296" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3884" bodyend="3886"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1CloneStatistics_1a3e6b4f3965c5c134efb747cf9e8404e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::CloneStatistics::reset</definition>
+        <argsstring>(void)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1298" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3881" bodyend="3881"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1CloneStatistics_1ac27bb79dcddffad4255412c856d07b3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref></type>
+        <definition>forceinline CloneStatistics Gecode::CloneStatistics::operator+</definition>
+        <argsstring>(const CloneStatistics &amp;s)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return sum with <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1300" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3888" bodyend="3891"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1CloneStatistics_1adfbf4dc4702988c8d2d2a0da72606711" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref> &amp;</type>
+        <definition>forceinline CloneStatistics &amp; Gecode::CloneStatistics::operator+=</definition>
+        <argsstring>(const CloneStatistics &amp;s)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1CloneStatistics" kindref="compound">CloneStatistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Increment by statistics <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1302" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3893" bodyend="3895"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Statistics for execution of clone </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="1293" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1293" bodyend="1303"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1CloneStatistics_1a6b69c3ca4aced2b50620fe47aeaf2fc6" prot="public" virt="non-virtual"><scope>Gecode::CloneStatistics</scope><name>CloneStatistics</name></member>
+      <member refid="classGecode_1_1CloneStatistics_1ac27bb79dcddffad4255412c856d07b3e" prot="public" virt="non-virtual"><scope>Gecode::CloneStatistics</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1CloneStatistics_1adfbf4dc4702988c8d2d2a0da72606711" prot="public" virt="non-virtual"><scope>Gecode::CloneStatistics</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1CloneStatistics_1a3e6b4f3965c5c134efb747cf9e8404e1" prot="public" virt="non-virtual"><scope>Gecode::CloneStatistics</scope><name>reset</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

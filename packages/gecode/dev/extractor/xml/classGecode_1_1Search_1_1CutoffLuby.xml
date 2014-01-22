@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1CutoffLuby" kind="class" prot="public">
+    <compoundname>Gecode::Search::CutoffLuby</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Cutoff" prot="public" virt="non-virtual">Gecode::Search::Cutoff</basecompoundref>
+    <includes refid="cutoff_8hpp" local="no">cutoff.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Search_1_1CutoffLuby_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Cutoff</definition>
+        <argsstring></argsstring>
+        <name>Cutoff</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="74" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffLuby_1aafeacad97d8c75d88120c2817cc5dbb0" prot="private" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffLuby::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Iteration number. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="77" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffLuby_1aa3cdd942fe8fe28b1a2ee8ce7dad9456" prot="private" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffLuby::scale</definition>
+        <argsstring></argsstring>
+        <name>scale</name>
+        <briefdescription>
+<para>Scale factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="79" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffLuby_1a0cae984c2f98392245b74d5d109466e3" prot="private" static="yes" mutable="no">
+        <type>const unsigned long int</type>
+        <definition>const unsigned long int Gecode::Search::CutoffLuby::n_start</definition>
+        <argsstring></argsstring>
+        <name>n_start</name>
+        <initializer>= 63U</initializer>
+        <briefdescription>
+<para>Number of pre-computed luby values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="81" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffLuby_1a4f543926ba1a2d994c3a0e2a0f3526fb" prot="private" static="yes" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffLuby::start[n_start]</definition>
+        <argsstring>[n_start]</argsstring>
+        <name>start</name>
+        <briefdescription>
+<para>Precomputed luby-values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="83" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffLuby_1a7ee614a0820514833a3eb892aa28d0a8" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned long int</type>
+        <definition>static unsigned long int Gecode::Search::CutoffLuby::log</definition>
+        <argsstring>(unsigned long int i)</argsstring>
+        <name>log</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Compute binary logarithm of <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="85" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffLuby_1acb9d69fa0dc08afbb7c1b36290c76e45" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned long int</type>
+        <definition>static unsigned long int Gecode::Search::CutoffLuby::luby</definition>
+        <argsstring>(unsigned long int i)</argsstring>
+        <name>luby</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Compute Luby number for step <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="87" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffLuby_1a785ab83cbc047f19d66826894c6646e8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Search::CutoffLuby::CutoffLuby</definition>
+        <argsstring>(unsigned long int scale)</argsstring>
+        <name>CutoffLuby</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="89" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffLuby_1a3d67a6a995bac693b2ecf39782397430" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>unsigned long int</type>
+        <definition>virtual unsigned long int Gecode::Search::CutoffLuby::operator()</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator()</name>
+        <reimplements refid="classGecode_1_1Search_1_1Cutoff_1a7e1d541d27ed0ad898710cf93f0d7dfe">operator()</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next cutoff value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="92" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> generator for the Luby sequence. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1619">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1618">
+        <label>Gecode::Search::CutoffLuby</label>
+        <link refid="classGecode_1_1Search_1_1CutoffLuby"/>
+        <childnode refid="1619" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1621">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1620">
+        <label>Gecode::Search::CutoffLuby</label>
+        <link refid="classGecode_1_1Search_1_1CutoffLuby"/>
+        <childnode refid="1621" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/cutoff.hpp" line="73" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="73" bodyend="93"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ac04e4f94337cfaa9f85856882344ae00" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>append</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a5455a3eddfff0ffc12f2a9ee4d818cdb" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>constant</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1adbdeedd37dbed288a1939d298ae85d59" prot="public" virt="non-virtual" ambiguityscope="Gecode::Search::Cutoff::"><scope>Gecode::Search::CutoffLuby</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a785ab83cbc047f19d66826894c6646e8" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>CutoffLuby</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1aba528d42a535d93d09eef542436a66b3" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>geometric</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1aafeacad97d8c75d88120c2817cc5dbb0" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>i</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a0883d328f3b4e244c3bbceddf254894f" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>linear</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a7ee614a0820514833a3eb892aa28d0a8" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>log</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1acb9d69fa0dc08afbb7c1b36290c76e45" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>luby</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a0cae984c2f98392245b74d5d109466e3" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>n_start</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7a4fb6ec7a783741da21d7f679274b34" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7ba125c485433d1973ac8aebb9a5ab6d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a3d67a6a995bac693b2ecf39782397430" prot="public" virt="virtual"><scope>Gecode::Search::CutoffLuby</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ad6e46afed39447ad22491b35f25c8f07" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>repeat</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a19c2a1a8bc742b6e3a8f5c7bfe98a26d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1aa3cdd942fe8fe28b1a2ee8ce7dad9456" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>scale</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffLuby_1a4f543926ba1a2d994c3a0e2a0f3526fb" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffLuby</scope><name>start</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1afd0c25ec38c36dd6ba3c2d0d05ad9db9" prot="public" virt="virtual"><scope>Gecode::Search::CutoffLuby</scope><name>~Cutoff</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

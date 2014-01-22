@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetPrecede" kind="group">
+    <compoundname>TaskModelSetPrecede</compoundname>
+    <title>Value precedence constraints over set variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetPrecede_1gaa3de4f3c3e745ee2f541c30bd2c83cab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::precede</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, int s, int t)</argsstring>
+        <name>precede</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator that <emphasis>s</emphasis> precedes <emphasis>t</emphasis> in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>This constraint enforces that if there exists <formula id="287">$j$</formula> such that <formula id="427">$s\notin x_j\land t\in x_j$</formula>, then there exists <formula id="428">$i&lt;j$</formula> such that <formula id="429">$s\in x_i\land t\notin x_i$</formula>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="960" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetPrecede_1gaba9906b1d4722c40aee016498d440383" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::precede</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, const IntArgs &amp;c)</argsstring>
+        <name>precede</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator that successive values in <emphasis>c</emphasis> precede each other in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="965" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

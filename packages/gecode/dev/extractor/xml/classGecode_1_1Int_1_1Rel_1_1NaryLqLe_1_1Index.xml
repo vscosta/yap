@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Rel::NaryLqLe::Index</compoundname>
+    <basecompoundref refid="classGecode_1_1Advisor" prot="public" virt="non-virtual">Gecode::Advisor</basecompoundref>
+    <includes refid="int_2rel_8hh" local="no">rel.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1ac10a1271c203fa2c15a63bfe6e946fb4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>The position of the view in the view array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="211" column="1" bodyfile="/usr/include/gecode/int/rel.hh" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1a9457fe4e7379dac64a355acfc6a94c71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index::Index</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, Council&lt; Index &gt; &amp;c, int i)</argsstring>
+        <name>Index</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; <ref refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index" kindref="compound">Index</ref> &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Create index advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="213" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1a10389a56a7f76e94b011ec87ff212d90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index::Index</definition>
+        <argsstring>(Space &amp;home, bool share, Index &amp;a)</argsstring>
+        <name>Index</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index" kindref="compound">Index</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Clone index advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/rel.hh" line="215" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Advisors for views (by position in array) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2810">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2811" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2809">
+        <label>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index"/>
+        <childnode refid="2810" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2811">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2813">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2814" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2812">
+        <label>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index"/>
+        <childnode refid="2813" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2814">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/rel.hh" line="208" column="1" bodyfile="/usr/include/gecode/int/rel.hh" bodystart="208" bodyend="216"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a8f3ca0c2e3fade8318a3a00d558b7b53" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Advisor_1af069c946f34ab92ba6837f053dedc712" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1ac10a1271c203fa2c15a63bfe6e946fb4" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>i</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1a9457fe4e7379dac64a355acfc6a94c71" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>Index</name></member>
+      <member refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index_1a10389a56a7f76e94b011ec87ff212d90" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>Index</name></member>
+      <member refid="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Rel::NaryLqLe::Index</scope><name>propagator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

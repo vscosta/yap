@@ -1,0 +1,401 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1NodeAllocatorBase" kind="class" prot="public">
+    <compoundname>Gecode::Gist::NodeAllocatorBase</compoundname>
+    <includes refid="node_8hh" local="no">node.hh</includes>
+    <innerclass refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1_1Block" prot="private">Gecode::Gist::NodeAllocatorBase::Block</innerclass>
+    <templateparamlist>
+      <param>
+        <type>class T</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a90ccd905c160f6634b7c2342abcf5091" prot="private" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::NodeBlockSize</definition>
+        <argsstring></argsstring>
+        <name>NodeBlockSize</name>
+        <initializer>= 1&lt;&lt;14</initializer>
+        <briefdescription>
+<para>Size of each block of nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="55" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ad83d856d5683415173eea812d4718514" prot="private" static="no" mutable="no">
+        <type>Block **</type>
+        <definition>Block** Gecode::Gist::NodeAllocatorBase&lt; T &gt;::b</definition>
+        <argsstring></argsstring>
+        <name>b</name>
+        <briefdescription>
+<para>Array of blocks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="65" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ad6fb8e9a4fd00951d1e97a3488002425" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Size of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="67" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a5f19db074e65e58183e632b4a23788ef" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::cur_b</definition>
+        <argsstring></argsstring>
+        <name>cur_b</name>
+        <briefdescription>
+<para>Current block number. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="69" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1af2979d0e4e27f911f270ae2b6eeebba5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::cur_t</definition>
+        <argsstring></argsstring>
+        <name>cur_t</name>
+        <briefdescription>
+<para>Current node number in current block. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="71" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae78a3a568acd84352c48488f5e4a5d8e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::NodeAllocatorBase&lt; T &gt;::_bab</definition>
+        <argsstring></argsstring>
+        <name>_bab</name>
+        <briefdescription>
+<para>Flag whether search uses branch-and-bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="75" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1af42bd17907d0b652539d6a1be5729c92" prot="private" static="no" mutable="no">
+        <type>QHash&lt; T *, QString &gt;</type>
+        <definition>QHash&lt;T*,QString&gt; Gecode::Gist::NodeAllocatorBase&lt; T &gt;::labels</definition>
+        <argsstring></argsstring>
+        <name>labels</name>
+        <briefdescription>
+<para>Hash table mapping nodes to label text. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="77" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a22d135ba2e56c6a68088f5cfa807b705" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::NodeAllocatorBase&lt; T &gt;::allocate</definition>
+        <argsstring>(void)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate new block, potentially reallocate block array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="73" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="42" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae040f534edc18fa6d37c292d0dc6b55c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::NodeAllocatorBase&lt; T &gt;::NodeAllocatorBase</definition>
+        <argsstring>(bool bab)</argsstring>
+        <name>NodeAllocatorBase</name>
+        <param>
+          <type>bool</type>
+          <declname>bab</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="80" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="54" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1aef442d3acdd9c5e9f971ddf7e0ec1979" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::NodeAllocatorBase&lt; T &gt;::~NodeAllocatorBase</definition>
+        <argsstring>(void)</argsstring>
+        <name>~NodeAllocatorBase</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="82" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="63" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a61c36d13faadc2db2d40a690650b47ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::allocate</definition>
+        <argsstring>(int p)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type>int</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Allocate new node with parent <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="84" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="71" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a990684a755abab6ba9aa2511684d2fcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Gist::NodeAllocatorBase&lt; T &gt;::allocate</definition>
+        <argsstring>(Space *root)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <briefdescription>
+<para>Allocate new root node for space <emphasis>root</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="86" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="82" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a2410f2988e6dcc2d13c76ca91ee70701" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>T *</type>
+        <definition>forceinline T * Gecode::Gist::NodeAllocatorBase&lt; T &gt;::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return node for index <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="88" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="93" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a66c363673c91a4df4e664bd4583543d3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>T *</type>
+        <definition>forceinline T * Gecode::Gist::NodeAllocatorBase&lt; T &gt;::best</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>best</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return index of best node before <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="90" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="101" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a190c751a1e903d1ad9e6250fb254e73b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Gist::NodeAllocatorBase&lt; T &gt;::setBest</definition>
+        <argsstring>(int i, int b)</argsstring>
+        <name>setBest</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> index of best node before <emphasis>i</emphasis> to <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="92" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="110" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ada874c939cc3c2e2bb5e35df806600b2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::NodeAllocatorBase&lt; T &gt;::bab</definition>
+        <argsstring>(void) const </argsstring>
+        <name>bab</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return branch-and-bound flag. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="94" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="118" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a9a8cd08959e931fb72d56d8642b70d50" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::NodeAllocatorBase&lt; T &gt;::showLabels</definition>
+        <argsstring>(void) const </argsstring>
+        <name>showLabels</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return branching label flag. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="96" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="124" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ac8d8bf7027048fd97ac1e5c20b953e0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::NodeAllocatorBase&lt; T &gt;::showLabels</definition>
+        <argsstring>(bool b)</argsstring>
+        <name>showLabels</name>
+        <param>
+          <type>bool</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> branching label flag. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="98" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1afd56672dce9bee17affc58f03d3c4a6b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::NodeAllocatorBase&lt; T &gt;::hasLabel</definition>
+        <argsstring>(T *n) const </argsstring>
+        <name>hasLabel</name>
+        <param>
+          <type>T *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return whether node <emphasis>n</emphasis> has a label. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="100" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="130" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1aab2885a08fcac2db7223d13f5f577b63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::NodeAllocatorBase&lt; T &gt;::setLabel</definition>
+        <argsstring>(T *n, const QString &amp;l)</argsstring>
+        <name>setLabel</name>
+        <param>
+          <type>T *</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const QString &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> label of node <emphasis>n</emphasis> to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="102" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="136" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae4441f9852b5c85731ae5136546b911e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::NodeAllocatorBase&lt; T &gt;::clearLabel</definition>
+        <argsstring>(T *n)</argsstring>
+        <name>clearLabel</name>
+        <param>
+          <type>T *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Remove label of node <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="104" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="142" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1NodeAllocatorBase_1a0f328f45b986ec07b043d0382bd20b3f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString Gecode::Gist::NodeAllocatorBase&lt; T &gt;::getLabel</definition>
+        <argsstring>(T *n) const </argsstring>
+        <name>getLabel</name>
+        <param>
+          <type>T *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Get label of node <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/node.hh" line="106" column="1" bodyfile="/usr/include/gecode/gist/node.hpp" bodystart="148" bodyend="150"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Gist_1_1Node" kindref="compound">Node</ref> allocator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/gist/node.hh" line="52" column="1" bodyfile="/usr/include/gecode/gist/node.hh" bodystart="52" bodyend="107"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae78a3a568acd84352c48488f5e4a5d8e" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>_bab</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a22d135ba2e56c6a68088f5cfa807b705" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a61c36d13faadc2db2d40a690650b47ca" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a990684a755abab6ba9aa2511684d2fcc" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ad83d856d5683415173eea812d4718514" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>b</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ada874c939cc3c2e2bb5e35df806600b2" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>bab</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a66c363673c91a4df4e664bd4583543d3" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>best</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae4441f9852b5c85731ae5136546b911e" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>clearLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a5f19db074e65e58183e632b4a23788ef" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>cur_b</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1af2979d0e4e27f911f270ae2b6eeebba5" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>cur_t</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a0f328f45b986ec07b043d0382bd20b3f" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>getLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1afd56672dce9bee17affc58f03d3c4a6b" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>hasLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1af42bd17907d0b652539d6a1be5729c92" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>labels</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ad6fb8e9a4fd00951d1e97a3488002425" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>n</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ae040f534edc18fa6d37c292d0dc6b55c" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>NodeAllocatorBase</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a90ccd905c160f6634b7c2342abcf5091" prot="private" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>NodeBlockSize</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a2410f2988e6dcc2d13c76ca91ee70701" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a190c751a1e903d1ad9e6250fb254e73b" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>setBest</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1aab2885a08fcac2db7223d13f5f577b63" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>setLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1a9a8cd08959e931fb72d56d8642b70d50" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>showLabels</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1ac8d8bf7027048fd97ac1e5c20b953e0b" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>showLabels</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeAllocatorBase_1aef442d3acdd9c5e9f971ddf7e0ec1979" prot="public" virt="non-virtual"><scope>Gecode::Gist::NodeAllocatorBase</scope><name>~NodeAllocatorBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

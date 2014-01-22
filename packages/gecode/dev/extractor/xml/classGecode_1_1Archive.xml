@@ -1,0 +1,632 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Archive" kind="class" prot="public">
+    <compoundname>Gecode::Archive</compoundname>
+    <includes refid="archive_8hpp" local="no">archive.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Archive_1a9737ade79cd19e9d9275f81e28700cf4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Archive::_size</definition>
+        <argsstring></argsstring>
+        <name>_size</name>
+        <briefdescription>
+<para>Size of array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="48" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Archive_1a1681e379a19e835ba7b50e3be7c8b508" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Archive::_n</definition>
+        <argsstring></argsstring>
+        <name>_n</name>
+        <briefdescription>
+<para>Used size of array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="50" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Archive_1a629a0acc0a03fe0f80c2307fd1ab1f5f" prot="private" static="no" mutable="no">
+        <type>unsigned int *</type>
+        <definition>unsigned int* Gecode::Archive::_a</definition>
+        <argsstring></argsstring>
+        <name>_a</name>
+        <briefdescription>
+<para>Array elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="52" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Archive_1a388607e5f5dc18d165c94f54778fe03a" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Archive::_pos</definition>
+        <argsstring></argsstring>
+        <name>_pos</name>
+        <briefdescription>
+<para>Current position of read iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="54" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Archive_1a78dcf374626402772d40e97ac1589fc6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>GECODE_KERNEL_EXPORT void Gecode::Archive::resize</definition>
+        <argsstring>(int n)</argsstring>
+        <name>resize</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Resize to at least <emphasis>n</emphasis> + 1 elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="56" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Archive_1af510f321fc0dae5b76f5a19b2586cc32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Archive::Archive</definition>
+        <argsstring>(void)</argsstring>
+        <name>Archive</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Construct empty representation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="59" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="174" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a656c15f9c1d222928daa22ada20001a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>GECODE_KERNEL_EXPORT Gecode::Archive::~Archive</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Archive</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="61" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1adfe05545641fdf114a137cbccedc6c8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>GECODE_KERNEL_EXPORT Gecode::Archive::Archive</definition>
+        <argsstring>(const Archive &amp;e)</argsstring>
+        <name>Archive</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="63" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a100a17906f815e0768a3a8848e086db6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_KERNEL_EXPORT <ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>GECODE_KERNEL_EXPORT Archive&amp; Gecode::Archive::operator=</definition>
+        <argsstring>(const Archive &amp;e)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="65" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a911b15e161b95abd09813f9cbbb69e95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Archive::put</definition>
+        <argsstring>(unsigned int i)</argsstring>
+        <name>put</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Add <emphasis>i</emphasis> to the contents. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="67" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="177" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a62ee416447d66a1802ebb4e26cdc7ae3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Archive::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="69" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="184" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a2ec1ee713d54ffb776cd960a9c2a4b1f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Archive::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return array element <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="71" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="187" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a74b168c58e05882dac77f14989a2194f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Archive::get</definition>
+        <argsstring>(void)</argsstring>
+        <name>get</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next element to read. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="73" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="193" bodyend="196"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Archive_1a5ce33ca3aef885e697b8421b5ead2eb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, unsigned int i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="79" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="199" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1afddfbe44a1ca7bb06b2f36f732a41696" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, int i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="84" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="204" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a0d26d00f1b4dc04d93aa7d25959bb841" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, unsigned short i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned short</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="89" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="209" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a09df357414ebd69bf110303a0cbf8657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, short i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>short</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="94" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="214" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1ac5b8c3de39f1f166e0668e50745e222a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, unsigned char i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned char</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="99" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="219" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1ae693b74d05f56c95fdf750a3e4bce686" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, char i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="104" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="224" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a889baaf491fbe86762c7b0c12159a842" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, bool i)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>i</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="109" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="229" bodyend="232"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a6161e5a44e5a15afffd3c2b0475b3017" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, float d)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>d</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="114" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="234" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a84b9d769f39a4e84d6cc06578aaff1b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&lt;&lt;</definition>
+        <argsstring>(Archive &amp;e, double d)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Add <emphasis>d</emphasis> to the end of <emphasis>e</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="119" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="240" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a07aff30c3fd0bb9ff1f02d1a9fe081f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, unsigned int &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned int &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="126" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="247" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a95aab42389d53fb77e3d4301caf7556c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, int &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="131" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="252" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1aa41cf7c62e02da9f811928b2f2739cc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, unsigned short &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned short &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="136" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="257" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a3db06757e9e0326fa08df1a6a1d43b65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, short &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>short &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="141" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="262" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a4892371339bea8e6fe794e8d26ef71d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, unsigned char &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>unsigned char &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="146" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="267" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a927da9f89409f19bba27d7bb41b672f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, char &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>char &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="151" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="272" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a37d56a9f3564af7c1bd8ef699914989b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, bool &amp;i)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>i</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="156" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="277" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a66a223310dfc2407535f320e5df07885" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, float &amp;d)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>float &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>d</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="161" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="282" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Archive_1a95546faed5419fd09525b5a5ab017c8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+        <definition>Archive &amp; operator&gt;&gt;</definition>
+        <argsstring>(Archive &amp;e, double &amp;d)</argsstring>
+        <name>operator&gt;&gt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>double &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read next element from <emphasis>e</emphasis> into <emphasis>d</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/archive.hpp" line="166" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="289" bodyend="294"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Archive representation </para>    </briefdescription>
+    <detaileddescription>
+<para>An <ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> is an array of unsigned integers, used as an external representation of internal data structures (such as <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> objects). </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/archive.hpp" line="45" column="1" bodyfile="/usr/include/gecode/kernel/archive.hpp" bodystart="45" bodyend="74"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Archive_1a629a0acc0a03fe0f80c2307fd1ab1f5f" prot="private" virt="non-virtual"><scope>Gecode::Archive</scope><name>_a</name></member>
+      <member refid="classGecode_1_1Archive_1a1681e379a19e835ba7b50e3be7c8b508" prot="private" virt="non-virtual"><scope>Gecode::Archive</scope><name>_n</name></member>
+      <member refid="classGecode_1_1Archive_1a388607e5f5dc18d165c94f54778fe03a" prot="private" virt="non-virtual"><scope>Gecode::Archive</scope><name>_pos</name></member>
+      <member refid="classGecode_1_1Archive_1a9737ade79cd19e9d9275f81e28700cf4" prot="private" virt="non-virtual"><scope>Gecode::Archive</scope><name>_size</name></member>
+      <member refid="classGecode_1_1Archive_1af510f321fc0dae5b76f5a19b2586cc32" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>Archive</name></member>
+      <member refid="classGecode_1_1Archive_1adfe05545641fdf114a137cbccedc6c8b" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>Archive</name></member>
+      <member refid="classGecode_1_1Archive_1a74b168c58e05882dac77f14989a2194f" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>get</name></member>
+      <member refid="classGecode_1_1Archive_1a5ce33ca3aef885e697b8421b5ead2eb4" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1afddfbe44a1ca7bb06b2f36f732a41696" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a0d26d00f1b4dc04d93aa7d25959bb841" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a09df357414ebd69bf110303a0cbf8657" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1ac5b8c3de39f1f166e0668e50745e222a" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1ae693b74d05f56c95fdf750a3e4bce686" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a889baaf491fbe86762c7b0c12159a842" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a6161e5a44e5a15afffd3c2b0475b3017" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a84b9d769f39a4e84d6cc06578aaff1b8" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Archive_1a100a17906f815e0768a3a8848e086db6" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Archive_1a07aff30c3fd0bb9ff1f02d1a9fe081f9" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a95aab42389d53fb77e3d4301caf7556c" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1aa41cf7c62e02da9f811928b2f2739cc8" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a3db06757e9e0326fa08df1a6a1d43b65" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a4892371339bea8e6fe794e8d26ef71d1" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a927da9f89409f19bba27d7bb41b672f8" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a37d56a9f3564af7c1bd8ef699914989b" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a66a223310dfc2407535f320e5df07885" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a95546faed5419fd09525b5a5ab017c8d" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator&gt;&gt;</name></member>
+      <member refid="classGecode_1_1Archive_1a2ec1ee713d54ffb776cd960a9c2a4b1f" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Archive_1a911b15e161b95abd09813f9cbbb69e95" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>put</name></member>
+      <member refid="classGecode_1_1Archive_1a78dcf374626402772d40e97ac1589fc6" prot="private" virt="non-virtual"><scope>Gecode::Archive</scope><name>resize</name></member>
+      <member refid="classGecode_1_1Archive_1a62ee416447d66a1802ebb4e26cdc7ae3" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>size</name></member>
+      <member refid="classGecode_1_1Archive_1a656c15f9c1d222928daa22ada20001a7" prot="public" virt="non-virtual"><scope>Gecode::Archive</scope><name>~Archive</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

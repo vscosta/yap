@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FloatAssign" kind="class" prot="public">
+    <compoundname>Gecode::FloatAssign</compoundname>
+    <basecompoundref refid="classGecode_1_1ValBranch" prot="public" virt="non-virtual">Gecode::ValBranch</basecompoundref>
+    <includes refid="float_8hh" local="no">float.hh</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="group__TaskModelFloatArith_1ga08d04c2bc57289e538471f00a325764d" prot="public" static="no">
+        <name>Select</name>
+        <enumvalue id="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764daf1f5799cc18e5dbdfa4d0f8f8a15d95c" prot="public">
+          <name>SEL_MIN</name>
+          <briefdescription>
+<para>Select median value of the lower part. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764da2fa5ac8c6bb2e8a66990d0cd1735f73b" prot="public">
+          <name>SEL_MAX</name>
+          <briefdescription>
+<para>Select median value of the upper part. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764daf07335f0d1ef3c0ed519e18aba28f499" prot="public">
+          <name>SEL_RND</name>
+          <briefdescription>
+<para>Select median value of a randomly chosen part. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764dae51c58eddb0337cc4ffc40e60dd6de5e" prot="public">
+          <name>SEL_VAL_COMMIT</name>
+          <briefdescription>
+<para>Select value according to user-defined functions. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Which value selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1703" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1703" bodyend="1708"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="group__TaskModelFloatArith_1ga807cce21cc2fa1e96331e305f1e972c4" prot="protected" static="no" mutable="no">
+        <type><ref refid="group__TaskModelFloatArith_1ga08d04c2bc57289e538471f00a325764d" kindref="member">Select</ref></type>
+        <definition>Select Gecode::FloatAssign::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Which value to select. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1711" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1711" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="group__TaskModelFloatArith_1gafdfce6a2d610d7d8108c155e66fc8367" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatAssign::FloatAssign</definition>
+        <argsstring>(Select s=SEL_MIN)</argsstring>
+        <name>FloatAssign</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1ga08d04c2bc57289e538471f00a325764d" kindref="member">Select</ref></type>
+          <declname>s</declname>
+          <defval><ref refid="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764daf1f5799cc18e5dbdfa4d0f8f8a15d95c" kindref="member">SEL_MIN</ref></defval>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1714" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga33d25b9cd4376ad9b22f803f33a60a6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatAssign::FloatAssign</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>FloatAssign</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1716" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1gad0d52a56e66a9579a08700712662b28c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatAssign::FloatAssign</definition>
+        <argsstring>(VoidFunction v, VoidFunction c)</argsstring>
+        <name>FloatAssign</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value function <emphasis>f</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1718" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga8197b3c8334ef00f399becc417bf747f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskModelFloatArith_1ga08d04c2bc57289e538471f00a325764d" kindref="member">Select</ref></type>
+        <definition>forceinline FloatAssign::Select Gecode::FloatAssign::select</definition>
+        <argsstring>(void) const </argsstring>
+        <name>select</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return selection strategy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1720" column="1" bodyfile="/usr/include/gecode/float/branch/assign.hpp" bodystart="53" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Which values to select for assignment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2366">
+        <label>Gecode::FloatAssign</label>
+        <link refid="classGecode_1_1FloatAssign"/>
+        <childnode refid="2367" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2367">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2368">
+        <label>Gecode::FloatAssign</label>
+        <link refid="classGecode_1_1FloatAssign"/>
+        <childnode refid="2369" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2369">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+        <childnode refid="2370" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+      <node id="2370">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="2371" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2371">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float.hh" line="1700" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1700" bodyend="1721"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValBranch_1a3f210c407c95b73613c588a9ccad63de" prot="protected" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>cf</name></member>
+      <member refid="classGecode_1_1ValBranch_1a4e8a56a907d7d9a9bd71f5762b994407" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>commit</name></member>
+      <member refid="group__TaskModelFloatArith_1gafdfce6a2d610d7d8108c155e66fc8367" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>FloatAssign</name></member>
+      <member refid="group__TaskModelFloatArith_1ga33d25b9cd4376ad9b22f803f33a60a6a" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>FloatAssign</name></member>
+      <member refid="group__TaskModelFloatArith_1gad0d52a56e66a9579a08700712662b28c" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>FloatAssign</name></member>
+      <member refid="classGecode_1_1ValBranch_1a3e83e74c785cf1a2224abfa67de186fc" prot="protected" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>r</name></member>
+      <member refid="classGecode_1_1ValBranch_1acfc0a641a55ee13ab778ff5fbb5327ce" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>rnd</name></member>
+      <member refid="group__TaskModelFloatArith_1ga807cce21cc2fa1e96331e305f1e972c4" prot="protected" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>s</name></member>
+      <member refid="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764da2fa5ac8c6bb2e8a66990d0cd1735f73b" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>SEL_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764daf1f5799cc18e5dbdfa4d0f8f8a15d95c" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>SEL_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764daf07335f0d1ef3c0ed519e18aba28f499" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>SEL_RND</name></member>
+      <member refid="group__TaskModelFloatArith_1gga08d04c2bc57289e538471f00a325764dae51c58eddb0337cc4ffc40e60dd6de5e" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>SEL_VAL_COMMIT</name></member>
+      <member refid="group__TaskModelFloatArith_1ga8197b3c8334ef00f399becc417bf747f" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>select</name></member>
+      <member refid="group__TaskModelFloatArith_1ga08d04c2bc57289e538471f00a325764d" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>Select</name></member>
+      <member refid="classGecode_1_1ValBranch_1a0359f6d8d698d621f2b04f1e099f6a91" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValBranch_1aee3d20ec60e0914116719487eab754cc" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1acbef5d412d3065c6b868e54f96954a96" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1ab7f529dafc943daf32e482aa95bda06b" prot="public" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1a777978a1be672670ef25af6f3a4ef135" prot="protected" virt="non-virtual"><scope>Gecode::FloatAssign</scope><name>vf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

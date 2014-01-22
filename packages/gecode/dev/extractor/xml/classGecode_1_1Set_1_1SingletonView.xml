@@ -1,0 +1,994 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1SingletonView" kind="class" prot="public">
+    <compoundname>Gecode::Set::SingletonView</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; Gecode::Int::IntView &gt;</basecompoundref>
+    <includes refid="set_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a081c5d808700d9d60ce29b787199e534" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::SingletonView::SingletonView</definition>
+        <argsstring>(void)</argsstring>
+        <name>SingletonView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="605" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a503a382227e9dfefdeba24e318002566" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::SingletonView::SingletonView</definition>
+        <argsstring>(Gecode::Int::IntView &amp;y)</argsstring>
+        <name>SingletonView</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">Gecode::Int::IntView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with integer view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="607" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="48" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a93db28a5aff96146d38601715669fc8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::SingletonView::SingletonView</definition>
+        <argsstring>(const Gecode::IntVar &amp;y)</argsstring>
+        <name>SingletonView</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntVar" kindref="compound">Gecode::IntVar</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with integer variable <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="609" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="52" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ad825fb14f18dabfc68d83a9e26f90207" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::SingletonView::cardMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="616" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a852a064a0cfd06e2775c436de18abd0b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::SingletonView::cardMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="618" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="121" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ac26155ac219b7a69ed1cfc673a30b70a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::lubMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="620" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="124" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a6774c1e5ff5ac6e88c1df51f0320db6a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::lubMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="622" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ac6450012663a44ab3e3b51b6dd89ac93" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::SingletonView::lubMinN</definition>
+        <argsstring>(unsigned int n) const </argsstring>
+        <name>lubMinN</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return n-th smallest element of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="624" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a3204ee4349a47cd1a56fbe2eec5d42fc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::glbMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="626" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="130" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ae544ef9f5a1e8080c56f26354f88ea71" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::glbMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="628" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="134" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1abce0e115005b0fcc2b8ef8420bede058" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::SingletonView::glbSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="631" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="98" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a90f934adefb2703f6e21e70b33ee8783" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::SingletonView::lubSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="633" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="103" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1adc0158fd43b84f69d684dfbf6f7efcec" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::SingletonView::unknownSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>unknownSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of unknown elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="635" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="106" bodyend="108"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a7c3455a48c86076195554b865a6ac56d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::SingletonView::contains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>contains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="641" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="111" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a5bf90ff29844c1f4abbea9fc8b97672f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::SingletonView::notContains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>notContains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is not in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="643" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="115" bodyend="115"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a05351b20472b7e08f77973de9b49335b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::cardMin</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be greater than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="650" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="138" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a3b90cd76f2fa33a5ed26a35510e473c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::cardMax</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMax</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be less than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="652" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="143" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a65d3bab37fa0ec0f0e4e7d9613853231" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::include</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to include all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="657" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="181" bodyend="183"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a69c2bd4ba9d1423e1e53d942b02b27f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::exclude</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="662" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="186" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ab5df4e5b4b25130e5a2ce69950923be6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::include</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="664" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="148" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1acd355ffccd68ff4d0ef64829edf92c59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::exclude</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="666" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="176" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a5bc94fe53e69a9881dd9f560ab38da21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::intersect</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="671" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="158" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ad876d580c084bae22bb97b8f83c11f0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::intersect</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most the element <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="673" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="153" bodyend="155"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by range iterator</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1aaf2f1f27386e6de741f1337bf471eb01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::SingletonView::excludeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>excludeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Remove range sequence described by <emphasis>i</emphasis> from least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="680" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="204" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a90bf039e7d798cbb77cb0b4df228b0f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::SingletonView::includeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>includeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Include range sequence described by <emphasis>i</emphasis> in greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="682" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="209" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a588afaa872656fccddf8e9e0ff3a97ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::SingletonView::intersectI</definition>
+        <argsstring>(Space &amp;home, I &amp;iter)</argsstring>
+        <name>intersectI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>iter</declname>
+        </param>
+        <briefdescription>
+<para>Intersect least upper bound with range sequence described by <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="684" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="225" bodyend="227"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a6934683633ce435226972187dcb0e30a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::SingletonView::schedule</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, ModEvent me)</argsstring>
+        <name>schedule</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Schedule propagator <emphasis>p</emphasis> with modification event <emphasis>me</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="690" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="250" bodyend="252"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a8a1b108a90541c678a7613fec65716f4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::me</definition>
+        <argsstring>(const ModEventDelta &amp;med)</argsstring>
+        <name>me</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event for view type in <emphasis>med</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="692" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="254" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1af058f6b2885258ebfe4834e1bd6e1d37" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Set::SingletonView::med</definition>
+        <argsstring>(ModEvent)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <defname>me</defname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="694" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="258" bodyend="260"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a033408020b56593135871aba42134a08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::SingletonView::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool schedule=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>schedule</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>schedule</emphasis> is false, the propagator is just subscribed but not scheduled for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="706" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="230" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a088dda85feb80aff1a78c909e758c6c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::SingletonView::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="708" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="235" bodyend="237"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ab4491a1bb1d99d90a190dd086785ed5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::SingletonView::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="710" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="240" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1aafd87082e94beeed997bae7ee2def628" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::SingletonView::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="712" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="244" bodyend="246"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ae7080e329bf08c482fe9c168ce689b5f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::glbMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="720" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="277" bodyend="277"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a566f957659963c7d91991965e8aa8999" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::glbMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="722" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="280" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a50b4fc9ff99286bc814e32af00f2116a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::SingletonView::glbAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="724" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="283" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a9c8045f68989281e0b1f7281302c2eb5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::lubMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="726" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="286" bodyend="286"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a49044fb3ea2aeaaf74e3cce295bf7a23" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::SingletonView::lubMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="728" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="289" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a46afb1ba2c61ce1b37147479fb9b3b1e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::SingletonView::lubAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="730" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="292" bodyend="292"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1aea3b36e0b54a9b821df495c60f8e4861" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::modevent</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>modevent</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="718" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="272" bodyend="274"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-static-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1a6d5fb54552e9867dbb7add4f2084c09c" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+        <definition>forceinline PropCond Gecode::Set::SingletonView::pc_settoint</definition>
+        <argsstring>(PropCond pc)</argsstring>
+        <name>pc_settoint</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Convert set variable PropCond <emphasis>pc</emphasis> to a PropCond for integer variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="595" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="56" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ae5508d22dce940bf28100a927cdcc05e" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::me_inttoset</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>me_inttoset</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Convert integer variable ModEvent <emphasis>me</emphasis> to a ModEvent for set variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="597" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="68" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1aac65d6435808359eac4e061bf5943c26" prot="protected" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::SingletonView::me_settoint</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>me_settoint</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Convert set variable ModEvent <emphasis>me</emphasis> to a ModEvent for integer variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="599" column="1" bodyfile="/usr/include/gecode/set/view/singleton.hpp" bodystart="84" bodyend="95"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1SingletonView_1ad2c6bf32e7384c9bb677a176b6628e9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const SingletonView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1SingletonView" kindref="compound">SingletonView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print singleton set view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="576" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="124" bodyend="136"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Singleton set view. </para>    </briefdescription>
+    <detaileddescription>
+<para>A singleton set view <formula id="36">$s$</formula> for an integer view <formula id="31">$x$</formula> provides operations such that <formula id="36">$s$</formula> behaves like the singleton set <formula id="398">$\{x\}$</formula>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6528">
+        <label>Gecode::DerivedView&lt; Gecode::Int::IntView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="6527">
+        <label>Gecode::Set::SingletonView</label>
+        <link refid="classGecode_1_1Set_1_1SingletonView"/>
+        <childnode refid="6528" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6531">
+        <label>Gecode::Int::IntView</label>
+        <link refid="classGecode_1_1Int_1_1IntView"/>
+        <childnode refid="6532" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6532">
+        <label>Gecode::VarImpView&lt; IntVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="6530">
+        <label>Gecode::DerivedView&lt; Gecode::Int::IntView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="6531" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6529">
+        <label>Gecode::Set::SingletonView</label>
+        <link refid="classGecode_1_1Set_1_1SingletonView"/>
+        <childnode refid="6530" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/view.hpp" line="590" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="589" bodyend="733"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>base</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a088dda85feb80aff1a78c909e758c6c8" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1aafd87082e94beeed997bae7ee2def628" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a852a064a0cfd06e2775c436de18abd0b" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a3b90cd76f2fa33a5ed26a35510e473c4" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ad825fb14f18dabfc68d83a9e26f90207" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a05351b20472b7e08f77973de9b49335b" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a7c3455a48c86076195554b865a6ac56d" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>contains</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a69c2bd4ba9d1423e1e53d942b02b27f5" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1acd355ffccd68ff4d0ef64829edf92c59" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1aaf2f1f27386e6de741f1337bf471eb01" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>excludeI</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a50b4fc9ff99286bc814e32af00f2116a" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbAny</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ae544ef9f5a1e8080c56f26354f88ea71" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a566f957659963c7d91991965e8aa8999" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a3204ee4349a47cd1a56fbe2eec5d42fc" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ae7080e329bf08c482fe9c168ce689b5f" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1abce0e115005b0fcc2b8ef8420bede058" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>glbSize</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a65d3bab37fa0ec0f0e4e7d9613853231" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ab5df4e5b4b25130e5a2ce69950923be6" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a90bf039e7d798cbb77cb0b4df228b0f1" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>includeI</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a5bc94fe53e69a9881dd9f560ab38da21" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ad876d580c084bae22bb97b8f83c11f0b" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a588afaa872656fccddf8e9e0ff3a97ed" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>intersectI</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a46afb1ba2c61ce1b37147479fb9b3b1e" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubAny</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a6774c1e5ff5ac6e88c1df51f0320db6a" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a49044fb3ea2aeaaf74e3cce295bf7a23" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ac26155ac219b7a69ed1cfc673a30b70a" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a9c8045f68989281e0b1f7281302c2eb5" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ac6450012663a44ab3e3b51b6dd89ac93" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubMinN</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a90f934adefb2703f6e21e70b33ee8783" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>lubSize</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a8a1b108a90541c678a7613fec65716f4" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>me</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ae5508d22dce940bf28100a927cdcc05e" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>me_inttoset</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1aac65d6435808359eac4e061bf5943c26" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>me_settoint</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1af058f6b2885258ebfe4834e1bd6e1d37" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1aea3b36e0b54a9b821df495c60f8e4861" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a5bf90ff29844c1f4abbea9fc8b97672f" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>notContains</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ad2c6bf32e7384c9bb677a176b6628e9d" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a6d5fb54552e9867dbb7add4f2084c09c" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>pc_settoint</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a6934683633ce435226972187dcb0e30a" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a081c5d808700d9d60ce29b787199e534" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>SingletonView</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a503a382227e9dfefdeba24e318002566" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>SingletonView</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a93db28a5aff96146d38601715669fc8e" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>SingletonView</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1a033408020b56593135871aba42134a08" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1ab4491a1bb1d99d90a190dd086785ed5f" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Set_1_1SingletonView_1adc0158fd43b84f69d684dfbf6f7efcec" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>unknownSize</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Set::SingletonView</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

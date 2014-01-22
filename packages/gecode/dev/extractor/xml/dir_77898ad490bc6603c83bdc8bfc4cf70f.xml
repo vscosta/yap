@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_77898ad490bc6603c83bdc8bfc4cf70f" kind="dir">
+    <compoundname>/usr/include/gecode/float/var</compoundname>
+    <innerfile refid="var_2float_8hpp">float.hpp</innerfile>
+    <innerfile refid="float_2var_2print_8hpp">print.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/float/var/"/>
+  </compounddef>
+</doxygen>

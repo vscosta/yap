@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntBranchVal" kind="group">
+    <compoundname>TaskModelIntBranchVal</compoundname>
+    <title>Value selection for integer and Boolean variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga99f57de18e36ee7ea64c91a73f2e1132" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select smallest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="68" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="68" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga46fb2bfe8b29de694c3364ba9c8e1984" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_MED</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_MED</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select greatest value not greater than the median. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="73" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="73" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga780c219bfb868c743079a7155c6ec884" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="78" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1gafbe0b0e57235c427630633e66afdfe6b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_RND</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>INT_VAL_RND</name>
+        <param>
+          <type>Rnd</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Select random value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="83" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="83" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga184eb130ab7e9ab791a0ba0cd9e0845e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_SPLIT_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_SPLIT_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select values not greater than mean of smallest and largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="88" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga94cdbbd3d21ea8603148b44e75b67269" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_SPLIT_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_SPLIT_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select values greater than mean of smallest and largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="93" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga25f94f22dcbb158161627c3d7e8019d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_RANGE_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_RANGE_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select the smallest range of the variable domain if it has several ranges, otherwise select values not greater than mean of smallest and largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="98" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="98" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga260e4a5b84e1df67f46be253f5f1d9c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_RANGE_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VAL_RANGE_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select the largest range of the variable domain if it has several ranges, otherwise select values greater than mean of smallest and largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="103" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="103" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga4fce67b276db8d08267df263515c72e5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL</definition>
+        <argsstring>(IntBranchVal v, IntBranchCommit c=NULL)</argsstring>
+        <name>INT_VAL</name>
+        <param>
+          <type>IntBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>IntBranchCommit</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis> Uses a commit function as default that posts the constraints that a variable <emphasis>x</emphasis> must be equal to a value <emphasis>n</emphasis> for the first alternative and that <emphasis>x</emphasis> must be different from <emphasis>n</emphasis> for the second alternative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="108" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="108" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga882a6019ecca381557b02a772718de82" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL</definition>
+        <argsstring>(BoolBranchVal v, BoolBranchCommit c=NULL)</argsstring>
+        <name>INT_VAL</name>
+        <param>
+          <type>BoolBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>BoolBranchCommit</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis> Uses a commit function as default that posts the constraints that a variable <emphasis>x</emphasis> must be equal to a value <emphasis>n</emphasis> for the first alternative and that <emphasis>x</emphasis> must be different from <emphasis>n</emphasis> for the second alternative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="114" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="114" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga62d59efd54e7421d3c0ab09e72cf4b8b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VALUES_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VALUES_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Try all values starting from smallest. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="120" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="120" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga2c20cd57ab16f8547b5971961b4b97e9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VALUES_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_VALUES_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Try all values starting from largest. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="125" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="125" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1ga7ca4c37ebc63b0e15f7ce26f87c8b03b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_NEAR_MIN</definition>
+        <argsstring>(IntSharedArray n)</argsstring>
+        <name>INT_VAL_NEAR_MIN</name>
+        <param>
+          <type>IntSharedArray</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Try value nearest to a given value for a variable, in case of ties use the smaller value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="130" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="130" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1gace2540518c6651f899062eb9b4e112c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_NEAR_MAX</definition>
+        <argsstring>(IntSharedArray n)</argsstring>
+        <name>INT_VAL_NEAR_MAX</name>
+        <param>
+          <type>IntSharedArray</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Try value nearest to a given value for a variable, in case of ties use the larger value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="135" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="135" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1gac71f9733d7ae6bf621ec4f1f0b9149c3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_NEAR_INC</definition>
+        <argsstring>(IntSharedArray n)</argsstring>
+        <name>INT_VAL_NEAR_INC</name>
+        <param>
+          <type>IntSharedArray</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Try value larger than a given value for a variable first. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="140" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="140" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchVal_1gaee648c172f50601d06180f58fe4e7ccf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntValBranch</type>
+        <definition>IntValBranch Gecode::INT_VAL_NEAR_DEC</definition>
+        <argsstring>(IntSharedArray n)</argsstring>
+        <name>INT_VAL_NEAR_DEC</name>
+        <param>
+          <type>IntSharedArray</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Try value smaller than a given value for a variable first. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/val.hpp" line="145" column="1" bodyfile="/usr/include/gecode/int/branch/val.hpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

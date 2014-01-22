@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classstd_1_1numeric__limits_3_01float_01_4" kind="class" prot="public">
+    <compoundname>std::numeric_limits&lt; float &gt;</compoundname>
+    <basecompoundref refid="classstd_1_1__Floating__limits" prot="public" virt="non-virtual">std::_Floating_limits&lt; float, FLT_MANT_DIG, FLT_DIG, FLT_MIN_EXP, FLT_MAX_EXP, FLT_MIN_10_EXP, FLT_MAX_10_EXP, 0x7f800000u, 0x7f810000u, 0x7fc10000u, true, round_to_nearest &gt;</basecompoundref>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classstd_1_1numeric__limits_3_01float_01_4_1a83f857551d09ab3864cdb3c168855e72" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float min</type>
+        <definition>static float min std::numeric_limits&lt; float &gt;::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>()</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="377" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="377" bodyend="377"/>
+      </memberdef>
+      <memberdef kind="function" id="classstd_1_1numeric__limits_3_01float_01_4_1a4b137f501921ad8f219785815a98a323" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>static float std::numeric_limits&lt; float &gt;::denorm_min</definition>
+        <argsstring>()</argsstring>
+        <name>denorm_min</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="378" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="378" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="classstd_1_1numeric__limits_3_01float_01_4_1ae2537b17c5846ccb8d26eeaf1f7c7e4d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float max</type>
+        <definition>static float max std::numeric_limits&lt; float &gt;::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>()</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="379" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="379" bodyend="379"/>
+      </memberdef>
+      <memberdef kind="function" id="classstd_1_1numeric__limits_3_01float_01_4_1aa461da8e5eb13098fdf568d60cf7c203" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>static float std::numeric_limits&lt; float &gt;::epsilon</definition>
+        <argsstring>()</argsstring>
+        <name>epsilon</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="380" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="380" bodyend="380"/>
+      </memberdef>
+      <memberdef kind="function" id="classstd_1_1numeric__limits_3_01float_01_4_1a685a2a5f67b21daf230fdf1b8bb6af69" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>static float std::numeric_limits&lt; float &gt;::round_error</definition>
+        <argsstring>()</argsstring>
+        <name>round_error</name>
+        <exceptions> throw ()</exceptions>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="381" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="381" bodyend="381"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4753">
+        <label>std::numeric_limits&lt; float &gt;</label>
+        <link refid="classstd_1_1numeric__limits_3_01float_01_4"/>
+        <childnode refid="4754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4755">
+        <label>std::_Numeric_limits_base&lt; float &gt;</label>
+        <link refid="classstd_1_1__Numeric__limits__base"/>
+      </node>
+      <node id="4754">
+        <label>std::_Floating_limits&lt; float, FLT_MANT_DIG, FLT_DIG, FLT_MIN_EXP, FLT_MAX_EXP, FLT_MIN_10_EXP, FLT_MAX_10_EXP, 0x7f800000u, 0x7f810000u, 0x7fc10000u, true, round_to_nearest &gt;</label>
+        <link refid="classstd_1_1__Floating__limits"/>
+        <childnode refid="4755" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4756">
+        <label>std::numeric_limits&lt; float &gt;</label>
+        <link refid="classstd_1_1numeric__limits_3_01float_01_4"/>
+        <childnode refid="4757" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4758">
+        <label>std::_Numeric_limits_base&lt; float &gt;</label>
+        <link refid="classstd_1_1__Numeric__limits__base"/>
+      </node>
+      <node id="4757">
+        <label>std::_Floating_limits&lt; float, FLT_MANT_DIG, FLT_DIG, FLT_MIN_EXP, FLT_MAX_EXP, FLT_MIN_10_EXP, FLT_MAX_10_EXP, 0x7f800000u, 0x7f810000u, 0x7fc10000u, true, round_to_nearest &gt;</label>
+        <link refid="classstd_1_1__Floating__limits"/>
+        <childnode refid="4758" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/detail/limits.hpp" line="375" column="1" bodyfile="/usr/include/gecode/third-party/boost/detail/limits.hpp" bodystart="356" bodyend="382"/>
+    <listofallmembers>
+      <member refid="classstd_1_1numeric__limits_3_01float_01_4_1a83f857551d09ab3864cdb3c168855e72" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_PREVENT_MACRO_SUBSTITUTION</name></member>
+      <member refid="classstd_1_1numeric__limits_3_01float_01_4_1ae2537b17c5846ccb8d26eeaf1f7c7e4d" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_PREVENT_MACRO_SUBSTITUTION</name></member>
+      <member refid="classstd_1_1__Floating__limits_1aa745be5a27b3662dc2503fe0b079881c" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1aaf57af9dcef34f736dd7459281b2e1e0" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a61e43e629ec93caf00b10605057a46c3" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a41f414d4e648f2a3fa08d6542405e683" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1ad7ed4e5cb39b7e8ec9f0d13b3c2f620d" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a3a0835826efaa01ecbe5a9936ef5e0d9" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a3ca8dfb98a69a84c3fa860f6ea8c8b11" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a624803f2c30100859b63438ab4e213c5" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a8287fd7905e113f8377ec5930739f6fe" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1aa6507a12be9185df5c60832f67f3531c" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a8b6cce6939b6704ba4d129b884c6ce1a" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1abfa21f8580d6653ce23be920680665e9" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1acfa5db5a2e31f4e276e0dfa76698aaf1" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1afd2639743f2354f7dd0987bae42672f1" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a782bd50c778978240a0984d5cdaa0934" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a2d63fba5235521109205a172c6c956d6" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a4c27e2364e0eec0fc2fbe032631c3ae3" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a973a3de4027a200b15bcd1ed1eb65bd7" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a77e6d841370a0fe1e538f70d6fc48488" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a92885af216494bb7e83ed72ffb8a58f1" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a1df31f3aca7a2ea518cd40801dcb8643" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1ae87c09c3e33548032b22bb348d41968f" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a3f2b0710dffb2ebb8bb63c05322c46d8" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a7a9cfff8416c12d36273c38e2df364e7" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1af4d8590c373de7fb0aa9c4b8942492e8" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a65d7aecef991ef9c1b8da8714c86b630" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a0195017df59befb8cf72fd0f7b17f261" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1ab17cb4d2511ab89fbf6e275ec4f42100" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a83907946e96154dfc67a33e0c2c0594e" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a99994f5f692125a8c8cf4becc2206e4d" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1abf1a7c1a816b0b2c614a81d97d1a14b2" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a53582c7d49904a66f33b3683fd921ce7" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a8e0c26e0b26be02d4fe363679835f71a" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a6e4ea2607b411752b81b760163435b94" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1af80f417158dce1f41d9e31b87be584ed" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a12f9be99a6f55600140e3c26eb0551e0" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1a7f7962ae6ec91abd098427cda354044c" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1__Numeric__limits__base_1aabd4fc221cb692f9a744422cb0a48573" prot="public" virt="non-virtual" ambiguityscope="_Numeric_limits_base&lt; float &gt;::"><scope>std::numeric_limits&lt; float &gt;</scope><name>BOOST_STL_DECLARE_LIMITS_MEMBER</name></member>
+      <member refid="classstd_1_1numeric__limits_3_01float_01_4_1a4b137f501921ad8f219785815a98a323" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>denorm_min</name></member>
+      <member refid="classstd_1_1numeric__limits_3_01float_01_4_1aa461da8e5eb13098fdf568d60cf7c203" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>epsilon</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a3c2da24b50530d011b53f5cc41560cc1" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>infinity</name></member>
+      <member refid="classstd_1_1__Floating__limits_1a24678d9c550ecdbbcb37f51d9bff103f" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>quiet_NaN</name></member>
+      <member refid="classstd_1_1numeric__limits_3_01float_01_4_1a685a2a5f67b21daf230fdf1b8bb6af69" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>round_error</name></member>
+      <member refid="classstd_1_1__Floating__limits_1ae59f9028269186b6faf8fd485f3e927d" prot="public" virt="non-virtual"><scope>std::numeric_limits&lt; float &gt;</scope><name>signaling_NaN</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

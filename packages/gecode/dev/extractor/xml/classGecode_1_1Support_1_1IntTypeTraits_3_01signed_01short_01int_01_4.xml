@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</compoundname>
+    <includes refid="int-type_8hpp" local="no">int-type.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ad84d6c2146fd98cd37e47264a0af67ab" prot="public" static="no">
+        <type>unsigned short int</type>
+        <definition>typedef unsigned short int Gecode::Support::IntTypeTraits&lt; signed short int &gt;::utype</definition>
+        <argsstring></argsstring>
+        <name>utype</name>
+        <briefdescription>
+<para>Corresponding unsigned type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/int-type.hpp" line="93" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ac3cfa62755bc3553fdeb3539cea0964c" prot="public" static="no">
+        <type>signed short int</type>
+        <definition>typedef signed short int Gecode::Support::IntTypeTraits&lt; signed short int &gt;::stype</definition>
+        <argsstring></argsstring>
+        <name>stype</name>
+        <briefdescription>
+<para>Corresponding signed type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/int-type.hpp" line="95" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ae34d3cbe10223e029d9545609ff4cc8e" prot="public" static="yes" mutable="no">
+        <type>const signed short int</type>
+        <definition>const signed short int Gecode::Support::IntTypeTraits&lt; signed short int &gt;::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <initializer>= SHRT_MIN</initializer>
+        <briefdescription>
+<para>Minimal value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/int-type.hpp" line="97" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1a54338c5ff7ed4761bd123e881ff864f1" prot="public" static="yes" mutable="no">
+        <type>const signed short int</type>
+        <definition>const signed short int Gecode::Support::IntTypeTraits&lt; signed short int &gt;::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <initializer>= SHRT_MAX</initializer>
+        <briefdescription>
+<para>Maximal value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/int-type.hpp" line="99" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1a8ec3a0c734dfcc1920f885b13a09a10e" prot="public" static="yes" mutable="no">
+        <type>const IntType</type>
+        <definition>const IntType Gecode::Support::IntTypeTraits&lt; signed short int &gt;::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <initializer>= IT_SHRT</initializer>
+        <briefdescription>
+<para>Description of type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/int-type.hpp" line="101" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits for signed short int. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/support/int-type.hpp" line="90" column="1" bodyfile="/usr/include/gecode/support/int-type.hpp" bodystart="90" bodyend="102"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1a8ec3a0c734dfcc1920f885b13a09a10e" prot="public" virt="non-virtual"><scope>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</scope><name>description</name></member>
+      <member refid="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1a54338c5ff7ed4761bd123e881ff864f1" prot="public" virt="non-virtual"><scope>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ae34d3cbe10223e029d9545609ff4cc8e" prot="public" virt="non-virtual"><scope>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ac3cfa62755bc3553fdeb3539cea0964c" prot="public" virt="non-virtual"><scope>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</scope><name>stype</name></member>
+      <member refid="classGecode_1_1Support_1_1IntTypeTraits_3_01signed_01short_01int_01_4_1ad84d6c2146fd98cd37e47264a0af67ab" prot="public" virt="non-virtual"><scope>Gecode::Support::IntTypeTraits&lt; signed short int &gt;</scope><name>utype</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

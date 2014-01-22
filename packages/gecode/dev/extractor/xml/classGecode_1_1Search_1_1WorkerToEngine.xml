@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1WorkerToEngine" kind="class" prot="public">
+    <compoundname>Gecode::Search::WorkerToEngine</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Engine" prot="public" virt="non-virtual">Gecode::Search::Engine</basecompoundref>
+    <includes refid="search_2support_8hh" local="no">support.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class <ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref></type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1WorkerToEngine_1a8f063fcd77329f061d1ef81168b10549" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Worker" kindref="compound">Worker</ref></type>
+        <definition>Worker Gecode::Search::WorkerToEngine&lt; Worker &gt;::w</definition>
+        <argsstring></argsstring>
+        <name>w</name>
+        <briefdescription>
+<para>The worker to wrap into an engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="54" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1a47bd56b6e82489c9af9b62d58de1e239" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Search::WorkerToEngine&lt; Worker &gt;::WorkerToEngine</definition>
+        <argsstring>(Space *s, const Options &amp;o)</argsstring>
+        <name>WorkerToEngine</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="57" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="79" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1ab21c250c4778991c4573a813f8c1f57f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>Space * Gecode::Search::WorkerToEngine&lt; Worker &gt;::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a79f991f4da7ed5cb9e4b38767aec7175">next</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next solution (NULL, if none exists or search has been stopped) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="59" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="83" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1a516798561208d1ced63d21ea54eb9314" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Search::Statistics</ref></type>
+        <definition>Search::Statistics Gecode::Search::WorkerToEngine&lt; Worker &gt;::statistics</definition>
+        <argsstring>(void) const </argsstring>
+        <name>statistics</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a90486627834ec4103794cf2bd2c87610">statistics</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="61" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1a2b5b2810cd0ca873c7bcea3f42a5f885" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Search::WorkerToEngine&lt; Worker &gt;::stopped</definition>
+        <argsstring>(void) const </argsstring>
+        <name>stopped</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1aca0084b861dfeedb14cfa0e811d0c19f">stopped</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether engine has been stopped. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="63" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1a209ec0d773608802f20c310b9eb4f28b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void Gecode::Search::WorkerToEngine&lt; Worker &gt;::reset</definition>
+        <argsstring>(Space *s)</argsstring>
+        <name>reset</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a0dfdae4b329fd9e00a84a81d2d1a33c2">reset</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Reset engine to restart at space <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="65" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="98" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1WorkerToEngine_1a927c8e9fa3fb507cc155d4fd34098ee6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1NoGoods" kindref="compound">NoGoods</ref> &amp;</type>
+        <definition>NoGoods &amp; Gecode::Search::WorkerToEngine&lt; Worker &gt;::nogoods</definition>
+        <argsstring>(void)</argsstring>
+        <name>nogoods</name>
+        <reimplements refid="classGecode_1_1Search_1_1Engine_1a8ed6f6fe44adba4285e52d3db1e0c00a">nogoods</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/support.hh" line="67" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="104" bodyend="106"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Virtualize a worker to an engine. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="8189">
+        <label>Gecode::Search::WorkerToEngine&lt; Worker &gt;</label>
+        <link refid="classGecode_1_1Search_1_1WorkerToEngine"/>
+        <childnode refid="8190" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8190">
+        <label>Gecode::Search::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Engine"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8191">
+        <label>Gecode::Search::WorkerToEngine&lt; Worker &gt;</label>
+        <link refid="classGecode_1_1Search_1_1WorkerToEngine"/>
+        <childnode refid="8192" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8193" relation="usage">
+          <edgelabel>w</edgelabel>
+        </childnode>
+      </node>
+      <node id="8194">
+        <label>Gecode::Search::Statistics</label>
+        <link refid="classGecode_1_1Search_1_1Statistics"/>
+        <childnode refid="8195" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8193">
+        <label>Gecode::Search::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Worker"/>
+        <childnode refid="8194" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8195">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+      <node id="8192">
+        <label>Gecode::Search::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Engine"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/support.hh" line="51" column="1" bodyfile="/usr/include/gecode/search/support.hh" bodystart="51" bodyend="68"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1ab21c250c4778991c4573a813f8c1f57f" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>next</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a927c8e9fa3fb507cc155d4fd34098ee6" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a209ec0d773608802f20c310b9eb4f28b" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a516798561208d1ced63d21ea54eb9314" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>statistics</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a2b5b2810cd0ca873c7bcea3f42a5f885" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>stopped</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a8f063fcd77329f061d1ef81168b10549" prot="protected" virt="non-virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>w</name></member>
+      <member refid="classGecode_1_1Search_1_1WorkerToEngine_1a47bd56b6e82489c9af9b62d58de1e239" prot="public" virt="non-virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>WorkerToEngine</name></member>
+      <member refid="classGecode_1_1Search_1_1Engine_1ae2edd144a6800328408bea4ead419840" prot="public" virt="virtual"><scope>Gecode::Search::WorkerToEngine</scope><name>~Engine</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

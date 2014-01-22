@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Symmetries" kind="class" prot="public">
+    <compoundname>Gecode::Symmetries</compoundname>
+    <basecompoundref refid="classGecode_1_1ArgArray" prot="public" virt="non-virtual">Gecode::ArgArray&lt; SymmetryHandle &gt;</basecompoundref>
+    <includes refid="int_8hh" local="no">int.hh</includes>
+    <briefdescription>
+<para>Collection of symmetries. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6850">
+        <label>Gecode::Symmetries</label>
+        <link refid="classGecode_1_1Symmetries"/>
+        <childnode refid="6851" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6852">
+        <label>Gecode::ArgArrayBase&lt; T &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+      </node>
+      <node id="6851">
+        <label>Gecode::ArgArray&lt; SymmetryHandle &gt;</label>
+        <link refid="classGecode_1_1ArgArray"/>
+        <childnode refid="6852" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6853">
+        <label>Gecode::Symmetries</label>
+        <link refid="classGecode_1_1Symmetries"/>
+        <childnode refid="6854" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6856">
+        <label>T</label>
+      </node>
+      <node id="6855">
+        <label>Gecode::ArgArrayBase&lt; T &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+        <childnode refid="6856" relation="usage">
+          <edgelabel>onstack</edgelabel>
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="6854">
+        <label>Gecode::ArgArray&lt; SymmetryHandle &gt;</label>
+        <link refid="classGecode_1_1ArgArray"/>
+        <childnode refid="6855" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int.hh" line="4228" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="4228" bodyend="4228"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArgArrayBase_1a6ac424d552057a5730b67d9b15b9977c" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>a</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa3a75d22c4da142c5f7129561f980399" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1acf7efe7096de3d763d6a894306e56adc" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a91d22d529d75c419aa3bd6c93849cb4a" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArray_1a288d3cb40e578b413b9e407f84fb7dcd" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArray_1a7002a33374b4dca1a75f0626b6c6cc44" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArray_1a606df052a1c714082c4c217441933271" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArray_1a12af8926e2b4a1dbfe97cd4976b186cf" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArray_1af638dc4a69d7f7aeb847455820f2038d" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArray_1afdc5f0f577e538b4e2e459b638b0838e" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArray</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf88593537f41f862b91120c4c6ee104" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1add5bd614e97033a43636821aeab64ce2" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ae30a8e33f63548bf1e8f52bc772686db" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab0a3399a6a484dc36cd3d306a2b8e199" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a9e7b606b9971b3344e692a60ac13b223" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa113576241a65d86140bc3419d96b02c" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa56cc30444aa0a1e206475eb2201a281" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aba50e7707c86b17f0d4b805939305227" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>capacity</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8dfd1207b4479935fb88e517b21bf49f" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3e5176857b4d13451f9022f6a72b192" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad83ae4a7fc5863035e6fe5795b843768" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>const_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c85c82056ab8fbf2772417329d3e802" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>const_pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a097be827923b3a47bacd8918ec73ca6b" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>const_reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1af2029facbd7b8dcfef6573d43444cde2" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>const_reverse_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad90ff8a9bd79af6acfdb72646c52a780" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>end</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a62a0f08722a2eaddd4d9b3bd7d3a216c" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>end</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa687fceda8a4ae2a64fb5a7bb649a5a7" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ac8bab055302616752818fe5df090a1b9" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>n</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c191ff64ad1876b584048422f9ff29e" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>onstack</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a2a7e9c76d67fae7aae4f20109eb38317" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>onstack_size</name></member>
+      <member refid="classGecode_1_1ArgArray_1a3653e6d20a9a233f5a83342cb77df7f4" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ArgArray_1a7dc92b81d9cc3d0103ffaa3fd503389d" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a434ab9157f5572d9ebd9f16c741d4bec" prot="public" virt="non-virtual" ambiguityscope="Gecode::ArgArrayBase::"><scope>Gecode::Symmetries</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7a164914ff7e98d30c7682772c28c755" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a3374c5468b4a8d6fc80c1b7059b62b1a" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7d93ce4e7a605a9a450326683831d54a" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3bc773d03a61dd0c04283e749ec0ed2" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf6d78bac5609f86601dfb22131bc866" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a71af78d1d4adeb593e14add9fbc2135a" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad0298b4768b0e53ce8ef13f80789ac18" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa6fcebbdd86271d362383f71a3fdbd26" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8c876fa6c631f6d9685ee44194628f6c" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8ed2c153f6a9481eac03f81fc1eb6b14" prot="protected" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>resize</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a77d09762f3b2d7c017a1c66530c30ba5" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>reverse_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>size</name></member>
+      <member refid="classGecode_1_1ArgArray_1a5742aff4e6d84c544e578589fbfccfa7" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>slice</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a56a36e2a609ea57109c79d43890d62ef" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>value_type</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab397c8c20972f2bc8d3b53e46145cb24" prot="public" virt="non-virtual"><scope>Gecode::Symmetries</scope><name>~ArgArrayBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

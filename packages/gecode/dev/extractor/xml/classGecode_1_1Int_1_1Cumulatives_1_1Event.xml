@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Cumulatives_1_1Event" kind="class" prot="public">
+    <compoundname>Gecode::Int::Cumulatives::Event</compoundname>
+    <includes refid="int_2cumulatives_2val_8hpp" local="no">val.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1aafb92ca3e002eccaf488c5f170dab918" prot="public" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1Cumulatives_1a852948a64ab312939372970c7f2a5304" kindref="member">ev_t</ref></type>
+        <definition>ev_t Gecode::Int::Cumulatives::Event::e</definition>
+        <argsstring></argsstring>
+        <name>e</name>
+        <briefdescription>
+<para>The type of the event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="129" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a8463bde77b155313251733d7ddbbbd48" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Cumulatives::Event::task</definition>
+        <argsstring></argsstring>
+        <name>task</name>
+        <briefdescription>
+<para>The task this event refers to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="131" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a38206b1318c9544bcc21b505149960f2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Cumulatives::Event::date</definition>
+        <argsstring></argsstring>
+        <name>date</name>
+        <briefdescription>
+<para>The date of this event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="133" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1af8289106240e3497e38507a5e1589f5f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Cumulatives::Event::inc</definition>
+        <argsstring></argsstring>
+        <name>inc</name>
+        <briefdescription>
+<para>The quantity changed by this event (if any) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="135" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a281e4b35be4676135c5ead8befde96d7" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Int::Cumulatives::Event::first_prof</definition>
+        <argsstring></argsstring>
+        <name>first_prof</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>If the type is EVENT_PROF and it is the first of the pair, this value is true. Added to handle contribution-values correctly for both at_most and at_least. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="140" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a7e02575c9c3b81722a8e69cbf09f817a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Cumulatives::Event::Event</definition>
+        <argsstring>(ev_t _e, int _task, int _date, int _inc=0, bool _first_prof=false)</argsstring>
+        <name>Event</name>
+        <param>
+          <type><ref refid="namespaceGecode_1_1Int_1_1Cumulatives_1a852948a64ab312939372970c7f2a5304" kindref="member">ev_t</ref></type>
+          <declname>_e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_task</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_date</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>_inc</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>_first_prof</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Simple constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="143" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="143" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1ad4a6cb13bad1bc7c5d85b915a2243571" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Cumulatives::Event::Event</definition>
+        <argsstring>(void)</argsstring>
+        <name>Event</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="148" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="148" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a17237d4599a38751e366998def3c0670" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Int::Cumulatives::Event::operator&lt;</definition>
+        <argsstring>(const Event &amp;ev) const </argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulatives_1_1Event" kindref="compound">Event</ref> &amp;</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+<para>Order events based on date. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="151" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="151" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An event collects the information for one evnet for the sweep-line. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/cumulatives/val.hpp" line="126" column="1" bodyfile="/usr/include/gecode/int/cumulatives/val.hpp" bodystart="125" bodyend="159"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a38206b1318c9544bcc21b505149960f2" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>date</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1aafb92ca3e002eccaf488c5f170dab918" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>e</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a7e02575c9c3b81722a8e69cbf09f817a" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>Event</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1ad4a6cb13bad1bc7c5d85b915a2243571" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>Event</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a281e4b35be4676135c5ead8befde96d7" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>first_prof</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1af8289106240e3497e38507a5e1589f5f" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>inc</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a17237d4599a38751e366998def3c0670" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulatives_1_1Event_1a8463bde77b155313251733d7ddbbbd48" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulatives::Event</scope><name>task</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

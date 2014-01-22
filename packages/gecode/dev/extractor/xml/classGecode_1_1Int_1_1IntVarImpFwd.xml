@@ -1,0 +1,224 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1IntVarImpFwd" kind="class" prot="public">
+    <compoundname>Gecode::Int::IntVarImpFwd</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewRanges_3_01IntView_01_4" prot="public" virt="non-virtual">Gecode::Int::ViewRanges&lt; IntView &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntVarRanges" prot="public" virt="non-virtual">Gecode::IntVarRanges</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1LubRanges_3_01SingletonView_01_4" prot="public" virt="non-virtual">Gecode::Set::LubRanges&lt; SingletonView &gt;</derivedcompoundref>
+    <includes refid="int_2var-imp_8hpp" local="no">var-imp.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1afa3a7fadb7c54a24a57f2bc1b70c1c10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::IntVarImpFwd::IntVarImpFwd</definition>
+        <argsstring>(void)</argsstring>
+        <name>IntVarImpFwd</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="397" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="427" bodyend="427"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a257784ddd7ae07e9417162a697aa6363" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::IntVarImpFwd::IntVarImpFwd</definition>
+        <argsstring>(const IntVarImp *x)</argsstring>
+        <name>IntVarImpFwd</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1IntVarImp" kindref="compound">IntVarImp</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from variable implementation <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="399" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="429" bodyend="430"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a5da5fba67751feef70ab06451b8dd333" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::IntVarImpFwd::init</definition>
+        <argsstring>(const IntVarImp *x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1IntVarImp" kindref="compound">IntVarImp</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from variable implementation <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="401" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="432" bodyend="434"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a524522ab06b83abf26f88b9a326a148b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::IntVarImpFwd::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="407" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="437" bodyend="439"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a4a9631a5f1a817d17e387eded2b286f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::IntVarImpFwd::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="409" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="441" bodyend="443"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a8b1a71c914e81fe9a17df7e17a0fd11a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::IntVarImpFwd::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="415" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="446" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a2e749fa73a032d2e6c8b90ce572256a4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::IntVarImpFwd::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="417" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="450" bodyend="452"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1IntVarImpFwd_1a20954238396e591a4bc14570c63b99f2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Int::IntVarImpFwd::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="419" column="1" bodyfile="/usr/include/gecode/int/var-imp/int.hpp" bodystart="454" bodyend="456"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1IntVarImpFwd_1a758b8851781caa5f87c1450570262e7c" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Int_1_1IntVarImp_1_1RangeList" kindref="compound">IntVarImp::RangeList</ref> *</type>
+        <definition>const IntVarImp::RangeList* Gecode::Int::IntVarImpFwd::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+<para>Previous range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="390" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="390" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1IntVarImpFwd_1a72bedd7a5e5bd930f46c307736bc734e" prot="private" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Int_1_1IntVarImp_1_1RangeList" kindref="compound">IntVarImp::RangeList</ref> *</type>
+        <definition>const IntVarImp::RangeList* Gecode::Int::IntVarImpFwd::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Current range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/var-imp.hpp" line="392" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="392" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for ranges of integer variable implementation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3079">
+        <label>Gecode::Int::IntVarImpFwd</label>
+        <link refid="classGecode_1_1Int_1_1IntVarImpFwd"/>
+      </node>
+      <node id="3082">
+        <label>Gecode::IntVarRanges</label>
+        <link refid="classGecode_1_1IntVarRanges"/>
+        <childnode refid="3079" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3080">
+        <label>Gecode::Int::ViewRanges&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01IntView_01_4"/>
+        <childnode refid="3079" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3083">
+        <label>Gecode::Set::LubRanges&lt; SingletonView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01SingletonView_01_4"/>
+        <childnode refid="3079" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3081">
+        <label>Gecode::Int::ViewRanges&lt; GCC::CardView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01GCC_1_1CardView_01_4"/>
+        <childnode refid="3080" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/var-imp.hpp" line="387" column="1" bodyfile="/usr/include/gecode/int/var-imp.hpp" bodystart="387" bodyend="421"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a72bedd7a5e5bd930f46c307736bc734e" prot="private" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>c</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a5da5fba67751feef70ab06451b8dd333" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1afa3a7fadb7c54a24a57f2bc1b70c1c10" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>IntVarImpFwd</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a257784ddd7ae07e9417162a697aa6363" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>IntVarImpFwd</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a2e749fa73a032d2e6c8b90ce572256a4" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a8b1a71c914e81fe9a17df7e17a0fd11a" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a524522ab06b83abf26f88b9a326a148b" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a4a9631a5f1a817d17e387eded2b286f8" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a758b8851781caa5f87c1450570262e7c" prot="private" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>p</name></member>
+      <member refid="classGecode_1_1Int_1_1IntVarImpFwd_1a20954238396e591a4bc14570c63b99f2" prot="public" virt="non-virtual"><scope>Gecode::Int::IntVarImpFwd</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

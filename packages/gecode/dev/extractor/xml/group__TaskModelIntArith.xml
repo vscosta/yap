@@ -1,0 +1,439 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntArith" kind="group">
+    <compoundname>TaskModelIntArith</compoundname>
+    <title>Arithmetic constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntArith_1gaf34fc0b6e702cc654e6eaafc6052c4bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::min</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>min</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="72">$ \min\{x_0,x_1\}=x_2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2155" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga32483ca65c05e4217674816e54c735bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::min</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntVar y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>min</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="73">$ \min x=y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>If <emphasis>x</emphasis> is empty, an exception of type <ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref> is thrown. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2165" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga895be25c475d6247bb247154a012604e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::max</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>max</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="74">$ \max\{x_0,x_1\}=x_2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2173" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga33029f4ac646bb8502a9fdc8dde911c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::max</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntVar y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>max</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="11">$ \max x=y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>If <emphasis>x</emphasis> is empty, an exception of type <ref refid="classGecode_1_1Int_1_1TooFewArguments" kindref="compound">Int::TooFewArguments</ref> is thrown. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2183" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga847445d5dbb8587a421041738895d4c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::abs</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>abs</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="75">$ |x_0|=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2192" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga998048e34bbc19502bea5ee6c76f403f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::mult</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>mult</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="7">$x_0\cdot x_1=x_2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2201" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1gae4ddabd7038fee7954363f38a2e324c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::divmod</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntVar x3, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>divmod</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x3</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="273">$x_0\ \mathrm{div}\ x_1=x_2 \land x_0\ \mathrm{mod}\ x_1 = x_3$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2209" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1gaf4391e636a2beb0c95ec9311a7aebb4c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::div</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>div</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="79">$x_0\ \mathrm{div}\ x_1=x_2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2217" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga4cd6235cdf64674a689b4d75da983394" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::mod</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntVar x2, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>mod</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x2</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="274">$x_0\ \mathrm{mod}\ x_1=x_2$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2225" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga7b955cc60c82adc4137f1288d9c65d5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::sqr</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>sqr</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="275">$x_0^2=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2234" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1gaf5d1721e17b0ed6b63ceb7f865c9b948" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::sqrt</definition>
+        <argsstring>(Home home, IntVar x0, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>sqrt</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="276">$\lfloor\sqrt{x_0}\rfloor=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2243" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga8ea0608babb3c72b26c70fee526b9851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::pow</definition>
+        <argsstring>(Home home, IntVar x0, int n, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>pow</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="277">$x_0^n=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>n</emphasis> is negative. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2255" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntArith_1ga30a853f9b7b106996c56f53453048dcf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::nroot</definition>
+        <argsstring>(Home home, IntVar x0, int n, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>nroot</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="278">$\lfloor\sqrt[n]{x_0}\rfloor=x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds consistency (<emphasis>icl</emphasis> = ICL_BND, default) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM).</para><para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref>, if <emphasis>n</emphasis> is not strictly positive. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2267" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

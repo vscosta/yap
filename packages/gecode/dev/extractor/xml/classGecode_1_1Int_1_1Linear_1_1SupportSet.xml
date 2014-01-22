@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1SupportSet" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::SupportSet</compoundname>
+    <includes refid="int-dom_8hpp" local="no">int-dom.hpp</includes>
+    <innerclass refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1_1ResultIter" prot="private">Gecode::Int::Linear::SupportSet::ResultIter</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1aec5e3c17682a85ff923d96c00d9a482e" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">Support::BitSetBase</ref></type>
+        <definition>Support::BitSetBase Gecode::Int::Linear::SupportSet::bs</definition>
+        <argsstring></argsstring>
+        <name>bs</name>
+        <briefdescription>
+<para>Bitset for storing support information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="50" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a38466ad02c91f30a1e7049390e73c4cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Linear::SupportSet::SupportSet</definition>
+        <argsstring>(void)</argsstring>
+        <name>SupportSet</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="53" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="167" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a7f2e9c6fea8137466c501a4b4b8ddc19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::SupportSet::init</definition>
+        <argsstring>(Region &amp;r, unsigned int n)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize support set with cardinality <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="55" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="169" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a6c77dcce6dd8863be159590fd28f52d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Linear::SupportSet::support</definition>
+        <argsstring>(unsigned int i)</argsstring>
+        <name>support</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Record that there is support at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="173" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a15a3b120b07364baabbad1273b052491" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::SupportSet::supported</definition>
+        <argsstring>(unsigned int i) const </argsstring>
+        <name>supported</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Check whether position. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>i has support </para></listitem>
+</itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="177" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1SupportSet_1ae3dbd097da5c0c7de2bc6b72878aeddc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::Linear::SupportSet::tell</definition>
+        <argsstring>(Space &amp;home, IntView &amp;x) const </argsstring>
+        <name>tell</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Perform tell according to recorded support information on. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>x </para></listitem>
+</itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="78" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="197" bodyend="212"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Set for support information </para>    </briefdescription>
+    <detaileddescription>
+<para>Records supported positions of values such that with iteration the supported values can be reconstructed. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="47" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="47" bodyend="79"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1aec5e3c17682a85ff923d96c00d9a482e" prot="private" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>bs</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a7f2e9c6fea8137466c501a4b4b8ddc19" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a6c77dcce6dd8863be159590fd28f52d9" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>support</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a15a3b120b07364baabbad1273b052491" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>supported</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1a38466ad02c91f30a1e7049390e73c4cb" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>SupportSet</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportSet_1ae3dbd097da5c0c7de2bc6b72878aeddc" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::SupportSet</scope><name>tell</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

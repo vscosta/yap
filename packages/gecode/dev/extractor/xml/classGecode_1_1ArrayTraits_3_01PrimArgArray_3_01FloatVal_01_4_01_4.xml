@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;</compoundname>
+    <includes refid="float_2array-traits_8hpp" local="no">array-traits.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1a4f29e70094557f58996c46f941cb16c1" prot="public" static="no">
+        <type><ref refid="classGecode_1_1FloatValArgs" kindref="compound">FloatValArgs</ref></type>
+        <definition>typedef FloatValArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;::StorageType</definition>
+        <argsstring></argsstring>
+        <name>StorageType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/array-traits.hpp" line="68" column="1" bodyfile="/usr/include/gecode/float/array-traits.hpp" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1a4ad948d79a4a47cbf422a73cfc0274e7" prot="public" static="no">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>typedef FloatVal Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;::ValueType</definition>
+        <argsstring></argsstring>
+        <name>ValueType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/array-traits.hpp" line="69" column="1" bodyfile="/usr/include/gecode/float/array-traits.hpp" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1ab2809ec2074e89c342f524bf2236d42d" prot="public" static="no">
+        <type><ref refid="classGecode_1_1FloatValArgs" kindref="compound">FloatValArgs</ref></type>
+        <definition>typedef FloatValArgs Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;::ArgsType</definition>
+        <argsstring></argsstring>
+        <name>ArgsType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/array-traits.hpp" line="70" column="1" bodyfile="/usr/include/gecode/float/array-traits.hpp" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits of FloatValArgs. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/float/array-traits.hpp" line="66" column="1" bodyfile="/usr/include/gecode/float/array-traits.hpp" bodystart="66" bodyend="71"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1ab2809ec2074e89c342f524bf2236d42d" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;</scope><name>ArgsType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1a4f29e70094557f58996c46f941cb16c1" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;</scope><name>StorageType</name></member>
+      <member refid="classGecode_1_1ArrayTraits_3_01PrimArgArray_3_01FloatVal_01_4_01_4_1a4ad948d79a4a47cbf422a73cfc0274e7" prot="public" virt="non-virtual"><scope>Gecode::ArrayTraits&lt; PrimArgArray&lt; FloatVal &gt; &gt;</scope><name>ValueType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

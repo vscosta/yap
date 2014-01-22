@@ -1,0 +1,471 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1DerivedView" kind="class" prot="public">
+    <compoundname>Gecode::DerivedView</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1CachedView" prot="public" virt="non-virtual">Gecode::Int::CachedView&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1CachedView" prot="public" virt="non-virtual">Gecode::Set::CachedView&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1ComplementView" prot="public" virt="non-virtual">Gecode::Set::ComplementView&lt; View &gt;</derivedcompoundref>
+    <includes refid="kernel_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Generic view information</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::DerivedView&lt; View &gt;::varderived</definition>
+        <argsstring>(void)</argsstring>
+        <name>varderived</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether this view is derived from a <ref refid="classGecode_1_1VarImpView" kindref="compound">VarImpView</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="225" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="514" bodyend="516"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" kindref="member">VarImpType</ref> *</type>
+        <definition>forceinline View::VarImpType * Gecode::DerivedView&lt; View &gt;::varimp</definition>
+        <argsstring>(void) const </argsstring>
+        <name>varimp</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return variable implementation of view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="227" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="520" bodyend="522"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>View</type>
+        <definition>forceinline View Gecode::DerivedView&lt; View &gt;::base</definition>
+        <argsstring>(void) const </argsstring>
+        <name>base</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return view from which this view is derived. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="229" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="526" bodyend="528"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::DerivedView&lt; View &gt;::degree</definition>
+        <argsstring>(void) const </argsstring>
+        <name>degree</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return degree (number of subscribed propagators) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="231" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="532" bodyend="534"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::DerivedView&lt; View &gt;::afc</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>afc</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return accumulated failure count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="233" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="537" bodyend="539"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::DerivedView&lt; View &gt;::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether view is assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="239" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="542" bodyend="544"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::schedule</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, ModEvent me)</argsstring>
+        <name>schedule</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Schedule propagator <emphasis>p</emphasis> with modification event <emphasis>me</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="245" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="548" bodyend="550"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::DerivedView&lt; View &gt;::me</definition>
+        <argsstring>(const ModEventDelta &amp;med)</argsstring>
+        <name>me</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event for view type in <emphasis>med</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="247" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="553" bodyend="555"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a3dff6323ee18e55bd362b67cb7449318" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::DerivedView&lt; View &gt;::med</definition>
+        <argsstring>(ModEvent)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <defname>me</defname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="249" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="558" bodyend="560"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool schedule=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>schedule</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>schedule</emphasis> is false, the propagator is just subscribed but not scheduled for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="261" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="564" bodyend="567"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="263" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="570" bodyend="572"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="265" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="575" bodyend="577"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="267" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="580" bodyend="582"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::DerivedView&lt; View &gt;::modevent</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>modevent</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="273" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="585" bodyend="587"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::DerivedView&lt; View &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, DerivedView&lt; View &gt; &amp;y)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1DerivedView" kindref="compound">DerivedView</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Update this view to be a clone of view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="279" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="590" bodyend="592"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" static="no">
+        <type>View::VarImpType</type>
+        <definition>typedef View::VarImpType Gecode::DerivedView&lt; View &gt;::VarImpType</definition>
+        <argsstring></argsstring>
+        <name>VarImpType</name>
+        <briefdescription>
+<para>The variable implementation type belonging to the <emphasis>View</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="211" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" static="no">
+        <type>View::VarType</type>
+        <definition>typedef View::VarType Gecode::DerivedView&lt; View &gt;::VarType</definition>
+        <argsstring></argsstring>
+        <name>VarType</name>
+        <briefdescription>
+<para>The variable type belonging to the <emphasis>View</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="213" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::DerivedView&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>View from which this view is derived. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="216" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::DerivedView&lt; View &gt;::DerivedView</definition>
+        <argsstring>(void)</argsstring>
+        <name>DerivedView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="218" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="505" bodyend="505"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::DerivedView&lt; View &gt;::DerivedView</definition>
+        <argsstring>(const View &amp;y)</argsstring>
+        <name>DerivedView</name>
+        <param>
+          <type>const View &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="220" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="509" bodyend="510"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for derived views. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1639">
+        <label>Gecode::DerivedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="1640">
+        <label>Gecode::Int::CachedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1CachedView"/>
+        <childnode refid="1639" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1642">
+        <label>Gecode::Set::ComplementView&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1ComplementView"/>
+        <childnode refid="1639" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1641">
+        <label>Gecode::Set::CachedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1CachedView"/>
+        <childnode refid="1639" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1643">
+        <label>Gecode::DerivedView&lt; View &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="1644" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="1644">
+        <label>View</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/view.hpp" line="208" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="208" bodyend="281"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>base</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>me</name></member>
+      <member refid="classGecode_1_1DerivedView_1a3dff6323ee18e55bd362b67cb7449318" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>med</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::DerivedView</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

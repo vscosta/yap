@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Circuit_1_1TellInfo" kind="class" prot="public">
+    <compoundname>Gecode::Int::Circuit::TellInfo</compoundname>
+    <includes refid="circuit_2base_8hpp" local="no">base.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1TellInfo_1a21ac1299ec9f0dd61855c7d44bca1d18" prot="public" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Int::Circuit::TellInfo&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="67" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1TellInfo_1af3cee56aa56e49b610f91dadfbaf7c34" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Circuit::TellInfo&lt; View &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="67" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Information for performing a recorded tell. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6974">
+        <label>Gecode::Int::Circuit::TellInfo&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1TellInfo"/>
+        <childnode refid="6975" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6975">
+        <label>View</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/circuit/base.hpp" line="65" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="65" bodyend="68"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1TellInfo_1af3cee56aa56e49b610f91dadfbaf7c34" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::TellInfo</scope><name>n</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1TellInfo_1a21ac1299ec9f0dd61855c7d44bca1d18" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::TellInfo</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

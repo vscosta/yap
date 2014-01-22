@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_f9815632edadddf0ec3b424656a67c65" kind="dir">
+    <compoundname>/usr/include/gecode/search</compoundname>
+    <innerdir refid="dir_ccb7466e1cbd080cce75fc6b87ed465a">/usr/include/gecode/search/meta</innerdir>
+    <innerdir refid="dir_2de6540d8315da9483cf39c88cd94c30">/usr/include/gecode/search/parallel</innerdir>
+    <innerdir refid="dir_bc03fdf76c6dcc6966561060ba1bffa8">/usr/include/gecode/search/sequential</innerdir>
+    <innerfile refid="bab_8hpp">bab.hpp</innerfile>
+    <innerfile refid="cutoff_8hpp">cutoff.hpp</innerfile>
+    <innerfile refid="dfs_8hpp">dfs.hpp</innerfile>
+    <innerfile refid="engine-base_8hpp">engine-base.hpp</innerfile>
+    <innerfile refid="search_2exception_8hpp">exception.hpp</innerfile>
+    <innerfile refid="search_2options_8hpp">options.hpp</innerfile>
+    <innerfile refid="rbs_8hpp">rbs.hpp</innerfile>
+    <innerfile refid="statistics_8hpp">statistics.hpp</innerfile>
+    <innerfile refid="stop_8hpp">stop.hpp</innerfile>
+    <innerfile refid="search_2support_8hh">support.hh</innerfile>
+    <innerfile refid="worker_8hh">worker.hh</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/search/"/>
+  </compounddef>
+</doxygen>

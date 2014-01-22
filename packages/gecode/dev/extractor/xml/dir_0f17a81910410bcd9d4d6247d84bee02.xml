@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_0f17a81910410bcd9d4d6247d84bee02" kind="dir">
+    <compoundname>/usr/include/gecode/float/linear</compoundname>
+    <innerfile refid="nary_8hpp">nary.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/float/linear/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1PartialSum" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::PartialSum</compoundname>
+    <includes refid="bnd-sup_8hpp" local="no">bnd-sup.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class Card</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a25966c8c16a8518d90c352db1dd7171b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::GCC::PartialSum&lt; Card &gt;::PartialSum</definition>
+        <argsstring>(void)</argsstring>
+        <name>PartialSum</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="253" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="298" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1adbea1d921783c22c3078e6991f27a06a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::GCC::PartialSum&lt; Card &gt;::init</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; Card &gt; &amp;k, bool up)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>up</declname>
+        </param>
+        <briefdescription>
+<para>Initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="255" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="307" bodyend="370"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1abbe41d6cb7d2d739c92927043c7c2bd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::PartialSum&lt; Card &gt;::reinit</definition>
+        <argsstring>(void)</argsstring>
+        <name>reinit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark datstructure as requiring reinitialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="257" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="374" bodyend="376"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1af3365bba28c8e0ee1424fc4c527b48e2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::PartialSum&lt; Card &gt;::initialized</definition>
+        <argsstring>(void) const </argsstring>
+        <name>initialized</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether already initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="259" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="302" bodyend="304"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a4688fb6713c0e732f7ca1ae5761e6fb1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::PartialSum&lt; Card &gt;::sumup</definition>
+        <argsstring>(int from, int to) const </argsstring>
+        <name>sumup</name>
+        <param>
+          <type>int</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Compute the maximum capacity of an interval. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="264" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="381" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a873dcfc21a98a10829038e610fa95180" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::PartialSum&lt; Card &gt;::minValue</definition>
+        <argsstring>(void) const </argsstring>
+        <name>minValue</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest bound of variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="266" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="395" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1aad65a504d42e316a3ff2795ef4758c9f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::PartialSum&lt; Card &gt;::maxValue</definition>
+        <argsstring>(void) const </argsstring>
+        <name>maxValue</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest bound of variables. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="268" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="400" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1afe4fff55e24ea89666fee5487502eb12" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::PartialSum&lt; Card &gt;::skipNonNullElementsRight</definition>
+        <argsstring>(int v) const </argsstring>
+        <name>skipNonNullElementsRight</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Skip neigbouring array entries if their values do not differ. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="270" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="407" bodyend="411"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a012ec4f2d7f01846333b84a4d33b36c3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::PartialSum&lt; Card &gt;::skipNonNullElementsLeft</definition>
+        <argsstring>(int v) const </argsstring>
+        <name>skipNonNullElementsLeft</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Skip neigbouring array entries if their values do not differ. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="272" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="414" bodyend="418"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Update</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1ad09ec317c6bef3fa4d30310b29140b1a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Int::GCC::PartialSum&lt; Card &gt;::check_update_min</definition>
+        <argsstring>(ViewArray&lt; Card &gt; &amp;k)</argsstring>
+        <name>check_update_min</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+<para>Check whether the values in the partial sum structure containting the lower cardinality bounds differ from the actual lower bounds of the cardinalities. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="283" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="436" bodyend="446"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1abf0d1c281fe2aeefd5fdaaaed1e72475" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Int::GCC::PartialSum&lt; Card &gt;::check_update_max</definition>
+        <argsstring>(ViewArray&lt; Card &gt; &amp;k)</argsstring>
+        <name>check_update_max</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; Card &gt; &amp;</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+<para>Check whether the values in the partial sum structure containting the upper cardinality bounds differ from the actual upper bounds of the cardinalities. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="291" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="422" bodyend="432"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1aa378448beab83255f5dd46f4ddc88e9c" prot="private" static="no" mutable="no">
+        <type>int *</type>
+        <definition>int* Gecode::Int::GCC::PartialSum&lt; Card &gt;::sum</definition>
+        <argsstring></argsstring>
+        <name>sum</name>
+        <briefdescription>
+<para>sum[i] contains the partial sum from 0 to i </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="244" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a240c4f2e4594f4fdb72eb8f07a61208c" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::PartialSum&lt; Card &gt;::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>the size of the sum </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="246" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a2e02b08dfb924642f766ccb079a2e730" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::PartialSum&lt; Card &gt;::firstValue</definition>
+        <argsstring></argsstring>
+        <name>firstValue</name>
+        <briefdescription>
+<para>Sentinels indicating whether an end of sum is reached. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="249" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a05452e31698b5409d78a674d464f0e4d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::PartialSum&lt; Card &gt;::lastValue</definition>
+        <argsstring></argsstring>
+        <name>lastValue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="249" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Partial sum structure for constant time computation of the maximal capacity of an interval. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/gcc/bnd-sup.hpp" line="241" column="1" bodyfile="/usr/include/gecode/int/gcc/bnd-sup.hpp" bodystart="241" bodyend="293"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1abf0d1c281fe2aeefd5fdaaaed1e72475" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>check_update_max</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1ad09ec317c6bef3fa4d30310b29140b1a" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>check_update_min</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a2e02b08dfb924642f766ccb079a2e730" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>firstValue</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1adbea1d921783c22c3078e6991f27a06a" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1af3365bba28c8e0ee1424fc4c527b48e2" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>initialized</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a05452e31698b5409d78a674d464f0e4d" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>lastValue</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1aad65a504d42e316a3ff2795ef4758c9f" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>maxValue</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a873dcfc21a98a10829038e610fa95180" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>minValue</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a25966c8c16a8518d90c352db1dd7171b" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>PartialSum</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1abbe41d6cb7d2d739c92927043c7c2bd1" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>reinit</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a240c4f2e4594f4fdb72eb8f07a61208c" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a012ec4f2d7f01846333b84a4d33b36c3" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>skipNonNullElementsLeft</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1afe4fff55e24ea89666fee5487502eb12" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>skipNonNullElementsRight</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1aa378448beab83255f5dd46f4ddc88e9c" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>sum</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1PartialSum_1a4688fb6713c0e732f7ca1ae5761e6fb1" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::PartialSum</scope><name>sumup</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

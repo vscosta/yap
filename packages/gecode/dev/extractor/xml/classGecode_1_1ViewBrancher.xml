@@ -1,0 +1,332 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ViewBrancher" kind="class" prot="public">
+    <compoundname>Gecode::ViewBrancher</compoundname>
+    <basecompoundref refid="classGecode_1_1Brancher" prot="public" virt="non-virtual">Gecode::Brancher</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1ViewValBrancher" prot="public" virt="non-virtual">Gecode::ViewValBrancher&lt; View, n, Val, a &gt;</derivedcompoundref>
+    <includes refid="brancher-view_8hpp" local="no">brancher-view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>int</type>
+        <declname>n</declname>
+        <defname>n</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="classGecode_1_1ViewBrancher_1adc4246630e2e482d2fd9f83d1a839fe7" prot="protected" static="no">
+        <type><ref refid="classGecode_1_1BranchTraits" kindref="compound">BranchTraits</ref>&lt; typename View::VarType &gt;::Filter</type>
+        <definition>typedef BranchTraits&lt;typename View::VarType&gt;::Filter Gecode::ViewBrancher&lt; View, n &gt;::BranchFilter</definition>
+        <argsstring></argsstring>
+        <name>BranchFilter</name>
+        <briefdescription>
+<para>The branch filter that corresponds to the var type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="82" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt;</type>
+        <definition>ViewArray&lt;View&gt; Gecode::ViewBrancher&lt; View, n &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Views to branch on. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="84" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ViewBrancher_1ad4d6e8b38f157e325cf3845e64ed75d7" prot="protected" static="no" mutable="yes">
+        <type>int</type>
+        <definition>int Gecode::ViewBrancher&lt; View, n &gt;::start</definition>
+        <argsstring></argsstring>
+        <name>start</name>
+        <briefdescription>
+<para>Unassigned views start at x[start]. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="86" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ViewBrancher_1af24b93d52c489f9c90b2f6823e1b0c0f" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; View &gt; *</type>
+        <definition>ViewSel&lt;View&gt;* Gecode::ViewBrancher&lt; View, n &gt;::vs[n]</definition>
+        <argsstring>[n]</argsstring>
+        <name>vs</name>
+        <briefdescription>
+<para>View selection objects. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="88" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ViewBrancher_1a8bd06d8ce2ebbeeba3a0df263d0fbacf" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewBrancher_1adc4246630e2e482d2fd9f83d1a839fe7" kindref="member">BranchFilter</ref></type>
+        <definition>BranchFilter Gecode::ViewBrancher&lt; View, n &gt;::bf</definition>
+        <argsstring></argsstring>
+        <name>bf</name>
+        <briefdescription>
+<para>Branch filter function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="90" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1a3bccef15a969bd042419c9adf7d24728" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref></type>
+        <definition>Pos Gecode::ViewBrancher&lt; View, n &gt;::pos</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>pos</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return position information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="92" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="185" bodyend="221"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1a5326d83d4f34ed591f7c5e946b8d7fe5" prot="protected" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>View</type>
+        <definition>forceinline View Gecode::ViewBrancher&lt; View, n &gt;::view</definition>
+        <argsstring>(const Pos &amp;p) const </argsstring>
+        <name>view</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Return view according to position information <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="94" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="225" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1a60203bdac8f1a00dc1a4b7c6c70b8d98" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewBrancher&lt; View, n &gt;::ViewBrancher</definition>
+        <argsstring>(Space &amp;home, bool shared, ViewBrancher&lt; View, n &gt; &amp;b)</argsstring>
+        <name>ViewBrancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher</ref>&lt; View, n &gt; &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="96" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="154" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1a1bc868729c81ce5dc2d2edb28ee60752" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ViewBrancher&lt; View, n &gt;::ViewBrancher</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, ViewSel&lt; View &gt; *vs[n], BranchFilter bf)</argsstring>
+        <name>ViewBrancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; View &gt; *</type>
+          <declname>vs</declname>
+          <array>[n]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewBrancher_1adc4246630e2e482d2fd9f83d1a839fe7" kindref="member">BranchFilter</ref></type>
+          <declname>bf</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="98" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="140" bodyend="150"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1ab06acc3718206ef2dd69f2a5fbd29ff9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool Gecode::ViewBrancher&lt; View, n &gt;::status</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>status</name>
+        <reimplements refid="classGecode_1_1Brancher_1aa1a46e39f3974b663b45b98c6e457387">status</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Check status of brancher, return true if alternatives left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="102" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="164" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ViewBrancher_1a7c159d5c1f31e889235685e19dd4745c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::ViewBrancher&lt; View, n &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <reimplementedby refid="classGecode_1_1ViewValBrancher_1a5927b457442e8fbab4d9737b12df2c06">dispose</reimplementedby>
+        <reimplementedby refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a11fd58843746c1c30eea88ca2c5da0f9">dispose</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete brancher and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="104" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="231" bodyend="241"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Generic brancher by view selection. </para>    </briefdescription>
+    <detaileddescription>
+<para>Defined for views of type <emphasis>View</emphasis> and <emphasis>n</emphasis> view selectors for tie-breaking. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7794">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="7795" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7793">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="7794" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7798">
+        <label>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher"/>
+        <childnode refid="7797" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7795">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7796" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7797">
+        <label>Gecode::ViewValBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewValBrancher"/>
+        <childnode refid="7793" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7796">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="7799">
+        <label>Gecode::Set::LDSB::LDSBSetBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher"/>
+        <childnode refid="7798" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7805">
+        <label>Gecode::BranchTraits&lt; typename View::VarType &gt;</label>
+        <link refid="classGecode_1_1BranchTraits"/>
+      </node>
+      <node id="7804">
+        <label>Gecode::ViewSel&lt; View &gt;</label>
+        <link refid="classGecode_1_1ViewSel"/>
+      </node>
+      <node id="7801">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="7802" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7800">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="7801" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7804" relation="usage">
+          <edgelabel>vs</edgelabel>
+        </childnode>
+        <childnode refid="7805" relation="usage">
+          <edgelabel>bf</edgelabel>
+        </childnode>
+      </node>
+      <node id="7802">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7803" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7803">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/brancher-view.hpp" line="79" column="1" bodyfile="/usr/include/gecode/kernel/brancher-view.hpp" bodystart="79" bodyend="105"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ViewBrancher_1a8bd06d8ce2ebbeeba3a0df263d0fbacf" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>bf</name></member>
+      <member refid="classGecode_1_1Brancher_1a7bbaf1f4df629265dade447af948298e" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Brancher_1a837e2b189b53fe84794a3b0da82b790a" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1adc4246630e2e482d2fd9f83d1a839fe7" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>BranchFilter</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::ViewBrancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::ViewBrancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Brancher_1a268f77feb1a24032ce46a8edde97d986" prot="public" virt="pure-virtual"><scope>Gecode::ViewBrancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Brancher_1ac4d93468b5d836cea115149e2128a646" prot="public" virt="pure-virtual"><scope>Gecode::ViewBrancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Brancher_1a56fc00c1123d15ee979363b2a8126cca" prot="public" virt="pure-virtual"><scope>Gecode::ViewBrancher</scope><name>commit</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::ViewBrancher</scope><name>copy</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a7c159d5c1f31e889235685e19dd4745c" prot="public" virt="virtual"><scope>Gecode::ViewBrancher</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Brancher_1abf3e7cd63277085696ce0a48ae1c840d" prot="public" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>id</name></member>
+      <member refid="classGecode_1_1Brancher_1a8d426b216e3273202ca46fc1ed4fd345" prot="public" virt="virtual"><scope>Gecode::ViewBrancher</scope><name>ngl</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a3bccef15a969bd042419c9adf7d24728" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>pos</name></member>
+      <member refid="classGecode_1_1Brancher_1ad578d17b478416450835db84421f92e1" prot="public" virt="virtual"><scope>Gecode::ViewBrancher</scope><name>print</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ad4d6e8b38f157e325cf3845e64ed75d7" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>start</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ab06acc3718206ef2dd69f2a5fbd29ff9" prot="public" virt="virtual"><scope>Gecode::ViewBrancher</scope><name>status</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a5326d83d4f34ed591f7c5e946b8d7fe5" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>view</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a60203bdac8f1a00dc1a4b7c6c70b8d98" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>ViewBrancher</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a1bc868729c81ce5dc2d2edb28ee60752" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>ViewBrancher</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1af24b93d52c489f9c90b2f6823e1b0c0f" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>vs</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" prot="protected" virt="non-virtual"><scope>Gecode::ViewBrancher</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

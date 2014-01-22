@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntLI" kind="group">
+    <compoundname>TaskModelIntLI</compoundname>
+    <title>Linear constraints over integer variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntLI_1ga5774b00d05e8bfbc3bcd0d9131208354" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, int c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="280">$\sum_{i=0}^{|x|-1}x_i\sim_{irt} c$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2304" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1ga300e7f725a9136ffed0ee10b09989a0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, IntVar y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="281">$\sum_{i=0}^{|x|-1}x_i\sim_{irt} y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2311" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1gaf2f786dba2460abdbfcd49632604dd2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, int c, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="282">$\left(\sum_{i=0}^{|x|-1}x_i\sim_{irt} c\right)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2318" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1gaa32ac910a48707f1ae93da47214a56dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, IntVar y, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="283">$\left(\sum_{i=0}^{|x|-1}x_i\sim_{irt} y\right)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2325" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1gaa119ec6738ed6c1d160d4ec76f72c111" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntArgs &amp;a, const IntVarArgs &amp;x, IntRelType irt, int c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>a</emphasis> and <emphasis>x</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2335" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1gaecff4096c0a258cb5443558582ac3c43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntArgs &amp;a, const IntVarArgs &amp;x, IntRelType irt, IntVar y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="284">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>a</emphasis> and <emphasis>x</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2345" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1ga8ee4949b82e5b9724c0322e21c67cc7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntArgs &amp;a, const IntVarArgs &amp;x, IntRelType irt, int c, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="285">$\left(\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c\right)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>a</emphasis> and <emphasis>x</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2355" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntLI_1ga56e3c9476b885fa0b159734b83a400c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::linear</definition>
+        <argsstring>(Home home, const IntArgs &amp;a, const IntVarArgs &amp;x, IntRelType irt, IntVar y, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>linear</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="286">$\left(\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} y\right)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref>, if <emphasis>a</emphasis> and <emphasis>x</emphasis> are of different size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2365" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>All variants for linear constraints over integer variables share the following properties:<itemizedlist>
+<listitem><para>Bounds consistency (over the real numbers) is supported for all constraints (actually, for disequlities always domain consistency is used as it is cheaper). Domain consistency is supported for all non-reified constraint. As bounds consistency for inequalities coincides with domain consistency, the only real variation is for linear equations. Domain consistent linear equations have exponential complexity, so use with care!</para></listitem><listitem><para>Variables occurring multiply in the argument arrays are replaced by a single occurrence: for example, <formula id="17">$ax+bx$</formula> becomes <formula id="18">$(a+b)x$</formula>.</para></listitem><listitem><para>If in the above simplification the value for <formula id="145">$(a+b)$</formula> (or for <formula id="37">$a$</formula> and <formula id="146">$b$</formula>) exceeds the limits for integers as defined in <ref refid="namespaceGecode_1_1Int_1_1Limits" kindref="compound">Int::Limits</ref>, an exception of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref> is thrown.</para></listitem><listitem><para>Assume the constraint <formula id="167">$\sum_{i=0}^{|x|-1}a_i\cdot x_i\sim_{irt} c$</formula>. If <formula id="168">$|c|+\sum_{i=0}^{|x|-1}a_i\cdot x_i$</formula> exceeds the maximal available precision (at least <formula id="279">$2^{48}$</formula>), an exception of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref> is thrown.</para></listitem><listitem><para>In all other cases, the created propagators are accurate (that is, they will not silently overflow during propagation). </para></listitem></itemizedlist>
+</para>    </detaileddescription>
+  </compounddef>
+</doxygen>

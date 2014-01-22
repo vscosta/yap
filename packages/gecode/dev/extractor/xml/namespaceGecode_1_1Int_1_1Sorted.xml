@@ -1,0 +1,618 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Sorted" kind="namespace">
+    <compoundname>Gecode::Int::Sorted</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1Rank" prot="public">Gecode::Int::Sorted::Rank</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent" prot="public">Gecode::Int::Sorted::SccComponent</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" prot="public">Gecode::Int::Sorted::OfflineMinItem</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMin" prot="public">Gecode::Int::Sorted::OfflineMin</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1TupleMaxInc" prot="public">Gecode::Int::Sorted::TupleMaxInc</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1TupleMaxIncExt" prot="public">Gecode::Int::Sorted::TupleMaxIncExt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1TupleMinInc" prot="public">Gecode::Int::Sorted::TupleMinInc</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1ViewPair" prot="public">Gecode::Int::Sorted::ViewPair</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1TupleMinIncExt" prot="public">Gecode::Int::Sorted::TupleMinIncExt</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1Sorted_1_1Sorted" prot="public">Gecode::Int::Sorted::Sorted</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1a74d820c53477b730ba0a0fd1861db2d3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::glover</definition>
+        <argsstring>(ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, int tau[], int phi[], OfflineMinItem sequence[], int vertices[])</argsstring>
+        <name>glover</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tau</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>phi</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" kindref="compound">OfflineMinItem</ref></type>
+          <declname>sequence</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>vertices</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Glover&apos;s maximum matching in a bipartite graph. </para>        </briefdescription>
+        <detaileddescription>
+<para>Compute a matching in the bipartite convex intersection graph with one partition containing the x views and the other containing the y views. The algorithm works with an implicit array structure of the intersection graph.</para><para>Union-Find Implementation of F.Glover&apos;s matching algorithm.</para><para>The idea is to mimick a priority queue storing x-indices <formula id="179">$[i_0,\dots, i_{n-1}]$</formula>, s.t. the upper domain bounds are sorted <formula id="180">$D_{i_0} \leq\dots\leq D_{i_{n-1}}$</formula> where <formula id="181">$ D_{i_0}$</formula> is the top element </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/matching.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/sorted/matching.hpp" bodystart="59" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1ae9ddfbb92df29d6b5a54ce7c2751557e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::revglover</definition>
+        <argsstring>(ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, int tau[], int phiprime[], OfflineMinItem sequence[], int vertices[])</argsstring>
+        <name>revglover</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tau</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>phiprime</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1OfflineMinItem" kindref="compound">OfflineMinItem</ref></type>
+          <declname>sequence</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>vertices</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Symmetric glover function for the upper domain bounds. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/matching.hpp" line="118" column="1" bodyfile="/usr/include/gecode/int/sorted/matching.hpp" bodystart="118" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1adcdcd10eff8ffd29056ccbb4ab507855" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Sorted::computesccs</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, int phi[], SccComponent sinfo[], int scclist[])</argsstring>
+        <name>computesccs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>phi</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent" kindref="compound">SccComponent</ref></type>
+          <declname>sinfo</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scclist</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Compute the sccs of the oriented intersection-graph. </para>        </briefdescription>
+        <detaileddescription>
+<para>An y-node <formula id="182">$y_j$</formula> and its corresponding matching mate <formula id="183">$x_{\phi(j)}$</formula> form the smallest possible scc, since both edges <formula id="184">$e_1(y_j, x_{\phi(j)})$</formula> and <formula id="185">$e_2(x_{\phi(j)},y_j)$</formula> are both contained in the oriented intersection graph.</para><para>Hence a scc containg more than two nodes is represented as an array of <ref refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent" kindref="compound">SccComponent</ref> entries, <formula id="186">$[ y_{j_0},x_{\phi(j_0)},\dots,y_{j_k},x_{\phi(j_k)}]$</formula>.</para><para>Parameters scclist ~ resulting sccs </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/narrowing.hpp" line="58" column="1" bodyfile="/usr/include/gecode/int/sorted/narrowing.hpp" bodystart="58" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1acdaa6e92839937a6393ef1b3ddb36f41" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::narrow_domx</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;z, int tau[], int[], int scclist[], SccComponent sinfo[], bool &amp;nofix)</argsstring>
+        <name>narrow_domx</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tau</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scclist</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent" kindref="compound">SccComponent</ref></type>
+          <declname>sinfo</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <briefdescription>
+<para>Narrowing the domains of the x variables. </para>        </briefdescription>
+        <detaileddescription>
+<para>Due to the correspondance between perfect matchings in the &quot;reduced&quot; intersection graph of <emphasis>x</emphasis> and <emphasis>y</emphasis> views and feasible assignments for the sorted constraint the new domain bounds for views in <emphasis>x</emphasis> are computed as<itemizedlist>
+<listitem><para>lower bounds: <formula id="187">$ S_i \geq E_l $</formula> where <formula id="188">$y_l$</formula> is the leftmost neighbour of <formula id="189">$x_i$</formula></para></listitem><listitem><para>upper bounds: <formula id="190">$ S_i \leq E_h $</formula> where <formula id="191">$y_h$</formula> is the rightmost neighbour of <formula id="189">$x_i$</formula> </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/narrowing.hpp" line="134" column="1" bodyfile="/usr/include/gecode/int/sorted/narrowing.hpp" bodystart="134" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1a01efcaeedc8b1881281cb1b75e2f3e2b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::narrow_domy</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, int phi[], int phiprime[], bool &amp;nofix)</argsstring>
+        <name>narrow_domy</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>phi</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>phiprime</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <briefdescription>
+<para>Narrowing the domains of the y views. </para>        </briefdescription>
+        <detaileddescription>
+<para>analogously to the x views we take<itemizedlist>
+<listitem><para>for the upper bounds the matching <formula id="192">$\phi$</formula> computed in glover and compute the new upper bound by <formula id="193">$T_j=min(E_j, D_{\phi(j)})$</formula></para></listitem><listitem><para>for the lower bounds the matching <formula id="194">$\phi&apos;$</formula> computed in revglover and update the new lower bound by <formula id="195">$T_j=max(E_j, D_{\phi&apos;(j)})$</formula> </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/narrowing.hpp" line="226" column="1" bodyfile="/usr/include/gecode/int/sorted/narrowing.hpp" bodystart="226" bodyend="245"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1abced5027a2323e4083e7af578ac555ec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Sorted::sort_sigma</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;z)</argsstring>
+        <name>sort_sigma</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Build <formula id="196">$\sigma$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Creates a sorting permutation <formula id="196">$\sigma$</formula> by sorting the views in <emphasis>x</emphasis> according to their lower bounds </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/order.hpp" line="49" column="1" bodyfile="/usr/include/gecode/int/sorted/order.hpp" bodystart="49" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1a0ee7ef82292a68d99a4e5e0cce94e3a8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Gecode::Int::Sorted::sort_tau</definition>
+        <argsstring>(ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;z, int tau[])</argsstring>
+        <name>sort_tau</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tau</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Build <formula id="197">$\tau$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Creates a sorting permutation <formula id="197">$\tau$</formula> by sorting a given array of indices in <emphasis>tau</emphasis> according to the upper bounds of the views in <emphasis>x</emphasis> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/order.hpp" line="78" column="1" bodyfile="/usr/include/gecode/int/sorted/order.hpp" bodystart="78" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1a66d87ee008af9992aea5b88a0f0ed69d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::normalize</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;x, bool &amp;nofix)</argsstring>
+        <name>normalize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <briefdescription>
+<para>Performing normalization on the views in <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The views in <emphasis>y</emphasis> are called normalized if <formula id="198">$\forall i\in\{0,\dots, n-1\}: min(y_0) \leq \dots \leq min(y_{n-1}) \wedge max(y_0) \leq \dots \leq max(y_{n-1})$</formula> holds. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/order.hpp" line="97" column="1" bodyfile="/usr/include/gecode/int/sorted/order.hpp" bodystart="97" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1a85d559b7b6ea0f54e05c48a9f260268e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::perm_bc</definition>
+        <argsstring>(Space &amp;home, int tau[], SccComponent sinfo[], int scclist[], ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;z, bool &amp;crossingedge, bool &amp;nofix)</argsstring>
+        <name>perm_bc</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tau</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sorted_1_1SccComponent" kindref="compound">SccComponent</ref></type>
+          <declname>sinfo</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scclist</declname>
+          <array>[]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>crossingedge</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <briefdescription>
+<para>Bounds consistency on the permutation views. </para>        </briefdescription>
+        <detaileddescription>
+<para>Check, whether the permutation view are bounds consistent. This function tests, whether there are &quot;crossing edges&quot;, i.e. whether the current domains permit matchings between unsorted views <emphasis>x</emphasis> and the sorted variables <emphasis>y</emphasis> violating the property that <emphasis>y</emphasis> is sorted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/order.hpp" line="144" column="1" bodyfile="/usr/include/gecode/int/sorted/order.hpp" bodystart="144" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1aecf93ae73245c48fb62e6ec8ab83ab57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Sorted::bounds_propagation</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;z, bool &amp;repairpass, bool &amp;nofix, bool &amp;match_fixed)</argsstring>
+        <name>bounds_propagation</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>repairpass</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>match_fixed</declname>
+        </param>
+        <briefdescription>
+<para>Perform bounds consistent sortedness propagation. </para>        </briefdescription>
+        <detaileddescription>
+<para>Implements the propagation algorithm for <ref refid="classGecode_1_1Int_1_1Sorted_1_1Sorted" kindref="compound">Sorted::Sorted</ref> and is provided as seperate function, because a second pass of the propagation algorithm is needed in order to achieve idempotency in case explicit permutation variables are provided.</para><para>If <emphasis>Perm</emphasis> is true, permutation variables form the third argument which implies additional inferences, consistency check on the permutation variables and eventually a second pass of the propagation algorithm. Otherwise, the algorithm does not take care of the permutation variables resulting in a better performance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/propagate.hpp" line="77" column="1" bodyfile="/usr/include/gecode/int/sorted/propagate.hpp" bodystart="77" bodyend="339"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1af15d96c7c77869b554901ea4f0826e09" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::check_subsumption</definition>
+        <argsstring>(ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;z, bool &amp;subsumed, int &amp;dropfst)</argsstring>
+        <name>check_subsumption</name>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>subsumed</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>dropfst</declname>
+        </param>
+        <briefdescription>
+<para>Subsumption test. </para>        </briefdescription>
+        <detaileddescription>
+<para>The propagator for sorted is subsumed if all variables of the ViewArrays <emphasis>x</emphasis>, <emphasis>y</emphasis> and <emphasis>z</emphasis> are determined and the constraint holds. In addition to the subsumption test check_subsumption determines, whether we can reduce the orginial problem to a smaller one, by dropping already matched variables. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="82" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="82" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1ae0d89093c3813a6e8865254c34e68d50" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+          <param>
+            <type>bool</type>
+            <declname>Perm</declname>
+            <defname>Perm</defname>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool Gecode::Int::Sorted::array_assigned</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;z, bool &amp;subsumed, bool &amp;match_fixed, bool &amp;, bool &amp;noperm_bc)</argsstring>
+        <name>array_assigned</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>subsumed</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>match_fixed</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>noperm_bc</declname>
+        </param>
+        <briefdescription>
+<para>Check for assignment of a variable array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Check whether one of the argument arrays is completely assigned and udpates the other array respectively. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="383" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="383" bodyend="483"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Sorted_1aa19844bf69be376126ba3e9ae2859a5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Sorted::channel</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x, ViewArray&lt; View &gt; &amp;y, ViewArray&lt; View &gt; &amp;z, bool &amp;nofix)</argsstring>
+        <name>channel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>nofix</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Int_1_1Channel" kindref="compound">Channel</ref> between <emphasis>x</emphasis>, <emphasis>y</emphasis> and <emphasis>z</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Keep variables consisting by channeling information </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sorted/sortsup.hpp" line="494" column="1" bodyfile="/usr/include/gecode/int/sorted/sortsup.hpp" bodystart="494" bodyend="558"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Sorted propagators </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/sorted/matching.hpp" line="38" column="1"/>
+  </compounddef>
+</doxygen>

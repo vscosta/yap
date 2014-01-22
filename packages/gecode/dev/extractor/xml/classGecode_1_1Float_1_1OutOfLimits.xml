@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1OutOfLimits" kind="class" prot="public">
+    <compoundname>Gecode::Float::OutOfLimits</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="float_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OutOfLimits_1ac817ddfd6602c0a6f64f1bac875c61d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Float::OutOfLimits::OutOfLimits</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>OutOfLimits</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/exception.hpp" line="53" column="1" bodyfile="/usr/include/gecode/float/exception.hpp" bodystart="131" bodyend="132"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Value out of limits </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5039">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="5040" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5040">
+        <label>std::exception</label>
+      </node>
+      <node id="5038">
+        <label>Gecode::Float::OutOfLimits</label>
+        <link refid="classGecode_1_1Float_1_1OutOfLimits"/>
+        <childnode refid="5039" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5042">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="5043" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5043">
+        <label>std::exception</label>
+      </node>
+      <node id="5041">
+        <label>Gecode::Float::OutOfLimits</label>
+        <link refid="classGecode_1_1Float_1_1OutOfLimits"/>
+        <childnode refid="5042" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/exception.hpp" line="50" column="1" bodyfile="/usr/include/gecode/float/exception.hpp" bodystart="50" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::Float::OutOfLimits</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1Float_1_1OutOfLimits_1ac817ddfd6602c0a6f64f1bac875c61d9" prot="public" virt="non-virtual"><scope>Gecode::Float::OutOfLimits</scope><name>OutOfLimits</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::Float::OutOfLimits</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

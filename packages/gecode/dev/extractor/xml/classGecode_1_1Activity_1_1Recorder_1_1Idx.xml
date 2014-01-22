@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Activity_1_1Recorder_1_1Idx" kind="class" prot="protected">
+    <compoundname>Gecode::Activity::Recorder::Idx</compoundname>
+    <basecompoundref refid="classGecode_1_1Advisor" prot="public" virt="non-virtual">Gecode::Advisor</basecompoundref>
+    <includes refid="kernel_2activity_8hpp" local="no">activity.hpp</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a4a76b3957f68842a166671fd6a8d6d9a" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Activity::Recorder&lt; View &gt;::Idx::_info</definition>
+        <argsstring></argsstring>
+        <name>_info</name>
+        <briefdescription>
+<para>Index and mark information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="155" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a522af2a5450cb858862653c7cb5051ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Activity::Recorder&lt; View &gt;::Idx::Idx</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, Council&lt; Idx &gt; &amp;c, int i)</argsstring>
+        <name>Idx</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; <ref refid="classGecode_1_1Activity_1_1Recorder_1_1Idx" kindref="compound">Idx</ref> &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="158" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a74e5e3edb1564d1d4290103b4e3c11f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Activity::Recorder&lt; View &gt;::Idx::Idx</definition>
+        <argsstring>(Space &amp;home, bool share, Idx &amp;a)</argsstring>
+        <name>Idx</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Activity_1_1Recorder_1_1Idx" kindref="compound">Idx</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="160" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a1d34be612ba256dc63f2adeb21c0c923" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Activity::Recorder&lt; View &gt;::Idx::mark</definition>
+        <argsstring>(void)</argsstring>
+        <name>mark</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark advisor as modified. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="162" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="219" bodyend="221"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a738378060b55731ba8bc91a897342004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Activity::Recorder&lt; View &gt;::Idx::unmark</definition>
+        <argsstring>(void)</argsstring>
+        <name>unmark</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark advisor as unmodified. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="164" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="224" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1ae70be91b2cb3003f6d28679fea8e7a41" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Activity::Recorder&lt; View &gt;::Idx::marked</definition>
+        <argsstring>(void) const </argsstring>
+        <name>marked</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether advisor&apos;s view has been marked. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="166" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="229" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a24fd68d800fced3e07fa67f2eaf04502" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Activity::Recorder&lt; View &gt;::Idx::idx</definition>
+        <argsstring>(void) const </argsstring>
+        <name>idx</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get index of view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="168" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="234" bodyend="236"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> with index and change information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2720">
+        <label>Gecode::Activity::Recorder&lt; View &gt;::Idx</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder_1_1Idx"/>
+        <childnode refid="2721" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2721">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2722" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2722">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2723">
+        <label>Gecode::Activity::Recorder&lt; View &gt;::Idx</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder_1_1Idx"/>
+        <childnode refid="2724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2724">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="2725" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2725">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/activity.hpp" line="152" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="152" bodyend="169"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a4a76b3957f68842a166671fd6a8d6d9a" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>_info</name></member>
+      <member refid="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a8f3ca0c2e3fade8318a3a00d558b7b53" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Advisor_1af069c946f34ab92ba6837f053dedc712" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a522af2a5450cb858862653c7cb5051ac" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>Idx</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a74e5e3edb1564d1d4290103b4e3c11f0" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>Idx</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a24fd68d800fced3e07fa67f2eaf04502" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>idx</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a1d34be612ba256dc63f2adeb21c0c923" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>mark</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1ae70be91b2cb3003f6d28679fea8e7a41" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>marked</name></member>
+      <member refid="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>propagator</name></member>
+      <member refid="classGecode_1_1Activity_1_1Recorder_1_1Idx_1a738378060b55731ba8bc91a897342004" prot="public" virt="non-virtual"><scope>Gecode::Activity::Recorder::Idx</scope><name>unmark</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

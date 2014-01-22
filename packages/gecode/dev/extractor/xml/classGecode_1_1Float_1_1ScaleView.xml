@@ -1,0 +1,643 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1ScaleView" kind="class" prot="public">
+    <compoundname>Gecode::Float::ScaleView</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; FloatView &gt;</basecompoundref>
+    <includes refid="float_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1ad2ccb1800d61f9b309531f2a2dfd36fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::ScaleView::ScaleView</definition>
+        <argsstring>(void)</argsstring>
+        <name>ScaleView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="383" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a8d0a404d0cb95a4d7cf1a5a5166cdccb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::ScaleView::ScaleView</definition>
+        <argsstring>(FloatVal b, const FloatView &amp;y)</argsstring>
+        <name>ScaleView</name>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">FloatView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize as <formula id="38">$b\cdot y$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="385" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1acb7d6edef3732e12c3ed54c12d1bdd38" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::ScaleView::domain</definition>
+        <argsstring>(void) const </argsstring>
+        <name>domain</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="391" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1afa36ead19daaf07e262b4d08f3a0c146" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::ScaleView::scale</definition>
+        <argsstring>(void) const </argsstring>
+        <name>scale</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return scale factor of scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="393" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1ae7466ae441156be9f5c140732bd773e9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="395" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="66" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1ad898b21008304cf634b44a5d75db5f73" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="397" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="70" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a75015320e0ddaf8c5af6b18de94e1138" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of domain (closest representation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="399" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a45307cc8c090b2aa8fcc9c7b0da6b57f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::ScaleView::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return assigned value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">Float::ValOfUnassignedVar</ref> if variable is not yet assigned. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="408" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a68a5fcbc4992541b9613c97ed2ef8360" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of domain (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="411" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="83" bodyend="85"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a34b9b2c1548a5c851725f9d9d1fbbeb6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::ScaleView::zero_in</definition>
+        <argsstring>(void) const </argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether 0 is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="417" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a4fae08acfe695051bfd1a33d41180c87" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::ScaleView::in</definition>
+        <argsstring>(FloatNum n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="419" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a6a14448ed77db487264d9b44825c1060" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::ScaleView::in</definition>
+        <argsstring>(const FloatVal &amp;n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="421" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="101" bodyend="103"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1ac3775eb6073aebd93f8004373340bfe7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::lq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="427" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="111" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a8563ac1ad8a1e7a980cd28d344f2c595" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::lq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="429" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a455b6b72c5eba42d6d6b841c95f3e101" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::lq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="431" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="121" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a9bc1d2c0b3326ec8fc6530471b56a851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::gq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="434" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="127" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a1d00cc632482e6e8722dd39ac7c56370" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::gq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="436" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="132" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1ad9f36ef71a20ac23ea5a32f62d5baa74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::gq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="438" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="137" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a801866d340ce55a9f2ceeca66ec95c8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::eq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="441" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="143" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1abc5736c9e8c6e34c6880e0ffb77f5b1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::eq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="443" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="148" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1aa3e7320ee2d9f7159702c0f48b41932d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::ScaleView::eq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="445" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="153" bodyend="156"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a7e640aa35c116799e75ab6d5db2666a0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::min</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="452" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="164" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a17f7105a8865c897f0f9d63bfdc818c5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::ScaleView::max</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="454" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="168" bodyend="170"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a7352ff6cd2b3ffe1071cd561b58de08c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Float::ScaleView::med</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="460" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="173" bodyend="175"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1af2bccb74b0c0b003849ba58c271653f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::ScaleView::update</definition>
+        <argsstring>(Space &amp;home, bool share, ScaleView &amp;y)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1ScaleView" kindref="compound">ScaleView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="465" column="1" bodyfile="/usr/include/gecode/float/view/scale.hpp" bodystart="183" bodyend="186"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Float_1_1ScaleView_1a1ae8d1efec2ae71fdae19d00aa422988" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>FloatVal Gecode::Float::ScaleView::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Scale factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="377" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="377" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1ScaleView_1a803ceb8b4676553a51aa54cfd4c8c237" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const ScaleView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1ScaleView" kindref="compound">ScaleView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="183" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Scale float view. </para>    </briefdescription>
+    <detaileddescription>
+<para>A scale float view <formula id="36">$s$</formula> for a float view <formula id="31">$x$</formula> and a non-negative float <formula id="37">$a$</formula> provides operations such that <formula id="36">$s$</formula> behaves as <formula id="15">$a\cdot x$</formula>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6312">
+        <label>Gecode::Float::ScaleView</label>
+        <link refid="classGecode_1_1Float_1_1ScaleView"/>
+        <childnode refid="6313" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6313">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6314">
+        <label>Gecode::Float::ScaleView</label>
+        <link refid="classGecode_1_1Float_1_1ScaleView"/>
+        <childnode refid="6315" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6318" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="6318">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="6319" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6315">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="6316" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6316">
+        <label>Gecode::Float::FloatView</label>
+        <link refid="classGecode_1_1Float_1_1FloatView"/>
+        <childnode refid="6317" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6317">
+        <label>Gecode::VarImpView&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="6319">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/view.hpp" line="373" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="373" bodyend="467"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a1ae8d1efec2ae71fdae19d00aa422988" prot="protected" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>a</name></member>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>base</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1acb7d6edef3732e12c3ed54c12d1bdd38" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>domain</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a801866d340ce55a9f2ceeca66ec95c8d" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1abc5736c9e8c6e34c6880e0ffb77f5b1d" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1aa3e7320ee2d9f7159702c0f48b41932d" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a9bc1d2c0b3326ec8fc6530471b56a851" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a1d00cc632482e6e8722dd39ac7c56370" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1ad9f36ef71a20ac23ea5a32f62d5baa74" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a4fae08acfe695051bfd1a33d41180c87" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a6a14448ed77db487264d9b44825c1060" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1ac3775eb6073aebd93f8004373340bfe7" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a8563ac1ad8a1e7a980cd28d344f2c595" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a455b6b72c5eba42d6d6b841c95f3e101" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1ad898b21008304cf634b44a5d75db5f73" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>max</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a17f7105a8865c897f0f9d63bfdc818c5" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>max</name></member>
+      <member refid="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>me</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a75015320e0ddaf8c5af6b18de94e1138" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a7352ff6cd2b3ffe1071cd561b58de08c" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1ae7466ae441156be9f5c140732bd773e9" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a7e640aa35c116799e75ab6d5db2666a0" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>min</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a803ceb8b4676553a51aa54cfd4c8c237" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1afa36ead19daaf07e262b4d08f3a0c146" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>scale</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1ad2ccb1800d61f9b309531f2a2dfd36fc" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>ScaleView</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a8d0a404d0cb95a4d7cf1a5a5166cdccb" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>ScaleView</name></member>
+      <member refid="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a68a5fcbc4992541b9613c97ed2ef8360" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>size</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1af2bccb74b0c0b003849ba58c271653f4" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual" ambiguityscope="DerivedView&lt; FloatView &gt;::"><scope>Gecode::Float::ScaleView</scope><name>update</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a45307cc8c090b2aa8fcc9c7b0da6b57f" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>val</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>x</name></member>
+      <member refid="classGecode_1_1Float_1_1ScaleView_1a34b9b2c1548a5c851725f9d9d1fbbeb6" prot="public" virt="non-virtual"><scope>Gecode::Float::ScaleView</scope><name>zero_in</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

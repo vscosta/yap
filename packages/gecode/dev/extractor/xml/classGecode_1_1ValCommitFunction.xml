@@ -1,0 +1,265 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ValCommitFunction" kind="class" prot="public">
+    <compoundname>Gecode::ValCommitFunction</compoundname>
+    <basecompoundref refid="classGecode_1_1ValCommit" prot="public" virt="non-virtual">Gecode::ValCommit&lt; View, BranchTraits&lt; View::VarType &gt;::ValType &gt;</basecompoundref>
+    <includes refid="brancher-val-commit_8hpp" local="no">brancher-val-commit.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classGecode_1_1ValCommitFunction_1a071f13bf8d3ba48d858a37c58c9c9b84" prot="private" static="no">
+        <type><ref refid="classGecode_1_1ValCommit" kindref="compound">ValCommit</ref>&lt; <ref refid="classGecode_1_1ValCommit_1ac14c515eb7d66bdcba521e13eb0db0da" kindref="member">View</ref>, typename <ref refid="classGecode_1_1BranchTraits" kindref="compound">BranchTraits</ref>&lt; typename View::VarType &gt;::ValType &gt;::Val</type>
+        <definition>typedef ValCommit&lt;View, typename BranchTraits&lt;typename View::VarType&gt;::ValType&gt;::Val Gecode::ValCommitFunction&lt; View &gt;::Val</definition>
+        <argsstring></argsstring>
+        <name>Val</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="72" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1ValCommitFunction_1adfb46be1064e6a9de571ac57826f9b09" prot="public" static="no">
+        <type>View::VarType</type>
+        <definition>typedef View::VarType Gecode::ValCommitFunction&lt; View &gt;::Var</definition>
+        <argsstring></argsstring>
+        <name>Var</name>
+        <briefdescription>
+<para>The corresponding variable type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="75" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1ValCommitFunction_1a54fe725cdf0a666b600a8136286801ba" prot="public" static="no">
+        <type><ref refid="classGecode_1_1BranchTraits" kindref="compound">BranchTraits</ref>&lt; <ref refid="classGecode_1_1ValCommitFunction_1adfb46be1064e6a9de571ac57826f9b09" kindref="member">Var</ref> &gt;::Commit</type>
+        <definition>typedef BranchTraits&lt;Var&gt;::Commit Gecode::ValCommitFunction&lt; View &gt;::CommitFunction</definition>
+        <argsstring></argsstring>
+        <name>CommitFunction</name>
+        <briefdescription>
+<para>The corresponding commit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="77" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1ValCommitFunction_1a52bf2e8d36d5395aaae6467fb238bac3" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ValCommitFunction_1a54fe725cdf0a666b600a8136286801ba" kindref="member">CommitFunction</ref></type>
+        <definition>CommitFunction Gecode::ValCommitFunction&lt; View &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>The user-defined commit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="80" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ValCommitFunction_1a4acb56ec5a14ded7d6d9cfd0f12924c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ValCommitFunction&lt; View &gt;::ValCommitFunction</definition>
+        <argsstring>(Space &amp;home, const ValBranch &amp;vb)</argsstring>
+        <name>ValCommitFunction</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="83" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValCommitFunction_1ab070d12eae5d34790d9f42b8b3a6d3bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ValCommitFunction&lt; View &gt;::ValCommitFunction</definition>
+        <argsstring>(Space &amp;home, bool shared, ValCommitFunction &amp;vc)</argsstring>
+        <name>ValCommitFunction</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValCommitFunction" kindref="compound">ValCommitFunction</ref> &amp;</type>
+          <declname>vc</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning during copying. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="85" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="122" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValCommitFunction_1aae947e87f2ad9c4a2243c64b2e9e96ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::ValCommitFunction&lt; View &gt;::commit</definition>
+        <argsstring>(Space &amp;home, unsigned int a, View x, int i, Val n)</argsstring>
+        <name>commit</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValCommit_1ac14c515eb7d66bdcba521e13eb0db0da" kindref="member">View</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Perform user-defined commit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="87" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="127" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValCommitFunction_1a75bfe6f3eb010a9f40b0f770569ba34f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1NGL" kindref="compound">NGL</ref> *</type>
+        <definition>forceinline NGL * Gecode::ValCommitFunction&lt; View &gt;::ngl</definition>
+        <argsstring>(Space &amp;home, unsigned int a, View x, Val n) const </argsstring>
+        <name>ngl</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValCommit_1ac14c515eb7d66bdcba521e13eb0db0da" kindref="member">View</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>Val</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Create no-good literal for alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="89" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="135" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValCommitFunction_1acdd1b99cd904b8b694e0f23fbb82336b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ValCommitFunction&lt; View &gt;::print</definition>
+        <argsstring>(const Space &amp;home, unsigned int a, View x, int i, const Val &amp;n, std::ostream &amp;o) const </argsstring>
+        <name>print</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValCommit_1ac14c515eb7d66bdcba521e13eb0db0da" kindref="member">View</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>const Val &amp;</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Print on <emphasis>o</emphasis> the alternative <emphasis>with</emphasis> view <emphasis>x</emphasis> at position <emphasis>i</emphasis> and value <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="91" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="140" bodyend="144"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for user-defined value commit. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7406">
+        <label>Gecode::ValCommit&lt; View, BranchTraits&lt; View::VarType &gt;::ValType &gt;</label>
+        <link refid="classGecode_1_1ValCommit"/>
+      </node>
+      <node id="7405">
+        <label>Gecode::ValCommitFunction&lt; View &gt;</label>
+        <link refid="classGecode_1_1ValCommitFunction"/>
+        <childnode refid="7406" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7408">
+        <label>Gecode::ValCommit&lt; View, BranchTraits&lt; View::VarType &gt;::ValType &gt;</label>
+        <link refid="classGecode_1_1ValCommit"/>
+      </node>
+      <node id="7407">
+        <label>Gecode::ValCommitFunction&lt; View &gt;</label>
+        <link refid="classGecode_1_1ValCommitFunction"/>
+        <childnode refid="7408" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/brancher-val-commit.hpp" line="69" column="1" bodyfile="/usr/include/gecode/kernel/brancher-val-commit.hpp" bodystart="67" bodyend="93"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValCommitFunction_1a52bf2e8d36d5395aaae6467fb238bac3" prot="protected" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>c</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1aae947e87f2ad9c4a2243c64b2e9e96ff" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>commit</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1a54fe725cdf0a666b600a8136286801ba" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>CommitFunction</name></member>
+      <member refid="classGecode_1_1ValCommit_1a99b526c56e60c02474ce7400a087d5a5" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1a75bfe6f3eb010a9f40b0f770569ba34f" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>ngl</name></member>
+      <member refid="classGecode_1_1ValCommit_1a27594fca7c49155fdd66218963b28cfe" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>notice</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1acdd1b99cd904b8b694e0f23fbb82336b" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>print</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1a071f13bf8d3ba48d858a37c58c9c9b84" prot="private" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>Val</name></member>
+      <member refid="classGecode_1_1ValCommit_1a920a0cd48c53c6e33ad4458313ae01b6" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>ValCommit</name></member>
+      <member refid="classGecode_1_1ValCommit_1a7cef4dd276cd789ff71e1ac479e78b2e" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>ValCommit</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1a4acb56ec5a14ded7d6d9cfd0f12924c5" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>ValCommitFunction</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1ab070d12eae5d34790d9f42b8b3a6d3bc" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>ValCommitFunction</name></member>
+      <member refid="classGecode_1_1ValCommitFunction_1adfb46be1064e6a9de571ac57826f9b09" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>Var</name></member>
+      <member refid="classGecode_1_1ValCommit_1ac14c515eb7d66bdcba521e13eb0db0da" prot="public" virt="non-virtual"><scope>Gecode::ValCommitFunction</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

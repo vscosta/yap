@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_b20cf6b216c5a17366f352365ac56b74" kind="dir">
+    <compoundname>/usr/include/gecode/int/arithmetic</compoundname>
+    <innerfile refid="abs_8hpp">abs.hpp</innerfile>
+    <innerfile refid="divmod_8hpp">divmod.hpp</innerfile>
+    <innerfile refid="max_8hpp">max.hpp</innerfile>
+    <innerfile refid="int_2arithmetic_2mult_8hpp">mult.hpp</innerfile>
+    <innerfile refid="nroot_8hpp">nroot.hpp</innerfile>
+    <innerfile refid="pow-ops_8hpp">pow-ops.hpp</innerfile>
+    <innerfile refid="pow_8hpp">pow.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/arithmetic/"/>
+  </compounddef>
+</doxygen>

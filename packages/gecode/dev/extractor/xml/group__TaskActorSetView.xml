@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskActorSetView" kind="group">
+    <compoundname>TaskActorSetView</compoundname>
+    <title>Set views</title>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::LubRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ComplementView_3_01View_01_4_01_4" prot="public">Gecode::Set::GlbRanges&lt; ComplementView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ArrayRanges" prot="public">Gecode::Set::ArrayRanges</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01EmptyView_01_4" prot="public">Gecode::Set::LubRanges&lt; EmptyView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01EmptyView_01_4" prot="public">Gecode::Set::GlbRanges&lt; EmptyView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01UniverseView_01_4" prot="public">Gecode::Set::LubRanges&lt; UniverseView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01UniverseView_01_4" prot="public">Gecode::Set::GlbRanges&lt; UniverseView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01ConstSetView_01_4" prot="public">Gecode::Set::LubRanges&lt; ConstSetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01ConstSetView_01_4" prot="public">Gecode::Set::GlbRanges&lt; ConstSetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4" prot="public">Gecode::Set::LubRanges&lt; SetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01SetView_01_4" prot="public">Gecode::Set::GlbRanges&lt; SetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1LubRanges_3_01SingletonView_01_4" prot="public">Gecode::Set::LubRanges&lt; SingletonView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1GlbRanges_3_01SingletonView_01_4" prot="public">Gecode::Set::GlbRanges&lt; SingletonView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SetView" prot="public">Gecode::Set::SetView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ConstSetView" prot="public">Gecode::Set::ConstSetView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1EmptyView" prot="public">Gecode::Set::EmptyView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1UniverseView" prot="public">Gecode::Set::UniverseView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1SingletonView" prot="public">Gecode::Set::SingletonView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1ComplementView" prot="public">Gecode::Set::ComplementView</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1CachedView" prot="public">Gecode::Set::CachedView</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> propagators and branchings compute with set views. <ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> views provide views on set variable implementations, set constants, and integer variable implementations. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelMiniModelOptimize" kind="group">
+    <compoundname>TaskModelMiniModelOptimize</compoundname>
+    <title>Support for cost-based optimization</title>
+    <innernamespace refid="namespaceGecode_1_1MiniModel">Gecode::MiniModel</innernamespace>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__TaskModelMiniModelOptimize_1ga2110b74c0d8665aacadd62016609c162" prot="public" static="no">
+        <type>MiniModel::IntOptimizeSpace&lt; IRT_LE &gt;</type>
+        <definition>typedef MiniModel::IntOptimizeSpace&lt;IRT_LE&gt; Gecode::MinimizeSpace</definition>
+        <argsstring></argsstring>
+        <name>MinimizeSpace</name>
+        <briefdescription>
+<para>Class for minimizing integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="2239" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="2239" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskModelMiniModelOptimize_1gafb68536adc7753ee4dcc6d02b820d4ea" prot="public" static="no">
+        <type>MiniModel::IntOptimizeSpace&lt; IRT_GR &gt;</type>
+        <definition>typedef MiniModel::IntOptimizeSpace&lt;IRT_GR&gt; Gecode::MaximizeSpace</definition>
+        <argsstring></argsstring>
+        <name>MaximizeSpace</name>
+        <briefdescription>
+<para>Class for maximizing integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="2241" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="2241" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskModelMiniModelOptimize_1gac3e46889449b3e658889c425ac0baf06" prot="public" static="no">
+        <type>MiniModel::IntOptimizeSpace&lt; IRT_LE &gt;</type>
+        <definition>typedef MiniModel::IntOptimizeSpace&lt;IRT_LE&gt; Gecode::IntMinimizeSpace</definition>
+        <argsstring></argsstring>
+        <name>IntMinimizeSpace</name>
+        <briefdescription>
+<para>Class for minimizing integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="2243" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="2243" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskModelMiniModelOptimize_1gab9b25b996b40174a9d9b11d129b889b1" prot="public" static="no">
+        <type>MiniModel::IntOptimizeSpace&lt; IRT_GR &gt;</type>
+        <definition>typedef MiniModel::IntOptimizeSpace&lt;IRT_GR&gt; Gecode::IntMaximizeSpace</definition>
+        <argsstring></argsstring>
+        <name>IntMaximizeSpace</name>
+        <briefdescription>
+<para>Class for maximizing integer cost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="2245" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="2245" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides for minimizing or maximizing the cost value as defined by a cost-member function of a space. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

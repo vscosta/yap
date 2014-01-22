@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1BaseOptions" kind="class" prot="public">
+    <compoundname>Gecode::BaseOptions</compoundname>
+    <derivedcompoundref refid="classGecode_1_1FlatZinc_1_1FlatZincOptions" prot="public" virt="non-virtual">Gecode::FlatZinc::FlatZincOptions</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Options" prot="public" virt="non-virtual">Gecode::Options</derivedcompoundref>
+    <includes refid="driver_8hh" local="no">driver.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1BaseOptions_1a98a52c677ab5f6492a3a577e1234d2ec" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Driver_1_1BaseOption" kindref="compound">Driver::BaseOption</ref> *</type>
+        <definition>Driver::BaseOption* Gecode::BaseOptions::fst</definition>
+        <argsstring></argsstring>
+        <name>fst</name>
+        <briefdescription>
+<para>First registered option. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="293" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="293" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1BaseOptions_1aa4591f00b5af57b454bf2b2f8f2cb33d" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Driver_1_1BaseOption" kindref="compound">Driver::BaseOption</ref> *</type>
+        <definition>Driver::BaseOption* Gecode::BaseOptions::lst</definition>
+        <argsstring></argsstring>
+        <name>lst</name>
+        <briefdescription>
+<para>Last registered option. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="294" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="294" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1BaseOptions_1a56fabecd29f21c2a01c7bf611b76944d" prot="protected" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* Gecode::BaseOptions::_name</definition>
+        <argsstring></argsstring>
+        <name>_name</name>
+        <briefdescription>
+<para>Script name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="295" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="295" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1a28b1289dd92349b88a30350f6158b1f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::BaseOptions::BaseOptions</definition>
+        <argsstring>(const char *s)</argsstring>
+        <name>BaseOptions</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Initialize options for script with name <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="298" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1a40e2d5279d2d04b78af526cce4e63cb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::BaseOptions::help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <reimplementedby refid="classGecode_1_1FlatZinc_1_1FlatZincOptions_1a3c9249d7b588e79bc38f08699c22cbb9">help</reimplementedby>
+        <reimplementedby refid="classGecode_1_1SizeOptions_1a5a8d8afe9af34e3e4652b952738bbf87">help</reimplementedby>
+        <reimplementedby refid="classGecode_1_1InstanceOptions_1ab6aef24e2b97f6881f33c97e347390a5">help</reimplementedby>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Print help text. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="300" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1a4042881bc50ab401ac8f49956c22dd0e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::BaseOptions::add</definition>
+        <argsstring>(Driver::BaseOption &amp;o)</argsstring>
+        <name>add</name>
+        <param>
+          <type><ref refid="classGecode_1_1Driver_1_1BaseOption" kindref="compound">Driver::BaseOption</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Add new option <emphasis>o</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="303" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1afc231a23682ee38d0502e4f2798f2987" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::BaseOptions::parse</definition>
+        <argsstring>(int &amp;argc, char *argv[])</argsstring>
+        <name>parse</name>
+        <param>
+          <type>int &amp;</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Parse options from arguments <emphasis>argv</emphasis> (number is <emphasis>argc</emphasis>) </para>        </briefdescription>
+        <detaileddescription>
+<para>The options are parsed from position one onwards until no more options are detected. After parsing, the parsed arguments have been removed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="311" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1a26247d022d5ae58b30290295c9eba7a3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char * Gecode::BaseOptions::name</definition>
+        <argsstring>(void) const </argsstring>
+        <name>name</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return name of script. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="314" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="144" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1aab8306708754be79c3675760127756e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::BaseOptions::name</definition>
+        <argsstring>(const char *)</argsstring>
+        <name>name</name>
+        <param>
+          <type>const char *</type>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> name of script. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="316" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BaseOptions_1a2f46fbae606aa775022ea0a289ba4170" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual Gecode::BaseOptions::~BaseOptions</definition>
+        <argsstring>(void)</argsstring>
+        <name>~BaseOptions</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="319" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for script options. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1042">
+        <label>Gecode::Options</label>
+        <link refid="classGecode_1_1Options"/>
+        <childnode refid="1040" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1044">
+        <label>Gecode::SizeOptions</label>
+        <link refid="classGecode_1_1SizeOptions"/>
+        <childnode refid="1042" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1041">
+        <label>Gecode::FlatZinc::FlatZincOptions</label>
+        <link refid="classGecode_1_1FlatZinc_1_1FlatZincOptions"/>
+        <childnode refid="1040" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1043">
+        <label>Gecode::InstanceOptions</label>
+        <link refid="classGecode_1_1InstanceOptions"/>
+        <childnode refid="1042" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1040">
+        <label>Gecode::BaseOptions</label>
+        <link refid="classGecode_1_1BaseOptions"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1046">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+        <childnode refid="1046" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1045">
+        <label>Gecode::BaseOptions</label>
+        <link refid="classGecode_1_1BaseOptions"/>
+        <childnode refid="1046" relation="usage">
+          <edgelabel>fst</edgelabel>
+          <edgelabel>lst</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/driver.hh" line="291" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="291" bodyend="320"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1BaseOptions_1a56fabecd29f21c2a01c7bf611b76944d" prot="protected" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>_name</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a4042881bc50ab401ac8f49956c22dd0e" prot="public" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>add</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a28b1289dd92349b88a30350f6158b1f5" prot="public" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>BaseOptions</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a98a52c677ab5f6492a3a577e1234d2ec" prot="protected" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>fst</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a40e2d5279d2d04b78af526cce4e63cb9" prot="public" virt="virtual"><scope>Gecode::BaseOptions</scope><name>help</name></member>
+      <member refid="classGecode_1_1BaseOptions_1aa4591f00b5af57b454bf2b2f8f2cb33d" prot="protected" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>lst</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a26247d022d5ae58b30290295c9eba7a3" prot="public" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>name</name></member>
+      <member refid="classGecode_1_1BaseOptions_1aab8306708754be79c3675760127756e0" prot="public" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>name</name></member>
+      <member refid="classGecode_1_1BaseOptions_1afc231a23682ee38d0502e4f2798f2987" prot="public" virt="non-virtual"><scope>Gecode::BaseOptions</scope><name>parse</name></member>
+      <member refid="classGecode_1_1BaseOptions_1a2f46fbae606aa775022ea0a289ba4170" prot="public" virt="virtual"><scope>Gecode::BaseOptions</scope><name>~BaseOptions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

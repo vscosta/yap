@@ -1,0 +1,334 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1BoolExpr" kind="class" prot="public">
+    <compoundname>Gecode::BoolExpr</compoundname>
+    <includes refid="minimodel_8hh" local="no">minimodel.hh</includes>
+    <innerclass refid="classGecode_1_1BoolExpr_1_1MiscExpr" prot="public">Gecode::BoolExpr::MiscExpr</innerclass>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41" prot="public" static="no">
+        <name>NodeType</name>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a35509bef9ae0bc44581982eab48c424a" prot="public">
+          <name>NT_VAR</name>
+          <briefdescription>
+<para>Variable. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a900c22c3d0899c29fae38249875fae2e" prot="public">
+          <name>NT_NOT</name>
+          <briefdescription>
+<para>Negation. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a0ff6926cae11118d6392c9e16095168c" prot="public">
+          <name>NT_AND</name>
+          <briefdescription>
+<para>Conjunction. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a55fac8e16f58824df5c88b23f95f3c67" prot="public">
+          <name>NT_OR</name>
+          <briefdescription>
+<para>Disjunction. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a1d59b58e0019509b61caac40c8a59b01" prot="public">
+          <name>NT_EQV</name>
+          <briefdescription>
+<para>Equivalence. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a2a5c15f8fe59c131d40402790cd1022d" prot="public">
+          <name>NT_RLIN</name>
+          <briefdescription>
+<para>Reified linear relation. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a0f6e4c9b7dd886e36f5c9b7f1f8e58e9" prot="public">
+          <name>NT_RLINFLOAT</name>
+          <briefdescription>
+<para>Reified linear relation. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41ab3990678e03e14e54a1c02ae0a490f59" prot="public">
+          <name>NT_RSET</name>
+          <briefdescription>
+<para>Reified set relation. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a6e66accf351b275a0c7d92d0d31e8086" prot="public">
+          <name>NT_MISC</name>
+          <briefdescription>
+<para>Other Boolean expression. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Type of Boolean expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1237" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="1237" bodyend="1247"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1BoolExpr_1af0b38a1321cf82ad39b2d3bdf2b0a163" prot="private" static="no" mutable="no">
+        <type>Node *</type>
+        <definition>Node* Gecode::BoolExpr::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Pointer to node for expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1267" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="1264" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a3e687df2b826cc3ee1fbb8bb5b4053bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(void)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1271" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a37d999b550557f63439cf46d5c4e9efa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(const BoolExpr &amp;e)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1274" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a76f3b2c8b93f9e5d2e01367daa1eac08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(const BoolExpr &amp;l, NodeType t, const BoolExpr &amp;r)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41" kindref="member">NodeType</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Construct expression for type and subexpresssions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1277" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1aa7a3032ab5d4f1257e3832efc0b9f284" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(const BoolVar &amp;x)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Construct expression for variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1280" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1aef84ddae3b038bac460d5c065ebb3bc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(const BoolExpr &amp;e, NodeType t)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41" kindref="member">NodeType</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Construct expression for negation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1283" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a8f275da40e488b0fd6ac1a1816819d8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(const LinIntRel &amp;rl)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1LinIntRel" kindref="compound">LinIntRel</ref> &amp;</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Construct expression for reified linear relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1286" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a10d786d902fd7bd4a386d88736571e45" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::BoolExpr</definition>
+        <argsstring>(MiscExpr *m)</argsstring>
+        <name>BoolExpr</name>
+        <param>
+          <type><ref refid="classGecode_1_1BoolExpr_1_1MiscExpr" kindref="compound">MiscExpr</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Construct expression for miscellaneous Boolean expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1302" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a4c97554b3627af57c62cc41be8e77a18" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT <ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref></type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolVar Gecode::BoolExpr::expr</definition>
+        <argsstring>(Home home, IntConLevel icl) const </argsstring>
+        <name>expr</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post propagators for expression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1305" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a0298c4a733a4032dbaa29ccadbdbd423" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT void</type>
+        <definition>GECODE_MINIMODEL_EXPORT void Gecode::BoolExpr::rel</definition>
+        <argsstring>(Home home, IntConLevel icl) const </argsstring>
+        <name>rel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref></type>
+          <declname>icl</declname>
+        </param>
+        <briefdescription>
+<para>Post propagators for relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1308" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1acfe8c8fe96dff474a1cdf8c677a14f13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+        <definition>GECODE_MINIMODEL_EXPORT const BoolExpr&amp; Gecode::BoolExpr::operator=</definition>
+        <argsstring>(const BoolExpr &amp;e)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BoolExpr" kindref="compound">BoolExpr</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1311" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1BoolExpr_1a6d2993757763d6a05bf3b14b77a266c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT</type>
+        <definition>GECODE_MINIMODEL_EXPORT Gecode::BoolExpr::~BoolExpr</definition>
+        <argsstring>(void)</argsstring>
+        <name>~BoolExpr</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1314" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Boolean expressions. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/minimodel.hh" line="1234" column="1" bodyfile="/usr/include/gecode/minimodel.hh" bodystart="1234" bodyend="1315"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1BoolExpr_1a3e687df2b826cc3ee1fbb8bb5b4053bf" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a37d999b550557f63439cf46d5c4e9efa" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a76f3b2c8b93f9e5d2e01367daa1eac08" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1aa7a3032ab5d4f1257e3832efc0b9f284" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1aef84ddae3b038bac460d5c065ebb3bc4" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a8f275da40e488b0fd6ac1a1816819d8d" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a10d786d902fd7bd4a386d88736571e45" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>BoolExpr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a4c97554b3627af57c62cc41be8e77a18" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>expr</name></member>
+      <member refid="classGecode_1_1BoolExpr_1af0b38a1321cf82ad39b2d3bdf2b0a163" prot="private" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>n</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NodeType</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a0ff6926cae11118d6392c9e16095168c" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_AND</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a1d59b58e0019509b61caac40c8a59b01" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_EQV</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a6e66accf351b275a0c7d92d0d31e8086" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_MISC</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a900c22c3d0899c29fae38249875fae2e" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_NOT</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a55fac8e16f58824df5c88b23f95f3c67" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_OR</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a2a5c15f8fe59c131d40402790cd1022d" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_RLIN</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a0f6e4c9b7dd886e36f5c9b7f1f8e58e9" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_RLINFLOAT</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41ab3990678e03e14e54a1c02ae0a490f59" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_RSET</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a7e9665516cc705c21ceb371d6cb58a41a35509bef9ae0bc44581982eab48c424a" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>NT_VAR</name></member>
+      <member refid="classGecode_1_1BoolExpr_1acfe8c8fe96dff474a1cdf8c677a14f13" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a0298c4a733a4032dbaa29ccadbdbd423" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>rel</name></member>
+      <member refid="classGecode_1_1BoolExpr_1a6d2993757763d6a05bf3b14b77a266c9" prot="public" virt="non-virtual"><scope>Gecode::BoolExpr</scope><name>~BoolExpr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

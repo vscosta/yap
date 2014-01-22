@@ -1,0 +1,504 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1GistMainWindow" kind="class" prot="public">
+    <compoundname>Gecode::Gist::GistMainWindow</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">QMainWindow</basecompoundref>
+    <includes refid="mainwindow_8hh" local="no">mainwindow.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a65090a227f8d1cc71e28a744023cc6f1" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref></type>
+        <definition>Options Gecode::Gist::GistMainWindow::opt</definition>
+        <argsstring></argsstring>
+        <name>opt</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="62" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1ae18f38a1d15b2cfdd23b99f667da08bc" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::GistMainWindow::isSearching</definition>
+        <argsstring></argsstring>
+        <name>isSearching</name>
+        <briefdescription>
+<para>Whether search is currently running. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="64" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1aa1c8cc3234269bf8021f4ec7e49ee075" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1Timer" kindref="compound">Support::Timer</ref></type>
+        <definition>Support::Timer Gecode::Gist::GistMainWindow::searchTimer</definition>
+        <argsstring></argsstring>
+        <name>searchTimer</name>
+        <briefdescription>
+<para>Measure search time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="66" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a22877f12d532e5d836cec7286ef5a0d9" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::depthLabel</definition>
+        <argsstring></argsstring>
+        <name>depthLabel</name>
+        <briefdescription>
+<para>Status bar label for maximum depth indicator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="68" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a409c30a4105aa3e8da0a8b701a37bf64" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::wmpLabel</definition>
+        <argsstring></argsstring>
+        <name>wmpLabel</name>
+        <briefdescription>
+<para>Status bar label for weakly monotonic propagator indicator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="70" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a8f5f7ce8c4ee1e49b3810205e72bb117" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::solvedLabel</definition>
+        <argsstring></argsstring>
+        <name>solvedLabel</name>
+        <briefdescription>
+<para>Status bar label for number of solutions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="72" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1ab2ef191685b9aef9f6a92cee5d6883b6" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::failedLabel</definition>
+        <argsstring></argsstring>
+        <name>failedLabel</name>
+        <briefdescription>
+<para>Status bar label for number of failures. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="74" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1afa071071abc194911729a84587e413dd" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::choicesLabel</definition>
+        <argsstring></argsstring>
+        <name>choicesLabel</name>
+        <briefdescription>
+<para>Status bar label for number of choices. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="76" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1adc3a01a399894e07ecf573890238c9a1" prot="private" static="no" mutable="no">
+        <type>QLabel *</type>
+        <definition>QLabel* Gecode::Gist::GistMainWindow::openLabel</definition>
+        <argsstring></argsstring>
+        <name>openLabel</name>
+        <briefdescription>
+<para>Status bar label for number of open nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="78" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a1abe73101475756542f38e31be587514" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::solutionInspectorsMenu</definition>
+        <argsstring></argsstring>
+        <name>solutionInspectorsMenu</name>
+        <briefdescription>
+<para>Menu for solution inspectors. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="80" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a52e3bfeff235b1b4f58386cf6ada454d" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::doubleClickInspectorsMenu</definition>
+        <argsstring></argsstring>
+        <name>doubleClickInspectorsMenu</name>
+        <briefdescription>
+<para>Menu for double click inspectors. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="82" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a2a631076f7047a2afd67fab50443db33" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::moveInspectorsMenu</definition>
+        <argsstring></argsstring>
+        <name>moveInspectorsMenu</name>
+        <briefdescription>
+<para>Menu for move inspectors. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="84" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1aa87adfe5a644bc690bbf5893440fa736" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::comparatorsMenu</definition>
+        <argsstring></argsstring>
+        <name>comparatorsMenu</name>
+        <briefdescription>
+<para>Menu for comparators. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="86" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1acfc4c8ce18f83e28244575162d687a17" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::bookmarksMenu</definition>
+        <argsstring></argsstring>
+        <name>bookmarksMenu</name>
+        <briefdescription>
+<para>Menu for bookmarks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="88" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a645598910c8de2c90ad5c3f61cc0b305" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::inspectNodeMenu</definition>
+        <argsstring></argsstring>
+        <name>inspectNodeMenu</name>
+        <briefdescription>
+<para>Menu for direct node inspection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="90" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1acadebc6796d494bf64255cf67c0b241b" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* Gecode::Gist::GistMainWindow::inspectNodeBeforeFPMenu</definition>
+        <argsstring></argsstring>
+        <name>inspectNodeBeforeFPMenu</name>
+        <briefdescription>
+<para>Menu for direct node inspection before fixpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="92" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1aad3e2741023338e146828e87a0657d05" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* Gecode::Gist::GistMainWindow::prefAction</definition>
+        <argsstring></argsstring>
+        <name>prefAction</name>
+        <briefdescription>
+<para>Action for activating the preferences menu. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="94" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1aefaf1b366d788da255697ba8101d73c8" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref> *</type>
+        <definition>Gist* Gecode::Gist::GistMainWindow::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>The contained Gist object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="97" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a1453827c9548a51fc6f71f1dbf8eee76" prot="protected" static="no" mutable="no">
+        <type>QMenuBar *</type>
+        <definition>QMenuBar* Gecode::Gist::GistMainWindow::menuBar</definition>
+        <argsstring></argsstring>
+        <name>menuBar</name>
+        <briefdescription>
+<para>A menu bar. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="99" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1GistMainWindow_1a05a9af23cc120d5f797ba83ec02909e2" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1AboutGist" kindref="compound">AboutGist</ref></type>
+        <definition>AboutGist Gecode::Gist::GistMainWindow::aboutGist</definition>
+        <argsstring></argsstring>
+        <name>aboutGist</name>
+        <briefdescription>
+<para>About dialog. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="101" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-slot">
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1adb35fe53fe46bfb5ed9f7c225f8e0319" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::statusChanged</definition>
+        <argsstring>(const Statistics &amp;stats, bool finished)</argsstring>
+        <name>statusChanged</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1Statistics" kindref="compound">Statistics</ref> &amp;</type>
+          <declname>stats</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>finished</declname>
+        </param>
+        <briefdescription>
+<para>The status has changed (e.g., new solutions have been found) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="105" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1a3119882905d7b31b144f66ac352794d5" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::about</definition>
+        <argsstring>(void)</argsstring>
+        <name>about</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Open the about dialog. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="107" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1ac1ad93e76c64f37aed35e7a04bb551d7" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::preferences</definition>
+        <argsstring>(bool setup=false)</argsstring>
+        <name>preferences</name>
+        <param>
+          <type>bool</type>
+          <declname>setup</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Open the preferences dialog. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="109" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1ad96d50a79008277a721de099897f17b8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::populateInspectorSelection</definition>
+        <argsstring>(void)</argsstring>
+        <name>populateInspectorSelection</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Populate the inspector menus from the actions found in <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="111" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1a60884016bae7c3d734a5ed339a65f8cc" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::populateInspectors</definition>
+        <argsstring>(void)</argsstring>
+        <name>populateInspectors</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Populate the inspector menus from the actions found in <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="113" column="1"/>
+      </memberdef>
+      <memberdef kind="slot" id="classGecode_1_1Gist_1_1GistMainWindow_1a4bec654d1eaede147dc1644a3bcac8c3" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::populateBookmarks</definition>
+        <argsstring>(void)</argsstring>
+        <name>populateBookmarks</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Populate the bookmarks menus from the actions found in <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="115" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1GistMainWindow_1a2fc7fc4d13d68d496bcec28e1dc4b456" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::GistMainWindow::GistMainWindow</definition>
+        <argsstring>(Space *root, bool bab, const Options &amp;opt)</argsstring>
+        <name>GistMainWindow</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>bab</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>opt</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="118" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1GistMainWindow_1ace4d2727ed72176f9a5e5fa6cd9abdaa" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::GistMainWindow::closeEvent</definition>
+        <argsstring>(QCloseEvent *event)</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Close <ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/mainwindow.hh" line="121" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Main window for stand-alone Gist. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2489">
+        <label>QMainWindow</label>
+      </node>
+      <node id="2488">
+        <label>Gecode::Gist::GistMainWindow</label>
+        <link refid="classGecode_1_1Gist_1_1GistMainWindow"/>
+        <childnode refid="2489" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2494">
+        <label>Gecode::Gist::AboutGist</label>
+        <link refid="classGecode_1_1Gist_1_1AboutGist"/>
+        <childnode refid="2495" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2491">
+        <label>QMainWindow</label>
+      </node>
+      <node id="2492">
+        <label>Gecode::Gist::Gist</label>
+        <link refid="classGecode_1_1Gist_1_1Gist"/>
+        <childnode refid="2493" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2495">
+        <label>QDialog</label>
+      </node>
+      <node id="2493">
+        <label>QWidget</label>
+      </node>
+      <node id="2490">
+        <label>Gecode::Gist::GistMainWindow</label>
+        <link refid="classGecode_1_1Gist_1_1GistMainWindow"/>
+        <childnode refid="2491" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2492" relation="usage">
+          <edgelabel>c</edgelabel>
+        </childnode>
+        <childnode refid="2494" relation="usage">
+          <edgelabel>aboutGist</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/mainwindow.hh" line="58" column="1" bodyfile="/usr/include/gecode/gist/mainwindow.hh" bodystart="58" bodyend="122"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a3119882905d7b31b144f66ac352794d5" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>about</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a05a9af23cc120d5f797ba83ec02909e2" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>aboutGist</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1acfc4c8ce18f83e28244575162d687a17" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>bookmarksMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1aefaf1b366d788da255697ba8101d73c8" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>c</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1afa071071abc194911729a84587e413dd" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>choicesLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1ace4d2727ed72176f9a5e5fa6cd9abdaa" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>closeEvent</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1aa87adfe5a644bc690bbf5893440fa736" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>comparatorsMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a22877f12d532e5d836cec7286ef5a0d9" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>depthLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a52e3bfeff235b1b4f58386cf6ada454d" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>doubleClickInspectorsMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1ab2ef191685b9aef9f6a92cee5d6883b6" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>failedLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a2fc7fc4d13d68d496bcec28e1dc4b456" prot="public" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>GistMainWindow</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1acadebc6796d494bf64255cf67c0b241b" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>inspectNodeBeforeFPMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a645598910c8de2c90ad5c3f61cc0b305" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>inspectNodeMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1ae18f38a1d15b2cfdd23b99f667da08bc" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>isSearching</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a1453827c9548a51fc6f71f1dbf8eee76" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>menuBar</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a2a631076f7047a2afd67fab50443db33" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>moveInspectorsMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1adc3a01a399894e07ecf573890238c9a1" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>openLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a65090a227f8d1cc71e28a744023cc6f1" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>opt</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a4bec654d1eaede147dc1644a3bcac8c3" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>populateBookmarks</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a60884016bae7c3d734a5ed339a65f8cc" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>populateInspectors</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1ad96d50a79008277a721de099897f17b8" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>populateInspectorSelection</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1aad3e2741023338e146828e87a0657d05" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>prefAction</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1ac1ad93e76c64f37aed35e7a04bb551d7" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>preferences</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1aa1c8cc3234269bf8021f4ec7e49ee075" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>searchTimer</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a1abe73101475756542f38e31be587514" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>solutionInspectorsMenu</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a8f5f7ce8c4ee1e49b3810205e72bb117" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>solvedLabel</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1adb35fe53fe46bfb5ed9f7c225f8e0319" prot="protected" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>statusChanged</name></member>
+      <member refid="classGecode_1_1Gist_1_1GistMainWindow_1a409c30a4105aa3e8da0a8b701a37bf64" prot="private" virt="non-virtual"><scope>Gecode::Gist::GistMainWindow</scope><name>wmpLabel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

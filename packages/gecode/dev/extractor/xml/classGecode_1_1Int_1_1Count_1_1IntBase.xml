@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Count_1_1IntBase" kind="class" prot="public">
+    <compoundname>Gecode::Int::Count::IntBase</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Count_1_1EqInt" prot="public" virt="non-virtual">Gecode::Int::Count::EqInt&lt; VX, VY &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Count_1_1GqInt" prot="public" virt="non-virtual">Gecode::Int::Count::GqInt&lt; VX, VY &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Count_1_1LqInt" prot="public" virt="non-virtual">Gecode::Int::Count::LqInt&lt; VX, VY &gt;</derivedcompoundref>
+    <includes refid="count_8hh" local="no">count.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>VX</declname>
+        <defname>VX</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>VY</declname>
+        <defname>VY</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a339b3babfa157846f3fb5e39a8b8fd31" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; VX &gt;</type>
+        <definition>ViewArray&lt;VX&gt; Gecode::Int::Count::IntBase&lt; VX, VY &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Views still to count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="142" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a0f773b2d354ee6840beee9a5aebbf904" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Count::IntBase&lt; VX, VY &gt;::n_s</definition>
+        <argsstring></argsstring>
+        <name>n_s</name>
+        <briefdescription>
+<para>Views from x[0] ... x[n_s-1] have subscriptions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="144" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a7416326768e910989903d9f4706ac235" prot="protected" static="no" mutable="no">
+        <type>VY</type>
+        <definition>VY Gecode::Int::Count::IntBase&lt; VX, VY &gt;::y</definition>
+        <argsstring></argsstring>
+        <name>y</name>
+        <briefdescription>
+<para>View to compare to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="146" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a4303346f641823d61c0abe9d3e8b94cd" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Count::IntBase&lt; VX, VY &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Number of views which are equal and have been eliminated. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="148" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a6456aebe807198a7f26f177f399aac5b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Count::IntBase&lt; VX, VY &gt;::IntBase</definition>
+        <argsstring>(Space &amp;home, bool share, IntBase &amp;p)</argsstring>
+        <name>IntBase</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Count_1_1IntBase" kindref="compound">IntBase</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="150" column="1" bodyfile="/usr/include/gecode/int/count/int-base.hpp" bodystart="66" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1IntBase_1ad48b01261b7136948553129f01c3ee13" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Count::IntBase&lt; VX, VY &gt;::IntBase</definition>
+        <argsstring>(Home home, ViewArray&lt; VX &gt; &amp;x, int n_s, VY y, int c)</argsstring>
+        <name>IntBase</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; VX &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_s</declname>
+        </param>
+        <param>
+          <type>VY</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="152" column="1" bodyfile="/usr/include/gecode/int/count/int-base.hpp" bodystart="42" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a0d66f1d5f8c5ec1c24d6dd49f59f2314" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Int::Count::IntBase&lt; VX, VY &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Cost function (defined as low linear) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="155" column="1" bodyfile="/usr/include/gecode/int/count/int-base.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Count_1_1IntBase_1a59c2c980c2ce602a78bab1b4f2e70561" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Int::Count::IntBase&lt; VX, VY &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/count.hh" line="157" column="1" bodyfile="/usr/include/gecode/int/count/int-base.hpp" bodystart="54" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Baseclass for count propagators (integer) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2881">
+        <label>Gecode::Int::Count::GqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1GqInt"/>
+        <childnode refid="2876" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2882">
+        <label>Gecode::Int::Count::LqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1LqInt"/>
+        <childnode refid="2876" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2877">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="2878" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2878">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="2879" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2879">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="2880">
+        <label>Gecode::Int::Count::EqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1EqInt"/>
+        <childnode refid="2876" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2876">
+        <label>Gecode::Int::Count::IntBase&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1IntBase"/>
+        <childnode refid="2877" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2887">
+        <label>Gecode::ViewArray&lt; VX &gt;</label>
+        <link refid="classGecode_1_1ViewArray"/>
+      </node>
+      <node id="2884">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="2885" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2886" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="2885">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="2886" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2886">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="2883">
+        <label>Gecode::Int::Count::IntBase&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1IntBase"/>
+        <childnode refid="2884" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2887" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/count.hh" line="139" column="1" bodyfile="/usr/include/gecode/int/count.hh" bodystart="139" bodyend="158"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Count::IntBase</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a4303346f641823d61c0abe9d3e8b94cd" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Count::IntBase</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Count::IntBase</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a0d66f1d5f8c5ec1c24d6dd49f59f2314" prot="public" virt="virtual"><scope>Gecode::Int::Count::IntBase</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a59c2c980c2ce602a78bab1b4f2e70561" prot="public" virt="virtual"><scope>Gecode::Int::Count::IntBase</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a6456aebe807198a7f26f177f399aac5b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>IntBase</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1ad48b01261b7136948553129f01c3ee13" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>IntBase</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a0f773b2d354ee6840beee9a5aebbf904" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>n_s</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1" prot="public" virt="pure-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a339b3babfa157846f3fb5e39a8b8fd31" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Count_1_1IntBase_1a7416326768e910989903d9f4706ac235" prot="protected" virt="non-virtual"><scope>Gecode::Int::Count::IntBase</scope><name>y</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

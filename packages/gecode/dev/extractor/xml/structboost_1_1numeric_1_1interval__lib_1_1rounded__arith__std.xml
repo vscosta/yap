@@ -1,0 +1,376 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::rounded_arith_std</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Rounding</basecompoundref>
+    <templateparamlist>
+      <param>
+        <type>class T</type>
+      </param>
+      <param>
+        <type>class Rounding</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1ad850c62624ead249e1eaa190fc5dd783" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::init</definition>
+        <argsstring>()</argsstring>
+        <name>init</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="55" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="55" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a0ed97dd59ccc9310e62bf5128c90ec19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class U</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::conv_down</definition>
+        <argsstring>(U const &amp;v)</argsstring>
+        <name>conv_down</name>
+        <param>
+          <type>U const &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="56" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="56" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a16b6ff06fce05cc75933c58d3222826b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class U</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::conv_up</definition>
+        <argsstring>(U const &amp;v)</argsstring>
+        <name>conv_up</name>
+        <param>
+          <type>U const &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="57" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a2c597c48444f10e83a77c23ad24f9937" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::add_down</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>add_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="58" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a3d5be599c0cddc66685b4aea86afc5b8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::sub_down</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>sub_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="59" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a51c16f34719869f5182759a441b45fab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::mul_down</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>mul_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="60" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a564f9f8b83c867b244ae2325f6bb69c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::div_down</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>div_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="61" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1aacbd61bb7f78897f125e3c28ca33dc91" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::add_up</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>add_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="62" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a470e6152dd3e1b2ed3e6f6c263ca3322" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::sub_up</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>sub_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="63" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a82e0d3a12ab967d1d16cc6206fe71e1f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::mul_up</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>mul_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="64" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="64" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a25ea508c27219e340aed8ee42574b237" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::div_up</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>div_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="65" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a04ca8ca42161693678ae90db4f415643" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::median</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>median</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="66" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="66" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a7e26db89190a7884bf8b4fc0e7a56d27" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::sqrt_down</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>sqrt_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="67" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="67" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a195a81dffb00675ace938311e7b1339f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::sqrt_up</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>sqrt_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="69" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="69" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1adb3787a1fbbf91f31b2388c0a2335bc4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::int_down</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>int_down</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="71" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="71" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a04d56829ed1e18f5bce36c069e0369bb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;::int_up</definition>
+        <argsstring>(const T &amp;x)</argsstring>
+        <name>int_up</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="72" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="72" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6178">
+        <label>Rounding</label>
+      </node>
+      <node id="6177">
+        <label>boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std"/>
+        <childnode refid="6178" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6180">
+        <label>Rounding</label>
+      </node>
+      <node id="6179">
+        <label>boost::numeric::interval_lib::rounded_arith_std&lt; T, Rounding &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std"/>
+        <childnode refid="6180" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" line="51" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/rounded_arith.hpp" bodystart="51" bodyend="76"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a2c597c48444f10e83a77c23ad24f9937" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>add_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1aacbd61bb7f78897f125e3c28ca33dc91" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>add_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a0ed97dd59ccc9310e62bf5128c90ec19" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>conv_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a16b6ff06fce05cc75933c58d3222826b" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>conv_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a564f9f8b83c867b244ae2325f6bb69c7" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>div_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a25ea508c27219e340aed8ee42574b237" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>div_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1ad850c62624ead249e1eaa190fc5dd783" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>init</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1adb3787a1fbbf91f31b2388c0a2335bc4" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>int_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a04d56829ed1e18f5bce36c069e0369bb" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>int_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a04ca8ca42161693678ae90db4f415643" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>median</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a51c16f34719869f5182759a441b45fab" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>mul_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a82e0d3a12ab967d1d16cc6206fe71e1f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>mul_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a7e26db89190a7884bf8b4fc0e7a56d27" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>sqrt_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a195a81dffb00675ace938311e7b1339f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>sqrt_up</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a3d5be599c0cddc66685b4aea86afc5b8" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>sub_down</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1rounded__arith__std_1a470e6152dd3e1b2ed3e6f6c263ca3322" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::rounded_arith_std</scope><name>sub_up</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

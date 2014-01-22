@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1Inter" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::Inter</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax" prot="public" virt="non-virtual">Gecode::Iter::Ranges::MinMax</basecompoundref>
+    <includes refid="ranges-inter_8hpp" local="no">ranges-inter.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>I</declname>
+        <defname>I</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>J</declname>
+        <defname>J</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a37386ded6182bc805437b71f66edd293" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Inter&lt; I, J &gt;::Inter</definition>
+        <argsstring>(void)</argsstring>
+        <name>Inter</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="58" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="141" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ae10ea99afe1c46fcbd947ee1369997ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Inter&lt; I, J &gt;::Inter</definition>
+        <argsstring>(I &amp;i, J &amp;j)</argsstring>
+        <name>Inter</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>J &amp;</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with iterator <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="145" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ac24f5e1616ab4207cc9be73b70ae1dfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Inter&lt; I, J &gt;::init</definition>
+        <argsstring>(I &amp;i, J &amp;j)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>J &amp;</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with iterator <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="62" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="152" bodyend="155"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a02bae4454e6e266a857bd3cea9d14035" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Iter::Ranges::Inter&lt; I, J &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="68" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="122" bodyend="137"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ab6056439a772fd6b4ddd159dc91205d0" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::Inter&lt; I, J &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>First iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a57df8aa31ea3407734e722d6cde50986" prot="protected" static="no" mutable="no">
+        <type>J</type>
+        <definition>J Gecode::Iter::Ranges::Inter&lt; I, J &gt;::j</definition>
+        <argsstring></argsstring>
+        <name>j</name>
+        <briefdescription>
+<para>Second iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for computing intersection (binary) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2910">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="2909">
+        <label>Gecode::Iter::Ranges::Inter&lt; I, J &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Inter"/>
+        <childnode refid="2910" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2913">
+        <label>I</label>
+      </node>
+      <node id="2914">
+        <label>J</label>
+      </node>
+      <node id="2912">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="2911">
+        <label>Gecode::Iter::Ranges::Inter&lt; I, J &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Inter"/>
+        <childnode refid="2912" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2913" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+        <childnode refid="2914" relation="usage">
+          <edgelabel>j</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-inter.hpp" line="48" column="1" bodyfile="/usr/include/gecode/iter/ranges-inter.hpp" bodystart="48" bodyend="70"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ab6056439a772fd6b4ddd159dc91205d0" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ac24f5e1616ab4207cc9be73b70ae1dfc" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a37386ded6182bc805437b71f66edd293" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>Inter</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1ae10ea99afe1c46fcbd947ee1369997ad" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>Inter</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a57df8aa31ea3407734e722d6cde50986" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>j</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Inter_1a02bae4454e6e266a857bd3cea9d14035" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Inter</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

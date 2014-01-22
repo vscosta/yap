@@ -1,0 +1,647 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1OffsetView" kind="class" prot="public">
+    <compoundname>Gecode::Float::OffsetView</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; FloatView &gt;</basecompoundref>
+    <includes refid="float_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a392cb024dd742c00aad1aee746a42109" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::OffsetView::OffsetView</definition>
+        <argsstring>(void)</argsstring>
+        <name>OffsetView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="269" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a087ba1a561d12368e13cfafb1985c8c6" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::OffsetView::OffsetView</definition>
+        <argsstring>(const FloatView &amp;y, FloatNum c)</argsstring>
+        <name>OffsetView</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">FloatView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with float view <emphasis>y</emphasis> and an offset c. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="271" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a6a602f3039ffec8a6da282da31be1bed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::offset</definition>
+        <argsstring>(void) const </argsstring>
+        <name>offset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return offset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="277" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a6e3dcc57e60b46d34bbc0bb6b919fdbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::OffsetView::offset</definition>
+        <argsstring>(FloatNum n)</argsstring>
+        <name>offset</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Change offset to be <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="279" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="62" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a3761c246c93c89bc51d19f607be22921" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::OffsetView::domain</definition>
+        <argsstring>(void) const </argsstring>
+        <name>domain</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="281" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="66" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ac7d59d4dee4e82de966ce0cdde0105a4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="283" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="70" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ad286aecaa4b53960a58faa2d6dddc0a5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="285" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a1bdbf8b5ccb23cc5afed64d85d86e030" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of domain (closest representation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="287" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a467e0b56c2319d771ecab6d579607a49" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::OffsetView::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return assigned value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">Float::ValOfUnassignedVar</ref> if variable is not yet assigned. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="295" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="82" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ab4ab6d2c93d86b3b12a425fab1b8bc3d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of domain (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="298" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="87" bodyend="89"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ae8ddd5b28244cccdaa3ab60701695516" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::OffsetView::zero_in</definition>
+        <argsstring>(void) const </argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether 0 is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="304" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a2bd60ba13a7f8b9e41f74df6579304ed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::OffsetView::in</definition>
+        <argsstring>(FloatNum n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="306" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="101" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ad68aa571f2ae53d656331f355a896062" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::OffsetView::in</definition>
+        <argsstring>(const FloatVal &amp;n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="308" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="105" bodyend="107"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a27266a3583624db201eb62fa8f612bca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::lq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="314" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1af2c2d882e4993bd930ce5eed2028a4cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::lq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="316" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1afca5a6e7899a8dd73da8c3c494c65ec5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::lq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="318" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="123" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ae386d0ff3c0d3e07de1789b01c4018cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::gq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="321" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="128" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ad38e64f9d24d0735c21efa03a87bdc82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::gq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="323" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="132" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ac5448a35f59a6449ab1294ffa97907cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::gq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="325" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="136" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1aec8118c54771aab1749d0d54dfcd58c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::eq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="328" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="141" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1abba33906775c0a50e66264c7e0db5eab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::eq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="330" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1ad5c5efa1c0e21d8fe1d55233d91eedb8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::OffsetView::eq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="332" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="149" bodyend="151"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a5d93eb84507f993387e8ebcfe239b5db" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::min</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="339" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="159" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a5783ad868eaa9118946bc2db7ecbd6e4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::OffsetView::max</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="341" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="163" bodyend="165"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a128cb18cfdace02e775866f0af97a441" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Float::OffsetView::med</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="347" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="168" bodyend="170"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a71942034e21cabb37d15817875796895" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Float::OffsetView::update</definition>
+        <argsstring>(Space &amp;home, bool share, OffsetView &amp;y)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Float_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="352" column="1" bodyfile="/usr/include/gecode/float/view/offset.hpp" bodystart="178" bodyend="181"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Float_1_1OffsetView_1aa064039d6b4e4f2aae943da1bba4ed1f" prot="protected" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>FloatNum Gecode::Float::OffsetView::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Offset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="263" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="263" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1OffsetView_1a2fb5093c72290d5832c43d84d7b4ec59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const OffsetView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1OffsetView" kindref="compound">OffsetView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print float offset view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="183" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Float_1_1OffsetView" kindref="compound">OffsetView</ref> float view. </para>    </briefdescription>
+    <detaileddescription>
+<para>An offset float view <formula id="33">$o$</formula> for an float view <formula id="31">$x$</formula> and an float <formula id="34">$c$</formula> provides operations such that <formula id="33">$o$</formula> behaves as <formula id="35">$x+c$</formula>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="4843">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="4842">
+        <label>Gecode::Float::OffsetView</label>
+        <link refid="classGecode_1_1Float_1_1OffsetView"/>
+        <childnode refid="4843" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4845">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="4846" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="4846">
+        <label>Gecode::Float::FloatView</label>
+        <link refid="classGecode_1_1Float_1_1FloatView"/>
+        <childnode refid="4847" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4844">
+        <label>Gecode::Float::OffsetView</label>
+        <link refid="classGecode_1_1Float_1_1OffsetView"/>
+        <childnode refid="4845" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4847">
+        <label>Gecode::VarImpView&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/view.hpp" line="260" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="260" bodyend="354"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>base</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1aa064039d6b4e4f2aae943da1bba4ed1f" prot="protected" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>c</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a3761c246c93c89bc51d19f607be22921" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>domain</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1aec8118c54771aab1749d0d54dfcd58c1" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1abba33906775c0a50e66264c7e0db5eab" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ad5c5efa1c0e21d8fe1d55233d91eedb8" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ae386d0ff3c0d3e07de1789b01c4018cd" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ad38e64f9d24d0735c21efa03a87bdc82" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ac5448a35f59a6449ab1294ffa97907cf" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a2bd60ba13a7f8b9e41f74df6579304ed" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ad68aa571f2ae53d656331f355a896062" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a27266a3583624db201eb62fa8f612bca" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1af2c2d882e4993bd930ce5eed2028a4cc" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1afca5a6e7899a8dd73da8c3c494c65ec5" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ad286aecaa4b53960a58faa2d6dddc0a5" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>max</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a5783ad868eaa9118946bc2db7ecbd6e4" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>max</name></member>
+      <member refid="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>me</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a1bdbf8b5ccb23cc5afed64d85d86e030" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a128cb18cfdace02e775866f0af97a441" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ac7d59d4dee4e82de966ce0cdde0105a4" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a5d93eb84507f993387e8ebcfe239b5db" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>min</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a6a602f3039ffec8a6da282da31be1bed" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>offset</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a6e3dcc57e60b46d34bbc0bb6b919fdbe" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>offset</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a392cb024dd742c00aad1aee746a42109" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>OffsetView</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a087ba1a561d12368e13cfafb1985c8c6" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>OffsetView</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a2fb5093c72290d5832c43d84d7b4ec59" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ab4ab6d2c93d86b3b12a425fab1b8bc3d" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>size</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a71942034e21cabb37d15817875796895" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>update</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual" ambiguityscope="DerivedView&lt; FloatView &gt;::"><scope>Gecode::Float::OffsetView</scope><name>update</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1a467e0b56c2319d771ecab6d579607a49" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>val</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>x</name></member>
+      <member refid="classGecode_1_1Float_1_1OffsetView_1ae8ddd5b28244cccdaa3ab60701695516" prot="public" virt="non-virtual"><scope>Gecode::Float::OffsetView</scope><name>zero_in</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

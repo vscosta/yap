@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1BranchTraits_3_01IntVar_01_4" kind="class" prot="public">
+    <compoundname>Gecode::BranchTraits&lt; IntVar &gt;</compoundname>
+    <includes refid="int_2branch_2traits_8hpp" local="no">traits.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a85b42f60b2d4e581372e390e689b3112" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntBranch_1ga6791eb13b8bcf30a45a31ecec43e6e03" kindref="member">IntBranchFilter</ref></type>
+        <definition>typedef IntBranchFilter Gecode::BranchTraits&lt; IntVar &gt;::Filter</definition>
+        <argsstring></argsstring>
+        <name>Filter</name>
+        <briefdescription>
+<para>Type for the branching filter function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/traits.hpp" line="45" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1BranchTraits_3_01IntVar_01_4_1aa77a4bd53a025018d26820b4f33248da" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntBranch_1gabd2629d15afdee6f6cb998c1647b210f" kindref="member">IntBranchMerit</ref></type>
+        <definition>typedef IntBranchMerit Gecode::BranchTraits&lt; IntVar &gt;::Merit</definition>
+        <argsstring></argsstring>
+        <name>Merit</name>
+        <briefdescription>
+<para>Type for the branching merit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/traits.hpp" line="47" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a670ef12003dafd08cea24df64b82bcf9" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntBranch_1ga98ca9bcf71eeeb8d55b408a309a9ce9f" kindref="member">IntBranchVal</ref></type>
+        <definition>typedef IntBranchVal Gecode::BranchTraits&lt; IntVar &gt;::Val</definition>
+        <argsstring></argsstring>
+        <name>Val</name>
+        <briefdescription>
+<para>Type for the branching value function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/traits.hpp" line="49" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1BranchTraits_3_01IntVar_01_4_1aadc60dceeadb14d672ca39220de6ccf6" prot="public" static="no">
+        <type>int</type>
+        <definition>typedef int Gecode::BranchTraits&lt; IntVar &gt;::ValType</definition>
+        <argsstring></argsstring>
+        <name>ValType</name>
+        <briefdescription>
+<para>Return type of the branching value function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/traits.hpp" line="51" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a76711f0138ec5251d5d3047b041e811a" prot="public" static="no">
+        <type><ref refid="group__TaskModelIntBranch_1ga8a76dc88094c7c583b2afdc0f51d73f8" kindref="member">IntBranchCommit</ref></type>
+        <definition>typedef IntBranchCommit Gecode::BranchTraits&lt; IntVar &gt;::Commit</definition>
+        <argsstring></argsstring>
+        <name>Commit</name>
+        <briefdescription>
+<para>Type for the branching commit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/traits.hpp" line="53" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits of IntVar for branching. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/branch/traits.hpp" line="42" column="1" bodyfile="/usr/include/gecode/int/branch/traits.hpp" bodystart="42" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a76711f0138ec5251d5d3047b041e811a" prot="public" virt="non-virtual"><scope>Gecode::BranchTraits&lt; IntVar &gt;</scope><name>Commit</name></member>
+      <member refid="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a85b42f60b2d4e581372e390e689b3112" prot="public" virt="non-virtual"><scope>Gecode::BranchTraits&lt; IntVar &gt;</scope><name>Filter</name></member>
+      <member refid="classGecode_1_1BranchTraits_3_01IntVar_01_4_1aa77a4bd53a025018d26820b4f33248da" prot="public" virt="non-virtual"><scope>Gecode::BranchTraits&lt; IntVar &gt;</scope><name>Merit</name></member>
+      <member refid="classGecode_1_1BranchTraits_3_01IntVar_01_4_1a670ef12003dafd08cea24df64b82bcf9" prot="public" virt="non-virtual"><scope>Gecode::BranchTraits&lt; IntVar &gt;</scope><name>Val</name></member>
+      <member refid="classGecode_1_1BranchTraits_3_01IntVar_01_4_1aadc60dceeadb14d672ca39220de6ccf6" prot="public" virt="non-virtual"><scope>Gecode::BranchTraits&lt; IntVar &gt;</scope><name>ValType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

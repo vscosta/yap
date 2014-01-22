@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Advisors" kind="class" prot="public">
+    <compoundname>Gecode::Advisors</compoundname>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Advisors_1ac6bbef8788d660a6a59d153bc4616dcb" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>ActorLink* Gecode::Advisors&lt; A &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>The current advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="903" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="903" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Advisors_1afaa45092c4ba5bd12dd0e797406b113d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Advisors&lt; A &gt;::Advisors</definition>
+        <argsstring>(const Council&lt; A &gt; &amp;c)</argsstring>
+        <name>Advisors</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="906" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3309" bodyend="3313"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisors_1ac60b02e55feed826d4392c90661070fa" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Advisors&lt; A &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether there advisors left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="908" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3317" bodyend="3319"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisors_1ace3cfcd1f46c523a2c6feb8f7ef334ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Advisors&lt; A &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="910" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3323" bodyend="3327"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Advisors_1a5e7a61bed1c2ac37321327e42f14319b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>A &amp;</type>
+        <definition>forceinline A &amp; Gecode::Advisors&lt; A &gt;::advisor</definition>
+        <argsstring>(void) const </argsstring>
+        <name>advisor</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="912" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3331" bodyend="3333"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to iterate over advisors of a council. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="227" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="227" bodyend="-1"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Advisors_1ac6bbef8788d660a6a59d153bc4616dcb" prot="private" virt="non-virtual"><scope>Gecode::Advisors</scope><name>a</name></member>
+      <member refid="classGecode_1_1Advisors_1a5e7a61bed1c2ac37321327e42f14319b" prot="public" virt="non-virtual"><scope>Gecode::Advisors</scope><name>advisor</name></member>
+      <member refid="classGecode_1_1Advisors_1afaa45092c4ba5bd12dd0e797406b113d" prot="public" virt="non-virtual"><scope>Gecode::Advisors</scope><name>Advisors</name></member>
+      <member refid="classGecode_1_1Advisors_1ac60b02e55feed826d4392c90661070fa" prot="public" virt="non-virtual"><scope>Gecode::Advisors</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Advisors_1ace3cfcd1f46c523a2c6feb8f7ef334ad" prot="public" virt="non-virtual"><scope>Gecode::Advisors</scope><name>operator++</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

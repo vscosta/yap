@@ -1,0 +1,2547 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ActorLink" kind="class" prot="public">
+    <compoundname>Gecode::ActorLink</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Actor" prot="private" virt="non-virtual">Gecode::Actor</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Advisor" prot="private" virt="non-virtual">Gecode::Advisor</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a9cc550a2655ca1ac70f35c8c9ff32cb3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>forceinline ActorLink * Gecode::ActorLink::prev</definition>
+        <argsstring>(void) const </argsstring>
+        <name>prev</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Routines for double-linked list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="640" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2659" bodyend="2661"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1afd02d9f0b576ed96dc2a56b1dcd55fba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::prev</definition>
+        <argsstring>(ActorLink *)</argsstring>
+        <name>prev</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <defname>al</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="640" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2674" bodyend="2676"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1adea733535bef2e42c18c26109e83e2c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>forceinline ActorLink * Gecode::ActorLink::next</definition>
+        <argsstring>(void) const </argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="641" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2664" bodyend="2666"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a1db60d9d58e77e6103178e25f4a04a79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::next</definition>
+        <argsstring>(ActorLink *)</argsstring>
+        <name>next</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <defname>al</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="641" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2679" bodyend="2681"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1abb3f921661af3f0a0810d7928b0d6e8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> **</type>
+        <definition>forceinline ActorLink ** Gecode::ActorLink::next_ref</definition>
+        <argsstring>(void)</argsstring>
+        <name>next_ref</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="642" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2669" bodyend="2671"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1ae4af50bf1743d112cb2c2c784bea21c8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Actor</definition>
+        <argsstring></argsstring>
+        <name>Actor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="628" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="628" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1a9d01c82a7038a8c986c6b15c15b2e631" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Propagator</definition>
+        <argsstring></argsstring>
+        <name>Propagator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="629" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="629" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Advisor</definition>
+        <argsstring></argsstring>
+        <name>Advisor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="630" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="630" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1ab2370b9ccb77385b5ef05776269bf082" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Brancher</definition>
+        <argsstring></argsstring>
+        <name>Brancher</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="631" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="631" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1a2f86794f74e3da8812e17622c204c67c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class LocalObject</definition>
+        <argsstring></argsstring>
+        <name>LocalObject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="632" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="632" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Space</definition>
+        <argsstring></argsstring>
+        <name>Space</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="633" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="633" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1ActorLink_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class VIC</type>
+          </param>
+        </templateparamlist>
+        <type>friend class</type>
+        <definition>friend class VarImp</definition>
+        <argsstring></argsstring>
+        <name>VarImp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="634" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="634" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1ActorLink_1a752c3a189683f525c14265d89df92c0d" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>ActorLink* Gecode::ActorLink::_next</definition>
+        <argsstring></argsstring>
+        <name>_next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="636" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="636" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ActorLink_1a60346b798f42bf3a083c0a326153b7fe" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>ActorLink* Gecode::ActorLink::_prev</definition>
+        <argsstring></argsstring>
+        <name>_prev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="636" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="636" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a2a85f4b580dce95d9e53f9ea154ac43f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::init</definition>
+        <argsstring>(void)</argsstring>
+        <name>init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize links (self-linked) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="646" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2690" bodyend="2692"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a2d3f9ab47aff98aafd43f66f46fb5600" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::unlink</definition>
+        <argsstring>(void)</argsstring>
+        <name>unlink</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Remove from predecessor and successor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="648" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2684" bodyend="2687"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1aae85e575e771a240a134254cdd6eb29e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::head</definition>
+        <argsstring>(ActorLink *al)</argsstring>
+        <name>head</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Insert <emphasis>al</emphasis> directly after this. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="650" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2695" bodyend="2700"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a275801fb6adafe9ea77a6b3dfbf682e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::ActorLink::tail</definition>
+        <argsstring>(ActorLink *al)</argsstring>
+        <name>tail</name>
+        <param>
+          <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+          <declname>al</declname>
+        </param>
+        <briefdescription>
+<para>Insert <emphasis>al</emphasis> directly before this. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="652" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2703" bodyend="2708"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a925e990fc90855238801f5f96d3a240f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::ActorLink::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether actor link is empty (points to itself) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="654" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2711" bodyend="2713"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1ac7ae921a6b6eb197738b93c3a46bc5e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>forceinline ActorLink* Gecode::ActorLink::cast</definition>
+        <argsstring>(T *a)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>T *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2717" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2717" bodyend="2722"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a500432019d04a726e391eb6dc5fe7284" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>forceinline const ActorLink* Gecode::ActorLink::cast</definition>
+        <argsstring>(const T *a)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>const T *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="2726" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2726" bodyend="2731"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>static ActorLink* Gecode::ActorLink::cast</definition>
+        <argsstring>(T *a)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>T *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="656" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>const <ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>static const ActorLink* Gecode::ActorLink::cast</definition>
+        <argsstring>(const T *a)</argsstring>
+        <name>cast</name>
+        <param>
+          <type>const T *</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Static cast for a non-null pointer (to give a hint to optimizer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="658" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Double-linked list for actors. </para>    </briefdescription>
+    <detaileddescription>
+<para>Used to maintain which actors belong to a space and also (for propagators) to organize actors in the queue of waiting propagators. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="586">
+        <label>Gecode::Float::Arithmetic::Sqrt&lt; A, B &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Sqrt"/>
+        <childnode refid="582" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="709">
+        <label>Gecode::Float::Rel::ReLeFloat&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReLeFloat"/>
+        <childnode refid="707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="642">
+        <label>Gecode::Float::Arithmetic::MultPlus&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1MultPlus"/>
+        <childnode refid="641" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="623">
+        <label>Gecode::Int::Channel::LinkMulti</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1LinkMulti"/>
+        <childnode refid="622" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="646">
+        <label>Gecode::MixTernaryPropagator&lt; VA, PC_INT_DOM, VB, PC_INT_DOM, VC, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="563">
+        <label>Gecode::Int::Linear::DomEq&lt; Val, View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1DomEq"/>
+        <childnode refid="562" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="652">
+        <label>Gecode::MixTernaryPropagator&lt; View0, PC_SET_ANY, View1, PC_SET_ANY, View2, PC_SET_CLUB &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="636">
+        <label>Gecode::Int::Bool::NaryOr&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1NaryOr"/>
+        <childnode refid="635" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="527">
+        <label>Gecode::Int::Sorted::Sorted&lt; View, Perm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sorted_1_1Sorted"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="731">
+        <label>Gecode::Int::Arithmetic::MultDom</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MultDom"/>
+        <childnode refid="730" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="506">
+        <label>Gecode::Int::Linear::EqBoolView&lt; XV, YV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1EqBoolView"/>
+        <childnode refid="505" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="494">
+        <label>Gecode::Int::Linear::Lin&lt; Val, P, N, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="490">
+        <label>Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="418">
+        <label>Gecode::ViewBrancher&lt; IntView, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="412" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="422">
+        <label>Gecode::Int::Channel::Base&lt; DomInfo&lt; View, Offset &gt;, Offset, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="518">
+        <label>Gecode::Int::NValues::EqBool&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1EqBool"/>
+        <childnode refid="517" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="735">
+        <label>Gecode::TernaryPropagator&lt; View, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="498">
+        <label>ReLin&lt; Val, P, N, PC_INT_BND, Ctrl &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLin"/>
+        <childnode refid="494" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="461">
+        <label>Gecode::Int::Bool::OrTrueSubsumed&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1OrTrueSubsumed"/>
+        <childnode refid="459" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="599">
+        <label>Gecode::Set::Int::NotMaxElement&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1NotMaxElement"/>
+        <childnode refid="598" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="538">
+        <label>Gecode::Set::Channel::ChannelSet&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelSet"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="439">
+        <label>Gecode::Int::Arithmetic::NrootDom&lt; Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NrootDom"/>
+        <childnode refid="438" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="631">
+        <label>Gecode::MixNaryOnePropagator&lt; View0, PC_SET_ANY, View1, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="575">
+        <label>Gecode::Int::Linear::LinTer&lt; Val, A, B, C, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinTer"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="440">
+        <label>Gecode::Int::Arithmetic::NrootPlusDom&lt; Ops, minus &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NrootPlusDom"/>
+        <childnode refid="438" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="430">
+        <label>Gecode::BinaryPropagator&lt; BoolView, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="455">
+        <label>Gecode::BinaryPropagator&lt; View, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="541">
+        <label>Gecode::Set::Element::ElementIntersection&lt; View, View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Element_1_1ElementIntersection"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="755">
+        <label>Gecode::Activity::Recorder&lt; View &gt;::Idx</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder_1_1Idx"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="601">
+        <label>Gecode::MixBinaryPropagator&lt; View, PC_SET_CARD, Gecode::Int::IntView, Gecode::Int::PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="445">
+        <label>Gecode::Float::Arithmetic::MultZeroOne&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1MultZeroOne"/>
+        <childnode refid="444" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="687">
+        <label>Gecode::Int::Rel::NaryNq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryNq"/>
+        <childnode refid="685" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="433">
+        <label>Gecode::Int::Bool::NaryOrTrue&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1NaryOrTrue"/>
+        <childnode refid="432" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="597">
+        <label>Gecode::Set::Int::MinElement&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1MinElement"/>
+        <childnode refid="595" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="488">
+        <label>Gecode::Int::Element::View&lt; VA, VB, VC, pc_ac &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1View"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="700">
+        <label>Gecode::Int::Linear::ReLinBin&lt; Val, A, B, PC_INT_BND, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="742">
+        <label>Gecode::UnaryPropagator&lt; BoolView, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="591">
+        <label>Gecode::MixBinaryPropagator&lt; VA, PC_INT_BND, VB, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="748">
+        <label>Gecode::UnaryPropagator&lt; View0, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="648">
+        <label>Gecode::MixTernaryPropagator&lt; View0, PC_SET_ANY, View1, PC_SET_ANY, View2, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="610">
+        <label>Gecode::Int::Rel::EqDom&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1EqDom"/>
+        <childnode refid="609" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="715">
+        <label>Gecode::Int::Rel::ReLqInt&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReLqInt"/>
+        <childnode refid="713" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="561">
+        <label>Gecode::Int::Linear::Nq&lt; Val, P, N &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Nq"/>
+        <childnode refid="560" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="425">
+        <label>Gecode::Int::Channel::Val&lt; View, Offset, shared &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1Val"/>
+        <childnode refid="424" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="727">
+        <label>Gecode::Int::Cumulative::OptProp&lt; OptTask, Cap &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OptProp"/>
+        <childnode refid="726" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="614">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_SET_CGLB, View1, PC_SET_CLUB &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="438">
+        <label>Gecode::BinaryPropagator&lt; IntView, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="481">
+        <label>Gecode::Int::Count::ViewBase&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1ViewBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="579">
+        <label>Gecode::Int::Linear::NqTer&lt; Val, A, B, C &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1NqTer"/>
+        <childnode refid="578" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="651">
+        <label>Gecode::Set::RelOp::Union&lt; View0, View1, View2 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1Union"/>
+        <childnode refid="648" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="471">
+        <label>Gecode::Int::Bool::BoolTernary&lt; BVA, BVB, BVC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BoolTernary"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="655">
+        <label>Gecode::Set::Sequence::SeqU</label>
+        <link refid="classGecode_1_1Set_1_1Sequence_1_1SeqU"/>
+        <childnode refid="654" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="531">
+        <label>Gecode::MixBinaryPropagator&lt; View0, pc0, View1, pc1 &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="551">
+        <label>Gecode::Int::Bool::IteBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1IteBnd"/>
+        <childnode refid="550" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="508">
+        <label>Gecode::Int::Linear::NqBoolView&lt; XV, YV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1NqBoolView"/>
+        <childnode refid="505" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="721">
+        <label>Gecode::Int::Unary::ManProp&lt; ManTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1ManProp"/>
+        <childnode refid="720" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="505">
+        <label>Gecode::Int::Linear::LinBoolView&lt; XV, YV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBoolView"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="711">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_INT_BND, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="730">
+        <label>Gecode::TernaryPropagator&lt; IntView, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="677">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="492">
+        <label>Gecode::Int::GCC::Dom&lt; Card &gt;</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Dom"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="707">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_FLOAT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="690">
+        <label>Gecode::NaryPropagator&lt; VX, PC_BOOL_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="658">
+        <label>Gecode::NaryOnePropagator&lt; View, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1NaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="468">
+        <label>Gecode::Int::Bool::BoolBinary&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="574">
+        <label>Gecode::Int::Linear::NqBoolScale&lt; SBAP, SBAN, VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1NqBoolScale"/>
+        <childnode refid="573" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="491">
+        <label>Gecode::Int::GCC::Bnd&lt; Card &gt;</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Bnd"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="710">
+        <label>Gecode::Float::Rel::ReLqFloat&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReLqFloat"/>
+        <childnode refid="707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="606">
+        <label>Gecode::Float::Rel::Nq&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1Nq"/>
+        <childnode refid="605" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="667">
+        <label>Gecode::Set::Distinct::AtmostOne</label>
+        <link refid="classGecode_1_1Set_1_1Distinct_1_1AtmostOne"/>
+        <childnode refid="666" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="604">
+        <label>Gecode::Float::Rel::Eq&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1Eq"/>
+        <childnode refid="603" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="620">
+        <label>Gecode::MixBinaryPropagator&lt; VX, PC_BOOL_VAL, VY, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="745">
+        <label>Gecode::Set::Convex::Convex</label>
+        <link refid="classGecode_1_1Set_1_1Convex_1_1Convex"/>
+        <childnode refid="744" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="557">
+        <label>Gecode::Int::Linear::Lin&lt; Val, P, N, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="659">
+        <label>Gecode::Int::Arithmetic::NaryMaxBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NaryMaxBnd"/>
+        <childnode refid="658" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="456">
+        <label>Gecode::Int::Rel::Nq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1Nq"/>
+        <childnode refid="455" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="495">
+        <label>Gecode::Int::Linear::ReLin&lt; Val, P, N, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLin"/>
+        <childnode refid="494" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="536">
+        <label>Gecode::Search::Meta::NoGoodsProp</label>
+        <link refid="classGecode_1_1Search_1_1Meta_1_1NoGoodsProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="747">
+        <label>Gecode::Float::Rel::NqFloat&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1NqFloat"/>
+        <childnode refid="746" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="723">
+        <label>Gecode::Int::Cumulative::ManProp&lt; ManTask, Cap &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ManProp"/>
+        <childnode refid="722" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="681">
+        <label>Gecode::Int::Rel::NaryEqDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryEqDom"/>
+        <childnode refid="679" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="736">
+        <label>Gecode::Int::Arithmetic::DivBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1DivBnd"/>
+        <childnode refid="735" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="578">
+        <label>Gecode::Int::Linear::LinTer&lt; Val, A, B, C, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinTer"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="437">
+        <label>Gecode::Int::Arithmetic::PowBnd&lt; Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1PowBnd"/>
+        <childnode refid="434" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="740">
+        <label>Gecode::Int::Arithmetic::MaxDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MaxDom"/>
+        <childnode refid="739" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="688">
+        <label>Gecode::NaryPropagator&lt; View, PC_SET_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="625">
+        <label>Gecode::Set::Channel::ChannelBool&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool"/>
+        <childnode refid="624" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="590">
+        <label>Gecode::Float::Arithmetic::SqrPlus&lt; VA, VB &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1SqrPlus"/>
+        <childnode refid="589" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="719">
+        <label>Gecode::Int::Rel::ReEqDomInt&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqDomInt"/>
+        <childnode refid="718" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="549">
+        <label>Gecode::UnaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="675">
+        <label>Gecode::NaryPropagator&lt; View, PC_GEN_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="672">
+        <label>Gecode::Int::Circuit::Val&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Val"/>
+        <childnode refid="670" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="420">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="411" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="741">
+        <label>Gecode::Int::Distinct::TerDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1TerDom"/>
+        <childnode refid="739" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="515">
+        <label>Gecode::Int::NoOverlap::ManProp&lt; Box &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NoOverlap_1_1ManProp"/>
+        <childnode refid="514" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="532">
+        <label>Gecode::MixNaryOnePropagator&lt; View0, pc0, View1, pc1 &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="734">
+        <label>Gecode::Float::Arithmetic::Mult&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Mult"/>
+        <childnode refid="733" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="751">
+        <label>Gecode::Int::Element::ViewBnd&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1ViewBnd"/>
+        <childnode refid="750" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="434">
+        <label>Gecode::BinaryPropagator&lt; IntView, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="572">
+        <label>Gecode::Int::Linear::LqBoolScale&lt; SBAP, SBAN, VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LqBoolScale"/>
+        <childnode refid="570" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="550">
+        <label>Gecode::Int::Bool::IteBase&lt; View, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1IteBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="441">
+        <label>Gecode::Int::Arithmetic::PowDom&lt; Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1PowDom"/>
+        <childnode refid="438" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="744">
+        <label>Gecode::UnaryPropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="593">
+        <label>Gecode::MixBinaryPropagator&lt; VA, PC_INT_DOM, VB, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="739">
+        <label>Gecode::TernaryPropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="692">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, PC_FLOAT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="645">
+        <label>Gecode::Int::Arithmetic::MultPlusBnd&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MultPlusBnd"/>
+        <childnode refid="643" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="565">
+        <label>Gecode::Int::Linear::EqBin&lt; Val, A, B &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1EqBin"/>
+        <childnode refid="564" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="427">
+        <label>Gecode::Int::Extensional::Basic&lt; View, shared &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Basic"/>
+        <childnode refid="426" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="580">
+        <label>Gecode::MixBinaryPropagator&lt; A, PC_FLOAT_BND, B, Gecode::Int::PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="670">
+        <label>Gecode::Int::Circuit::Base&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Base"/>
+        <childnode refid="669" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="569">
+        <label>Gecode::Int::Linear::NqBin&lt; Val, A, B &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1NqBin"/>
+        <childnode refid="568" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="594">
+        <label>Gecode::Int::Arithmetic::PowPlusDom&lt; VA, VB, Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1PowPlusDom"/>
+        <childnode refid="593" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="509">
+        <label>Gecode::Int::Linear::LinTer&lt; Val, A, B, C, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinTer"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="635">
+        <label>Gecode::MixNaryOnePropagator&lt; VX, PC_BOOL_NONE, VY, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="486">
+        <label>Gecode::Int::Distinct::Bnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Bnd"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="660">
+        <label>Gecode::NaryOnePropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="628">
+        <label>Gecode::Int::NValues::EqInt&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1EqInt"/>
+        <childnode refid="627" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="457">
+        <label>Gecode::BinaryPropagator&lt; VX, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="637">
+        <label>Gecode::MixTernaryPropagator&lt; A, PC_FLOAT_BND, B, PC_FLOAT_BND, C, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="683">
+        <label>Gecode::Int::Precede::Single&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Precede_1_1Single"/>
+        <childnode refid="682" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="674">
+        <label>Gecode::Float::Rel::NaryEq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1NaryEq"/>
+        <childnode refid="673" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="446">
+        <label>Gecode::Float::Arithmetic::Sqr&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Sqr"/>
+        <childnode refid="444" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="413">
+        <label>Gecode::Gist::StopBrancher</label>
+        <link refid="classGecode_1_1Gist_1_1StopBrancher"/>
+        <childnode refid="412" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="526">
+        <label>Gecode::Int::Sequence::Sequence&lt; View, Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1Sequence"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="460">
+        <label>Gecode::Int::Bool::Lq&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Lq"/>
+        <childnode refid="459" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="524">
+        <label>Gecode::Int::ReMixBinaryPropagator&lt; View0, pc0, View1, pc1, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReMixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="426">
+        <label>Gecode::Int::Extensional::Base&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="510">
+        <label>Gecode::Int::Linear::ReLinBin&lt; Val, A, B, pc, Ctrl &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="732">
+        <label>Gecode::Int::Element::Pair</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1Pair"/>
+        <childnode refid="730" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="664">
+        <label>Gecode::NaryPropagator&lt; BV, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="576">
+        <label>Gecode::Int::Linear::EqTer&lt; Val, A, B, C &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1EqTer"/>
+        <childnode refid="575" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="570">
+        <label>Gecode::Int::Linear::LinBoolScale&lt; SBAP, SBAN, VX, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBoolScale"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="632">
+        <label>Gecode::Set::RelOp::IntersectionN&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1IntersectionN"/>
+        <childnode refid="631" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="444">
+        <label>Gecode::BinaryPropagator&lt; View, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="453">
+        <label>Gecode::BinaryPropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="429">
+        <label>Gecode::Int::Extensional::Incremental&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Incremental"/>
+        <childnode refid="428" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="463">
+        <label>Gecode::Int::Bool::TerOrTrue&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1TerOrTrue"/>
+        <childnode refid="459" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="479">
+        <label>Gecode::Int::Count::GqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1GqInt"/>
+        <childnode refid="477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="480">
+        <label>Gecode::Int::Count::LqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1LqInt"/>
+        <childnode refid="477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="666">
+        <label>Gecode::NaryPropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="499">
+        <label>Gecode::Int::Linear::ReEq&lt; Val, P, N, Ctrl, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReEq"/>
+        <childnode refid="498" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="534">
+        <label>Gecode::NaryOnePropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1NaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="669">
+        <label>Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="539">
+        <label>Gecode::Set::Channel::ChannelSorted&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelSorted"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="763">
+        <label>Gecode::ViewAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1ViewAdvisor"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="691">
+        <label>Gecode::Int::Bool::NaryLq&lt; VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1NaryLq"/>
+        <childnode refid="690" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="663">
+        <label>Gecode::Int::Member::ReProp&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Member_1_1ReProp"/>
+        <childnode refid="662" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="568">
+        <label>Gecode::Int::Linear::LinBin&lt; Val, A, B, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="450">
+        <label>Gecode::Int::Arithmetic::AbsBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1AbsBnd"/>
+        <childnode refid="449" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="695">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, PC_INT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="654">
+        <label>Gecode::NaryOnePropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1NaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="701">
+        <label>Gecode::Int::Linear::ReLqBin&lt; Val, A, B, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLqBin"/>
+        <childnode refid="700" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="553">
+        <label>Gecode::Int::Bool::IteDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1IteDom"/>
+        <childnode refid="552" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="503">
+        <label>Gecode::Int::Linear::GqBoolInt&lt; VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1GqBoolInt"/>
+        <childnode refid="501" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="668">
+        <label>Gecode::Set::Sequence::Seq</label>
+        <link refid="classGecode_1_1Set_1_1Sequence_1_1Seq"/>
+        <childnode refid="666" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="629">
+        <label>Gecode::Int::NValues::GqInt&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1GqInt"/>
+        <childnode refid="627" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="703">
+        <label>Gecode::Int::Linear::ReEqBin&lt; Val, A, B, Ctrl, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReEqBin"/>
+        <childnode refid="702" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="521">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, pc, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="540">
+        <label>Gecode::Set::Element::ElementDisjoint&lt; SView, RView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Element_1_1ElementDisjoint"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="469">
+        <label>Gecode::Int::Bool::BinOrTrue&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BinOrTrue"/>
+        <childnode refid="468" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="545">
+        <label>Gecode::Set::Rel::ReEq&lt; View0, View1, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1ReEq"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="585">
+        <label>Gecode::Float::Arithmetic::Pow&lt; A, B &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Pow"/>
+        <childnode refid="582" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="528">
+        <label>Gecode::Int::TaskProp&lt; Task, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="523">
+        <label>Gecode::Int::Rel::LexNq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1LexNq"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="588">
+        <label>Gecode::Int::Channel::LinkSingle</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1LinkSingle"/>
+        <childnode refid="587" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="762">
+        <label>Gecode::Set::Precede::Single&lt; View &gt;::Index</label>
+        <link refid="classGecode_1_1Set_1_1Precede_1_1Single_1_1Index"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="693">
+        <label>Gecode::Float::Rel::ReEq&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReEq"/>
+        <childnode refid="692" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="548">
+        <label>Gecode::TernaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="504">
+        <label>Gecode::Int::Linear::LinBoolScale&lt; SBAP, SBAN, VX, pcx &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBoolScale"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="613">
+        <label>Gecode::Set::Rel::Lq&lt; View0, View1, strict &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1Lq"/>
+        <childnode refid="611" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="530">
+        <label>Gecode::Kernel::UnaryWait&lt; View &gt;</label>
+        <link refid="classGecode_1_1Kernel_1_1UnaryWait"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="617">
+        <label>Gecode::Set::Rel::NoSubset&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1NoSubset"/>
+        <childnode refid="616" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="754">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="410" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="525">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, pc, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="713">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_INT_BND, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="449">
+        <label>Gecode::BinaryPropagator&lt; View, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="520">
+        <label>Gecode::Int::NValues::LqBool&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1LqBool"/>
+        <childnode refid="517" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="733">
+        <label>Gecode::TernaryPropagator&lt; View, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="618">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_SET_VAL, View1, PC_SET_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="729">
+        <label>Gecode::Int::Arithmetic::MultBnd</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MultBnd"/>
+        <childnode refid="728" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="638">
+        <label>Gecode::Float::Arithmetic::Div&lt; A, B, C &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Div"/>
+        <childnode refid="637" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="489">
+        <label>Gecode::Int::Extensional::Base&lt; View, subscribe &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="630">
+        <label>Gecode::Int::NValues::LqInt&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1LqInt"/>
+        <childnode refid="627" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="714">
+        <label>Gecode::Int::Rel::ReEqBndInt&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqBndInt"/>
+        <childnode refid="713" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="519">
+        <label>Gecode::Int::NValues::GqBool&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1GqBool"/>
+        <childnode refid="517" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="465">
+        <label>Gecode::Int::Arithmetic::MultZeroOne&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MultZeroOne"/>
+        <childnode refid="464" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="726">
+        <label>Gecode::Int::TaskProp&lt; OptTask, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="616">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_SET_CLUB, View1, PC_SET_CGLB &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="596">
+        <label>Gecode::Set::Int::MaxElement&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1MaxElement"/>
+        <childnode refid="595" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="722">
+        <label>Gecode::Int::TaskProp&lt; ManTask, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="554">
+        <label>Gecode::Float::Linear::Lin&lt; P, N, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="724">
+        <label>Gecode::Int::TaskProp&lt; OptTask, Int::PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="720">
+        <label>Gecode::Int::TaskProp&lt; ManTask, Int::PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1TaskProp"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="704">
+        <label>Gecode::Int::ReMixBinaryPropagator&lt; View, PC_SET_ANY, Gecode::Int::IntView, Gecode::Int::PC_INT_DOM, Gecode::Int::BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReMixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="600">
+        <label>Gecode::Set::Int::NotMinElement&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1NotMinElement"/>
+        <childnode refid="598" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="552">
+        <label>Gecode::Int::Bool::IteBase&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1IteBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="428">
+        <label>Gecode::Int::Extensional::Base&lt; View, false &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="607">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_INT_BND, View1, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="725">
+        <label>Gecode::Int::Unary::OptProp&lt; OptTask &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1OptProp"/>
+        <childnode refid="724" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="682">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_NONE &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="421">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="411" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="555">
+        <label>Gecode::Float::Linear::Eq&lt; P, N &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Linear_1_1Eq"/>
+        <childnode refid="554" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="662">
+        <label>Gecode::Int::Member::Prop&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Member_1_1Prop"/>
+        <childnode refid="660" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="752">
+        <label>Gecode::Int::Element::View&lt; VA, VB, VC, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1View"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="454">
+        <label>Gecode::Int::Arithmetic::AbsDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1AbsDom"/>
+        <childnode refid="453" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="679">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="583">
+        <label>Gecode::Float::Arithmetic::Abs&lt; A, B &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Abs"/>
+        <childnode refid="582" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="641">
+        <label>Gecode::MixTernaryPropagator&lt; VA, PC_FLOAT_BND, VB, PC_FLOAT_BND, VC, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="458">
+        <label>Gecode::Int::Linear::NqBoolInt&lt; VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1NqBoolInt"/>
+        <childnode refid="457" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="634">
+        <label>Gecode::Set::RelOp::UnionN&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1UnionN"/>
+        <childnode refid="631" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="522">
+        <label>Gecode::Int::Rel::LexLqLe&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1LexLqLe"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="684">
+        <label>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe"/>
+        <childnode refid="682" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="678">
+        <label>Gecode::Int::Rel::NaryEqBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryEqBnd"/>
+        <childnode refid="677" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="587">
+        <label>Gecode::MixBinaryPropagator&lt; BoolView, PC_BOOL_VAL, IntView, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="485">
+        <label>Gecode::Int::Cumulatives::Val&lt; ViewM, ViewP, ViewU, View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Cumulatives_1_1Val"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="581">
+        <label>Gecode::Float::Arithmetic::Channel&lt; A, B &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Channel"/>
+        <childnode refid="580" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="738">
+        <label>Gecode::Int::Arithmetic::MaxBnd&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MaxBnd"/>
+        <childnode refid="735" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="432">
+        <label>Gecode::BinaryPropagator&lt; BV, PC_BOOL_VAL &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="464">
+        <label>Gecode::BinaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="559">
+        <label>Gecode::Int::Linear::Lq&lt; Val, P, N &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Lq"/>
+        <childnode refid="557" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="626">
+        <label>Gecode::MixNaryOnePropagator&lt; IntView, PC_INT_DOM, VY, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="757">
+        <label>Gecode::Int::Extensional::LayeredGraph&lt; View, Val, Degree, StateIdx &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Extensional_1_1LayeredGraph_1_1Index"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="615">
+        <label>Gecode::Set::Rel::Subset&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1Subset"/>
+        <childnode refid="614" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="605">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_FLOAT_VAL, View1, PC_FLOAT_VAL &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="535">
+        <label>Gecode::NaryPropagator&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="436">
+        <label>Gecode::Int::Arithmetic::NrootPlusBnd&lt; Ops, minus &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NrootPlusBnd"/>
+        <childnode refid="434" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="442">
+        <label>Gecode::BinaryPropagator&lt; SetView, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1BinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="753">
+        <label>Gecode::Int::Element::ViewDom&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1ViewDom"/>
+        <childnode refid="752" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="627">
+        <label>Gecode::Int::NValues::IntBase&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1IntBase"/>
+        <childnode refid="626" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="512">
+        <label>Gecode::Int::Linear::ReEqBoolInt&lt; VX, VB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReEqBoolInt"/>
+        <childnode refid="511" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="493">
+        <label>Gecode::Int::GCC::Val&lt; Card &gt;</label>
+        <link refid="classGecode_1_1Int_1_1GCC_1_1Val"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="514">
+        <label>Gecode::Int::NoOverlap::Base&lt; Box &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NoOverlap_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="435">
+        <label>Gecode::Int::Arithmetic::NrootBnd&lt; Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NrootBnd"/>
+        <childnode refid="434" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="705">
+        <label>Gecode::Set::Int::ReMaxElement&lt; View, rm &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1ReMaxElement"/>
+        <childnode refid="704" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="475">
+        <label>Gecode::Int::Bool::IteBase&lt; View, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1IteBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="699">
+        <label>Gecode::Int::Rel::ReEqDom&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqDom"/>
+        <childnode refid="698" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="647">
+        <label>Gecode::Int::Arithmetic::MultPlusDom&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1MultPlusDom"/>
+        <childnode refid="646" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="577">
+        <label>Gecode::Int::Linear::LqTer&lt; Val, A, B, C &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LqTer"/>
+        <childnode refid="575" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="743">
+        <label>Gecode::Int::Exec::When</label>
+        <link refid="classGecode_1_1Int_1_1Exec_1_1When"/>
+        <childnode refid="742" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="706">
+        <label>Gecode::Set::Int::ReMinElement&lt; View, rm &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1ReMinElement"/>
+        <childnode refid="704" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="759">
+        <label>Gecode::Int::Rel::NaryLqLe&lt; View, o &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1NaryLqLe_1_1Index"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="543">
+        <label>Gecode::Set::Element::ElementUnionConst&lt; SView, RView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Element_1_1ElementUnionConst"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="484">
+        <label>Gecode::Int::Count::LqView&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1LqView"/>
+        <childnode refid="481" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="447">
+        <label>Gecode::Float::Rel::Le&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1Le"/>
+        <childnode refid="444" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="640">
+        <label>Gecode::Float::Arithmetic::Min&lt; A, B, C &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Min"/>
+        <childnode refid="637" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="501">
+        <label>Gecode::Int::Linear::LinBoolInt&lt; VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBoolInt"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="656">
+        <label>Gecode::NaryOnePropagator&lt; View, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1NaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="621">
+        <label>Gecode::Int::Bool::ClauseTrue&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1ClauseTrue"/>
+        <childnode refid="620" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="412">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="411" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="671">
+        <label>Gecode::Int::Circuit::Dom&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Dom"/>
+        <childnode refid="670" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="516">
+        <label>Gecode::Int::NoOverlap::OptProp&lt; Box &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NoOverlap_1_1OptProp"/>
+        <childnode refid="514" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="612">
+        <label>Gecode::Set::Rel::Eq&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1Eq"/>
+        <childnode refid="611" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="633">
+        <label>Gecode::Set::RelOp::PartitionN&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1PartitionN"/>
+        <childnode refid="631" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="686">
+        <label>Gecode::Int::Distinct::Val&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Val"/>
+        <childnode refid="685" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="708">
+        <label>Gecode::Float::Rel::ReEqFloat&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReEqFloat"/>
+        <childnode refid="707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="511">
+        <label>Gecode::Int::Linear::ReLinBoolInt&lt; VX, VB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBoolInt"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="414">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="412" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="639">
+        <label>Gecode::Float::Arithmetic::Max&lt; A, B, C &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1Max"/>
+        <childnode refid="637" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="694">
+        <label>Gecode::Float::Rel::ReLq&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1ReLq"/>
+        <childnode refid="692" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="661">
+        <label>Gecode::Int::Arithmetic::NaryMaxDom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1NaryMaxDom"/>
+        <childnode refid="660" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="443">
+        <label>Gecode::Set::Convex::ConvexHull</label>
+        <link refid="classGecode_1_1Set_1_1Convex_1_1ConvexHull"/>
+        <childnode refid="442" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="622">
+        <label>Gecode::MixNaryOnePropagator&lt; BoolView, PC_BOOL_NONE, IntView, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="598">
+        <label>Gecode::MixBinaryPropagator&lt; View, PC_SET_ANY, Gecode::Int::IntView, Gecode::Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="589">
+        <label>Gecode::MixBinaryPropagator&lt; VA, PC_FLOAT_BND, VB, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="560">
+        <label>Gecode::Int::Linear::Lin&lt; Val, P, N, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="697">
+        <label>Gecode::Int::Rel::ReLq&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReLq"/>
+        <childnode refid="695" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="650">
+        <label>Gecode::Set::RelOp::SubOfUnion&lt; View0, View1, View2 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1SubOfUnion"/>
+        <childnode refid="648" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="737">
+        <label>Gecode::Int::Arithmetic::DivMod&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1DivMod"/>
+        <childnode refid="735" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="416">
+        <label>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher"/>
+        <childnode refid="415" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="689">
+        <label>Gecode::Set::Precede::Single&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Precede_1_1Single"/>
+        <childnode refid="688" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="716">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_INT_DOM, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="546">
+        <label>Gecode::Set::Rel::ReLq&lt; View0, View1, rm, strict &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1ReLq"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="472">
+        <label>Gecode::Int::Bool::Eqv&lt; BVA, BVB, BVC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Eqv"/>
+        <childnode refid="471" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="513">
+        <label>Gecode::Int::Linear::ReGqBoolInt&lt; VX, VB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReGqBoolInt"/>
+        <childnode refid="511" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="467">
+        <label>Gecode::Int::BinPacking::Pack</label>
+        <link refid="classGecode_1_1Int_1_1BinPacking_1_1Pack"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="533">
+        <label>Gecode::MixTernaryPropagator&lt; View0, pc0, View1, pc1, View2, pc2 &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="676">
+        <label>Gecode::Activity::Recorder&lt; View &gt;</label>
+        <link refid="classGecode_1_1Activity_1_1Recorder"/>
+        <childnode refid="675" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="448">
+        <label>Gecode::Float::Rel::Lq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Rel_1_1Lq"/>
+        <childnode refid="444" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="473">
+        <label>Gecode::Int::Bool::Or&lt; BVA, BVB, BVC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Or"/>
+        <childnode refid="471" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="603">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_FLOAT_BND, View1, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="653">
+        <label>Gecode::Set::RelOp::SuperOfInter&lt; View0, View1, View2 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1SuperOfInter"/>
+        <childnode refid="652" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="411">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="410" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="746">
+        <label>Gecode::UnaryPropagator&lt; View, PC_FLOAT_VAL &gt;</label>
+        <link refid="classGecode_1_1UnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="562">
+        <label>Gecode::Int::Linear::Lin&lt; Val, View, View, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="423">
+        <label>Gecode::Int::Channel::Dom&lt; View, Offset, shared &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1Dom"/>
+        <childnode refid="422" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="415">
+        <label>Gecode::ViewValBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewValBrancher"/>
+        <childnode refid="414" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="487">
+        <label>Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1Int"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="431">
+        <label>Gecode::Int::Bool::NaryEqv</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1NaryEqv"/>
+        <childnode refid="430" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="761">
+        <label>Gecode::Set::Channel::ChannelBool&lt; View &gt;::IndexAdvisor</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelBool_1_1IndexAdvisor"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="462">
+        <label>Gecode::Int::Bool::QuadOrTrue&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1QuadOrTrue"/>
+        <childnode refid="459" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="410">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="497">
+        <label>Gecode::Int::Linear::ReLq&lt; Val, P, N, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLq"/>
+        <childnode refid="496" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="673">
+        <label>Gecode::NaryPropagator&lt; View, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="750">
+        <label>Gecode::Int::Element::View&lt; VA, VB, VC, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1View"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="696">
+        <label>Gecode::Int::Rel::ReEqBnd&lt; View, CtrlView, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1ReEqBnd"/>
+        <childnode refid="695" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="665">
+        <label>Gecode::Int::Bool::NaryEq&lt; BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1NaryEq"/>
+        <childnode refid="664" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="685">
+        <label>Gecode::NaryPropagator&lt; View, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="584">
+        <label>Gecode::Float::Arithmetic::NthRoot&lt; A, B &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1NthRoot"/>
+        <childnode refid="582" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="537">
+        <label>Gecode::Set::Channel::ChannelInt&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Channel_1_1ChannelInt"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="571">
+        <label>Gecode::Int::Linear::EqBoolScale&lt; SBAP, SBAN, VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1EqBoolScale"/>
+        <childnode refid="570" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="566">
+        <label>Gecode::Int::Linear::GqBin&lt; Val, A, B &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1GqBin"/>
+        <childnode refid="564" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="644">
+        <label>Gecode::Int::Arithmetic::DivPlusBnd&lt; VA, VB, VC &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1DivPlusBnd"/>
+        <childnode refid="643" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="624">
+        <label>Gecode::MixNaryOnePropagator&lt; Gecode::Int::BoolView, Gecode::Int::PC_BOOL_VAL, View, PC_GEN_NONE &gt;</label>
+        <link refid="classGecode_1_1MixNaryOnePropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="500">
+        <label>Gecode::Int::Linear::LinBin&lt; Val, A, B, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="657">
+        <label>Gecode::Float::Arithmetic::NaryMax&lt; View &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Arithmetic_1_1NaryMax"/>
+        <childnode refid="656" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="517">
+        <label>Gecode::Int::NValues::BoolBase&lt; VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1NValues_1_1BoolBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="756">
+        <label>Gecode::Int::Bool::Clause&lt; VX, VY &gt;::Tagged</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Clause_1_1Tagged"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="452">
+        <label>Gecode::Int::Rel::Lq&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1Lq"/>
+        <childnode refid="449" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="529">
+        <label>Gecode::Kernel::NaryWait&lt; View &gt;</label>
+        <link refid="classGecode_1_1Kernel_1_1NaryWait"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="502">
+        <label>Gecode::Int::Linear::EqBoolInt&lt; VX &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1EqBoolInt"/>
+        <childnode refid="501" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="564">
+        <label>Gecode::Int::Linear::LinBin&lt; Val, A, B, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="459">
+        <label>Gecode::Int::Bool::BoolBinary&lt; BV, BV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1BoolBinary"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="643">
+        <label>Gecode::MixTernaryPropagator&lt; VA, PC_INT_BND, VB, PC_INT_BND, VC, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixTernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="476">
+        <label>Gecode::Int::Channel::Base&lt; Info, Offset, pc &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="478">
+        <label>Gecode::Int::Count::EqInt&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1EqInt"/>
+        <childnode refid="477" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="728">
+        <label>Gecode::TernaryPropagator&lt; IntView, PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1TernaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="712">
+        <label>Gecode::Int::Dom::ReRange&lt; View, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Dom_1_1ReRange"/>
+        <childnode refid="711" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="558">
+        <label>Gecode::Int::Linear::Eq&lt; Val, P, N &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1Eq"/>
+        <childnode refid="557" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="470">
+        <label>Gecode::Int::Bool::Eq&lt; BVA, BVB &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Eq"/>
+        <childnode refid="468" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="419">
+        <label>Gecode::Int::Branch::ViewValuesBrancher&lt; n, min &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1ViewValuesBrancher"/>
+        <childnode refid="418" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="582">
+        <label>Gecode::MixBinaryPropagator&lt; A, PC_FLOAT_BND, B, PC_FLOAT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="544">
+        <label>Gecode::Set::Int::Weights&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1Weights"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="702">
+        <label>Gecode::Int::Linear::ReLinBin&lt; Val, A, B, PC_INT_BND, Ctrl &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLinBin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="542">
+        <label>Gecode::Set::Element::ElementUnion&lt; View, View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Element_1_1ElementUnion"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="592">
+        <label>Gecode::Int::Arithmetic::PowPlusBnd&lt; VA, VB, Ops &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Arithmetic_1_1PowPlusBnd"/>
+        <childnode refid="591" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="760">
+        <label>Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="595">
+        <label>Gecode::MixBinaryPropagator&lt; View, PC_SET_ANY, Gecode::Int::IntView, Gecode::Int::PC_INT_BND &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="619">
+        <label>Gecode::Set::Rel::Distinct&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1Distinct"/>
+        <childnode refid="618" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="602">
+        <label>Gecode::Set::Int::Card&lt; View &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Int_1_1Card"/>
+        <childnode refid="601" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="717">
+        <label>Gecode::Int::Dom::ReIntSet&lt; View, rm &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Dom_1_1ReIntSet"/>
+        <childnode refid="716" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="718">
+        <label>Gecode::Int::ReUnaryPropagator&lt; View, PC_INT_DOM, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReUnaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="483">
+        <label>Gecode::Int::Count::GqView&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1GqView"/>
+        <childnode refid="481" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="573">
+        <label>Gecode::Int::Linear::LinBoolScale&lt; SBAP, SBAN, VX, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LinBoolScale"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="758">
+        <label>Gecode::Int::Precede::Single&lt; View &gt;::Index</label>
+        <link refid="classGecode_1_1Int_1_1Precede_1_1Single_1_1Index"/>
+        <childnode refid="754" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="608">
+        <label>Gecode::Int::Rel::EqBnd&lt; View0, View1 &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1EqBnd"/>
+        <childnode refid="607" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="649">
+        <label>Gecode::Set::RelOp::Intersection&lt; View0, View1, View2 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1RelOp_1_1Intersection"/>
+        <childnode refid="648" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="556">
+        <label>Gecode::Float::Linear::Lq&lt; P, N &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Linear_1_1Lq"/>
+        <childnode refid="554" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="680">
+        <label>Gecode::Int::Distinct::Dom&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Dom"/>
+        <childnode refid="679" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="496">
+        <label>ReLin&lt; Val, P, N, PC_INT_BND, BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1ReLin"/>
+        <childnode refid="494" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="609">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_INT_DOM, View1, PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="567">
+        <label>Gecode::Int::Linear::LqBin&lt; Val, A, B &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1LqBin"/>
+        <childnode refid="564" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="451">
+        <label>Gecode::Int::Rel::Le&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Rel_1_1Le"/>
+        <childnode refid="449" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="547">
+        <label>Gecode::Set::Rel::ReSubset&lt; View0, View1, rm &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1ReSubset"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="482">
+        <label>Gecode::Int::Count::EqView&lt; VX, VY, VZ &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1EqView"/>
+        <childnode refid="481" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="424">
+        <label>Gecode::Int::Channel::Base&lt; ValInfo&lt; View &gt;, Offset, PC_INT_VAL &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Channel_1_1Base"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="477">
+        <label>Gecode::Int::Count::IntBase&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Count_1_1IntBase"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="507">
+        <label>Gecode::Int::Linear::GqBoolView&lt; XV, YV &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1GqBoolView"/>
+        <childnode refid="505" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="611">
+        <label>Gecode::MixBinaryPropagator&lt; View0, PC_SET_ANY, View1, PC_SET_ANY &gt;</label>
+        <link refid="classGecode_1_1MixBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="698">
+        <label>Gecode::Int::ReBinaryPropagator&lt; View, PC_INT_DOM, CtrlView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ReBinaryPropagator"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="474">
+        <label>Gecode::Int::Bool::Clause&lt; VX, VY &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Bool_1_1Clause"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="466">
+        <label>Gecode::Float::Linear::Lin&lt; P, N, pc &gt;</label>
+        <link refid="classGecode_1_1Float_1_1Linear_1_1Lin"/>
+        <childnode refid="421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="417">
+        <label>Gecode::Set::LDSB::LDSBSetBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher"/>
+        <childnode refid="416" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="749">
+        <label>Gecode::Set::Rel::DistinctDoit&lt; View0 &gt;</label>
+        <link refid="classGecode_1_1Set_1_1Rel_1_1DistinctDoit"/>
+        <childnode refid="748" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="627" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="627" bodyend="659"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ActorLink_1a752c3a189683f525c14265d89df92c0d" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>_next</name></member>
+      <member refid="classGecode_1_1ActorLink_1a60346b798f42bf3a083c0a326153b7fe" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>_prev</name></member>
+      <member refid="classGecode_1_1ActorLink_1ae4af50bf1743d112cb2c2c784bea21c8" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>Actor</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1ActorLink_1ab2370b9ccb77385b5ef05776269bf082" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1ac7ae921a6b6eb197738b93c3a46bc5e8" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a500432019d04a726e391eb6dc5fe7284" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a925e990fc90855238801f5f96d3a240f" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>empty</name></member>
+      <member refid="classGecode_1_1ActorLink_1aae85e575e771a240a134254cdd6eb29e" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>head</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2a85f4b580dce95d9e53f9ea154ac43f" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>init</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2f86794f74e3da8812e17622c204c67c" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>LocalObject</name></member>
+      <member refid="classGecode_1_1ActorLink_1adea733535bef2e42c18c26109e83e2c1" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>next</name></member>
+      <member refid="classGecode_1_1ActorLink_1a1db60d9d58e77e6103178e25f4a04a79" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>next</name></member>
+      <member refid="classGecode_1_1ActorLink_1abb3f921661af3f0a0810d7928b0d6e8c" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>next_ref</name></member>
+      <member refid="classGecode_1_1ActorLink_1a9cc550a2655ca1ac70f35c8c9ff32cb3" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>prev</name></member>
+      <member refid="classGecode_1_1ActorLink_1afd02d9f0b576ed96dc2a56b1dcd55fba" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>prev</name></member>
+      <member refid="classGecode_1_1ActorLink_1a9d01c82a7038a8c986c6b15c15b2e631" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2129e6c0ac73536a2ac4f681dae16947" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>Space</name></member>
+      <member refid="classGecode_1_1ActorLink_1a275801fb6adafe9ea77a6b3dfbf682e3" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>tail</name></member>
+      <member refid="classGecode_1_1ActorLink_1a2d3f9ab47aff98aafd43f66f46fb5600" prot="public" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>unlink</name></member>
+      <member refid="classGecode_1_1ActorLink_1a87d487f7c580d397ae7f222ccc09c8da" prot="private" virt="non-virtual"><scope>Gecode::ActorLink</scope><name>VarImp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

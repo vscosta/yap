@@ -1,0 +1,669 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="drawingcursor_8hh" kind="file">
+    <compoundname>drawingcursor.hh</compoundname>
+    <includes refid="nodecursor_8hh" local="no">gecode/gist/nodecursor.hh</includes>
+    <includes refid="layoutcursor_8hh" local="no">gecode/gist/layoutcursor.hh</includes>
+    <includes local="no">QtGui</includes>
+    <includes refid="drawingcursor_8hpp" local="no">gecode/gist/drawingcursor.hpp</includes>
+    <incdepgraph>
+      <node id="7302">
+        <label>gecode/support/cast.hpp</label>
+        <link refid="cast_8hpp_source"/>
+      </node>
+      <node id="7359">
+        <label>gecode/kernel/brancher-val-sel-commit.hpp</label>
+        <link refid="brancher-val-sel-commit_8hpp_source"/>
+      </node>
+      <node id="7320">
+        <label>gecode/support/static-stack.hpp</label>
+        <link refid="static-stack_8hpp_source"/>
+      </node>
+      <node id="7361">
+        <label>gecode/kernel/var-imp.hpp</label>
+        <link refid="kernel_2var-imp_8hpp_source"/>
+      </node>
+      <node id="7318">
+        <label>gecode/support/random.hpp</label>
+        <link refid="random_8hpp_source"/>
+      </node>
+      <node id="7363">
+        <label>limits</label>
+      </node>
+      <node id="7336">
+        <label>gecode/kernel/var.hpp</label>
+        <link refid="kernel_2var_8hpp_source"/>
+      </node>
+      <node id="7321">
+        <label>gecode/support/thread/none.hpp</label>
+        <link refid="none_8hpp_source"/>
+      </node>
+      <node id="7340">
+        <label>iterator</label>
+      </node>
+      <node id="7323">
+        <label>gecode/support/timer.hpp</label>
+        <link refid="timer_8hpp_source"/>
+      </node>
+      <node id="7322">
+        <label>gecode/support/thread/thread.hpp</label>
+        <link refid="thread_2thread_8hpp_source"/>
+      </node>
+      <node id="7358">
+        <label>gecode/kernel/brancher-val-commit.hpp</label>
+        <link refid="brancher-val-commit_8hpp_source"/>
+      </node>
+      <node id="7287">
+        <label>gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="7288" relation="include">
+        </childnode>
+        <childnode refid="7370" relation="include">
+        </childnode>
+      </node>
+      <node id="7348">
+        <label>gecode/kernel/afc.hpp</label>
+        <link refid="kernel_2afc_8hpp_source"/>
+      </node>
+      <node id="7332">
+        <label>gecode/kernel/var-type.hpp</label>
+        <link refid="var-type_8hpp_source"/>
+      </node>
+      <node id="7288">
+        <label>gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="7289" relation="include">
+        </childnode>
+        <childnode refid="7291" relation="include">
+        </childnode>
+        <childnode refid="7366" relation="include">
+        </childnode>
+        <childnode refid="7367" relation="include">
+        </childnode>
+        <childnode refid="7368" relation="include">
+        </childnode>
+        <childnode refid="7369" relation="include">
+        </childnode>
+      </node>
+      <node id="7324">
+        <label>gecode/support/hw-rnd.hpp</label>
+        <link refid="hw-rnd_8hpp_source"/>
+      </node>
+      <node id="7311">
+        <label>cmath</label>
+      </node>
+      <node id="7295">
+        <label>cassert</label>
+      </node>
+      <node id="7355">
+        <label>gecode/kernel/brancher-view-sel.hpp</label>
+        <link refid="brancher-view-sel_8hpp_source"/>
+      </node>
+      <node id="7362">
+        <label>gecode/kernel/allocators.hpp</label>
+        <link refid="allocators_8hpp_source"/>
+        <childnode refid="7363" relation="include">
+        </childnode>
+      </node>
+      <node id="7366">
+        <label>string</label>
+      </node>
+      <node id="7339">
+        <label>cstdarg</label>
+      </node>
+      <node id="7309">
+        <label>gecode/support/bitset-base.hpp</label>
+        <link refid="bitset-base_8hpp_source"/>
+        <childnode refid="7308" relation="include">
+        </childnode>
+      </node>
+      <node id="7343">
+        <label>gecode/kernel/shared-array.hpp</label>
+        <link refid="shared-array_8hpp_source"/>
+        <childnode refid="7339" relation="include">
+        </childnode>
+        <childnode refid="7313" relation="include">
+        </childnode>
+        <childnode refid="7342" relation="include">
+        </childnode>
+      </node>
+      <node id="7333">
+        <label>gecode/kernel/modevent.hpp</label>
+        <link refid="modevent_8hpp_source"/>
+      </node>
+      <node id="7326">
+        <label>gecode/kernel/memory-config.hpp</label>
+        <link refid="memory-config_8hpp_source"/>
+      </node>
+      <node id="7367">
+        <label>gecode/gist/node.hpp</label>
+        <link refid="gist_2node_8hpp_source"/>
+      </node>
+      <node id="7307">
+        <label>gecode/support/int-type.hpp</label>
+        <link refid="int-type_8hpp_source"/>
+        <childnode refid="7308" relation="include">
+        </childnode>
+      </node>
+      <node id="7300">
+        <label>gecode/support/exception.hpp</label>
+        <link refid="support_2exception_8hpp_source"/>
+        <childnode refid="7301" relation="include">
+        </childnode>
+      </node>
+      <node id="7301">
+        <label>exception</label>
+      </node>
+      <node id="7335">
+        <label>gecode/kernel/region.hpp</label>
+        <link refid="region_8hpp_source"/>
+      </node>
+      <node id="7306">
+        <label>gecode/support/marked-pointer.hpp</label>
+        <link refid="marked-pointer_8hpp_source"/>
+        <childnode refid="7292" relation="include">
+        </childnode>
+      </node>
+      <node id="7303">
+        <label>gecode/support/thread.hpp</label>
+        <link refid="thread_8hpp_source"/>
+        <childnode refid="7292" relation="include">
+        </childnode>
+      </node>
+      <node id="7291">
+        <label>gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="7292" relation="include">
+        </childnode>
+        <childnode refid="7293" relation="include">
+        </childnode>
+        <childnode refid="7294" relation="include">
+        </childnode>
+        <childnode refid="7295" relation="include">
+        </childnode>
+        <childnode refid="7296" relation="include">
+        </childnode>
+        <childnode refid="7298" relation="include">
+        </childnode>
+        <childnode refid="7325" relation="include">
+        </childnode>
+        <childnode refid="7326" relation="include">
+        </childnode>
+        <childnode refid="7327" relation="include">
+        </childnode>
+        <childnode refid="7328" relation="include">
+        </childnode>
+        <childnode refid="7329" relation="include">
+        </childnode>
+        <childnode refid="7330" relation="include">
+        </childnode>
+        <childnode refid="7331" relation="include">
+        </childnode>
+        <childnode refid="7333" relation="include">
+        </childnode>
+        <childnode refid="7334" relation="include">
+        </childnode>
+        <childnode refid="7335" relation="include">
+        </childnode>
+        <childnode refid="7336" relation="include">
+        </childnode>
+        <childnode refid="7337" relation="include">
+        </childnode>
+        <childnode refid="7338" relation="include">
+        </childnode>
+        <childnode refid="7343" relation="include">
+        </childnode>
+        <childnode refid="7344" relation="include">
+        </childnode>
+        <childnode refid="7346" relation="include">
+        </childnode>
+        <childnode refid="7347" relation="include">
+        </childnode>
+        <childnode refid="7348" relation="include">
+        </childnode>
+        <childnode refid="7349" relation="include">
+        </childnode>
+        <childnode refid="7350" relation="include">
+        </childnode>
+        <childnode refid="7351" relation="include">
+        </childnode>
+        <childnode refid="7352" relation="include">
+        </childnode>
+        <childnode refid="7353" relation="include">
+        </childnode>
+        <childnode refid="7354" relation="include">
+        </childnode>
+        <childnode refid="7355" relation="include">
+        </childnode>
+        <childnode refid="7356" relation="include">
+        </childnode>
+        <childnode refid="7357" relation="include">
+        </childnode>
+        <childnode refid="7358" relation="include">
+        </childnode>
+        <childnode refid="7359" relation="include">
+        </childnode>
+        <childnode refid="7360" relation="include">
+        </childnode>
+        <childnode refid="7361" relation="include">
+        </childnode>
+        <childnode refid="7362" relation="include">
+        </childnode>
+      </node>
+      <node id="7370">
+        <label>gecode/gist/nodecursor.hpp</label>
+        <link refid="nodecursor_8hpp_source"/>
+      </node>
+      <node id="7349">
+        <label>gecode/kernel/branch-traits.hpp</label>
+        <link refid="branch-traits_8hpp_source"/>
+      </node>
+      <node id="7338">
+        <label>gecode/kernel/array.hpp</label>
+        <link refid="kernel_2array_8hpp_source"/>
+        <childnode refid="7339" relation="include">
+        </childnode>
+        <childnode refid="7313" relation="include">
+        </childnode>
+        <childnode refid="7340" relation="include">
+        </childnode>
+        <childnode refid="7341" relation="include">
+        </childnode>
+        <childnode refid="7342" relation="include">
+        </childnode>
+      </node>
+      <node id="7353">
+        <label>gecode/kernel/branch-val.hpp</label>
+        <link refid="branch-val_8hpp_source"/>
+      </node>
+      <node id="7317">
+        <label>gecode/support/dynamic-stack.hpp</label>
+        <link refid="dynamic-stack_8hpp_source"/>
+      </node>
+      <node id="7329">
+        <label>gecode/kernel/archive.hpp</label>
+        <link refid="archive_8hpp_source"/>
+      </node>
+      <node id="7334">
+        <label>gecode/kernel/range-list.hpp</label>
+        <link refid="range-list_8hpp_source"/>
+      </node>
+      <node id="7354">
+        <label>gecode/kernel/brancher-merit.hpp</label>
+        <link refid="brancher-merit_8hpp_source"/>
+      </node>
+      <node id="7297">
+        <label>gecode/support/config.hpp</label>
+        <link refid="support_2config_8hpp_source"/>
+      </node>
+      <node id="7351">
+        <label>gecode/kernel/branch-var.hpp</label>
+        <link refid="branch-var_8hpp_source"/>
+      </node>
+      <node id="7327">
+        <label>gecode/kernel/memory-manager.hpp</label>
+        <link refid="memory-manager_8hpp_source"/>
+      </node>
+      <node id="7290">
+        <label>gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="7291" relation="include">
+        </childnode>
+        <childnode refid="7364" relation="include">
+        </childnode>
+        <childnode refid="7365" relation="include">
+        </childnode>
+      </node>
+      <node id="7316">
+        <label>gecode/support/dynamic-queue.hpp</label>
+        <link refid="dynamic-queue_8hpp_source"/>
+      </node>
+      <node id="7328">
+        <label>gecode/kernel/macros.hpp</label>
+        <link refid="kernel_2macros_8hpp_source"/>
+      </node>
+      <node id="7345">
+        <label>ctime</label>
+      </node>
+      <node id="7341">
+        <label>vector</label>
+      </node>
+      <node id="7347">
+        <label>gecode/kernel/advisor.hpp</label>
+        <link refid="advisor_8hpp_source"/>
+      </node>
+      <node id="7360">
+        <label>gecode/kernel/brancher-view-val.hpp</label>
+        <link refid="brancher-view-val_8hpp_source"/>
+      </node>
+      <node id="7342">
+        <label>sstream</label>
+      </node>
+      <node id="7369">
+        <label>gecode/gist/visualnode.hpp</label>
+        <link refid="visualnode_8hpp_source"/>
+      </node>
+      <node id="7365">
+        <label>QString</label>
+      </node>
+      <node id="7357">
+        <label>gecode/kernel/brancher-val-sel.hpp</label>
+        <link refid="brancher-val-sel_8hpp_source"/>
+      </node>
+      <node id="7346">
+        <label>gecode/kernel/propagator.hpp</label>
+        <link refid="kernel_2propagator_8hpp_source"/>
+      </node>
+      <node id="7371">
+        <label>gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="7287" relation="include">
+        </childnode>
+        <childnode refid="7288" relation="include">
+        </childnode>
+        <childnode refid="7372" relation="include">
+        </childnode>
+      </node>
+      <node id="7314">
+        <label>gecode/support/block-allocator.hpp</label>
+        <link refid="block-allocator_8hpp_source"/>
+      </node>
+      <node id="7289">
+        <label>gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="7290" relation="include">
+        </childnode>
+        <childnode refid="7291" relation="include">
+        </childnode>
+      </node>
+      <node id="7350">
+        <label>gecode/kernel/activity.hpp</label>
+        <link refid="kernel_2activity_8hpp_source"/>
+      </node>
+      <node id="7293">
+        <label>cstdlib</label>
+      </node>
+      <node id="7310">
+        <label>gecode/support/bitset.hpp</label>
+        <link refid="bitset_8hpp_source"/>
+        <childnode refid="7308" relation="include">
+        </childnode>
+        <childnode refid="7311" relation="include">
+        </childnode>
+      </node>
+      <node id="7298">
+        <label>gecode/support/auto-link.hpp</label>
+        <link refid="auto-link_8hpp_source"/>
+      </node>
+      <node id="7313">
+        <label>iostream</label>
+      </node>
+      <node id="7325">
+        <label>gecode/kernel/exception.hpp</label>
+        <link refid="kernel_2exception_8hpp_source"/>
+      </node>
+      <node id="7299">
+        <label>gecode/support/macros.hpp</label>
+        <link refid="support_2macros_8hpp_source"/>
+      </node>
+      <node id="7337">
+        <label>gecode/kernel/view.hpp</label>
+        <link refid="kernel_2view_8hpp_source"/>
+      </node>
+      <node id="7352">
+        <label>gecode/kernel/branch-tiebreak.hpp</label>
+        <link refid="branch-tiebreak_8hpp_source"/>
+      </node>
+      <node id="7292">
+        <label>cstddef</label>
+      </node>
+      <node id="7308">
+        <label>climits</label>
+      </node>
+      <node id="7286">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor.hh"/>
+        <childnode refid="7287" relation="include">
+        </childnode>
+        <childnode refid="7371" relation="include">
+        </childnode>
+        <childnode refid="7373" relation="include">
+        </childnode>
+        <childnode refid="7374" relation="include">
+        </childnode>
+      </node>
+      <node id="7331">
+        <label>gecode/kernel/core.hpp</label>
+        <link refid="core_8hpp_source"/>
+        <childnode refid="7313" relation="include">
+        </childnode>
+        <childnode refid="7332" relation="include">
+        </childnode>
+      </node>
+      <node id="7368">
+        <label>gecode/gist/spacenode.hpp</label>
+        <link refid="spacenode_8hpp_source"/>
+      </node>
+      <node id="7296">
+        <label>gecode/support.hh</label>
+        <link refid="support_8hh_source"/>
+        <childnode refid="7295" relation="include">
+        </childnode>
+        <childnode refid="7297" relation="include">
+        </childnode>
+        <childnode refid="7298" relation="include">
+        </childnode>
+        <childnode refid="7299" relation="include">
+        </childnode>
+        <childnode refid="7300" relation="include">
+        </childnode>
+        <childnode refid="7302" relation="include">
+        </childnode>
+        <childnode refid="7303" relation="include">
+        </childnode>
+        <childnode refid="7304" relation="include">
+        </childnode>
+        <childnode refid="7306" relation="include">
+        </childnode>
+        <childnode refid="7307" relation="include">
+        </childnode>
+        <childnode refid="7309" relation="include">
+        </childnode>
+        <childnode refid="7310" relation="include">
+        </childnode>
+        <childnode refid="7312" relation="include">
+        </childnode>
+        <childnode refid="7314" relation="include">
+        </childnode>
+        <childnode refid="7315" relation="include">
+        </childnode>
+        <childnode refid="7316" relation="include">
+        </childnode>
+        <childnode refid="7317" relation="include">
+        </childnode>
+        <childnode refid="7318" relation="include">
+        </childnode>
+        <childnode refid="7319" relation="include">
+        </childnode>
+        <childnode refid="7320" relation="include">
+        </childnode>
+        <childnode refid="7321" relation="include">
+        </childnode>
+        <childnode refid="7322" relation="include">
+        </childnode>
+        <childnode refid="7323" relation="include">
+        </childnode>
+        <childnode refid="7324" relation="include">
+        </childnode>
+      </node>
+      <node id="7364">
+        <label>QHash</label>
+      </node>
+      <node id="7315">
+        <label>gecode/support/dynamic-array.hpp</label>
+        <link refid="dynamic-array_8hpp_source"/>
+        <childnode refid="7305" relation="include">
+        </childnode>
+      </node>
+      <node id="7319">
+        <label>gecode/support/sort.hpp</label>
+        <link refid="support_2sort_8hpp_source"/>
+        <childnode refid="7305" relation="include">
+        </childnode>
+        <childnode refid="7308" relation="include">
+        </childnode>
+      </node>
+      <node id="7372">
+        <label>gecode/gist/layoutcursor.hpp</label>
+        <link refid="layoutcursor_8hpp_source"/>
+      </node>
+      <node id="7344">
+        <label>gecode/kernel/rnd.hpp</label>
+        <link refid="rnd_8hpp_source"/>
+        <childnode refid="7345" relation="include">
+        </childnode>
+      </node>
+      <node id="7305">
+        <label>algorithm</label>
+      </node>
+      <node id="7356">
+        <label>gecode/kernel/brancher-view.hpp</label>
+        <link refid="brancher-view_8hpp_source"/>
+      </node>
+      <node id="7330">
+        <label>gecode/kernel/global-afc.hpp</label>
+        <link refid="global-afc_8hpp_source"/>
+        <childnode refid="7311" relation="include">
+        </childnode>
+      </node>
+      <node id="7373">
+        <label>QtGui</label>
+      </node>
+      <node id="7294">
+        <label>cstring</label>
+      </node>
+      <node id="7374">
+        <label>gecode/gist/drawingcursor.hpp</label>
+        <link refid="drawingcursor_8hpp_source"/>
+      </node>
+      <node id="7312">
+        <label>gecode/support/bitset-offset.hpp</label>
+        <link refid="bitset-offset_8hpp_source"/>
+        <childnode refid="7308" relation="include">
+        </childnode>
+        <childnode refid="7311" relation="include">
+        </childnode>
+        <childnode refid="7313" relation="include">
+        </childnode>
+      </node>
+      <node id="7304">
+        <label>gecode/support/heap.hpp</label>
+        <link refid="heap_8hpp_source"/>
+        <childnode refid="7294" relation="include">
+        </childnode>
+        <childnode refid="7293" relation="include">
+        </childnode>
+        <childnode refid="7305" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classGecode_1_1Gist_1_1DrawingCursor" prot="public">Gecode::Gist::DrawingCursor</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Gist">Gecode::Gist</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2006</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2010-08-12<sp/>09:48:30<sp/>+0200<sp/>(Thu,<sp/>12<sp/>Aug<sp/>2010)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>11345<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>GECODE_GIST_QT_DRAWINGCURSOR_HH</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>GECODE_GIST_QT_DRAWINGCURSOR_HH</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/gist/nodecursor.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/gist/layoutcursor.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QtGui&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="namespaceGecode_1_1Gist" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classGecode_1_1Gist_1_1DrawingCursor" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1DrawingCursor" kindref="compound">DrawingCursor</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1NodeCursor" kindref="compound">NodeCursor</ref>&lt;VisualNode&gt;<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>QPainter&amp;<sp/>painter;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>QRect<sp/>clippingRect;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref>*<sp/>curBest;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x,<sp/>y;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>copies;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isClipped(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1Gist_1_1DrawingCursor_1a1237ecd72c2fc0fabe4a7334233ed280" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a1237ecd72c2fc0fabe4a7334233ed280" kindref="member">red</ref>;</highlight></codeline>
+<codeline lineno="67" refid="classGecode_1_1Gist_1_1DrawingCursor_1a276aa0e45a379f498f61fb4a6d2ae3f3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a276aa0e45a379f498f61fb4a6d2ae3f3" kindref="member">green</ref>;</highlight></codeline>
+<codeline lineno="69" refid="classGecode_1_1Gist_1_1DrawingCursor_1a24c8beac1f43016385a8bdccd250225e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a24c8beac1f43016385a8bdccd250225e" kindref="member">blue</ref>;</highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1Gist_1_1DrawingCursor_1af5f788e5a4d14dc9298b579f0f22fb5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1af5f788e5a4d14dc9298b579f0f22fb5e" kindref="member">orange</ref>;</highlight></codeline>
+<codeline lineno="73" refid="classGecode_1_1Gist_1_1DrawingCursor_1a8346757a04b5e9b4dd9e7ab8de7dabcc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a8346757a04b5e9b4dd9e7ab8de7dabcc" kindref="member">white</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="classGecode_1_1Gist_1_1DrawingCursor_1ad39d25ed321cd60d72b6bb9c5e10f0f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1ad39d25ed321cd60d72b6bb9c5e10f0f0" kindref="member">lightRed</ref>;</highlight></codeline>
+<codeline lineno="78" refid="classGecode_1_1Gist_1_1DrawingCursor_1ad6ef79312f3e7048825d5adbc765e996" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1ad6ef79312f3e7048825d5adbc765e996" kindref="member">lightGreen</ref>;</highlight></codeline>
+<codeline lineno="80" refid="classGecode_1_1Gist_1_1DrawingCursor_1aa92879273f7395a433aaa77076fe5a88" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QColor<sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1aa92879273f7395a433aaa77076fe5a88" kindref="member">lightBlue</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1ac576a5c8e84bca4ab9d1a07db8c4e3e5" kindref="member">DrawingCursor</ref>(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>root,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">VisualNode::NodeAllocator</ref>&amp;<sp/><ref refid="classGecode_1_1Gist_1_1NodeCursor_1a327325bcfef32a267cea6d3ba1416b11" kindref="member">na</ref>,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref>*<sp/>curBest0,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QPainter&amp;<sp/>painter0,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QRect&amp;<sp/>clippingRect0,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>showCopies);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1ac2f034842bf12b07fa725f6a1c008e36" kindref="member">moveUpwards</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a4695f954b7fc26aec659aad9cb9f9365" kindref="member">mayMoveDownwards</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a1905749fec58d6450d414aee70eee650" kindref="member">moveDownwards</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1ad34490124e0ba19c7c60c9775027ca15" kindref="member">moveSidewards</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1DrawingCursor_1a19bc76b8564395d6f2871eab3cc8b84b" kindref="member">processCurrentNode</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/gist/drawingcursor.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>gist-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/gist/drawingcursor.hh"/>
+  </compounddef>
+</doxygen>

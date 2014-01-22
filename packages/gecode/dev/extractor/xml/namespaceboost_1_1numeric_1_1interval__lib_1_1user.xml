@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceboost_1_1numeric_1_1interval__lib_1_1user" kind="namespace">
+    <compoundname>boost::numeric::interval_lib::user</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1user_1ab3969388781faf6e8d2fdc5b1a740757" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::interval_lib::user::is_zero</definition>
+        <argsstring>(T const &amp;v)</argsstring>
+        <name>is_zero</name>
+        <param>
+          <type>T const &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" line="21" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" bodystart="21" bodyend="21"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1user_1ac6bb3e383c234f685bed62314ddc19ba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::interval_lib::user::is_neg</definition>
+        <argsstring>(T const &amp;v)</argsstring>
+        <name>is_neg</name>
+        <param>
+          <type>T const &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" line="24" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" bodystart="24" bodyend="24"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1user_1a55e59eef1165c359fe8d0418eec6a53d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::interval_lib::user::is_pos</definition>
+        <argsstring>(T const &amp;v)</argsstring>
+        <name>is_pos</name>
+        <param>
+          <type>T const &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" line="27" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" bodystart="27" bodyend="27"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/test_input.hpp" line="18" column="1"/>
+  </compounddef>
+</doxygen>

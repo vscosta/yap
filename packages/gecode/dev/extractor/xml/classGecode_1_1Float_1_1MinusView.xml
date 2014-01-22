@@ -1,0 +1,563 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Float_1_1MinusView" kind="class" prot="public">
+    <compoundname>Gecode::Float::MinusView</compoundname>
+    <basecompoundref refid="classGecode_1_1DerivedView" prot="public" virt="non-virtual">Gecode::DerivedView&lt; FloatView &gt;</basecompoundref>
+    <includes refid="float_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a91fc2b59c49cb72bbbec13cf5d16ca9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::MinusView::MinusView</definition>
+        <argsstring>(void)</argsstring>
+        <name>MinusView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="165" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a33940676523e80d40caf958a28379a22" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Float::MinusView::MinusView</definition>
+        <argsstring>(const FloatView &amp;y)</argsstring>
+        <name>MinusView</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">FloatView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with float view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="167" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a63ae5ab7f08c9754d66024174b25d82d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::MinusView::domain</definition>
+        <argsstring>(void) const </argsstring>
+        <name>domain</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="173" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="57" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1ab160bf9438479f3e97ea02689b29808e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="175" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="61" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1acd54f66dfc33d20f3f5af377abda7025" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="177" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="65" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a6663ecc0c054a865cf451af8a269279b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of domain (closest representation) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="179" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a85a5ce456c79292b47db0af45347b1e3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::Float::MinusView::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return assigned value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">Float::ValOfUnassignedVar</ref> if variable is not yet assigned. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="187" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="73" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a0b87ee2ad43cf2e509e5ad146bcad5fb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of domain (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="190" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a6b516a510db6370ef49d3dc410158c03" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::MinusView::zero_in</definition>
+        <argsstring>(void) const </argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether 0 is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="196" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a07f6c34fffda9d4659dc1752915aea0a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::MinusView::in</definition>
+        <argsstring>(FloatNum n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="198" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="92" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1ad3c73b7d22356d525f0457d2a65b1e62" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Float::MinusView::in</definition>
+        <argsstring>(const FloatVal &amp;n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="200" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1ad1437dc7329f3c00424968487d6d3303" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::lq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="206" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="106" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a6cc0a08cadb5a980be04857aa3b7b7f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::lq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="208" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="110" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1abad777426d774a07ee78e802a3475768" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::lq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="210" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="114" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a1a53e7122e274174663a7d020078ae05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::gq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="213" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="119" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a1a72f06421c119c2ef1e69580fefab92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::gq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="215" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="123" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a00d8552ca5363705c909bc5b342fc54c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::gq</definition>
+        <argsstring>(Space &amp;home, FloatVal n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="217" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="127" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1aa3c2efdc49eda6addf55bc0c2352769c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::eq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="220" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="132" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1af038d808b3a1f6d59b92cf6519a6a893" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::eq</definition>
+        <argsstring>(Space &amp;home, FloatNum n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="222" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="136" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1adb5d2bdd9d95fdc47e19b3fb8d364498" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Float::MinusView::eq</definition>
+        <argsstring>(Space &amp;home, const FloatVal &amp;n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="224" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="140" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a24a981e127637d2dd5dd6cdd8f11f13c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::min</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="231" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="150" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a50c20553c23fdaf187c184dad8c5d67e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::Float::MinusView::max</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="233" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="154" bodyend="156"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1ac2213418c452d6ff6c750d4ce4935dea" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::Float::MinusView::med</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="239" column="1" bodyfile="/usr/include/gecode/float/view/minus.hpp" bodystart="160" bodyend="162"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Float_1_1MinusView_1a0ecf46ed6aaeb1e5b1032f8341fe0840" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const MinusView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1MinusView" kindref="compound">MinusView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print float minus view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float/view.hpp" line="183" column="1" bodyfile="/usr/include/gecode/float/view/print.hpp" bodystart="68" bodyend="70"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Minus float view. </para>    </briefdescription>
+    <detaileddescription>
+<para>A minus float view <formula id="30">$m$</formula> for an float view <formula id="31">$x$</formula> provides operations such that <formula id="30">$m$</formula> behaves as <formula id="32">$-x$</formula>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="4043">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+      </node>
+      <node id="4042">
+        <label>Gecode::Float::MinusView</label>
+        <link refid="classGecode_1_1Float_1_1MinusView"/>
+        <childnode refid="4043" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4045">
+        <label>Gecode::DerivedView&lt; FloatView &gt;</label>
+        <link refid="classGecode_1_1DerivedView"/>
+        <childnode refid="4046" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="4044">
+        <label>Gecode::Float::MinusView</label>
+        <link refid="classGecode_1_1Float_1_1MinusView"/>
+        <childnode refid="4045" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4046">
+        <label>Gecode::Float::FloatView</label>
+        <link refid="classGecode_1_1Float_1_1FloatView"/>
+        <childnode refid="4047" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4047">
+        <label>Gecode::VarImpView&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float/view.hpp" line="158" column="1" bodyfile="/usr/include/gecode/float/view.hpp" bodystart="158" bodyend="241"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DerivedView_1a8af1ef9d834817687d07b24073bb11cb" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7a052d937c4a0e3e056f2c04bf426958" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa50003acd00fbe1aba2c59913cfef099" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>base</name></member>
+      <member refid="classGecode_1_1DerivedView_1a7106983000f6ea5bb00ebf6220101ddc" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9eaeb396937207a32f1b79faa9330e66" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5268030de7f958b6cc01d3eeb672aab8" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1DerivedView_1a98dc20fbac8c4b0511291136fad93944" prot="protected" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae5ae685043fb880eef3c0041b1665b53" prot="protected" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>DerivedView</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a63ae5ab7f08c9754d66024174b25d82d" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>domain</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1aa3c2efdc49eda6addf55bc0c2352769c" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1af038d808b3a1f6d59b92cf6519a6a893" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1adb5d2bdd9d95fdc47e19b3fb8d364498" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a1a53e7122e274174663a7d020078ae05" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a1a72f06421c119c2ef1e69580fefab92" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a00d8552ca5363705c909bc5b342fc54c" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a07f6c34fffda9d4659dc1752915aea0a" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1ad3c73b7d22356d525f0457d2a65b1e62" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>in</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1ad1437dc7329f3c00424968487d6d3303" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a6cc0a08cadb5a980be04857aa3b7b7f0" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1abad777426d774a07ee78e802a3475768" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1acd54f66dfc33d20f3f5af377abda7025" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>max</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a50c20553c23fdaf187c184dad8c5d67e" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>max</name></member>
+      <member refid="classGecode_1_1DerivedView_1ad50ca39d6fc43ff0bb8f65a2f787b25d" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>me</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a6663ecc0c054a865cf451af8a269279b" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1ac2213418c452d6ff6c750d4ce4935dea" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>med</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1ab160bf9438479f3e97ea02689b29808e" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a24a981e127637d2dd5dd6cdd8f11f13c" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>min</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a91fc2b59c49cb72bbbec13cf5d16ca9e" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>MinusView</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a33940676523e80d40caf958a28379a22" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>MinusView</name></member>
+      <member refid="classGecode_1_1DerivedView_1ae2ccb41242200b5e2121164db287d76d" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a0ecf46ed6aaeb1e5b1032f8341fe0840" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1DerivedView_1aed474218f6ac19c8958f5dd921dd4a56" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a0b87ee2ad43cf2e509e5ad146bcad5fb" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>size</name></member>
+      <member refid="classGecode_1_1DerivedView_1a9ca639fc9c07f03ff1ed8e4bdb2554ca" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1aa1b46557b44017c14d09f6397c62f7b1" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1DerivedView_1a1fd607dd28d8f0dd8a61efafc6cd46f7" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>update</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a85a5ce456c79292b47db0af45347b1e3" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>val</name></member>
+      <member refid="classGecode_1_1DerivedView_1a040ec29422fa48ade9b5d6b595e9d2e8" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1DerivedView_1acf843af5c66aaf459055496fb6e69d5e" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1DerivedView_1a859634f2bf00d75823bbd24bc052fbb3" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a87ae51cbfed201d640f8d6db2d8fb4b4" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1DerivedView_1a5183c0d4bfdd31dd2db78e4ad855c8ea" prot="protected" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>x</name></member>
+      <member refid="classGecode_1_1Float_1_1MinusView_1a6b516a510db6370ef49d3dc410158c03" prot="public" virt="non-virtual"><scope>Gecode::Float::MinusView</scope><name>zero_in</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

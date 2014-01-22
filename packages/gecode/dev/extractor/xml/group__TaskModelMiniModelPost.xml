@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelMiniModelPost" kind="group">
+    <compoundname>TaskModelMiniModelPost</compoundname>
+    <title>Posting of expressions and relations</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelMiniModelPost_1ga23d2837ab202a1fad55a517913a62129" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT IntVar</type>
+        <definition>GECODE_MINIMODEL_EXPORT IntVar Gecode::expr</definition>
+        <argsstring>(Home home, const LinIntExpr &amp;e, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>expr</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const LinIntExpr &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post linear expression and return its value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1363" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelPost_1ga785a4489573cad9ddda0e5694a59776c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT BoolVar</type>
+        <definition>GECODE_MINIMODEL_EXPORT BoolVar Gecode::expr</definition>
+        <argsstring>(Home home, const BoolExpr &amp;e, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>expr</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post Boolean expression and return its value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1376" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelMiniModelPost_1ga638737222fb85d10d7adea10484a1767" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_MINIMODEL_EXPORT void</type>
+        <definition>GECODE_MINIMODEL_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const BoolExpr &amp;e, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const BoolExpr &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post Boolean relation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/minimodel.hh" line="1379" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

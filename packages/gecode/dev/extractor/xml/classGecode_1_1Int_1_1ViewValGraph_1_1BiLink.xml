@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewValGraph::BiLink</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Edge&lt; IntView &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Edge&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Node&lt; View &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Node&lt; IntView &gt;</derivedcompoundref>
+    <includes refid="view-val-graph_8hh" local="no">view-val-graph.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ac69b010db3bfb0f7bfd9b38e35e3226c" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+        <definition>BiLink* Gecode::Int::ViewValGraph::BiLink::_prev</definition>
+        <argsstring></argsstring>
+        <name>_prev</name>
+        <briefdescription>
+<para>Link to previous element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="81" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a0051016b113113178b856d6b7f47d228" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+        <definition>BiLink* Gecode::Int::ViewValGraph::BiLink::_next</definition>
+        <argsstring></argsstring>
+        <name>_next</name>
+        <briefdescription>
+<para>Link to next element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="83" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a2c45d8f046c5ef13f19bc8bc63eee530" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewValGraph::BiLink::BiLink</definition>
+        <argsstring>(void)</argsstring>
+        <name>BiLink</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize as empty (self referenced) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="86" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="41" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a9623cbba17d117289eebb6f2c2b5c4ae" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+        <definition>forceinline BiLink * Gecode::Int::ViewValGraph::BiLink::prev</definition>
+        <argsstring>(void) const </argsstring>
+        <name>prev</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return previous element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="88" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="46" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ae21348fc4bde32c21cd1568ed7f6b43c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+        <definition>forceinline BiLink * Gecode::Int::ViewValGraph::BiLink::next</definition>
+        <argsstring>(void) const </argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="90" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="50" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a903bfd23c708d3848f61697ff4435cc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::BiLink::prev</definition>
+        <argsstring>(BiLink *l)</argsstring>
+        <name>prev</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> previous element to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="92" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="54" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a676227782d04bba0fd9b28f154d4555f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::BiLink::next</definition>
+        <argsstring>(BiLink *l)</argsstring>
+        <name>next</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> next element to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="94" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1abf6e776a761e4cbba3d2e47c2fa05b2c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::BiLink::add</definition>
+        <argsstring>(BiLink *l)</argsstring>
+        <name>add</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink" kindref="compound">BiLink</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Add <emphasis>l</emphasis> after this element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="96" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="63" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1afc99ce400e8b5f69717cd7358c85aaa6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::BiLink::unlink</definition>
+        <argsstring>(void)</argsstring>
+        <name>unlink</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Unlink this element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="98" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="68" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ac1c5ef03c95a7232a921179e4506622a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewValGraph::BiLink::mark</definition>
+        <argsstring>(void)</argsstring>
+        <name>mark</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark element (invalidates next element pointer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="100" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a477043f919a199f146ebc2825845d8be" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewValGraph::BiLink::marked</definition>
+        <argsstring>(void) const </argsstring>
+        <name>marked</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether element is marked. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="102" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1af6a7e72170b5f244ee6e57e26ca1f04f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::ViewValGraph::BiLink::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether element has no previous and next element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view-val-graph.hh" line="104" column="1" bodyfile="/usr/include/gecode/int/view-val-graph/bi-link.hpp" bodystart="82" bodyend="84"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Bidirectional links for edges and anchors in nodes of view-value graph. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1074">
+        <label>Gecode::Int::ViewValGraph::ValNode&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode"/>
+        <childnode refid="1073" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1075">
+        <label>Gecode::Int::ViewValGraph::ViewNode&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode"/>
+        <childnode refid="1073" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1078">
+        <label>Gecode::Int::ViewValGraph::ViewNode&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ViewNode"/>
+        <childnode refid="1076" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1072">
+        <label>Gecode::Int::ViewValGraph::Edge&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge"/>
+        <childnode refid="1070" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1076">
+        <label>Gecode::Int::ViewValGraph::Node&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node"/>
+        <childnode refid="1070" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1077">
+        <label>Gecode::Int::ViewValGraph::ValNode&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1ValNode"/>
+        <childnode refid="1076" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1070">
+        <label>Gecode::Int::ViewValGraph::BiLink</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink"/>
+      </node>
+      <node id="1071">
+        <label>Gecode::Int::ViewValGraph::Edge&lt; IntView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Edge"/>
+        <childnode refid="1070" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1073">
+        <label>Gecode::Int::ViewValGraph::Node&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Node"/>
+        <childnode refid="1070" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/view-val-graph.hh" line="78" column="1" bodyfile="/usr/include/gecode/int/view-val-graph.hh" bodystart="78" bodyend="105"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a0051016b113113178b856d6b7f47d228" prot="private" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>_next</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ac69b010db3bfb0f7bfd9b38e35e3226c" prot="private" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>_prev</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1abf6e776a761e4cbba3d2e47c2fa05b2c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>add</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a2c45d8f046c5ef13f19bc8bc63eee530" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>BiLink</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1af6a7e72170b5f244ee6e57e26ca1f04f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ac1c5ef03c95a7232a921179e4506622a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>mark</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a477043f919a199f146ebc2825845d8be" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>marked</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1ae21348fc4bde32c21cd1568ed7f6b43c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>next</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a676227782d04bba0fd9b28f154d4555f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>next</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a9623cbba17d117289eebb6f2c2b5c4ae" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>prev</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1a903bfd23c708d3848f61697ff4435cc7" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>prev</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1BiLink_1afc99ce400e8b5f69717cd7358c85aaa6" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewValGraph::BiLink</scope><name>unlink</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

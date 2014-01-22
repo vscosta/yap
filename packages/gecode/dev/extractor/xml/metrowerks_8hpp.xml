@@ -1,0 +1,538 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="metrowerks_8hpp" kind="file">
+    <compoundname>metrowerks.hpp</compoundname>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="metrowerks_8hpp_1a83cfcb4a381f8a6fe8ca3543716bc9ad" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_ORDERING</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="21" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a061a82fd5861308171c273067a27eb48" prot="public" static="no">
+        <name>BOOST_NO_POINTER_TO_MEMBER_CONST</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="22" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ab1202c6d7429d3009855096881bc2b5f" prot="public" static="no">
+        <name>BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="23" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ae603f16d34ddcc19ede66d2e8d862fdc" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_TEMPLATE_KEYWORD</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="24" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ae01cb56b1179e5cda78eee54a94bcc87" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_FUNCTION_SPECIALIZATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="32" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a58dcf7c7e240f602001b62363c0bf274" prot="public" static="no">
+        <name>BOOST_NO_UNREACHABLE_RETURN_DETECTION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="33" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ad9e3e12fc5596d1a311a7722d5922965" prot="public" static="no">
+        <name>BOOST_NO_SFINAE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="37" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a87b0cfb2911dd4eab0dad69587ab88f1" prot="public" static="no">
+        <name>BOOST_NO_MEMBER_TEMPLATE_FRIENDS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="43" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a9ad74291543f98f61de8cadbc0a6f42c" prot="public" static="no">
+        <name>BOOST_NO_IS_ABSTRACT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="44" column="14" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a7741217677869546396dfa921c058be9" prot="public" static="no">
+        <name>BOOST_NO_INTRINSIC_WCHAR_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="48" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ad9e644e01e76c0a2b950bac6e3d2cf0e" prot="public" static="no">
+        <name>BOOST_NO_EXCEPTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="52" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a4254de237bb29bbf01bf319360adbbe7" prot="public" static="no">
+        <name>BOOST_COMPILER_VERSION</name>
+        <initializer>__MWERKS__</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="82" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1aab711e4e53ece4b8ff79a12ace10492f" prot="public" static="no">
+        <name>BOOST_NO_RVALUE_REFERENCES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="93" column="12" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a454e263333ba0a545af8b803fd1a8a53" prot="public" static="no">
+        <name>BOOST_NO_AUTO_DECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="95" column="10" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1abee59fa974ed5df6c79e90ad5d2935a2" prot="public" static="no">
+        <name>BOOST_NO_AUTO_MULTIDECLARATIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="96" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a7f33717514f6be9134295a6976c17ab0" prot="public" static="no">
+        <name>BOOST_NO_CHAR16_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="97" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a58c90dea21e43297b322244141749bb3" prot="public" static="no">
+        <name>BOOST_NO_CHAR32_T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="98" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a2ab158f48b5ebc962868ca4fae0e235e" prot="public" static="no">
+        <name>BOOST_NO_CONSTEXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="99" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a5265b73b38627ec9f12a526bc43a53a7" prot="public" static="no">
+        <name>BOOST_NO_DECLTYPE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="100" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a1e33c4ee8a0e882792a1ab749898fc25" prot="public" static="no">
+        <name>BOOST_NO_DEFAULTED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="101" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ac6990e4e38c813084b7fb78af7ce1225" prot="public" static="no">
+        <name>BOOST_NO_DELETED_FUNCTIONS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="102" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a86822fbd4a31972ef0b6c1ded3a4405e" prot="public" static="no">
+        <name>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="103" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a0e4b840afc76df158ce1024b265ee136" prot="public" static="no">
+        <name>BOOST_NO_EXTERN_TEMPLATE</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="104" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a1afa1eecb86fade06c2c9d679c2acd99" prot="public" static="no">
+        <name>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="105" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a5a8aa8a671e0f4abfebd733b8f6fb6a4" prot="public" static="no">
+        <name>BOOST_NO_INITIALIZER_LISTS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="106" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a16e1e4611bfbfa7240467ed9d4a7c9d0" prot="public" static="no">
+        <name>BOOST_NO_LAMBDAS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="107" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a0579c4e6a9f145f7bfbbdf63b1cb115a" prot="public" static="no">
+        <name>BOOST_NO_NOEXCEPT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="108" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1aaf1c53a1bb595a0379a07db8f2c38353" prot="public" static="no">
+        <name>BOOST_NO_NULLPTR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="109" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a7f6939964e1d2ff8d7a4f5f3d98f807a" prot="public" static="no">
+        <name>BOOST_NO_RAW_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="110" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a673f164000ed2c207f200528add4f736" prot="public" static="no">
+        <name>BOOST_NO_SCOPED_ENUMS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="111" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1aff4c6e7a6a9d7bad9905ce7b9c100ae9" prot="public" static="no">
+        <name>BOOST_NO_SFINAE_EXPR</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="112" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a982d85c01772e8754849378db91f4f1c" prot="public" static="no">
+        <name>BOOST_NO_STATIC_ASSERT</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="113" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ab6ce230323006d1a142b49de8090dda8" prot="public" static="no">
+        <name>BOOST_NO_TEMPLATE_ALIASES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="114" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a4080e71a9718560d54bdffbd2a9a3cb2" prot="public" static="no">
+        <name>BOOST_NO_UNICODE_LITERALS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="115" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1ac6f562f47e6a764127297fdec648165e" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_TEMPLATES</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="116" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a0097578e1d5220624588d3573312a3ba" prot="public" static="no">
+        <name>BOOST_NO_VARIADIC_MACROS</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="117" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a7501099fcfc0a918e188478cac7d6f31" prot="public" static="no">
+        <name>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="118" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="metrowerks_8hpp_1a78005f877b1cc90480de16ddfd9a0def" prot="public" static="no">
+        <name>BOOST_COMPILER</name>
+        <initializer>&quot;Metrowerks CodeWarrior C++ version &quot; BOOST_STRINGIZE(BOOST_COMPILER_VERSION)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" line="120" column="9" bodyfile="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>John<sp/>Maddock<sp/>2001.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Darin<sp/>Adler<sp/>2001.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Peter<sp/>Dimov<sp/>2001.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>David<sp/>Abrahams<sp/>2001<sp/>-<sp/>2002.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Beman<sp/>Dawes<sp/>2001<sp/>-<sp/>2003.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>(C)<sp/>Copyright<sp/>Stefan<sp/>Slapeta<sp/>2004.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Use,<sp/>modification<sp/>and<sp/>distribution<sp/>are<sp/>subject<sp/>to<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Boost<sp/>Software<sp/>License,<sp/>Version<sp/>1.0.<sp/>(See<sp/>accompanying<sp/>file<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>LICENSE_1_0.txt<sp/>or<sp/>copy<sp/>at<sp/>http://www.boost.org/LICENSE_1_0.txt)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>See<sp/>http://www.boost.org<sp/>for<sp/>most<sp/>recent<sp/>version.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Metrowerks<sp/>C++<sp/>compiler<sp/>setup:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>locale<sp/>support<sp/>is<sp/>disabled<sp/>when<sp/>linking<sp/>with<sp/>the<sp/>dynamic<sp/>runtime</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>ifdef<sp/>_MSL_NO_LOCALE</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_STD_LOCALE</highlight></codeline>
+<codeline lineno="18"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif<sp/></highlight></codeline>
+<codeline lineno="19"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if<sp/>__MWERKS__<sp/>&lt;=<sp/>0x2301<sp/><sp/>//<sp/>5.3</highlight></codeline>
+<codeline lineno="21"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_FUNCTION_TEMPLATE_ORDERING</highlight></codeline>
+<codeline lineno="22"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_POINTER_TO_MEMBER_CONST</highlight></codeline>
+<codeline lineno="23"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS</highlight></codeline>
+<codeline lineno="24"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATE_KEYWORD</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if<sp/>__MWERKS__<sp/>&lt;=<sp/>0x2401<sp/><sp/>//<sp/>6.2</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"></highlight><highlight class="comment">//#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_FUNCTION_TEMPLATE_ORDERING</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if(__MWERKS__<sp/>&lt;=<sp/>0x2407)<sp/><sp/>//<sp/>7.x</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_FUNCTION_SPECIALIZATIONS</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_UNREACHABLE_RETURN_DETECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if(__MWERKS__<sp/>&lt;=<sp/>0x3003)<sp/><sp/>//<sp/>8.x</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_SFINAE</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>&quot;||<sp/>!defined(BOOST_STRICT_CONFIG)&quot;<sp/>part<sp/>should<sp/>apply<sp/>to<sp/>the<sp/>last</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">//<sp/>tested<sp/>version<sp/>*only*:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if(__MWERKS__<sp/>&lt;=<sp/>0x3207)<sp/>||<sp/>!defined(BOOST_STRICT_CONFIG)<sp/>//<sp/>9.6</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_MEMBER_TEMPLATE_FRIENDS</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_NO_IS_ABSTRACT</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!__option(wchar_type)</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_INTRINSIC_WCHAR_T</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!__option(exceptions)<sp/>&amp;&amp;<sp/>!defined(BOOST_NO_EXCEPTIONS)</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>define<sp/>BOOST_NO_EXCEPTIONS</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__INTEL__<sp/>&amp;&amp;<sp/>_WIN32)<sp/>||<sp/>(__POWERPC__<sp/>&amp;&amp;<sp/>macintosh)</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>if<sp/>__MWERKS__<sp/>==<sp/>0x3000</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>8.0</highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3001</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>8.1</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3002</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>8.2</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3003</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>8.3</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3200</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.0</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3201</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.1</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3202</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.2</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3204</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.3</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3205</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.4</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3206</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.5</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>elif<sp/>__MWERKS__<sp/>==<sp/>0x3207</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>9.6</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>else</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>__MWERKS__</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/>endif</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_COMPILER_VERSION<sp/>__MWERKS__</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="comment">//<sp/>C++0x<sp/>features</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>See<sp/>boost\config\suffix.hpp<sp/>for<sp/>BOOST_NO_LONG_LONG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__MWERKS__<sp/>&gt;<sp/>0x3206<sp/>&amp;&amp;<sp/>__option(rvalue_refs)</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_HAS_RVALUE_REFS</highlight></codeline>
+<codeline lineno="92"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>BOOST_NO_RVALUE_REFERENCES<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_DECLARATIONS</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_AUTO_MULTIDECLARATIONS</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR16_T</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CHAR32_T</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_CONSTEXPR</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DECLTYPE</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DEFAULTED_FUNCTIONS</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_DELETED_FUNCTIONS</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXPLICIT_CONVERSION_OPERATORS</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_EXTERN_TEMPLATE</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_INITIALIZER_LISTS</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_LAMBDAS</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NOEXCEPT</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_NULLPTR</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_RAW_LITERALS</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SCOPED_ENUMS</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_SFINAE_EXPR</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_STATIC_ASSERT</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_TEMPLATE_ALIASES</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNICODE_LITERALS</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_TEMPLATES</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_VARIADIC_MACROS</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BOOST_COMPILER<sp/>&quot;Metrowerks<sp/>CodeWarrior<sp/>C++<sp/>version<sp/>&quot;<sp/>BOOST_STRINGIZE(BOOST_COMPILER_VERSION)</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>check:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="comment">//<sp/>we<sp/>don&apos;t<sp/>support<sp/>Metrowerks<sp/>prior<sp/>to<sp/>version<sp/>5.3:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__MWERKS__<sp/>&lt;<sp/>0x2301</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>error<sp/>&quot;Compiler<sp/>not<sp/>supported<sp/>or<sp/>configured<sp/>-<sp/>please<sp/>reconfigure&quot;</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">//<sp/>last<sp/>known<sp/>and<sp/>checked<sp/>version:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__MWERKS__<sp/>&gt;<sp/>0x3205)</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>if<sp/>defined(BOOST_ASSERT_CONFIG)</highlight></codeline>
+<codeline lineno="132"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/><sp/><sp/><sp/>error<sp/>&quot;Unknown<sp/>compiler<sp/>version<sp/>-<sp/>please<sp/>run<sp/>the<sp/>configure<sp/>tests<sp/>and<sp/>report<sp/>the<sp/>results&quot;</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#<sp/><sp/>endif</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/third-party/boost/config/compiler/metrowerks.hpp"/>
+  </compounddef>
+</doxygen>

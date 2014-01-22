@@ -1,0 +1,784 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1UniverseView" kind="class" prot="public">
+    <compoundname>Gecode::Set::UniverseView</compoundname>
+    <basecompoundref refid="classGecode_1_1ConstView" prot="public" virt="non-virtual">Gecode::ConstView&lt; SetView &gt;</basecompoundref>
+    <includes refid="set_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>View comparison</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a0aab167fe8ec7ebf6bb9b1c7c2c28c81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool same</definition>
+        <argsstring>(const UniverseView &amp;x, const UniverseView &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are the same. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="576" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="716" bodyend="718"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ab29eae6f4894a684daceb57393f7b906" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::UniverseView::UniverseView</definition>
+        <argsstring>(void)</argsstring>
+        <name>UniverseView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="466" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="405" bodyend="405"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a551dc6a306ce0ec8fce698377570e9c0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::UniverseView::cardMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="473" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="423" bodyend="423"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a44b92879623753ca6ebce9f5c023de08" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::UniverseView::cardMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>cardMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="475" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="426" bodyend="426"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1af34684f8462cf1ef63d8065d6dab7b8a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::lubMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="477" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="429" bodyend="429"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1addaabaaf6d7dccdbe8ca2c9b572bc149" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::lubMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="479" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="432" bodyend="432"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ab86b91e510bfce85f5f657e83936ce8d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Set::UniverseView::lubMinN</definition>
+        <argsstring>(unsigned int n) const </argsstring>
+        <name>lubMinN</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Return n-th smallest element of the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="481" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a9b221c96b5c53c9e4507d965361b26bd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::glbMin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="483" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="435" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a95dffb2ae5dfeb416979deefec7d4499" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::glbMax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="485" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="438" bodyend="438"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1aa9556f454c9fc5705b6d177272da8dad" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::UniverseView::glbSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>glbSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="488" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="408" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ae2929e73c81dc13a15a9d0778e578ddb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::UniverseView::lubSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lubSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of elements in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="490" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="411" bodyend="411"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a91283e1926c72c43b916f5579b95e44c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Set::UniverseView::unknownSize</definition>
+        <argsstring>(void) const </argsstring>
+        <name>unknownSize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of unknown elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="492" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="414" bodyend="414"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ae4c7d832e2f1bcaccd1ddb2cef1813ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::UniverseView::contains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>contains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is in the greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="498" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="417" bodyend="417"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a196b4d3485c92b9f4286f434e4bcc3fd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::UniverseView::notContains</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>notContains</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>i</emphasis> is not in the least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="500" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="420" bodyend="420"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ac27478f6e56ea1f02bc3c80368804d5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::cardMin</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be greater than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="507" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="441" bodyend="443"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a12e5caf1f0fef79fa719e407999e122c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::cardMax</definition>
+        <argsstring>(Space &amp;home, unsigned int m)</argsstring>
+        <name>cardMax</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Restrict cardinality to be less than or equal to <emphasis>m</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="509" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="446" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ada35273e41b0eeeb0c0db289cf2cb8df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::include</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to include all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="514" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="463" bodyend="463"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a9368d65f4be79b169a1a6beb44232825" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::exclude</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="519" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="466" bodyend="466"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1ade2bb7d12dd558b1e2c23e39fa02c7a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::include</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>include</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update greatest lower bound to contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="521" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="452" bodyend="454"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a37236d7681102fdd203449b1798182e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::exclude</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>exclude</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Restrict least upper bound to not contain <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="523" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="457" bodyend="457"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a8bae1cd25496b428499b4df59bcccdf6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::intersect</definition>
+        <argsstring>(Space &amp;home, int i, int j)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most all elements between and including <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="528" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="479" bodyend="482"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a147bf16b1430fa200e8d7cab683a3378" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::intersect</definition>
+        <argsstring>(Space &amp;home, int i)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Update least upper bound to contain at most the element <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="530" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="460" bodyend="460"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by range iterator</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a08083c4d4d6bebdb913664866dadcc2c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::UniverseView::excludeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>excludeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Remove range sequence described by <emphasis>i</emphasis> from least upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="537" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="469" bodyend="471"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a3ed2e23dbcda2545c1da0e972cda8e0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::UniverseView::includeI</definition>
+        <argsstring>(Space &amp;home, I &amp;i)</argsstring>
+        <name>includeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Include range sequence described by <emphasis>i</emphasis> in greatest lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="539" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a4ffa64f4c2f25233d3a5199fc097c0b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>ModEvent Gecode::Set::UniverseView::intersectI</definition>
+        <argsstring>(Space &amp;home, I &amp;iter)</argsstring>
+        <name>intersectI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>iter</declname>
+        </param>
+        <briefdescription>
+<para>Intersect least upper bound with range sequence described by <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="541" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1aa9dcf490820a83d4236188cb0b19872d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::glbMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="547" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="498" bodyend="501"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a5a5bee1acbe302c23bfb7a45f97bb340" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::glbMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="549" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="504" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a502e6fc32ab94b35d80db95f05bad7bb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::UniverseView::glbAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>glbAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from glb. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="551" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="510" bodyend="513"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1adc406976d0dd2b2cda0eb32ac361723b" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::lubMin</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMin</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return minimum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="553" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="516" bodyend="519"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a47280c56c8f76e88231632373a2126fb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::UniverseView::lubMax</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubMax</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return maximum value just pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="555" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="522" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a3ba95e1e003249a0598be9eea3b0ac57" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::UniverseView::lubAny</definition>
+        <argsstring>(const Delta &amp;d) const </argsstring>
+        <name>lubAny</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Test whether arbitrary values got pruned from lub. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="557" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="528" bodyend="531"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a9ed9ff888fa758e637b9053d23224485" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::includeI</definition>
+        <argsstring>(Space &amp;, I &amp;)</argsstring>
+        <name>includeI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>I &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="474" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="474" bodyend="476"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1af8488342d7d350e8e91a79adf91ee0a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class I</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline <ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Set::UniverseView::intersectI</definition>
+        <argsstring>(Space &amp;, I &amp;i)</argsstring>
+        <name>intersectI</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        </param>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view/const.hpp" line="485" column="1" bodyfile="/usr/include/gecode/set/view/const.hpp" bodystart="485" bodyend="490"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1UniverseView_1a7b217dccbd029ea42d527042500a2fd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const UniverseView &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print universe set view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/view.hpp" line="449" column="1" bodyfile="/usr/include/gecode/set/view/print.hpp" bodystart="102" bodyend="109"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Constant view for the universe. </para>    </briefdescription>
+    <detaileddescription>
+<para>A constant set view <formula id="31">$x$</formula> for the universe provides operations such that <formula id="31">$x$</formula> behaves like the universe. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7234">
+        <label>Gecode::ConstView&lt; SetView &gt;</label>
+        <link refid="classGecode_1_1ConstView"/>
+      </node>
+      <node id="7233">
+        <label>Gecode::Set::UniverseView</label>
+        <link refid="classGecode_1_1Set_1_1UniverseView"/>
+        <childnode refid="7234" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7236">
+        <label>Gecode::ConstView&lt; SetView &gt;</label>
+        <link refid="classGecode_1_1ConstView"/>
+      </node>
+      <node id="7235">
+        <label>Gecode::Set::UniverseView</label>
+        <link refid="classGecode_1_1Set_1_1UniverseView"/>
+        <childnode refid="7236" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/view.hpp" line="461" column="1" bodyfile="/usr/include/gecode/set/view.hpp" bodystart="461" bodyend="560"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ConstView_1a4081cb5a97e8391b235dc11ff3c90ad9" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1ConstView_1a1e7c7e5b36175dd5a06382781f84df24" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1ConstView_1a0cc7502ec1d81feab4035e7e78233186" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1ConstView_1a892e95a4cef1530ac569f4b1fdd5ff4f" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a44b92879623753ca6ebce9f5c023de08" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a12e5caf1f0fef79fa719e407999e122c" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cardMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a551dc6a306ce0ec8fce698377570e9c0" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ac27478f6e56ea1f02bc3c80368804d5b" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>cardMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ae4c7d832e2f1bcaccd1ddb2cef1813ac" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>contains</name></member>
+      <member refid="classGecode_1_1ConstView_1add4ca8530b19051f6bb64f38b0a943c0" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a9368d65f4be79b169a1a6beb44232825" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a37236d7681102fdd203449b1798182e2" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>exclude</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a08083c4d4d6bebdb913664866dadcc2c" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>excludeI</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a502e6fc32ab94b35d80db95f05bad7bb" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbAny</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a95dffb2ae5dfeb416979deefec7d4499" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a5a5bee1acbe302c23bfb7a45f97bb340" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a9b221c96b5c53c9e4507d965361b26bd" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1aa9dcf490820a83d4236188cb0b19872d" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1aa9556f454c9fc5705b6d177272da8dad" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>glbSize</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ada35273e41b0eeeb0c0db289cf2cb8df" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ade2bb7d12dd558b1e2c23e39fa02c7a8" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>include</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a3ed2e23dbcda2545c1da0e972cda8e0b" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>includeI</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a9ed9ff888fa758e637b9053d23224485" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>includeI</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a8bae1cd25496b428499b4df59bcccdf6" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a147bf16b1430fa200e8d7cab683a3378" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>intersect</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a4ffa64f4c2f25233d3a5199fc097c0b2" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>intersectI</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1af8488342d7d350e8e91a79adf91ee0a2" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>intersectI</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a3ba95e1e003249a0598be9eea3b0ac57" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubAny</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1addaabaaf6d7dccdbe8ca2c9b572bc149" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a47280c56c8f76e88231632373a2126fb" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubMax</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1af34684f8462cf1ef63d8065d6dab7b8a" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1adc406976d0dd2b2cda0eb32ac361723b" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubMin</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ab86b91e510bfce85f5f657e83936ce8d" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubMinN</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ae2929e73c81dc13a15a9d0778e578ddb" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>lubSize</name></member>
+      <member refid="classGecode_1_1ConstView_1aac6f95f0c055e27122643a9b1abd56f7" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>me</name></member>
+      <member refid="classGecode_1_1ConstView_1a7a73566c33cdb56acedb6a44dd919a8a" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>med</name></member>
+      <member refid="classGecode_1_1ConstView_1a4cd961b1afc7330ca276cf905840182a" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a196b4d3485c92b9f4286f434e4bcc3fd" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>notContains</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a7b217dccbd029ea42d527042500a2fd1" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a0aab167fe8ec7ebf6bb9b1c7c2c28c81" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>same</name></member>
+      <member refid="classGecode_1_1ConstView_1a88bd3f6f1de1748f08d6f386bd661c12" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1ConstView_1a2501b26a166e241f1fe0a3fb1f574682" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1ConstView_1a7661595fd39f25b91d0b8a55e9645c12" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1ab29eae6f4894a684daceb57393f7b906" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>UniverseView</name></member>
+      <member refid="classGecode_1_1Set_1_1UniverseView_1a91283e1926c72c43b916f5579b95e44c" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>unknownSize</name></member>
+      <member refid="classGecode_1_1ConstView_1aa707302c7d06b42165f614cff5dc6fc0" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>update</name></member>
+      <member refid="classGecode_1_1ConstView_1aee74dc7502b456703a1f44a8c34736c5" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1ConstView_1aa39169631d6411a2c21e7b9785e7427d" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1ConstView_1ab14fccf8cab1048f2c7bf4e30d89a338" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1ConstView_1af241f74e7ca3d2a53b8d962a3fd36bcd" prot="public" virt="non-virtual"><scope>Gecode::Set::UniverseView</scope><name>VarType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

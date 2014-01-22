@@ -1,0 +1,291 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntRelInt" kind="group">
+    <compoundname>TaskModelIntRelInt</compoundname>
+    <title>Simple relation constraints over integer variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga6bab78a10d6bcc60c793c9f0fe01bcff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, IntVar x0, IntRelType irt, IntVar x1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="213">$ x_0 \sim_{irt} x_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1047" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga8c702b768918c58f26ca829b7121dd75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, IntVar y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="214">$ x_i \sim_{irt} y $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1056" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga5fc869bbad6324225ac4f1f7a23acb3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, IntVar x, IntRelType irt, int c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="215">$ x \sim_{irt} c$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1062" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga330c485b7087361125be3fbedb4330b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, int c, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="216">$ x_i \sim_{irt} c $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1068" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga8b4e0105c5c604bebd808c35627273ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, IntVar x0, IntRelType irt, IntVar x1, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="217">$ (x_0 \sim_{irt} x_1)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1077" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga398d4a25e7b377024db5709c5b035ee6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, IntVar x, IntRelType irt, int c, Reify r, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="218">$(x \sim_{irt} c)\equiv r$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1086" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga0f2f1de95cda4ffc4cdab128b8f8161f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for relation among elements in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>States that the elements of <emphasis>x</emphasis> are in the following relation:<itemizedlist>
+<listitem><para>if <emphasis>r</emphasis> = IRT_LE, <emphasis>r</emphasis> = IRT_LQ, <emphasis>r</emphasis> = IRT_GR, or <emphasis>r</emphasis> = IRT_GQ, then the elements of <emphasis>x</emphasis> are ordered with respect to <emphasis>r</emphasis>. Supports domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default).</para></listitem><listitem><para>if <emphasis>r</emphasis> = IRT_EQ, then all elements of <emphasis>x</emphasis> must be equal. Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default).</para></listitem><listitem><para>if <emphasis>r</emphasis> = IRT_NQ, then not all elements of <emphasis>x</emphasis> must be equal. Supports domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default). </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1103" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntRelInt_1ga30c3a3679fc18abe2a5a860e2bc31679" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::rel</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, IntRelType irt, const IntVarArgs &amp;y, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>rel</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntRelType</type>
+          <declname>irt</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for relation between <emphasis>x</emphasis> and <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that for the inequality relations this corresponds to the lexical order between <emphasis>x</emphasis> and <emphasis>y</emphasis>.</para><para>Supports both bounds (<emphasis>icl</emphasis> = ICL_BND) and domain consistency (<emphasis>icl</emphasis> = ICL_DOM, default).</para><para>Note that the constraint is also defined if <emphasis>x</emphasis> and <emphasis>y</emphasis> are of different size. That means that if <emphasis>x</emphasis> and <emphasis>y</emphasis> are of different size, then if <emphasis>r</emphasis> = IRT_EQ the constraint is false and if <emphasis>r</emphasis> = IRT_NQ the constraint is subsumed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1120" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntGeoPacking" kind="group">
+    <compoundname>TaskModelIntGeoPacking</compoundname>
+    <title>Geometrical packing constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntGeoPacking_1ga38d3dcba5887db04ed6dc3c3f8037e8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::nooverlap</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntArgs &amp;w, const IntVarArgs &amp;y, const IntArgs &amp;h, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for rectangle packing. </para>        </briefdescription>
+        <detaileddescription>
+<para>Propagate that no two rectangles as described by the coordinates <emphasis>x</emphasis>, and <emphasis>y</emphasis>, widths <emphasis>w</emphasis>, and heights <emphasis>h</emphasis> overlap.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para>Of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref> if <emphasis>x</emphasis>, <emphasis>w</emphasis>, <emphasis>y</emphasis>, or <emphasis>h</emphasis> are not of the same size.</para></listitem><listitem><para>Of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref> if <emphasis>w</emphasis> or <emphasis>h</emphasis> contain a negative number. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2514" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGeoPacking_1gaae991006146dd8974e20ff94cb6af8e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::nooverlap</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntArgs &amp;w, const IntVarArgs &amp;y, const IntArgs &amp;h, const BoolVarArgs &amp;o, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const BoolVarArgs &amp;</type>
+          <declname>o</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for rectangle packing. </para>        </briefdescription>
+        <detaileddescription>
+<para>Propagate that no two rectangles as described by the coordinates <emphasis>x</emphasis>, and <emphasis>y</emphasis>, widths <emphasis>w</emphasis>, and heights <emphasis>h</emphasis> overlap. The rectangles can be optional, as described by the Boolean variables <emphasis>o</emphasis>.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para>Of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref> if <emphasis>x</emphasis>, <emphasis>w</emphasis>, <emphasis>y</emphasis>, <emphasis>h</emphasis>, or <emphasis>o</emphasis> are not of the same size.</para></listitem><listitem><para>Of type <ref refid="classGecode_1_1Int_1_1OutOfLimits" kindref="compound">Int::OutOfLimits</ref> if <emphasis>w</emphasis> or <emphasis>h</emphasis> contain a negative number. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2532" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGeoPacking_1gacb5932db1f9fb24118669b5eaa6010a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::nooverlap</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x0, const IntVarArgs &amp;w, const IntVarArgs &amp;x1, const IntVarArgs &amp;y0, const IntVarArgs &amp;h, const IntVarArgs &amp;y1, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y0</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y1</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for rectangle packing. </para>        </briefdescription>
+        <detaileddescription>
+<para>Propagate that no two rectangles as described by the start coordinates <emphasis>x0</emphasis> and <emphasis>y0</emphasis>, widths <emphasis>w</emphasis> and heights <emphasis>h</emphasis>, and end coordinates <emphasis>x1</emphasis> and <emphasis>y1</emphasis> overlap.</para><para>Note that the relations <formula id="292">$x0_i+w_i=x1_i$</formula> and <formula id="293">$y0_i+h_i=y1_i$</formula> are not propagated (for <formula id="294">$0\leq i&lt;|x0|$</formula>). That is, additional constraints must be posted to enforce that relation.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para>Of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref> if <emphasis>x0</emphasis>, <emphasis>x1</emphasis>, <emphasis>w</emphasis>, <emphasis>y0</emphasis>, <emphasis>y1</emphasis>, or <emphasis>h</emphasis> are not of the same size. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2554" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntGeoPacking_1ga073c317980a6bb6a04b36a7a7e2fefcb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::nooverlap</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x0, const IntVarArgs &amp;w, const IntVarArgs &amp;x1, const IntVarArgs &amp;y0, const IntVarArgs &amp;h, const IntVarArgs &amp;y1, const BoolVarArgs &amp;o, IntConLevel icl=ICL_DEF)</argsstring>
+        <name>nooverlap</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x0</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x1</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y0</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>y1</declname>
+        </param>
+        <param>
+          <type>const BoolVarArgs &amp;</type>
+          <declname>o</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <declname>icl</declname>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for rectangle packing. </para>        </briefdescription>
+        <detaileddescription>
+<para>Propagate that no two rectangles as described by the start coordinates <emphasis>x0</emphasis> and <emphasis>y0</emphasis>, widths <emphasis>w</emphasis> and heights <emphasis>h</emphasis>, and end coordinates <emphasis>x1</emphasis> and <emphasis>y1</emphasis> overlap. The rectangles can be optional, as described by the Boolean variables <emphasis>o</emphasis>.</para><para>Note that the relations <formula id="292">$x0_i+w_i=x1_i$</formula> and <formula id="293">$y0_i+h_i=y1_i$</formula> are not propagated (for <formula id="294">$0\leq i&lt;|x0|$</formula>). That is, additional constraints must be posted to enforce that relation.</para><para>Throws the following exceptions:<itemizedlist>
+<listitem><para>Of type <ref refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" kindref="compound">Int::ArgumentSizeMismatch</ref> if <emphasis>x0</emphasis>, <emphasis>x1</emphasis>, <emphasis>w</emphasis>, <emphasis>y0</emphasis>, <emphasis>y1</emphasis>, or <emphasis>h</emphasis> are not of the same size. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="2576" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Constraints for modeling geometrical packing problems. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

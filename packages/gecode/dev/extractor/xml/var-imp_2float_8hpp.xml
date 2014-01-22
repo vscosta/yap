@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="var-imp_2float_8hpp" kind="file">
+    <compoundname>float.hpp</compoundname>
+    <includedby refid="float_2var-imp_8hpp" local="no">/usr/include/gecode/float/var-imp.hpp</includedby>
+    <invincdepgraph>
+      <node id="5892">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="5893" relation="include">
+        </childnode>
+        <childnode refid="5894" relation="include">
+        </childnode>
+        <childnode refid="5895" relation="include">
+        </childnode>
+        <childnode refid="5896" relation="include">
+        </childnode>
+      </node>
+      <node id="5891">
+        <label>/usr/include/gecode/float/var-imp.hpp</label>
+        <link refid="float_2var-imp_8hpp_source"/>
+        <childnode refid="5892" relation="include">
+        </childnode>
+      </node>
+      <node id="5896">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="5893" relation="include">
+        </childnode>
+      </node>
+      <node id="5893">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="5895">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="5894">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="5890">
+        <label>/usr/include/gecode/float/var-imp/float.hpp</label>
+        <link refid="var-imp/float.hpp"/>
+        <childnode refid="5891" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Float">Gecode::Float</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Filip<sp/>Konvicka<sp/>&lt;filip.konvicka@logis.cz&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Lubomir<sp/>Moric<sp/>&lt;lubomir.moric@logis.cz&gt;</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard<sp/>&lt;Vincent.Barichard@univ-angers.fr&gt;</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/>Contributing<sp/>authors:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>LOGIS,<sp/>s.r.o.,<sp/>2008</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2010</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Vincent<sp/>Barichard,<sp/>2012</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-02-04<sp/>17:54:05<sp/>+0100<sp/>(Mon,<sp/>04<sp/>Feb<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13260<sp/>$</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Float<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Creation<sp/>of<sp/>new<sp/>variable<sp/>implementations</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="53" refid="classGecode_1_1Float_1_1FloatVarImp_1a408eed144febd33a27ddb21a60cebdb5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" kindref="member">FloatVarImp::FloatVarImp</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>&amp;<sp/>d)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>FloatVarImpBase(home),<sp/><ref refid="group__TaskModelFloatDomain_1gac1b9fa965f93c359aeadb620614e2b9b" kindref="member">dom</ref>(d)<sp/>{}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="57" refid="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" kindref="member">FloatVarImp::FloatVarImp</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share,<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref>&amp;<sp/>x)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>FloatVarImpBase(home,<sp/>share,<sp/>x),<sp/><ref refid="group__TaskModelFloatDomain_1gac1b9fa965f93c359aeadb620614e2b9b" kindref="member">dom</ref>(x.<ref refid="group__TaskModelFloatDomain_1gac1b9fa965f93c359aeadb620614e2b9b" kindref="member">dom</ref>)<sp/>{}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="62"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Operations<sp/>on<sp/>float<sp/>variable<sp/>implementations</highlight></codeline>
+<codeline lineno="63"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="64"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></highlight></codeline>
+<codeline lineno="67" refid="classGecode_1_1Float_1_1FloatVarImp_1ab7996e1a0e5f6dc0328f81c1552ef374" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ab7996e1a0e5f6dc0328f81c1552ef374" kindref="member">FloatVarImp::domain</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="71" refid="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" kindref="member">FloatVarImp::min</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min();</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="75" refid="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" kindref="member">FloatVarImp::max</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max();</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></highlight></codeline>
+<codeline lineno="79" refid="classGecode_1_1Float_1_1FloatVarImp_1a9a7140847a72a25d5d71ddb096099bd7" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a9a7140847a72a25d5d71ddb096099bd7" kindref="member">FloatVarImp::val</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="83" refid="classGecode_1_1Float_1_1FloatVarImp_1a0615ba0e1695638bbc27543bd622d11c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a0615ba0e1695638bbc27543bd622d11c" kindref="member">FloatVarImp::med</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1a80af58494a18161fb91a1e2a2cad4a9e" kindref="member">med</ref>();</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">FloatVarImp::assigned</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1ac3b5f2385affc59be2a14dab861a1434" kindref="member">tight</ref>();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="93" refid="classGecode_1_1Float_1_1FloatVarImp_1adb5fff621489f4205c04cdfcca3d918e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1adb5fff621489f4205c04cdfcca3d918e" kindref="member">FloatVarImp::size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1a0692c12e6facdff1a69aa922106bad2e" kindref="member">size</ref>();</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="99"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Tests</highlight></codeline>
+<codeline lineno="100"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="101"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="classGecode_1_1Float_1_1FloatVarImp_1a30ce245e6aad1cc3594112eb36fc81aa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a30ce245e6aad1cc3594112eb36fc81aa" kindref="member">FloatVarImp::zero_in</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1ad3010b56030cc489d9a758b891660e8e" kindref="member">zero_in</ref>();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="classGecode_1_1Float_1_1FloatVarImp_1a6f7e7bfc9589ed12df8d30a08717b7bf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a6f7e7bfc9589ed12df8d30a08717b7bf" kindref="member">FloatVarImp::in</ref>(<ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref><sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1ac9b4066d7b98767bf276b9768a225d0f" kindref="member">in</ref>(n);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="classGecode_1_1Float_1_1FloatVarImp_1acbde12e7fbfde20d40e3737bc8d09064" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a6f7e7bfc9589ed12df8d30a08717b7bf" kindref="member">FloatVarImp::in</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>&amp;<sp/>n)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>subset(n,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="118"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Support<sp/>for<sp/>delta<sp/>information</highlight></codeline>
+<codeline lineno="119"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="120"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="122" refid="classGecode_1_1Float_1_1FloatVarImp_1a21d61f349895b84d6285405ab5990784" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" kindref="member">FloatVarImp::min</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref>&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(d).<ref refid="classGecode_1_1Float_1_1FloatVarImp_1adaef6816eabbbf6f7f796f3c7c2c2256" kindref="member">min</ref>();</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></highlight></codeline>
+<codeline lineno="126" refid="classGecode_1_1Float_1_1FloatVarImp_1ab91dd106f647bce9f844d63ac8509d3a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" kindref="member">FloatVarImp::max</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref>&amp;<sp/>d)<sp/>{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keyword">const<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref>&amp;</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(d).<ref refid="classGecode_1_1Float_1_1FloatVarImp_1a509556b7cfbbc5287c9d38f093b57460" kindref="member">max</ref>();</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="132"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Tell<sp/>operations<sp/>(to<sp/>be<sp/>inlined:<sp/>performing<sp/>bounds<sp/>checks<sp/>first)</highlight></codeline>
+<codeline lineno="133"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="134"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="137" refid="classGecode_1_1Float_1_1FloatVarImp_1a76d5c37032ecccb2b4d68e63be3093b1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a76d5c37032ecccb2b4d68e63be3093b1" kindref="member">FloatVarImp::gq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n<sp/>&gt;<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n<sp/>&lt;=<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min())<sp/>||<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min(),n);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me<sp/>=<sp/>ME_FLOAT_BND;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>intersect(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,<ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>(n,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max()));</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/>me<sp/>=<sp/>ME_FLOAT_VAL;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>GECODE_ASSUME((me<sp/>==<sp/>ME_FLOAT_VAL)<sp/>|</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(me<sp/>==<sp/>ME_FLOAT_BND));</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,me,d);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="149" refid="classGecode_1_1Float_1_1FloatVarImp_1ac5993a33d4b7269d123db9a6924f4563" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a76d5c37032ecccb2b4d68e63be3093b1" kindref="member">FloatVarImp::gq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>&amp;<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n.min()<sp/>&gt;<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n.min()<sp/>&lt;=<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min())<sp/>||<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min(),n.min());</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me<sp/>=<sp/>ME_FLOAT_BND;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>intersect(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,<ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>(n.min(),<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max()));</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/>me<sp/>=<sp/>ME_FLOAT_VAL;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>GECODE_ASSUME((me<sp/>==<sp/>ME_FLOAT_VAL)<sp/>|</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(me<sp/>==<sp/>ME_FLOAT_BND));</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,me,d);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="163" refid="classGecode_1_1Float_1_1FloatVarImp_1a0f09373d91bda87ed29f9b87f4bd4915" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a0f09373d91bda87ed29f9b87f4bd4915" kindref="member">FloatVarImp::lq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n<sp/>&lt;<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n<sp/>&gt;=<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max())<sp/>||<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d(n,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max());</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me<sp/>=<sp/>ME_FLOAT_BND;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>intersect(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,<ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min(),n));</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/>me<sp/>=<sp/>ME_FLOAT_VAL;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>GECODE_ASSUME((me<sp/>==<sp/>ME_FLOAT_VAL)<sp/>|</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(me<sp/>==<sp/>ME_FLOAT_BND));</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,me,d);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="175" refid="classGecode_1_1Float_1_1FloatVarImp_1a33710860b47e961221d52359e40cdab8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a0f09373d91bda87ed29f9b87f4bd4915" kindref="member">FloatVarImp::lq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>&amp;<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n.max()<sp/>&lt;<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n.max()<sp/>&gt;=<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max())<sp/>||<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d(n.max(),<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.max());</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me<sp/>=<sp/>ME_FLOAT_BND;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>intersect(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,<ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.min(),n.max()));</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/>me<sp/>=<sp/>ME_FLOAT_VAL;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>GECODE_ASSUME((me<sp/>==<sp/>ME_FLOAT_VAL)<sp/>|</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(me<sp/>==<sp/>ME_FLOAT_BND));</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,me,d);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="189" refid="classGecode_1_1Float_1_1FloatVarImp_1a8cd94d075feb5b3daeb77093f55ae4c6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a8cd94d075feb5b3daeb77093f55ae4c6" kindref="member">FloatVarImp::eq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>.<ref refid="classGecode_1_1FloatVal_1ac9b4066d7b98767bf276b9768a225d0f" kindref="member">in</ref>(n))</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>n;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,ME_FLOAT_VAL,d);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></highlight></codeline>
+<codeline lineno="199" refid="classGecode_1_1Float_1_1FloatVarImp_1afcae34e8ea77424e3e4528d83eafe631" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a8cd94d075feb5b3daeb77093f55ae4c6" kindref="member">FloatVarImp::eq</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref>&amp;<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!overlap(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,n))</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_FAILED;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>()<sp/>||<sp/>subset(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,n))</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ME_FLOAT_NONE;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatDelta" kindref="compound">FloatDelta</ref><sp/>d;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me<sp/>=<sp/>ME_FLOAT_BND;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref><sp/>=<sp/>intersect(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1aa6e7479231555596173f107524e2c891" kindref="member">dom</ref>,n);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>())<sp/>me<sp/>=<sp/>ME_FLOAT_VAL;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>GECODE_ASSUME((me<sp/>==<sp/>ME_FLOAT_VAL)<sp/>|</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(me<sp/>==<sp/>ME_FLOAT_BND));</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>notify(home,me,d);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="215"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Copying<sp/>a<sp/>variable</highlight></codeline>
+<codeline lineno="216"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="217"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref>*</highlight></codeline>
+<codeline lineno="220" refid="classGecode_1_1Float_1_1FloatVarImp_1a51001bd1d0f8b9f41ba7f269b59f33dd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a51001bd1d0f8b9f41ba7f269b59f33dd" kindref="member">FloatVarImp::copy</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share)<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>copied()<sp/>?<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(forward())</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>perform_copy(home,share);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp" kindref="compound">FloatVarImp</ref>*</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/>FloatVarImp::perform_copy(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>share)<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>(home)<sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac455799c83aca7630aaeb8997f7fb44f" kindref="member">FloatVarImp</ref>(home,<sp/>share,<sp/>*</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="232"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Dependencies</highlight></codeline>
+<codeline lineno="233"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="234"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236" refid="classGecode_1_1Float_1_1FloatVarImp_1a3d14239eaa8d7ed91a260bdb9406fef9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a3d14239eaa8d7ed91a260bdb9406fef9" kindref="member">FloatVarImp::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>schedule)<sp/>{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/>FloatVarImpBase::subscribe(home,p,pc,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>(),schedule);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="classGecode_1_1Float_1_1FloatVarImp_1a016d16184c8cde0bca344d7b836df08b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a016d16184c8cde0bca344d7b836df08b" kindref="member">FloatVarImp::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref>&amp;<sp/>p,<sp/><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref><sp/>pc)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>FloatVarImpBase::cancel(home,p,pc,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>());</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245" refid="classGecode_1_1Float_1_1FloatVarImp_1a08ca5b1ea6098abf6a5faa38b3be2d2b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a3d14239eaa8d7ed91a260bdb9406fef9" kindref="member">FloatVarImp::subscribe</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>FloatVarImpBase::subscribe(home,a,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>());</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249" refid="classGecode_1_1Float_1_1FloatVarImp_1a673c34e958cffa47fbec5349b8db53f2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a016d16184c8cde0bca344d7b836df08b" kindref="member">FloatVarImp::cancel</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>&amp;<sp/>home,<sp/><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref>&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>FloatVarImpBase::cancel(home,a,<ref refid="classGecode_1_1Float_1_1FloatVarImp_1ac408c9b17cf494ae4879408b72ecfd8e" kindref="member">assigned</ref>());</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></highlight></codeline>
+<codeline lineno="254" refid="classGecode_1_1Float_1_1FloatVarImp_1a05710c387af99a787fc6ce2adf38002a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Float_1_1FloatVarImp_1a0615ba0e1695638bbc27543bd622d11c" kindref="member">FloatVarImp::med</ref>(<ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref><sp/>me)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>FloatVarImpBase::med(me);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>float-var</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/float/var-imp/float.hpp"/>
+  </compounddef>
+</doxygen>

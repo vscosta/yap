@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control__long__double_3_01false_01_4" kind="struct" prot="public">
+    <compoundname>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</compoundname>
+    <basecompoundref refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control" prot="public" virt="non-virtual">boost::numeric::interval_lib::detail::x86_rounding_control</basecompoundref>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control__long__double_3_01false_01_4_1a7b2d47b06ba5c9fec8cdba0eb78cffc5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>long double</type>
+        <definition>static long double boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;::force_rounding</definition>
+        <argsstring>(long double const &amp;r)</argsstring>
+        <name>force_rounding</name>
+        <param>
+          <type>long double const &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/x86_rounding_control.hpp" line="84" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/x86_rounding_control.hpp" bodystart="84" bodyend="85"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="8215">
+        <label>boost::numeric::interval_lib::detail::x86_rounding</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding"/>
+      </node>
+      <node id="8213">
+        <label>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control__long__double_3_01false_01_4"/>
+        <childnode refid="8214" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8214">
+        <label>boost::numeric::interval_lib::detail::x86_rounding_control</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control"/>
+        <childnode refid="8215" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8218">
+        <label>boost::numeric::interval_lib::detail::x86_rounding</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding"/>
+      </node>
+      <node id="8216">
+        <label>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control__long__double_3_01false_01_4"/>
+        <childnode refid="8217" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8217">
+        <label>boost::numeric::interval_lib::detail::x86_rounding_control</label>
+        <link refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control"/>
+        <childnode refid="8218" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/detail/x86_rounding_control.hpp" line="83" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/detail/x86_rounding_control.hpp" bodystart="82" bodyend="86"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control_1aea66025c18fcfc19ea2936b986b00a6f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>downward</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control__long__double_3_01false_01_4_1a7b2d47b06ba5c9fec8cdba0eb78cffc5" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>force_rounding</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a61fadf8133f695fd6ef342dabd28cb30" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>get_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a61fadf8133f695fd6ef342dabd28cb30" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>get_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a61fadf8133f695fd6ef342dabd28cb30" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>get_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a08668d0371482a5edefadaee86913b64" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>hard2msvc</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a1c486143c1fb5c077fd48505d4caabfa" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>msvc2hard</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1afa13616dc1edc8541112fe8120f97e9c" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a3de6f20e57347b84e90e77c8d871b266" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a3de6f20e57347b84e90e77c8d871b266" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a678b8b5d699a448d770e7aee2d84c5c6" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>set_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a678b8b5d699a448d770e7aee2d84c5c6" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>set_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1aaed20f4062d135da3e60e9e32e34b37f" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>set_rounding_mode</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a6cbcfbc6d4388413ca1f1d4f76c8cb56" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>to_int</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a6cbcfbc6d4388413ca1f1d4f76c8cb56" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>to_int</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding_1a45a5bdcb9ee45d7ce7c53928237783c3" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>to_int</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control_1af7d7de52815079b8c40406f9ba216b01" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>to_nearest</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control_1afdfbac87d220f2397f6406eacae5a35d" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>toward_zero</name></member>
+      <member refid="structboost_1_1numeric_1_1interval__lib_1_1detail_1_1x86__rounding__control_1aa57062105b28c0ecacd4f0e5e9ab7e5b" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::detail::x86_rounding_control_long_double&lt; false &gt;</scope><name>upward</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

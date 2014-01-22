@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1Singleton" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::Singleton</compoundname>
+    <basecompoundref refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax" prot="public" virt="non-virtual">Gecode::Iter::Ranges::MinMax</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4" prot="public" virt="non-virtual">Gecode::Int::ViewRanges&lt; BoolView &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4" prot="public" virt="non-virtual">Gecode::Int::ViewRanges&lt; NegBoolView &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1GlbRanges_3_01UniverseView_01_4" prot="public" virt="non-virtual">Gecode::Set::GlbRanges&lt; UniverseView &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1LubRanges_3_01UniverseView_01_4" prot="public" virt="non-virtual">Gecode::Set::LubRanges&lt; UniverseView &gt;</derivedcompoundref>
+    <includes refid="ranges-singleton_8hpp" local="no">ranges-singleton.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aa3f8837538cd18a103119a2d430fdf39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Singleton::Singleton</definition>
+        <argsstring>(void)</argsstring>
+        <name>Singleton</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-singleton.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/ranges-singleton.hpp" bodystart="67" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aace73d8960ffb6c43a158f68ae1fca00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Singleton::Singleton</definition>
+        <argsstring>(int min, int max)</argsstring>
+        <name>Singleton</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with range <emphasis>min</emphasis> to <emphasis>max</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-singleton.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/ranges-singleton.hpp" bodystart="70" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1a6efcfd9a463d1b68c56374962294061d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Singleton::init</definition>
+        <argsstring>(int min, int max)</argsstring>
+        <name>init</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with range <emphasis>min</emphasis> to <emphasis>max</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-singleton.hpp" line="55" column="1" bodyfile="/usr/include/gecode/iter/ranges-singleton.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1ad621a1dff884cfa7713d6f55e953c525" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Singleton::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-singleton.hpp" line="61" column="1" bodyfile="/usr/include/gecode/iter/ranges-singleton.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for singleton range. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6512">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="6513" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6514">
+        <label>Gecode::Int::ViewRanges&lt; BoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4"/>
+        <childnode refid="6512" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6517">
+        <label>Gecode::Set::LubRanges&lt; UniverseView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LubRanges_3_01UniverseView_01_4"/>
+        <childnode refid="6512" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6515">
+        <label>Gecode::Int::ViewRanges&lt; NegBoolView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4"/>
+        <childnode refid="6512" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6513">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+      <node id="6516">
+        <label>Gecode::Set::GlbRanges&lt; UniverseView &gt;</label>
+        <link refid="classGecode_1_1Set_1_1GlbRanges_3_01UniverseView_01_4"/>
+        <childnode refid="6512" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6518">
+        <label>Gecode::Iter::Ranges::Singleton</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton"/>
+        <childnode refid="6519" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6519">
+        <label>Gecode::Iter::Ranges::MinMax</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-singleton.hpp" line="46" column="1" bodyfile="/usr/include/gecode/iter/ranges-singleton.hpp" bodystart="46" bodyend="63"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a8fa182b07054c833ccfe72fa4c9965d5" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>finish</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1a6efcfd9a463d1b68c56374962294061d" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2b801fe66d3e08b8a8dc696506b8d952" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>ma</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a78b64e6931716580060e987dd5c60102" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a5d9c07dbafc6c77eb464cf8ea198987f" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>mi</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aec4557b5d203495359e89d79b278d4d3" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a61e2c40edc2adf5530608f2532c5c17c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2f0348a58f5aae295968dbb291d9c15e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>MinMax</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1aaa28c6142da4eed56609a1f9ebfb2a0c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1ad621a1dff884cfa7713d6f55e953c525" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aa3f8837538cd18a103119a2d430fdf39" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Singleton_1aace73d8960ffb6c43a158f68ae1fca00" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>Singleton</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1MinMax_1a2d2e9510d15f3b604f58cf65a1497957" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Singleton</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

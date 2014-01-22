@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1Offset" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::Offset</compoundname>
+    <includes refid="ranges-offset_8hpp" local="no">ranges-offset.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>I</declname>
+        <defname>I</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a3813ab51f21b410e9acc85fde5675e36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::Offset&lt; I &gt;::Offset</definition>
+        <argsstring>(void)</argsstring>
+        <name>Offset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="56" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="85" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ad6299684e1a4750fe3ccba77d51d193d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Iter::Ranges::Offset&lt; I &gt;::Offset</definition>
+        <argsstring>(I &amp;i, int c)</argsstring>
+        <name>Offset</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and offset <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="58" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="95" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1acf08382488beb0cc6398a3e92f11aa62" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Iter::Ranges::Offset&lt; I &gt;::init</definition>
+        <argsstring>(I &amp;i, int c)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and offset <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="89" bodyend="91"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ae274404dda7f861f4c19019a254ae117" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Ranges::Offset&lt; I &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="66" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="104" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1afc3c49bb7742a97e99de39b3606739b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::Offset&lt; I &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="68" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="99" bodyend="101"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ab87c7f39b2b7fc212286e0400a8f19d2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Ranges::Offset&lt; I &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="74" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="110" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a5460272a568b63ee940f1255dbf02890" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Iter::Ranges::Offset&lt; I &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="76" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1adff6ad2d326474218c4429764dba03cf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Iter::Ranges::Offset&lt; I &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="78" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="120" bodyend="122"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a126912522e6b26774f6dffe175b5a7fb" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::Offset&lt; I &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Input range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="49" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a24bbf5ab21d229111021ecc3499f72f2" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::Offset&lt; I &gt;::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Iter_1_1Ranges_1_1Offset" kindref="compound">Offset</ref> for ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="51" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for pointwise offset (by some constant) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4838">
+        <label>I</label>
+      </node>
+      <node id="4837">
+        <label>Gecode::Iter::Ranges::Offset&lt; I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1Offset"/>
+        <childnode refid="4838" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-offset.hpp" line="46" column="1" bodyfile="/usr/include/gecode/iter/ranges-offset.hpp" bodystart="46" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a24bbf5ab21d229111021ecc3499f72f2" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>c</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a126912522e6b26774f6dffe175b5a7fb" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1acf08382488beb0cc6398a3e92f11aa62" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a5460272a568b63ee940f1255dbf02890" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ab87c7f39b2b7fc212286e0400a8f19d2" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1a3813ab51f21b410e9acc85fde5675e36" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>Offset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ad6299684e1a4750fe3ccba77d51d193d" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>Offset</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1ae274404dda7f861f4c19019a254ae117" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1afc3c49bb7742a97e99de39b3606739b1" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1Offset_1adff6ad2d326474218c4429764dba03cf" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::Offset</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

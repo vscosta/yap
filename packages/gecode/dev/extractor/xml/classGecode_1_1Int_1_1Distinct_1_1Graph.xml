@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Distinct_1_1Graph" kind="class" prot="public">
+    <compoundname>Gecode::Int::Distinct::Graph</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph" prot="public" virt="non-virtual">Gecode::Int::ViewValGraph::Graph&lt; View &gt;</basecompoundref>
+    <includes refid="int_2distinct_8hh" local="no">distinct.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Graph_1ae21b6849e80f96b03c3910a0be81bf1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Distinct::Graph&lt; View &gt;::Graph</definition>
+        <argsstring>(void)</argsstring>
+        <name>Graph</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Construct graph as not yet initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="196" column="1" bodyfile="/usr/include/gecode/int/distinct/graph.hpp" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Graph_1a186decb83836d26a7ed772b916373a1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Distinct::Graph&lt; View &gt;::init</definition>
+        <argsstring>(Space &amp;home, ViewArray&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize graph. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="198" column="1" bodyfile="/usr/include/gecode/int/distinct/graph.hpp" bodystart="48" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Graph_1adb60b0788d0257ae2a1ef3283ac25833" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Distinct::Graph&lt; View &gt;::mark</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>mark</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Mark edges in graph, return true if pruning is at all possible. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="200" column="1" bodyfile="/usr/include/gecode/int/distinct/graph.hpp" bodystart="178" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Graph_1a688eb25f2df6f03b1e70926564faddbd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Distinct::Graph&lt; View &gt;::prune</definition>
+        <argsstring>(Space &amp;home, bool &amp;assigned)</argsstring>
+        <name>prune</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>assigned</declname>
+        </param>
+        <briefdescription>
+<para>Prune unmarked edges, <emphasis>assigned</emphasis> is true if a view got assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="202" column="1" bodyfile="/usr/include/gecode/int/distinct/graph.hpp" bodystart="242" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Distinct_1_1Graph_1acbcacb78cc6f7510a11cff9d7bff6dcf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Distinct::Graph&lt; View &gt;::sync</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>sync</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Synchronize graph with new view domains. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/distinct.hh" line="204" column="1" bodyfile="/usr/include/gecode/int/distinct/graph.hpp" bodystart="116" bodyend="173"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>View-value graph for propagation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2666">
+        <label>Gecode::Int::ViewValGraph::Graph&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph"/>
+      </node>
+      <node id="2665">
+        <label>Gecode::Int::Distinct::Graph&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Graph"/>
+        <childnode refid="2666" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2668">
+        <label>Gecode::Int::ViewValGraph::Graph&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph"/>
+      </node>
+      <node id="2667">
+        <label>Gecode::Int::Distinct::Graph&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Distinct_1_1Graph"/>
+        <childnode refid="2668" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/distinct.hh" line="186" column="1" bodyfile="/usr/include/gecode/int/distinct.hh" bodystart="186" bodyend="205"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a7704c702ba3530adcd918654cdac1a24" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>count</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Graph_1ae21b6849e80f96b03c3910a0be81bf1d" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>Graph</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Graph_1a186decb83836d26a7ed772b916373a1e" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a1aedc7f51f64a5e3e055821701516338" prot="protected" virt="non-virtual" ambiguityscope="Gecode::Int::ViewValGraph::Graph::"><scope>Gecode::Int::Distinct::Graph</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a547bc4f07d069a13a5d2a900f1e8eb41" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>initialized</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Graph_1adb60b0788d0257ae2a1ef3283ac25833" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>mark</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1acf0e0fc364b1dbf38465873c6d8e3213" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>match</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1ac445d6c6dde2a916c24b218b0376637b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>n_val</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1aaae3ec72101aecd38b7c422576d06552" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>n_view</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Graph_1a688eb25f2df6f03b1e70926564faddbd" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>prune</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a49f9310b866c52aaa1c44e5e44dab103" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>purge</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a54f3bb8fd8bcbb86d466dc6030f5225f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>scc</name></member>
+      <member refid="classGecode_1_1Int_1_1Distinct_1_1Graph_1acbcacb78cc6f7510a11cff9d7bff6dcf" prot="public" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>sync</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1aef781ac3c445fa98cf75a029d4da0c03" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>val</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a952bd906303f4a714f83f7dd262a1fe9" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>view</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewValGraph_1_1Graph_1a149cb3ce3f7c8b3abd671027cd8bd4d5" prot="protected" virt="non-virtual"><scope>Gecode::Int::Distinct::Graph</scope><name>ViewNodeStack</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

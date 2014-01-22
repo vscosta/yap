@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1LinearCongruentialGenerator" kind="class" prot="public">
+    <compoundname>Gecode::Support::LinearCongruentialGenerator</compoundname>
+    <includes refid="random_8hpp" local="no">random.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>unsigned int</type>
+        <declname>m</declname>
+        <defname>m</defname>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>a</declname>
+        <defname>a</defname>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>q</declname>
+        <defname>q</defname>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>r</declname>
+        <defname>r</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a4c57aaa7c06e29532435e6594ad08e53" prot="private" static="yes" mutable="no">
+        <type>const unsigned int</type>
+        <definition>const unsigned int Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <initializer>= 1UL&lt;&lt;31</initializer>
+        <briefdescription>
+<para>The maximum size of random numbers generated. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="53" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a839dfd4830b2aba48c7c253a4ee7a3fc" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Current seed value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="55" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a71e6b8863ace70bc5dc6fcb6efff670b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Generate next number in series. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="57" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="73" bodyend="78"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a318097c8cf468109af0cf208aa94fbb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::seed</definition>
+        <argsstring>(unsigned int s)</argsstring>
+        <name>seed</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> the current seed to <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="60" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="81" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a852c1a9c26d074dfa7bd88706301542e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::LinearCongruentialGenerator</definition>
+        <argsstring>(unsigned int s=1)</argsstring>
+        <name>LinearCongruentialGenerator</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>s</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Construct the generator instance with seed <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="62" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1afb31794ca5f36a2c462f4fd819fe56a6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::seed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>seed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current seed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="64" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="93" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a992819738a6132b6d9b5f312b0970aae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::operator()</definition>
+        <argsstring>(unsigned int n)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Returns a random integer from the interval [0..n) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="66" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="98" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a0d8093e3f1056b247794a5b50dc7d7ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Support::LinearCongruentialGenerator&lt; m, a, q, r &gt;::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Report size occupied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/random.hpp" line="68" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="108" bodyend="110"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Template for linear congruential generators. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class template defines a simple class for linear congruential generators. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/support/random.hpp" line="50" column="1" bodyfile="/usr/include/gecode/support/random.hpp" bodystart="50" bodyend="69"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a852c1a9c26d074dfa7bd88706301542e" prot="public" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>LinearCongruentialGenerator</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a4c57aaa7c06e29532435e6594ad08e53" prot="private" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>max</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a71e6b8863ace70bc5dc6fcb6efff670b" prot="private" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>next</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a992819738a6132b6d9b5f312b0970aae" prot="public" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a839dfd4830b2aba48c7c253a4ee7a3fc" prot="private" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>s</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a318097c8cf468109af0cf208aa94fbb9" prot="public" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>seed</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1afb31794ca5f36a2c462f4fd819fe56a6" prot="public" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>seed</name></member>
+      <member refid="classGecode_1_1Support_1_1LinearCongruentialGenerator_1a0d8093e3f1056b247794a5b50dc7d7ac" prot="public" virt="non-virtual"><scope>Gecode::Support::LinearCongruentialGenerator</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

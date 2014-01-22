@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1TaskArray" kind="class" prot="public">
+    <compoundname>Gecode::Int::TaskArray</compoundname>
+    <includes refid="task_8hh" local="no">task.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Task</declname>
+        <defname>Task</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a26a60001e796d674c868456437190ba7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::TaskArray&lt; Task &gt;::TaskArray</definition>
+        <argsstring>(void)</argsstring>
+        <name>TaskArray</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor (array of size 0) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="177" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="46" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a3971f87b39ded1bd2d1de1ff21b52095" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::TaskArray&lt; Task &gt;::TaskArray</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>TaskArray</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory for <emphasis>n</emphasis> tasks (no initialization) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="179" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="50" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a5d0224a094d566edf64f272e24fd7db5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::TaskArray&lt; Task &gt;::TaskArray</definition>
+        <argsstring>(const TaskArray&lt; Task &gt; &amp;a)</argsstring>
+        <name>TaskArray</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; Task &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from task array <emphasis>a</emphasis> (share elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="181" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="56" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1aab1d317437825e3f0d8db4b32db7e45f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; Task &gt; &amp;</type>
+        <definition>forceinline const TaskArray&lt; Task &gt; &amp; Gecode::Int::TaskArray&lt; Task &gt;::operator=</definition>
+        <argsstring>(const TaskArray&lt; Task &gt; &amp;a)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; Task &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from task array <emphasis>a</emphasis> (share elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="183" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="60" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array size</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a699a4634270912ce1853ab89511c8c5e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::TaskArray&lt; Task &gt;::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of array (number of elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="189" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a216a5006d8a4ace0cbdfae6303192d16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::TaskArray&lt; Task &gt;::size</definition>
+        <argsstring>(int n)</argsstring>
+        <name>size</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> size of array (number of elements) to <emphasis>n</emphasis>, must not be larger. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="191" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="72" bodyend="74"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Array elements</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a42ffaf80596d2777102dc91f505445e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Task &amp;</type>
+        <definition>forceinline Task &amp; Gecode::Int::TaskArray&lt; Task &gt;::operator[]</definition>
+        <argsstring>(int i)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return task at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="197" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="78" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1afe4f130509a070400c7e0da1131072b7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const Task &amp;</type>
+        <definition>forceinline const Task &amp; Gecode::Int::TaskArray&lt; Task &gt;::operator[]</definition>
+        <argsstring>(int i) const </argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return task at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="199" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="84" bodyend="87"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a7f61f64cd680441f8b0ca93327124d92" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::TaskArray&lt; Task &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc=Int::PC_INT_BND)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+          <defval>Int::PC_INT_BND</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> to all tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="205" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="91" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1ac755d7a6ad03327d0ee06042c6940dc0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Int::TaskArray&lt; Task &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc=Int::PC_INT_BND)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+          <defval>Int::PC_INT_BND</defval>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> for all tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="207" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="98" bodyend="101"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1ae7644a9a5c7fe3771403f17863d70cee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::TaskArray&lt; Task &gt;::update</definition>
+        <argsstring>(Space &amp;, bool share, TaskArray &amp;a)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <defname>home</defname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Update array to be a clone of array <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="213" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="105" bodyend="109"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1TaskArray_1a1c52a63e849e2df9d3bac92fedd6ec9f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::TaskArray&lt; Task &gt;::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of tasks (size) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="170" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1TaskArray_1afb7668317d290c591d14f9e7ec656958" prot="private" static="no" mutable="no">
+        <type>Task *</type>
+        <definition>Task* Gecode::Int::TaskArray&lt; Task &gt;::t</definition>
+        <argsstring></argsstring>
+        <name>t</name>
+        <briefdescription>
+<para>Tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="172" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1ad33d018d1e18c867eba587bce08c7fa7" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* Gecode::Int::TaskArray&lt; Task &gt;::operator new</definition>
+        <argsstring>(size_t)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="217" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1ade68b25587f7c592cf2481ab2fa30fd5" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void Gecode::Int::TaskArray&lt; Task &gt;::operator delete</definition>
+        <argsstring>(void *, size_t)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type>size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="218" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1TaskArray_1a5a06e6ac014a364fb7c7ff8a749c54c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+          <param>
+            <type>class Task</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const TaskArray&lt; Task &gt; &amp;t)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1TaskArray" kindref="compound">TaskArray</ref>&lt; Task &gt; &amp;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Print array elements enclosed in curly brackets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="133" column="1" bodyfile="/usr/include/gecode/int/task/array.hpp" bodystart="114" bodyend="126"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Task array. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/task.hh" line="167" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="167" bodyend="219"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1ac755d7a6ad03327d0ee06042c6940dc0" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a1c52a63e849e2df9d3bac92fedd6ec9f" prot="private" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>n</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1ade68b25587f7c592cf2481ab2fa30fd5" prot="private" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1ad33d018d1e18c867eba587bce08c7fa7" prot="private" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a5a06e6ac014a364fb7c7ff8a749c54c8" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1aab1d317437825e3f0d8db4b32db7e45f" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a42ffaf80596d2777102dc91f505445e6" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1afe4f130509a070400c7e0da1131072b7" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a699a4634270912ce1853ab89511c8c5e" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a216a5006d8a4ace0cbdfae6303192d16" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a7f61f64cd680441f8b0ca93327124d92" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1afb7668317d290c591d14f9e7ec656958" prot="private" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>t</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a26a60001e796d674c868456437190ba7" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>TaskArray</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a3971f87b39ded1bd2d1de1ff21b52095" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>TaskArray</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1a5d0224a094d566edf64f272e24fd7db5" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>TaskArray</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskArray_1ae7644a9a5c7fe3771403f17863d70cee" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskArray</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

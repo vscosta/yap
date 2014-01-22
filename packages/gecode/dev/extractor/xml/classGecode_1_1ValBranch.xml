@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ValBranch" kind="class" prot="public">
+    <compoundname>Gecode::ValBranch</compoundname>
+    <derivedcompoundref refid="classGecode_1_1FloatAssign" prot="public" virt="non-virtual">Gecode::FloatAssign</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1FloatValBranch" prot="public" virt="non-virtual">Gecode::FloatValBranch</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntAssign" prot="public" virt="non-virtual">Gecode::IntAssign</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntValBranch" prot="public" virt="non-virtual">Gecode::IntValBranch</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SetAssign" prot="public" virt="non-virtual">Gecode::SetAssign</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SetValBranch" prot="public" virt="non-virtual">Gecode::SetValBranch</derivedcompoundref>
+    <includes refid="branch-val_8hpp" local="no">branch-val.hpp</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1ValBranch_1a3e83e74c785cf1a2224abfa67de186fc" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+        <definition>Rnd Gecode::ValBranch::r</definition>
+        <argsstring></argsstring>
+        <name>r</name>
+        <briefdescription>
+<para>Random number generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="47" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ValBranch_1a777978a1be672670ef25af6f3a4ef135" prot="protected" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>VoidFunction Gecode::ValBranch::vf</definition>
+        <argsstring></argsstring>
+        <name>vf</name>
+        <briefdescription>
+<para>Value function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="49" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1ValBranch_1a3f210c407c95b73613c588a9ccad63de" prot="protected" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>VoidFunction Gecode::ValBranch::cf</definition>
+        <argsstring></argsstring>
+        <name>cf</name>
+        <briefdescription>
+<para>Commit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="51" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1aee3d20ec60e0914116719487eab754cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ValBranch::ValBranch</definition>
+        <argsstring>(void)</argsstring>
+        <name>ValBranch</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="54" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="69" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1acbef5d412d3065c6b868e54f96954a96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ValBranch::ValBranch</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>ValBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="56" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="73" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1ab7f529dafc943daf32e482aa95bda06b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::ValBranch::ValBranch</definition>
+        <argsstring>(VoidFunction v, VoidFunction c)</argsstring>
+        <name>ValBranch</name>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="58" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="80" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1acfc0a641a55ee13ab778ff5fbb5327ce" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+        <definition>forceinline Rnd Gecode::ValBranch::rnd</definition>
+        <argsstring>(void) const </argsstring>
+        <name>rnd</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return random number generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="60" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="84" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1a0359f6d8d698d621f2b04f1e099f6a91" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>forceinline VoidFunction Gecode::ValBranch::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return value function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="62" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="89" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1ValBranch_1a4e8a56a907d7d9a9bd71f5762b994407" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>forceinline VoidFunction Gecode::ValBranch::commit</definition>
+        <argsstring>(void) const </argsstring>
+        <name>commit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return commit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-val.hpp" line="64" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="94" bodyend="96"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value branching information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7386">
+        <label>Gecode::FloatAssign</label>
+        <link refid="classGecode_1_1FloatAssign"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7389">
+        <label>Gecode::IntValBranch</label>
+        <link refid="classGecode_1_1IntValBranch"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7385">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+      </node>
+      <node id="7390">
+        <label>Gecode::SetAssign</label>
+        <link refid="classGecode_1_1SetAssign"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7387">
+        <label>Gecode::FloatValBranch</label>
+        <link refid="classGecode_1_1FloatValBranch"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7388">
+        <label>Gecode::IntAssign</label>
+        <link refid="classGecode_1_1IntAssign"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7391">
+        <label>Gecode::SetValBranch</label>
+        <link refid="classGecode_1_1SetValBranch"/>
+        <childnode refid="7385" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7392">
+        <label>Gecode::ValBranch</label>
+        <link refid="classGecode_1_1ValBranch"/>
+        <childnode refid="7393" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+      <node id="7393">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="7394" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7394">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/branch-val.hpp" line="44" column="1" bodyfile="/usr/include/gecode/kernel/branch-val.hpp" bodystart="44" bodyend="65"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValBranch_1a3f210c407c95b73613c588a9ccad63de" prot="protected" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>cf</name></member>
+      <member refid="classGecode_1_1ValBranch_1a4e8a56a907d7d9a9bd71f5762b994407" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>commit</name></member>
+      <member refid="classGecode_1_1ValBranch_1a3e83e74c785cf1a2224abfa67de186fc" prot="protected" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>r</name></member>
+      <member refid="classGecode_1_1ValBranch_1acfc0a641a55ee13ab778ff5fbb5327ce" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1ValBranch_1a0359f6d8d698d621f2b04f1e099f6a91" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValBranch_1aee3d20ec60e0914116719487eab754cc" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1acbef5d412d3065c6b868e54f96954a96" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1ab7f529dafc943daf32e482aa95bda06b" prot="public" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>ValBranch</name></member>
+      <member refid="classGecode_1_1ValBranch_1a777978a1be672670ef25af6f3a4ef135" prot="protected" virt="non-virtual"><scope>Gecode::ValBranch</scope><name>vf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

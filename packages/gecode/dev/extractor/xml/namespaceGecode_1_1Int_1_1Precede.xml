@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Precede" kind="namespace">
+    <compoundname>Gecode::Int::Precede</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Precede_1_1Single" prot="public">Gecode::Int::Precede::Single</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Int_1_1Precede_1a64a438d42824fa13557a6315dba8d48a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline bool</type>
+        <definition>forceinline bool Gecode::Int::Precede::assigned</definition>
+        <argsstring>(View x, int v)</argsstring>
+        <name>assigned</name>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Whether <emphasis>x</emphasis> is assigned to value <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/precede/single.hpp" line="47" column="1" bodyfile="/usr/include/gecode/int/precede/single.hpp" bodystart="47" bodyend="49"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value precedence propagators. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/precede/single.hpp" line="42" column="1"/>
+  </compounddef>
+</doxygen>

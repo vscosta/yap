@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_f6fdd713274c2d5fde052a0cdef0aa15" kind="dir">
+    <compoundname>/usr/include/gecode/set/var-imp</compoundname>
+    <innerfile refid="set_2var-imp_2delta_8hpp">delta.hpp</innerfile>
+    <innerfile refid="integerset_8hpp">integerset.hpp</innerfile>
+    <innerfile refid="set_2var-imp_2iter_8hpp">iter.hpp</innerfile>
+    <innerfile refid="set_2var-imp_2set_8hpp">set.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/var-imp/"/>
+  </compounddef>
+</doxygen>

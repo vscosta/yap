@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classboost_1_1numeric_1_1interval__lib_1_1change__checking" kind="class" prot="public">
+    <compoundname>boost::numeric::interval_lib::change_checking</compoundname>
+    <templateparamlist>
+      <param>
+        <type>class OldInterval</type>
+      </param>
+      <param>
+        <type>class NewChecking</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a8253d51fdc4bf5286a888078c241ad13" prot="private" static="no">
+        <type>OldInterval::base_type</type>
+        <definition>typedef OldInterval::base_type boost::numeric::interval_lib::change_checking&lt; OldInterval, NewChecking &gt;::T</definition>
+        <argsstring></argsstring>
+        <name>T</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" line="47" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a21403d1c125dbf1da32f719cc6722a00" prot="private" static="no">
+        <type>OldInterval::traits_type</type>
+        <definition>typedef OldInterval::traits_type boost::numeric::interval_lib::change_checking&lt; OldInterval, NewChecking &gt;::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" line="48" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a543c2fb30478f16fdc391af956cba824" prot="private" static="no">
+        <type>p::rounding</type>
+        <definition>typedef p::rounding boost::numeric::interval_lib::change_checking&lt; OldInterval, NewChecking &gt;::rounding</definition>
+        <argsstring></argsstring>
+        <name>rounding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" line="49" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1aadb885cd8d7351fe500a2e863c801ee6" prot="public" static="no">
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, <ref refid="structboost_1_1numeric_1_1interval__lib_1_1policies" kindref="compound">policies</ref>&lt; rounding, NewChecking &gt; &gt;</type>
+        <definition>typedef interval&lt;T, policies&lt;rounding, NewChecking&gt; &gt; boost::numeric::interval_lib::change_checking&lt; OldInterval, NewChecking &gt;::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" line="51" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" line="46" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/policies.hpp" bodystart="45" bodyend="52"/>
+    <listofallmembers>
+      <member refid="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a21403d1c125dbf1da32f719cc6722a00" prot="private" virt="non-virtual"><scope>boost::numeric::interval_lib::change_checking</scope><name>p</name></member>
+      <member refid="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a543c2fb30478f16fdc391af956cba824" prot="private" virt="non-virtual"><scope>boost::numeric::interval_lib::change_checking</scope><name>rounding</name></member>
+      <member refid="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1a8253d51fdc4bf5286a888078c241ad13" prot="private" virt="non-virtual"><scope>boost::numeric::interval_lib::change_checking</scope><name>T</name></member>
+      <member refid="classboost_1_1numeric_1_1interval__lib_1_1change__checking_1aadb885cd8d7351fe500a2e863c801ee6" prot="public" virt="non-virtual"><scope>boost::numeric::interval_lib::change_checking</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

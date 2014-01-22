@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor" kind="class" prot="public">
+    <compoundname>Gecode::Int::Sequence::SupportAdvisor</compoundname>
+    <basecompoundref refid="classGecode_1_1Advisor" prot="public" virt="non-virtual">Gecode::Advisor</basecompoundref>
+    <includes refid="int_2sequence_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a61df18403b5f4918f2ff85e4072e0d1e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Index position. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/view.hpp" line="51" column="1" bodyfile="/usr/include/gecode/int/sequence/view.hpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a3b2690e94acff69208bcafe3c36fa626" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;::SupportAdvisor</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, Council&lt; SupportAdvisor &gt; &amp;c, int i0)</argsstring>
+        <name>SupportAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; <ref refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor" kindref="compound">SupportAdvisor</ref> &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i0</declname>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/view.hpp" line="53" column="1" bodyfile="/usr/include/gecode/int/sequence/view.hpp" bodystart="63" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a0a5271e52c68aa2a805668ca288d2df4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;::SupportAdvisor</definition>
+        <argsstring>(Space &amp;home, bool share, SupportAdvisor &amp;a)</argsstring>
+        <name>SupportAdvisor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor" kindref="compound">SupportAdvisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Copy during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/view.hpp" line="56" column="1" bodyfile="/usr/include/gecode/int/sequence/view.hpp" bodystart="70" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a16c7aefb474cc5f31149207022bb0fd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;::dispose</definition>
+        <argsstring>(Space &amp;home, Council&lt; SupportAdvisor &gt; &amp;c)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; <ref refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor" kindref="compound">SupportAdvisor</ref> &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Dispose advisor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/sequence/view.hpp" line="58" column="1" bodyfile="/usr/include/gecode/int/sequence/view.hpp" bodystart="77" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for advising the propagator. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6815">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="6816" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6816">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="6814">
+        <label>Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor"/>
+        <childnode refid="6815" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6818">
+        <label>Gecode::Advisor</label>
+        <link refid="classGecode_1_1Advisor"/>
+        <childnode refid="6819" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="6819">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="6817">
+        <label>Gecode::Int::Sequence::SupportAdvisor&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor"/>
+        <childnode refid="6818" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/sequence/view.hpp" line="48" column="1" bodyfile="/usr/include/gecode/int/sequence/view.hpp" bodystart="48" bodyend="59"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Advisor_1a75e1ecd004fbfc86662b98e960facbba" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a0a6463b0d53f5c99fc864f3e1f120137" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Advisor_1a99e4b72456a27fafca2df2ef6a14756a" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a16c7aefb474cc5f31149207022bb0fd4" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Advisor_1a8f3ca0c2e3fade8318a3a00d558b7b53" prot="public" virt="non-virtual" ambiguityscope="Gecode::Advisor::"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a61df18403b5f4918f2ff85e4072e0d1e" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>i</name></member>
+      <member refid="classGecode_1_1Advisor_1a0efcbc261ba62bdd86bbf01918f2ffdd" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Advisor_1ad2fdf25373c1b9f2417fde62bb98dce1" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Advisor_1a0ef3875eed70750bea2c97f926ff6c4f" prot="protected" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>propagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a3b2690e94acff69208bcafe3c36fa626" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>SupportAdvisor</name></member>
+      <member refid="classGecode_1_1Int_1_1Sequence_1_1SupportAdvisor_1a0a5271e52c68aa2a805668ca288d2df4" prot="public" virt="non-virtual"><scope>Gecode::Int::Sequence::SupportAdvisor</scope><name>SupportAdvisor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

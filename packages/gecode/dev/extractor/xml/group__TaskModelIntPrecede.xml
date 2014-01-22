@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntPrecede" kind="group">
+    <compoundname>TaskModelIntPrecede</compoundname>
+    <title>Value precedence constraints over integer variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntPrecede_1ga8ef5d25d7ff404e0005ff99b1eb4dad4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::precede</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, int s, int t, IntConLevel=ICL_DEF)</argsstring>
+        <name>precede</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator that <emphasis>s</emphasis> precedes <emphasis>t</emphasis> in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>This constraint enforces that <formula id="231">$x_0\neq t$</formula> and <formula id="232">$x_j=t \to \bigvee_{0\leq i&lt;j} x_i=s$</formula> for <formula id="233">$0\leq j&lt;|x|$</formula>. The propagator is domain consistent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1298" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntPrecede_1ga014df5e94344559c82d5d42bade5702f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>GECODE_INT_EXPORT void Gecode::precede</definition>
+        <argsstring>(Home home, const IntVarArgs &amp;x, const IntArgs &amp;c, IntConLevel=ICL_DEF)</argsstring>
+        <name>precede</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>IntConLevel</type>
+          <defval>ICL_DEF</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator that successive values in <emphasis>c</emphasis> precede each other in <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>This constraint enforces that <formula id="234">$x_0\neq c_k$</formula> for <formula id="235">$0&lt;k&lt;|c|$</formula> and <formula id="236">$x_j=c_{k} \to \bigvee_{0\leq i&lt;j} x_i=c_{k-1}$</formula> for <formula id="233">$0\leq j&lt;|x|$</formula> and <formula id="237">$0&lt; k&lt;|c|$</formula>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="1308" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

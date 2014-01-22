@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Region_1_1HeapInfo" kind="class" prot="private">
+    <compoundname>Gecode::Region::HeapInfo</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Region_1_1HeapInfo_1a79634d69ac4722ae20e2d08c156aaa8e" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Region::HeapInfo::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of allocated heap blocks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/region.hpp" line="71" column="1" bodyfile="/usr/include/gecode/kernel/region.hpp" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Region_1_1HeapInfo_1aa031ca9bad621c551378932d41a81988" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Region::HeapInfo::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Limit of allocated heap blocks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/region.hpp" line="73" column="1" bodyfile="/usr/include/gecode/kernel/region.hpp" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Region_1_1HeapInfo_1a4c6fb2c06ce84f0ce4d6d8a2d2ba505a" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* Gecode::Region::HeapInfo::blocks[1]</definition>
+        <argsstring>[1]</argsstring>
+        <name>blocks</name>
+        <briefdescription>
+<para>Pointers to allocated heap blocks (more entries) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/region.hpp" line="75" column="1" bodyfile="/usr/include/gecode/kernel/region.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Heap" kindref="compound">Heap</ref> information data structure. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/region.hpp" line="68" column="1" bodyfile="/usr/include/gecode/kernel/region.hpp" bodystart="68" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Region_1_1HeapInfo_1a4c6fb2c06ce84f0ce4d6d8a2d2ba505a" prot="public" virt="non-virtual"><scope>Gecode::Region::HeapInfo</scope><name>blocks</name></member>
+      <member refid="classGecode_1_1Region_1_1HeapInfo_1a79634d69ac4722ae20e2d08c156aaa8e" prot="public" virt="non-virtual"><scope>Gecode::Region::HeapInfo</scope><name>n</name></member>
+      <member refid="classGecode_1_1Region_1_1HeapInfo_1aa031ca9bad621c551378932d41a81988" prot="public" virt="non-virtual"><scope>Gecode::Region::HeapInfo</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

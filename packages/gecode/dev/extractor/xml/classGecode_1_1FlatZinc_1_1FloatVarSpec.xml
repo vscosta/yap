@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1FloatVarSpec" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::FloatVarSpec</compoundname>
+    <basecompoundref refid="classGecode_1_1FlatZinc_1_1VarSpec" prot="public" virt="non-virtual">Gecode::FlatZinc::VarSpec</basecompoundref>
+    <includes refid="varspec_8hh" local="no">varspec.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a113026c5ee659348364969715a1900e5" prot="public" static="no" mutable="no">
+        <type><ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; std::pair&lt; double, double &gt; &gt;</type>
+        <definition>Option&lt;std::pair&lt;double,double&gt; &gt; Gecode::FlatZinc::FloatVarSpec::domain</definition>
+        <argsstring></argsstring>
+        <name>domain</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="125" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a84ee46dcfd129b976fc60a1124f90f93" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::FloatVarSpec::FloatVarSpec</definition>
+        <argsstring>(Option&lt; std::pair&lt; double, double &gt; &gt; &amp;d, bool introduced, bool funcDep)</argsstring>
+        <name>FloatVarSpec</name>
+        <param>
+          <type><ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; std::pair&lt; double, double &gt; &gt; &amp;</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="126" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="126" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1FloatVarSpec_1ab9aef9348dc6a78f7a9f221f1b5feb3a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::FloatVarSpec::FloatVarSpec</definition>
+        <argsstring>(double d, bool introduced, bool funcDep)</argsstring>
+        <name>FloatVarSpec</name>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="131" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="131" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a53895c8049fca044e07374237ca8e30e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::FloatVarSpec::FloatVarSpec</definition>
+        <argsstring>(const Alias &amp;eq, bool introduced, bool funcDep)</argsstring>
+        <name>FloatVarSpec</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FlatZinc_1_1Alias" kindref="compound">Alias</ref> &amp;</type>
+          <declname>eq</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="136" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="136" bodyend="139"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Specification for floating point variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2463">
+        <label>Gecode::FlatZinc::VarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1VarSpec"/>
+      </node>
+      <node id="2462">
+        <label>Gecode::FlatZinc::FloatVarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1FloatVarSpec"/>
+        <childnode refid="2463" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2465">
+        <label>Gecode::FlatZinc::VarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1VarSpec"/>
+      </node>
+      <node id="2464">
+        <label>Gecode::FlatZinc::FloatVarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1FloatVarSpec"/>
+        <childnode refid="2465" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2466" relation="usage">
+          <edgelabel>domain</edgelabel>
+        </childnode>
+      </node>
+      <node id="2466">
+        <label>Gecode::FlatZinc::Option&lt; std::pair&lt; double, double &gt; &gt;</label>
+        <link refid="structGecode_1_1FlatZinc_1_1Option"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/flatzinc/varspec.hh" line="123" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="123" bodyend="140"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1acf4f3b0c9d7c4f2a3f089f2fbb354112" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>alias</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1acbeb5a15972d1707910e2c3316642029" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a113026c5ee659348364969715a1900e5" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>domain</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a84ee46dcfd129b976fc60a1124f90f93" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>FloatVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1FloatVarSpec_1ab9aef9348dc6a78f7a9f221f1b5feb3a" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>FloatVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1FloatVarSpec_1a53895c8049fca044e07374237ca8e30e" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>FloatVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1ad666a4691c87ab52b9d13f9c1cfa93fb" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>funcDep</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a4d9deb927e8c604c0d0ddb0da5ee0db3" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>i</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1ac2229cdd9a41f29c3fcf76de275b5f85" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>introduced</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a25d6c7ac35178a0e8c7ea6a43bba8336" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>VarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a28229c4ca2cdf400f81f4e49c63af607" prot="public" virt="virtual"><scope>Gecode::FlatZinc::FloatVarSpec</scope><name>~VarSpec</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

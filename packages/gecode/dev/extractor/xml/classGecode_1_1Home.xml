@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Home" kind="class" prot="public">
+    <compoundname>Gecode::Home</compoundname>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Conversion</header>
+      <memberdef kind="function" id="classGecode_1_1Home_1a6f11c5ee93b924c6b1f073cafdb9ca96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Home::Home</definition>
+        <argsstring>(Space &amp;s, Propagator *p=NULL)</argsstring>
+        <name>Home</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> *</type>
+          <declname>p</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Initialize the home with space <emphasis>s</emphasis> and propagator <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="727" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2810" bodyend="2810"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Home_1ac887dde924250d4f27dbe4ea4be79b6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref> &amp;</type>
+        <definition>forceinline Home &amp; Gecode::Home::operator=</definition>
+        <argsstring>(const Home &amp;h)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Home" kindref="compound">Home</ref> &amp;</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="729" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2812" bodyend="2815"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Home_1ab2b80abe9b8c43862644457edfbbae0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Home::operator Space &amp;</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator Space &amp;</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Retrieve the space of the home. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="731" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2817" bodyend="2819"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Extended information</header>
+      <memberdef kind="function" id="classGecode_1_1Home_1a896c8bb5d422cfc088039fb18f41c65e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+        <definition>forceinline Home Gecode::Home::operator()</definition>
+        <argsstring>(Propagator &amp;p)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Return a home extended by propagator to be rewritten. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="736" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2821" bodyend="2823"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Home_1a45cd27c1a305d23be2101217f2733992" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> *</type>
+        <definition>forceinline Propagator * Gecode::Home::propagator</definition>
+        <argsstring>(void) const </argsstring>
+        <name>propagator</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return propagator (or NULL) for currently rewritten propagator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="738" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2829" bodyend="2831"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Forwarding of common space operations</header>
+      <memberdef kind="function" id="classGecode_1_1Home_1a351962945f1de5ffffc569eba4e14346" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Home::failed</definition>
+        <argsstring>(void) const </argsstring>
+        <name>failed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether corresponding space is failed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="743" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3369" bodyend="3371"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Home_1a24e5188396955428837d155c6915a6cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Home::fail</definition>
+        <argsstring>(void)</argsstring>
+        <name>fail</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Mark space as failed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="745" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3360" bodyend="3362"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Home_1a25526fc8f7e6ddd0d8a9b4eb83862c70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Home::notice</definition>
+        <argsstring>(Actor &amp;a, ActorProperty p, bool duplicate=false)</argsstring>
+        <name>notice</name>
+        <param>
+          <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a99c644746a8611a92ce7f82ff6e12bc9" kindref="member">ActorProperty</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>duplicate</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Notice actor property. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="747" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="2772" bodyend="2774"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Home_1a401836374e8ee3f3e8d211485cf4d651" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+        <definition>Space&amp; Gecode::Home::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>The space where the propagator is to be posted. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="720" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="720" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Home_1a3c0cd09d8aaaa434516aed497677a64d" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> *</type>
+        <definition>Propagator* Gecode::Home::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+<para>A propagator (possibly) that is currently being rewritten. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="722" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="722" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Home class for posting propagators </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2719">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2717">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="2714" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2712">
+        <label>Gecode::Home</label>
+        <link refid="classGecode_1_1Home"/>
+        <childnode refid="2713" relation="usage">
+          <edgelabel>p</edgelabel>
+        </childnode>
+        <childnode refid="2716" relation="usage">
+          <edgelabel>s</edgelabel>
+        </childnode>
+      </node>
+      <node id="2718">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="2716">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="2717" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="2718" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="2719" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="2715" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="2713">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="2714" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2715" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="2714">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="2715" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2715">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="717" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="717" bodyend="749"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Home_1a24e5188396955428837d155c6915a6cf" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>fail</name></member>
+      <member refid="classGecode_1_1Home_1a351962945f1de5ffffc569eba4e14346" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>failed</name></member>
+      <member refid="classGecode_1_1Home_1a6f11c5ee93b924c6b1f073cafdb9ca96" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>Home</name></member>
+      <member refid="classGecode_1_1Home_1a25526fc8f7e6ddd0d8a9b4eb83862c70" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Home_1ab2b80abe9b8c43862644457edfbbae0c" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>operator Space &amp;</name></member>
+      <member refid="classGecode_1_1Home_1a896c8bb5d422cfc088039fb18f41c65e" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Home_1ac887dde924250d4f27dbe4ea4be79b6a" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Home_1a3c0cd09d8aaaa434516aed497677a64d" prot="protected" virt="non-virtual"><scope>Gecode::Home</scope><name>p</name></member>
+      <member refid="classGecode_1_1Home_1a45cd27c1a305d23be2101217f2733992" prot="public" virt="non-virtual"><scope>Gecode::Home</scope><name>propagator</name></member>
+      <member refid="classGecode_1_1Home_1a401836374e8ee3f3e8d211485cf4d651" prot="protected" virt="non-virtual"><scope>Gecode::Home</scope><name>s</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SetActivity" kind="class" prot="public">
+    <compoundname>Gecode::SetActivity</compoundname>
+    <basecompoundref refid="classGecode_1_1Activity" prot="public" virt="non-virtual">Gecode::Activity</basecompoundref>
+    <includes refid="set_8hh" local="no">set.hh</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1SetActivity_1aa819ed9b8c0e1065bef4d07d43e8069a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SetActivity::SetActivity</definition>
+        <argsstring>(void)</argsstring>
+        <name>SetActivity</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Construct as not yet initialized. </para>        </briefdescription>
+        <detaileddescription>
+<para>The only member functions that can be used on a constructed but not yet initialized activity storage is init or the assignment operator. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1200" column="1" bodyfile="/usr/include/gecode/set/branch/activity.hpp" bodystart="41" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetActivity_1ac37def0eab5a009a904d1e2f9d2b2318" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::SetActivity::SetActivity</definition>
+        <argsstring>(const SetActivity &amp;a)</argsstring>
+        <name>SetActivity</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetActivity" kindref="compound">SetActivity</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1202" column="1" bodyfile="/usr/include/gecode/set/branch/activity.hpp" bodystart="44" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetActivity_1af02bfe38f3f2a0f33552becc58b571a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1SetActivity" kindref="compound">SetActivity</ref> &amp;</type>
+        <definition>forceinline SetActivity &amp; Gecode::SetActivity::operator=</definition>
+        <argsstring>(const SetActivity &amp;a)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetActivity" kindref="compound">SetActivity</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Assignment operator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1204" column="1" bodyfile="/usr/include/gecode/set/branch/activity.hpp" bodystart="48" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetActivity_1a97f7a680ebf2d26efa550687df97d7a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT</type>
+        <definition>GECODE_SET_EXPORT Gecode::SetActivity::SetActivity</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, double d=1.0, SetBranchMerit bm=NULL)</argsstring>
+        <name>SetActivity</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetVarArgs" kindref="compound">SetVarArgs</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+          <defval>1.0</defval>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelSetBranch_1ga268dda441c27ed5f438bdf2386e89fac" kindref="member">SetBranchMerit</ref></type>
+          <declname>bm</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Initialize for set variables <emphasis>x</emphasis> with decay factor <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the branch merit function <emphasis>bm</emphasis> is different from NULL, the activity for each variable is initialized with the merit returned by <emphasis>bm</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1214" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetActivity_1abd0559e7dfc7e81c7a967067ebbab9bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::SetActivity::init</definition>
+        <argsstring>(Home, const SetVarArgs &amp;x, double d=1.0, SetBranchMerit bm=NULL)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetVarArgs" kindref="compound">SetVarArgs</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+          <defval>1.0</defval>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelSetBranch_1ga268dda441c27ed5f438bdf2386e89fac" kindref="member">SetBranchMerit</ref></type>
+          <declname>bm</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Initialize for set variables <emphasis>x</emphasis> with decay factor <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the branch merit function <emphasis>bm</emphasis> is different from NULL, the activity for each variable is initialized with the merit returned by <emphasis>bm</emphasis>.</para><para>This member function can only be used once and only if the activity storage has been constructed with the default constructor. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1228" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Recording activities for set variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6365">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+      </node>
+      <node id="6364">
+        <label>Gecode::SetActivity</label>
+        <link refid="classGecode_1_1SetActivity"/>
+        <childnode refid="6365" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6368">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="6369" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="6367">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="6367" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="6368" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="6366">
+        <label>Gecode::SetActivity</label>
+        <link refid="classGecode_1_1SetActivity"/>
+        <childnode refid="6367" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6369">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set.hh" line="1191" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="1191" bodyend="1230"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Activity_1ad6b32f8c30378172e1fbc25e161c4897" prot="protected" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>acquire</name></member>
+      <member refid="classGecode_1_1Activity_1a10de627a991b3595095f19841273f6a3" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>Activity</name></member>
+      <member refid="classGecode_1_1Activity_1ae0177bd66469e93d20fc0d9bc857053f" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>Activity</name></member>
+      <member refid="classGecode_1_1Activity_1a7340b51a56e559b8c283c2f5db1e9a02" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>Activity</name></member>
+      <member refid="classGecode_1_1Activity_1ae12d220f39f8904d463303c8f9e441cb" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>Activity</name></member>
+      <member refid="classGecode_1_1Activity_1a4aa1f7831d1deb4c9a1f6401dc5c1e56" prot="protected" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>decay</name></member>
+      <member refid="classGecode_1_1Activity_1ac410d8671b6d4a03e8b93825190655d9" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>decay</name></member>
+      <member refid="classGecode_1_1Activity_1a91ab0666d7a87cc64d72f08172f34214" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>decay</name></member>
+      <member refid="classGecode_1_1Activity_1a0404a66fa10adfc71c78d21e118ae63c" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>def</name></member>
+      <member refid="classGecode_1_1SetActivity_1abd0559e7dfc7e81c7a967067ebbab9bd" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>init</name></member>
+      <member refid="classGecode_1_1Activity_1aac313d45178d15a3de317f113c015d3f" prot="public" virt="non-virtual" ambiguityscope="Gecode::Activity::"><scope>Gecode::SetActivity</scope><name>init</name></member>
+      <member refid="classGecode_1_1Activity_1a08e51b93b51a678716a27fe086cb5907" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>initialized</name></member>
+      <member refid="classGecode_1_1Activity_1a80bf8d266b1addba76bec44c8d00d334" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1SetActivity_1af02bfe38f3f2a0f33552becc58b571a7" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Activity_1ae2ba02a74bb88628d8ab212f0683f9ee" prot="public" virt="non-virtual" ambiguityscope="Gecode::Activity::"><scope>Gecode::SetActivity</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Activity_1acc7a5da621120ececd06adaea6acb358" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1Activity_1ae216c933c125db93cd1bd618b5ff579e" prot="protected" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>release</name></member>
+      <member refid="classGecode_1_1Activity_1a765b249f38da3e3624274f964c7b1172" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>set</name></member>
+      <member refid="classGecode_1_1SetActivity_1aa819ed9b8c0e1065bef4d07d43e8069a" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>SetActivity</name></member>
+      <member refid="classGecode_1_1SetActivity_1ac37def0eab5a009a904d1e2f9d2b2318" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>SetActivity</name></member>
+      <member refid="classGecode_1_1SetActivity_1a97f7a680ebf2d26efa550687df97d7a1" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>SetActivity</name></member>
+      <member refid="classGecode_1_1Activity_1a4bbe8f1c09d0ade116d91bfd899168b7" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>size</name></member>
+      <member refid="classGecode_1_1Activity_1ab9ebdab4dba0d53455fcabb484e3c0fd" prot="protected" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>storage</name></member>
+      <member refid="classGecode_1_1Activity_1a007ec1ffb415dc85f4ff996adcdee3d4" prot="protected" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>update</name></member>
+      <member refid="classGecode_1_1Activity_1aa5890b4b03d4ba63cebeb8463d65ce2d" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>update</name></member>
+      <member refid="classGecode_1_1Activity_1acea7e2ae27b1a3e88cff288bbcf489fe" prot="public" virt="non-virtual"><scope>Gecode::SetActivity</scope><name>~Activity</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncThrowInt" kind="group">
+    <compoundname>FuncThrowInt</compoundname>
+    <title>Integer exceptions</title>
+    <innerclass refid="classGecode_1_1Int_1_1OutOfLimits" prot="public">Gecode::Int::OutOfLimits</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NotZeroOne" prot="public">Gecode::Int::NotZeroOne</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1VariableEmptyDomain" prot="public">Gecode::Int::VariableEmptyDomain</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1TooFewArguments" prot="public">Gecode::Int::TooFewArguments</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ArgumentSizeMismatch" prot="public">Gecode::Int::ArgumentSizeMismatch</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ArgumentSame" prot="public">Gecode::Int::ArgumentSame</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownRelation" prot="public">Gecode::Int::UnknownRelation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownOperation" prot="public">Gecode::Int::UnknownOperation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IllegalOperation" prot="public">Gecode::Int::IllegalOperation</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownBranching" prot="public">Gecode::Int::UnknownBranching</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1UnknownReifyMode" prot="public">Gecode::Int::UnknownReifyMode</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ValOfUnassignedVar" prot="public">Gecode::Int::ValOfUnassignedVar</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NotYetFinalized" prot="public">Gecode::Int::NotYetFinalized</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1LDSBUnbranchedVariable" prot="public">Gecode::Int::LDSBUnbranchedVariable</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1LDSBBadValueSelection" prot="public">Gecode::Int::LDSBBadValueSelection</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

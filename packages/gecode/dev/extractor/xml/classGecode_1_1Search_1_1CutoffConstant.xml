@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1CutoffConstant" kind="class" prot="public">
+    <compoundname>Gecode::Search::CutoffConstant</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Cutoff" prot="public" virt="non-virtual">Gecode::Search::Cutoff</basecompoundref>
+    <includes refid="cutoff_8hpp" local="no">cutoff.hpp</includes>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Search_1_1CutoffConstant_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Cutoff</definition>
+        <argsstring></argsstring>
+        <name>Cutoff</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="46" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1CutoffConstant_1a174b7b99736626fabab8cba0d8c3d235" prot="private" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::CutoffConstant::c</definition>
+        <argsstring></argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Constant. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="49" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffConstant_1aaa548a1f879912dd1c884236dbf60c93" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Search::CutoffConstant::CutoffConstant</definition>
+        <argsstring>(unsigned long int c)</argsstring>
+        <name>CutoffConstant</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="51" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1CutoffConstant_1a0beeb8be70d5f482040656ab7167cc9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>unsigned long int</type>
+        <definition>virtual unsigned long int Gecode::Search::CutoffConstant::operator()</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator()</name>
+        <reimplements refid="classGecode_1_1Search_1_1Cutoff_1a7e1d541d27ed0ad898710cf93f0d7dfe">operator()</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next cutoff value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/cutoff.hpp" line="54" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Cutoff" kindref="compound">Cutoff</ref> generator for constant sequence. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1607">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1606">
+        <label>Gecode::Search::CutoffConstant</label>
+        <link refid="classGecode_1_1Search_1_1CutoffConstant"/>
+        <childnode refid="1607" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1609">
+        <label>Gecode::Search::Cutoff</label>
+        <link refid="classGecode_1_1Search_1_1Cutoff"/>
+      </node>
+      <node id="1608">
+        <label>Gecode::Search::CutoffConstant</label>
+        <link refid="classGecode_1_1Search_1_1CutoffConstant"/>
+        <childnode refid="1609" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/cutoff.hpp" line="45" column="1" bodyfile="/usr/include/gecode/search/cutoff.hpp" bodystart="45" bodyend="55"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ac04e4f94337cfaa9f85856882344ae00" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>append</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffConstant_1a174b7b99736626fabab8cba0d8c3d235" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>c</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a5455a3eddfff0ffc12f2a9ee4d818cdb" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>constant</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffConstant_1a394723d0cfd0279e0ede06c837f79ffe" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1adbdeedd37dbed288a1939d298ae85d59" prot="public" virt="non-virtual" ambiguityscope="Gecode::Search::Cutoff::"><scope>Gecode::Search::CutoffConstant</scope><name>Cutoff</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffConstant_1aaa548a1f879912dd1c884236dbf60c93" prot="private" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>CutoffConstant</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1aba528d42a535d93d09eef542436a66b3" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>geometric</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a0883d328f3b4e244c3bbceddf254894f" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>linear</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a4ea6244a477d2ba7660678c294824958" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>luby</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7a4fb6ec7a783741da21d7f679274b34" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a7ba125c485433d1973ac8aebb9a5ab6d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1CutoffConstant_1a0beeb8be70d5f482040656ab7167cc9d" prot="public" virt="virtual"><scope>Gecode::Search::CutoffConstant</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1ad6e46afed39447ad22491b35f25c8f07" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>repeat</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1a19c2a1a8bc742b6e3a8f5c7bfe98a26d" prot="public" virt="non-virtual"><scope>Gecode::Search::CutoffConstant</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1Search_1_1Cutoff_1afd0c25ec38c36dd6ba3c2d0d05ad9db9" prot="public" virt="virtual"><scope>Gecode::Search::CutoffConstant</scope><name>~Cutoff</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,310 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="matrix_8hpp" kind="file">
+    <compoundname>matrix.hpp</compoundname>
+    <includes local="no">algorithm</includes>
+    <includedby refid="minimodel_8hh" local="no">/usr/include/gecode/minimodel.hh</includedby>
+    <incdepgraph>
+      <node id="28656">
+        <label>/usr/include/gecode/minimodel/matrix.hpp</label>
+        <link refid="matrix.hpp"/>
+        <childnode refid="28657" relation="include">
+        </childnode>
+      </node>
+      <node id="28657">
+        <label>algorithm</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="28661">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="28662" relation="include">
+        </childnode>
+        <childnode refid="28663" relation="include">
+        </childnode>
+      </node>
+      <node id="28659">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="28660" relation="include">
+        </childnode>
+      </node>
+      <node id="28660">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="28661" relation="include">
+        </childnode>
+      </node>
+      <node id="28662">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="28658">
+        <label>/usr/include/gecode/minimodel/matrix.hpp</label>
+        <link refid="matrix.hpp"/>
+        <childnode refid="28659" relation="include">
+        </childnode>
+      </node>
+      <node id="28663">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Mikael<sp/>Lagerkvist<sp/>&lt;lagerkvist@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Mikael<sp/>Lagerkvist,<sp/>2005</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Bugfixes<sp/>provided<sp/>by:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Olof<sp/>Sivertsson<sp/>&lt;olof@olofsivertsson.com&gt;</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2010-05-15<sp/>16:19:43<sp/>+0200<sp/>(Sat,<sp/>15<sp/>May<sp/>2010)<sp/>$<sp/>by<sp/>$Author:<sp/>schulte<sp/>$</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>10954<sp/>$</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;algorithm&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="classGecode_1_1Slice_1a2892c85d4df789831f2a51e318178462" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Slice_1a2892c85d4df789831f2a51e318178462" kindref="member">Slice&lt;A&gt;::Slice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;A&gt;</ref>&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fc,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tc,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tr)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_r(0),<sp/>_fc(fc),<sp/>_tc(tc),<sp/>_fr(fr),<sp/>_tr(tr)<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tc<sp/>&gt;<sp/>a.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>()<sp/>||<sp/>tr<sp/>&gt;<sp/>a.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>())</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1MiniModel_1_1ArgumentOutOfRange" kindref="compound">MiniModel::ArgumentOutOfRange</ref>(</highlight><highlight class="stringliteral">&quot;Slice::Slice&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fc<sp/>&gt;=<sp/>tc<sp/>||<sp/>fr<sp/>&gt;=<sp/>tr)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_fc=0;<sp/>_tc=0;<sp/>_fr=0;<sp/>_tr=0;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>_r<sp/>=<sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">ArgsType</ref>((tc-fc)*(tr-fr));</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>h<sp/>=<sp/>fr;<sp/>h<sp/>&lt;<sp/>tr;<sp/>h++)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>w<sp/>=<sp/>fc;<sp/>w<sp/>&lt;<sp/>tc;<sp/>w++)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_r[i++]<sp/>=<sp/>a(w,<sp/>h);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;</highlight></codeline>
+<codeline lineno="66" refid="classGecode_1_1Slice_1a9911bf16786784f3cbc430ffa43d8824" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Slice_1a9911bf16786784f3cbc430ffa43d8824" kindref="member">Slice&lt;A&gt;::reverse</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>_r.size()/2;<sp/>i++)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::swap(_r[i],<sp/>_r[_r.size()-i-1]);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">this</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="74" refid="classGecode_1_1Slice_1aa7b07d43a483d2d723fc7c6985efb03b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;::operator</ref><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">ArgsType</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_r;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;::operator</ref><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;typename Slice&lt;A&gt;::ArgsType</ref>&gt;(void)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;ArgsType&gt;</ref>(_r,<sp/>_tc-_fc,<sp/>_tr-_fr);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>Slice&lt;A&gt;::operator<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_r;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>Slice&lt;A&gt;::operator<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Matrix&lt;typename<sp/>Slice&lt;A&gt;::ArgsType&gt;(void)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>Matrix&lt;ArgsType&gt;(_r,<sp/>_tc-_fc,<sp/>_tr-_fr);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>Slice&lt;A&gt;::ArgsType</highlight></codeline>
+<codeline lineno="95" refid="namespaceGecode_1a4e7c11ec4ce0005fc88fcdbf2f7eaeba" refkind="member"><highlight class="normal"><sp/><sp/>operator+(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>xx<sp/>=<sp/>x;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>yy<sp/>=<sp/>y;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xx+yy;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>Slice&lt;A&gt;::ArgsType</highlight></codeline>
+<codeline lineno="103" refid="namespaceGecode_1aae7517eb192526221f78f771e6f09a0e" refkind="member"><highlight class="normal"><sp/><sp/>operator+(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ArrayTraits" kindref="compound">ArrayTraits&lt;A&gt;::ArgsType</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>xx<sp/>=<sp/>x;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xx+y;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>Slice&lt;A&gt;::ArgsType</highlight></codeline>
+<codeline lineno="110" refid="namespaceGecode_1a55d6f86ac6ac05a5c3c7380bde70236f" refkind="member"><highlight class="normal"><sp/><sp/>operator+(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ArrayTraits" kindref="compound">ArrayTraits&lt;A&gt;::ArgsType</ref>&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>yy<sp/>=<sp/>y;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x+yy;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>Slice&lt;A&gt;::ArgsType</highlight></codeline>
+<codeline lineno="117" refid="namespaceGecode_1aaeda0ee450f60f8ec8b742a7b223f18e" refkind="member"><highlight class="normal"><sp/><sp/>operator+(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ArrayTraits" kindref="compound">ArrayTraits&lt;A&gt;::ValueType</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>xx<sp/>=<sp/>x;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xx+y;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>Slice&lt;A&gt;::ArgsType</highlight></codeline>
+<codeline lineno="124" refid="namespaceGecode_1ac87ca75094de5f718ca5ec24ac9986dd" refkind="member"><highlight class="normal"><sp/><sp/>operator+(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1ArrayTraits" kindref="compound">ArrayTraits&lt;A&gt;::ValueType</ref>&amp;<sp/>x,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice_1ac22f49cd72ba044a071442b5cb176222" kindref="member">Slice&lt;A&gt;::ArgsType</ref><sp/>yy<sp/>=<sp/>y;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x+yy;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="131" refid="classGecode_1_1Matrix_1adccf9c9c4ae2ba6ea1d1128e86be100e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1adccf9c9c4ae2ba6ea1d1128e86be100e" kindref="member">Matrix&lt;A&gt;::Matrix</ref>(A<sp/>a,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>w,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>h)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_a(a),<sp/>_w(w),<sp/>_h(h)<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((_w<sp/>*<sp/>_h)<sp/>!=<sp/>_a.size())</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch" kindref="compound">MiniModel::ArgumentSizeMismatch</ref>(</highlight><highlight class="stringliteral">&quot;Matrix::Matrix(A,<sp/>w,<sp/>h)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="139" refid="classGecode_1_1Matrix_1abb26dbb7a9da2bf6c2a6a48869813572" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1adccf9c9c4ae2ba6ea1d1128e86be100e" kindref="member">Matrix&lt;A&gt;::Matrix</ref>(A<sp/>a,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>_a(a),<sp/>_w(n),<sp/>_h(n)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n*n<sp/>!=<sp/>_a.size())</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1MiniModel_1_1ArgumentSizeMismatch" kindref="compound">MiniModel::ArgumentSizeMismatch</ref>(</highlight><highlight class="stringliteral">&quot;Matrix::Matrix(A,<sp/>n)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">Matrix&lt;A&gt;::width</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/><sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_w;<sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">Matrix&lt;A&gt;::height</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_h;<sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix_1a0966361678a7474d1c2058271b98f59d" kindref="member">Matrix&lt;A&gt;::ArgsType</ref><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">Matrix&lt;A&gt;::get_array</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix_1a0966361678a7474d1c2058271b98f59d" kindref="member">ArgsType</ref>(_a);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix_1a5f94c2a7883b5b2f3a11592c8aff51eb" kindref="member">Matrix&lt;A&gt;::ValueType</ref>&amp;</highlight></codeline>
+<codeline lineno="159" refid="classGecode_1_1Matrix_1af41321dff730a55ffb7b42d79ec15805" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1af41321dff730a55ffb7b42d79ec15805" kindref="member">Matrix&lt;A&gt;::operator ()</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>&gt;=<sp/>_w)<sp/>||<sp/>(r<sp/>&gt;=<sp/>_h))</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1MiniModel_1_1ArgumentOutOfRange" kindref="compound">MiniModel::ArgumentOutOfRange</ref>(</highlight><highlight class="stringliteral">&quot;Matrix::operator<sp/>()&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_a[r*_w<sp/>+<sp/>c];</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix_1a5f94c2a7883b5b2f3a11592c8aff51eb" kindref="member">Matrix&lt;A&gt;::ValueType</ref>&amp;</highlight></codeline>
+<codeline lineno="167" refid="classGecode_1_1Matrix_1af42a163046c76ca3ab8b88d080b442ad" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1af41321dff730a55ffb7b42d79ec15805" kindref="member">Matrix&lt;A&gt;::operator ()</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>&gt;=<sp/>_w)<sp/>||<sp/>(r<sp/>&gt;=<sp/>_h))</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1MiniModel_1_1ArgumentOutOfRange" kindref="compound">MiniModel::ArgumentOutOfRange</ref>(</highlight><highlight class="stringliteral">&quot;Matrix::operator<sp/>()&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>_a[r*_w<sp/>+<sp/>c];</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref></highlight></codeline>
+<codeline lineno="175" refid="classGecode_1_1Matrix_1a1759af537ec360c3c4959e8952682aeb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a1759af537ec360c3c4959e8952682aeb" kindref="member">Matrix&lt;A&gt;::slice</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fc,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tc,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tr)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>(*</highlight><highlight class="keyword">this</highlight><highlight class="normal">,<sp/>fc,<sp/>tc,<sp/>fr,<sp/>tr);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref></highlight></codeline>
+<codeline lineno="181" refid="classGecode_1_1Matrix_1a8ea675452963e06e4b1a4fc459b63078" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a8ea675452963e06e4b1a4fc459b63078" kindref="member">Matrix&lt;A&gt;::row</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slice(0,<sp/>width(),<sp/>r,<sp/>r+1);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref></highlight></codeline>
+<codeline lineno="187" refid="classGecode_1_1Matrix_1a1d105eb679bfd06d4821a60447dd0419" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Matrix_1a1d105eb679bfd06d4821a60447dd0419" kindref="member">Matrix&lt;A&gt;::col</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slice(c,<sp/>c+1,<sp/>0,<sp/>height());</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="193" refid="classGecode_1_1Matrix_1a5f402fa5a459583d01f91d88da2c7166" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;A&gt;</ref>&amp;<sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(0);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0;<sp/>i&lt;m.height();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j=0;<sp/>j&lt;m.width();<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/>m(j,i)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\t&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="207" refid="classGecode_1_1Matrix_1a55ebdb0672927c8644f8a32ab33f6fea" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Slice" kindref="compound">Slice&lt;A&gt;</ref>&amp;<sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>static_cast&lt;typename<sp/>Slice&lt;A&gt;::ArgsType&gt;(s);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212" refid="classGecode_1_1Matrix_1ab34b0b47f1e8c3b7973e9fa162288308" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;IntArgs&gt;</ref>&amp;<sp/>m,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>z,<sp/><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref><sp/>icl)<sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.<ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">get_array</ref>(),<sp/>x,<sp/>m.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(),<sp/>y,<sp/>m.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>(),<sp/>z,<sp/>icl);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217" refid="classGecode_1_1Matrix_1a8621a4c44a8032245812f6a0409db046" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;IntArgs&gt;</ref>&amp;<sp/>m,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref><sp/>z,<sp/><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref><sp/>icl)<sp/>{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.<ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">get_array</ref>(),<sp/>x,<sp/>m.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(),<sp/>y,<sp/>m.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>(),<sp/>z,<sp/>icl);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222" refid="classGecode_1_1Matrix_1ae0fbc3096d1d266ce8a358e0b7609132" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;IntVarArgs&gt;</ref>&amp;<sp/>m,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>z,<sp/><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref><sp/>icl)<sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.<ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">get_array</ref>(),<sp/>x,<sp/>m.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(),<sp/>y,<sp/>m.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>(),<sp/>z,<sp/>icl);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227" refid="classGecode_1_1Matrix_1aa7be109ad6ad40e3e93d0360750aa985" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;BoolVarArgs&gt;</ref>&amp;<sp/>m,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1BoolVar" kindref="compound">BoolVar</ref><sp/>z,<sp/><ref refid="namespaceGecode_1a22c1363cbf5a7e6fa6c250ae813247ad" kindref="member">IntConLevel</ref><sp/>icl)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.<ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">get_array</ref>(),<sp/>x,<sp/>m.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(),<sp/>y,<sp/>m.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>(),<sp/>z,<sp/>icl);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_HAS_SET_VARS</highlight></codeline>
+<codeline lineno="233"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(<ref refid="classGecode_1_1Home" kindref="compound">Home</ref><sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Matrix" kindref="compound">Matrix&lt;IntSetArgs&gt;</ref>&amp;<sp/>m,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>x,<sp/><ref refid="classGecode_1_1IntVar" kindref="compound">IntVar</ref><sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref><sp/>z)<sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.<ref refid="classGecode_1_1Matrix_1a6c0677a79248b1f7338691deca4f3994" kindref="member">get_array</ref>(),<sp/>x,<sp/>m.<ref refid="classGecode_1_1Matrix_1a742da0e317430fc93d95d4b68713ff5e" kindref="member">width</ref>(),<sp/>y,<sp/>m.<ref refid="classGecode_1_1Matrix_1a9bc77760569857e12b961bbabbd9c1d2" kindref="member">height</ref>(),<sp/>z);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(Home<sp/>home,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Matrix&lt;SetVarArgs&gt;&amp;<sp/>m,<sp/>IntVar<sp/>x,<sp/>IntVar<sp/>y,<sp/><sp/></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetVar<sp/>z)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref>(home,<sp/>m.get_array(),<sp/>x,<sp/>m.width(),<sp/>y,<sp/>m.height(),<sp/>z);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="244"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>minimodel-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/minimodel/matrix.hpp"/>
+  </compounddef>
+</doxygen>

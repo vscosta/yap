@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Unary_1_1OmegaNode" kind="class" prot="public">
+    <compoundname>Gecode::Int::Unary::OmegaNode</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Unary_1_1OmegaLambdaNode" prot="public" virt="non-virtual">Gecode::Int::Unary::OmegaLambdaNode</derivedcompoundref>
+    <includes refid="unary_8hh" local="no">unary.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a5e1918516db50c22d1b1587b413c7d83" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Unary::OmegaNode::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <briefdescription>
+<para>Processing time for subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="663" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="663" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a190cd665b77fe379ab02cc2bd34a3dbb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Unary::OmegaNode::ect</definition>
+        <argsstring></argsstring>
+        <name>ect</name>
+        <briefdescription>
+<para>Earliest completion time for subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="665" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="665" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1ad94b2db347f1fc949dea6b18ec081da4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Unary::OmegaNode::init</definition>
+        <argsstring>(const OmegaNode &amp;l, const OmegaNode &amp;r)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode" kindref="compound">OmegaNode</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode" kindref="compound">OmegaNode</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize node from left child <emphasis>l</emphasis> and right child <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="667" column="1" bodyfile="/usr/include/gecode/int/unary/tree.hpp" bodystart="47" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a448db7e53a32364b89b2aa4ffe19ad8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Unary::OmegaNode::update</definition>
+        <argsstring>(const OmegaNode &amp;l, const OmegaNode &amp;r)</argsstring>
+        <name>update</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode" kindref="compound">OmegaNode</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode" kindref="compound">OmegaNode</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Update node from left child <emphasis>l</emphasis> and right child <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/unary.hh" line="669" column="1" bodyfile="/usr/include/gecode/int/unary/tree.hpp" bodystart="52" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Node for an omega tree. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4875">
+        <label>Gecode::Int::Unary::OmegaLambdaNode</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1OmegaLambdaNode"/>
+        <childnode refid="4874" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4874">
+        <label>Gecode::Int::Unary::OmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode"/>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/int/unary.hh" line="660" column="1" bodyfile="/usr/include/gecode/int/unary.hh" bodystart="660" bodyend="670"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a190cd665b77fe379ab02cc2bd34a3dbb" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OmegaNode</scope><name>ect</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1ad94b2db347f1fc949dea6b18ec081da4" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OmegaNode</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a5e1918516db50c22d1b1587b413c7d83" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OmegaNode</scope><name>p</name></member>
+      <member refid="classGecode_1_1Int_1_1Unary_1_1OmegaNode_1a448db7e53a32364b89b2aa4ffe19ad8d" prot="public" virt="non-virtual"><scope>Gecode::Int::Unary::OmegaNode</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

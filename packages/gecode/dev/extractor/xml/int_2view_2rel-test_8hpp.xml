@@ -1,0 +1,933 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="int_2view_2rel-test_8hpp" kind="file">
+    <compoundname>rel-test.hpp</compoundname>
+    <includedby refid="int_2view_8hpp" local="no">/usr/include/gecode/int/view.hpp</includedby>
+    <invincdepgraph>
+      <node id="6806">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6789">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="6814">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="6772" relation="include">
+        </childnode>
+      </node>
+      <node id="6812">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="6813" relation="include">
+        </childnode>
+        <childnode refid="6814" relation="include">
+        </childnode>
+      </node>
+      <node id="6813">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="6789" relation="include">
+        </childnode>
+      </node>
+      <node id="6774">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="6775" relation="include">
+        </childnode>
+        <childnode refid="6776" relation="include">
+        </childnode>
+      </node>
+      <node id="6795">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="6796" relation="include">
+        </childnode>
+      </node>
+      <node id="6843">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="6844" relation="include">
+        </childnode>
+      </node>
+      <node id="6831">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="6815" relation="include">
+        </childnode>
+      </node>
+      <node id="6839">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="6840">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="6839" relation="include">
+        </childnode>
+      </node>
+      <node id="6823">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="6837">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="6813" relation="include">
+        </childnode>
+      </node>
+      <node id="6804">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="6846">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="6805">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="6801" relation="include">
+        </childnode>
+        <childnode refid="6802" relation="include">
+        </childnode>
+        <childnode refid="6795" relation="include">
+        </childnode>
+        <childnode refid="6806" relation="include">
+        </childnode>
+        <childnode refid="6807" relation="include">
+        </childnode>
+        <childnode refid="6808" relation="include">
+        </childnode>
+        <childnode refid="6809" relation="include">
+        </childnode>
+        <childnode refid="6810" relation="include">
+        </childnode>
+      </node>
+      <node id="6783">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="6860">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="6848" relation="include">
+        </childnode>
+        <childnode refid="6817" relation="include">
+        </childnode>
+        <childnode refid="6858" relation="include">
+        </childnode>
+        <childnode refid="6859" relation="include">
+        </childnode>
+        <childnode refid="6861" relation="include">
+        </childnode>
+      </node>
+      <node id="6850">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="6785">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="6833">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="6822" relation="include">
+        </childnode>
+      </node>
+      <node id="6818">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="6825">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="6826" relation="include">
+        </childnode>
+        <childnode refid="6827" relation="include">
+        </childnode>
+        <childnode refid="6828" relation="include">
+        </childnode>
+        <childnode refid="6789" relation="include">
+        </childnode>
+        <childnode refid="6829" relation="include">
+        </childnode>
+        <childnode refid="6830" relation="include">
+        </childnode>
+        <childnode refid="6805" relation="include">
+        </childnode>
+        <childnode refid="6831" relation="include">
+        </childnode>
+        <childnode refid="6815" relation="include">
+        </childnode>
+        <childnode refid="6832" relation="include">
+        </childnode>
+        <childnode refid="6816" relation="include">
+        </childnode>
+        <childnode refid="6819" relation="include">
+        </childnode>
+        <childnode refid="6833" relation="include">
+        </childnode>
+        <childnode refid="6834" relation="include">
+        </childnode>
+        <childnode refid="6797" relation="include">
+        </childnode>
+        <childnode refid="6835" relation="include">
+        </childnode>
+        <childnode refid="6807" relation="include">
+        </childnode>
+        <childnode refid="6808" relation="include">
+        </childnode>
+        <childnode refid="6809" relation="include">
+        </childnode>
+        <childnode refid="6836" relation="include">
+        </childnode>
+        <childnode refid="6810" relation="include">
+        </childnode>
+      </node>
+      <node id="6844">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="6774" relation="include">
+        </childnode>
+      </node>
+      <node id="6827">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="6789" relation="include">
+        </childnode>
+      </node>
+      <node id="6780">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="6777" relation="include">
+        </childnode>
+        <childnode refid="6781" relation="include">
+        </childnode>
+        <childnode refid="6778" relation="include">
+        </childnode>
+        <childnode refid="6779" relation="include">
+        </childnode>
+      </node>
+      <node id="6826">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="6789" relation="include">
+        </childnode>
+      </node>
+      <node id="6822">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="6775">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="6788">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="6783" relation="include">
+        </childnode>
+        <childnode refid="6784" relation="include">
+        </childnode>
+      </node>
+      <node id="6835">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6854">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="6803">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="6787">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="6788" relation="include">
+        </childnode>
+      </node>
+      <node id="6808">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6830">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="6803" relation="include">
+        </childnode>
+      </node>
+      <node id="6817">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="6856">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="6859">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="6817" relation="include">
+        </childnode>
+        <childnode refid="6858" relation="include">
+        </childnode>
+      </node>
+      <node id="6809">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6816">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="6817" relation="include">
+        </childnode>
+      </node>
+      <node id="6801">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="6821">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="6784">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="6772">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="6773" relation="include">
+        </childnode>
+      </node>
+      <node id="6790">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="6791">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="6792" relation="include">
+        </childnode>
+        <childnode refid="6797" relation="include">
+        </childnode>
+        <childnode refid="6799" relation="include">
+        </childnode>
+      </node>
+      <node id="6847">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="6846" relation="include">
+        </childnode>
+      </node>
+      <node id="6848">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="6846" relation="include">
+        </childnode>
+      </node>
+      <node id="6834">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="6822" relation="include">
+        </childnode>
+      </node>
+      <node id="6820">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="6821" relation="include">
+        </childnode>
+      </node>
+      <node id="6782">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="6783" relation="include">
+        </childnode>
+        <childnode refid="6784" relation="include">
+        </childnode>
+        <childnode refid="6785" relation="include">
+        </childnode>
+        <childnode refid="6786" relation="include">
+        </childnode>
+        <childnode refid="6787" relation="include">
+        </childnode>
+      </node>
+      <node id="6800">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="6798">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="6829">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="6791" relation="include">
+        </childnode>
+      </node>
+      <node id="6836">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="6842">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="6805" relation="include">
+        </childnode>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6792">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="6793" relation="include">
+        </childnode>
+      </node>
+      <node id="6810">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="6811" relation="include">
+        </childnode>
+      </node>
+      <node id="6779">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="6777" relation="include">
+        </childnode>
+      </node>
+      <node id="6786">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="6771">
+        <label>/usr/include/gecode/int/view/rel-test.hpp</label>
+        <link refid="int/view/rel-test.hpp"/>
+        <childnode refid="6772" relation="include">
+        </childnode>
+      </node>
+      <node id="6777">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="6776">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="6796">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="6851">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="6850" relation="include">
+        </childnode>
+      </node>
+      <node id="6857">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="6778">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="6841">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="6822" relation="include">
+        </childnode>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6773">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="6774" relation="include">
+        </childnode>
+        <childnode refid="6777" relation="include">
+        </childnode>
+        <childnode refid="6778" relation="include">
+        </childnode>
+        <childnode refid="6779" relation="include">
+        </childnode>
+        <childnode refid="6780" relation="include">
+        </childnode>
+        <childnode refid="6782" relation="include">
+        </childnode>
+        <childnode refid="6789" relation="include">
+        </childnode>
+        <childnode refid="6790" relation="include">
+        </childnode>
+        <childnode refid="6791" relation="include">
+        </childnode>
+        <childnode refid="6800" relation="include">
+        </childnode>
+        <childnode refid="6801" relation="include">
+        </childnode>
+        <childnode refid="6802" relation="include">
+        </childnode>
+        <childnode refid="6803" relation="include">
+        </childnode>
+        <childnode refid="6804" relation="include">
+        </childnode>
+        <childnode refid="6805" relation="include">
+        </childnode>
+        <childnode refid="6812" relation="include">
+        </childnode>
+        <childnode refid="6815" relation="include">
+        </childnode>
+        <childnode refid="6816" relation="include">
+        </childnode>
+        <childnode refid="6818" relation="include">
+        </childnode>
+        <childnode refid="6819" relation="include">
+        </childnode>
+        <childnode refid="6796" relation="include">
+        </childnode>
+        <childnode refid="6820" relation="include">
+        </childnode>
+        <childnode refid="6793" relation="include">
+        </childnode>
+        <childnode refid="6822" relation="include">
+        </childnode>
+        <childnode refid="6823" relation="include">
+        </childnode>
+        <childnode refid="6798" relation="include">
+        </childnode>
+        <childnode refid="6824" relation="include">
+        </childnode>
+        <childnode refid="6825" relation="include">
+        </childnode>
+        <childnode refid="6836" relation="include">
+        </childnode>
+        <childnode refid="6811" relation="include">
+        </childnode>
+        <childnode refid="6837" relation="include">
+        </childnode>
+        <childnode refid="6838" relation="include">
+        </childnode>
+        <childnode refid="6841" relation="include">
+        </childnode>
+        <childnode refid="6842" relation="include">
+        </childnode>
+        <childnode refid="6843" relation="include">
+        </childnode>
+        <childnode refid="6845" relation="include">
+        </childnode>
+        <childnode refid="6847" relation="include">
+        </childnode>
+        <childnode refid="6848" relation="include">
+        </childnode>
+        <childnode refid="6849" relation="include">
+        </childnode>
+        <childnode refid="6851" relation="include">
+        </childnode>
+        <childnode refid="6852" relation="include">
+        </childnode>
+        <childnode refid="6853" relation="include">
+        </childnode>
+      </node>
+      <node id="6797">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6799">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6838">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="6839" relation="include">
+        </childnode>
+        <childnode refid="6840" relation="include">
+        </childnode>
+      </node>
+      <node id="6819">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="6811">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="6852">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="6850" relation="include">
+        </childnode>
+      </node>
+      <node id="6824">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="6807">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="6798" relation="include">
+        </childnode>
+      </node>
+      <node id="6781">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="6861">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="6849">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="6850" relation="include">
+        </childnode>
+      </node>
+      <node id="6794">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="6789" relation="include">
+        </childnode>
+      </node>
+      <node id="6793">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="6794" relation="include">
+        </childnode>
+        <childnode refid="6789" relation="include">
+        </childnode>
+        <childnode refid="6795" relation="include">
+        </childnode>
+      </node>
+      <node id="6815">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="6845">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="6846" relation="include">
+        </childnode>
+      </node>
+      <node id="6832">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="6816" relation="include">
+        </childnode>
+      </node>
+      <node id="6853">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="6854" relation="include">
+        </childnode>
+        <childnode refid="6848" relation="include">
+        </childnode>
+        <childnode refid="6846" relation="include">
+        </childnode>
+        <childnode refid="6855" relation="include">
+        </childnode>
+        <childnode refid="6856" relation="include">
+        </childnode>
+        <childnode refid="6817" relation="include">
+        </childnode>
+        <childnode refid="6849" relation="include">
+        </childnode>
+        <childnode refid="6851" relation="include">
+        </childnode>
+        <childnode refid="6852" relation="include">
+        </childnode>
+        <childnode refid="6850" relation="include">
+        </childnode>
+        <childnode refid="6821" relation="include">
+        </childnode>
+        <childnode refid="6857" relation="include">
+        </childnode>
+        <childnode refid="6858" relation="include">
+        </childnode>
+        <childnode refid="6859" relation="include">
+        </childnode>
+        <childnode refid="6860" relation="include">
+        </childnode>
+        <childnode refid="6861" relation="include">
+        </childnode>
+      </node>
+      <node id="6802">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="6858">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="6859" relation="include">
+        </childnode>
+      </node>
+      <node id="6828">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="6789" relation="include">
+        </childnode>
+      </node>
+      <node id="6855">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Int">Gecode::Int</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2003</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-03-07<sp/>02:18:29<sp/>+0100<sp/>(Thu,<sp/>07<sp/>Mar<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>mears<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13455<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Int<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Testing<sp/>equality</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="47" refid="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" kindref="member">rtest_eq_bnd</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.min()<sp/>&gt;<sp/>y.max())<sp/>||<sp/>(x.max()<sp/>&lt;<sp/>y.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.assigned()<sp/>&amp;&amp;<sp/>y.assigned())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>rtest_eq_dom_check(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>ViewRanges&lt;View&gt;<sp/>rx(x),<sp/>ry(y);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(rx()<sp/>&amp;&amp;<sp/>ry())<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx.max()<sp/>&lt;<sp/>ry.min())<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++rx;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ry.max()<sp/>&lt;<sp/>rx.min())<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++ry;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="68" refid="group__TaskActorIntTest_1gaf6d844d961885acdbdbaccc80f500f23" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaf6d844d961885acdbdbaccc80f500f23" kindref="member">rtest_eq_dom</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref><sp/>rt<sp/>=<sp/><ref refid="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" kindref="member">rtest_eq_bnd</ref>(x,y);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rt<sp/>!=<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rt;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.range()<sp/>&amp;&amp;<sp/>y.range())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/>rtest_eq_dom_check(x,y);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="77" refid="group__TaskActorIntTest_1gaa5dce51e660fc68aa8ca747266340a57" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" kindref="member">rtest_eq_bnd</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n<sp/>&gt;<sp/>x.max())<sp/>||<sp/>(n<sp/>&lt;<sp/>x.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.assigned()<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>rtest_eq_dom_check(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>ViewRanges&lt;View&gt;<sp/>rx(x);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(n<sp/>&gt;<sp/>rx.max())<sp/>++rx;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(n<sp/>&gt;=<sp/>rx.min())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="92" refid="group__TaskActorIntTest_1ga154f20fd096a057e80e931a3d5cdbe7f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaf6d844d961885acdbdbaccc80f500f23" kindref="member">rtest_eq_dom</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref><sp/>rt<sp/>=<sp/><ref refid="group__TaskActorIntTest_1gaffb2b23427580eb3d0122654fcf0584d" kindref="member">rtest_eq_bnd</ref>(x,n);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rt<sp/>!=<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rt;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.range()<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/>rtest_eq_dom_check(x,n);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="101"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Testing<sp/>disequality</highlight></codeline>
+<codeline lineno="102"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="103"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="107" refid="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" kindref="member">rtest_nq_bnd</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((x.min()<sp/>&gt;<sp/>y.max())<sp/>||<sp/>(x.max()<sp/>&lt;<sp/>y.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.assigned()<sp/>&amp;&amp;<sp/>y.assigned())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>rtest_nq_dom_check(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>ViewRanges&lt;View&gt;<sp/>rx(x),<sp/>ry(y);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(rx()<sp/>&amp;&amp;<sp/>ry())<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx.max()<sp/>&lt;<sp/>ry.min())<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++rx;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ry.max()<sp/>&lt;<sp/>rx.min())<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++ry;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="128" refid="group__TaskActorIntTest_1ga03a9ab055cb7518b1ee6367178e32f20" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga03a9ab055cb7518b1ee6367178e32f20" kindref="member">rtest_nq_dom</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref><sp/>rt<sp/>=<sp/><ref refid="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" kindref="member">rtest_nq_bnd</ref>(x,y);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rt<sp/>!=<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rt;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.range()<sp/>&amp;&amp;<sp/>y.range())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/>rtest_nq_dom_check(x,y);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="137" refid="group__TaskActorIntTest_1ga9f93d93efbe0e44c0482f95bdc9ba9da" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" kindref="member">rtest_nq_bnd</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((n<sp/>&gt;<sp/>x.max())<sp/>||<sp/>(n<sp/>&lt;<sp/>x.min()))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x.assigned())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/>rtest_nq_dom_check(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>ViewRanges&lt;View&gt;<sp/>rx(x);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(n<sp/>&gt;<sp/>rx.max())<sp/>++rx;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(n<sp/>&gt;=<sp/>rx.min())<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="152" refid="group__TaskActorIntTest_1ga28bb8cc0d18e726ef5f6b9d2e31bdb7a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga03a9ab055cb7518b1ee6367178e32f20" kindref="member">rtest_nq_dom</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref><sp/>rt<sp/>=<sp/><ref refid="group__TaskActorIntTest_1gaad70f4d528c767c9829641cd803084c5" kindref="member">rtest_nq_bnd</ref>(x,n);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rt<sp/>!=<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rt;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>x.range()<sp/>?<sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref><sp/>:<sp/>rtest_nq_dom_check(x,n);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Testing<sp/>inequalities</highlight></codeline>
+<codeline lineno="161"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="162"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="166" refid="group__TaskActorIntTest_1ga670f12c00b2c20d3d7f3907d8ba9f91f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga670f12c00b2c20d3d7f3907d8ba9f91f" kindref="member">rtest_lq</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/>n)<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="174" refid="group__TaskActorFloatTest_1gad1069790b701a55711c766758fad5685" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga670f12c00b2c20d3d7f3907d8ba9f91f" kindref="member">rtest_lq</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/>y.max())<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="182" refid="group__TaskActorIntTest_1ga4733e985bb507c2e27a37b32d63ab143" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga4733e985bb507c2e27a37b32d63ab143" kindref="member">rtest_le</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/><sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="190" refid="group__TaskActorFloatTest_1ga39021070b37012eb4aa9bf726e6c35bf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga4733e985bb507c2e27a37b32d63ab143" kindref="member">rtest_le</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/><sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>y.max())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="198" refid="group__TaskActorIntTest_1ga3dde8766ce44746b6920063dfc491165" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga3dde8766ce44746b6920063dfc491165" kindref="member">rtest_gq</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/><sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="206" refid="group__TaskActorIntTest_1ga484f045f3cd5623d0ad65fb633746e78" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga3dde8766ce44746b6920063dfc491165" kindref="member">rtest_gq</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;<sp/><sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;=<sp/>y.max())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="214" refid="group__TaskActorIntTest_1ga335b4fd658ee02f95ca54b1f635b7239" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga335b4fd658ee02f95ca54b1f635b7239" kindref="member">rtest_gr</ref>(View<sp/>x,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/><sp/>n)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>View&gt;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/>forceinline<sp/><ref refid="group__TaskActorIntTest_1gadbb359c782e2957e831fc208fcc7ad39" kindref="member">RelTest</ref></highlight></codeline>
+<codeline lineno="222" refid="group__TaskActorIntTest_1ga5afcd94ed770ddeb34d20f5b8c3b708b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="group__TaskActorIntTest_1ga335b4fd658ee02f95ca54b1f635b7239" kindref="member">rtest_gr</ref>(View<sp/>x,<sp/>View<sp/>y)<sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.max()<sp/>&lt;=<sp/>y.min())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39ad5822c144faacceb19e0a0f124d2d164" kindref="member">RT_FALSE</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.min()<sp/>&gt;<sp/><sp/>y.max())<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39a015e2de83949268ed5be94c519fac6ad" kindref="member">RT_TRUE</ref>;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__TaskActorIntTest_1ggadbb359c782e2957e831fc208fcc7ad39acc5a498c510aebe7754cde9b1cc5c492" kindref="member">RT_MAYBE</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>int-var</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/int/view/rel-test.hpp"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,449 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants" kind="namespace">
+    <compoundname>boost::numeric::interval_lib::constants</compoundname>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a056bff3d257bc8374540a6a7d3dc9fbd" prot="public" static="yes" mutable="no">
+        <type>const float</type>
+        <definition>const float boost::numeric::interval_lib::constants::pi_f_l</definition>
+        <argsstring></argsstring>
+        <name>pi_f_l</name>
+        <initializer>= 13176794.0f/(1&lt;&lt;22)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="22" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a2caca95cd003409a198990a30f5c5b5c" prot="public" static="yes" mutable="no">
+        <type>const float</type>
+        <definition>const float boost::numeric::interval_lib::constants::pi_f_u</definition>
+        <argsstring></argsstring>
+        <name>pi_f_u</name>
+        <initializer>= 13176795.0f/(1&lt;&lt;22)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="23" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a2f429e9730e4aea224e48d9794934c98" prot="public" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double boost::numeric::interval_lib::constants::pi_d_l</definition>
+        <argsstring></argsstring>
+        <name>pi_d_l</name>
+        <initializer>= (3373259426.0 + 273688.0 / (1&lt;&lt;21)) / (1&lt;&lt;30)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="24" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a23e89b17ff1fa4d6b529a9b6a7ce4c32" prot="public" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double boost::numeric::interval_lib::constants::pi_d_u</definition>
+        <argsstring></argsstring>
+        <name>pi_d_u</name>
+        <initializer>= (3373259426.0 + 273689.0 / (1&lt;&lt;21)) / (1&lt;&lt;30)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="25" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a3b6360429f4ed0d728c3073a2a917732" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_lower</definition>
+        <argsstring>()</argsstring>
+        <name>pi_lower</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="27" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="27" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a57c7f8074ed409dcfad1b4ecbce9a975" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_upper</definition>
+        <argsstring>()</argsstring>
+        <name>pi_upper</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="28" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="28" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a5d1259a4e3b1aab6bcaf4875ffea7545" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_half_lower</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_lower</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="29" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="29" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1ad7a4cead345b3a014fbf7a323824d6c5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_half_upper</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_upper</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="30" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="30" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aec591aa4029c056fbeb9cc16eeb5559e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_twice_lower</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_lower</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="31" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="31" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a355938507757b5b6249ab09d885faf98" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::interval_lib::constants::pi_twice_upper</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_upper</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="32" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="32" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a5bcbb30ec5843960e31e9212b462e5a6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_lower&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_lower&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="34" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1ae11e672e19fb64983aedd109c1065a26" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_upper&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_upper&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="35" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="35" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a216c9d539c30f8797c11c0697ca06261" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_half_lower&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_lower&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="36" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="36" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a19f8fa3f57147e5954afff68c41d05b6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_half_upper&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_upper&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="37" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="37" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a64856261a88fab40462904bf93292162" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_twice_lower&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_lower&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="38" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="38" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aba49e8de21b97a6cb92bbffac114bda0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>float</type>
+        <definition>float boost::numeric::interval_lib::constants::pi_twice_upper&lt; float &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_upper&lt; float &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="39" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="39" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a74386c4d21cdc6af0dca97cab9dfd6f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_lower&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_lower&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="41" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="41" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a129d0bdbfc9cfac62f21467394339d6b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_upper&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_upper&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="42" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="42" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1af47765e7fb8a7b91246c3f7bfc0cc5dc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_half_lower&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_lower&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="43" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="43" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1ae16c60a6f07cf0317db7b37963e8a0ad" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_half_upper&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_upper&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="44" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aeb2b94aa339746fe537d1933df77600a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_twice_lower&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_lower&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="45" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1ac28a2443f816cb1604d758eda988c6fc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double boost::numeric::interval_lib::constants::pi_twice_upper&lt; double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_upper&lt; double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="46" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="46" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a5bce91d75ed24a80ce6206fb6494693d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_lower&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_lower&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="48" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aee4a70bf6a25d4cdf579ebbc01595129" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_upper&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_upper&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="49" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="49" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1a8e258f474bf9f33f5592bef5d251743a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_half_lower&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_lower&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="50" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aa0957ae97ad5e42a7fe8fa1c34b12bfe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_half_upper&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_half_upper&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="51" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1afdb7522c5726911c2b4d9353280a678e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_twice_lower&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_lower&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="52" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="52" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1_1interval__lib_1_1constants_1aedb3014c849de025d750e143427a0616" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>long double</type>
+        <definition>long double boost::numeric::interval_lib::constants::pi_twice_upper&lt; long double &gt;</definition>
+        <argsstring>()</argsstring>
+        <name>pi_twice_upper&lt; long double &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="53" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" bodystart="53" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/constants.hpp" line="16" column="1"/>
+  </compounddef>
+</doxygen>

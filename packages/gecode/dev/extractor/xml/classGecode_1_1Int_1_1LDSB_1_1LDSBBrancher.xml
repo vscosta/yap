@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher" kind="class" prot="public">
+    <compoundname>Gecode::Int::LDSB::LDSBBrancher</compoundname>
+    <basecompoundref refid="classGecode_1_1ViewValBrancher" prot="public" virt="non-virtual">Gecode::ViewValBrancher&lt; View, n, Val, a &gt;</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher" prot="public" virt="non-virtual">Gecode::Set::LDSB::LDSBSetBrancher&lt; View, n, Val, a &gt;</derivedcompoundref>
+    <includes refid="int_2ldsb_8hh" local="no">ldsb.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>int</type>
+        <declname>n</declname>
+        <defname>n</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>Val</declname>
+        <defname>Val</defname>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>a</declname>
+        <defname>a</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1aa59eafd147c0edac2536c67c3ae690db" prot="private" static="no">
+        <type><ref refid="classGecode_1_1ViewBrancher" kindref="compound">ViewBrancher</ref>&lt; View, n &gt;::BranchFilter</type>
+        <definition>typedef ViewBrancher&lt;View,n&gt;::BranchFilter Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::BranchFilter</definition>
+        <argsstring></argsstring>
+        <name>BranchFilter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="336" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a9d5c28f2fb94d43c6c50ab7e5b8655a8" prot="protected" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::VarValPrint)(const Space &amp;home, const BrancherHandle &amp;bh, unsigned int b, typename View::VarType x, int i, const Val &amp;m, std::ostream &amp;o)</definition>
+        <argsstring>)(const Space &amp;home, const BrancherHandle &amp;bh, unsigned int b, typename View::VarType x, int i, const Val &amp;m, std::ostream &amp;o)</argsstring>
+        <name>VarValPrint</name>
+        <briefdescription>
+<para>Function type for printing variable and value selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="346" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a2345bf2c3500d60388d2034d00975750" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp" kindref="compound">SymmetryImp</ref>&lt; View &gt; **</type>
+        <definition>SymmetryImp&lt;View&gt;** Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::_syms</definition>
+        <argsstring></argsstring>
+        <name>_syms</name>
+        <briefdescription>
+<para>Array of symmetry implementations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="339" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a084ddf8ec53877a9c114892660889270" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::_nsyms</definition>
+        <argsstring></argsstring>
+        <name>_nsyms</name>
+        <briefdescription>
+<para>Number of symmetry implementations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="341" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="341" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1af12ea4346ff8e38f39f376b37a43f527" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::_prevPos</definition>
+        <argsstring></argsstring>
+        <name>_prevPos</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="343" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ad5334613564913bd2dbc4e1524253ddf" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::LDSBBrancher</definition>
+        <argsstring>(Space &amp;home, bool share, LDSBBrancher &amp;b)</argsstring>
+        <name>LDSBBrancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher" kindref="compound">LDSBBrancher</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="352" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="130" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1aac1065412bcb482cdc3650a90751fa15" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::LDSBBrancher</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, ViewSel&lt; View &gt; *vs[n], ValSelCommitBase&lt; View, Val &gt; *vsc, SymmetryImp&lt; View &gt; **syms, int nsyms, BranchFilter bf, VarValPrint vvp)</argsstring>
+        <name>LDSBBrancher</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; View &gt; *</type>
+          <declname>vs</declname>
+          <array>[n]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; View, Val &gt; *</type>
+          <declname>vsc</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp" kindref="compound">SymmetryImp</ref>&lt; View &gt; **</type>
+          <declname>syms</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nsyms</declname>
+        </param>
+        <param>
+          <type>BranchFilter</type>
+          <declname>bf</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a9d5c28f2fb94d43c6c50ab7e5b8655a8" kindref="member">VarValPrint</ref></type>
+          <declname>vvp</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="354" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="103" bodyend="115"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a95b8a227d5cadb7ae16d30dd9174ef64" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>const Choice * Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::choice</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>choice</name>
+        <reimplements refid="classGecode_1_1ViewValBrancher_1a71a35056046196cfbbfcf624c2209de9">choice</reimplements>
+        <reimplementedby refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher_1a66e128c5005ab10f536c4abe2f2c2772">choice</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return choice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="363" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="149" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ab4bc607d3fb770864f52ec9c0554acd3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>const Choice * Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::choice</definition>
+        <argsstring>(const Space &amp;home, Archive &amp;e)</argsstring>
+        <name>choice</name>
+        <reimplements refid="classGecode_1_1ViewValBrancher_1a50ffb6bee3aa645335bfa8285211ebe0">choice</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Return choice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="365" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="199" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1af9017341283acdaf6c99532458c7d495" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::commit</definition>
+        <argsstring>(Space &amp;home, const Choice &amp;c, unsigned int b)</argsstring>
+        <name>commit</name>
+        <reimplements refid="classGecode_1_1ViewValBrancher_1a1966df9fb7c73b77148d759ca53e4882">commit</reimplements>
+        <reimplementedby refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher_1a2e7997c8381ffcac6713342f7e75f087">commit</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> &amp;</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Perform commit for choice <emphasis>c</emphasis> and alternative <emphasis>b</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="367" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="230" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a97258cbbc87dd077213dd4c3e65204d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1ViewValBrancher_1a022fe17f0b2e1c48799b97adfbcdf384">copy</reimplements>
+        <reimplementedby refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher_1ab04a379386740976682b0e5ace083721">copy</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Perform cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="369" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="141" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a11fd58843746c1c30eea88ca2c5da0f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1ViewValBrancher_1a5927b457442e8fbab4d9737b12df2c06">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete brancher and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="371" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="262" bodyend="266"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ab26ac48ecd94da2cd495d58ebc71f1ea" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref></type>
+        <definition>forceinline BrancherHandle Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;::post</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, ViewSel&lt; View &gt; *vs[n], ValSelCommitBase&lt; View, Val &gt; *vsc, SymmetryImp&lt; View &gt; **syms, int nsyms, BranchFilter bf, VarValPrint vvp)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewSel" kindref="compound">ViewSel</ref>&lt; View &gt; *</type>
+          <declname>vs</declname>
+          <array>[n]</array>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValSelCommitBase" kindref="compound">ValSelCommitBase</ref>&lt; View, Val &gt; *</type>
+          <declname>vsc</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1SymmetryImp" kindref="compound">SymmetryImp</ref>&lt; View &gt; **</type>
+          <declname>syms</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nsyms</declname>
+        </param>
+        <param>
+          <type>BranchFilter</type>
+          <declname>bf</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a9d5c28f2fb94d43c6c50ab7e5b8655a8" kindref="member">VarValPrint</ref></type>
+          <declname>vvp</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> post function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/ldsb.hh" line="373" column="1" bodyfile="/usr/include/gecode/int/ldsb/brancher.hpp" bodystart="120" bodyend="125"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Symmetry-breaking brancher with generic view and value selection. </para>    </briefdescription>
+    <detaileddescription>
+<para>Implements view-based branching for an array of views (of type <emphasis>View</emphasis>) and value (of type <emphasis>Val</emphasis>). </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3208">
+        <label>Gecode::ViewValBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1ViewValBrancher"/>
+        <childnode refid="3209" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3210">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="3211" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3209">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="3210" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3207">
+        <label>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher"/>
+        <childnode refid="3208" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3211">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3212" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3212">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="3213">
+        <label>Gecode::Set::LDSB::LDSBSetBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Set_1_1LDSB_1_1LDSBSetBrancher"/>
+        <childnode refid="3207" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3225">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="3223">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="3218" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3226">
+        <label>Gecode::ValSelCommitBase&lt; View, Val &gt;</label>
+        <link refid="classGecode_1_1ValSelCommitBase"/>
+      </node>
+      <node id="3221">
+        <label>Gecode::BranchTraits&lt; typename View::VarType &gt;</label>
+        <link refid="classGecode_1_1BranchTraits"/>
+      </node>
+      <node id="3224">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="3220">
+        <label>Gecode::ViewSel&lt; View &gt;</label>
+        <link refid="classGecode_1_1ViewSel"/>
+      </node>
+      <node id="3222">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="3223" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="3224" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="3225" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="3219" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="3215">
+        <label>Gecode::ViewValBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1ViewValBrancher"/>
+        <childnode refid="3216" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3222" relation="usage">
+          <edgelabel>vvp</edgelabel>
+        </childnode>
+        <childnode refid="3226" relation="usage">
+          <edgelabel>vsc</edgelabel>
+        </childnode>
+      </node>
+      <node id="3217">
+        <label>Gecode::Brancher</label>
+        <link refid="classGecode_1_1Brancher"/>
+        <childnode refid="3218" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3216">
+        <label>Gecode::ViewBrancher&lt; View, n &gt;</label>
+        <link refid="classGecode_1_1ViewBrancher"/>
+        <childnode refid="3217" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3220" relation="usage">
+          <edgelabel>vs</edgelabel>
+        </childnode>
+        <childnode refid="3221" relation="usage">
+          <edgelabel>bf</edgelabel>
+        </childnode>
+      </node>
+      <node id="3214">
+        <label>Gecode::Int::LDSB::LDSBBrancher&lt; View, n, Val, a &gt;</label>
+        <link refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher"/>
+        <childnode refid="3215" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3218">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="3219" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="3219">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/ldsb.hh" line="335" column="1" bodyfile="/usr/include/gecode/int/ldsb.hh" bodystart="335" bodyend="381"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a084ddf8ec53877a9c114892660889270" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>_nsyms</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1af12ea4346ff8e38f39f376b37a43f527" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>_prevPos</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a2345bf2c3500d60388d2034d00975750" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>_syms</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a8bd06d8ce2ebbeeba3a0df263d0fbacf" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>bf</name></member>
+      <member refid="classGecode_1_1Brancher_1a7bbaf1f4df629265dade447af948298e" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Brancher_1a837e2b189b53fe84794a3b0da82b790a" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>Brancher</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1aa59eafd147c0edac2536c67c3ae690db" prot="private" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>BranchFilter</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a95b8a227d5cadb7ae16d30dd9174ef64" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ab4bc607d3fb770864f52ec9c0554acd3" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1af9017341283acdaf6c99532458c7d495" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>commit</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a97258cbbc87dd077213dd4c3e65204d3" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a11fd58843746c1c30eea88ca2c5da0f9" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Brancher_1abf3e7cd63277085696ce0a48ae1c840d" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>id</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ad5334613564913bd2dbc4e1524253ddf" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>LDSBBrancher</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1aac1065412bcb482cdc3650a90751fa15" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>LDSBBrancher</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1a8095e6d2d826b0a69cca2751dc73c7f8" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>ngl</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a3bccef15a969bd042419c9adf7d24728" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>pos</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1ab26ac48ecd94da2cd495d58ebc71f1ea" prot="public" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>post</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1a3cac53948c9a6217603eec85883f5933" prot="public" virt="non-virtual" ambiguityscope="Gecode::ViewValBrancher::"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>post</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1ae69e93395dcf2264648112c8a9d86e98" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>print</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ad4d6e8b38f157e325cf3845e64ed75d7" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>start</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ab06acc3718206ef2dd69f2a5fbd29ff9" prot="public" virt="virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>status</name></member>
+      <member refid="classGecode_1_1Int_1_1LDSB_1_1LDSBBrancher_1a9d5c28f2fb94d43c6c50ab7e5b8655a8" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>VarValPrint</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a5326d83d4f34ed591f7c5e946b8d7fe5" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>view</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a60203bdac8f1a00dc1a4b7c6c70b8d98" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>ViewBrancher</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1a1bc868729c81ce5dc2d2edb28ee60752" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>ViewBrancher</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1aeae02be6ee25c0d4bcb699690137eb3f" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>ViewValBrancher</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1ab0d73a199cda2c9c6e6c9e8134ee1aed" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>ViewValBrancher</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1af24b93d52c489f9c90b2f6823e1b0c0f" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>vs</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1ae65901eb7dca91c33e962b05bc3f2d97" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>vsc</name></member>
+      <member refid="classGecode_1_1ViewValBrancher_1a63c5e6ebf613316bd58c76ade0ea5df2" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>vvp</name></member>
+      <member refid="classGecode_1_1ViewBrancher_1ae1d184233cf870880995fe3bbd4a37fe" prot="protected" virt="non-virtual"><scope>Gecode::Int::LDSB::LDSBBrancher</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

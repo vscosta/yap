@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetBranchAssign" kind="group">
+    <compoundname>TaskModelSetBranchAssign</compoundname>
+    <title>Assigning set variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1gac14d6f306a7457a6bc112ce8dcc41e4b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MIN_INC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MIN_INC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Include smallest element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="59" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1gac03f391b1d07aaacb2c71440051dfed8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MIN_EXC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MIN_EXC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Exclude smallest element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="64" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1ga5a83a1e725bdd842727a9aa5c4685d3f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MED_INC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MED_INC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Include median element (rounding downwards) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="69" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1ga55b9190ca348b9505dd6fe9419f3077d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MED_EXC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MED_EXC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Exclude median element (rounding downwards) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="74" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1ga89b451dd4af5ccffc6c63d68f2ad609e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MAX_INC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MAX_INC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Include largest element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="79" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="79" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1gacd5bc51e4298b0eed4f0cdf749002380" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_MAX_EXC</definition>
+        <argsstring>(void)</argsstring>
+        <name>SET_ASSIGN_MAX_EXC</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Exclude largest element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="84" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="84" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1ga98ab6de6c62c98972e9c9ac53b2f6edd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_RND_INC</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>SET_ASSIGN_RND_INC</name>
+        <param>
+          <type>Rnd</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Include random element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="89" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="89" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1ga2a2cf4854920b4c59d96498cc859914a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN_RND_EXC</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>SET_ASSIGN_RND_EXC</name>
+        <param>
+          <type>Rnd</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Exclude random element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="94" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="94" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetBranchAssign_1gae0c6e0649df9e3f323ef72a535c97cf9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>SetAssign</type>
+        <definition>SetAssign Gecode::SET_ASSIGN</definition>
+        <argsstring>(SetBranchVal v, SetBranchCommit c=NULL)</argsstring>
+        <name>SET_ASSIGN</name>
+        <param>
+          <type>SetBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>SetBranchCommit</type>
+          <declname>c</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The default commit function posts the constraint that the value <emphasis>n</emphasis> must be included in the set variable <emphasis>x</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch/assign.hpp" line="99" column="1" bodyfile="/usr/include/gecode/set/branch/assign.hpp" bodystart="99" bodyend="102"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

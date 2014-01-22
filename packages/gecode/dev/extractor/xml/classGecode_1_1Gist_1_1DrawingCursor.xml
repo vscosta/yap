@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Gist_1_1DrawingCursor" kind="class" prot="public">
+    <compoundname>Gecode::Gist::DrawingCursor</compoundname>
+    <basecompoundref refid="classGecode_1_1Gist_1_1NodeCursor" prot="public" virt="non-virtual">Gecode::Gist::NodeCursor&lt; VisualNode &gt;</basecompoundref>
+    <includes refid="drawingcursor_8hh" local="no">drawingcursor.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Cursor interface</header>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1ac2f034842bf12b07fa725f6a1c008e36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::DrawingCursor::moveUpwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>moveUpwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move cursor to parent. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="92" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hpp" bodystart="41" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1a4695f954b7fc26aec659aad9cb9f9365" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::DrawingCursor::mayMoveDownwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>mayMoveDownwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test if cursor may move to child. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="94" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hpp" bodystart="61" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1a1905749fec58d6450d414aee70eee650" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::DrawingCursor::moveDownwards</definition>
+        <argsstring>(void)</argsstring>
+        <name>moveDownwards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move cursor to child. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="96" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hpp" bodystart="69" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1ad34490124e0ba19c7c60c9775027ca15" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::DrawingCursor::moveSidewards</definition>
+        <argsstring>(void)</argsstring>
+        <name>moveSidewards</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move cursor to sibling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="98" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hpp" bodystart="76" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1a19bc76b8564395d6f2871eab3cc8b84b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Gist::DrawingCursor::processCurrentNode</definition>
+        <argsstring>(void)</argsstring>
+        <name>processCurrentNode</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Draw the node. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="100" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1ac6fb3d7a965cef3b22e3323b7d38f367" prot="private" static="no" mutable="no">
+        <type>QPainter &amp;</type>
+        <definition>QPainter&amp; Gecode::Gist::DrawingCursor::painter</definition>
+        <argsstring></argsstring>
+        <name>painter</name>
+        <briefdescription>
+<para>The painter where the tree is drawn. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="51" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1aff1eb1fe57fab35af5f42bd72d918bdd" prot="private" static="no" mutable="no">
+        <type>QRect</type>
+        <definition>QRect Gecode::Gist::DrawingCursor::clippingRect</definition>
+        <argsstring></argsstring>
+        <name>clippingRect</name>
+        <briefdescription>
+<para>The clipping area. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="53" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a413bcc4446287cff473ba929bc5e778f" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+        <definition>BestNode* Gecode::Gist::DrawingCursor::curBest</definition>
+        <argsstring></argsstring>
+        <name>curBest</name>
+        <briefdescription>
+<para>The best solution (for branch-and-bound) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="55" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a373b42bdf623ad1fd83c7e2211f4aeb8" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::Gist::DrawingCursor::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>The current coordinates. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="57" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1ad811ec877664f065b55017df176addae" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::Gist::DrawingCursor::y</definition>
+        <argsstring></argsstring>
+        <name>y</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="57" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1aba7a7edbf75bd71a63b93f7d94c10010" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::Gist::DrawingCursor::copies</definition>
+        <argsstring></argsstring>
+        <name>copies</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="59" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a1237ecd72c2fc0fabe4a7334233ed280" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::red</definition>
+        <argsstring></argsstring>
+        <name>red</name>
+        <briefdescription>
+<para>The color for failed nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="65" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a276aa0e45a379f498f61fb4a6d2ae3f3" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::green</definition>
+        <argsstring></argsstring>
+        <name>green</name>
+        <briefdescription>
+<para>The color for solved nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="67" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a24c8beac1f43016385a8bdccd250225e" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::blue</definition>
+        <argsstring></argsstring>
+        <name>blue</name>
+        <briefdescription>
+<para>The color for choice nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="69" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1af5f788e5a4d14dc9298b579f0f22fb5e" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::orange</definition>
+        <argsstring></argsstring>
+        <name>orange</name>
+        <briefdescription>
+<para>The color for the best solution. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="71" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1a8346757a04b5e9b4dd9e7ab8de7dabcc" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::white</definition>
+        <argsstring></argsstring>
+        <name>white</name>
+        <briefdescription>
+<para>White color. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="73" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1ad39d25ed321cd60d72b6bb9c5e10f0f0" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::lightRed</definition>
+        <argsstring></argsstring>
+        <name>lightRed</name>
+        <briefdescription>
+<para>The color for expanded failed nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="76" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1ad6ef79312f3e7048825d5adbc765e996" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::lightGreen</definition>
+        <argsstring></argsstring>
+        <name>lightGreen</name>
+        <briefdescription>
+<para>The color for expanded solved nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="78" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Gist_1_1DrawingCursor_1aa92879273f7395a433aaa77076fe5a88" prot="public" static="yes" mutable="no">
+        <type>const QColor</type>
+        <definition>const QColor Gecode::Gist::DrawingCursor::lightBlue</definition>
+        <argsstring></argsstring>
+        <name>lightBlue</name>
+        <briefdescription>
+<para>The color for expanded choice nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="80" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1a707dcc6c27d377b765026f243fcc1fbc" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Gist::DrawingCursor::isClipped</definition>
+        <argsstring>(void)</argsstring>
+        <name>isClipped</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test if current node is clipped. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="62" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hpp" bodystart="48" bodyend="58"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Gist_1_1DrawingCursor_1ac576a5c8e84bca4ab9d1a07db8c4e3e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Gist::DrawingCursor::DrawingCursor</definition>
+        <argsstring>(VisualNode *root, const VisualNode::NodeAllocator &amp;na, BestNode *curBest0, QPainter &amp;painter0, const QRect &amp;clippingRect0, bool showCopies)</argsstring>
+        <name>DrawingCursor</name>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">VisualNode::NodeAllocator</ref> &amp;</type>
+          <declname>na</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref> *</type>
+          <declname>curBest0</declname>
+        </param>
+        <param>
+          <type>QPainter &amp;</type>
+          <declname>painter0</declname>
+        </param>
+        <param>
+          <type>const QRect &amp;</type>
+          <declname>clippingRect0</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>showCopies</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/gist/drawingcursor.hh" line="83" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A cursor that draws a tree on a QWidget. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1853">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+      </node>
+      <node id="1852">
+        <label>Gecode::Gist::DrawingCursor</label>
+        <link refid="classGecode_1_1Gist_1_1DrawingCursor"/>
+        <childnode refid="1853" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1856">
+        <label>Gecode::Gist::VisualNode</label>
+        <link refid="classGecode_1_1Gist_1_1VisualNode"/>
+        <childnode refid="1857" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1866" relation="usage">
+          <edgelabel>shape</edgelabel>
+        </childnode>
+      </node>
+      <node id="1864">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="1860">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="1861" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1863">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="1859">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="1860" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="1863" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="1864" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="1862" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="1866">
+        <label>Gecode::Gist::Shape</label>
+        <link refid="classGecode_1_1Gist_1_1Shape"/>
+        <childnode refid="1866" relation="usage">
+          <edgelabel>hidden</edgelabel>
+          <edgelabel>leaf</edgelabel>
+        </childnode>
+      </node>
+      <node id="1858">
+        <label>Gecode::Gist::Node</label>
+        <link refid="classGecode_1_1Gist_1_1Node"/>
+      </node>
+      <node id="1855">
+        <label>Gecode::Gist::NodeCursor&lt; VisualNode &gt;</label>
+        <link refid="classGecode_1_1Gist_1_1NodeCursor"/>
+        <childnode refid="1856" relation="usage">
+          <edgelabel>na</edgelabel>
+        </childnode>
+      </node>
+      <node id="1865">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="1854">
+        <label>Gecode::Gist::DrawingCursor</label>
+        <link refid="classGecode_1_1Gist_1_1DrawingCursor"/>
+        <childnode refid="1855" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1861">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1862" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1862">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="1857">
+        <label>Gecode::Gist::SpaceNode</label>
+        <link refid="classGecode_1_1Gist_1_1SpaceNode"/>
+        <childnode refid="1858" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1859" relation="usage">
+          <edgelabel>copy</edgelabel>
+        </childnode>
+        <childnode refid="1865" relation="usage">
+          <edgelabel>choice</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/gist/drawingcursor.hh" line="48" column="1" bodyfile="/usr/include/gecode/gist/drawingcursor.hh" bodystart="48" bodyend="102"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1af0f52939ef370ba2a509dcc9e075c442" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ae30df12f03597c90da69f21f49914aa7" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>alternative</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a24c8beac1f43016385a8bdccd250225e" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>blue</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1aff1eb1fe57fab35af5f42bd72d918bdd" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>clippingRect</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1aba7a7edbf75bd71a63b93f7d94c10010" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>copies</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a413bcc4446287cff473ba929bc5e778f" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>curBest</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ac576a5c8e84bca4ab9d1a07db8c4e3e5" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>DrawingCursor</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a276aa0e45a379f498f61fb4a6d2ae3f3" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>green</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a707dcc6c27d377b765026f243fcc1fbc" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>isClipped</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1aa92879273f7395a433aaa77076fe5a88" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>lightBlue</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ad6ef79312f3e7048825d5adbc765e996" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>lightGreen</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ad39d25ed321cd60d72b6bb9c5e10f0f0" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>lightRed</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a4695f954b7fc26aec659aad9cb9f9365" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>mayMoveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a6a5b08af9795b8eae2f27ac0bd2605d1" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>mayMoveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ac09a2c1a196d04d08271b77c0f53d60c" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>mayMoveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a1905749fec58d6450d414aee70eee650" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>moveDownwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ad34490124e0ba19c7c60c9775027ca15" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>moveSidewards</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ac2f034842bf12b07fa725f6a1c008e36" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>moveUpwards</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a327325bcfef32a267cea6d3ba1416b11" prot="protected" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>na</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1ab8f69a5de0bb2e4ef7e1c02b82e6b31e" prot="protected" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a79fb7b8bc5aa9c84c6735db1154112c9" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>node</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1a5f230c3e4a60f5f91bc2924dae05495d" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>NodeCursor</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1af5f788e5a4d14dc9298b579f0f22fb5e" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>orange</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ac6fb3d7a965cef3b22e3323b7d38f367" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>painter</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a19bc76b8564395d6f2871eab3cc8b84b" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>processCurrentNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a1237ecd72c2fc0fabe4a7334233ed280" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>red</name></member>
+      <member refid="classGecode_1_1Gist_1_1NodeCursor_1aafd421a2dc921f0e2bed9671055abb34" prot="protected" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>startNode</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a8346757a04b5e9b4dd9e7ab8de7dabcc" prot="public" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>white</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1a373b42bdf623ad1fd83c7e2211f4aeb8" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>x</name></member>
+      <member refid="classGecode_1_1Gist_1_1DrawingCursor_1ad811ec877664f065b55017df176addae" prot="private" virt="non-virtual"><scope>Gecode::Gist::DrawingCursor</scope><name>y</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

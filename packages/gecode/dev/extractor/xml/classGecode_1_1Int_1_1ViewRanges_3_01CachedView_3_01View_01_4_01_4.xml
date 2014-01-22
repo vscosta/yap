@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1ViewRanges" prot="public" virt="non-virtual">Gecode::Int::ViewRanges&lt; View &gt;</basecompoundref>
+    <includes refid="int_2view_2cached_8hpp" local="no">cached.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class View</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1acf3513a67ab0fd0fe0676f599637d13a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;::ViewRanges</definition>
+        <argsstring>(void)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/cached.hpp" line="340" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="350" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1a8b08a0849f72cb3bdec93b2339308f2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;::ViewRanges</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>ViewRanges</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/cached.hpp" line="342" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="354" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1acb6bdf7ac1274afc44f3269286b3469e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;::init</definition>
+        <argsstring>(const CachedView&lt; View &gt; &amp;x)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1CachedView" kindref="compound">CachedView</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges for view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view/cached.hpp" line="344" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="360" bodyend="362"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for offset integer views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7849">
+        <label>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4"/>
+        <childnode refid="7850" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7850">
+        <label>Gecode::Int::ViewRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7851">
+        <label>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4"/>
+        <childnode refid="7852" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7852">
+        <label>Gecode::Int::ViewRanges&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1ViewRanges"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/view/cached.hpp" line="335" column="1" bodyfile="/usr/include/gecode/int/view/cached.hpp" bodystart="334" bodyend="346"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1acb6bdf7ac1274afc44f3269286b3469e" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a9089345a78e0bc4b91382b852fe6ca9a" prot="public" virt="non-virtual" ambiguityscope="Gecode::Int::ViewRanges::"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a26338b51f2f24730f2f3fa9b9ea9e1f9" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a2cba4fdbf5859ff22afbe4f55b6ea1df" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a5cbabf4125d731fe6082e63f96a37f1b" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1abb5c7b2a0ee257ef96949570cf33916c" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1acf3513a67ab0fd0fe0676f599637d13a" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4_1a8b08a0849f72cb3bdec93b2339308f2f" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a3ad77256e911cbc732d3c552797cfb3e" prot="public" virt="non-virtual" ambiguityscope="Gecode::Int::ViewRanges::"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>ViewRanges</name></member>
+      <member refid="classGecode_1_1Int_1_1ViewRanges_1a46da8c5039f178848dcd60b86e4891e8" prot="public" virt="non-virtual"><scope>Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

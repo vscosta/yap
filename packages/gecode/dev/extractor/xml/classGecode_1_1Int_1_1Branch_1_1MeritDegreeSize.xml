@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize" kind="class" prot="public">
+    <compoundname>Gecode::Int::Branch::MeritDegreeSize</compoundname>
+    <basecompoundref refid="classGecode_1_1MeritBase" prot="public" virt="non-virtual">Gecode::MeritBase&lt; View, double &gt;</basecompoundref>
+    <includes refid="int_2branch_8hh" local="no">branch.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class <ref refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" kindref="member">View</ref></type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1ac936af068c5e532d8caf3776674d7af8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Branch::MeritDegreeSize&lt; View &gt;::MeritDegreeSize</definition>
+        <argsstring>(Space &amp;home, const VarBranch &amp;vb)</argsstring>
+        <name>MeritDegreeSize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarBranch" kindref="compound">VarBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="123" column="1" bodyfile="/usr/include/gecode/int/branch/merit.hpp" bodystart="88" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1a80c26f6b1da5c74277c9e831d836287b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Branch::MeritDegreeSize&lt; View &gt;::MeritDegreeSize</definition>
+        <argsstring>(Space &amp;home, bool shared, MeritDegreeSize &amp;m)</argsstring>
+        <name>MeritDegreeSize</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize" kindref="compound">MeritDegreeSize</ref> &amp;</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="125" column="1" bodyfile="/usr/include/gecode/int/branch/merit.hpp" bodystart="92" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1ae48380d15ebe525c072f4f315a40f242" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::Int::Branch::MeritDegreeSize&lt; View &gt;::operator()</definition>
+        <argsstring>(const Space &amp;home, View x, int i)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" kindref="member">View</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return size over degree as merit for view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="127" column="1" bodyfile="/usr/include/gecode/int/branch/merit.hpp" bodystart="97" bodyend="99"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Merit class for size over degree. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="3894">
+        <label>Gecode::Int::Branch::MeritDegreeSize&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize"/>
+        <childnode refid="3895" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3895">
+        <label>Gecode::MeritBase&lt; View, double &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3896">
+        <label>Gecode::Int::Branch::MeritDegreeSize&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize"/>
+        <childnode refid="3897" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3897">
+        <label>Gecode::MeritBase&lt; View, double &gt;</label>
+        <link refid="classGecode_1_1MeritBase"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/branch.hh" line="120" column="1" bodyfile="/usr/include/gecode/int/branch.hh" bodystart="120" bodyend="128"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1MeritBase_1a3b04ddc669a22b449129b2a835eefe26" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1MeritBase_1a0dd42399c470eef9ee7a23f238ad8fa9" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1MeritBase_1ae8ab6cc04c2cd2b34701e1deba2236b4" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>MeritBase</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1ac936af068c5e532d8caf3776674d7af8" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>MeritDegreeSize</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1a80c26f6b1da5c74277c9e831d836287b" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>MeritDegreeSize</name></member>
+      <member refid="classGecode_1_1MeritBase_1a386345c2a920535002f34ae4dbc96501" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1MeritDegreeSize_1ae48380d15ebe525c072f4f315a40f242" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1MeritBase_1a5f83e32f550fdca23acf1a2a3904ef0a" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>Val</name></member>
+      <member refid="classGecode_1_1MeritBase_1a07837decee6635d337a2681f2d1a877c" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::MeritDegreeSize</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

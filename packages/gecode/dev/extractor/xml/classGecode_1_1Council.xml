@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Council" kind="class" prot="public">
+    <compoundname>Gecode::Council</compoundname>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>A</declname>
+        <defname>A</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1Council_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Advisor</definition>
+        <argsstring></argsstring>
+        <name>Advisor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="876" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="876" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1Council_1a19e14a6ff25df642eda4d85d0192ece7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class Advisors&lt; A &gt;</definition>
+        <argsstring></argsstring>
+        <name>Advisors&lt; A &gt;</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="876" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="877" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Council_1a26689d65f707373bb604013d22b0e8d2" prot="private" static="no" mutable="yes">
+        <type><ref refid="classGecode_1_1ActorLink" kindref="compound">ActorLink</ref> *</type>
+        <definition>ActorLink* Gecode::Council&lt; A &gt;::advisors</definition>
+        <argsstring></argsstring>
+        <name>advisors</name>
+        <briefdescription>
+<para>Starting point for a linked list of advisors. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="880" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="880" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Council_1ad63ab337e898e6c2b2fce8c00eddf482" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Council&lt; A &gt;::Council</definition>
+        <argsstring>(void)</argsstring>
+        <name>Council</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="883" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3228" bodyend="3228"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Council_1a235d93f29d774c1d43254fea9579ed28" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Council&lt; A &gt;::Council</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>Council</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Construct advisor council. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="885" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3232" bodyend="3233"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Council_1a148b3c15400f5a29df62f25951c2f8c6" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Council&lt; A &gt;::empty</definition>
+        <argsstring>(void) const </argsstring>
+        <name>empty</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether council has advisor left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="887" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3237" bodyend="3243"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Council_1ad79a57a24ef3a4b8e6bee569c3374917" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Council&lt; A &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, Council&lt; A &gt; &amp;c)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Council" kindref="compound">Council</ref>&lt; A &gt; &amp;</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Update during cloning (copies all advisors) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="889" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3247" bodyend="3288"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Council_1ae1041733331954177c25f5976b751b3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Council&lt; A &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Dispose council. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="891" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3292" bodyend="3299"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Council of advisors </para>    </briefdescription>
+    <detaileddescription>
+<para>If a propagator uses advisors, it must maintain its advisors through a council. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="226" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="226" bodyend="-1"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Council_1a8c63cabf703a8f1e237a25c133f12e0e" prot="private" virt="non-virtual"><scope>Gecode::Council</scope><name>Advisor</name></member>
+      <member refid="classGecode_1_1Council_1a26689d65f707373bb604013d22b0e8d2" prot="private" virt="non-virtual"><scope>Gecode::Council</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Council_1a19e14a6ff25df642eda4d85d0192ece7" prot="private" virt="non-virtual"><scope>Gecode::Council</scope><name>Advisors&lt; A &gt;</name></member>
+      <member refid="classGecode_1_1Council_1ad63ab337e898e6c2b2fce8c00eddf482" prot="public" virt="non-virtual"><scope>Gecode::Council</scope><name>Council</name></member>
+      <member refid="classGecode_1_1Council_1a235d93f29d774c1d43254fea9579ed28" prot="public" virt="non-virtual"><scope>Gecode::Council</scope><name>Council</name></member>
+      <member refid="classGecode_1_1Council_1ae1041733331954177c25f5976b751b3f" prot="public" virt="non-virtual"><scope>Gecode::Council</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Council_1a148b3c15400f5a29df62f25951c2f8c6" prot="public" virt="non-virtual"><scope>Gecode::Council</scope><name>empty</name></member>
+      <member refid="classGecode_1_1Council_1ad79a57a24ef3a4b8e6bee569c3374917" prot="public" virt="non-virtual"><scope>Gecode::Council</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

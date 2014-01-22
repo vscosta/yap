@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_0a47cb95179ac32ad2a1472c4ad1e139" kind="dir">
+    <compoundname>/usr/include/gecode/minimodel</compoundname>
+    <innerfile refid="bool-expr_8hpp">bool-expr.hpp</innerfile>
+    <innerfile refid="minimodel_2exception_8hpp">exception.hpp</innerfile>
+    <innerfile refid="float-rel_8hpp">float-rel.hpp</innerfile>
+    <innerfile refid="int-rel_8hpp">int-rel.hpp</innerfile>
+    <innerfile refid="ldsb_8hpp">ldsb.hpp</innerfile>
+    <innerfile refid="matrix_8hpp">matrix.hpp</innerfile>
+    <innerfile refid="optimize_8hpp">optimize.hpp</innerfile>
+    <innerfile refid="reg_8hpp">reg.hpp</innerfile>
+    <innerfile refid="set-expr_8hpp">set-expr.hpp</innerfile>
+    <innerfile refid="set-rel_8hpp">set-rel.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/minimodel/"/>
+  </compounddef>
+</doxygen>

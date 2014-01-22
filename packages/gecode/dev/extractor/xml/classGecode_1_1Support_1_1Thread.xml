@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1Thread" kind="class" prot="public">
+    <compoundname>Gecode::Support::Thread</compoundname>
+    <includes refid="thread_8hpp" local="no">thread.hpp</includes>
+    <innerclass refid="classGecode_1_1Support_1_1Thread_1_1Run" prot="public">Gecode::Support::Thread::Run</innerclass>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Support_1_1Thread_1ab045574fa90daa85090f8f2778b09ff0" prot="public" static="yes" mutable="no">
+        <type>GECODE_SUPPORT_EXPORT <ref refid="classGecode_1_1Support_1_1Thread_1_1Run" kindref="compound">Run</ref> *</type>
+        <definition>GECODE_SUPPORT_EXPORT Run* Gecode::Support::Thread::idle</definition>
+        <argsstring></argsstring>
+        <name>idle</name>
+        <briefdescription>
+<para>Idle runners. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="306" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="306" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1a449b0135383439d9fedcbc22564bbf73" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SUPPORT_EXPORT <ref refid="classGecode_1_1Support_1_1Mutex" kindref="compound">Mutex</ref> *</type>
+        <definition>static GECODE_SUPPORT_EXPORT Mutex* Gecode::Support::Thread::m</definition>
+        <argsstring>(void)</argsstring>
+        <name>m</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Support_1_1Mutex" kindref="compound">Mutex</ref> for synchronization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="304" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1a4ea29d610b30fa3be433c1b0066b9536" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::Thread::run</definition>
+        <argsstring>(Runnable *r)</argsstring>
+        <name>run</name>
+        <param>
+          <type><ref refid="classGecode_1_1Support_1_1Runnable" kindref="compound">Runnable</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Construct a new thread and run <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>After <emphasis>r</emphasis> terminates, <emphasis>r</emphasis> is deleted. After that, the thread terminates.</para><para>If the operatins system does not support any threads, throws an exception of type Support::OperatingSystemError. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="317" column="1" bodyfile="/usr/include/gecode/support/thread/thread.hpp" bodystart="109" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1af611b4225dd41e10d676174b33a1c20d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Thread::sleep</definition>
+        <argsstring>(unsigned int ms)</argsstring>
+        <name>sleep</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>ms</declname>
+        </param>
+        <briefdescription>
+<para>Put current thread to sleep for <emphasis>ms</emphasis> milliseconds. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="319" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="78" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1a0a2cdc9558a3716a243e364ca21f2caf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Support::Thread::npu</definition>
+        <argsstring>(void)</argsstring>
+        <name>npu</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number of processing units (1 if information not available) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="321" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="80" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1a1943ef3c39586a2c2e9cdf5f5d68f493" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Support::Thread::Thread</definition>
+        <argsstring>(const Thread &amp;)</argsstring>
+        <name>Thread</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Thread" kindref="compound">Thread</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>A thread cannot be copied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="324" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="324" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Thread_1a433c7f73fe6eda4d464ca5766a1334b1" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::Thread::operator=</definition>
+        <argsstring>(const Thread &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Thread" kindref="compound">Thread</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>A thread cannot be assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="326" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="326" bodyend="326"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Simple threads. </para>    </briefdescription>
+    <detaileddescription>
+<para>Threads cannot be created, only runnable objects can be submitted for execution by a thread. Threads are pooled to avoid creation/destruction of threads as much as possible. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="7029">
+        <label>Gecode::Support::Event</label>
+        <link refid="classGecode_1_1Support_1_1Event"/>
+      </node>
+      <node id="7028">
+        <label>Gecode::Support::Runnable</label>
+        <link refid="classGecode_1_1Support_1_1Runnable"/>
+      </node>
+      <node id="7026">
+        <label>Gecode::Support::Thread</label>
+        <link refid="classGecode_1_1Support_1_1Thread"/>
+        <childnode refid="7027" relation="usage">
+          <edgelabel>idle</edgelabel>
+        </childnode>
+      </node>
+      <node id="7027">
+        <label>Gecode::Support::Thread::Run</label>
+        <link refid="classGecode_1_1Support_1_1Thread_1_1Run"/>
+        <childnode refid="7028" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+        <childnode refid="7027" relation="usage">
+          <edgelabel>n</edgelabel>
+        </childnode>
+        <childnode refid="7029" relation="usage">
+          <edgelabel>e</edgelabel>
+        </childnode>
+        <childnode refid="7030" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="7030">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/support/thread.hpp" line="279" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="279" bodyend="327"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1Thread_1ab045574fa90daa85090f8f2778b09ff0" prot="public" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>idle</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1a449b0135383439d9fedcbc22564bbf73" prot="public" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>m</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1a0a2cdc9558a3716a243e364ca21f2caf" prot="public" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>npu</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1a433c7f73fe6eda4d464ca5766a1334b1" prot="private" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1a4ea29d610b30fa3be433c1b0066b9536" prot="public" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>run</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1af611b4225dd41e10d676174b33a1c20d" prot="public" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>sleep</name></member>
+      <member refid="classGecode_1_1Support_1_1Thread_1a1943ef3c39586a2c2e9cdf5f5d68f493" prot="private" virt="non-virtual"><scope>Gecode::Support::Thread</scope><name>Thread</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

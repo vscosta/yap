@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice" kind="class" prot="public">
+    <compoundname>Gecode::Int::Branch::PosValuesChoice</compoundname>
+    <basecompoundref refid="classGecode_1_1PosChoice" prot="public" virt="non-virtual">Gecode::PosChoice</basecompoundref>
+    <includes refid="view-values_8hpp" local="no">view-values.hpp</includes>
+    <innerclass refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1_1PosMin" prot="private">Gecode::Int::Branch::PosValuesChoice::PosMin</innerclass>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ab5794f2d7bf48b13c2ac242e58a21e81" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Int::Branch::PosValuesChoice::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of ranges. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="52" column="1" bodyfile="/usr/include/gecode/int/branch/view-values.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a459df3c14c5df74789687dfdfa0226c6" prot="private" static="no" mutable="no">
+        <type>PosMin *</type>
+        <definition>PosMin* Gecode::Int::Branch::PosValuesChoice::pm</definition>
+        <argsstring></argsstring>
+        <name>pm</name>
+        <briefdescription>
+<para>Values to assign to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="54" column="1" bodyfile="/usr/include/gecode/int/branch/view-values.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a49772ef0cd2b94dd53804251b6569f1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT</type>
+        <definition>GECODE_INT_EXPORT Gecode::Int::Branch::PosValuesChoice::PosValuesChoice</definition>
+        <argsstring>(const Brancher &amp;b, const Pos &amp;p, IntView x)</argsstring>
+        <name>PosValuesChoice</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Initialize choice for brancher <emphasis>b</emphasis>, position <emphasis>p</emphasis>, and view <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="58" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ab2ac9047899dad22ab2b35a98f506494" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_INT_EXPORT</type>
+        <definition>GECODE_INT_EXPORT Gecode::Int::Branch::PosValuesChoice::PosValuesChoice</definition>
+        <argsstring>(const Brancher &amp;b, unsigned int alt, Pos p, Archive &amp;e)</argsstring>
+        <name>PosValuesChoice</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Brancher" kindref="compound">Brancher</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>alt</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Pos" kindref="compound">Pos</ref></type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Initialize choice for brancher <emphasis>b</emphasis> from archive <emphasis>e</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="61" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1aeda381df85f2a037b5c94cc77374d4c0" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Branch::PosValuesChoice::val</definition>
+        <argsstring>(unsigned int a) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Return value to branch with for alternative <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="63" column="1" bodyfile="/usr/include/gecode/int/branch/view-values.hpp" bodystart="76" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ac409a768511bc37e8076dcc39ee678ce" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT size_t</type>
+        <definition>virtual GECODE_INT_EXPORT size_t Gecode::Int::Branch::PosValuesChoice::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <reimplements refid="classGecode_1_1PosChoice_1a8fc1330d9b21eacd19c4d2f48914d770">size</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Report size occupied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="66" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a2c79b746deeb2e2c28ee8048790fafea" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT</type>
+        <definition>virtual GECODE_INT_EXPORT Gecode::Int::Branch::PosValuesChoice::~PosValuesChoice</definition>
+        <argsstring>(void)</argsstring>
+        <name>~PosValuesChoice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Deallocate. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="69" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1aeb99dc1dc9a39766c51012d8f1f54c62" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_INT_EXPORT void</type>
+        <definition>virtual GECODE_INT_EXPORT void Gecode::Int::Branch::PosValuesChoice::archive</definition>
+        <argsstring>(Archive &amp;e) const </argsstring>
+        <name>archive</name>
+        <reimplements refid="classGecode_1_1PosChoice_1a1b4be569c47acb2dd50700ff94b58601">archive</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Archive" kindref="compound">Archive</ref> into <emphasis>e</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/view-values.hpp" line="72" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Choice storing position and values for integer views </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5174">
+        <label>Gecode::PosChoice</label>
+        <link refid="classGecode_1_1PosChoice"/>
+        <childnode refid="5175" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5175">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="5173">
+        <label>Gecode::Int::Branch::PosValuesChoice</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice"/>
+        <childnode refid="5174" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5177">
+        <label>Gecode::PosChoice</label>
+        <link refid="classGecode_1_1PosChoice"/>
+        <childnode refid="5178" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5178">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="5176">
+        <label>Gecode::Int::Branch::PosValuesChoice</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice"/>
+        <childnode refid="5177" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/branch/view-values.hpp" line="41" column="1" bodyfile="/usr/include/gecode/int/branch/view-values.hpp" bodystart="41" bodyend="73"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Choice_1af192a0eaa577e0faff6249bba3846048" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>alternatives</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1aeb99dc1dc9a39766c51012d8f1f54c62" prot="public" virt="virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>archive</name></member>
+      <member refid="classGecode_1_1Choice_1ab7f6d213ee8ba98e8ac7af0d3c22f31e" prot="protected" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>Choice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ab5794f2d7bf48b13c2ac242e58a21e81" prot="private" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>n</name></member>
+      <member refid="classGecode_1_1Choice_1ad2a15f523c6a971e83a4e996fe20dd76" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Choice_1a6e73d127bcd5d68cecf1fbee490b7175" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a459df3c14c5df74789687dfdfa0226c6" prot="private" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>pm</name></member>
+      <member refid="classGecode_1_1PosChoice_1aaad18fb0fa0033031d43768213006f13" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>pos</name></member>
+      <member refid="classGecode_1_1PosChoice_1ad2e8b15ca0af00199821644dda76fba6" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>PosChoice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a49772ef0cd2b94dd53804251b6569f1c" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>PosValuesChoice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ab2ac9047899dad22ab2b35a98f506494" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>PosValuesChoice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1ac409a768511bc37e8076dcc39ee678ce" prot="public" virt="virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>size</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1aeda381df85f2a037b5c94cc77374d4c0" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>val</name></member>
+      <member refid="classGecode_1_1Choice_1acad447b380ef518f1e391044080cfceb" prot="public" virt="virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>~Choice</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1PosValuesChoice_1a2c79b746deeb2e2c28ee8048790fafea" prot="public" virt="virtual"><scope>Gecode::Int::Branch::PosValuesChoice</scope><name>~PosValuesChoice</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

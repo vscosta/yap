@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structGecode_1_1region__allocator_3_01void_01_4_1_1rebind" kind="struct" prot="public">
+    <compoundname>Gecode::region_allocator&lt; void &gt;::rebind</compoundname>
+    <includes refid="allocators_8hpp" local="no">allocators.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class U</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_3_01void_01_4_1_1rebind_1a838293c250cc77b7c0b0776386308a5d" prot="public" static="no">
+        <type><ref refid="structGecode_1_1region__allocator" kindref="compound">region_allocator</ref>&lt; U &gt;</type>
+        <definition>typedef region_allocator&lt;U&gt; Gecode::region_allocator&lt; void &gt;::rebind&lt; U &gt;::other</definition>
+        <argsstring></argsstring>
+        <name>other</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="325" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="325" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Rebinding helper (returns the type of a similar allocator for type <emphasis>U</emphasis>) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/allocators.hpp" line="324" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="324" bodyend="326"/>
+    <listofallmembers>
+      <member refid="structGecode_1_1region__allocator_3_01void_01_4_1_1rebind_1a838293c250cc77b7c0b0776386308a5d" prot="public" virt="non-virtual"><scope>Gecode::region_allocator&lt; void &gt;::rebind</scope><name>other</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

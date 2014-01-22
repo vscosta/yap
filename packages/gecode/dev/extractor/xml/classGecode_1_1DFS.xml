@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1DFS" kind="class" prot="public">
+    <compoundname>Gecode::DFS</compoundname>
+    <basecompoundref refid="classGecode_1_1EngineBase" prot="public" virt="non-virtual">Gecode::EngineBase</basecompoundref>
+    <includes refid="search_8hh" local="no">search.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>T</declname>
+        <defname>T</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1DFS_1a143a5474f46368467371a9986ff44f7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::DFS&lt; T &gt;::DFS</definition>
+        <argsstring>(T *s, const Search::Options &amp;o=Search::Options::def)</argsstring>
+        <name>DFS</name>
+        <param>
+          <type>T *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Search::Options</ref> &amp;</type>
+          <declname>o</declname>
+          <defval><ref refid="classGecode_1_1Search_1_1Options_1a728fe5135c29f829246e5db81bc81f7f" kindref="member">Search::Options::def</ref></defval>
+        </param>
+        <briefdescription>
+<para>Initialize search engine for space <emphasis>s</emphasis> with options <emphasis>o</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="492" column="1" bodyfile="/usr/include/gecode/search/dfs.hpp" bodystart="47" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFS_1a82c983e1b4f330f7cfd8021969fc3c7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>T *</type>
+        <definition>forceinline T * Gecode::DFS&lt; T &gt;::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next solution (NULL, if none exists or search has been stopped) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="494" column="1" bodyfile="/usr/include/gecode/search/dfs.hpp" bodystart="52" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFS_1adf3daac738910289409c32d862a1058e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Search::Statistics</ref></type>
+        <definition>forceinline Search::Statistics Gecode::DFS&lt; T &gt;::statistics</definition>
+        <argsstring>(void) const </argsstring>
+        <name>statistics</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="496" column="1" bodyfile="/usr/include/gecode/search/dfs.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFS_1acf3d6f832cb42d16dcf3b6e654f100ee" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::DFS&lt; T &gt;::stopped</definition>
+        <argsstring>(void) const </argsstring>
+        <name>stopped</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check whether engine has been stopped. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="498" column="1" bodyfile="/usr/include/gecode/search/dfs.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1DFS_1af81a62364e6f936fa0adad16ebce9a4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1NoGoods" kindref="compound">NoGoods</ref> &amp;</type>
+        <definition>forceinline NoGoods &amp; Gecode::DFS&lt; T &gt;::nogoods</definition>
+        <argsstring>(void)</argsstring>
+        <name>nogoods</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="500" column="1" bodyfile="/usr/include/gecode/search/dfs.hpp" bodystart="70" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Depth-first search engine. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class supports depth-first search for subclasses <emphasis>T</emphasis> of <ref refid="classGecode_1_1Space" kindref="compound">Space</ref>. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1690">
+        <label>Gecode::DFS&lt; T &gt;</label>
+        <link refid="classGecode_1_1DFS"/>
+        <childnode refid="1691" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1691">
+        <label>Gecode::EngineBase</label>
+        <link refid="classGecode_1_1EngineBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1692">
+        <label>Gecode::DFS&lt; T &gt;</label>
+        <link refid="classGecode_1_1DFS"/>
+        <childnode refid="1693" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1693">
+        <label>Gecode::EngineBase</label>
+        <link refid="classGecode_1_1EngineBase"/>
+        <childnode refid="1694" relation="usage">
+          <edgelabel>e</edgelabel>
+        </childnode>
+      </node>
+      <node id="1694">
+        <label>Gecode::Search::Engine</label>
+        <link refid="classGecode_1_1Search_1_1Engine"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search.hh" line="489" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="489" bodyend="501"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1DFS_1a143a5474f46368467371a9986ff44f7e" prot="public" virt="non-virtual"><scope>Gecode::DFS</scope><name>DFS</name></member>
+      <member refid="classGecode_1_1EngineBase_1aad42a01412e5ed2623cfeb52c4b09e82" prot="protected" virt="non-virtual"><scope>Gecode::DFS</scope><name>e</name></member>
+      <member refid="classGecode_1_1EngineBase_1af4d765d70c5acafc444eaae03bcc658f" prot="protected" virt="non-virtual"><scope>Gecode::DFS</scope><name>EngineBase</name></member>
+      <member refid="classGecode_1_1DFS_1a82c983e1b4f330f7cfd8021969fc3c7f" prot="public" virt="non-virtual"><scope>Gecode::DFS</scope><name>next</name></member>
+      <member refid="classGecode_1_1DFS_1af81a62364e6f936fa0adad16ebce9a4e" prot="public" virt="non-virtual"><scope>Gecode::DFS</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1DFS_1adf3daac738910289409c32d862a1058e" prot="public" virt="non-virtual"><scope>Gecode::DFS</scope><name>statistics</name></member>
+      <member refid="classGecode_1_1DFS_1acf3d6f832cb42d16dcf3b6e654f100ee" prot="public" virt="non-virtual"><scope>Gecode::DFS</scope><name>stopped</name></member>
+      <member refid="classGecode_1_1EngineBase_1a81e38a477373df7e3d2c9afa26443614" prot="protected" virt="non-virtual"><scope>Gecode::DFS</scope><name>~EngineBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

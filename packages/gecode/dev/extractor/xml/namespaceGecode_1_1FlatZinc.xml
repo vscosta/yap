@@ -1,0 +1,534 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1FlatZinc" kind="namespace">
+    <compoundname>Gecode::FlatZinc</compoundname>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1ConExpr" prot="public">Gecode::FlatZinc::ConExpr</innerclass>
+    <innerclass refid="structGecode_1_1FlatZinc_1_1Option" prot="public">Gecode::FlatZinc::Option</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1OutputOrder" prot="public">Gecode::FlatZinc::OutputOrder</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1SymbolEntry" prot="public">Gecode::FlatZinc::SymbolEntry</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1ParserState" prot="public">Gecode::FlatZinc::ParserState</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1Registry" prot="public">Gecode::FlatZinc::Registry</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1SymbolTable" prot="public">Gecode::FlatZinc::SymbolTable</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1Alias" prot="public">Gecode::FlatZinc::Alias</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1VarSpec" prot="public">Gecode::FlatZinc::VarSpec</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1IntVarSpec" prot="public">Gecode::FlatZinc::IntVarSpec</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1BoolVarSpec" prot="public">Gecode::FlatZinc::BoolVarSpec</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1FloatVarSpec" prot="public">Gecode::FlatZinc::FloatVarSpec</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1SetVarSpec" prot="public">Gecode::FlatZinc::SetVarSpec</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1Printer" prot="public">Gecode::FlatZinc::Printer</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1FlatZincOptions" prot="public">Gecode::FlatZinc::FlatZincOptions</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1BranchInformation" prot="public">Gecode::FlatZinc::BranchInformation</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" prot="public">Gecode::FlatZinc::FlatZincSpace</innerclass>
+    <innerclass refid="classGecode_1_1FlatZinc_1_1Error" prot="public">Gecode::FlatZinc::Error</innerclass>
+    <innernamespace refid="namespaceGecode_1_1FlatZinc_1_1AST">Gecode::FlatZinc::AST</innernamespace>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28" prot="public" static="no">
+        <name>SymbolType</name>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28adfd774b1889be7524c8fdd0492029833" prot="public">
+          <name>ST_INTVAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a3c03273fb75272fb3d8e45e861b1efbd" prot="public">
+          <name>ST_BOOLVAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a5a8452ef6e3adc860948d6cc372b9b92" prot="public">
+          <name>ST_FLOATVAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28ac66f7979c6b73dd16635768ef5bc4482" prot="public">
+          <name>ST_SETVAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a0778aff34e19befae5a10ef4e1d8af4f" prot="public">
+          <name>ST_INTVARARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a538d2776f68834e9436a240b9fb68b8b" prot="public">
+          <name>ST_BOOLVARARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28ada72a61e65ad5351f79df7fd4f1461e0" prot="public">
+          <name>ST_SETVARARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28aadc494c75215bb973b2b40371e101472" prot="public">
+          <name>ST_FLOATVARARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a1889864c11bbdb75c139b94147675a59" prot="public">
+          <name>ST_INTVALARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a55367e707a85f6dea637eb23ef3b208f" prot="public">
+          <name>ST_BOOLVALARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a50373917b6c5b03bdd8ef9efafd39f8a" prot="public">
+          <name>ST_SETVALARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a0ef4f0b2314e08e0f3795e36becaa24a" prot="public">
+          <name>ST_FLOATVALARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a8278085558eb4d0321328d038762dad4" prot="public">
+          <name>ST_INT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a6299bbf993bb2db9c0f74138ab1ccf53" prot="public">
+          <name>ST_BOOL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28abc5fda21e6e4723158a145bce7ce9453" prot="public">
+          <name>ST_SET</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceGecode_1_1FlatZinc_1a2f5cd9a6caad225d8108a4f45fe4be28a84802f0fae3fbb48530704638bf51e91" prot="public">
+          <name>ST_FLOAT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Types of symbols. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="89" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="89" bodyend="106"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespaceGecode_1_1FlatZinc_1a80d6f9956f41d87185bfb41b1e6e6372" prot="public" static="no">
+        <type>std::pair&lt; std::string, <ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; std::vector&lt; int &gt; * &gt; &gt;</type>
+        <definition>typedef std::pair&lt;std::string,Option&lt;std::vector&lt;int&gt;* &gt; &gt; Gecode::FlatZinc::intvartype</definition>
+        <argsstring></argsstring>
+        <name>intvartype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="73" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="namespaceGecode_1_1FlatZinc_1abcd48d12a15baea808a99cd8747ed759" prot="public" static="no">
+        <type>std::pair&lt; std::string, <ref refid="classGecode_1_1FlatZinc_1_1VarSpec" kindref="compound">VarSpec</ref> * &gt;</type>
+        <definition>typedef std::pair&lt;std::string, VarSpec*&gt; Gecode::FlatZinc::varspec</definition>
+        <argsstring></argsstring>
+        <name>varspec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="76" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1acd8da6b189be4b29e435c92c4692375b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_iv</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_iv</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct integer variable entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="120" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="120" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a018df1bdbdeccf44542b51f42357178b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_bv</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_bv</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct Boolean variable entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="124" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="124" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1acfd5e289a34d29a180cdd1992fb19ae1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_fv</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_fv</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct float variable entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="128" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="128" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a7d7166952f732788d0fdf3c7938c4a0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_sv</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_sv</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct set variable entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="132" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="132" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a2eb4968e780eb01c7e288dff096071ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_iva</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_iva</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct integer variable array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="137" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="137" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a03cbfaffdb1929af002b74f5747175d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_bva</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_bva</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct Boolean variable array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="141" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="141" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a795892fca95b081113690fe3205b459a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_fva</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_fva</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct float variable array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="145" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a92bae3a73ceda0d5b124c934f5c5b9bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_sva</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_sva</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct set variable array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="149" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="149" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a50ea8e55a6ecabf7d98d6b1838627669" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_i</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_i</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct integer entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="154" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="154" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a97f8790c3a5c9bf22db8f1f56def891e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_b</definition>
+        <argsstring>(bool b)</argsstring>
+        <name>se_b</name>
+        <param>
+          <type>bool</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Construct Boolean entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="158" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="158" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1aef49e2aa027dc5dfce45a1b0be5f0330" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_s</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_s</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct set entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="162" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="162" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1af2fe86026e60a5777757b9da2666fe2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_f</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_f</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct float entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="166" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="166" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1afb4cb016c63480ecff037f643d8007be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_ia</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_ia</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct integer array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="171" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="171" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a83cc42bd5d2923e876f8509fdaa3b1ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_ba</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_ba</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct Boolean array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="175" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="175" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a0764e72adb3534d2c5841eb7a24e88bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_sa</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_sa</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct set array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="179" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="179" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a810fe412aa42e5bd3ba36e3e4bd15f04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>forceinline <ref refid="classGecode_1_1FlatZinc_1_1SymbolEntry" kindref="compound">SymbolEntry</ref></type>
+        <definition>forceinline SymbolEntry Gecode::FlatZinc::se_fa</definition>
+        <argsstring>(int i)</argsstring>
+        <name>se_fa</name>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Construct float array entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/parser.hh" line="183" column="1" bodyfile="/usr/include/gecode/flatzinc/parser.hh" bodystart="183" bodyend="185"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1a4721b577f96df598f3c6aac83feefbc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLATZINC_EXPORT <ref refid="classGecode_1_1FlatZinc_1_1Registry" kindref="compound">Registry</ref> &amp;</type>
+        <definition>GECODE_FLATZINC_EXPORT Registry&amp; Gecode::FlatZinc::registry</definition>
+        <argsstring>(void)</argsstring>
+        <name>registry</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return global registry object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/registry.hh" line="65" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1ab692274985b66665d6db6f607e46d680" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLATZINC_EXPORT <ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> *</type>
+        <definition>GECODE_FLATZINC_EXPORT FlatZincSpace* Gecode::FlatZinc::parse</definition>
+        <argsstring>(const std::string &amp;fileName, Printer &amp;p, std::ostream &amp;err=std::cerr, FlatZincSpace *fzs=NULL)</argsstring>
+        <name>parse</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1Printer" kindref="compound">Printer</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>err</declname>
+          <defval>std::cerr</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> *</type>
+          <declname>fzs</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Parse <ref refid="namespaceGecode_1_1FlatZinc" kindref="compound">FlatZinc</ref> file <emphasis>fileName</emphasis> into <emphasis>fzs</emphasis> and return it. </para>        </briefdescription>
+        <detaileddescription>
+<para>Creates a new empty <ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> if <emphasis>fzs</emphasis> is NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="576" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceGecode_1_1FlatZinc_1af12dcd47e80cc60171ed3dade7d83510" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLATZINC_EXPORT <ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> *</type>
+        <definition>GECODE_FLATZINC_EXPORT FlatZincSpace* Gecode::FlatZinc::parse</definition>
+        <argsstring>(std::istream &amp;is, Printer &amp;p, std::ostream &amp;err=std::cerr, FlatZincSpace *fzs=NULL)</argsstring>
+        <name>parse</name>
+        <param>
+          <type>std::istream &amp;</type>
+          <declname>is</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1Printer" kindref="compound">Printer</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>err</declname>
+          <defval>std::cerr</defval>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> *</type>
+          <declname>fzs</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Parse <ref refid="namespaceGecode_1_1FlatZinc" kindref="compound">FlatZinc</ref> from <emphasis>is</emphasis> into <emphasis>fzs</emphasis> and return it. </para>        </briefdescription>
+        <detaileddescription>
+<para>Creates a new empty <ref refid="classGecode_1_1FlatZinc_1_1FlatZincSpace" kindref="compound">FlatZincSpace</ref> if <emphasis>fzs</emphasis> is NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="586" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interpreter for the FlatZinc language. </para>    </briefdescription>
+    <detaileddescription>
+<para>The <ref refid="namespaceGecode_1_1FlatZinc" kindref="compound">Gecode::FlatZinc</ref> namespace contains all functionality required to parse and solve constraint models written in the FlatZinc language. </para>    </detaileddescription>
+    <location file="[generated]" line="1" column="1"/>
+  </compounddef>
+</doxygen>

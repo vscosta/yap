@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SpaceIllegalAlternative" kind="class" prot="public">
+    <compoundname>Gecode::SpaceIllegalAlternative</compoundname>
+    <basecompoundref refid="classGecode_1_1Exception" prot="public" virt="non-virtual">Gecode::Exception</basecompoundref>
+    <includes refid="kernel_2exception_8hpp" local="no">exception.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1SpaceIllegalAlternative_1afc2cf9775f97daae211754a77651bc2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SpaceIllegalAlternative::SpaceIllegalAlternative</definition>
+        <argsstring>(const char *l)</argsstring>
+        <name>SpaceIllegalAlternative</name>
+        <param>
+          <type>const char *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with location <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/exception.hpp" line="79" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="154" bodyend="155"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception: Commit with illegal alternative </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6594">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="6595" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6593">
+        <label>Gecode::SpaceIllegalAlternative</label>
+        <link refid="classGecode_1_1SpaceIllegalAlternative"/>
+        <childnode refid="6594" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6595">
+        <label>std::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6597">
+        <label>Gecode::Exception</label>
+        <link refid="classGecode_1_1Exception"/>
+        <childnode refid="6598" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6596">
+        <label>Gecode::SpaceIllegalAlternative</label>
+        <link refid="classGecode_1_1SpaceIllegalAlternative"/>
+        <childnode refid="6597" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6598">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/exception.hpp" line="76" column="1" bodyfile="/usr/include/gecode/kernel/exception.hpp" bodystart="76" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Exception_1a7ced7f23ea50445efbd99d5e2f4a1f8a" prot="public" virt="non-virtual"><scope>Gecode::SpaceIllegalAlternative</scope><name>Exception</name></member>
+      <member refid="classGecode_1_1SpaceIllegalAlternative_1afc2cf9775f97daae211754a77651bc2a" prot="public" virt="non-virtual"><scope>Gecode::SpaceIllegalAlternative</scope><name>SpaceIllegalAlternative</name></member>
+      <member refid="classGecode_1_1Exception_1a6f8c61e9f17733e4fd870041c6707c1d" prot="public" virt="virtual"><scope>Gecode::SpaceIllegalAlternative</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,388 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FloatVar" kind="class" prot="public">
+    <compoundname>Gecode::FloatVar</compoundname>
+    <basecompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</basecompoundref>
+    <includes refid="float_8hh" local="no">float.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1aaaabd8e9d0c4464ccb1e3bde3324de12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVar::FloatVar</definition>
+        <argsstring>(void)</argsstring>
+        <name>FloatVar</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="873" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a8832c7006226a0a8412dda85b53c7554" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVar::FloatVar</definition>
+        <argsstring>(const FloatVar &amp;y)</argsstring>
+        <name>FloatVar</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVar" kindref="compound">FloatVar</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from float variable <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="875" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="50" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a4390d732d5d329de0d2398a195e6ab73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVar::FloatVar</definition>
+        <argsstring>(const Float::FloatView &amp;y)</argsstring>
+        <name>FloatVar</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Float_1_1FloatView" kindref="compound">Float::FloatView</ref> &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from float view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="877" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="53" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a190e8e2a8d66821bb4b7f4278a8dd722" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT</type>
+        <definition>GECODE_FLOAT_EXPORT Gecode::FloatVar::FloatVar</definition>
+        <argsstring>(Space &amp;home, FloatNum min, FloatNum max)</argsstring>
+        <name>FloatVar</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Initialize variable with range domain. </para>        </briefdescription>
+        <detaileddescription>
+<para>The variable is created with a domain ranging from <emphasis>min</emphasis> to <emphasis>max</emphasis>. The following exceptions might be thrown:<itemizedlist>
+<listitem><para>If <emphasis>min</emphasis> is greater than <emphasis>max</emphasis>, an exception of type <ref refid="classGecode_1_1Float_1_1VariableEmptyDomain" kindref="compound">Gecode::Float::VariableEmptyDomain</ref> is thrown.</para></listitem><listitem><para>If <emphasis>min</emphasis> or <emphasis>max</emphasis> exceed the limits for floats as defined in <ref refid="namespaceGecode_1_1Float_1_1Limits" kindref="compound">Gecode::Float::Limits</ref>, an exception of type <ref refid="classGecode_1_1Float_1_1OutOfLimits" kindref="compound">Gecode::Float::OutOfLimits</ref> is thrown. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="889" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1abd81fd558045e47ad216cf61cf818d86" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVar::domain</definition>
+        <argsstring>(void) const </argsstring>
+        <name>domain</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="895" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a786e0667e6c28d1d26a69faa3883e33a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVar::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="897" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="63" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a50600a5b10cfd942f1e1987c246628ff" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVar::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="899" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="71" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a180541a0e0fd67ab4ed143eb2c6f429a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVar::med</definition>
+        <argsstring>(void) const </argsstring>
+        <name>med</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return median of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="901" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="67" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a1942af81fffe5028309342af3270be14" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+        <definition>forceinline FloatNum Gecode::FloatVar::size</definition>
+        <argsstring>(void) const </argsstring>
+        <name>size</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return size of domain (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="903" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="81" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1aa88996e475a6fcaa8aaf7c07bdda2abd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref></type>
+        <definition>forceinline FloatVal Gecode::FloatVar::val</definition>
+        <argsstring>(void) const </argsstring>
+        <name>val</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return assigned value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Float_1_1ValOfUnassignedVar" kindref="compound">Float::ValOfUnassignedVar</ref> if variable is not yet assigned. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="911" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="57" bodyend="61"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1af2e385839c2213a23ddf838587b95608" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::FloatVar::in</definition>
+        <argsstring>(const FloatVal &amp;n) const </argsstring>
+        <name>in</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVal" kindref="compound">FloatVal</ref> &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Test whether <emphasis>n</emphasis> is contained in domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="918" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classGecode_1_1FloatVar_1ac429c09551762f35f23ee2003675f237" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class FloatVarArray</definition>
+        <argsstring></argsstring>
+        <name>FloatVarArray</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="858" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="858" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="friend" id="classGecode_1_1FloatVar_1a19bf583db6bfdb519f443d713c69496c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class FloatVarArgs</definition>
+        <argsstring></argsstring>
+        <name>FloatVarArgs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="859" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="859" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a008d8cfdd45549bf0cfa0246d5cdcf2f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::FloatVar::_init</definition>
+        <argsstring>(Space &amp;home, FloatNum min, FloatNum max)</argsstring>
+        <name>_init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Initialize variable with range domain. </para>        </briefdescription>
+        <detaileddescription>
+<para>The variable is created with a domain ranging from <emphasis>min</emphasis> to <emphasis>max</emphasis>. No exceptions are thrown. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="868" column="1" bodyfile="/usr/include/gecode/float/var/float.hpp" bodystart="43" bodyend="45"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="related">
+      <memberdef kind="function" id="classGecode_1_1FloatVar_1a209c2b0ebac89accb178c3a70b952110" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class Char</type>
+          </param>
+          <param>
+            <type>class Traits</type>
+          </param>
+        </templateparamlist>
+        <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+        <definition>std::basic_ostream&lt; Char, Traits &gt; &amp; operator&lt;&lt;</definition>
+        <argsstring>(std::basic_ostream&lt; Char, Traits &gt; &amp;os, const FloatVar &amp;x)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::basic_ostream&lt; Char, Traits &gt; &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVar" kindref="compound">FloatVar</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Print float variable <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="837" column="1" bodyfile="/usr/include/gecode/float/var/print.hpp" bodystart="44" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="namespaceGecode_1_1Float" kindref="compound">Float</ref> variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2405">
+        <label>Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="2406" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2406">
+        <label>Gecode::Var</label>
+        <link refid="classGecode_1_1Var"/>
+      </node>
+      <node id="2404">
+        <label>Gecode::FloatVar</label>
+        <link refid="classGecode_1_1FloatVar"/>
+        <childnode refid="2405" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2408">
+        <label>Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="2409" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2410" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2409">
+        <label>Gecode::Var</label>
+        <link refid="classGecode_1_1Var"/>
+      </node>
+      <node id="2410">
+        <label>Gecode::Float::FloatVarImp</label>
+        <link refid="classGecode_1_1Float_1_1FloatVarImp"/>
+        <childnode refid="2411" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2412" relation="usage">
+          <edgelabel>dom</edgelabel>
+        </childnode>
+      </node>
+      <node id="2412">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="2413" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2407">
+        <label>Gecode::FloatVar</label>
+        <link refid="classGecode_1_1FloatVar"/>
+        <childnode refid="2408" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2411">
+        <label>FloatVarImpBase</label>
+      </node>
+      <node id="2413">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float.hh" line="857" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="857" bodyend="920"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FloatVar_1a008d8cfdd45549bf0cfa0246d5cdcf2f" prot="private" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>_init</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a7d2b5ff6179ac3200ebc4d05046192b9" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a46d10d8d6c4d60627a1d14bf6e7a8ccf" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a523eac9883d95fce3bbaf14313ada660" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>before</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a75b6d985437329ba108580b9f8415284" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>degree</name></member>
+      <member refid="classGecode_1_1FloatVar_1abd81fd558045e47ad216cf61cf818d86" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>domain</name></member>
+      <member refid="classGecode_1_1FloatVar_1aaaabd8e9d0c4464ccb1e3bde3324de12" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVar</name></member>
+      <member refid="classGecode_1_1FloatVar_1a8832c7006226a0a8412dda85b53c7554" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVar</name></member>
+      <member refid="classGecode_1_1FloatVar_1a4390d732d5d329de0d2398a195e6ab73" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVar</name></member>
+      <member refid="classGecode_1_1FloatVar_1a190e8e2a8d66821bb4b7f4278a8dd722" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVar</name></member>
+      <member refid="classGecode_1_1FloatVar_1a19bf583db6bfdb519f443d713c69496c" prot="private" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVar_1ac429c09551762f35f23ee2003675f237" prot="private" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>FloatVarArray</name></member>
+      <member refid="classGecode_1_1FloatVar_1af2e385839c2213a23ddf838587b95608" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>in</name></member>
+      <member refid="classGecode_1_1FloatVar_1a50600a5b10cfd942f1e1987c246628ff" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>max</name></member>
+      <member refid="classGecode_1_1FloatVar_1a180541a0e0fd67ab4ed143eb2c6f429a" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>med</name></member>
+      <member refid="classGecode_1_1FloatVar_1a786e0667e6c28d1d26a69faa3883e33a" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>min</name></member>
+      <member refid="classGecode_1_1FloatVar_1a209c2b0ebac89accb178c3a70b952110" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a9b85f0619f18004aaaa3bd94a7d0eec0" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>same</name></member>
+      <member refid="classGecode_1_1FloatVar_1a1942af81fffe5028309342af3270be14" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>size</name></member>
+      <member refid="classGecode_1_1VarImpVar_1abdbe8fe5fcdbac6679e255058e3b716c" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>update</name></member>
+      <member refid="classGecode_1_1FloatVar_1aa88996e475a6fcaa8aaf7c07bdda2abd" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>val</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a908cddb663db8f85c53391dd63befb53" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1VarImpVar_1af8ea39682fc7b0251df684ace1063a65" prot="public" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a8297a58d748bdb1dd081dc920f21d44a" prot="protected" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>VarImpVar</name></member>
+      <member refid="classGecode_1_1VarImpVar_1a5c99d2d1dba56a32e8ff8f326b6204be" prot="protected" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>VarImpVar</name></member>
+      <member refid="classGecode_1_1VarImpVar_1ac9314cfea4cf6ccd9f34e79e6f41dda3" prot="protected" virt="non-virtual"><scope>Gecode::FloatVar</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

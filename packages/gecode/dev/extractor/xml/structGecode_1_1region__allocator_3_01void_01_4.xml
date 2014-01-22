@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structGecode_1_1region__allocator_3_01void_01_4" kind="struct" prot="public">
+    <compoundname>Gecode::region_allocator&lt; void &gt;</compoundname>
+    <includes refid="allocators_8hpp" local="no">allocators.hpp</includes>
+    <innerclass refid="structGecode_1_1region__allocator_3_01void_01_4_1_1rebind" prot="public">Gecode::region_allocator&lt; void &gt;::rebind</innerclass>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_3_01void_01_4_1af8e2821ce3f0742b50fb064b793b272a" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* Gecode::region_allocator&lt; void &gt;::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="320" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="320" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_3_01void_01_4_1aa8222cae809393dd365833d439dbbd92" prot="public" static="no">
+        <type>const void *</type>
+        <definition>typedef const void* Gecode::region_allocator&lt; void &gt;::const_pointer</definition>
+        <argsstring></argsstring>
+        <name>const_pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="321" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="321" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structGecode_1_1region__allocator_3_01void_01_4_1aee881bec986a56f4bab960e751df1721" prot="public" static="no">
+        <type>void</type>
+        <definition>typedef void Gecode::region_allocator&lt; void &gt;::value_type</definition>
+        <argsstring></argsstring>
+        <name>value_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/allocators.hpp" line="322" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="322" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Region allocator - specialization for <computeroutput>void</computeroutput>. </para>    </briefdescription>
+    <detaileddescription>
+<para>The specialization is needed as the default instantiation fails for <computeroutput>void</computeroutput>. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/allocators.hpp" line="319" column="1" bodyfile="/usr/include/gecode/kernel/allocators.hpp" bodystart="319" bodyend="327"/>
+    <listofallmembers>
+      <member refid="structGecode_1_1region__allocator_3_01void_01_4_1aa8222cae809393dd365833d439dbbd92" prot="public" virt="non-virtual"><scope>Gecode::region_allocator&lt; void &gt;</scope><name>const_pointer</name></member>
+      <member refid="structGecode_1_1region__allocator_3_01void_01_4_1af8e2821ce3f0742b50fb064b793b272a" prot="public" virt="non-virtual"><scope>Gecode::region_allocator&lt; void &gt;</scope><name>pointer</name></member>
+      <member refid="structGecode_1_1region__allocator_3_01void_01_4_1aee881bec986a56f4bab960e751df1721" prot="public" virt="non-virtual"><scope>Gecode::region_allocator&lt; void &gt;</scope><name>value_type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

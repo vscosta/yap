@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="set_2view_2print_8hpp" kind="file">
+    <compoundname>print.hpp</compoundname>
+    <includes local="no">sstream</includes>
+    <includedby refid="set_2view_8hpp" local="no">/usr/include/gecode/set/view.hpp</includedby>
+    <incdepgraph>
+      <node id="6128">
+        <label>sstream</label>
+      </node>
+      <node id="6127">
+        <label>/usr/include/gecode/set/view/print.hpp</label>
+        <link refid="set/view/print.hpp"/>
+        <childnode refid="6128" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6134">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="6146">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="6133" relation="include">
+        </childnode>
+        <childnode refid="6137" relation="include">
+        </childnode>
+        <childnode refid="6144" relation="include">
+        </childnode>
+        <childnode refid="6145" relation="include">
+        </childnode>
+        <childnode refid="6147" relation="include">
+        </childnode>
+      </node>
+      <node id="6139">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="6132">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="6137">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="6136">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="6145">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="6137" relation="include">
+        </childnode>
+        <childnode refid="6144" relation="include">
+        </childnode>
+      </node>
+      <node id="6142">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="6133">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="6134" relation="include">
+        </childnode>
+      </node>
+      <node id="6140">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="6139" relation="include">
+        </childnode>
+      </node>
+      <node id="6129">
+        <label>/usr/include/gecode/set/view/print.hpp</label>
+        <link refid="set/view/print.hpp"/>
+        <childnode refid="6130" relation="include">
+        </childnode>
+      </node>
+      <node id="6143">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="6130">
+        <label>/usr/include/gecode/set/view.hpp</label>
+        <link refid="set_2view_8hpp_source"/>
+        <childnode refid="6131" relation="include">
+        </childnode>
+      </node>
+      <node id="6141">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="6139" relation="include">
+        </childnode>
+      </node>
+      <node id="6147">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="6138">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="6139" relation="include">
+        </childnode>
+      </node>
+      <node id="6131">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="6132" relation="include">
+        </childnode>
+        <childnode refid="6133" relation="include">
+        </childnode>
+        <childnode refid="6134" relation="include">
+        </childnode>
+        <childnode refid="6135" relation="include">
+        </childnode>
+        <childnode refid="6136" relation="include">
+        </childnode>
+        <childnode refid="6137" relation="include">
+        </childnode>
+        <childnode refid="6138" relation="include">
+        </childnode>
+        <childnode refid="6140" relation="include">
+        </childnode>
+        <childnode refid="6141" relation="include">
+        </childnode>
+        <childnode refid="6139" relation="include">
+        </childnode>
+        <childnode refid="6142" relation="include">
+        </childnode>
+        <childnode refid="6143" relation="include">
+        </childnode>
+        <childnode refid="6144" relation="include">
+        </childnode>
+        <childnode refid="6145" relation="include">
+        </childnode>
+        <childnode refid="6146" relation="include">
+        </childnode>
+        <childnode refid="6147" relation="include">
+        </childnode>
+      </node>
+      <node id="6144">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="6145" relation="include">
+        </childnode>
+      </node>
+      <node id="6135">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Set">Gecode::Set</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Gabor<sp/>Szokoli<sp/>&lt;szokoli@gecode.org&gt;</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2004,<sp/>2005</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Gabor<sp/>Szokoli,<sp/>2004</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-03-07<sp/>02:18:29<sp/>+0100<sp/>(Thu,<sp/>07<sp/>Mar<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>mears<sp/>$</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13455<sp/>$</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Set<sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>s,<sp/>I&amp;<sp/>r)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="charliteral">&apos;{&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(r())<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r.min()<sp/>==<sp/>r.max())<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/>r.min();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r.min()+1<sp/>==<sp/>r.max())<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/>r.min()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;,&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>r.max();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/>r.min()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;..&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>r.max();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>++r;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!r())<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="charliteral">&apos;,&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="charliteral">&apos;}&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>IL,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>IU&gt;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="namespaceGecode_1_1Set_1aeeb7e775c2b55e32e0b8d8afc66436ec" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespaceGecode_1_1Set_1aeeb7e775c2b55e32e0b8d8afc66436ec" kindref="member">print</ref>(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>assigned,<sp/>IL&amp;<sp/>lb,<sp/>IU&amp;<sp/>ub,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cardMin,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cardMax)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(assigned)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(s,<sp/>ub);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(s,lb);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;..&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(s,ub);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cardMin==cardMax)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;#(&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>cardMin<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;#(&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>cardMin<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;,&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>cardMax<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits&gt;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="85" refid="classGecode_1_1Set_1_1SetView_1afccaa90d92947223b837c279ff0639c7" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.width(0);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_3_01SetView_01_4" kindref="compound">LubRanges&lt;SetView&gt;</ref><sp/>ub(x);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1GlbRanges_3_01SetView_01_4" kindref="compound">GlbRanges&lt;SetView&gt;</ref><sp/>lb(x);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1aeeb7e775c2b55e32e0b8d8afc66436ec" kindref="member">print</ref>(s,<sp/>x.assigned(),<sp/>lb,<sp/>ub,<sp/>x.cardMin(),<sp/>x.cardMax())<sp/>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits&gt;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="96" refid="classGecode_1_1Set_1_1EmptyView_1a637191c3e5c93acfd3fdcb15502393a4" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1EmptyView" kindref="compound">EmptyView</ref>&amp;)<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;{}#0&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits&gt;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="102" refid="classGecode_1_1Set_1_1UniverseView_1a7b217dccbd029ea42d527042500a2fd1" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1UniverseView" kindref="compound">UniverseView</ref>&amp;)<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.width(0);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;{&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a768af29a2cbf9eec75b4376b325f6cc4" kindref="member">Gecode::Set::Limits::min</ref><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;..&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1aa0057c6b80521aaf8485343580d0eed5" kindref="member">Gecode::Set::Limits::max</ref><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;}#(&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Gecode::Set::Limits::card</ref><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits&gt;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="113" refid="classGecode_1_1Set_1_1ConstSetView_1ac9b46ae9303a34808d1bcba996782c86" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1ConstSetView" kindref="compound">ConstSetView</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.width(0);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_3_01ConstSetView_01_4" kindref="compound">LubRanges&lt;ConstSetView&gt;</ref><sp/>ub(x);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(s,<sp/>ub);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;#(&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x.cardMin()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Char,<sp/></highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>Traits&gt;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/>std::basic_ostream&lt;Char,Traits&gt;&amp;</highlight></codeline>
+<codeline lineno="124" refid="classGecode_1_1Set_1_1SingletonView_1ad2c6bf32e7384c9bb677a176b6628e9d" refkind="member"><highlight class="normal"><sp/><sp/>operator<sp/>&lt;&lt;(std::basic_ostream&lt;Char,Traits&gt;&amp;<sp/>os,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Set_1_1SingletonView" kindref="compound">SingletonView</ref>&amp;<sp/>x)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>std::basic_ostringstream&lt;Char,Traits&gt;<sp/>s;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>s.copyfmt(os);<sp/>s.width(0);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x.assigned())<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;{&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>x.<ref refid="classGecode_1_1Set_1_1SingletonView_1a3204ee4349a47cd1a56fbe2eec5d42fc" kindref="member">glbMin</ref>()<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;}#(1)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Set_1_1LubRanges_3_01SingletonView_01_4" kindref="compound">LubRanges&lt;SingletonView&gt;</ref><sp/>ub(x);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;{}..&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceGecode_1_1Set_1a42524bd5a8a888792ab1e28a7a0e2faf" kindref="member">printBound</ref>(s,<sp/>ub);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;#(1)&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os<sp/>&lt;&lt;<sp/>s.str();</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>set-var</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/set/view/print.hpp"/>
+  </compounddef>
+</doxygen>

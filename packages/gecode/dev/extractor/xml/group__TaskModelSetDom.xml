@@ -1,0 +1,406 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetDom" kind="group">
+    <compoundname>TaskModelSetDom</compoundname>
+    <title>Domain constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetDom_1gaab6c219148e27c90bb01b014a138f8c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType r, int i)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="405">$ x \sim_r \{i\}$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="678" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1gaaf196830d32c2a77d4026581f975c066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, SetRelType r, int i)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="406">$ x_i \sim_r \{i\}$</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="681" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga3bbcf8772dab61782c026d4d43807873" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType r, int i, int j)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="407">$ x \sim_r \{i,\dots,j\}$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="684" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga447b9838e1e76cf4709037c0393a4673" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, SetRelType r, int i, int j)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="407">$ x \sim_r \{i,\dots,j\}$</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="687" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1gab44221580765bf3d6adfbf0c8db5cec0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType r, const IntSet &amp;s)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="408">$ x \sim_r s$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="690" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga7d5f58f6cdad9f67876cc2f9fdcdc1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, SetRelType r, const IntSet &amp;s)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="408">$ x \sim_r s$</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="693" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1gad406de987b9e483a7c297bb7b2670800" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::cardinality</definition>
+        <argsstring>(Home home, SetVar x, unsigned int i, unsigned int j)</argsstring>
+        <name>cardinality</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="409">$ i \leq |s| \leq j $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="696" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga2c1a4c03a1fe555d38ad0fb91b335326" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::cardinality</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, unsigned int i, unsigned int j)</argsstring>
+        <name>cardinality</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Propagates <formula id="409">$ i \leq |s| \leq j $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="699" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga96afd7110a32486f9e3a9d7f01c3b8c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType rt, int i, Reify r)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>rt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="410">$ (x \sim_{rt} \{i\}) \equiv r $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="702" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga2cb6c3759b0d497588eb3ebd10597720" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType rt, int i, int j, Reify r)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>rt</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>j</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="411">$ (x \sim_{rt} \{i,\dots,j\}) \equiv r $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="705" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga6451821eb6fbb624e5cf3221beab8ea8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetRelType rt, const IntSet &amp;s, Reify r)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetRelType</type>
+          <declname>rt</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>Reify</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="412">$ (x \sim_{rt} s) \equiv r $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="708" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1ga9d282e16c0fccf1dba387135932df5af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, SetVar x, SetVar d)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Constrain domain of <emphasis>x</emphasis> according to domain of <emphasis>d</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="711" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetDom_1gab86403185d0676e1d875c0682b4fb9f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::dom</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, const SetVarArgs &amp;d)</argsstring>
+        <name>dom</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Constrain domain of <formula id="58">$ x_i $</formula> according to domain of <formula id="59">$ d_i $</formula> for all <formula id="53">$0\leq i&lt;|x|$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="714" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

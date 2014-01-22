@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd" kind="class" prot="public">
+    <compoundname>Gecode::Set::Branch::ValSelRnd</compoundname>
+    <basecompoundref refid="classGecode_1_1ValSel" prot="public" virt="non-virtual">Gecode::ValSel&lt; SetView, int &gt;</basecompoundref>
+    <includes refid="set_2branch_8hh" local="no">branch.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1aa06e0922a48791af3b0ea6a7cb6e7817" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+        <definition>Rnd Gecode::Set::Branch::ValSelRnd::r</definition>
+        <argsstring></argsstring>
+        <name>r</name>
+        <briefdescription>
+<para>The used random number generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="261" column="1" bodyfile="/usr/include/gecode/set/branch.hh" bodystart="261" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a5f387f9c96f87b8e6d6ee1d4ba333adf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::ValSelRnd::ValSelRnd</definition>
+        <argsstring>(Space &amp;home, const ValBranch &amp;vb)</argsstring>
+        <name>ValSelRnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="264" column="1" bodyfile="/usr/include/gecode/set/branch/val-sel.hpp" bodystart="97" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a30e25841b89259a908f191ebe8534b65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Set::Branch::ValSelRnd::ValSelRnd</definition>
+        <argsstring>(Space &amp;home, bool shared, ValSelRnd &amp;vs)</argsstring>
+        <name>ValSelRnd</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd" kindref="compound">ValSelRnd</ref> &amp;</type>
+          <declname>vs</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="266" column="1" bodyfile="/usr/include/gecode/set/branch/val-sel.hpp" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a11b3190f662447e25d78f3c94808465d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Set::Branch::ValSelRnd::val</definition>
+        <argsstring>(const Space &amp;home, SetView x, int i)</argsstring>
+        <name>val</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return value of view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="268" column="1" bodyfile="/usr/include/gecode/set/branch/val-sel.hpp" bodystart="105" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1aed5bb9d7a24b2c65be0ebbe271426497" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Set::Branch::ValSelRnd::notice</definition>
+        <argsstring>(void) const </argsstring>
+        <name>notice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Whether dispose must always be called (that is, notice is needed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="270" column="1" bodyfile="/usr/include/gecode/set/branch/val-sel.hpp" bodystart="117" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a18af0b5bfb3ca70b9c70024dff74db31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Set::Branch::ValSelRnd::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete value selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/branch.hh" line="272" column="1" bodyfile="/usr/include/gecode/set/branch/val-sel.hpp" bodystart="121" bodyend="123"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value selection class for random value of view. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/set/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7537">
+        <label>Gecode::Set::Branch::ValSelRnd</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd"/>
+        <childnode refid="7538" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7538">
+        <label>Gecode::ValSel&lt; SetView, int &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7541">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="7542" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7542">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="7539">
+        <label>Gecode::Set::Branch::ValSelRnd</label>
+        <link refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd"/>
+        <childnode refid="7540" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7541" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+      </node>
+      <node id="7540">
+        <label>Gecode::ValSel&lt; SetView, int &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set/branch.hh" line="258" column="1" bodyfile="/usr/include/gecode/set/branch.hh" bodystart="258" bodyend="273"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a18af0b5bfb3ca70b9c70024dff74db31" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1aed5bb9d7a24b2c65be0ebbe271426497" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>notice</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1aa06e0922a48791af3b0ea6a7cb6e7817" prot="protected" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>r</name></member>
+      <member refid="classGecode_1_1ValSel_1a1ab3056f51deae75a156bc1fa7d1b993" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>Val</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a11b3190f662447e25d78f3c94808465d" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValSel_1ae84207620c76b1e288ae8843dae769be" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1ValSel_1a6658df4b1d1a10a8e61d6960a1432e77" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a5f387f9c96f87b8e6d6ee1d4ba333adf" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>ValSelRnd</name></member>
+      <member refid="classGecode_1_1Set_1_1Branch_1_1ValSelRnd_1a30e25841b89259a908f191ebe8534b65" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>ValSelRnd</name></member>
+      <member refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" prot="public" virt="non-virtual"><scope>Gecode::Set::Branch::ValSelRnd</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

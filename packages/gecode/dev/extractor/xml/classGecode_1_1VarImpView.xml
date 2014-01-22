@@ -1,0 +1,478 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1VarImpView" kind="class" prot="public">
+    <compoundname>Gecode::VarImpView</compoundname>
+    <includes refid="kernel_2view_8hpp" local="no">view.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Var</declname>
+        <defname>Var</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>View comparison</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1ab35b7e1f7d46801deb9725a06c93a095" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class VarA</type>
+          </param>
+          <param>
+            <type>class VarB</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool same</definition>
+        <argsstring>(const VarImpView&lt; VarA &gt; &amp;x, const VarImpView&lt; VarB &gt; &amp;y)</argsstring>
+        <name>same</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarImpView" kindref="compound">VarImpView</ref>&lt; VarA &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarImpView" kindref="compound">VarImpView</ref>&lt; VarB &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether views <emphasis>x</emphasis> and <emphasis>y</emphasis> are the same. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="196" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a1c934158a4c68ca730d4a6fac2c36d9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class ViewA</type>
+          </param>
+          <param>
+            <type>class ViewB</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool before</definition>
+        <argsstring>(const ViewA &amp;x, const ViewB &amp;y)</argsstring>
+        <name>before</name>
+        <param>
+          <type>const ViewA &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const ViewB &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Test whether view <emphasis>x</emphasis> comes before <emphasis>y</emphasis> (arbitrary order) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="199" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="650" bodyend="652"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Generic view information</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1ad4a4e4dfa41f166978eb9fa1bd15a255" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::VarImpView&lt; Var &gt;::varderived</definition>
+        <argsstring>(void)</argsstring>
+        <name>varderived</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return whether this view is derived from a <ref refid="classGecode_1_1VarImpView" kindref="compound">VarImpView</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="134" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="428" bodyend="430"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a0df1db1c3ac7184748b4e0c74fed40df" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1VarImpView_1a425ac8d1c235ca801bcfb0f8afb54765" kindref="member">VarImpType</ref> *</type>
+        <definition>forceinline Var::VarImpType * Gecode::VarImpView&lt; Var &gt;::varimp</definition>
+        <argsstring>(void) const </argsstring>
+        <name>varimp</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return variable implementation of view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="136" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="433" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1aee7a33d9250e05396237e837ea9a308e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::VarImpView&lt; Var &gt;::degree</definition>
+        <argsstring>(void) const </argsstring>
+        <name>degree</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return degree (number of subscribed propagators and advisors) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="138" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="438" bodyend="440"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a5b16299eecf8f61b8dc0beb8f9bd0beb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>forceinline double Gecode::VarImpView&lt; Var &gt;::afc</definition>
+        <argsstring>(const Space &amp;home) const </argsstring>
+        <name>afc</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Return accumulated failure count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="140" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="443" bodyend="445"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1aeee242f0be13f77dc287449dd51e6fd2" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::VarImpView&lt; Var &gt;::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether view is assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="146" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="448" bodyend="450"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>View-dependent propagator support</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a9861f2a94658e8d7c917367919adc5f6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::schedule</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, ModEvent me)</argsstring>
+        <name>schedule</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Schedule propagator <emphasis>p</emphasis> with modification event <emphasis>me</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="152" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="474" bodyend="476"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a6dced43c3bf8befaf8cd27dbd53bf24c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::VarImpView&lt; Var &gt;::me</definition>
+        <argsstring>(const ModEventDelta &amp;med)</argsstring>
+        <name>me</name>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event for view type in <emphasis>med</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="154" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="479" bodyend="481"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a0e39dd0cf9bbe352c819c3fd4babe00b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref></type>
+        <definition>forceinline ModEventDelta Gecode::VarImpView&lt; Var &gt;::med</definition>
+        <argsstring>(ModEvent me)</argsstring>
+        <name>med</name>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+          <declname>me</declname>
+        </param>
+        <briefdescription>
+<para>Translate modification event <emphasis>me</emphasis> to modification event delta for view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="156" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="484" bodyend="486"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a9a475b6d28d2a0f263958aa36a322c50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool schedule=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>schedule</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case <emphasis>schedule</emphasis> is false, the propagator is just subscribed but not scheduled for execution (this must be used when creating subscriptions during propagation). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="168" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="453" bodyend="456"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1af550f46509ae9dc6ebe600239da76455" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="170" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="459" bodyend="461"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a6fd19edeff9ba18b8791726ac5e5a149" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::subscribe</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe advisor <emphasis>a</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="172" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="464" bodyend="466"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a4f1906b462d6d5b8a01fbf76853d3c4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::cancel</definition>
+        <argsstring>(Space &amp;home, Advisor &amp;a)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Advisor" kindref="compound">Advisor</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of advisor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="174" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="469" bodyend="471"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Delta information for advisors</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1afb67198fa777462748d7367b58ba23e5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::VarImpView&lt; Var &gt;::modevent</definition>
+        <argsstring>(const Delta &amp;d)</argsstring>
+        <name>modevent</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Delta" kindref="compound">Delta</ref> &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Return modification event. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="180" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="489" bodyend="491"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a5f0569230bea9a229d76eed32716b42a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::VarImpView&lt; Var &gt;::update</definition>
+        <argsstring>(Space &amp;home, bool share, VarImpView&lt; Var &gt; &amp;y)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarImpView" kindref="compound">VarImpView</ref>&lt; <ref refid="classGecode_1_1Var" kindref="compound">Var</ref> &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Update this view to be a clone of view <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="186" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="494" bodyend="496"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1VarImpView_1a0b2acbfe831d91899de6f207aac7ea22" prot="public" static="no">
+        <type><ref refid="classGecode_1_1Var" kindref="compound">Var</ref></type>
+        <definition>typedef Var Gecode::VarImpView&lt; Var &gt;::VarType</definition>
+        <argsstring></argsstring>
+        <name>VarType</name>
+        <briefdescription>
+<para>The variable type corresponding to the view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="120" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1VarImpView_1a425ac8d1c235ca801bcfb0f8afb54765" prot="public" static="no">
+        <type>Var::VarImpType</type>
+        <definition>typedef Var::VarImpType Gecode::VarImpView&lt; Var &gt;::VarImpType</definition>
+        <argsstring></argsstring>
+        <name>VarImpType</name>
+        <briefdescription>
+<para>The variable implementation type corresponding to the view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="122" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1VarImpView_1af6b0f6f2e4c989a317c6134709c147a7" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1VarImpView_1a425ac8d1c235ca801bcfb0f8afb54765" kindref="member">VarImpType</ref> *</type>
+        <definition>VarImpType* Gecode::VarImpView&lt; Var &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>Pointer to variable implementation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="125" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1aad6311d35eedfdcb341a4f89b14fc666" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarImpView&lt; Var &gt;::VarImpView</definition>
+        <argsstring>(void)</argsstring>
+        <name>VarImpView</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="127" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="420" bodyend="421"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpView_1a9affaf70dbab8cca81208453fa895257" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarImpView&lt; Var &gt;::VarImpView</definition>
+        <argsstring>(VarImpType *y)</argsstring>
+        <name>VarImpView</name>
+        <param>
+          <type><ref refid="classGecode_1_1VarImpView_1a425ac8d1c235ca801bcfb0f8afb54765" kindref="member">VarImpType</ref> *</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with variable implementation <emphasis>y</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/view.hpp" line="129" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="424" bodyend="425"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for variable implementation views. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/view.hpp" line="117" column="1" bodyfile="/usr/include/gecode/kernel/view.hpp" bodystart="117" bodyend="188"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1VarImpView_1a5b16299eecf8f61b8dc0beb8f9bd0beb" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarImpView_1aeee242f0be13f77dc287449dd51e6fd2" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1VarImpView_1a1c934158a4c68ca730d4a6fac2c36d9f" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>before</name></member>
+      <member refid="classGecode_1_1VarImpView_1af550f46509ae9dc6ebe600239da76455" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1VarImpView_1a4f1906b462d6d5b8a01fbf76853d3c4d" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1VarImpView_1aee7a33d9250e05396237e837ea9a308e" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>degree</name></member>
+      <member refid="classGecode_1_1VarImpView_1a6dced43c3bf8befaf8cd27dbd53bf24c" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>me</name></member>
+      <member refid="classGecode_1_1VarImpView_1a0e39dd0cf9bbe352c819c3fd4babe00b" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>med</name></member>
+      <member refid="classGecode_1_1VarImpView_1afb67198fa777462748d7367b58ba23e5" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>modevent</name></member>
+      <member refid="classGecode_1_1VarImpView_1ab35b7e1f7d46801deb9725a06c93a095" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>same</name></member>
+      <member refid="classGecode_1_1VarImpView_1a9861f2a94658e8d7c917367919adc5f6" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>schedule</name></member>
+      <member refid="classGecode_1_1VarImpView_1a9a475b6d28d2a0f263958aa36a322c50" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1VarImpView_1a6fd19edeff9ba18b8791726ac5e5a149" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1VarImpView_1a5f0569230bea9a229d76eed32716b42a" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>update</name></member>
+      <member refid="classGecode_1_1VarImpView_1ad4a4e4dfa41f166978eb9fa1bd15a255" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>varderived</name></member>
+      <member refid="classGecode_1_1VarImpView_1a0df1db1c3ac7184748b4e0c74fed40df" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>varimp</name></member>
+      <member refid="classGecode_1_1VarImpView_1a425ac8d1c235ca801bcfb0f8afb54765" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>VarImpType</name></member>
+      <member refid="classGecode_1_1VarImpView_1aad6311d35eedfdcb341a4f89b14fc666" prot="protected" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>VarImpView</name></member>
+      <member refid="classGecode_1_1VarImpView_1a9affaf70dbab8cca81208453fa895257" prot="protected" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>VarImpView</name></member>
+      <member refid="classGecode_1_1VarImpView_1a0b2acbfe831d91899de6f207aac7ea22" prot="public" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>VarType</name></member>
+      <member refid="classGecode_1_1VarImpView_1af6b0f6f2e4c989a317c6134709c147a7" prot="protected" virt="non-virtual"><scope>Gecode::VarImpView</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelIntBranchAssign" kind="group">
+    <compoundname>TaskModelIntBranchAssign</compoundname>
+    <title>Value selection for assigning integer and Boolean variables</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1gaac3546ce5954b706f4a451916900d971" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN_MIN</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_ASSIGN_MIN</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select smallest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1ga9cf69064246719f6957fda3914b0639f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN_MED</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_ASSIGN_MED</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select greatest value not greater than the median. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="64" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1gae8dd9858629d58d84d3595f328521468" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN_MAX</definition>
+        <argsstring>(void)</argsstring>
+        <name>INT_ASSIGN_MAX</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Select largest value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="69" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1ga119c223f28034805c52cf786cabf2c82" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN_RND</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>INT_ASSIGN_RND</name>
+        <param>
+          <type>Rnd</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Select random value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="74" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1gad1acf3d897f1f741efd5567e545854ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN</definition>
+        <argsstring>(IntBranchVal v, IntBranchCommit c=NULL)</argsstring>
+        <name>INT_ASSIGN</name>
+        <param>
+          <type>IntBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>IntBranchCommit</type>
+          <declname>c</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Uses a commit function as default that posts the constraint that a variable <emphasis>x</emphasis> must be equal to the value <emphasis>n</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="79" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="79" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelIntBranchAssign_1gae40c091d7e81a787edac8f8adf0709f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>IntAssign</type>
+        <definition>IntAssign Gecode::INT_ASSIGN</definition>
+        <argsstring>(BoolBranchVal v, BoolBranchCommit c=NULL)</argsstring>
+        <name>INT_ASSIGN</name>
+        <param>
+          <type>BoolBranchVal</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>BoolBranchCommit</type>
+          <declname>c</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Select value as defined by the value function <emphasis>v</emphasis> and commit function <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Uses a commit function as default that posts the constraint that a variable <emphasis>x</emphasis> must be equal to the value <emphasis>n</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch/assign.hpp" line="85" column="1" bodyfile="/usr/include/gecode/int/branch/assign.hpp" bodystart="85" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

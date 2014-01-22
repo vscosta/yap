@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1IntSet_1_1Range" kind="class" prot="private">
+    <compoundname>Gecode::IntSet::Range</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1IntSet_1_1Range_1ac9a7dd3647cb57743f60cbd18334d3c4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::IntSet::Range::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="176" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1IntSet_1_1Range_1aebd6b2e374b6f2bc8e0b57074d81eac6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::IntSet::Range::max</definition>
+        <argsstring></argsstring>
+        <name>max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int.hh" line="176" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range (intervals) of integers </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int.hh" line="174" column="1" bodyfile="/usr/include/gecode/int.hh" bodystart="174" bodyend="177"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1IntSet_1_1Range_1aebd6b2e374b6f2bc8e0b57074d81eac6" prot="public" virt="non-virtual"><scope>Gecode::IntSet::Range</scope><name>max</name></member>
+      <member refid="classGecode_1_1IntSet_1_1Range_1ac9a7dd3647cb57743f60cbd18334d3c4" prot="public" virt="non-virtual"><scope>Gecode::IntSet::Range</scope><name>min</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

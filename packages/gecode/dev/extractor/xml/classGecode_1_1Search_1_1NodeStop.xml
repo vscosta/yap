@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1NodeStop" kind="class" prot="public">
+    <compoundname>Gecode::Search::NodeStop</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Stop" prot="public" virt="non-virtual">Gecode::Search::Stop</basecompoundref>
+    <includes refid="search_8hh" local="no">search.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1NodeStop_1a80f0f8f6d69e59484eca0d460816fe42" prot="protected" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::Search::NodeStop::l</definition>
+        <argsstring></argsstring>
+        <name>l</name>
+        <briefdescription>
+<para>Node limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="287" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="287" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1NodeStop_1a5c626afb015df8616880b83f84e41ed7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::NodeStop::NodeStop</definition>
+        <argsstring>(unsigned long int l)</argsstring>
+        <name>NodeStop</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Stop" kindref="compound">Stop</ref> if node limit <emphasis>l</emphasis> is exceeded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="290" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="66" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1NodeStop_1a10eb4abe6d9ca9b779774a01f310e5ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned long int</type>
+        <definition>forceinline unsigned long int Gecode::Search::NodeStop::limit</definition>
+        <argsstring>(void) const </argsstring>
+        <name>limit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="292" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1NodeStop_1acc449c884acb444ebbad00077593aed4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::NodeStop::limit</definition>
+        <argsstring>(unsigned long int l)</argsstring>
+        <name>limit</name>
+        <param>
+          <type>unsigned long int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> current limit to <emphasis>l</emphasis> nodes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="294" column="1" bodyfile="/usr/include/gecode/search/stop.hpp" bodystart="74" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1NodeStop_1a702ce360938a61f3ce0cd7459b227786" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool Gecode::Search::NodeStop::stop</definition>
+        <argsstring>(const Statistics &amp;s, const Options &amp;o)</argsstring>
+        <name>stop</name>
+        <reimplements refid="classGecode_1_1Search_1_1Stop_1a463768870e6d105a5db82bef6e46a38b">stop</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Statistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Return true if node limit is exceeded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search.hh" line="296" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Stop-object based on number of nodes </para>    </briefdescription>
+    <detaileddescription>
+<para>The number of nodes reported (by the statistics) is the number since the engine started exploration. It is not the number since the last stop! </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="4460">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="4459">
+        <label>Gecode::Search::NodeStop</label>
+        <link refid="classGecode_1_1Search_1_1NodeStop"/>
+        <childnode refid="4460" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4462">
+        <label>Gecode::Search::Stop</label>
+        <link refid="classGecode_1_1Search_1_1Stop"/>
+      </node>
+      <node id="4461">
+        <label>Gecode::Search::NodeStop</label>
+        <link refid="classGecode_1_1Search_1_1NodeStop"/>
+        <childnode refid="4462" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search.hh" line="284" column="1" bodyfile="/usr/include/gecode/search.hh" bodystart="284" bodyend="297"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1NodeStop_1a80f0f8f6d69e59484eca0d460816fe42" prot="protected" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>l</name></member>
+      <member refid="classGecode_1_1Search_1_1NodeStop_1a10eb4abe6d9ca9b779774a01f310e5ac" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>limit</name></member>
+      <member refid="classGecode_1_1Search_1_1NodeStop_1acc449c884acb444ebbad00077593aed4" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>limit</name></member>
+      <member refid="classGecode_1_1Search_1_1NodeStop_1a5c626afb015df8616880b83f84e41ed7" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>NodeStop</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1adcf14604abab854cd1b655114baf6f2c" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1aa6e564f2ae9520dd15caf301ae1f973a" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Search_1_1NodeStop_1a702ce360938a61f3ce0cd7459b227786" prot="public" virt="virtual"><scope>Gecode::Search::NodeStop</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1ae302d43fef2d669d9b8176acbcf9b73c" prot="public" virt="non-virtual"><scope>Gecode::Search::NodeStop</scope><name>Stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Stop_1ad90885b245e012bf606761acce005547" prot="public" virt="virtual"><scope>Gecode::Search::NodeStop</scope><name>~Stop</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

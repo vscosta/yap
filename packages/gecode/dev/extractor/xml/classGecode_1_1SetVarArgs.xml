@@ -1,0 +1,429 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1SetVarArgs" kind="class" prot="public">
+    <compoundname>Gecode::SetVarArgs</compoundname>
+    <basecompoundref refid="classGecode_1_1VarArgArray" prot="public" virt="non-virtual">Gecode::VarArgArray&lt; SetVar &gt;</basecompoundref>
+    <includes refid="set_8hh" local="no">set.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a3bacce4f1cebb56e6d5ab4cffb28a126" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(void)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate empty array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="495" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="495" bodyend="495"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a74c485a4fb74ad0ed2869f0cde4de900" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(int n)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate array with <emphasis>n</emphasis> elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="497" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="497" bodyend="497"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a495e829aa930e8410a6f0ba21edcc5f2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(const SetVarArgs &amp;a)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1SetVarArgs" kindref="compound">SetVarArgs</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable argument array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="499" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="499" bodyend="499"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a45b1363bbb646bdd3bfe1c7e31a04dd9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(const VarArray&lt; SetVar &gt; &amp;a)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArray" kindref="compound">VarArray</ref>&lt; <ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="501" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="501" bodyend="501"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a37bc09bc349af3f9be34c013e27a30cf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(const std::vector&lt; SetVar &gt; &amp;a)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>const std::vector&lt; <ref refid="classGecode_1_1SetVar" kindref="compound">SetVar</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from vector <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="503" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="503" bodyend="503"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a7a6fe65ea050440a0b681bec324b8455" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class InputIterator</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(InputIterator first, InputIterator last)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type>InputIterator</type>
+          <declname>first</declname>
+        </param>
+        <param>
+          <type>InputIterator</type>
+          <declname>last</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from InputIterator <emphasis>first</emphasis> and <emphasis>last</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="506" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="506" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a3ad41cb6e43aea48a6726af141baac40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT</type>
+        <definition>GECODE_SET_EXPORT Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(Space &amp;home, int n, int glbMin, int glbMax, int lubMin, int lubMax, unsigned int minCard=0, unsigned int maxCard=Set::Limits::card)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>glbMin</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>glbMax</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lubMin</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lubMax</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>minCard</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>maxCard</declname>
+          <defval><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Set::Limits::card</ref></defval>
+        </param>
+        <briefdescription>
+<para>Create an array of size <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Each variable is initialized with the bounds and cardinality as given by the arguments. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="515" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1abd32073f323ca5b2955c2a3ab3d94f2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT</type>
+        <definition>GECODE_SET_EXPORT Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(Space &amp;home, int n, const IntSet &amp;glb, int lubMin, int lubMax, unsigned int minCard=0, unsigned int maxCard=Set::Limits::card)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>glb</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lubMin</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lubMax</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>minCard</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>maxCard</declname>
+          <defval><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Set::Limits::card</ref></defval>
+        </param>
+        <briefdescription>
+<para>Create an array of size <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Each variable is initialized with the bounds and cardinality as given by the arguments. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="526" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a389d94556cd6acf09b5e45b1f7d2f6d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT</type>
+        <definition>GECODE_SET_EXPORT Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(Space &amp;home, int n, int glbMin, int glbMax, const IntSet &amp;lub, unsigned int minCard=0, unsigned int maxCard=Set::Limits::card)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>glbMin</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>glbMax</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>lub</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>minCard</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>maxCard</declname>
+          <defval><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Set::Limits::card</ref></defval>
+        </param>
+        <briefdescription>
+<para>Create an array of size <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Each variable is initialized with the bounds and cardinality as given by the arguments. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="537" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1SetVarArgs_1a09d52193c0c2e0ebc225b5a05ef7ae71" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT</type>
+        <definition>GECODE_SET_EXPORT Gecode::SetVarArgs::SetVarArgs</definition>
+        <argsstring>(Space &amp;home, int n, const IntSet &amp;glb, const IntSet &amp;lub, unsigned int minCard=0, unsigned int maxCard=Set::Limits::card)</argsstring>
+        <name>SetVarArgs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>glb</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1IntSet" kindref="compound">IntSet</ref> &amp;</type>
+          <declname>lub</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>minCard</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>maxCard</declname>
+          <defval><ref refid="namespaceGecode_1_1Set_1_1Limits_1a82e5a0891d539b2d58db3a9347ac138b" kindref="member">Set::Limits::card</ref></defval>
+        </param>
+        <briefdescription>
+<para>Create an array of size <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Each variable is initialized with the bounds and cardinality as given by the arguments. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="548" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Passing set variables. </para>    </briefdescription>
+    <detaileddescription>
+<para>We could have used a simple typedef instead, but doxygen cannot resolve some overloading then, leading to unusable documentation for important parts of the library. As long as there is no fix for this, we will keep this workaround. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6410">
+        <label>Gecode::ArgArrayBase&lt; SetVar &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+      </node>
+      <node id="6408">
+        <label>Gecode::SetVarArgs</label>
+        <link refid="classGecode_1_1SetVarArgs"/>
+        <childnode refid="6409" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6409">
+        <label>Gecode::VarArgArray&lt; SetVar &gt;</label>
+        <link refid="classGecode_1_1VarArgArray"/>
+        <childnode refid="6410" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6417">
+        <label>Gecode::Set::SetVarImp</label>
+        <link refid="classGecode_1_1Set_1_1SetVarImp"/>
+        <childnode refid="6418" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6416">
+        <label>Gecode::Var</label>
+        <link refid="classGecode_1_1Var"/>
+      </node>
+      <node id="6418">
+        <label>SetVarImpBase</label>
+      </node>
+      <node id="6413">
+        <label>Gecode::ArgArrayBase&lt; SetVar &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+        <childnode refid="6414" relation="usage">
+          <edgelabel>onstack</edgelabel>
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="6415">
+        <label>Gecode::VarImpVar&lt; Set::SetVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="6416" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6417" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="6411">
+        <label>Gecode::SetVarArgs</label>
+        <link refid="classGecode_1_1SetVarArgs"/>
+        <childnode refid="6412" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6414">
+        <label>Gecode::SetVar</label>
+        <link refid="classGecode_1_1SetVar"/>
+        <childnode refid="6415" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6412">
+        <label>Gecode::VarArgArray&lt; SetVar &gt;</label>
+        <link refid="classGecode_1_1VarArgArray"/>
+        <childnode refid="6413" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/set.hh" line="490" column="1" bodyfile="/usr/include/gecode/set.hh" bodystart="490" bodyend="553"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArgArrayBase_1a6ac424d552057a5730b67d9b15b9977c" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>a</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa3a75d22c4da142c5f7129561f980399" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1acf7efe7096de3d763d6a894306e56adc" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a91d22d529d75c419aa3bd6c93849cb4a" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf88593537f41f862b91120c4c6ee104" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1add5bd614e97033a43636821aeab64ce2" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ae30a8e33f63548bf1e8f52bc772686db" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab0a3399a6a484dc36cd3d306a2b8e199" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a9e7b606b9971b3344e692a60ac13b223" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a34250768c73a3af1af1235b026db4a97" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa113576241a65d86140bc3419d96b02c" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa56cc30444aa0a1e206475eb2201a281" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aba50e7707c86b17f0d4b805939305227" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>capacity</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8dfd1207b4479935fb88e517b21bf49f" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3e5176857b4d13451f9022f6a72b192" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad83ae4a7fc5863035e6fe5795b843768" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>const_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c85c82056ab8fbf2772417329d3e802" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>const_pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a097be827923b3a47bacd8918ec73ca6b" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>const_reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1af2029facbd7b8dcfef6573d43444cde2" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>const_reverse_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad90ff8a9bd79af6acfdb72646c52a780" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>end</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a62a0f08722a2eaddd4d9b3bd7d3a216c" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>end</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa687fceda8a4ae2a64fb5a7bb649a5a7" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ac8bab055302616752818fe5df090a1b9" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>n</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c191ff64ad1876b584048422f9ff29e" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>onstack</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a2a7e9c76d67fae7aae4f20109eb38317" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>onstack_size</name></member>
+      <member refid="classGecode_1_1VarArgArray_1af85e76ef64846946dae720bce02ddcba" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a6c9456796f94d3bf8a283623f95570c5" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7a164914ff7e98d30c7682772c28c755" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a3374c5468b4a8d6fc80c1b7059b62b1a" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7d93ce4e7a605a9a450326683831d54a" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3bc773d03a61dd0c04283e749ec0ed2" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf6d78bac5609f86601dfb22131bc866" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a71af78d1d4adeb593e14add9fbc2135a" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad0298b4768b0e53ce8ef13f80789ac18" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa6fcebbdd86271d362383f71a3fdbd26" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8c876fa6c631f6d9685ee44194628f6c" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8ed2c153f6a9481eac03f81fc1eb6b14" prot="protected" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>resize</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a77d09762f3b2d7c017a1c66530c30ba5" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>reverse_iterator</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a71ab704332eda08d372740bdc82401c7" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a29b038cf2879a2262246f86ed53a4a4f" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a9a783f83f52f798aaf8b8aacfe97ca2e" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a3bacce4f1cebb56e6d5ab4cffb28a126" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a74c485a4fb74ad0ed2869f0cde4de900" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a495e829aa930e8410a6f0ba21edcc5f2" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a45b1363bbb646bdd3bfe1c7e31a04dd9" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a37bc09bc349af3f9be34c013e27a30cf" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a7a6fe65ea050440a0b681bec324b8455" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a3ad41cb6e43aea48a6726af141baac40" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1abd32073f323ca5b2955c2a3ab3d94f2d" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a389d94556cd6acf09b5e45b1f7d2f6d7" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1SetVarArgs_1a09d52193c0c2e0ebc225b5a05ef7ae71" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>SetVarArgs</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>size</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a40a52e20540f67f982a967fc85452647" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>slice</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a56a36e2a609ea57109c79d43890d62ef" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>value_type</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a13a6a63a399fb2e50b045a7bffa8e8f5" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1af52a5f3c412047da7b982aa6264de766" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a5711a74a0c1261d02658f4d7ec5b9159" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1ac4e98ced216c3ad2f922d4c8efec243d" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a8c03614f1eb6c5467d85467e5a4ca957" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1ac3726cec21e7d77b7781520e088e4ca9" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab397c8c20972f2bc8d3b53e46145cb24" prot="public" virt="non-virtual"><scope>Gecode::SetVarArgs</scope><name>~ArgArrayBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

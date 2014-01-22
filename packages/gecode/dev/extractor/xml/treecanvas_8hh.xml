@@ -1,0 +1,1435 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="treecanvas_8hh" kind="file">
+    <compoundname>treecanvas.hh</compoundname>
+    <includes local="no">QtGui</includes>
+    <includes refid="kernel_8hh" local="no">gecode/kernel.hh</includes>
+    <includes refid="gist_8hh" local="no">gecode/gist.hh</includes>
+    <includes refid="visualnode_8hh" local="no">gecode/gist/visualnode.hh</includes>
+    <includedby refid="qtgist_8hh" local="no">/usr/include/gecode/gist/qtgist.hh</includedby>
+    <incdepgraph>
+      <node id="8779">
+        <label>gecode/support/cast.hpp</label>
+        <link refid="cast_8hpp_source"/>
+      </node>
+      <node id="8847">
+        <label>gecode/search/cutoff.hpp</label>
+        <link refid="cutoff_8hpp_source"/>
+      </node>
+      <node id="8889">
+        <label>gecode/iter/values-ranges.hpp</label>
+        <link refid="values-ranges_8hpp_source"/>
+      </node>
+      <node id="8911">
+        <label>gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="8854" relation="include">
+        </childnode>
+        <childnode refid="8912" relation="include">
+        </childnode>
+      </node>
+      <node id="8910">
+        <label>gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="8911" relation="include">
+        </childnode>
+      </node>
+      <node id="8878">
+        <label>gecode/iter/ranges-rangelist.hpp</label>
+        <link refid="ranges-rangelist_8hpp_source"/>
+      </node>
+      <node id="8836">
+        <label>gecode/kernel/brancher-val-sel-commit.hpp</label>
+        <link refid="brancher-val-sel-commit_8hpp_source"/>
+      </node>
+      <node id="8884">
+        <label>gecode/iter/values-map.hpp</label>
+        <link refid="values-map_8hpp_source"/>
+      </node>
+      <node id="8869">
+        <label>gecode/iter/ranges-negative.hpp</label>
+        <link refid="ranges-negative_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8797">
+        <label>gecode/support/static-stack.hpp</label>
+        <link refid="static-stack_8hpp_source"/>
+      </node>
+      <node id="8838">
+        <label>gecode/kernel/var-imp.hpp</label>
+        <link refid="kernel_2var-imp_8hpp_source"/>
+      </node>
+      <node id="8795">
+        <label>gecode/support/random.hpp</label>
+        <link refid="random_8hpp_source"/>
+      </node>
+      <node id="8840">
+        <label>limits</label>
+      </node>
+      <node id="8813">
+        <label>gecode/kernel/var.hpp</label>
+        <link refid="kernel_2var_8hpp_source"/>
+      </node>
+      <node id="8914">
+        <label>gecode/int/view/bool.hpp</label>
+        <link refid="int_2view_2bool_8hpp_source"/>
+      </node>
+      <node id="8893">
+        <label>gecode/iter/ranges-size.hpp</label>
+        <link refid="ranges-size_8hpp_source"/>
+      </node>
+      <node id="8798">
+        <label>gecode/support/thread/none.hpp</label>
+        <link refid="none_8hpp_source"/>
+      </node>
+      <node id="8817">
+        <label>iterator</label>
+      </node>
+      <node id="8861">
+        <label>gecode/iter/ranges-array.hpp</label>
+        <link refid="ranges-array_8hpp_source"/>
+      </node>
+      <node id="8800">
+        <label>gecode/support/timer.hpp</label>
+        <link refid="timer_8hpp_source"/>
+      </node>
+      <node id="8799">
+        <label>gecode/support/thread/thread.hpp</label>
+        <link refid="thread_2thread_8hpp_source"/>
+      </node>
+      <node id="8877">
+        <label>gecode/iter/ranges-singleton-append.hpp</label>
+        <link refid="ranges-singleton-append_8hpp_source"/>
+      </node>
+      <node id="8871">
+        <label>gecode/iter/ranges-positive.hpp</label>
+        <link refid="ranges-positive_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8835">
+        <label>gecode/kernel/brancher-val-commit.hpp</label>
+        <link refid="brancher-val-commit_8hpp_source"/>
+      </node>
+      <node id="8902">
+        <label>gecode/int/view/iter.hpp</label>
+        <link refid="int_2view_2iter_8hpp_source"/>
+      </node>
+      <node id="8825">
+        <label>gecode/kernel/afc.hpp</label>
+        <link refid="kernel_2afc_8hpp_source"/>
+      </node>
+      <node id="8809">
+        <label>gecode/kernel/var-type.hpp</label>
+        <link refid="var-type_8hpp_source"/>
+      </node>
+      <node id="8935">
+        <label>gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="8936" relation="include">
+        </childnode>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8933" relation="include">
+        </childnode>
+        <childnode refid="8940" relation="include">
+        </childnode>
+        <childnode refid="8941" relation="include">
+        </childnode>
+        <childnode refid="8942" relation="include">
+        </childnode>
+      </node>
+      <node id="8801">
+        <label>gecode/support/hw-rnd.hpp</label>
+        <link refid="hw-rnd_8hpp_source"/>
+      </node>
+      <node id="8881">
+        <label>gecode/iter/values-bitsetoffset.hpp</label>
+        <link refid="values-bitsetoffset_8hpp_source"/>
+      </node>
+      <node id="8788">
+        <label>cmath</label>
+      </node>
+      <node id="8772">
+        <label>cassert</label>
+      </node>
+      <node id="8832">
+        <label>gecode/kernel/brancher-view-sel.hpp</label>
+        <link refid="brancher-view-sel_8hpp_source"/>
+      </node>
+      <node id="8839">
+        <label>gecode/kernel/allocators.hpp</label>
+        <link refid="allocators_8hpp_source"/>
+        <childnode refid="8840" relation="include">
+        </childnode>
+      </node>
+      <node id="8842">
+        <label>gecode/search.hh</label>
+        <link refid="search_8hh_source"/>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8775" relation="include">
+        </childnode>
+        <childnode refid="8843" relation="include">
+        </childnode>
+        <childnode refid="8844" relation="include">
+        </childnode>
+        <childnode refid="8845" relation="include">
+        </childnode>
+        <childnode refid="8846" relation="include">
+        </childnode>
+        <childnode refid="8847" relation="include">
+        </childnode>
+        <childnode refid="8848" relation="include">
+        </childnode>
+        <childnode refid="8849" relation="include">
+        </childnode>
+        <childnode refid="8850" relation="include">
+        </childnode>
+        <childnode refid="8851" relation="include">
+        </childnode>
+      </node>
+      <node id="8922">
+        <label>gecode/int/int-set-2.hpp</label>
+        <link refid="int-set-2_8hpp_source"/>
+      </node>
+      <node id="8933">
+        <label>string</label>
+      </node>
+      <node id="8816">
+        <label>cstdarg</label>
+      </node>
+      <node id="8786">
+        <label>gecode/support/bitset-base.hpp</label>
+        <link refid="bitset-base_8hpp_source"/>
+        <childnode refid="8785" relation="include">
+        </childnode>
+      </node>
+      <node id="8820">
+        <label>gecode/kernel/shared-array.hpp</label>
+        <link refid="shared-array_8hpp_source"/>
+        <childnode refid="8816" relation="include">
+        </childnode>
+        <childnode refid="8790" relation="include">
+        </childnode>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8913">
+        <label>gecode/int/view/cached.hpp</label>
+        <link refid="int_2view_2cached_8hpp_source"/>
+      </node>
+      <node id="8810">
+        <label>gecode/kernel/modevent.hpp</label>
+        <link refid="modevent_8hpp_source"/>
+      </node>
+      <node id="8850">
+        <label>gecode/search/bab.hpp</label>
+        <link refid="bab_8hpp_source"/>
+      </node>
+      <node id="8803">
+        <label>gecode/kernel/memory-config.hpp</label>
+        <link refid="memory-config_8hpp_source"/>
+      </node>
+      <node id="8940">
+        <label>gecode/gist/node.hpp</label>
+        <link refid="gist_2node_8hpp_source"/>
+      </node>
+      <node id="8931">
+        <label>gecode/int/branch/val.hpp</label>
+        <link refid="int_2branch_2val_8hpp_source"/>
+      </node>
+      <node id="8766">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas.hh"/>
+        <childnode refid="8767" relation="include">
+        </childnode>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8841" relation="include">
+        </childnode>
+        <childnode refid="8935" relation="include">
+        </childnode>
+      </node>
+      <node id="8784">
+        <label>gecode/support/int-type.hpp</label>
+        <link refid="int-type_8hpp_source"/>
+        <childnode refid="8785" relation="include">
+        </childnode>
+      </node>
+      <node id="8888">
+        <label>gecode/iter/values-positive.hpp</label>
+        <link refid="values-positive_8hpp_source"/>
+      </node>
+      <node id="8855">
+        <label>cfloat</label>
+      </node>
+      <node id="8894">
+        <label>gecode/int/exception.hpp</label>
+        <link refid="int_2exception_8hpp_source"/>
+      </node>
+      <node id="8777">
+        <label>gecode/support/exception.hpp</label>
+        <link refid="support_2exception_8hpp_source"/>
+        <childnode refid="8778" relation="include">
+        </childnode>
+      </node>
+      <node id="8778">
+        <label>exception</label>
+      </node>
+      <node id="8846">
+        <label>gecode/search/stop.hpp</label>
+        <link refid="stop_8hpp_source"/>
+      </node>
+      <node id="8867">
+        <label>gecode/iter/ranges-map.hpp</label>
+        <link refid="ranges-map_8hpp_source"/>
+      </node>
+      <node id="8812">
+        <label>gecode/kernel/region.hpp</label>
+        <link refid="region_8hpp_source"/>
+      </node>
+      <node id="8783">
+        <label>gecode/support/marked-pointer.hpp</label>
+        <link refid="marked-pointer_8hpp_source"/>
+        <childnode refid="8769" relation="include">
+        </childnode>
+      </node>
+      <node id="8780">
+        <label>gecode/support/thread.hpp</label>
+        <link refid="thread_8hpp_source"/>
+        <childnode refid="8769" relation="include">
+        </childnode>
+      </node>
+      <node id="8768">
+        <label>gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="8769" relation="include">
+        </childnode>
+        <childnode refid="8770" relation="include">
+        </childnode>
+        <childnode refid="8771" relation="include">
+        </childnode>
+        <childnode refid="8772" relation="include">
+        </childnode>
+        <childnode refid="8773" relation="include">
+        </childnode>
+        <childnode refid="8775" relation="include">
+        </childnode>
+        <childnode refid="8802" relation="include">
+        </childnode>
+        <childnode refid="8803" relation="include">
+        </childnode>
+        <childnode refid="8804" relation="include">
+        </childnode>
+        <childnode refid="8805" relation="include">
+        </childnode>
+        <childnode refid="8806" relation="include">
+        </childnode>
+        <childnode refid="8807" relation="include">
+        </childnode>
+        <childnode refid="8808" relation="include">
+        </childnode>
+        <childnode refid="8810" relation="include">
+        </childnode>
+        <childnode refid="8811" relation="include">
+        </childnode>
+        <childnode refid="8812" relation="include">
+        </childnode>
+        <childnode refid="8813" relation="include">
+        </childnode>
+        <childnode refid="8814" relation="include">
+        </childnode>
+        <childnode refid="8815" relation="include">
+        </childnode>
+        <childnode refid="8820" relation="include">
+        </childnode>
+        <childnode refid="8821" relation="include">
+        </childnode>
+        <childnode refid="8823" relation="include">
+        </childnode>
+        <childnode refid="8824" relation="include">
+        </childnode>
+        <childnode refid="8825" relation="include">
+        </childnode>
+        <childnode refid="8826" relation="include">
+        </childnode>
+        <childnode refid="8827" relation="include">
+        </childnode>
+        <childnode refid="8828" relation="include">
+        </childnode>
+        <childnode refid="8829" relation="include">
+        </childnode>
+        <childnode refid="8830" relation="include">
+        </childnode>
+        <childnode refid="8831" relation="include">
+        </childnode>
+        <childnode refid="8832" relation="include">
+        </childnode>
+        <childnode refid="8833" relation="include">
+        </childnode>
+        <childnode refid="8834" relation="include">
+        </childnode>
+        <childnode refid="8835" relation="include">
+        </childnode>
+        <childnode refid="8836" relation="include">
+        </childnode>
+        <childnode refid="8837" relation="include">
+        </childnode>
+        <childnode refid="8838" relation="include">
+        </childnode>
+        <childnode refid="8839" relation="include">
+        </childnode>
+      </node>
+      <node id="8896">
+        <label>gecode/int/int-set-1.hpp</label>
+        <link refid="int-set-1_8hpp_source"/>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8826">
+        <label>gecode/kernel/branch-traits.hpp</label>
+        <link refid="branch-traits_8hpp_source"/>
+      </node>
+      <node id="8907">
+        <label>gecode/int/view/zero.hpp</label>
+        <link refid="zero_8hpp_source"/>
+      </node>
+      <node id="8863">
+        <label>gecode/iter/ranges-compl.hpp</label>
+        <link refid="ranges-compl_8hpp_source"/>
+      </node>
+      <node id="8925">
+        <label>gecode/int/extensional/dfa.hpp</label>
+        <link refid="dfa_8hpp_source"/>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8815">
+        <label>gecode/kernel/array.hpp</label>
+        <link refid="kernel_2array_8hpp_source"/>
+        <childnode refid="8816" relation="include">
+        </childnode>
+        <childnode refid="8790" relation="include">
+        </childnode>
+        <childnode refid="8817" relation="include">
+        </childnode>
+        <childnode refid="8818" relation="include">
+        </childnode>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8928">
+        <label>gecode/int/branch/afc.hpp</label>
+        <link refid="int_2branch_2afc_8hpp_source"/>
+      </node>
+      <node id="8830">
+        <label>gecode/kernel/branch-val.hpp</label>
+        <link refid="branch-val_8hpp_source"/>
+      </node>
+      <node id="8849">
+        <label>gecode/search/dfs.hpp</label>
+        <link refid="dfs_8hpp_source"/>
+      </node>
+      <node id="8794">
+        <label>gecode/support/dynamic-stack.hpp</label>
+        <link refid="dynamic-stack_8hpp_source"/>
+      </node>
+      <node id="8872">
+        <label>gecode/iter/ranges-scale.hpp</label>
+        <link refid="ranges-scale_8hpp_source"/>
+        <childnode refid="8788" relation="include">
+        </childnode>
+      </node>
+      <node id="8806">
+        <label>gecode/kernel/archive.hpp</label>
+        <link refid="archive_8hpp_source"/>
+      </node>
+      <node id="8811">
+        <label>gecode/kernel/range-list.hpp</label>
+        <link refid="range-list_8hpp_source"/>
+      </node>
+      <node id="8845">
+        <label>gecode/search/options.hpp</label>
+        <link refid="search_2options_8hpp_source"/>
+      </node>
+      <node id="8883">
+        <label>gecode/iter/values-inter.hpp</label>
+        <link refid="values-inter_8hpp_source"/>
+      </node>
+      <node id="8831">
+        <label>gecode/kernel/brancher-merit.hpp</label>
+        <link refid="brancher-merit_8hpp_source"/>
+      </node>
+      <node id="8774">
+        <label>gecode/support/config.hpp</label>
+        <link refid="support_2config_8hpp_source"/>
+      </node>
+      <node id="8919">
+        <label>gecode/int/view/bool-test.hpp</label>
+        <link refid="bool-test_8hpp_source"/>
+      </node>
+      <node id="8876">
+        <label>gecode/iter/ranges-add.hpp</label>
+        <link refid="ranges-add_8hpp_source"/>
+      </node>
+      <node id="8901">
+        <label>gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="8790" relation="include">
+        </childnode>
+        <childnode refid="8902" relation="include">
+        </childnode>
+        <childnode refid="8903" relation="include">
+        </childnode>
+        <childnode refid="8904" relation="include">
+        </childnode>
+        <childnode refid="8905" relation="include">
+        </childnode>
+        <childnode refid="8906" relation="include">
+        </childnode>
+        <childnode refid="8907" relation="include">
+        </childnode>
+        <childnode refid="8908" relation="include">
+        </childnode>
+        <childnode refid="8909" relation="include">
+        </childnode>
+        <childnode refid="8910" relation="include">
+        </childnode>
+        <childnode refid="8913" relation="include">
+        </childnode>
+        <childnode refid="8914" relation="include">
+        </childnode>
+        <childnode refid="8915" relation="include">
+        </childnode>
+        <childnode refid="8916" relation="include">
+        </childnode>
+        <childnode refid="8917" relation="include">
+        </childnode>
+        <childnode refid="8918" relation="include">
+        </childnode>
+        <childnode refid="8919" relation="include">
+        </childnode>
+      </node>
+      <node id="8882">
+        <label>gecode/iter/values-list.hpp</label>
+        <link refid="values-list_8hpp_source"/>
+      </node>
+      <node id="8885">
+        <label>gecode/iter/values-minus.hpp</label>
+        <link refid="values-minus_8hpp_source"/>
+      </node>
+      <node id="8828">
+        <label>gecode/kernel/branch-var.hpp</label>
+        <link refid="branch-var_8hpp_source"/>
+      </node>
+      <node id="8804">
+        <label>gecode/kernel/memory-manager.hpp</label>
+        <link refid="memory-manager_8hpp_source"/>
+      </node>
+      <node id="8895">
+        <label>gecode/int/limits.hpp</label>
+        <link refid="int_2limits_8hpp_source"/>
+      </node>
+      <node id="8937">
+        <label>gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8938" relation="include">
+        </childnode>
+        <childnode refid="8939" relation="include">
+        </childnode>
+      </node>
+      <node id="8793">
+        <label>gecode/support/dynamic-queue.hpp</label>
+        <link refid="dynamic-queue_8hpp_source"/>
+      </node>
+      <node id="8920">
+        <label>gecode/int/propagator.hpp</label>
+        <link refid="int_2propagator_8hpp_source"/>
+      </node>
+      <node id="8927">
+        <label>gecode/int/branch/traits.hpp</label>
+        <link refid="int_2branch_2traits_8hpp_source"/>
+      </node>
+      <node id="8891">
+        <label>gecode/iter/values-union.hpp</label>
+        <link refid="values-union_8hpp_source"/>
+      </node>
+      <node id="8805">
+        <label>gecode/kernel/macros.hpp</label>
+        <link refid="kernel_2macros_8hpp_source"/>
+      </node>
+      <node id="8841">
+        <label>gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8842" relation="include">
+        </childnode>
+        <childnode refid="8854" relation="include">
+        </childnode>
+        <childnode refid="8775" relation="include">
+        </childnode>
+        <childnode refid="8933" relation="include">
+        </childnode>
+        <childnode refid="8819" relation="include">
+        </childnode>
+        <childnode refid="8934" relation="include">
+        </childnode>
+      </node>
+      <node id="8870">
+        <label>gecode/iter/ranges-offset.hpp</label>
+        <link refid="ranges-offset_8hpp_source"/>
+      </node>
+      <node id="8822">
+        <label>ctime</label>
+      </node>
+      <node id="8909">
+        <label>gecode/int/view/offset.hpp</label>
+        <link refid="int_2view_2offset_8hpp_source"/>
+      </node>
+      <node id="8879">
+        <label>gecode/iter/values-array.hpp</label>
+        <link refid="values-array_8hpp_source"/>
+      </node>
+      <node id="8930">
+        <label>gecode/int/branch/var.hpp</label>
+        <link refid="int_2branch_2var_8hpp_source"/>
+      </node>
+      <node id="8873">
+        <label>gecode/iter/ranges-singleton.hpp</label>
+        <link refid="ranges-singleton_8hpp_source"/>
+      </node>
+      <node id="8818">
+        <label>vector</label>
+      </node>
+      <node id="8853">
+        <label>gecode/search/meta/rbs.hh</label>
+        <link refid="rbs_8hh_source"/>
+        <childnode refid="8842" relation="include">
+        </childnode>
+      </node>
+      <node id="8916">
+        <label>gecode/int/view/print.hpp</label>
+        <link refid="int_2view_2print_8hpp_source"/>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8824">
+        <label>gecode/kernel/advisor.hpp</label>
+        <link refid="advisor_8hpp_source"/>
+      </node>
+      <node id="8926">
+        <label>gecode/int/extensional/tuple-set.hpp</label>
+        <link refid="tuple-set_8hpp_source"/>
+        <childnode refid="8819" relation="include">
+        </childnode>
+      </node>
+      <node id="8837">
+        <label>gecode/kernel/brancher-view-val.hpp</label>
+        <link refid="brancher-view-val_8hpp_source"/>
+      </node>
+      <node id="8905">
+        <label>gecode/int/view/int.hpp</label>
+        <link refid="int_2view_2int_8hpp_source"/>
+      </node>
+      <node id="8918">
+        <label>gecode/int/view/rel-test.hpp</label>
+        <link refid="int_2view_2rel-test_8hpp_source"/>
+      </node>
+      <node id="8819">
+        <label>sstream</label>
+      </node>
+      <node id="8942">
+        <label>gecode/gist/visualnode.hpp</label>
+        <link refid="visualnode_8hpp_source"/>
+      </node>
+      <node id="8921">
+        <label>gecode/int/array-traits.hpp</label>
+        <link refid="int_2array-traits_8hpp_source"/>
+      </node>
+      <node id="8939">
+        <label>QString</label>
+      </node>
+      <node id="8934">
+        <label>gecode/gist/gist.hpp</label>
+        <link refid="gist_8hpp_source"/>
+      </node>
+      <node id="8834">
+        <label>gecode/kernel/brancher-val-sel.hpp</label>
+        <link refid="brancher-val-sel_8hpp_source"/>
+      </node>
+      <node id="8823">
+        <label>gecode/kernel/propagator.hpp</label>
+        <link refid="kernel_2propagator_8hpp_source"/>
+      </node>
+      <node id="8791">
+        <label>gecode/support/block-allocator.hpp</label>
+        <link refid="block-allocator_8hpp_source"/>
+      </node>
+      <node id="8912">
+        <label>gecode/int/div.hpp</label>
+        <link refid="int_2div_8hpp_source"/>
+      </node>
+      <node id="8936">
+        <label>gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="8937" relation="include">
+        </childnode>
+        <childnode refid="8768" relation="include">
+        </childnode>
+      </node>
+      <node id="8887">
+        <label>gecode/iter/values-offset.hpp</label>
+        <link refid="values-offset_8hpp_source"/>
+      </node>
+      <node id="8848">
+        <label>gecode/search/engine-base.hpp</label>
+        <link refid="engine-base_8hpp_source"/>
+      </node>
+      <node id="8923">
+        <label>gecode/int/array.hpp</label>
+        <link refid="int_2array_8hpp_source"/>
+      </node>
+      <node id="8851">
+        <label>gecode/search/rbs.hpp</label>
+        <link refid="rbs_8hpp_source"/>
+        <childnode refid="8852" relation="include">
+        </childnode>
+        <childnode refid="8853" relation="include">
+        </childnode>
+      </node>
+      <node id="8827">
+        <label>gecode/kernel/activity.hpp</label>
+        <link refid="kernel_2activity_8hpp_source"/>
+      </node>
+      <node id="8854">
+        <label>gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="8785" relation="include">
+        </childnode>
+        <childnode refid="8855" relation="include">
+        </childnode>
+        <childnode refid="8790" relation="include">
+        </childnode>
+        <childnode refid="8818" relation="include">
+        </childnode>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8856" relation="include">
+        </childnode>
+        <childnode refid="8775" relation="include">
+        </childnode>
+        <childnode refid="8894" relation="include">
+        </childnode>
+        <childnode refid="8895" relation="include">
+        </childnode>
+        <childnode refid="8896" relation="include">
+        </childnode>
+        <childnode refid="8897" relation="include">
+        </childnode>
+        <childnode refid="8901" relation="include">
+        </childnode>
+        <childnode refid="8920" relation="include">
+        </childnode>
+        <childnode refid="8921" relation="include">
+        </childnode>
+        <childnode refid="8922" relation="include">
+        </childnode>
+        <childnode refid="8923" relation="include">
+        </childnode>
+        <childnode refid="8924" relation="include">
+        </childnode>
+        <childnode refid="8925" relation="include">
+        </childnode>
+        <childnode refid="8926" relation="include">
+        </childnode>
+        <childnode refid="8927" relation="include">
+        </childnode>
+        <childnode refid="8928" relation="include">
+        </childnode>
+        <childnode refid="8929" relation="include">
+        </childnode>
+        <childnode refid="8930" relation="include">
+        </childnode>
+        <childnode refid="8931" relation="include">
+        </childnode>
+        <childnode refid="8932" relation="include">
+        </childnode>
+      </node>
+      <node id="8770">
+        <label>cstdlib</label>
+      </node>
+      <node id="8787">
+        <label>gecode/support/bitset.hpp</label>
+        <link refid="bitset_8hpp_source"/>
+        <childnode refid="8785" relation="include">
+        </childnode>
+        <childnode refid="8788" relation="include">
+        </childnode>
+      </node>
+      <node id="8904">
+        <label>gecode/int/var/bool.hpp</label>
+        <link refid="int_2var_2bool_8hpp_source"/>
+      </node>
+      <node id="8775">
+        <label>gecode/support/auto-link.hpp</label>
+        <link refid="auto-link_8hpp_source"/>
+      </node>
+      <node id="8932">
+        <label>gecode/int/branch/assign.hpp</label>
+        <link refid="int_2branch_2assign_8hpp_source"/>
+      </node>
+      <node id="8790">
+        <label>iostream</label>
+      </node>
+      <node id="8802">
+        <label>gecode/kernel/exception.hpp</label>
+        <link refid="kernel_2exception_8hpp_source"/>
+      </node>
+      <node id="8915">
+        <label>gecode/int/view/neg-bool.hpp</label>
+        <link refid="neg-bool_8hpp_source"/>
+      </node>
+      <node id="8868">
+        <label>gecode/iter/ranges-minus.hpp</label>
+        <link refid="ranges-minus_8hpp_source"/>
+      </node>
+      <node id="8886">
+        <label>gecode/iter/values-negative.hpp</label>
+        <link refid="values-negative_8hpp_source"/>
+      </node>
+      <node id="8776">
+        <label>gecode/support/macros.hpp</label>
+        <link refid="support_2macros_8hpp_source"/>
+      </node>
+      <node id="8814">
+        <label>gecode/kernel/view.hpp</label>
+        <link refid="kernel_2view_8hpp_source"/>
+      </node>
+      <node id="8829">
+        <label>gecode/kernel/branch-tiebreak.hpp</label>
+        <link refid="branch-tiebreak_8hpp_source"/>
+      </node>
+      <node id="8769">
+        <label>cstddef</label>
+      </node>
+      <node id="8785">
+        <label>climits</label>
+      </node>
+      <node id="8843">
+        <label>gecode/search/exception.hpp</label>
+        <link refid="search_2exception_8hpp_source"/>
+      </node>
+      <node id="8890">
+        <label>gecode/iter/values-singleton.hpp</label>
+        <link refid="values-singleton_8hpp_source"/>
+      </node>
+      <node id="8808">
+        <label>gecode/kernel/core.hpp</label>
+        <link refid="core_8hpp_source"/>
+        <childnode refid="8790" relation="include">
+        </childnode>
+        <childnode refid="8809" relation="include">
+        </childnode>
+      </node>
+      <node id="8866">
+        <label>gecode/iter/ranges-inter.hpp</label>
+        <link refid="ranges-inter_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8941">
+        <label>gecode/gist/spacenode.hpp</label>
+        <link refid="spacenode_8hpp_source"/>
+      </node>
+      <node id="8860">
+        <label>gecode/iter/ranges-append.hpp</label>
+        <link refid="ranges-append_8hpp_source"/>
+      </node>
+      <node id="8857">
+        <label>gecode/iter/ranges-operations.hpp</label>
+        <link refid="ranges-operations_8hpp_source"/>
+      </node>
+      <node id="8773">
+        <label>gecode/support.hh</label>
+        <link refid="support_8hh_source"/>
+        <childnode refid="8772" relation="include">
+        </childnode>
+        <childnode refid="8774" relation="include">
+        </childnode>
+        <childnode refid="8775" relation="include">
+        </childnode>
+        <childnode refid="8776" relation="include">
+        </childnode>
+        <childnode refid="8777" relation="include">
+        </childnode>
+        <childnode refid="8779" relation="include">
+        </childnode>
+        <childnode refid="8780" relation="include">
+        </childnode>
+        <childnode refid="8781" relation="include">
+        </childnode>
+        <childnode refid="8783" relation="include">
+        </childnode>
+        <childnode refid="8784" relation="include">
+        </childnode>
+        <childnode refid="8786" relation="include">
+        </childnode>
+        <childnode refid="8787" relation="include">
+        </childnode>
+        <childnode refid="8789" relation="include">
+        </childnode>
+        <childnode refid="8791" relation="include">
+        </childnode>
+        <childnode refid="8792" relation="include">
+        </childnode>
+        <childnode refid="8793" relation="include">
+        </childnode>
+        <childnode refid="8794" relation="include">
+        </childnode>
+        <childnode refid="8795" relation="include">
+        </childnode>
+        <childnode refid="8796" relation="include">
+        </childnode>
+        <childnode refid="8797" relation="include">
+        </childnode>
+        <childnode refid="8798" relation="include">
+        </childnode>
+        <childnode refid="8799" relation="include">
+        </childnode>
+        <childnode refid="8800" relation="include">
+        </childnode>
+        <childnode refid="8801" relation="include">
+        </childnode>
+      </node>
+      <node id="8929">
+        <label>gecode/int/branch/activity.hpp</label>
+        <link refid="int_2branch_2activity_8hpp_source"/>
+      </node>
+      <node id="8899">
+        <label>gecode/int/var-imp/int.hpp</label>
+        <link refid="int_2var-imp_2int_8hpp_source"/>
+      </node>
+      <node id="8897">
+        <label>gecode/int/var-imp.hpp</label>
+        <link refid="int_2var-imp_8hpp_source"/>
+        <childnode refid="8788" relation="include">
+        </childnode>
+        <childnode refid="8898" relation="include">
+        </childnode>
+        <childnode refid="8899" relation="include">
+        </childnode>
+        <childnode refid="8900" relation="include">
+        </childnode>
+      </node>
+      <node id="8862">
+        <label>gecode/iter/ranges-cache.hpp</label>
+        <link refid="ranges-cache_8hpp_source"/>
+      </node>
+      <node id="8938">
+        <label>QHash</label>
+      </node>
+      <node id="8844">
+        <label>gecode/search/statistics.hpp</label>
+        <link refid="statistics_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8792">
+        <label>gecode/support/dynamic-array.hpp</label>
+        <link refid="dynamic-array_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8906">
+        <label>gecode/int/view/constint.hpp</label>
+        <link refid="constint_8hpp_source"/>
+      </node>
+      <node id="8892">
+        <label>gecode/iter/values-unique.hpp</label>
+        <link refid="values-unique_8hpp_source"/>
+      </node>
+      <node id="8864">
+        <label>gecode/iter/ranges-diff.hpp</label>
+        <link refid="ranges-diff_8hpp_source"/>
+      </node>
+      <node id="8796">
+        <label>gecode/support/sort.hpp</label>
+        <link refid="support_2sort_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+        <childnode refid="8785" relation="include">
+        </childnode>
+      </node>
+      <node id="8898">
+        <label>gecode/int/var-imp/delta.hpp</label>
+        <link refid="int_2var-imp_2delta_8hpp_source"/>
+      </node>
+      <node id="8821">
+        <label>gecode/kernel/rnd.hpp</label>
+        <link refid="rnd_8hpp_source"/>
+        <childnode refid="8822" relation="include">
+        </childnode>
+      </node>
+      <node id="8782">
+        <label>algorithm</label>
+      </node>
+      <node id="8833">
+        <label>gecode/kernel/brancher-view.hpp</label>
+        <link refid="brancher-view_8hpp_source"/>
+      </node>
+      <node id="8880">
+        <label>gecode/iter/values-bitset.hpp</label>
+        <link refid="values-bitset_8hpp_source"/>
+      </node>
+      <node id="8807">
+        <label>gecode/kernel/global-afc.hpp</label>
+        <link refid="global-afc_8hpp_source"/>
+        <childnode refid="8788" relation="include">
+        </childnode>
+      </node>
+      <node id="8865">
+        <label>gecode/iter/ranges-empty.hpp</label>
+        <link refid="ranges-empty_8hpp_source"/>
+      </node>
+      <node id="8767">
+        <label>QtGui</label>
+      </node>
+      <node id="8903">
+        <label>gecode/int/var/int.hpp</label>
+        <link refid="int_2var_2int_8hpp_source"/>
+      </node>
+      <node id="8856">
+        <label>gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="8768" relation="include">
+        </childnode>
+        <childnode refid="8857" relation="include">
+        </childnode>
+        <childnode refid="8858" relation="include">
+        </childnode>
+        <childnode refid="8859" relation="include">
+        </childnode>
+        <childnode refid="8860" relation="include">
+        </childnode>
+        <childnode refid="8861" relation="include">
+        </childnode>
+        <childnode refid="8862" relation="include">
+        </childnode>
+        <childnode refid="8863" relation="include">
+        </childnode>
+        <childnode refid="8864" relation="include">
+        </childnode>
+        <childnode refid="8865" relation="include">
+        </childnode>
+        <childnode refid="8866" relation="include">
+        </childnode>
+        <childnode refid="8867" relation="include">
+        </childnode>
+        <childnode refid="8868" relation="include">
+        </childnode>
+        <childnode refid="8869" relation="include">
+        </childnode>
+        <childnode refid="8870" relation="include">
+        </childnode>
+        <childnode refid="8871" relation="include">
+        </childnode>
+        <childnode refid="8872" relation="include">
+        </childnode>
+        <childnode refid="8873" relation="include">
+        </childnode>
+        <childnode refid="8874" relation="include">
+        </childnode>
+        <childnode refid="8875" relation="include">
+        </childnode>
+        <childnode refid="8876" relation="include">
+        </childnode>
+        <childnode refid="8877" relation="include">
+        </childnode>
+        <childnode refid="8878" relation="include">
+        </childnode>
+        <childnode refid="8879" relation="include">
+        </childnode>
+        <childnode refid="8880" relation="include">
+        </childnode>
+        <childnode refid="8881" relation="include">
+        </childnode>
+        <childnode refid="8882" relation="include">
+        </childnode>
+        <childnode refid="8883" relation="include">
+        </childnode>
+        <childnode refid="8884" relation="include">
+        </childnode>
+        <childnode refid="8885" relation="include">
+        </childnode>
+        <childnode refid="8886" relation="include">
+        </childnode>
+        <childnode refid="8887" relation="include">
+        </childnode>
+        <childnode refid="8888" relation="include">
+        </childnode>
+        <childnode refid="8889" relation="include">
+        </childnode>
+        <childnode refid="8890" relation="include">
+        </childnode>
+        <childnode refid="8891" relation="include">
+        </childnode>
+        <childnode refid="8892" relation="include">
+        </childnode>
+        <childnode refid="8893" relation="include">
+        </childnode>
+      </node>
+      <node id="8875">
+        <label>gecode/iter/ranges-values.hpp</label>
+        <link refid="ranges-values_8hpp_source"/>
+      </node>
+      <node id="8852">
+        <label>gecode/search/support.hh</label>
+        <link refid="search_2support_8hh_source"/>
+        <childnode refid="8842" relation="include">
+        </childnode>
+      </node>
+      <node id="8900">
+        <label>gecode/int/var-imp/bool.hpp</label>
+        <link refid="int_2var-imp_2bool_8hpp_source"/>
+      </node>
+      <node id="8771">
+        <label>cstring</label>
+      </node>
+      <node id="8924">
+        <label>gecode/int/reify.hpp</label>
+        <link refid="reify_8hpp_source"/>
+      </node>
+      <node id="8874">
+        <label>gecode/iter/ranges-union.hpp</label>
+        <link refid="ranges-union_8hpp_source"/>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8908">
+        <label>gecode/int/view/minus.hpp</label>
+        <link refid="int_2view_2minus_8hpp_source"/>
+      </node>
+      <node id="8858">
+        <label>gecode/iter/ranges-minmax.hpp</label>
+        <link refid="ranges-minmax_8hpp_source"/>
+      </node>
+      <node id="8789">
+        <label>gecode/support/bitset-offset.hpp</label>
+        <link refid="bitset-offset_8hpp_source"/>
+        <childnode refid="8785" relation="include">
+        </childnode>
+        <childnode refid="8788" relation="include">
+        </childnode>
+        <childnode refid="8790" relation="include">
+        </childnode>
+      </node>
+      <node id="8781">
+        <label>gecode/support/heap.hpp</label>
+        <link refid="heap_8hpp_source"/>
+        <childnode refid="8771" relation="include">
+        </childnode>
+        <childnode refid="8770" relation="include">
+        </childnode>
+        <childnode refid="8782" relation="include">
+        </childnode>
+      </node>
+      <node id="8917">
+        <label>gecode/int/var/print.hpp</label>
+        <link refid="int_2var_2print_8hpp_source"/>
+      </node>
+      <node id="8859">
+        <label>gecode/iter/ranges-list.hpp</label>
+        <link refid="ranges-list_8hpp_source"/>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8945">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="8944">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="8945" relation="include">
+        </childnode>
+        <childnode refid="8946" relation="include">
+        </childnode>
+      </node>
+      <node id="8943">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas.hh"/>
+        <childnode refid="8944" relation="include">
+        </childnode>
+      </node>
+      <node id="8946">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Gist_1_1SearcherThread" prot="public">Gecode::Gist::SearcherThread</innerclass>
+    <innerclass refid="classGecode_1_1Gist_1_1TreeCanvas" prot="public">Gecode::Gist::TreeCanvas</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Gist">Gecode::Gist</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Gist_1_1LayoutConfig">Gecode::Gist::LayoutConfig</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack<sp/>&lt;tack@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Guido<sp/>Tack,<sp/>2006</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2013-05-06<sp/>09:02:17<sp/>+0200<sp/>(Mon,<sp/>06<sp/>May<sp/>2013)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>13613<sp/>$</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>GECODE_GIST_TREECANVAS_HH</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>GECODE_GIST_TREECANVAS_HH</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QtGui&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>QT_VERSION<sp/>&gt;=<sp/>0x050000</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#include<sp/>&lt;QtWidgets&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/kernel.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/gist.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;gecode/gist/visualnode.hh&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/><sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gist<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="namespaceGecode_1_1Gist_1_1LayoutConfig" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">LayoutConfig<sp/>{</highlight></codeline>
+<codeline lineno="56" refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a8bcb108db7144f71e1183bff930eeb6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a8bcb108db7144f71e1183bff930eeb6e" kindref="member">minScale</ref><sp/>=<sp/>10;</highlight></codeline>
+<codeline lineno="58" refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a52533ccb80771826156398abfd58e00f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a52533ccb80771826156398abfd58e00f" kindref="member">maxScale</ref><sp/>=<sp/>400;</highlight></codeline>
+<codeline lineno="60" refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a5f69607064f9cee0a5377e9264de1285" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a5f69607064f9cee0a5377e9264de1285" kindref="member">defScale</ref><sp/>=<sp/>100;</highlight></codeline>
+<codeline lineno="62" refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a9690f273a67721b4233aa72287cb30b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a9690f273a67721b4233aa72287cb30b3" kindref="member">maxAutoZoomScale</ref><sp/>=<sp/><ref refid="namespaceGecode_1_1Gist_1_1LayoutConfig_1a5f69607064f9cee0a5377e9264de1285" kindref="member">defScale</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="classGecode_1_1Gist_1_1SearcherThread" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1SearcherThread" kindref="compound">SearcherThread</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QThread<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>node;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>depth;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>a;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref>*<sp/>t;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>updateCanvas(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>search(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>n,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>all,<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref>*<sp/>ti);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>Q_SIGNALS:</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>update(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>w,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>h,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale0);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>statusChanged(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>scaleChanged(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>solution(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>searchFinished(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>moveToNode(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>n,</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>run(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classGecode_1_1Gist_1_1TreeCanvas" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">GECODE_GIST_EXPORT<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QWidget<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>Q_OBJECT</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1SearcherThread" kindref="compound">SearcherThread</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Gist_1_1Gist" kindref="compound">Gist</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref>(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*<sp/>rootSpace,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="namespaceGecode_1_1Gist_1a82664735df61360a285ea94625afbd71" kindref="member">bab</ref>,<sp/>QWidget*<sp/>parent,<sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Options" kindref="compound">Options</ref>&amp;<sp/>opt);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>~<ref refid="classGecode_1_1Gist_1_1TreeCanvas" kindref="compound">TreeCanvas</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addDoubleClickInspector(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>activateDoubleClickInspector(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addSolutionInspector(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>activateSolutionInspector(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMoveInspector(<ref refid="classGecode_1_1Gist_1_1Inspector" kindref="compound">Inspector</ref>*<sp/>i);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>activateMoveInspector(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addComparator(<ref refid="classGecode_1_1Gist_1_1Comparator" kindref="compound">Comparator</ref>*<sp/>c);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>activateComparator(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>Q_SLOTS:</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>scaleTree(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale0,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>zoomx=-1,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>zoomy=-1);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>searchAll(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>searchOne(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>toggleHidden(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>hideFailed(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>unhideAll(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>toggleStop(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>unstopAll(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>exportPDF(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>exportWholeTreePDF(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>print(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>zoomToFit(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>centerCurrentNode(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>inspectCurrentNode(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fix=</highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>inspectorNo=-1);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>inspectBeforeFP(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>labelBranches(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>labelPath(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>stopSearch(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>reset(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navUp(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navDown(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navLeft(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navRight(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navRoot(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navNextSol(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>back<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>navPrevSol(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>bookmarkNode(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setPath(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>inspectPath(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>startCompareNodes(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>startCompareNodesBeforeFP(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>emitStatusChanged(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setRecompDistances(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c_d,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a_d);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setAutoHideFailed(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setAutoZoom(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getAutoHideFailed(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getAutoZoom(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setShowCopies(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getShowCopies(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setRefresh(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setRefreshPause(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getSmoothScrollAndZoom(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setSmoothScrollAndZoom(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getMoveDuringSearch(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setMoveDuringSearch(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>resizeToOuter(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>finish(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/>Q_SIGNALS:</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>scaleChanged(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>autoZoomChanged(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>contextMenu(QContextMenuEvent*);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>statusChanged(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*,</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1Statistics" kindref="compound">Statistics</ref>&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>solution(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>searchFinished(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addedBookmark(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString&amp;<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>removedBookmark(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="250" refid="classGecode_1_1Gist_1_1TreeCanvas_1a2d72493c5534d04ceaf5e1932bbcf748" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QMutex<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a2d72493c5534d04ceaf5e1932bbcf748" kindref="member">mutex</ref>;</highlight></codeline>
+<codeline lineno="252" refid="classGecode_1_1Gist_1_1TreeCanvas_1a73ef84df7068170d8b160ba53c945dea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QMutex<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a73ef84df7068170d8b160ba53c945dea" kindref="member">layoutMutex</ref>;</highlight></codeline>
+<codeline lineno="254" refid="classGecode_1_1Gist_1_1TreeCanvas_1a1bc05ffed8635fda82265f679623a4e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1SearcherThread" kindref="compound">SearcherThread</ref><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a1bc05ffed8635fda82265f679623a4e3" kindref="member">searcher</ref>;</highlight></codeline>
+<codeline lineno="256" refid="classGecode_1_1Gist_1_1TreeCanvas_1ac393cfcd76efdbe0045ec8c2b57a15cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1ac393cfcd76efdbe0045ec8c2b57a15cb" kindref="member">stopSearchFlag</ref>;</highlight></codeline>
+<codeline lineno="258" refid="classGecode_1_1Gist_1_1TreeCanvas_1ab931423bcadbfc4ec68af8f64dbe4074" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1ab931423bcadbfc4ec68af8f64dbe4074" kindref="member">finishedFlag</ref>;</highlight></codeline>
+<codeline lineno="260" refid="classGecode_1_1Gist_1_1TreeCanvas_1a82184a748ad22562784fa8a2e7c17222" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1NodeAllocatorBase" kindref="compound">Node::NodeAllocator</ref>*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a82184a748ad22562784fa8a2e7c17222" kindref="member">na</ref>;</highlight></codeline>
+<codeline lineno="262" refid="classGecode_1_1Gist_1_1TreeCanvas_1add2bb1576ea09237c0e9d29e9937a46f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1add2bb1576ea09237c0e9d29e9937a46f" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="264" refid="classGecode_1_1Gist_1_1TreeCanvas_1a85475055b4ee525c7a0c61fea24c47a7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1BestNode" kindref="compound">BestNode</ref>*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a85475055b4ee525c7a0c61fea24c47a7" kindref="member">curBest</ref>;</highlight></codeline>
+<codeline lineno="266" refid="classGecode_1_1Gist_1_1TreeCanvas_1a1f25067e906b4905ddb65dd241677cb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a1f25067e906b4905ddb65dd241677cb7" kindref="member">currentNode</ref>;</highlight></codeline>
+<codeline lineno="268" refid="classGecode_1_1Gist_1_1TreeCanvas_1abecbf6a1eb41148ff0944bd58dfa422c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1abecbf6a1eb41148ff0944bd58dfa422c" kindref="member">pathHead</ref>;</highlight></codeline>
+<codeline lineno="270" refid="classGecode_1_1Gist_1_1TreeCanvas_1a7a954e90c745b64f2eccce939a4b7af3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;QPair&lt;Inspector*,bool&gt;<sp/>&gt;<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a7a954e90c745b64f2eccce939a4b7af3" kindref="member">doubleClickInspectors</ref>;</highlight></codeline>
+<codeline lineno="272" refid="classGecode_1_1Gist_1_1TreeCanvas_1af6ee6889eb73295446c2a08711d3d4b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;QPair&lt;Inspector*,bool&gt;<sp/>&gt;<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1af6ee6889eb73295446c2a08711d3d4b7" kindref="member">solutionInspectors</ref>;</highlight></codeline>
+<codeline lineno="274" refid="classGecode_1_1Gist_1_1TreeCanvas_1aeecd1c436dcde913417f54f6b263a351" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;QPair&lt;Inspector*,bool&gt;<sp/>&gt;<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1aeecd1c436dcde913417f54f6b263a351" kindref="member">moveInspectors</ref>;</highlight></codeline>
+<codeline lineno="276" refid="classGecode_1_1Gist_1_1TreeCanvas_1a62316be815977507dbe3221723423bf3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;QPair&lt;Comparator*,bool&gt;<sp/>&gt;<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a62316be815977507dbe3221723423bf3" kindref="member">comparators</ref>;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279" refid="classGecode_1_1Gist_1_1TreeCanvas_1a1b5bae47b4b0ce31671069f519aec558" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QVector&lt;VisualNode*&gt;<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a1b5bae47b4b0ce31671069f519aec558" kindref="member">bookmarks</ref>;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282" refid="classGecode_1_1Gist_1_1TreeCanvas_1a69369bcc15b6a3f4961d00657d026383" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a69369bcc15b6a3f4961d00657d026383" kindref="member">compareNodes</ref>;</highlight></codeline>
+<codeline lineno="284" refid="classGecode_1_1Gist_1_1TreeCanvas_1aceace123bde043b8cc5ede0b844853b1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1aceace123bde043b8cc5ede0b844853b1" kindref="member">compareNodesBeforeFP</ref>;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287" refid="classGecode_1_1Gist_1_1TreeCanvas_1a728bd590cfd4e42e57dedeec3dc95cf8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QSlider*<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a728bd590cfd4e42e57dedeec3dc95cf8" kindref="member">scaleBar</ref>;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290" refid="classGecode_1_1Gist_1_1TreeCanvas_1a13e63c6a81c1a7f3e22fd4393797e81c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1Statistics" kindref="compound">Statistics</ref><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a13e63c6a81c1a7f3e22fd4393797e81c" kindref="member">stats</ref>;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293" refid="classGecode_1_1Gist_1_1TreeCanvas_1a008dee18baf48c08b44aef3d0ddb0aa1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a008dee18baf48c08b44aef3d0ddb0aa1" kindref="member">scale</ref>;</highlight></codeline>
+<codeline lineno="295" refid="classGecode_1_1Gist_1_1TreeCanvas_1a24850f36d59e90a68e9e9f843489ded9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a24850f36d59e90a68e9e9f843489ded9" kindref="member">xtrans</ref>;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298" refid="classGecode_1_1Gist_1_1TreeCanvas_1a294a514a9025354feaf22b9e8ed84fdf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a294a514a9025354feaf22b9e8ed84fdf" kindref="member">autoHideFailed</ref>;</highlight></codeline>
+<codeline lineno="300" refid="classGecode_1_1Gist_1_1TreeCanvas_1aabebe8db9aebc7f1040ab798e677393d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1aabebe8db9aebc7f1040ab798e677393d" kindref="member">autoZoom</ref>;</highlight></codeline>
+<codeline lineno="302" refid="classGecode_1_1Gist_1_1TreeCanvas_1ad9b4472ac92bd22cb04aec0b8f6676eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1ad9b4472ac92bd22cb04aec0b8f6676eb" kindref="member">showCopies</ref>;</highlight></codeline>
+<codeline lineno="304" refid="classGecode_1_1Gist_1_1TreeCanvas_1a445c727f23a41b665c02273c1fcff48b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a445c727f23a41b665c02273c1fcff48b" kindref="member">refresh</ref>;</highlight></codeline>
+<codeline lineno="306" refid="classGecode_1_1Gist_1_1TreeCanvas_1aee6deac001822072649156c7d8a885f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1aee6deac001822072649156c7d8a885f5" kindref="member">refreshPause</ref>;</highlight></codeline>
+<codeline lineno="308" refid="classGecode_1_1Gist_1_1TreeCanvas_1a4b78d4b5f00546bb96e18b963a9da5a9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a4b78d4b5f00546bb96e18b963a9da5a9" kindref="member">smoothScrollAndZoom</ref>;</highlight></codeline>
+<codeline lineno="310" refid="classGecode_1_1Gist_1_1TreeCanvas_1a891872e347080007a3f4757accd09add" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a891872e347080007a3f4757accd09add" kindref="member">moveDuringSearch</ref>;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="313" refid="classGecode_1_1Gist_1_1TreeCanvas_1a6b61e2f572c5afea2edf363b6f2a0230" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a6b61e2f572c5afea2edf363b6f2a0230" kindref="member">c_d</ref>;</highlight></codeline>
+<codeline lineno="315" refid="classGecode_1_1Gist_1_1TreeCanvas_1a8ce2e66977372a853eeb89f216347146" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a8ce2e66977372a853eeb89f216347146" kindref="member">a_d</ref>;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>eventNode(QEvent<sp/>*event);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>event(QEvent<sp/>*event);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>paintEvent(QPaintEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>mousePressEvent(QMouseEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>mouseDoubleClickEvent(QMouseEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>contextMenuEvent(QContextMenuEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>resizeEvent(QResizeEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>wheelEvent(QWheelEvent*<sp/>event);</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335" refid="classGecode_1_1Gist_1_1TreeCanvas_1a4b956c48ac4689d68ac74869cbf0f2ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QTimeLine<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a4b956c48ac4689d68ac74869cbf0f2ec" kindref="member">zoomTimeLine</ref>;</highlight></codeline>
+<codeline lineno="337" refid="classGecode_1_1Gist_1_1TreeCanvas_1a45c8e4508e656945d33ff6ccccc1ca5f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>QTimeLine<sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a45c8e4508e656945d33ff6ccccc1ca5f" kindref="member">scrollTimeLine</ref>;</highlight></codeline>
+<codeline lineno="339" refid="classGecode_1_1Gist_1_1TreeCanvas_1a0fd9abf6712c6fc8de884f115963346e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a0fd9abf6712c6fc8de884f115963346e" kindref="member">targetX</ref>;</highlight></codeline>
+<codeline lineno="341" refid="classGecode_1_1Gist_1_1TreeCanvas_1a97b8eb8c362e3965676f4ea550760788" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a97b8eb8c362e3965676f4ea550760788" kindref="member">sourceX</ref>;</highlight></codeline>
+<codeline lineno="343" refid="classGecode_1_1Gist_1_1TreeCanvas_1a77b9e65e8e822e52f36d4bd54f0bfac0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a77b9e65e8e822e52f36d4bd54f0bfac0" kindref="member">targetY</ref>;</highlight></codeline>
+<codeline lineno="345" refid="classGecode_1_1Gist_1_1TreeCanvas_1ae657db0e9b417bd59936313589ecd68b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1ae657db0e9b417bd59936313589ecd68b" kindref="member">sourceY</ref>;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348" refid="classGecode_1_1Gist_1_1TreeCanvas_1aa840273775a79513fb919099360d81e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1aa840273775a79513fb919099360d81e3" kindref="member">targetW</ref>;</highlight></codeline>
+<codeline lineno="350" refid="classGecode_1_1Gist_1_1TreeCanvas_1a4a18de9bbfaa5048bdc2435dab4e39a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a4a18de9bbfaa5048bdc2435dab4e39a5" kindref="member">targetH</ref>;</highlight></codeline>
+<codeline lineno="352" refid="classGecode_1_1Gist_1_1TreeCanvas_1a182700de9a4c5b6d8ffba821b7ad4202" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a182700de9a4c5b6d8ffba821b7ad4202" kindref="member">targetScale</ref>;</highlight></codeline>
+<codeline lineno="354" refid="classGecode_1_1Gist_1_1TreeCanvas_1a47490736dd389826ea621c2b388f8e06" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Gist_1_1TreeCanvas_1a47490736dd389826ea621c2b388f8e06" kindref="member">layoutDoneTimerId</ref>;</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>timerEvent(QTimerEvent*<sp/>e);</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>Q_SLOTS:</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>update(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>scroll(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>layoutDone(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>w,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>h,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale0);</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setCurrentNode(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>n,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>finished=</highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>update=</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>Q_SLOTS:</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>statusChanged(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>exportNodePDF(<ref refid="classGecode_1_1Gist_1_1VisualNode" kindref="compound">VisualNode</ref>*<sp/>n);</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>inspectSolution(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Space" kindref="compound">Space</ref>*<sp/>s);</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>scroll(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="382"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>gist-any</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/gist/treecanvas.hh"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Set_1_1Sequence" kind="namespace">
+    <compoundname>Gecode::Set::Sequence</compoundname>
+    <innerclass refid="classGecode_1_1Set_1_1Sequence_1_1Seq" prot="public">Gecode::Set::Sequence::Seq</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Sequence_1_1SeqU" prot="public">Gecode::Set::Sequence::SeqU</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceGecode_1_1Set_1_1Sequence_1a75456478cd161c6ca42733fe4232f08e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Set::Sequence::propagateSeq</definition>
+        <argsstring>(Space &amp;home, bool &amp;modified, bool &amp;assigned, ViewArray&lt; SetView &gt; &amp;x)</argsstring>
+        <name>propagateSeq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>modified</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>assigned</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; <ref refid="classGecode_1_1Set_1_1SetView" kindref="compound">SetView</ref> &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set/sequence/common.hpp" line="47" column="1" bodyfile="/usr/include/gecode/set/sequence/common.hpp" bodystart="47" bodyend="96"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Propagators for ordered sequences of sets. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/sequence/common.hpp" line="44" column="1"/>
+  </compounddef>
+</doxygen>

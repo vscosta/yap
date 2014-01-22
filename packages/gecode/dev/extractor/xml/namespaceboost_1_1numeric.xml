@@ -1,0 +1,1782 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceboost_1_1numeric" kind="namespace">
+    <compoundname>boost::numeric</compoundname>
+    <innerclass refid="classboost_1_1numeric_1_1interval" prot="public">boost::numeric::interval</innerclass>
+    <innernamespace refid="namespaceboost_1_1numeric_1_1interval__lib">boost::numeric::interval_lib</innernamespace>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a220e32d8e86e1220819f34f61bb343f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+        <definition>const interval&lt;T, Policies&gt;&amp; boost::numeric::operator+</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="29" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="29" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a4263c89db836cac37e3ec646648a7808" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator-</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="35" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="35" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a54a41d4f14d821a097dd4613b814060e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator+</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="115" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="115" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a1fb08ccdf543a7fadf0a939b90582315" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator+</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="126" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="126" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a9062ac65d40a91075f3e2363f96d9438" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator+</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="136" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="136" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a0937b70cbde2025d630e9e6b74f92e5b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator-</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="140" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="140" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a9fb15774adf5218eb2cb2ee2a46f470f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator-</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="151" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="151" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1aaa6599155d8f45a672c09a1fd0347cf7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator-</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>operator-</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="161" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="161" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1aa769211955b427d4cf0ea05c4bf60a22" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator*</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="171" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="171" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a217d96b0d5fa8c0c528062555cd9c98d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator*</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="226" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="226" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a12fe77aa7bae438777bb8e9b9954e7a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator*</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>operator*</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="244" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="244" bodyend="245"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a4b307b42c2859c89e94389da9dac630c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator/</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="248" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="248" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a6384be9ea0aa5e36b41c28c1e0184341" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator/</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="269" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="269" bodyend="286"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a2a8dd48bbe87512a7bba41a9d97deb30" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::operator/</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>operator/</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="289" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" bodystart="289" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a2b2ca6419bec944ad5c2e31d77faff35" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::fmod</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>fmod</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="32" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="32" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a16d281c0a3a9821816d97e21ad4854a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::fmod</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>fmod</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="45" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="45" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a05ca603da9dd96a288f791ce9b49da31" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::fmod</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>fmod</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="56" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="56" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a9806613a9ebc80cf56c0afc71df18d80" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::pow</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, int pwr)</argsstring>
+        <name>pow</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pwr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="158" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="158" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a2711d97a0e55df54d2d7deed4740c2dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::sqrt</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>sqrt</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="198" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="198" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1ab79e644401137db678204a55c0e2d32c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::square</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>square</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="209" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="209" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a610b60922ecba5870e99312043072394" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::nth_root</definition>
+        <argsstring>(interval&lt; T, Policies &gt; const &amp;x, int k)</argsstring>
+        <name>nth_root</name>
+        <param>
+          <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; const &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" line="270" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/arith2.hpp" bodystart="270" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1abf632ad4791b16a8c5705749aab30f7f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::exp</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>exp</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="28" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="28" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a6ae3c59b19a9d96bc870614c29fbb662" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::log</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>log</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="38" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="38" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a3cde9cdc8f49e92da7220c01d755930b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::cos</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>cos</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="52" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="52" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a42c97e20377919818dadbba311a34813" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::sin</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>sin</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="81" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="81" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a049ea7aa37e25e8e32cc6c6d59d91112" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::tan</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>tan</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="94" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="94" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1adb6d5d07efa4d08ca99d911567f8d995" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::asin</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>asin</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="114" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="114" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a63e63092ef0d3c99a4121165c1449208" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::acos</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>acos</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="131" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="131" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a8a99c5e7fe29d454d7aefe290c8a9cc7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::atan</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>atan</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="148" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="148" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a41c7caa9b03125008a018aef7600c819" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::sinh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>sinh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="158" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="158" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a392d118838244c0bf66ea571b9494607" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::cosh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>cosh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="168" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="168" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1aedacdb9e5a8af77af7e049d7da573209" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::tanh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>tanh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="183" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="183" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a38a84eac8ff22a20bf86fe3402ffa02d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::asinh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>asinh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="193" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="193" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a3123a7c2ee7711d31665b7fbbfc5c772" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::acosh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>acosh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="203" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="203" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a4fca408c7f78952640806c63e373cff4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::atanh</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>atanh</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" line="214" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/transc.hpp" bodystart="214" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a48c2cc5f92c5048755cd4e42f37f4421" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>const T &amp;</type>
+        <definition>const T&amp; boost::numeric::lower</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>lower</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="33" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="33" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a4d9f8fee63a92d2435dfbe347911d2ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>const T &amp;</type>
+        <definition>const T&amp; boost::numeric::upper</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>upper</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="39" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="39" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a8575adf3a05982bd708689f62e1d3d32" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::checked_lower</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>checked_lower</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="45" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="45" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a850a1b77e062f44e072cc18d94036bc7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::checked_upper</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>checked_upper</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="55" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="55" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1ac99aedabd08bf2da6d03d7515c14d976" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::width</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>width</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="65" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="65" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1aa363d6d042d8f052ae45f01ccdc184e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::median</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>median</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="73" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="73" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a79bafa39ed1743b2c90b5c97e2952a4d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::widen</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;v)</argsstring>
+        <name>widen</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="84" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="84" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a92e07f1c8bc20eb1b04a224ef0bf9190" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::empty</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>empty</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="98" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1ade3f8e6c5afb6cc05b0e078d7236cd4c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::zero_in</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>zero_in</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="104" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="104" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a2990bf8af8756ee0129338c48f3be31a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::in_zero</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>in_zero</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="112" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="112" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1ae291f9d9ac8d667f74e2d33be1fa3750" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::in</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>in</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="118" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="118" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a1763d0f8b8d5744ce63e8963f82c85f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::subset</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>subset</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="125" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="125" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a0655974219a9c006bef14a6cd2f7a452" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies1</type>
+          </param>
+          <param>
+            <type>class Policies2</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::proper_subset</definition>
+        <argsstring>(const interval&lt; T, Policies1 &gt; &amp;x, const interval&lt; T, Policies2 &gt; &amp;y)</argsstring>
+        <name>proper_subset</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies1 &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies2 &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="133" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="133" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a6ac49ded5749554c984dd376374c72f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies1</type>
+          </param>
+          <param>
+            <type>class Policies2</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::overlap</definition>
+        <argsstring>(const interval&lt; T, Policies1 &gt; &amp;x, const interval&lt; T, Policies2 &gt; &amp;y)</argsstring>
+        <name>overlap</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies1 &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies2 &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="143" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="143" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a1c5d4e7470bdfe0999f48109586e8a73" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::singleton</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>singleton</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="152" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="152" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a3b1089038bd6509496de98951fc7387b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies1</type>
+          </param>
+          <param>
+            <type>class Policies2</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool boost::numeric::equal</definition>
+        <argsstring>(const interval&lt; T, Policies1 &gt; &amp;x, const interval&lt; T, Policies2 &gt; &amp;y)</argsstring>
+        <name>equal</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies1 &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies2 &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="158" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="158" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1abf919b7960c41544b2e5ca687402ecdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::intersect</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>intersect</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="165" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="165" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a830657f25da31013536e6d1b8e5e4f4c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::hull</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="179" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="179" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a65dbf0d949bc01b0d835aa526c00dd2c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::hull</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="196" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="196" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1ae3f02e88aecea7df429db07d449bb778" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::hull</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="212" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="212" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1aef6ed17cb73807a88bab236d5460ffcd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T &gt;</type>
+        <definition>interval&lt;T&gt; boost::numeric::hull</definition>
+        <argsstring>(const T &amp;x, const T &amp;y)</argsstring>
+        <name>hull</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="228" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="228" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a4cf01d831e0d7aebca86efa63cc68d00" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>std::pair&lt; <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;, <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &gt;</type>
+        <definition>std::pair&lt;interval&lt;T, Policies&gt;, interval&lt;T, Policies&gt; &gt; boost::numeric::bisect</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>bisect</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="235" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="235" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a819803320552f04dac6cf1d3889aacec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T boost::numeric::norm</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>norm</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="249" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="249" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1abab7d2d1a46fd20b3e7f919c82004381" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt;</type>
+        <definition>interval&lt;T, Policies&gt; boost::numeric::abs</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x)</argsstring>
+        <name>abs</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="261" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="261" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1af229c187d575085c3335167f8a3a45f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; max</type>
+        <definition>interval&lt;T, Policies&gt; max boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="273" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="273" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a7428ff60f9977b3328e03fa90bb0c724" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; max</type>
+        <definition>interval&lt;T, Policies&gt; max boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="284" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="284" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1abb569c0a68fb220d53f198b814005662" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; max</type>
+        <definition>interval&lt;T, Policies&gt; max boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="294" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="294" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a38b8cc667a9b49229459e73932956d85" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; min</type>
+        <definition>interval&lt;T, Policies&gt; min boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="304" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="304" bodyend="312"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a21666590c7fca20ba653e9c7334e3b57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; min</type>
+        <definition>interval&lt;T, Policies&gt; min boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const interval&lt; T, Policies &gt; &amp;x, const T &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const T &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="315" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="315" bodyend="322"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1_1numeric_1a3f3f2a8d12d2c00fcb1786973eccf7b9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+          <param>
+            <type>class Policies</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; min</type>
+        <definition>interval&lt;T, Policies&gt; min boost::numeric::BOOST_PREVENT_MACRO_SUBSTITUTION</definition>
+        <argsstring>(const T &amp;x, const interval&lt; T, Policies &gt; &amp;y)</argsstring>
+        <name>BOOST_PREVENT_MACRO_SUBSTITUTION</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classboost_1_1numeric_1_1interval" kindref="compound">interval</ref>&lt; T, Policies &gt; &amp;</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" line="325" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/utility.hpp" bodystart="325" bodyend="332"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/arith.hpp" line="22" column="1"/>
+  </compounddef>
+</doxygen>

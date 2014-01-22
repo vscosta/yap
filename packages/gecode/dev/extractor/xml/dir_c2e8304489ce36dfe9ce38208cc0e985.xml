@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_c2e8304489ce36dfe9ce38208cc0e985" kind="dir">
+    <compoundname>/usr/include/gecode/int/sequence</compoundname>
+    <innerfile refid="int_2sequence_2int_8hpp">int.hpp</innerfile>
+    <innerfile refid="set-op_8hpp">set-op.hpp</innerfile>
+    <innerfile refid="int_2sequence_2view_8hpp">view.hpp</innerfile>
+    <innerfile refid="violations_8hpp">violations.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/sequence/"/>
+  </compounddef>
+</doxygen>

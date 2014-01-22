@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Support_1_1Mutex" kind="class" prot="public">
+    <compoundname>Gecode::Support::Mutex</compoundname>
+    <includes refid="thread_8hpp" local="no">thread.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1aaff3f8fc6fca636d7f80ed5cdfb0a3f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::Mutex::Mutex</definition>
+        <argsstring>(void)</argsstring>
+        <name>Mutex</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize mutex. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="111" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1ae22b5dc6f88bc5443025a123fb51cd65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Mutex::acquire</definition>
+        <argsstring>(void)</argsstring>
+        <name>acquire</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Acquire the mutex and possibly block. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="113" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="46" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a92cfac9a089b0b28414f4fc1e19aabde" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Support::Mutex::tryacquire</definition>
+        <argsstring>(void)</argsstring>
+        <name>tryacquire</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Try to acquire the mutex, return true if succesful. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="115" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="48" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a92125d0bf014be03be0a8d0d879cff8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Mutex::release</definition>
+        <argsstring>(void)</argsstring>
+        <name>release</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Release the mutex. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="117" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="52" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a95ac018aae2cbdd9ec557cfb88a7c25c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Support::Mutex::~Mutex</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Mutex</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete mutex. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="119" column="1" bodyfile="/usr/include/gecode/support/thread/none.hpp" bodystart="54" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a55e6f4d9e8b822e23c42a54b8987ef60" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Support::Mutex::operator new</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="121" column="1" bodyfile="/usr/include/gecode/support/thread/thread.hpp" bodystart="58" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a09ee28aa6c3471e116dd67f5b20c7c9c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Support::Mutex::operator delete</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Free memory allocated from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="123" column="1" bodyfile="/usr/include/gecode/support/thread/thread.hpp" bodystart="63" bodyend="65"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a664765d1a98dc41097ffe81c3baa79a7" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Support::Mutex::Mutex</definition>
+        <argsstring>(const Mutex &amp;)</argsstring>
+        <name>Mutex</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Mutex" kindref="compound">Mutex</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>A mutex cannot be copied. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="126" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="126" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Support_1_1Mutex_1a5ab4259ed761221b28749ce516f65251" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Support::Mutex::operator=</definition>
+        <argsstring>(const Mutex &amp;)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Support_1_1Mutex" kindref="compound">Mutex</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>A mutex cannot be assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/support/thread.hpp" line="128" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="128" bodyend="128"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A mutex for mutual exclausion among several threads. </para>    </briefdescription>
+    <detaileddescription>
+<para>It is not specified whether the mutex is recursive or not. Likewise, there is no guarantee of fairness among the blocking threads. </para>    </detaileddescription>
+    <location file="/usr/include/gecode/support/thread.hpp" line="99" column="1" bodyfile="/usr/include/gecode/support/thread.hpp" bodystart="99" bodyend="129"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Support_1_1Mutex_1ae22b5dc6f88bc5443025a123fb51cd65" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>acquire</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1aaff3f8fc6fca636d7f80ed5cdfb0a3f9" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>Mutex</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a664765d1a98dc41097ffe81c3baa79a7" prot="private" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>Mutex</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a09ee28aa6c3471e116dd67f5b20c7c9c" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a55e6f4d9e8b822e23c42a54b8987ef60" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a5ab4259ed761221b28749ce516f65251" prot="private" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a92125d0bf014be03be0a8d0d879cff8e" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>release</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a92cfac9a089b0b28414f4fc1e19aabde" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>tryacquire</name></member>
+      <member refid="classGecode_1_1Support_1_1Mutex_1a95ac018aae2cbdd9ec557cfb88a7c25c" prot="public" virt="non-virtual"><scope>Gecode::Support::Mutex</scope><name>~Mutex</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

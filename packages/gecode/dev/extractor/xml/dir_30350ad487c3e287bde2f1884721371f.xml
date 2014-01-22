@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_30350ad487c3e287bde2f1884721371f" kind="dir">
+    <compoundname>/usr/include/gecode/int/nvalues</compoundname>
+    <innerfile refid="bool-base_8hpp">bool-base.hpp</innerfile>
+    <innerfile refid="bool-eq_8hpp">bool-eq.hpp</innerfile>
+    <innerfile refid="bool-gq_8hpp">bool-gq.hpp</innerfile>
+    <innerfile refid="bool-lq_8hpp">bool-lq.hpp</innerfile>
+    <innerfile refid="nvalues_2graph_8hpp">graph.hpp</innerfile>
+    <innerfile refid="nvalues_2int-base_8hpp">int-base.hpp</innerfile>
+    <innerfile refid="nvalues_2int-eq_8hpp">int-eq.hpp</innerfile>
+    <innerfile refid="nvalues_2int-gq_8hpp">int-gq.hpp</innerfile>
+    <innerfile refid="nvalues_2int-lq_8hpp">int-lq.hpp</innerfile>
+    <innerfile refid="range-event_8hpp">range-event.hpp</innerfile>
+    <innerfile refid="sym-bit-matrix_8hpp">sym-bit-matrix.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/nvalues/"/>
+  </compounddef>
+</doxygen>

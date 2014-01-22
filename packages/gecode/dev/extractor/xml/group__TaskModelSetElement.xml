@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetElement" kind="group">
+    <compoundname>TaskModelSetElement</compoundname>
+    <title>Element constraints</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__TaskModelSetElement_1gad2730b32e186604802ed7b0f28379789" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, SetOpType op, const SetVarArgs &amp;x, SetVar y, SetVar z, const IntSet &amp;u=IntSet(Set::Limits::min, Set::Limits::max))</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetOpType</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>u</declname>
+          <defval>IntSet(Set::Limits::min, Set::Limits::max)</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="432">$ z=\diamond_{\mathit{op}}\langle x_0,\dots,x_{n-1}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>y</emphasis> is the empty set, the usual conventions for set operations apply: an empty union is empty, while an empty intersection is the universe, which can be given as the optional parameter <emphasis>u</emphasis>.</para><para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="991" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1ga0e80dfffd3bdd6702f8f41b1ece97efb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, SetOpType op, const IntVarArgs &amp;x, SetVar y, SetVar z, const IntSet &amp;u=IntSet(Set::Limits::min, Set::Limits::max))</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetOpType</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const IntVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>u</declname>
+          <defval>IntSet(Set::Limits::min, Set::Limits::max)</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="433">$ z=\diamond_{\mathit{op}}\langle \{x_0\},\dots,\{x_{n-1}\}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>y</emphasis> is the empty set, the usual conventions for set operations apply: an empty union is empty, while an empty intersection is the universe, which can be given as the optional parameter <emphasis>u</emphasis>.</para><para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1004" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1gaaa2662e0256f529c5e9ca5f88d0c6e65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, SetOpType op, const IntSetArgs &amp;x, SetVar y, SetVar z, const IntSet &amp;u=IntSet(Set::Limits::min, Set::Limits::max))</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetOpType</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const IntSetArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>u</declname>
+          <defval>IntSet(Set::Limits::min, Set::Limits::max)</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="432">$ z=\diamond_{\mathit{op}}\langle x_0,\dots,x_{n-1}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>y</emphasis> is the empty set, the usual conventions for set operations apply: an empty union is empty, while an empty intersection is the universe, which can be given as the optional parameter <emphasis>u</emphasis>.</para><para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1017" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1ga013803cc97c088dbe4d96a4528289683" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, SetOpType op, const IntArgs &amp;x, SetVar y, SetVar z, const IntSet &amp;u=IntSet(Set::Limits::min, Set::Limits::max))</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>SetOpType</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const IntArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>const IntSet &amp;</type>
+          <declname>u</declname>
+          <defval>IntSet(Set::Limits::min, Set::Limits::max)</defval>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="433">$ z=\diamond_{\mathit{op}}\langle \{x_0\},\dots,\{x_{n-1}\}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>y</emphasis> is the empty set, the usual conventions for set operations apply: an empty union is empty, while an empty intersection is the universe, which can be given as the optional parameter <emphasis>u</emphasis>.</para><para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1030" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1ga3bfa47219342fcad6d216a2e7990f8f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;x, IntVar y, SetVar z)</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="434">$ z=\langle x_0,\dots,x_{n-1}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1039" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1gaa956b89a9f379ebcc84dc05c7acaf99f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, const IntSetArgs &amp;s, IntVar y, SetVar z)</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntSetArgs &amp;</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="435">$ z=\langle s_0,\dots,s_{n-1}\rangle[y] $</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The indices for <emphasis>y</emphasis> start at 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1047" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1gae0e36d4b33fb04fd3bd59ff7bb4ec050" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, const IntSetArgs &amp;a, IntVar x, int w, IntVar y, int h, SetVar z)</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const IntSetArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="241">$ a_{x+w\cdot y}=z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Set_1_1ArgumentSizeMismatch" kindref="compound">Set::ArgumentSizeMismatch</ref>, if <formula id="242">$ w\cdot h\neq|a|$</formula>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1055" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelSetElement_1ga44057ff2d77577f912754d9926cc59fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_SET_EXPORT void</type>
+        <definition>GECODE_SET_EXPORT void Gecode::element</definition>
+        <argsstring>(Home home, const SetVarArgs &amp;a, IntVar x, int w, IntVar y, int h, SetVar z)</argsstring>
+        <name>element</name>
+        <param>
+          <type>Home</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const SetVarArgs &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>IntVar</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>SetVar</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator for <formula id="241">$ a_{x+w\cdot y}=z$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws an exception of type <ref refid="classGecode_1_1Set_1_1ArgumentSizeMismatch" kindref="compound">Set::ArgumentSizeMismatch</ref>, if <formula id="242">$ w\cdot h\neq|a|$</formula>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/set.hh" line="1063" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>An element constraint selects zero, one or more elements out of a sequence. We write <formula id="430">$ \langle x_0,\dots, x_{n-1} \rangle $</formula> for the sequence, and <formula id="431">$ [y] $</formula> for the index variable.</para><para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> element constraints are closely related to the <ref refid="group__TaskModelIntElement_1gac5e765f23e5bb9cc020ebeae7293b373" kindref="member">element</ref> constraint on integer variables. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

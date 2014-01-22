@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;</compoundname>
+    <includes refid="bool-int_8hpp" local="no">bool-int.hpp</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4_1af43da17074192c0b97dfc2bce62f1b7c" prot="public" static="no">
+        <type><ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref></type>
+        <definition>typedef NegBoolView Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;::NegView</definition>
+        <argsstring></argsstring>
+        <name>NegView</name>
+        <briefdescription>
+<para>The negated view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/bool-int.hpp" line="531" column="1" bodyfile="/usr/include/gecode/int/linear/bool-int.hpp" bodystart="531" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4_1ac58427d345f6624524b809658f16dcd8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1NegBoolView" kindref="compound">NegBoolView</ref></type>
+        <definition>static NegBoolView Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;::neg</definition>
+        <argsstring>(BoolView x)</argsstring>
+        <name>neg</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1BoolView" kindref="compound">BoolView</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Return negated View. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/bool-int.hpp" line="533" column="1" bodyfile="/usr/include/gecode/int/linear/bool-int.hpp" bodystart="533" bodyend="535"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Traits for Boolean negation view. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/linear/bool-int.hpp" line="528" column="1" bodyfile="/usr/include/gecode/int/linear/bool-int.hpp" bodystart="528" bodyend="536"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4_1ac58427d345f6624524b809658f16dcd8" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;</scope><name>neg</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1BoolNegTraits_3_01BoolView_01_4_1af43da17074192c0b97dfc2bce62f1b7c" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::BoolNegTraits&lt; BoolView &gt;</scope><name>NegView</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

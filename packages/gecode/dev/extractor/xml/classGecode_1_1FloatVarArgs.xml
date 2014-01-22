@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FloatVarArgs" kind="class" prot="public">
+    <compoundname>Gecode::FloatVarArgs</compoundname>
+    <basecompoundref refid="classGecode_1_1VarArgArray" prot="public" virt="non-virtual">Gecode::VarArgArray&lt; FloatVar &gt;</basecompoundref>
+    <includes refid="float_8hh" local="no">float.hh</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1ab9859db42fa466257c58d1e33c3bca6c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(void)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate empty array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="971" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="971" bodyend="971"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1a88dce3bb680cb5615aff3cc699234125" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(int n)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Allocate array with <emphasis>n</emphasis> elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="973" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="973" bodyend="973"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1a2147f1e3730b8f2d83e7ebfbbc18ed31" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(const FloatVarArgs &amp;a)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVarArgs" kindref="compound">FloatVarArgs</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable argument array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="975" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="975" bodyend="975"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1a07b407d4cb2fc05b961fa5286e3f3d0a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(const VarArray&lt; FloatVar &gt; &amp;a)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1VarArray" kindref="compound">VarArray</ref>&lt; <ref refid="classGecode_1_1FloatVar" kindref="compound">FloatVar</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from variable array <emphasis>a</emphasis> (copy elements) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="977" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="977" bodyend="977"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1a6964a923ca4fbb8a320450c985786c4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(const std::vector&lt; FloatVar &gt; &amp;a)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>const std::vector&lt; <ref refid="classGecode_1_1FloatVar" kindref="compound">FloatVar</ref> &gt; &amp;</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from vector <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="979" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="979" bodyend="979"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1afd6bc233f4a5f8cdf2cbcbd2f4a79fc3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class InputIterator</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(InputIterator first, InputIterator last)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type>InputIterator</type>
+          <declname>first</declname>
+        </param>
+        <param>
+          <type>InputIterator</type>
+          <declname>last</declname>
+        </param>
+        <briefdescription>
+<para>Initialize from InputIterator <emphasis>first</emphasis> and <emphasis>last</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="982" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="982" bodyend="983"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FloatVarArgs_1a7f06a6ae6dfb67109c7ce042879270ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GECODE_FLOAT_EXPORT</type>
+        <definition>GECODE_FLOAT_EXPORT Gecode::FloatVarArgs::FloatVarArgs</definition>
+        <argsstring>(Space &amp;home, int n, FloatNum min, FloatNum max)</argsstring>
+        <name>FloatVarArgs</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a89c8c05302dd9f5ca9b53d0c0d82cf45" kindref="member">FloatNum</ref></type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Initialize array with <emphasis>n</emphasis> new variables. </para>        </briefdescription>
+        <detaileddescription>
+<para>The variables are created with a domain ranging from <emphasis>min</emphasis> to <emphasis>max</emphasis>. The following execptions might be thrown:<itemizedlist>
+<listitem><para>If <emphasis>min</emphasis> is greater than <emphasis>max</emphasis>, an exception of type <ref refid="classGecode_1_1Float_1_1VariableEmptyDomain" kindref="compound">Gecode::Float::VariableEmptyDomain</ref> is thrown.</para></listitem><listitem><para>If <emphasis>min</emphasis> or <emphasis>max</emphasis> exceed the limits for floats as defined in <ref refid="namespaceGecode_1_1Float_1_1Limits" kindref="compound">Gecode::Float::Limits</ref>, an exception of type <ref refid="classGecode_1_1Float_1_1OutOfLimits" kindref="compound">Gecode::Float::OutOfLimits</ref> is thrown. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="996" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Passing float variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2415">
+        <label>Gecode::VarArgArray&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1VarArgArray"/>
+        <childnode refid="2416" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2414">
+        <label>Gecode::FloatVarArgs</label>
+        <link refid="classGecode_1_1FloatVarArgs"/>
+        <childnode refid="2415" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2416">
+        <label>Gecode::ArgArrayBase&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2418">
+        <label>Gecode::VarArgArray&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1VarArgArray"/>
+        <childnode refid="2419" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2421">
+        <label>Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="2422" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2423" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2422">
+        <label>Gecode::Var</label>
+        <link refid="classGecode_1_1Var"/>
+      </node>
+      <node id="2417">
+        <label>Gecode::FloatVarArgs</label>
+        <link refid="classGecode_1_1FloatVarArgs"/>
+        <childnode refid="2418" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2423">
+        <label>Gecode::Float::FloatVarImp</label>
+        <link refid="classGecode_1_1Float_1_1FloatVarImp"/>
+        <childnode refid="2424" relation="public-inheritance">
+        </childnode>
+        <childnode refid="2425" relation="usage">
+          <edgelabel>dom</edgelabel>
+        </childnode>
+      </node>
+      <node id="2425">
+        <label>Gecode::FloatVal</label>
+        <link refid="classGecode_1_1FloatVal"/>
+        <childnode refid="2426" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="2419">
+        <label>Gecode::ArgArrayBase&lt; FloatVar &gt;</label>
+        <link refid="classGecode_1_1ArgArrayBase"/>
+        <childnode refid="2420" relation="usage">
+          <edgelabel>onstack</edgelabel>
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="2420">
+        <label>Gecode::FloatVar</label>
+        <link refid="classGecode_1_1FloatVar"/>
+        <childnode refid="2421" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2424">
+        <label>FloatVarImpBase</label>
+      </node>
+      <node id="2426">
+        <label>boost::numeric::interval&lt; FloatNum, boost::numeric::interval_lib::policies&lt; R, P &gt; &gt;</label>
+        <link refid="classboost_1_1numeric_1_1interval"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float.hh" line="966" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="966" bodyend="998"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ArgArrayBase_1a6ac424d552057a5730b67d9b15b9977c" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>a</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa3a75d22c4da142c5f7129561f980399" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>allocate</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1acf7efe7096de3d763d6a894306e56adc" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a91d22d529d75c419aa3bd6c93849cb4a" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>append</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf88593537f41f862b91120c4c6ee104" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1add5bd614e97033a43636821aeab64ce2" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ae30a8e33f63548bf1e8f52bc772686db" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab0a3399a6a484dc36cd3d306a2b8e199" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a9e7b606b9971b3344e692a60ac13b223" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>ArgArrayBase</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a34250768c73a3af1af1235b026db4a97" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa113576241a65d86140bc3419d96b02c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa56cc30444aa0a1e206475eb2201a281" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>begin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aba50e7707c86b17f0d4b805939305227" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>capacity</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8dfd1207b4479935fb88e517b21bf49f" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3e5176857b4d13451f9022f6a72b192" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>concat</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad83ae4a7fc5863035e6fe5795b843768" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>const_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c85c82056ab8fbf2772417329d3e802" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>const_pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a097be827923b3a47bacd8918ec73ca6b" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>const_reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1af2029facbd7b8dcfef6573d43444cde2" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>const_reverse_iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad90ff8a9bd79af6acfdb72646c52a780" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>end</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a62a0f08722a2eaddd4d9b3bd7d3a216c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>end</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1ab9859db42fa466257c58d1e33c3bca6c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1a88dce3bb680cb5615aff3cc699234125" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1a2147f1e3730b8f2d83e7ebfbbc18ed31" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1a07b407d4cb2fc05b961fa5286e3f3d0a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1a6964a923ca4fbb8a320450c985786c4f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1afd6bc233f4a5f8cdf2cbcbd2f4a79fc3" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1FloatVarArgs_1a7f06a6ae6dfb67109c7ce042879270ba" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>FloatVarArgs</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa687fceda8a4ae2a64fb5a7bb649a5a7" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>iterator</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ac8bab055302616752818fe5df090a1b9" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>n</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a4c191ff64ad1876b584048422f9ff29e" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>onstack</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a2a7e9c76d67fae7aae4f20109eb38317" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>onstack_size</name></member>
+      <member refid="classGecode_1_1VarArgArray_1af85e76ef64846946dae720bce02ddcba" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a6c9456796f94d3bf8a283623f95570c5" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7a164914ff7e98d30c7682772c28c755" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a3374c5468b4a8d6fc80c1b7059b62b1a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a7d93ce4e7a605a9a450326683831d54a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>operator[]</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab3bc773d03a61dd0c04283e749ec0ed2" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>pointer</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aaf6d78bac5609f86601dfb22131bc866" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a71af78d1d4adeb593e14add9fbc2135a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>rbegin</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ad0298b4768b0e53ce8ef13f80789ac18" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>reference</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1aa6fcebbdd86271d362383f71a3fdbd26" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8c876fa6c631f6d9685ee44194628f6c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>rend</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a8ed2c153f6a9481eac03f81fc1eb6b14" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>resize</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a77d09762f3b2d7c017a1c66530c30ba5" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>reverse_iterator</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a71ab704332eda08d372740bdc82401c7" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a29b038cf2879a2262246f86ed53a4a4f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a9a783f83f52f798aaf8b8aacfe97ca2e" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>same</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a5cd6f91808d5560f28f05b75be65ab1d" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>size</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a40a52e20540f67f982a967fc85452647" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>slice</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1a56a36e2a609ea57109c79d43890d62ef" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>value_type</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a13a6a63a399fb2e50b045a7bffa8e8f5" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1af52a5f3c412047da7b982aa6264de766" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a5711a74a0c1261d02658f4d7ec5b9159" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1ac4e98ced216c3ad2f922d4c8efec243d" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1a8c03614f1eb6c5467d85467e5a4ca957" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1VarArgArray_1ac3726cec21e7d77b7781520e088e4ca9" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>VarArgArray</name></member>
+      <member refid="classGecode_1_1ArgArrayBase_1ab397c8c20972f2bc8d3b53e46145cb24" prot="public" virt="non-virtual"><scope>Gecode::FloatVarArgs</scope><name>~ArgArrayBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

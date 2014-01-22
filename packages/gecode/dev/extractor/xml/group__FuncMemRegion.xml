@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__FuncMemRegion" kind="group">
+    <compoundname>FuncMemRegion</compoundname>
+    <title>Region memory management</title>
+    <innerclass refid="classGecode_1_1Region" prot="public">Gecode::Region</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>A region provides a handle to temporary memory owned by a space. The memory will be managed in a stack fashion, that is, the memory allocated through a region will be released only after the region is deleted and all other regions created later also have been deleted.</para><para>In case a memory request cannot be fulfilled from a space&apos;s region, heap memory is allocated and returned to the operating system as soon as the region is deleted. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

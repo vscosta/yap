@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Kernel_1_1UnaryWait" kind="class" prot="public">
+    <compoundname>Gecode::Kernel::UnaryWait</compoundname>
+    <basecompoundref refid="classGecode_1_1Propagator" prot="public" virt="non-virtual">Gecode::Propagator</basecompoundref>
+    <includes refid="wait_8hh" local="no">wait.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Kernel_1_1UnaryWait_1ab1c1b80d19bb42743e62b1e0ea89b22d" prot="protected" static="no" mutable="no">
+        <type>View</type>
+        <definition>View Gecode::Kernel::UnaryWait&lt; View &gt;::x</definition>
+        <argsstring></argsstring>
+        <name>x</name>
+        <briefdescription>
+<para>View to wait for becoming assigned. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="55" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Kernel_1_1UnaryWait_1acd8d0e98e7c2e55777d6eae9f7111bf5" prot="protected" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* Gecode::Kernel::UnaryWait&lt; View &gt;::c)(Space &amp;)</definition>
+        <argsstring>)(Space &amp;)</argsstring>
+        <name>c</name>
+        <briefdescription>
+<para>Continuation to execute. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="57" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1a9f9422aa4583d73b48a660756d5e4acb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Kernel::UnaryWait&lt; View &gt;::UnaryWait</definition>
+        <argsstring>(Home home, View x, void(*c0)(Space &amp;))</argsstring>
+        <name>UnaryWait</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>c0</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="59" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="112" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1a8292ea448547dcdab1b6c770763e715a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Kernel::UnaryWait&lt; View &gt;::UnaryWait</definition>
+        <argsstring>(Space &amp;home, bool shared, UnaryWait &amp;p)</argsstring>
+        <name>UnaryWait</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Kernel_1_1UnaryWait" kindref="compound">UnaryWait</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="61" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="118" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1a48ee02bebe066c5da1fa55a38f7307d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1Actor" kindref="compound">Actor</ref> *</type>
+        <definition>Actor * Gecode::Kernel::UnaryWait&lt; View &gt;::copy</definition>
+        <argsstring>(Space &amp;home, bool share)</argsstring>
+        <name>copy</name>
+        <reimplements refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d">copy</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <briefdescription>
+<para>Perform copying during cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="64" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="124" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1ad7ad38b06525a1982567a8d8ca7c4972" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="classGecode_1_1PropCost" kindref="compound">PropCost</ref></type>
+        <definition>PropCost Gecode::Kernel::UnaryWait&lt; View &gt;::cost</definition>
+        <argsstring>(const Space &amp;home, const ModEventDelta &amp;med) const </argsstring>
+        <name>cost</name>
+        <reimplements refid="classGecode_1_1Propagator_1a3de049f07a191fb956c9dbd4153efe75">cost</reimplements>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Const function (defined as low unary) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="66" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="129" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1ae30d8bfa13b96ba2df5ee8ceaeefe89f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Kernel::UnaryWait&lt; View &gt;::propagate</definition>
+        <argsstring>(Space &amp;home, const ModEventDelta &amp;med)</argsstring>
+        <name>propagate</name>
+        <reimplements refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1">propagate</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespaceGecode_1a129e41c1d037528010d7b6706495a560" kindref="member">ModEventDelta</ref> &amp;</type>
+          <declname>med</declname>
+        </param>
+        <briefdescription>
+<para>Perform propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="68" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="134" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1a0ff51ad5e1e66e0563240e94407709dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>size_t Gecode::Kernel::UnaryWait&lt; View &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1Actor_1a143253b3eceda40f36834e38c8ac05d9">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="72" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="152" bodyend="156"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Kernel_1_1UnaryWait_1aa08a8b69fe59238b5f587651ab75d28f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Kernel::UnaryWait&lt; View &gt;::post</definition>
+        <argsstring>(Space &amp;home, View x, void(*c)(Space &amp;))</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>View</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;)</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator that waits until <emphasis>x</emphasis> becomes assigned and then executes <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/wait.hh" line="70" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="141" bodyend="149"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Wait propagator for single view. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/kernel/wait.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7145">
+        <label>Gecode::Kernel::UnaryWait&lt; View &gt;</label>
+        <link refid="classGecode_1_1Kernel_1_1UnaryWait"/>
+        <childnode refid="7146" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7146">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7147" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7147">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7148" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7148">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7149">
+        <label>Gecode::Kernel::UnaryWait&lt; View &gt;</label>
+        <link refid="classGecode_1_1Kernel_1_1UnaryWait"/>
+        <childnode refid="7150" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7153" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+      </node>
+      <node id="7153">
+        <label>View</label>
+      </node>
+      <node id="7150">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="7151" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7152" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="7151">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7152" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7152">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/wait.hh" line="52" column="1" bodyfile="/usr/include/gecode/kernel/wait.hh" bodystart="52" bodyend="73"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1acd8d0e98e7c2e55777d6eae9f7111bf5" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>c</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Kernel::UnaryWait</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Kernel::UnaryWait</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1a48ee02bebe066c5da1fa55a38f7307d9" prot="public" virt="virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>copy</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1ad7ad38b06525a1982567a8d8ca7c4972" prot="public" virt="virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1a0ff51ad5e1e66e0563240e94407709dd" prot="public" virt="virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1aa08a8b69fe59238b5f587651ab75d28f" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>post</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1ae30d8bfa13b96ba2df5ee8ceaeefe89f" prot="public" virt="virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>size</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1a9f9422aa4583d73b48a660756d5e4acb" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>UnaryWait</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1a8292ea448547dcdab1b6c770763e715a" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>UnaryWait</name></member>
+      <member refid="classGecode_1_1Kernel_1_1UnaryWait_1ab1c1b80d19bb42743e62b1e0ea89b22d" prot="protected" virt="non-virtual"><scope>Gecode::Kernel::UnaryWait</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

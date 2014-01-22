@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskBranchViewSel" kind="group">
+    <compoundname>TaskBranchViewSel</compoundname>
+    <title>Generic view selection for brancher based on view and value selection</title>
+    <innerclass refid="classGecode_1_1ViewSel" prot="public">Gecode::ViewSel</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelNone" prot="public">Gecode::ViewSelNone</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelRnd" prot="public">Gecode::ViewSelRnd</innerclass>
+    <innerclass refid="classGecode_1_1ChooseMin" prot="public">Gecode::ChooseMin</innerclass>
+    <innerclass refid="classGecode_1_1ChooseMax" prot="public">Gecode::ChooseMax</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelChoose" prot="public">Gecode::ViewSelChoose</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelChooseTbl" prot="public">Gecode::ViewSelChooseTbl</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelMin" prot="public">Gecode::ViewSelMin</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelMinTbl" prot="public">Gecode::ViewSelMinTbl</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelMax" prot="public">Gecode::ViewSelMax</innerclass>
+    <innerclass refid="classGecode_1_1ViewSelMaxTbl" prot="public">Gecode::ViewSelMaxTbl</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

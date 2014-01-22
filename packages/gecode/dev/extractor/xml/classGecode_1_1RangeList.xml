@@ -1,0 +1,378 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1RangeList" kind="class" prot="public">
+    <compoundname>Gecode::RangeList</compoundname>
+    <basecompoundref refid="classGecode_1_1FreeList" prot="public" virt="non-virtual">Gecode::FreeList</basecompoundref>
+    <includes refid="range-list_8hpp" local="no">range-list.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Constructors</header>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1ab5923a73fdeee4d3099e9501ba07916b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::RangeList::RangeList</definition>
+        <argsstring>(void)</argsstring>
+        <name>RangeList</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor (noop) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="63" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="117" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a3355f6de5be9991b016b0aa87a65d50f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::RangeList::RangeList</definition>
+        <argsstring>(int min, int max, RangeList *n)</argsstring>
+        <name>RangeList</name>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with minimum <emphasis>min</emphasis> and maximum <emphasis>max</emphasis> and successor <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="65" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="120" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Access</header>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a3716d76502b1ad17b30b0a606a50f691" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::RangeList::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="71" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="142" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a07b12ffd797419107e6f9a9970a93226" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::RangeList::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="73" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="146" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a8ef551f4dae1886fa4544394c03b8c6c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::RangeList::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width (distance between maximum and minimum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="75" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="150" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a0b5c08469f5b466226731976452e54a4" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+        <definition>forceinline RangeList * Gecode::RangeList::next</definition>
+        <argsstring>(void) const </argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return next element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="78" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="124" bodyend="126"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Update</header>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1ab4c50abc87c508c0b4dd428b5f4fe46f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::min</definition>
+        <argsstring>(int n)</argsstring>
+        <name>min</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> minimum to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="84" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="129" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1abbad289d12c409d3fcf03d4270ceced3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::max</definition>
+        <argsstring>(int n)</argsstring>
+        <name>max</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> maximum to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="86" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="133" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a172a2a1eeb4db46fa4c837d6b77762d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::next</definition>
+        <argsstring>(RangeList *n)</argsstring>
+        <name>next</name>
+        <param>
+          <type><ref refid="classGecode_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> next rane to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="88" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="137" bodyend="139"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Memory management</header>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a27a1b8afa7762e8d735634ba08b8b91b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::dispose</definition>
+        <argsstring>(Space &amp;home, RangeList *l)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1RangeList" kindref="compound">RangeList</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Free memory for all elements between this and <emphasis>l</emphasis> (inclusive) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="96" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="179" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1af16e9cd89e760446b0b80ddae94e939e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::RangeList::operator new</definition>
+        <argsstring>(size_t s, Space &amp;home)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="99" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="169" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a278c685da0ac627318a308df69b81621" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::RangeList::operator new</definition>
+        <argsstring>(size_t s, void *p)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Placement-new operator (noop) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="101" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="174" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1ab01f3ecbc4f7941bae686bd7b2874c3c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::operator delete</definition>
+        <argsstring>(void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+<para>No-op (for exceptions) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="103" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="156" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a8bf5ba261343e7b881db4bb83dccea08" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::operator delete</definition>
+        <argsstring>(void *, Space &amp;home)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>No-op (use dispose instead) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="105" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="159" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1RangeList_1a5ab8cf0ddcb7794e7046a60d177bff46" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::RangeList::operator delete</definition>
+        <argsstring>(void *, void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+<para>No-op (use dispose instead) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="107" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="164" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1RangeList_1a517fbf7195c03a9bdaf0a2bbd4e01aae" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::RangeList::_min</definition>
+        <argsstring></argsstring>
+        <name>_min</name>
+        <briefdescription>
+<para>Minimum of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="56" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1RangeList_1af5d9d0a903cdf2e0bc43b43dae6673c8" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::RangeList::_max</definition>
+        <argsstring></argsstring>
+        <name>_max</name>
+        <briefdescription>
+<para>Maximum of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/range-list.hpp" line="58" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Lists of ranges (intervals) </para>    </briefdescription>
+    <detaileddescription>
+<para>This class implements a simple datastructure for storing sets of integers as lists of ranges (intervals). Memory is managed as space-allocated free lists. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="5653">
+        <label>Gecode::RangeList</label>
+        <link refid="classGecode_1_1RangeList"/>
+        <childnode refid="5654" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5654">
+        <label>Gecode::FreeList</label>
+        <link refid="classGecode_1_1FreeList"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5655">
+        <label>Gecode::RangeList</label>
+        <link refid="classGecode_1_1RangeList"/>
+        <childnode refid="5656" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5656">
+        <label>Gecode::FreeList</label>
+        <link refid="classGecode_1_1FreeList"/>
+        <childnode refid="5656" relation="usage">
+          <edgelabel>_next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/range-list.hpp" line="53" column="1" bodyfile="/usr/include/gecode/kernel/range-list.hpp" bodystart="53" bodyend="109"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1RangeList_1af5d9d0a903cdf2e0bc43b43dae6673c8" prot="protected" virt="non-virtual"><scope>Gecode::RangeList</scope><name>_max</name></member>
+      <member refid="classGecode_1_1RangeList_1a517fbf7195c03a9bdaf0a2bbd4e01aae" prot="protected" virt="non-virtual"><scope>Gecode::RangeList</scope><name>_min</name></member>
+      <member refid="classGecode_1_1FreeList_1af9f8e4304c3b32d60120be64f51a6140" prot="protected" virt="non-virtual"><scope>Gecode::RangeList</scope><name>_next</name></member>
+      <member refid="classGecode_1_1RangeList_1a27a1b8afa7762e8d735634ba08b8b91b" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1FreeList_1af1afc36981b813bf6aa84b9520692a23" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>FreeList</name></member>
+      <member refid="classGecode_1_1FreeList_1a46875b41d67aa1429d1e16be296a496e" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>FreeList</name></member>
+      <member refid="classGecode_1_1RangeList_1a07b12ffd797419107e6f9a9970a93226" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>max</name></member>
+      <member refid="classGecode_1_1RangeList_1abbad289d12c409d3fcf03d4270ceced3" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>max</name></member>
+      <member refid="classGecode_1_1RangeList_1a3716d76502b1ad17b30b0a606a50f691" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>min</name></member>
+      <member refid="classGecode_1_1RangeList_1ab4c50abc87c508c0b4dd428b5f4fe46f" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>min</name></member>
+      <member refid="classGecode_1_1RangeList_1a0b5c08469f5b466226731976452e54a4" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>next</name></member>
+      <member refid="classGecode_1_1RangeList_1a172a2a1eeb4db46fa4c837d6b77762d5" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>next</name></member>
+      <member refid="classGecode_1_1FreeList_1a6bcae4b5f7a4e613622abc7b5387a23f" prot="public" virt="non-virtual" ambiguityscope="Gecode::FreeList::"><scope>Gecode::RangeList</scope><name>next</name></member>
+      <member refid="classGecode_1_1FreeList_1a9874d126df8911a0cd9c04d2bcb51e8f" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>nextRef</name></member>
+      <member refid="classGecode_1_1RangeList_1ab01f3ecbc4f7941bae686bd7b2874c3c" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1RangeList_1a8bf5ba261343e7b881db4bb83dccea08" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1RangeList_1a5ab8cf0ddcb7794e7046a60d177bff46" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1RangeList_1af16e9cd89e760446b0b80ddae94e939e" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1RangeList_1a278c685da0ac627318a308df69b81621" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1RangeList_1ab5923a73fdeee4d3099e9501ba07916b" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>RangeList</name></member>
+      <member refid="classGecode_1_1RangeList_1a3355f6de5be9991b016b0aa87a65d50f" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>RangeList</name></member>
+      <member refid="classGecode_1_1RangeList_1a8ef551f4dae1886fa4544394c03b8c6c" prot="public" virt="non-virtual"><scope>Gecode::RangeList</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

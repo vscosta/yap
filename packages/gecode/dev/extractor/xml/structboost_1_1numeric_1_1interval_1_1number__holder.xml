@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="structboost_1_1numeric_1_1interval_1_1number__holder" kind="struct" prot="private">
+    <compoundname>boost::numeric::interval::number_holder</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structboost_1_1numeric_1_1interval_1_1number__holder_1a0d47353efb9f2e3ee9613f416a5d7fce" prot="public" static="no" mutable="no">
+        <type>const T &amp;</type>
+        <definition>const T&amp; boost::numeric::interval&lt; T, Policies &gt;::number_holder::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" line="124" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structboost_1_1numeric_1_1interval_1_1number__holder_1ab0775d0c18f662c5479d661a3b60bc9b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>boost::numeric::interval&lt; T, Policies &gt;::number_holder::number_holder</definition>
+        <argsstring>(const T &amp;r)</argsstring>
+        <name>number_holder</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" line="117" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" bodystart="117" bodyend="122"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" line="116" column="1" bodyfile="/usr/include/gecode/third-party/boost/numeric/interval/interval.hpp" bodystart="116" bodyend="125"/>
+    <listofallmembers>
+      <member refid="structboost_1_1numeric_1_1interval_1_1number__holder_1ab0775d0c18f662c5479d661a3b60bc9b" prot="public" virt="non-virtual"><scope>boost::numeric::interval::number_holder</scope><name>number_holder</name></member>
+      <member refid="structboost_1_1numeric_1_1interval_1_1number__holder_1a0d47353efb9f2e3ee9613f416a5d7fce" prot="public" virt="non-virtual"><scope>boost::numeric::interval::number_holder</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

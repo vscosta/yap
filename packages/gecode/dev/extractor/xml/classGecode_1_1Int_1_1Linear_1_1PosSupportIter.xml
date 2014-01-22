@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Linear_1_1PosSupportIter" kind="class" prot="public">
+    <compoundname>Gecode::Int::Linear::PosSupportIter</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Linear_1_1SupportIter" prot="public" virt="non-virtual">Gecode::Int::Linear::SupportIter&lt; Val &gt;</basecompoundref>
+    <includes refid="int-dom_8hpp" local="no">int-dom.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Val</declname>
+        <defname>Val</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1af9f840ede5f647643fd35f04162a7d48" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1IntVarImpFwd" kindref="compound">IntVarImpFwd</ref></type>
+        <definition>IntVarImpFwd Gecode::Int::Linear::PosSupportIter&lt; Val &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Iterate ranges of integer view in increasing order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="120" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1a99d9fc84ababc65f8ffe21211c1b65a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::PosSupportIter&lt; Val &gt;::reset</definition>
+        <argsstring>(Val &amp;d)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>Val &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Reset iterator to beginning and adjust. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>d accordingly </para></listitem>
+</itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="131" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="244" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1a3f59f298cc59ea3bcbe01645fbc57af7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Linear::PosSupportIter&lt; Val &gt;::adjust</definition>
+        <argsstring>(Val &amp;d)</argsstring>
+        <name>adjust</name>
+        <param>
+          <type>Val &amp;</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Adjust. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>d and return true if next value still works </para></listitem>
+</itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="133" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="268" bodyend="292"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Support-based iterator for positive view. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5155">
+        <label>Gecode::Int::Linear::SupportIter&lt; Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1SupportIter"/>
+      </node>
+      <node id="5154">
+        <label>Gecode::Int::Linear::PosSupportIter&lt; Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter"/>
+        <childnode refid="5155" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5158">
+        <label>Gecode::Int::IntView</label>
+        <link refid="classGecode_1_1Int_1_1IntView"/>
+        <childnode refid="5159" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5159">
+        <label>Gecode::VarImpView&lt; IntVar &gt;</label>
+        <link refid="classGecode_1_1VarImpView"/>
+      </node>
+      <node id="5157">
+        <label>Gecode::Int::Linear::SupportIter&lt; Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1SupportIter"/>
+        <childnode refid="5158" relation="usage">
+          <edgelabel>x</edgelabel>
+        </childnode>
+        <childnode refid="5160" relation="usage">
+          <edgelabel>s</edgelabel>
+        </childnode>
+        <childnode refid="5161" relation="usage">
+          <edgelabel>l</edgelabel>
+          <edgelabel>u</edgelabel>
+        </childnode>
+      </node>
+      <node id="5161">
+        <label>Val</label>
+      </node>
+      <node id="5156">
+        <label>Gecode::Int::Linear::PosSupportIter&lt; Val &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter"/>
+        <childnode refid="5157" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5160">
+        <label>Gecode::Int::Linear::SupportSet</label>
+        <link refid="classGecode_1_1Int_1_1Linear_1_1SupportSet"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/linear/int-dom.hpp" line="117" column="1" bodyfile="/usr/include/gecode/int/linear/int-dom.hpp" bodystart="117" bodyend="134"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a4f3190ca35f3322b028c4f113b9ea4ec" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>a</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1a3f59f298cc59ea3bcbe01645fbc57af7" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>adjust</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a3208562cd0100e2e70423d817d48ebcf" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>c</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1af9f840ede5f647643fd35f04162a7d48" prot="private" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>i</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a7109cfd62e4f58eba39612f7307ab96f" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a6776231aba5b1a858fa632b3b456c8c2" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>l</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1aa93228145524905fc56a789a43661169" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>p</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1PosSupportIter_1a99d9fc84ababc65f8ffe21211c1b65a5" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1acda6970de60f0b1f7091ef7fa552c27b" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>s</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1abc96e1d6a1b067a68cca17367ce90336" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>support</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a9c268c07aba9654d3891ae4d7244d3ab" prot="public" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>tell</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a584dd1fcdbdc2fafe6d9d417b3211357" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>u</name></member>
+      <member refid="classGecode_1_1Int_1_1Linear_1_1SupportIter_1a1eacd96570e50097eb81abcb515b0143" prot="protected" virt="non-virtual"><scope>Gecode::Int::Linear::PosSupportIter</scope><name>x</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

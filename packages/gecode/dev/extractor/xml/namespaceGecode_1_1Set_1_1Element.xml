@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Set_1_1Element" kind="namespace">
+    <compoundname>Gecode::Set::Element</compoundname>
+    <innerclass refid="classGecode_1_1Set_1_1Element_1_1ElementIntersection" prot="public">Gecode::Set::Element::ElementIntersection</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Element_1_1ElementUnion" prot="public">Gecode::Set::Element::ElementUnion</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Element_1_1ElementUnionConst" prot="public">Gecode::Set::Element::ElementUnionConst</innerclass>
+    <innerclass refid="classGecode_1_1Set_1_1Element_1_1ElementDisjoint" prot="public">Gecode::Set::Element::ElementDisjoint</innerclass>
+    <briefdescription>
+<para>Set element propagators </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/set/element/disjoint.hpp" line="40" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1VarImpDisposerBase" kind="class" prot="public">
+    <compoundname>Gecode::VarImpDisposerBase</compoundname>
+    <derivedcompoundref refid="classGecode_1_1VarImpDisposer" prot="public" virt="non-virtual">Gecode::VarImpDisposer&lt; VarImp &gt;</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1VarImpDisposerBase_1a8f4c92079be15f67c96a06ea10fa8d13" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT void</type>
+        <definition>virtual GECODE_KERNEL_EXPORT void Gecode::VarImpDisposerBase::dispose</definition>
+        <argsstring>(Space &amp;home, VarImpBase *x)</argsstring>
+        <name>dispose</name>
+        <reimplementedby refid="classGecode_1_1VarImpDisposer_1adcf598c31396b3559ee969d98804be97">dispose</reimplementedby>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1VarImpBase" kindref="compound">VarImpBase</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Dispose list of variable implementations starting at <emphasis>x</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="254" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarImpDisposerBase_1a4bc9ed05ee1e874edc6914d5f96718c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>GECODE_KERNEL_EXPORT</type>
+        <definition>virtual GECODE_KERNEL_EXPORT Gecode::VarImpDisposerBase::~VarImpDisposerBase</definition>
+        <argsstring>(void)</argsstring>
+        <name>~VarImpDisposerBase</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor (not used) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="256" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for Variable type disposer. </para>    </briefdescription>
+    <detaileddescription>
+<para>Controls disposal of variable implementations. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7713">
+        <label>Gecode::VarImpDisposerBase</label>
+        <link refid="classGecode_1_1VarImpDisposerBase"/>
+      </node>
+      <node id="7714">
+        <label>Gecode::VarImpDisposer&lt; VarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpDisposer"/>
+        <childnode refid="7713" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="251" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="251" bodyend="257"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1VarImpDisposerBase_1a8f4c92079be15f67c96a06ea10fa8d13" prot="public" virt="virtual"><scope>Gecode::VarImpDisposerBase</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1VarImpDisposerBase_1a4bc9ed05ee1e874edc6914d5f96718c6" prot="public" virt="virtual"><scope>Gecode::VarImpDisposerBase</scope><name>~VarImpDisposerBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

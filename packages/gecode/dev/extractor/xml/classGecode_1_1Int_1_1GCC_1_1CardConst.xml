@@ -1,0 +1,446 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1GCC_1_1CardConst" kind="class" prot="public">
+    <compoundname>Gecode::Int::GCC::CardConst</compoundname>
+    <includes refid="int_2gcc_2view_8hpp" local="no">view.hpp</includes>
+      <sectiondef kind="user-defined">
+      <header>Initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0bff041825789e7c835bdd9909003d0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::GCC::CardConst::CardConst</definition>
+        <argsstring>(void)</argsstring>
+        <name>CardConst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="85" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="216" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1ab2fa62bbcb32513974559a9110321897" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::CardConst::init</definition>
+        <argsstring>(Space &amp;home, int min, int max, int c)</argsstring>
+        <name>init</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with <emphasis>min</emphasis>, <emphasis>max</emphasis>, and cardinality <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="87" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="218" bodyend="220"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a508f699bb9606e51904572af241910ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::CardConst::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="93" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="223" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae5c0469bfc221e1116732010239fc18f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::CardConst::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum of domain. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="95" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="227" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0432be7fd8b535e0624891cd31e9d54c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::CardConst::card</definition>
+        <argsstring>(void) const </argsstring>
+        <name>card</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return cardinality. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="97" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="231" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a96874cba04839182c79e6dacf3b39e70" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::GCC::CardConst::counter</definition>
+        <argsstring>(void) const </argsstring>
+        <name>counter</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the number of times the value occurs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="99" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="235" bodyend="237"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain tests</header>
+      <description><para>Test whether view is assigned </para></description>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1abc139760c01af001339050e70d04925c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::GCC::CardConst::assigned</definition>
+        <argsstring>(void) const </argsstring>
+        <name>assigned</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="105" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="239" bodyend="241"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Domain update by value</header>
+      <description><para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> counter to <emphasis>n</emphasis> </para></description>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae41bc60f61baa0aa8dc4ca628a6c9eb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::CardConst::counter</definition>
+        <argsstring>(int n)</argsstring>
+        <name>counter</name>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="111" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="245" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a4841d54cdb47483cd2fdce0baa5a06b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::GCC::CardConst::inc</definition>
+        <argsstring>(void)</argsstring>
+        <name>inc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Increment counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="113" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="249" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0e945b6e4c78880cb828d11da9bb1ddd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::GCC::CardConst::lq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be less or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="115" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="255" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae6323b6ba63e4172e2b93d1c47b2c7f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::GCC::CardConst::gq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>gq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be greater or equal than <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="117" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="261" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a75f55092dbc90da6bda85bec8a5720cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::GCC::CardConst::eq</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>eq</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Restrict domain values to be equal to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="119" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="267" bodyend="271"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Dependencies</header>
+      <description><para>Subscribe propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view </para></description>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1ac6cce166a3a8fd4146b9a80c43331f17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::CardConst::subscribe</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc, bool process=true)</argsstring>
+        <name>subscribe</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>process</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="125" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="274" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a6ba3630c6c49a4458fc95ed0c3561866" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::CardConst::cancel</definition>
+        <argsstring>(Space &amp;home, Propagator &amp;p, PropCond pc)</argsstring>
+        <name>cancel</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Propagator" kindref="compound">Propagator</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskVarMEPC_1gad24536e327a507a903179b6a5efd2e3d" kindref="member">PropCond</ref></type>
+          <declname>pc</declname>
+        </param>
+        <briefdescription>
+<para>Cancel subscription of propagator <emphasis>p</emphasis> with propagation condition <emphasis>pc</emphasis> to view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="127" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="276" bodyend="276"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Cloning</header>
+      <description><para>Update this view to be a clone of view <emphasis>x</emphasis> </para></description>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1acdcac4f7b5cb8aef81785d0fc0a5e657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::GCC::CardConst::update</definition>
+        <argsstring>(Space &amp;home, bool share, CardConst &amp;x)</argsstring>
+        <name>update</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1GCC_1_1CardConst" kindref="compound">CardConst</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="133" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="279" bodyend="281"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a80e9958128a1aa64be936f9716a241be" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::CardConst::_min</definition>
+        <argsstring></argsstring>
+        <name>_min</name>
+        <briefdescription>
+<para>Lower bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="71" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a082e448abffcfd5fb9fd8ee6810e796f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::CardConst::_max</definition>
+        <argsstring></argsstring>
+        <name>_max</name>
+        <briefdescription>
+<para>Upper bound. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="73" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1aaad335fecb1074268b0b24c7c23c08d5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::CardConst::_card</definition>
+        <argsstring></argsstring>
+        <name>_card</name>
+        <briefdescription>
+<para>Cardinality information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="75" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1aa8639840db5f3a167775cb46302b8cc4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::GCC::CardConst::_counter</definition>
+        <argsstring></argsstring>
+        <name>_counter</name>
+        <briefdescription>
+<para>Counting information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="77" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a41185c72abf0a07d3db1c5b8becc20cb" prot="public" static="yes" mutable="no">
+        <type>const bool</type>
+        <definition>const bool Gecode::Int::GCC::CardConst::propagate</definition>
+        <argsstring></argsstring>
+        <name>propagate</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>This view does not require propagation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="80" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1GCC_1_1CardConst_1a3c37700bc44b1f577b119afcc8feadec" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref></type>
+        <definition>forceinline IntView Gecode::Int::GCC::CardConst::base</definition>
+        <argsstring>(void) const </argsstring>
+        <name>base</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return used <ref refid="classGecode_1_1Int_1_1IntView" kindref="compound">IntView</ref> (cannot be used) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/gcc/view.hpp" line="137" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="284" bodyend="287"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Constant view containing lower and upper cardinality bounds. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/gcc/view.hpp" line="68" column="1" bodyfile="/usr/include/gecode/int/gcc/view.hpp" bodystart="68" bodyend="138"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1aaad335fecb1074268b0b24c7c23c08d5" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>_card</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1aa8639840db5f3a167775cb46302b8cc4" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>_counter</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a082e448abffcfd5fb9fd8ee6810e796f" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>_max</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a80e9958128a1aa64be936f9716a241be" prot="private" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>_min</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1abc139760c01af001339050e70d04925c" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a3c37700bc44b1f577b119afcc8feadec" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>base</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a6ba3630c6c49a4458fc95ed0c3561866" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>cancel</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0432be7fd8b535e0624891cd31e9d54c" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>card</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0bff041825789e7c835bdd9909003d0d" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>CardConst</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a96874cba04839182c79e6dacf3b39e70" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>counter</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae41bc60f61baa0aa8dc4ca628a6c9eb5" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>counter</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a75f55092dbc90da6bda85bec8a5720cf" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>eq</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae6323b6ba63e4172e2b93d1c47b2c7f8" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>gq</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a4841d54cdb47483cd2fdce0baa5a06b3" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>inc</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1ab2fa62bbcb32513974559a9110321897" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a0e945b6e4c78880cb828d11da9bb1ddd" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>lq</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1ae5c0469bfc221e1116732010239fc18f" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>max</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a508f699bb9606e51904572af241910ac" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1a41185c72abf0a07d3db1c5b8becc20cb" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1ac6cce166a3a8fd4146b9a80c43331f17" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>subscribe</name></member>
+      <member refid="classGecode_1_1Int_1_1GCC_1_1CardConst_1acdcac4f7b5cb8aef81785d0fc0a5e657" prot="public" virt="non-virtual"><scope>Gecode::Int::GCC::CardConst</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

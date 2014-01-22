@@ -1,0 +1,559 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FloatVarBranch" kind="class" prot="public">
+    <compoundname>Gecode::FloatVarBranch</compoundname>
+    <basecompoundref refid="classGecode_1_1VarBranch" prot="public" virt="non-virtual">Gecode::VarBranch</basecompoundref>
+    <includes refid="float_8hh" local="no">float.hh</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" prot="public" static="no">
+        <name>Select</name>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa5046f82cb7388cbbac011ef96e54dace" prot="public">
+          <name>SEL_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>First unassigned. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faba1de9a3f52a1ccc6de1f3661067228b" prot="public">
+          <name>SEL_RND</name>
+          <briefdescription>
+<para>Random (uniform, for tie breaking) </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa60dd98aea65e10991a651dbda323ed94" prot="public">
+          <name>SEL_MERIT_MIN</name>
+          <briefdescription>
+<para>With least merit. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fab154d6af258058acef65dbb63876c75f" prot="public">
+          <name>SEL_MERIT_MAX</name>
+          <briefdescription>
+<para>With highest merit. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faa5626bd5b41b3653a0eb14b2a96455df" prot="public">
+          <name>SEL_DEGREE_MIN</name>
+          <briefdescription>
+<para>With smallest degree. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa74502d0c721a61b56baebc316ee382b3" prot="public">
+          <name>SEL_DEGREE_MAX</name>
+          <briefdescription>
+<para>With largest degree. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faf103ef64680972f06982212a4200db60" prot="public">
+          <name>SEL_AFC_MIN</name>
+          <briefdescription>
+<para>With smallest accumulated failure count. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fad54d2c0b2b5f5f715f00c438bc2aac1c" prot="public">
+          <name>SEL_AFC_MAX</name>
+          <briefdescription>
+<para>With largest accumulated failure count. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa39ba8b7a604f8eca4f10942d51c540ad" prot="public">
+          <name>SEL_ACTIVITY_MIN</name>
+          <briefdescription>
+<para>With lowest activity. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa30fc1cb989023599412f8bfdd45aaef5" prot="public">
+          <name>SEL_ACTIVITY_MAX</name>
+          <briefdescription>
+<para>With highest activity. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa13da0e15bf43b0e5f0990340fdfc0cfa" prot="public">
+          <name>SEL_MIN_MIN</name>
+          <briefdescription>
+<para>With smallest min. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa3731765befc478b5b698e02da02be547" prot="public">
+          <name>SEL_MIN_MAX</name>
+          <briefdescription>
+<para>With largest min. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fab1cbd2041af9909dc5a3fdb7a882dd34" prot="public">
+          <name>SEL_MAX_MIN</name>
+          <briefdescription>
+<para>With smallest max. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa218978053c39cb300eca871509e0cf57" prot="public">
+          <name>SEL_MAX_MAX</name>
+          <briefdescription>
+<para>With largest max. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faf6314eed7c102d083c71d48528be2c2f" prot="public">
+          <name>SEL_SIZE_MIN</name>
+          <briefdescription>
+<para>With smallest domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faec947a16adbe8173093ee34e7f75f74d" prot="public">
+          <name>SEL_SIZE_MAX</name>
+          <briefdescription>
+<para>With largest domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa370d5530baff736155c5d26964fd3c9c" prot="public">
+          <name>SEL_DEGREE_SIZE_MIN</name>
+          <briefdescription>
+<para>With smallest degree divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa886ef7e56f0398b35b4da5c94824699f" prot="public">
+          <name>SEL_DEGREE_SIZE_MAX</name>
+          <briefdescription>
+<para>With largest degree divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa177212c23d9b9f06a88ec52947a275f7" prot="public">
+          <name>SEL_AFC_SIZE_MIN</name>
+          <briefdescription>
+<para>With smallest accumulated failure count divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa27f292dd00bb7fbdec293e127f515e7b" prot="public">
+          <name>SEL_AFC_SIZE_MAX</name>
+          <briefdescription>
+<para>With largest accumulated failure count divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa512cc00f1cf019b936148aee767be3d4" prot="public">
+          <name>SEL_ACTIVITY_SIZE_MIN</name>
+          <briefdescription>
+<para>With smallest activity divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa4def34fda9b571fafcf7bca428c330a6" prot="public">
+          <name>SEL_ACTIVITY_SIZE_MAX</name>
+          <briefdescription>
+<para>With largest activity divided by domain size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Which variable selection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1519" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1519" bodyend="1542"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="group__TaskModelFloatArith_1gaf137583b1e1fe89c49e772983cc0c522" prot="protected" static="no" mutable="no">
+        <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+        <definition>Select Gecode::FloatVarBranch::s</definition>
+        <argsstring></argsstring>
+        <name>s</name>
+        <briefdescription>
+<para>Which variable to select. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1545" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1545" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga42c37b6f0767b47120700e1d133c696e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(void)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize with strategy SEL_NONE. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1548" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga1a563ea0edd6af8153b60cc3dbce0e5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1550" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="49" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga8a9ded3de16818140fcf0be6dd530ea2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Select s, BranchTbl t)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis> and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1552" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga83e82701de3e3858b27b0c394c4917c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Select s, double, BranchTbl t)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <defname>d</defname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>, decay factor <emphasis>d</emphasis>, and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1554" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="53" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga76e33ecbac53e09032a33fb047368348" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Select s, AFC a, BranchTbl t)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>, <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> <emphasis>a</emphasis>, and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1556" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="57" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1gab740133fcbd988ba05645dc723c37add" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Select s, Activity a, BranchTbl t)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>, activity <emphasis>a</emphasis>, and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1558" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="61" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1ga90da3c8e26c30f66a0f128b591e391d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::FloatVarBranch::FloatVarBranch</definition>
+        <argsstring>(Select s, VoidFunction mf, BranchTbl t)</argsstring>
+        <name>FloatVarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+          <declname>mf</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with selection strategy <emphasis>s</emphasis>, branch merit function <emphasis>mf</emphasis>, and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1560" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="65" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1gacfb41907b6ccbf65cb2d0f5a063d7a84" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" kindref="member">Select</ref></type>
+        <definition>forceinline FloatVarBranch::Select Gecode::FloatVarBranch::select</definition>
+        <argsstring>(void) const </argsstring>
+        <name>select</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return selection strategy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1562" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="group__TaskModelFloatArith_1gad838101e727ecf3c443075e1aa902233" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::FloatVarBranch::expand</definition>
+        <argsstring>(Home home, const FloatVarArgs &amp;x)</argsstring>
+        <name>expand</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1FloatVarArgs" kindref="compound">FloatVarArgs</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Expand decay factor into <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> or activity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/float.hh" line="1564" column="1" bodyfile="/usr/include/gecode/float/branch/var.hpp" bodystart="74" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Which variable to select for branching. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2439">
+        <label>Gecode::VarBranch</label>
+        <link refid="classGecode_1_1VarBranch"/>
+      </node>
+      <node id="2438">
+        <label>Gecode::FloatVarBranch</label>
+        <link refid="classGecode_1_1FloatVarBranch"/>
+        <childnode refid="2439" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2452">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="2445">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="2446" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="2448">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="2449" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2444">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="2444" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="2445" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="2451">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="2441">
+        <label>Gecode::VarBranch</label>
+        <link refid="classGecode_1_1VarBranch"/>
+        <childnode refid="2442" relation="usage">
+          <edgelabel>_rnd</edgelabel>
+        </childnode>
+        <childnode refid="2444" relation="usage">
+          <edgelabel>_act</edgelabel>
+        </childnode>
+        <childnode refid="2447" relation="usage">
+          <edgelabel>_tbl</edgelabel>
+        </childnode>
+        <childnode refid="2453" relation="usage">
+          <edgelabel>_afc</edgelabel>
+        </childnode>
+      </node>
+      <node id="2442">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="2443" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2443">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="2447">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="2448" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="2451" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="2452" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="2450" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="2453">
+        <label>Gecode::AFC</label>
+        <link refid="classGecode_1_1AFC"/>
+        <childnode refid="2453" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="2449">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="2450" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2450">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="2446">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+      <node id="2440">
+        <label>Gecode::FloatVarBranch</label>
+        <link refid="classGecode_1_1FloatVarBranch"/>
+        <childnode refid="2441" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/float.hh" line="1516" column="1" bodyfile="/usr/include/gecode/float.hh" bodystart="1516" bodyend="1565"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_act</name></member>
+      <member refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a599010728485824eff22c332b2622e48" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_decay</name></member>
+      <member refid="classGecode_1_1VarBranch_1a92db9d403c87ca03893a4d95a0f0745b" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_mf</name></member>
+      <member refid="classGecode_1_1VarBranch_1ae485b4100ac951bd4d373b4ccb4c23f5" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_rnd</name></member>
+      <member refid="classGecode_1_1VarBranch_1a713d031c102733a64f479f7c1397e5d9" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>_tbl</name></member>
+      <member refid="classGecode_1_1VarBranch_1a845e56e5c48bfbb4299f8a737462877d" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>activity</name></member>
+      <member refid="classGecode_1_1VarBranch_1acccd1785716306a56eb1933b804fe8bc" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>activity</name></member>
+      <member refid="classGecode_1_1VarBranch_1a3cbd6f4a56186c4d7162ced1e76ae7ce" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a815610be240e686436bba142253c5b6d" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>decay</name></member>
+      <member refid="group__TaskModelFloatArith_1gad838101e727ecf3c443075e1aa902233" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>expand</name></member>
+      <member refid="group__TaskModelFloatArith_1ga42c37b6f0767b47120700e1d133c696e" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1ga1a563ea0edd6af8153b60cc3dbce0e5a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1ga8a9ded3de16818140fcf0be6dd530ea2" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1ga83e82701de3e3858b27b0c394c4917c2" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1ga76e33ecbac53e09032a33fb047368348" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1gab740133fcbd988ba05645dc723c37add" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="group__TaskModelFloatArith_1ga90da3c8e26c30f66a0f128b591e391d0" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>FloatVarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1acc3b93ec46e124295cfcf7d27e2be92a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>merit</name></member>
+      <member refid="classGecode_1_1VarBranch_1ac7f779263336a2a7a09c5520ea50b00a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>rnd</name></member>
+      <member refid="group__TaskModelFloatArith_1gaf137583b1e1fe89c49e772983cc0c522" prot="protected" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>s</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa30fc1cb989023599412f8bfdd45aaef5" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_ACTIVITY_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa39ba8b7a604f8eca4f10942d51c540ad" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_ACTIVITY_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa4def34fda9b571fafcf7bca428c330a6" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_ACTIVITY_SIZE_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa512cc00f1cf019b936148aee767be3d4" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_ACTIVITY_SIZE_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fad54d2c0b2b5f5f715f00c438bc2aac1c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_AFC_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faf103ef64680972f06982212a4200db60" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_AFC_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa27f292dd00bb7fbdec293e127f515e7b" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_AFC_SIZE_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa177212c23d9b9f06a88ec52947a275f7" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_AFC_SIZE_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa74502d0c721a61b56baebc316ee382b3" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_DEGREE_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faa5626bd5b41b3653a0eb14b2a96455df" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_DEGREE_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa886ef7e56f0398b35b4da5c94824699f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_DEGREE_SIZE_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa370d5530baff736155c5d26964fd3c9c" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_DEGREE_SIZE_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa218978053c39cb300eca871509e0cf57" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MAX_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fab1cbd2041af9909dc5a3fdb7a882dd34" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MAX_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fab154d6af258058acef65dbb63876c75f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MERIT_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa60dd98aea65e10991a651dbda323ed94" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MERIT_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa3731765befc478b5b698e02da02be547" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MIN_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa13da0e15bf43b0e5f0990340fdfc0cfa" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_MIN_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3fa5046f82cb7388cbbac011ef96e54dace" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_NONE</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faba1de9a3f52a1ccc6de1f3661067228b" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_RND</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faec947a16adbe8173093ee34e7f75f74d" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_SIZE_MAX</name></member>
+      <member refid="group__TaskModelFloatArith_1ggabc855add928420adb4953a1d723d2b3faf6314eed7c102d083c71d48528be2c2f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>SEL_SIZE_MIN</name></member>
+      <member refid="group__TaskModelFloatArith_1gacfb41907b6ccbf65cb2d0f5a063d7a84" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>select</name></member>
+      <member refid="group__TaskModelFloatArith_1gabc855add928420adb4953a1d723d2b3f" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>Select</name></member>
+      <member refid="classGecode_1_1VarBranch_1adef279373db40d08e3d6c90b7e98cd78" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>tbl</name></member>
+      <member refid="classGecode_1_1VarBranch_1acbbfa0aaf802a681e006af19e89a9674" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a649dd593d4971936a0179e0960374daf" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a9edac2036873719eac4dbc6cee49724a" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a5744348ffae23eb2bce918d4f5ddc2fa" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a652c07a5b50e1b8595c8111f145bc773" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1ae65cd4aa6762b0dc5c89cf31cd654bab" prot="public" virt="non-virtual"><scope>Gecode::FloatVarBranch</scope><name>VarBranch</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

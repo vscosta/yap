@@ -1,0 +1,272 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Circuit_1_1Base" kind="class" prot="public">
+    <compoundname>Gecode::Int::Circuit::Base</compoundname>
+    <basecompoundref refid="classGecode_1_1NaryPropagator" prot="public" virt="non-virtual">Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</basecompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Circuit_1_1Dom" prot="public" virt="non-virtual">Gecode::Int::Circuit::Dom&lt; View, Offset &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Int_1_1Circuit_1_1Val" prot="public" virt="non-virtual">Gecode::Int::Circuit::Val&lt; View, Offset &gt;</derivedcompoundref>
+    <includes refid="circuit_8hh" local="no">circuit.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>Offset</declname>
+        <defname>Offset</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1Base_1a3407cab6debf0b486f00d7dd65277dc8" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt;</type>
+        <definition>ViewArray&lt;View&gt; Gecode::Int::Circuit::Base&lt; View, Offset &gt;::y</definition>
+        <argsstring></argsstring>
+        <name>y</name>
+        <briefdescription>
+<para>Array for performing value propagation for distinct. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="63" column="1" bodyfile="/usr/include/gecode/int/circuit.hh" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1Base_1a407b4e311d3680e09e9e1a69e30d6833" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref></type>
+        <definition>Offset Gecode::Int::Circuit::Base&lt; View, Offset &gt;::o</definition>
+        <argsstring></argsstring>
+        <name>o</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> transformation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/circuit.hh" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Base_1a810f51147ffc90ccf2389c9c9d405727" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Int::Circuit::Base&lt; View, Offset &gt;::Base</definition>
+        <argsstring>(Space &amp;home, bool share, Base &amp;p)</argsstring>
+        <name>Base</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>share</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Circuit_1_1Base" kindref="compound">Base</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning <emphasis>p</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="67" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Base_1aed2ee453a8a5cf66e89862acdcc8db86" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Circuit::Base&lt; View, Offset &gt;::Base</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, Offset &amp;o)</argsstring>
+        <name>Base</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Offset" kindref="compound">Offset</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for posting. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="69" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="42" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Base_1a0c9bb1180369dd767b11d448c8119efb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Circuit::Base&lt; View, Offset &gt;::connected</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>connected</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Check whether the view value graph is strongly connected. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+<para>First non-assigned node.</para><para>Information needed for checking scc&apos;s </para>        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="71" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="72" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Base_1ab28f020285bab07698c61b658b103c28" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>ExecStatus Gecode::Int::Circuit::Base&lt; View, Offset &gt;::path</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>path</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Ensure path property: prune edges that could give to small cycles. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="73" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="207" bodyend="257"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Circuit_1_1Base_1afa2d53af7e78f948bd0eff7162ffd881" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>size_t</type>
+        <definition>forceinline size_t Gecode::Int::Circuit::Base&lt; View, Offset &gt;::dispose</definition>
+        <argsstring>(Space &amp;home)</argsstring>
+        <name>dispose</name>
+        <reimplements refid="classGecode_1_1NaryPropagator_1a9b42f1d528629c1386e2fb287de2a1b8">dispose</reimplements>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <briefdescription>
+<para>Delete propagator and return its size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit.hh" line="76" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="261" bodyend="265"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base-class for circuit propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Provides routines for checking that the induced variable value graph is strongly connected and for pruning short cycles. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="1005">
+        <label>Gecode::Int::Circuit::Val&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Val"/>
+        <childnode refid="999" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="999">
+        <label>Gecode::Int::Circuit::Base&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Base"/>
+        <childnode refid="1000" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1000">
+        <label>Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1001" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1001">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1002" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1004">
+        <label>Gecode::Int::Circuit::Dom&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Dom"/>
+        <childnode refid="999" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1002">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1003" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1003">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1011">
+        <label>Gecode::Int::Offset</label>
+        <link refid="classGecode_1_1Int_1_1Offset"/>
+      </node>
+      <node id="1006">
+        <label>Gecode::Int::Circuit::Base&lt; View, Offset &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Circuit_1_1Base"/>
+        <childnode refid="1007" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1011" relation="usage">
+          <edgelabel>o</edgelabel>
+        </childnode>
+      </node>
+      <node id="1007">
+        <label>Gecode::NaryPropagator&lt; View, Int::PC_INT_DOM &gt;</label>
+        <link refid="classGecode_1_1NaryPropagator"/>
+        <childnode refid="1008" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1008">
+        <label>Gecode::Propagator</label>
+        <link refid="classGecode_1_1Propagator"/>
+        <childnode refid="1009" relation="public-inheritance">
+        </childnode>
+        <childnode refid="1010" relation="usage">
+          <edgelabel>advisors</edgelabel>
+        </childnode>
+      </node>
+      <node id="1009">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1010" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1010">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/circuit.hh" line="59" column="1" bodyfile="/usr/include/gecode/int/circuit.hh" bodystart="59" bodyend="77"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Propagator_1a55629f061a0fd8ecb2a4c41aa1568e28" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Base</scope><name>advise</name></member>
+      <member refid="classGecode_1_1Propagator_1afee33d8aed2bc9debee126f17b5015cf" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>advisors</name></member>
+      <member refid="classGecode_1_1Propagator_1a593de773d2204f47ea365a99df2f75d0" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>afc</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a810f51147ffc90ccf2389c9c9d405727" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>Base</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1aed2ee453a8a5cf66e89862acdcc8db86" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>Base</name></member>
+      <member refid="classGecode_1_1ActorLink_1a8427f41a27a72b52ceb52d0fdad21063" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Circuit::Base</scope><name>cast</name></member>
+      <member refid="classGecode_1_1ActorLink_1a464526456db41981f82a1193a8b4e569" prot="public" virt="non-virtual" ambiguityscope="Gecode::ActorLink::"><scope>Gecode::Int::Circuit::Base</scope><name>cast</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a0c9bb1180369dd767b11d448c8119efb" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>connected</name></member>
+      <member refid="classGecode_1_1Actor_1a67b240e2810720846c3632c94cc9c99d" prot="public" virt="pure-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>copy</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a7e890e5ed83d35c3dad87ca049567539" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Base</scope><name>cost</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1afa2d53af7e78f948bd0eff7162ffd881" prot="public" virt="virtual"><scope>Gecode::Int::Circuit::Base</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Propagator_1a3b286c7aec9843b60a531b495015b5f7" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>fwd</name></member>
+      <member refid="classGecode_1_1Propagator_1ae9dfa55e47e4ff8e0c8e4c2a6efdbfc0" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>med</name></member>
+      <member refid="classGecode_1_1Propagator_1a4905db55af49af8f38558bdbcf5fd4a2" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>modeventdelta</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a30e2cfc0a52033b042bf6e4a3a37f029" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1af0a8dfa7e9b637ab62f1a2f0c4e9a78d" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1a88d5a8d7b24f925919e44d31287687f1" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>NaryPropagator</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a407b4e311d3680e09e9e1a69e30d6833" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>o</name></member>
+      <member refid="classGecode_1_1Actor_1a388f671145dcf906f81d22bde2dc0f3d" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Actor_1ac28b9601b530076a1bda75834487f898" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1ab28f020285bab07698c61b658b103c28" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>path</name></member>
+      <member refid="classGecode_1_1Propagator_1ad2dc98c1345222892592339948c6cde1" prot="public" virt="pure-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Propagator_1a891f3e84cde2e8e60f8ad9340ad74b05" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1afeaeed8dae67de4313858bd82fdae5d0" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>Propagator</name></member>
+      <member refid="classGecode_1_1Propagator_1a1781b5b0df38c39dddca4b44c3a00530" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>size</name></member>
+      <member refid="classGecode_1_1NaryPropagator_1afa79d87e560aea027d59b153b353ee1c" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>x</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1Base_1a3407cab6debf0b486f00d7dd65277dc8" prot="protected" virt="non-virtual"><scope>Gecode::Int::Circuit::Base</scope><name>y</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

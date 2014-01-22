@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskActorIntView" kind="group">
+    <compoundname>TaskActorIntView</compoundname>
+    <title>Integer views</title>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01BoolView_01_4" prot="public">Gecode::Int::ViewRanges&lt; BoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01CachedView_3_01View_01_4_01_4" prot="public">Gecode::Int::ViewRanges&lt; CachedView&lt; View &gt; &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01ConstIntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; ConstIntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01IntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; IntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01MinusView_01_4" prot="public">Gecode::Int::ViewRanges&lt; MinusView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01NegBoolView_01_4" prot="public">Gecode::Int::ViewRanges&lt; NegBoolView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01OffsetView_01_4" prot="public">Gecode::Int::ViewRanges&lt; OffsetView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01IntScaleView_01_4" prot="public">Gecode::Int::ViewRanges&lt; IntScaleView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01LLongScaleView_01_4" prot="public">Gecode::Int::ViewRanges&lt; LLongScaleView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ViewRanges_3_01ZeroIntView_01_4" prot="public">Gecode::Int::ViewRanges&lt; ZeroIntView &gt;</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1IntView" prot="public">Gecode::Int::IntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1MinusView" prot="public">Gecode::Int::MinusView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1OffsetView" prot="public">Gecode::Int::OffsetView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ScaleView" prot="public">Gecode::Int::ScaleView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ConstIntView" prot="public">Gecode::Int::ConstIntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1ZeroIntView" prot="public">Gecode::Int::ZeroIntView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1CachedView" prot="public">Gecode::Int::CachedView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1BoolView" prot="public">Gecode::Int::BoolView</innerclass>
+    <innerclass refid="classGecode_1_1Int_1_1NegBoolView" prot="public">Gecode::Int::NegBoolView</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="group__TaskActorIntView_1gae1f5670a4cadd9ba2a9aac81c816be73" prot="public" static="no">
+        <type>ScaleView&lt; int, unsigned int &gt;</type>
+        <definition>typedef ScaleView&lt;int,unsigned int&gt; Gecode::Int::IntScaleView</definition>
+        <argsstring></argsstring>
+        <name>IntScaleView</name>
+        <briefdescription>
+<para>Integer-precision integer scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="759" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="759" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="group__TaskActorIntView_1ga73b715b91eb09d00c331d77d4f5334f8" prot="public" static="no">
+        <type>ScaleView&lt; long long int, unsigned long long int &gt;</type>
+        <definition>typedef ScaleView&lt;long long int,unsigned long long int&gt; Gecode::Int::LLongScaleView</definition>
+        <argsstring></argsstring>
+        <name>LLongScaleView</name>
+        <briefdescription>
+<para>Long long-precision integer scale view. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/view.hpp" line="765" column="1" bodyfile="/usr/include/gecode/int/view.hpp" bodystart="765" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Integer propagators and branchers compute with integer views. Integer views provide views on integer variable implementations, integer constants, and also allow to scale, translate, and negate variables. Additionally, a special Boolean view is provided that offers convenient and efficient operations for Boolean (0/1) views. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

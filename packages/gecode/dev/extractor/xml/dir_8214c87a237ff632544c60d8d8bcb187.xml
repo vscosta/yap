@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="dir_8214c87a237ff632544c60d8d8bcb187" kind="dir">
+    <compoundname>/usr/include/gecode/int/unary</compoundname>
+    <innerfile refid="detectable_8hpp">detectable.hpp</innerfile>
+    <innerfile refid="unary_2edge-finding_8hpp">edge-finding.hpp</innerfile>
+    <innerfile refid="unary_2man-prop_8hpp">man-prop.hpp</innerfile>
+    <innerfile refid="not-first-not-last_8hpp">not-first-not-last.hpp</innerfile>
+    <innerfile refid="unary_2opt-prop_8hpp">opt-prop.hpp</innerfile>
+    <innerfile refid="unary_2overload_8hpp">overload.hpp</innerfile>
+    <innerfile refid="subsumption_8hpp">subsumption.hpp</innerfile>
+    <innerfile refid="unary_2task-view_8hpp">task-view.hpp</innerfile>
+    <innerfile refid="unary_2task_8hpp">task.hpp</innerfile>
+    <innerfile refid="unary_2tree_8hpp">tree.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/unary/"/>
+  </compounddef>
+</doxygen>

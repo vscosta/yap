@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Bool_1_1Le" kind="class" prot="public">
+    <compoundname>Gecode::Int::Bool::Le</compoundname>
+    <includes refid="bool_8hh" local="no">bool.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class BV</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Bool_1_1Le_1a57e38651c270358ecb78645fd8ee8037" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1ab278aee34126d2f13c5429ee3c4ed3b5" kindref="member">ExecStatus</ref></type>
+        <definition>forceinline ExecStatus Gecode::Int::Bool::Le&lt; BV &gt;::post</definition>
+        <argsstring>(Home home, BV b0, BV b1)</argsstring>
+        <name>post</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>BV</type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type>BV</type>
+          <declname>b1</declname>
+        </param>
+        <briefdescription>
+<para>Post propagator <formula id="101">$ b_0 &lt; b_1$</formula>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/bool.hh" line="226" column="1" bodyfile="/usr/include/gecode/int/bool/lq.hpp" bodystart="232" bodyend="236"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Boolean less propagator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/bool.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <location file="/usr/include/gecode/int/bool.hh" line="223" column="1" bodyfile="/usr/include/gecode/int/bool.hh" bodystart="223" bodyend="227"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Bool_1_1Le_1a57e38651c270358ecb78645fd8ee8037" prot="public" virt="non-virtual"><scope>Gecode::Int::Bool::Le</scope><name>post</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

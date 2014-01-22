@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Driver_1_1IntOption" kind="class" prot="public">
+    <compoundname>Gecode::Driver::IntOption</compoundname>
+    <basecompoundref refid="classGecode_1_1Driver_1_1BaseOption" prot="public" virt="non-virtual">Gecode::Driver::BaseOption</basecompoundref>
+    <includes refid="driver_8hh" local="no">driver.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Driver_1_1IntOption_1a127742fc77ef14d2a667b6cbf33bac06" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Driver::IntOption::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="211" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1IntOption_1ae7a9dbf189f9639268d5fcd592f8854c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Driver::IntOption::IntOption</definition>
+        <argsstring>(const char *o, const char *e, int v=0)</argsstring>
+        <name>IntOption</name>
+        <param>
+          <type>const char *</type>
+          <declname>o</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Initialize for option <emphasis>o</emphasis> and explanation <emphasis>e</emphasis> and default value <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="214" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="75" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1IntOption_1a04f2a6d60a8089ed1673d5893bba254a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Driver::IntOption::value</definition>
+        <argsstring>(int v)</argsstring>
+        <name>value</name>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> default value to <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="216" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="78" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1IntOption_1ae1b62cd79c3f443913cf21df1070886e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Gecode::Driver::IntOption::value</definition>
+        <argsstring>(void) const </argsstring>
+        <name>value</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current option value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="218" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="82" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1IntOption_1a3a639131096b9abdbd8c93c07b01600d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>virtual int Gecode::Driver::IntOption::parse</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>parse</name>
+        <reimplements refid="classGecode_1_1Driver_1_1BaseOption_1ae7e0f7aeb6da6f11b5ff7b256b0d852a">parse</reimplements>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Parse option at first position and return number of parsed arguments. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="220" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1IntOption_1a07c5d73ca011e4898bb04d9d7abdfce4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Driver::IntOption::help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <reimplements refid="classGecode_1_1Driver_1_1BaseOption_1a565b4aef869a5e76478180e6b819e488">help</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Print help text. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="222" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Integer option. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2966">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+      </node>
+      <node id="2965">
+        <label>Gecode::Driver::IntOption</label>
+        <link refid="classGecode_1_1Driver_1_1IntOption"/>
+        <childnode refid="2966" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2968">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+        <childnode refid="2968" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2967">
+        <label>Gecode::Driver::IntOption</label>
+        <link refid="classGecode_1_1Driver_1_1IntOption"/>
+        <childnode refid="2968" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/driver.hh" line="209" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="209" bodyend="223"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a6a5a2d46bf753ac2f686289dd4c97e62" prot="protected" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>argument</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1ac5d6e0747daba1fd7655cd1b8023c5c6" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>BaseOption</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1a127742fc77ef14d2a667b6cbf33bac06" prot="protected" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1aa272bbeb6051b349aa7642aa7416c608" prot="protected" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>exp</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1a07c5d73ca011e4898bb04d9d7abdfce4" prot="public" virt="virtual"><scope>Gecode::Driver::IntOption</scope><name>help</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1ae7a9dbf189f9639268d5fcd592f8854c" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>IntOption</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1af6a17484a8176844ef4df9d71962e323" prot="protected" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>next</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a782749679bea528359cea29e48d87de5" prot="protected" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>opt</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1a3a639131096b9abdbd8c93c07b01600d" prot="public" virt="virtual"><scope>Gecode::Driver::IntOption</scope><name>parse</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a0cb81fa4a53d5699f012ac2279697584" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>strdel</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a884f3ebeb16e03ad5627c5339e273980" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>strdup</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1a04f2a6d60a8089ed1673d5893bba254a" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>value</name></member>
+      <member refid="classGecode_1_1Driver_1_1IntOption_1ae1b62cd79c3f443913cf21df1070886e" prot="public" virt="non-virtual"><scope>Gecode::Driver::IntOption</scope><name>value</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1ab27bae2bdde1a858166039d97c5c76aa" prot="public" virt="virtual"><scope>Gecode::Driver::IntOption</scope><name>~BaseOption</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

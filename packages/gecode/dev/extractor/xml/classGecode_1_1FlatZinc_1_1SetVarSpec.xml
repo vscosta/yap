@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1SetVarSpec" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::SetVarSpec</compoundname>
+    <basecompoundref refid="classGecode_1_1FlatZinc_1_1VarSpec" prot="public" virt="non-virtual">Gecode::FlatZinc::VarSpec</basecompoundref>
+    <includes refid="varspec_8hh" local="no">varspec.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1aa0a972cbec9b62061f230b7bb0cb7a68" prot="public" static="no" mutable="no">
+        <type><ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; <ref refid="classGecode_1_1FlatZinc_1_1AST_1_1SetLit" kindref="compound">AST::SetLit</ref> * &gt;</type>
+        <definition>Option&lt;AST::SetLit*&gt; Gecode::FlatZinc::SetVarSpec::upperBound</definition>
+        <argsstring></argsstring>
+        <name>upperBound</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="145" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1af985f7a70e06329289ad39162eb60f2c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SetVarSpec::SetVarSpec</definition>
+        <argsstring>(bool introduced, bool funcDep)</argsstring>
+        <name>SetVarSpec</name>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="146" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="146" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1a39f5532ffada05396120d522c5e3826b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SetVarSpec::SetVarSpec</definition>
+        <argsstring>(const Option&lt; AST::SetLit * &gt; &amp;v, bool introduced, bool funcDep)</argsstring>
+        <name>SetVarSpec</name>
+        <param>
+          <type>const <ref refid="structGecode_1_1FlatZinc_1_1Option" kindref="compound">Option</ref>&lt; <ref refid="classGecode_1_1FlatZinc_1_1AST_1_1SetLit" kindref="compound">AST::SetLit</ref> * &gt; &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="150" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="150" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1a9a3d4c1d97689a9ee8c476fdaea6addb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SetVarSpec::SetVarSpec</definition>
+        <argsstring>(AST::SetLit *v, bool introduced, bool funcDep)</argsstring>
+        <name>SetVarSpec</name>
+        <param>
+          <type><ref refid="classGecode_1_1FlatZinc_1_1AST_1_1SetLit" kindref="compound">AST::SetLit</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="154" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="154" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1ae0a6e03f5a8546016758667193d1611a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SetVarSpec::SetVarSpec</definition>
+        <argsstring>(const Alias &amp;eq, bool introduced, bool funcDep)</argsstring>
+        <name>SetVarSpec</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FlatZinc_1_1Alias" kindref="compound">Alias</ref> &amp;</type>
+          <declname>eq</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>introduced</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>funcDep</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="159" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="159" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1SetVarSpec_1a2be5c3f2300830909940e2c880f65975" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::SetVarSpec::~SetVarSpec</definition>
+        <argsstring>(void)</argsstring>
+        <name>~SetVarSpec</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc/varspec.hh" line="163" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="163" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Specification for set variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6459">
+        <label>Gecode::FlatZinc::VarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1VarSpec"/>
+      </node>
+      <node id="6458">
+        <label>Gecode::FlatZinc::SetVarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1SetVarSpec"/>
+        <childnode refid="6459" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6461">
+        <label>Gecode::FlatZinc::VarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1VarSpec"/>
+      </node>
+      <node id="6460">
+        <label>Gecode::FlatZinc::SetVarSpec</label>
+        <link refid="classGecode_1_1FlatZinc_1_1SetVarSpec"/>
+        <childnode refid="6461" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6462" relation="usage">
+          <edgelabel>upperBound</edgelabel>
+        </childnode>
+      </node>
+      <node id="6462">
+        <label>Gecode::FlatZinc::Option&lt; AST::SetLit * &gt;</label>
+        <link refid="structGecode_1_1FlatZinc_1_1Option"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/flatzinc/varspec.hh" line="143" column="1" bodyfile="/usr/include/gecode/flatzinc/varspec.hh" bodystart="143" bodyend="167"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1acf4f3b0c9d7c4f2a3f089f2fbb354112" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>alias</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1acbeb5a15972d1707910e2c3316642029" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>assigned</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1ad666a4691c87ab52b9d13f9c1cfa93fb" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>funcDep</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a4d9deb927e8c604c0d0ddb0da5ee0db3" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>i</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1ac2229cdd9a41f29c3fcf76de275b5f85" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>introduced</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1af985f7a70e06329289ad39162eb60f2c" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>SetVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1a39f5532ffada05396120d522c5e3826b" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>SetVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1a9a3d4c1d97689a9ee8c476fdaea6addb" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>SetVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1ae0a6e03f5a8546016758667193d1611a" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>SetVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1aa0a972cbec9b62061f230b7bb0cb7a68" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>upperBound</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a25d6c7ac35178a0e8c7ea6a43bba8336" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>VarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1SetVarSpec_1a2be5c3f2300830909940e2c880f65975" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>~SetVarSpec</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1VarSpec_1a28229c4ca2cdf400f81f4e49c63af607" prot="public" virt="virtual"><scope>Gecode::FlatZinc::SetVarSpec</scope><name>~VarSpec</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

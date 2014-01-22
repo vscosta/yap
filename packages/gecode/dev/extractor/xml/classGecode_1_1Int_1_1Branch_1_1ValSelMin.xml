@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Branch_1_1ValSelMin" kind="class" prot="public">
+    <compoundname>Gecode::Int::Branch::ValSelMin</compoundname>
+    <basecompoundref refid="classGecode_1_1ValSel" prot="public" virt="non-virtual">Gecode::ValSel&lt; View, int &gt;</basecompoundref>
+    <includes refid="int_2branch_8hh" local="no">branch.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class <ref refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" kindref="member">View</ref></type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1a604f474876525f7eb7c457d69fd190b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Branch::ValSelMin&lt; View &gt;::ValSelMin</definition>
+        <argsstring>(Space &amp;home, const ValBranch &amp;vb)</argsstring>
+        <name>ValSelMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1ValBranch" kindref="compound">ValBranch</ref> &amp;</type>
+          <declname>vb</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for initialization. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="251" column="1" bodyfile="/usr/include/gecode/int/branch/val-sel.hpp" bodystart="42" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1aff37a3770fc32a403165c76c280ccf02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Branch::ValSelMin&lt; View &gt;::ValSelMin</definition>
+        <argsstring>(Space &amp;home, bool shared, ValSelMin &amp;vs)</argsstring>
+        <name>ValSelMin</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>shared</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin" kindref="compound">ValSelMin</ref> &amp;</type>
+          <declname>vs</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for cloning. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="253" column="1" bodyfile="/usr/include/gecode/int/branch/val-sel.hpp" bodystart="46" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1ab7eee9cc101d14574bc66ca31f0f086e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::Branch::ValSelMin&lt; View &gt;::val</definition>
+        <argsstring>(const Space &amp;home, View x, int i)</argsstring>
+        <name>val</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" kindref="member">View</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Return value of view <emphasis>x</emphasis> at position <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/branch.hh" line="255" column="1" bodyfile="/usr/include/gecode/int/branch/val-sel.hpp" bodystart="50" bodyend="52"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Value selection class for mimimum of view. </para>    </briefdescription>
+    <detaileddescription>
+<para>Requires<programlisting><codeline><highlight class="preprocessor">#include<sp/>&lt;gecode/int/branch.hh&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+</programlisting> </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7502">
+        <label>Gecode::ValSel&lt; View, int &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+      <node id="7501">
+        <label>Gecode::Int::Branch::ValSelMin&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin"/>
+        <childnode refid="7502" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7504">
+        <label>Gecode::ValSel&lt; View, int &gt;</label>
+        <link refid="classGecode_1_1ValSel"/>
+      </node>
+      <node id="7503">
+        <label>Gecode::Int::Branch::ValSelMin&lt; View &gt;</label>
+        <link refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin"/>
+        <childnode refid="7504" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/branch.hh" line="248" column="1" bodyfile="/usr/include/gecode/int/branch.hh" bodystart="248" bodyend="256"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1ValSel_1a97b5efe17b08958952219d3cf73cf980" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1ValSel_1a424857898f7ae1df27fc6cbe5ab6523a" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>notice</name></member>
+      <member refid="classGecode_1_1ValSel_1a1ab3056f51deae75a156bc1fa7d1b993" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>Val</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1ab7eee9cc101d14574bc66ca31f0f086e" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>val</name></member>
+      <member refid="classGecode_1_1ValSel_1ae84207620c76b1e288ae8843dae769be" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1ValSel_1a6658df4b1d1a10a8e61d6960a1432e77" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>ValSel</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1a604f474876525f7eb7c457d69fd190b7" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>ValSelMin</name></member>
+      <member refid="classGecode_1_1Int_1_1Branch_1_1ValSelMin_1aff37a3770fc32a403165c76c280ccf02" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>ValSelMin</name></member>
+      <member refid="classGecode_1_1ValSel_1a505b0292df0aa0f8ec84940c6d99973d" prot="public" virt="non-virtual"><scope>Gecode::Int::Branch::ValSelMin</scope><name>View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

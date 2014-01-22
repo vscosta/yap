@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1NValues_1_1RangeEvent" kind="class" prot="public">
+    <compoundname>Gecode::Int::NValues::RangeEvent</compoundname>
+    <includes refid="nvalues_8hh" local="no">nvalues.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a4a7ed2cf1be1bd35f084240f98536c03" prot="public" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1NValues_1a50e09c1cc95f803a34c7beca12d6ea7b" kindref="member">RangeEventType</ref></type>
+        <definition>RangeEventType Gecode::Int::NValues::RangeEvent::ret</definition>
+        <argsstring></argsstring>
+        <name>ret</name>
+        <briefdescription>
+<para>The event type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/nvalues.hh" line="65" column="1" bodyfile="/usr/include/gecode/int/nvalues.hh" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a96f8f2415142ce14f1fd75f5865a2d98" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::NValues::RangeEvent::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <briefdescription>
+<para>The value for the range (first or last value, depending on type) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/nvalues.hh" line="67" column="1" bodyfile="/usr/include/gecode/int/nvalues.hh" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a4d7a4d9d9dec825aec8456cbbbf55b72" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::NValues::RangeEvent::view</definition>
+        <argsstring></argsstring>
+        <name>view</name>
+        <briefdescription>
+<para>Which view does this range belong to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/nvalues.hh" line="69" column="1" bodyfile="/usr/include/gecode/int/nvalues.hh" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a5d700d9769ca056d7d926a88278849c3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::NValues::RangeEvent::operator&lt;</definition>
+        <argsstring>(RangeEvent re) const </argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type><ref refid="classGecode_1_1Int_1_1NValues_1_1RangeEvent" kindref="compound">RangeEvent</ref></type>
+          <declname>re</declname>
+        </param>
+        <briefdescription>
+<para>Order events: first by val, then by event type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/nvalues.hh" line="71" column="1" bodyfile="/usr/include/gecode/int/nvalues/range-event.hpp" bodystart="41" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Event for range-based overlap analysis. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/nvalues.hh" line="62" column="1" bodyfile="/usr/include/gecode/int/nvalues.hh" bodystart="62" bodyend="72"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a5d700d9769ca056d7d926a88278849c3" prot="public" virt="non-virtual"><scope>Gecode::Int::NValues::RangeEvent</scope><name>operator&lt;</name></member>
+      <member refid="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a4a7ed2cf1be1bd35f084240f98536c03" prot="public" virt="non-virtual"><scope>Gecode::Int::NValues::RangeEvent</scope><name>ret</name></member>
+      <member refid="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a96f8f2415142ce14f1fd75f5865a2d98" prot="public" virt="non-virtual"><scope>Gecode::Int::NValues::RangeEvent</scope><name>val</name></member>
+      <member refid="classGecode_1_1Int_1_1NValues_1_1RangeEvent_1a4d7a4d9d9dec825aec8456cbbbf55b72" prot="public" virt="non-virtual"><scope>Gecode::Int::NValues::RangeEvent</scope><name>view</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="group__TaskModelSetArgs" kind="group">
+    <compoundname>TaskModelSetArgs</compoundname>
+    <title>Argument arrays</title>
+    <innerclass refid="classGecode_1_1SetVarArgs" prot="public">Gecode::SetVarArgs</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Argument arrays are just good enough for passing arguments with automatic memory management. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

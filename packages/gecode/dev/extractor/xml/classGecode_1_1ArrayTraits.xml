@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1ArrayTraits" kind="class" prot="public">
+    <compoundname>Gecode::ArrayTraits</compoundname>
+    <includes refid="kernel_2array_8hpp" local="no">array.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class A</type>
+      </param>
+    </templateparamlist>
+    <briefdescription>
+<para>Traits of arrays in Gecode. </para>    </briefdescription>
+    <detaileddescription>
+<para>This class collects the traits of an array in <ref refid="namespaceGecode" kindref="compound">Gecode</ref>. The traits used are the following.<itemizedlist>
+<listitem><para><computeroutput>typedef Type StorageType</computeroutput> where <computeroutput>Type</computeroutput> is the type of an appropriate storage type for this array.</para></listitem><listitem><para><computeroutput>typedef Type ValueType</computeroutput> where <computeroutput>Type</computeroutput> is the type of the elements of this array.</para></listitem><listitem><para><computeroutput>typedef Type ArgsType</computeroutput> where <computeroutput>Type</computeroutput> is the type of the appropriate Args-array type (e.g., <computeroutput><ref refid="classGecode_1_1BoolVarArgs" kindref="compound">BoolVarArgs</ref></computeroutput> if <computeroutput>A</computeroutput> is <computeroutput><ref refid="classGecode_1_1BoolVarArray" kindref="compound">BoolVarArray</ref></computeroutput>). </para></listitem></itemizedlist>
+</para>    </detaileddescription>
+    <location file="/usr/include/gecode/kernel/array.hpp" line="68" column="1" bodyfile="/usr/include/gecode/kernel/array.hpp" bodystart="68" bodyend="68"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,263 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp" kind="class" prot="public">
+    <compoundname>Gecode::Iter::Ranges::ScaleUp</compoundname>
+    <includes refid="ranges-scale_8hpp" local="no">ranges-scale.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>Val</declname>
+        <defname>Val</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>UnsVal</declname>
+        <defname>UnsVal</defname>
+      </param>
+      <param>
+        <type>class</type>
+        <declname>I</declname>
+        <defname>I</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Constructors and initialization</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a02bf2b1f17ff4105eba437dab9194276" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::ScaleUp</definition>
+        <argsstring>(void)</argsstring>
+        <name>ScaleUp</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="67" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1aa7ee9933bf6cf9e09d098094398a39f6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::ScaleUp</definition>
+        <argsstring>(I &amp;i, int a)</argsstring>
+        <name>ScaleUp</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and scale factor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="69" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="144" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1acfd3f18dcfd2eb040dbd618b5cb8b1fa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::init</definition>
+        <argsstring>(I &amp;i, int a)</argsstring>
+        <name>init</name>
+        <param>
+          <type>I &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with ranges from <emphasis>i</emphasis> and scale factor <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="71" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="131" bodyend="140"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Iteration control</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1aaaa9b50f190ede3cb7b3a9732a75165e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::operator()</definition>
+        <argsstring>(void) const </argsstring>
+        <name>operator()</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether iterator is still at a range or done. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="77" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="172" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1ad1700308609e5cc45a49e0e2b2b9746c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::operator++</definition>
+        <argsstring>(void)</argsstring>
+        <name>operator++</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move iterator to next range (if possible) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="79" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="156" bodyend="169"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Range access</header>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a9fe9b0b38d9c143ee904213ced858d04" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>Val</type>
+        <definition>forceinline Val Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::min</definition>
+        <argsstring>(void) const </argsstring>
+        <name>min</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return smallest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="85" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="178" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a33ede4b6761c5af619e636c431838a85" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>Val</type>
+        <definition>forceinline Val Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::max</definition>
+        <argsstring>(void) const </argsstring>
+        <name>max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return largest value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="87" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="183" bodyend="185"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a9425df60929a4bf7cce8a18a35c518b9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>UnsVal</type>
+        <definition>forceinline UnsVal Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::width</definition>
+        <argsstring>(void) const </argsstring>
+        <name>width</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return width of range (distance between minimum and maximum) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="89" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="188" bodyend="192"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1ac93fa9b083bc1ef87f75582295b6b39a" prot="protected" static="no" mutable="no">
+        <type>I</type>
+        <definition>I Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>Iterator to be scaled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="56" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a1e791bb07688d96634c6bb0071a88b04" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para>Scale-factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="58" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1abfc1d53fe7b7bab65868ee30f3dffa21" prot="protected" static="no" mutable="no">
+        <type>Val</type>
+        <definition>Val Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current value of range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="60" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a6dc9b70679916efacdc482eae0ab41f9" prot="protected" static="no" mutable="no">
+        <type>Val</type>
+        <definition>Val Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <briefdescription>
+<para>Last value of scaled range of <emphasis>i</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="62" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range iterator for pointwise product with a positive integer. </para>    </briefdescription>
+    <detaileddescription>
+<para>Note that this iterator has a different interface as it can be used for both integer precision as well as double precision (depending on the type <emphasis>Val</emphasis> (<computeroutput>int</computeroutput> or <computeroutput>double</computeroutput>) and on the type <emphasis>UnsVal</emphasis> (<computeroutput>unsigned</computeroutput> <computeroutput>int</computeroutput> or <computeroutput>double</computeroutput>). </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="6304">
+        <label>I</label>
+      </node>
+      <node id="6305">
+        <label>Val</label>
+      </node>
+      <node id="6303">
+        <label>Gecode::Iter::Ranges::ScaleUp&lt; Val, UnsVal, I &gt;</label>
+        <link refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp"/>
+        <childnode refid="6304" relation="usage">
+          <edgelabel>i</edgelabel>
+        </childnode>
+        <childnode refid="6305" relation="usage">
+          <edgelabel>end</edgelabel>
+          <edgelabel>cur</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/iter/ranges-scale.hpp" line="53" column="1" bodyfile="/usr/include/gecode/iter/ranges-scale.hpp" bodystart="53" bodyend="91"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a1e791bb07688d96634c6bb0071a88b04" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>a</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1abfc1d53fe7b7bab65868ee30f3dffa21" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a6dc9b70679916efacdc482eae0ab41f9" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>end</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1ac93fa9b083bc1ef87f75582295b6b39a" prot="protected" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>i</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1acfd3f18dcfd2eb040dbd618b5cb8b1fa" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>init</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a33ede4b6761c5af619e636c431838a85" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>max</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a9fe9b0b38d9c143ee904213ced858d04" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>min</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1aaaa9b50f190ede3cb7b3a9732a75165e" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>operator()</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1ad1700308609e5cc45a49e0e2b2b9746c" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>operator++</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a02bf2b1f17ff4105eba437dab9194276" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>ScaleUp</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1aa7ee9933bf6cf9e09d098094398a39f6" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>ScaleUp</name></member>
+      <member refid="classGecode_1_1Iter_1_1Ranges_1_1ScaleUp_1a9425df60929a4bf7cce8a18a35c518b9" prot="public" virt="non-virtual"><scope>Gecode::Iter::Ranges::ScaleUp</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

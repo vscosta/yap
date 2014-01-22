@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1FwdToBwd" kind="class" prot="public">
+    <compoundname>Gecode::Int::FwdToBwd</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">TaskView</basecompoundref>
+    <includes refid="task_8hh" local="no">task.hh</includes>
+    <templateparamlist>
+      <param>
+        <type>class TaskView</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="user-defined">
+      <header>Value access</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1ae103294370b3be92e4c778893a516fbc" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::est</definition>
+        <argsstring>(void) const </argsstring>
+        <name>est</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return earliest start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="109" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="45" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a55b41a5d61a4c5f8fa93c45f48347059" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::ect</definition>
+        <argsstring>(void) const </argsstring>
+        <name>ect</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return earliest completion time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="111" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="50" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a46da7bf2edfb4ed82c7b97a8d36116c1" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::lst</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lst</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return latest start time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="113" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="55" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a0b33fac88dca2be9df81cd3dc9127d90" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::lct</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lct</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return latest completion time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="115" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a3e52a57e04e5a59fc6388d9bf32afab5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::pmin</definition>
+        <argsstring>(void) const </argsstring>
+        <name>pmin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return minimum processing time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="117" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="65" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a773f84a8fb36912de63b55d1e32c9eed" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>forceinline int Gecode::Int::FwdToBwd&lt; TaskView &gt;::pmax</definition>
+        <argsstring>(void) const </argsstring>
+        <name>pmax</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return maximum processing time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="119" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="70" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <header>Value update</header>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1ac6cbe038ed80eae8f69697b1a6f15d70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::FwdToBwd&lt; TaskView &gt;::est</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>est</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update earliest start time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="125" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="76" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a6973369ec7939b13688fc3181d5e3d30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::FwdToBwd&lt; TaskView &gt;::ect</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>ect</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update earliest completion time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="127" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="81" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1aecff28f7d17966739600fcd4572ec0fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::FwdToBwd&lt; TaskView &gt;::lst</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lst</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update latest start time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="129" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="86" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1ac63d884fd7b96f4e1e151d5fd4613860" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::FwdToBwd&lt; TaskView &gt;::lct</definition>
+        <argsstring>(Space &amp;home, int n)</argsstring>
+        <name>lct</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Update latest completion time to <emphasis>n</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="131" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="91" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1FwdToBwd_1a63ebbb02e9f21ee22b6a586d351d5c62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskVarMEPC_1gafa985ae465bd12df08e29252cdb7519b" kindref="member">ModEvent</ref></type>
+        <definition>forceinline ModEvent Gecode::Int::FwdToBwd&lt; TaskView &gt;::norun</definition>
+        <argsstring>(Space &amp;home, int e, int l)</argsstring>
+        <name>norun</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> &amp;</type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Update such that task cannot run from <emphasis>e</emphasis> to <emphasis>l</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/task.hh" line="133" column="1" bodyfile="/usr/include/gecode/int/task/fwd-to-bwd.hpp" bodystart="96" bodyend="98"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Task mapper: turns a task view into its dual. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2481">
+        <label>TaskView</label>
+      </node>
+      <node id="2480">
+        <label>Gecode::Int::FwdToBwd&lt; TaskView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1FwdToBwd"/>
+        <childnode refid="2481" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2483">
+        <label>TaskView</label>
+      </node>
+      <node id="2482">
+        <label>Gecode::Int::FwdToBwd&lt; TaskView &gt;</label>
+        <link refid="classGecode_1_1Int_1_1FwdToBwd"/>
+        <childnode refid="2483" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/task.hh" line="104" column="1" bodyfile="/usr/include/gecode/int/task.hh" bodystart="104" bodyend="135"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a55b41a5d61a4c5f8fa93c45f48347059" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>ect</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a6973369ec7939b13688fc3181d5e3d30" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>ect</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1ae103294370b3be92e4c778893a516fbc" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>est</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1ac6cbe038ed80eae8f69697b1a6f15d70" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>est</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a0b33fac88dca2be9df81cd3dc9127d90" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>lct</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1ac63d884fd7b96f4e1e151d5fd4613860" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>lct</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a46da7bf2edfb4ed82c7b97a8d36116c1" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1aecff28f7d17966739600fcd4572ec0fa" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>lst</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a63ebbb02e9f21ee22b6a586d351d5c62" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>norun</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a773f84a8fb36912de63b55d1e32c9eed" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>pmax</name></member>
+      <member refid="classGecode_1_1Int_1_1FwdToBwd_1a3e52a57e04e5a59fc6388d9bf32afab5" prot="public" virt="non-virtual"><scope>Gecode::Int::FwdToBwd</scope><name>pmin</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

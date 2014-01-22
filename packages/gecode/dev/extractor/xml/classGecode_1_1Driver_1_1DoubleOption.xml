@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Driver_1_1DoubleOption" kind="class" prot="public">
+    <compoundname>Gecode::Driver::DoubleOption</compoundname>
+    <basecompoundref refid="classGecode_1_1Driver_1_1BaseOption" prot="public" virt="non-virtual">Gecode::Driver::BaseOption</basecompoundref>
+    <includes refid="driver_8hh" local="no">driver.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Driver_1_1DoubleOption_1a807c602c2bed2174758d542ec996f797" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::Driver::DoubleOption::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="251" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1DoubleOption_1acb1e4bed06b59e6208252a084a824272" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::Driver::DoubleOption::DoubleOption</definition>
+        <argsstring>(const char *o, const char *e, double v=0)</argsstring>
+        <name>DoubleOption</name>
+        <param>
+          <type>const char *</type>
+          <declname>o</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>v</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Initialize for option <emphasis>o</emphasis> and explanation <emphasis>e</emphasis> and default value <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="254" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="108" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1DoubleOption_1ae1b3e36bd9f8990115f1aaaa45e51165" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::Driver::DoubleOption::value</definition>
+        <argsstring>(double v)</argsstring>
+        <name>value</name>
+        <param>
+          <type>double</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> default value to <emphasis>v</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="256" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="112" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1DoubleOption_1ad319a56fb58bb9a42597b27a8ed7d697" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Gecode::Driver::DoubleOption::value</definition>
+        <argsstring>(void) const </argsstring>
+        <name>value</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return current option value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="258" column="1" bodyfile="/usr/include/gecode/driver/options.hpp" bodystart="116" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1DoubleOption_1aaea1ebe5148f8f06602a1bd8c01370b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>int</type>
+        <definition>virtual int Gecode::Driver::DoubleOption::parse</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>parse</name>
+        <reimplements refid="classGecode_1_1Driver_1_1BaseOption_1ae7e0f7aeb6da6f11b5ff7b256b0d852a">parse</reimplements>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+<para>Parse option at first position and return number of parsed arguments. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="260" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Driver_1_1DoubleOption_1a4a6e1ff78c530b9857f13d1e24080718" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Gecode::Driver::DoubleOption::help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <reimplements refid="classGecode_1_1Driver_1_1BaseOption_1a565b4aef869a5e76478180e6b819e488">help</reimplements>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Print help text. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/driver.hh" line="262" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Double option. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1849">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+      </node>
+      <node id="1848">
+        <label>Gecode::Driver::DoubleOption</label>
+        <link refid="classGecode_1_1Driver_1_1DoubleOption"/>
+        <childnode refid="1849" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1851">
+        <label>Gecode::Driver::BaseOption</label>
+        <link refid="classGecode_1_1Driver_1_1BaseOption"/>
+        <childnode refid="1851" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1850">
+        <label>Gecode::Driver::DoubleOption</label>
+        <link refid="classGecode_1_1Driver_1_1DoubleOption"/>
+        <childnode refid="1851" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/driver.hh" line="249" column="1" bodyfile="/usr/include/gecode/driver.hh" bodystart="249" bodyend="263"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a6a5a2d46bf753ac2f686289dd4c97e62" prot="protected" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>argument</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1ac5d6e0747daba1fd7655cd1b8023c5c6" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>BaseOption</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1a807c602c2bed2174758d542ec996f797" prot="protected" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1acb1e4bed06b59e6208252a084a824272" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>DoubleOption</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1aa272bbeb6051b349aa7642aa7416c608" prot="protected" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>exp</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1a4a6e1ff78c530b9857f13d1e24080718" prot="public" virt="virtual"><scope>Gecode::Driver::DoubleOption</scope><name>help</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1af6a17484a8176844ef4df9d71962e323" prot="protected" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>next</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a782749679bea528359cea29e48d87de5" prot="protected" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>opt</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1aaea1ebe5148f8f06602a1bd8c01370b5" prot="public" virt="virtual"><scope>Gecode::Driver::DoubleOption</scope><name>parse</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a0cb81fa4a53d5699f012ac2279697584" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>strdel</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1a884f3ebeb16e03ad5627c5339e273980" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>strdup</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1ae1b3e36bd9f8990115f1aaaa45e51165" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>value</name></member>
+      <member refid="classGecode_1_1Driver_1_1DoubleOption_1ad319a56fb58bb9a42597b27a8ed7d697" prot="public" virt="non-virtual"><scope>Gecode::Driver::DoubleOption</scope><name>value</name></member>
+      <member refid="classGecode_1_1Driver_1_1BaseOption_1ab27bae2bdde1a858166039d97c5c76aa" prot="public" virt="virtual"><scope>Gecode::Driver::DoubleOption</scope><name>~BaseOption</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

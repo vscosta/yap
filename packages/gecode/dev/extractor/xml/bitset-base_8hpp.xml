@@ -1,0 +1,1275 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="bitset-base_8hpp" kind="file">
+    <compoundname>bitset-base.hpp</compoundname>
+    <includes local="no">climits</includes>
+    <includedby refid="support_8hh" local="no">/usr/include/gecode/support.hh</includedby>
+    <incdepgraph>
+      <node id="31867">
+        <label>/usr/include/gecode/support/bitset-base.hpp</label>
+        <link refid="bitset-base.hpp"/>
+        <childnode refid="31868" relation="include">
+        </childnode>
+      </node>
+      <node id="31868">
+        <label>climits</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="31912">
+        <label>/usr/include/gecode/int/nvalues/int-base.hpp</label>
+        <link refid="nvalues_2int-base_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31895">
+        <label>/usr/include/gecode/int/arithmetic.hh</label>
+        <link refid="int_2arithmetic_8hh_source"/>
+      </node>
+      <node id="31920">
+        <label>/usr/include/gecode/int/view/scale.hpp</label>
+        <link refid="int_2view_2scale_8hpp_source"/>
+        <childnode refid="31921" relation="include">
+        </childnode>
+      </node>
+      <node id="31918">
+        <label>/usr/include/gecode/int/div.hh</label>
+        <link refid="div_8hh_source"/>
+        <childnode refid="31919" relation="include">
+        </childnode>
+        <childnode refid="31920" relation="include">
+        </childnode>
+      </node>
+      <node id="31919">
+        <label>/usr/include/gecode/int/arithmetic/mult.hpp</label>
+        <link refid="int_2arithmetic_2mult_8hpp_source"/>
+        <childnode refid="31895" relation="include">
+        </childnode>
+      </node>
+      <node id="31872">
+        <label>/usr/include/gecode/flatzinc.hh</label>
+        <link refid="flatzinc_8hh_source"/>
+        <childnode refid="31873" relation="include">
+        </childnode>
+        <childnode refid="31874" relation="include">
+        </childnode>
+      </node>
+      <node id="31901">
+        <label>/usr/include/gecode/int/gcc/post.hpp</label>
+        <link refid="int_2gcc_2post_8hpp_source"/>
+        <childnode refid="31902" relation="include">
+        </childnode>
+      </node>
+      <node id="31950">
+        <label>/usr/include/gecode/minimodel.hh</label>
+        <link refid="minimodel_8hh_source"/>
+        <childnode refid="31951" relation="include">
+        </childnode>
+      </node>
+      <node id="31938">
+        <label>/usr/include/gecode/int/dom/range.hpp</label>
+        <link refid="range_8hpp_source"/>
+        <childnode refid="31922" relation="include">
+        </childnode>
+      </node>
+      <node id="31946">
+        <label>/usr/include/gecode/int/cumulative.hh</label>
+        <link refid="cumulative_8hh_source"/>
+      </node>
+      <node id="31947">
+        <label>/usr/include/gecode/int/unary.hh</label>
+        <link refid="unary_8hh_source"/>
+        <childnode refid="31946" relation="include">
+        </childnode>
+      </node>
+      <node id="31930">
+        <label>/usr/include/gecode/int/no-overlap.hh</label>
+        <link refid="no-overlap_8hh_source"/>
+      </node>
+      <node id="31944">
+        <label>/usr/include/gecode/int/support-values.hh</label>
+        <link refid="support-values_8hh_source"/>
+        <childnode refid="31919" relation="include">
+        </childnode>
+      </node>
+      <node id="31910">
+        <label>/usr/include/gecode/int/cumulatives.hh</label>
+        <link refid="cumulatives_8hh_source"/>
+      </node>
+      <node id="31953">
+        <label>/usr/include/gecode/set/channel.hh</label>
+        <link refid="set_2channel_8hh_source"/>
+      </node>
+      <node id="31911">
+        <label>/usr/include/gecode/int/distinct.hh</label>
+        <link refid="int_2distinct_8hh_source"/>
+        <childnode refid="31907" relation="include">
+        </childnode>
+        <childnode refid="31908" relation="include">
+        </childnode>
+        <childnode refid="31901" relation="include">
+        </childnode>
+        <childnode refid="31912" relation="include">
+        </childnode>
+        <childnode refid="31913" relation="include">
+        </childnode>
+        <childnode refid="31914" relation="include">
+        </childnode>
+        <childnode refid="31915" relation="include">
+        </childnode>
+        <childnode refid="31916" relation="include">
+        </childnode>
+      </node>
+      <node id="31888">
+        <label>/usr/include/gecode/gist/mainwindow.hh</label>
+        <link refid="mainwindow_8hh_source"/>
+      </node>
+      <node id="31978">
+        <label>/usr/include/gecode/search/sequential/bab.hh</label>
+        <link refid="sequential_2bab_8hh_source"/>
+      </node>
+      <node id="31967">
+        <label>/usr/include/gecode/set/rel.hh</label>
+        <link refid="set_2rel_8hh_source"/>
+        <childnode refid="31955" relation="include">
+        </childnode>
+        <childnode refid="31924" relation="include">
+        </childnode>
+        <childnode refid="31965" relation="include">
+        </childnode>
+        <childnode refid="31966" relation="include">
+        </childnode>
+        <childnode refid="31968" relation="include">
+        </childnode>
+      </node>
+      <node id="31957">
+        <label>/usr/include/gecode/set/int.hh</label>
+        <link refid="set_2int_8hh_source"/>
+      </node>
+      <node id="31893">
+        <label>/usr/include/gecode/gist/preferences.hh</label>
+        <link refid="preferences_8hh_source"/>
+      </node>
+      <node id="31940">
+        <label>/usr/include/gecode/int/member/prop.hpp</label>
+        <link refid="member_2prop_8hpp_source"/>
+        <childnode refid="31929" relation="include">
+        </childnode>
+      </node>
+      <node id="31925">
+        <label>/usr/include/gecode/int/exec.hh</label>
+        <link refid="exec_8hh_source"/>
+      </node>
+      <node id="31885">
+        <label>/usr/include/gecode/gist/nodecursor.hh</label>
+        <link refid="nodecursor_8hh_source"/>
+        <childnode refid="31884" relation="include">
+        </childnode>
+        <childnode refid="31883" relation="include">
+        </childnode>
+      </node>
+      <node id="31932">
+        <label>/usr/include/gecode/int/rel.hh</label>
+        <link refid="int_2rel_8hh_source"/>
+        <childnode refid="31933" relation="include">
+        </childnode>
+        <childnode refid="31934" relation="include">
+        </childnode>
+        <childnode refid="31935" relation="include">
+        </childnode>
+        <childnode refid="31895" relation="include">
+        </childnode>
+        <childnode refid="31936" relation="include">
+        </childnode>
+        <childnode refid="31937" relation="include">
+        </childnode>
+        <childnode refid="31911" relation="include">
+        </childnode>
+        <childnode refid="31938" relation="include">
+        </childnode>
+        <childnode refid="31922" relation="include">
+        </childnode>
+        <childnode refid="31939" relation="include">
+        </childnode>
+        <childnode refid="31923" relation="include">
+        </childnode>
+        <childnode refid="31926" relation="include">
+        </childnode>
+        <childnode refid="31940" relation="include">
+        </childnode>
+        <childnode refid="31941" relation="include">
+        </childnode>
+        <childnode refid="31903" relation="include">
+        </childnode>
+        <childnode refid="31942" relation="include">
+        </childnode>
+        <childnode refid="31913" relation="include">
+        </childnode>
+        <childnode refid="31914" relation="include">
+        </childnode>
+        <childnode refid="31915" relation="include">
+        </childnode>
+        <childnode refid="31943" relation="include">
+        </childnode>
+        <childnode refid="31916" relation="include">
+        </childnode>
+      </node>
+      <node id="31951">
+        <label>/usr/include/gecode/driver.hh</label>
+        <link refid="driver_8hh_source"/>
+        <childnode refid="31872" relation="include">
+        </childnode>
+      </node>
+      <node id="31882">
+        <label>/usr/include/gecode/gist/visualnode.hh</label>
+        <link refid="visualnode_8hh_source"/>
+        <childnode refid="31883" relation="include">
+        </childnode>
+        <childnode refid="31885" relation="include">
+        </childnode>
+        <childnode refid="31886" relation="include">
+        </childnode>
+        <childnode refid="31890" relation="include">
+        </childnode>
+      </node>
+      <node id="31934">
+        <label>/usr/include/gecode/int/arithmetic/nroot.hpp</label>
+        <link refid="nroot_8hpp_source"/>
+        <childnode refid="31895" relation="include">
+        </childnode>
+      </node>
+      <node id="31875">
+        <label>/usr/include/gecode/float.hh</label>
+        <link refid="float_8hh_source"/>
+        <childnode refid="31876" relation="include">
+        </childnode>
+        <childnode refid="31877" relation="include">
+        </childnode>
+        <childnode refid="31878" relation="include">
+        </childnode>
+        <childnode refid="31879" relation="include">
+        </childnode>
+      </node>
+      <node id="31979">
+        <label>/usr/include/gecode/search/sequential/dfs.hh</label>
+        <link refid="sequential_2dfs_8hh_source"/>
+      </node>
+      <node id="31933">
+        <label>/usr/include/gecode/int/arithmetic/max.hpp</label>
+        <link refid="max_8hpp_source"/>
+        <childnode refid="31895" relation="include">
+        </childnode>
+      </node>
+      <node id="31929">
+        <label>/usr/include/gecode/int/member.hh</label>
+        <link refid="member_8hh_source"/>
+      </node>
+      <node id="31873">
+        <label>/usr/include/gecode/flatzinc/parser.hh</label>
+        <link refid="parser_8hh_source"/>
+      </node>
+      <node id="31971">
+        <label>/usr/include/gecode/search.hh</label>
+        <link refid="search_8hh_source"/>
+        <childnode refid="31951" relation="include">
+        </childnode>
+        <childnode refid="31892" relation="include">
+        </childnode>
+        <childnode refid="31972" relation="include">
+        </childnode>
+        <childnode refid="31980" relation="include">
+        </childnode>
+        <childnode refid="31974" relation="include">
+        </childnode>
+        <childnode refid="31973" relation="include">
+        </childnode>
+        <childnode refid="31978" relation="include">
+        </childnode>
+        <childnode refid="31979" relation="include">
+        </childnode>
+        <childnode refid="31977" relation="include">
+        </childnode>
+        <childnode refid="31982" relation="include">
+        </childnode>
+        <childnode refid="31983" relation="include">
+        </childnode>
+      </node>
+      <node id="31887">
+        <label>/usr/include/gecode/gist/qtgist.hh</label>
+        <link refid="qtgist_8hh_source"/>
+        <childnode refid="31888" relation="include">
+        </childnode>
+        <childnode refid="31889" relation="include">
+        </childnode>
+      </node>
+      <node id="31869">
+        <label>/usr/include/gecode/support/bitset-base.hpp</label>
+        <link refid="bitset-base.hpp"/>
+        <childnode refid="31870" relation="include">
+        </childnode>
+      </node>
+      <node id="31942">
+        <label>/usr/include/gecode/int/nvalues/bool-gq.hpp</label>
+        <link refid="bool-gq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31976">
+        <label>/usr/include/gecode/search/parallel/dfs.hh</label>
+        <link refid="parallel_2dfs_8hh_source"/>
+      </node>
+      <node id="31961">
+        <label>/usr/include/gecode/set/branch.hh</label>
+        <link refid="set_2branch_8hh_source"/>
+      </node>
+      <node id="31909">
+        <label>/usr/include/gecode/int/count.hh</label>
+        <link refid="count_8hh_source"/>
+      </node>
+      <node id="31890">
+        <label>/usr/include/gecode/gist/treecanvas.hh</label>
+        <link refid="treecanvas_8hh_source"/>
+        <childnode refid="31887" relation="include">
+        </childnode>
+      </node>
+      <node id="31914">
+        <label>/usr/include/gecode/int/nvalues/int-gq.hpp</label>
+        <link refid="nvalues_2int-gq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31937">
+        <label>/usr/include/gecode/int/count/rel.hpp</label>
+        <link refid="rel_8hpp_source"/>
+        <childnode refid="31909" relation="include">
+        </childnode>
+      </node>
+      <node id="31924">
+        <label>/usr/include/gecode/set/element.hh</label>
+        <link refid="set_2element_8hh_source"/>
+      </node>
+      <node id="31871">
+        <label>/usr/include/gecode/kernel.hh</label>
+        <link refid="kernel_8hh_source"/>
+        <childnode refid="31872" relation="include">
+        </childnode>
+        <childnode refid="31875" relation="include">
+        </childnode>
+        <childnode refid="31880" relation="include">
+        </childnode>
+        <childnode refid="31881" relation="include">
+        </childnode>
+        <childnode refid="31891" relation="include">
+        </childnode>
+        <childnode refid="31890" relation="include">
+        </childnode>
+        <childnode refid="31882" relation="include">
+        </childnode>
+        <childnode refid="31892" relation="include">
+        </childnode>
+        <childnode refid="31894" relation="include">
+        </childnode>
+        <childnode refid="31969" relation="include">
+        </childnode>
+        <childnode refid="31970" relation="include">
+        </childnode>
+        <childnode refid="31950" relation="include">
+        </childnode>
+        <childnode refid="31971" relation="include">
+        </childnode>
+        <childnode refid="31960" relation="include">
+        </childnode>
+      </node>
+      <node id="31963">
+        <label>/usr/include/gecode/set/distinct.hh</label>
+        <link refid="set_2distinct_8hh_source"/>
+      </node>
+      <node id="31886">
+        <label>/usr/include/gecode/gist/nodestats.hh</label>
+        <link refid="nodestats_8hh_source"/>
+        <childnode refid="31887" relation="include">
+        </childnode>
+      </node>
+      <node id="31966">
+        <label>/usr/include/gecode/set/rel-op.hh</label>
+        <link refid="rel-op_8hh_source"/>
+        <childnode refid="31924" relation="include">
+        </childnode>
+        <childnode refid="31965" relation="include">
+        </childnode>
+      </node>
+      <node id="31915">
+        <label>/usr/include/gecode/int/nvalues/int-lq.hpp</label>
+        <link refid="nvalues_2int-lq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31923">
+        <label>/usr/include/gecode/int/element.hh</label>
+        <link refid="int_2element_8hh_source"/>
+        <childnode refid="31924" relation="include">
+        </childnode>
+      </node>
+      <node id="31907">
+        <label>/usr/include/gecode/int/channel.hh</label>
+        <link refid="int_2channel_8hh_source"/>
+      </node>
+      <node id="31970">
+        <label>/usr/include/gecode/kernel/wait.hh</label>
+        <link refid="wait_8hh_source"/>
+      </node>
+      <node id="31928">
+        <label>/usr/include/gecode/set/ldsb.hh</label>
+        <link refid="set_2ldsb_8hh_source"/>
+      </node>
+      <node id="31889">
+        <label>/usr/include/gecode/gist/nodewidget.hh</label>
+        <link refid="nodewidget_8hh_source"/>
+      </node>
+      <node id="31921">
+        <label>/usr/include/gecode/int/view.hpp</label>
+        <link refid="int_2view_8hpp_source"/>
+        <childnode refid="31894" relation="include">
+        </childnode>
+      </node>
+      <node id="31896">
+        <label>/usr/include/gecode/int/bin-packing.hh</label>
+        <link refid="bin-packing_8hh_source"/>
+      </node>
+      <node id="31983">
+        <label>/usr/include/gecode/search/worker.hh</label>
+        <link refid="worker_8hh_source"/>
+        <childnode refid="31974" relation="include">
+        </childnode>
+        <childnode refid="31973" relation="include">
+        </childnode>
+        <childnode refid="31978" relation="include">
+        </childnode>
+        <childnode refid="31979" relation="include">
+        </childnode>
+        <childnode refid="31977" relation="include">
+        </childnode>
+      </node>
+      <node id="31897">
+        <label>/usr/include/gecode/int/bool.hh</label>
+        <link refid="bool_8hh_source"/>
+        <childnode refid="31898" relation="include">
+        </childnode>
+        <childnode refid="31903" relation="include">
+        </childnode>
+        <childnode refid="31905" relation="include">
+        </childnode>
+      </node>
+      <node id="31954">
+        <label>/usr/include/gecode/set/channel/int.hpp</label>
+        <link refid="set_2channel_2int_8hpp_source"/>
+        <childnode refid="31953" relation="include">
+        </childnode>
+      </node>
+      <node id="31955">
+        <label>/usr/include/gecode/set/channel/sorted.hpp</label>
+        <link refid="sorted_8hpp_source"/>
+        <childnode refid="31953" relation="include">
+        </childnode>
+      </node>
+      <node id="31941">
+        <label>/usr/include/gecode/int/member/re-prop.hpp</label>
+        <link refid="re-prop_8hpp_source"/>
+        <childnode refid="31929" relation="include">
+        </childnode>
+      </node>
+      <node id="31880">
+        <label>/usr/include/gecode/gist/node.hh</label>
+        <link refid="node_8hh_source"/>
+        <childnode refid="31881" relation="include">
+        </childnode>
+      </node>
+      <node id="31927">
+        <label>/usr/include/gecode/int/ldsb.hh</label>
+        <link refid="int_2ldsb_8hh_source"/>
+        <childnode refid="31928" relation="include">
+        </childnode>
+      </node>
+      <node id="31973">
+        <label>/usr/include/gecode/search/parallel/path.hh</label>
+        <link refid="parallel_2path_8hh_source"/>
+        <childnode refid="31974" relation="include">
+        </childnode>
+      </node>
+      <node id="31892">
+        <label>/usr/include/gecode/gist.hh</label>
+        <link refid="gist_8hh_source"/>
+        <childnode refid="31888" relation="include">
+        </childnode>
+        <childnode refid="31889" relation="include">
+        </childnode>
+        <childnode refid="31893" relation="include">
+        </childnode>
+        <childnode refid="31891" relation="include">
+        </childnode>
+        <childnode refid="31890" relation="include">
+        </childnode>
+      </node>
+      <node id="31906">
+        <label>/usr/include/gecode/int/branch.hh</label>
+        <link refid="int_2branch_8hh_source"/>
+      </node>
+      <node id="31904">
+        <label>/usr/include/gecode/int/nvalues.hh</label>
+        <link refid="nvalues_8hh_source"/>
+      </node>
+      <node id="31936">
+        <label>/usr/include/gecode/int/bool/ite.hpp</label>
+        <link refid="ite_8hpp_source"/>
+        <childnode refid="31897" relation="include">
+        </childnode>
+      </node>
+      <node id="31943">
+        <label>/usr/include/gecode/int/sequence.hh</label>
+        <link refid="int_2sequence_8hh_source"/>
+      </node>
+      <node id="31980">
+        <label>/usr/include/gecode/search/meta/rbs.hh</label>
+        <link refid="rbs_8hh_source"/>
+        <childnode refid="31981" relation="include">
+        </childnode>
+      </node>
+      <node id="31975">
+        <label>/usr/include/gecode/search/parallel/bab.hh</label>
+        <link refid="parallel_2bab_8hh_source"/>
+      </node>
+      <node id="31949">
+        <label>/usr/include/gecode/int/view-val-graph.hh</label>
+        <link refid="view-val-graph_8hh_source"/>
+        <childnode refid="31911" relation="include">
+        </childnode>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31898">
+        <label>/usr/include/gecode/int/linear/bool-int.hpp</label>
+        <link refid="bool-int_8hpp_source"/>
+        <childnode refid="31899" relation="include">
+        </childnode>
+      </node>
+      <node id="31916">
+        <label>/usr/include/gecode/int/sorted/propagate.hpp</label>
+        <link refid="sorted_2propagate_8hpp_source"/>
+        <childnode refid="31917" relation="include">
+        </childnode>
+      </node>
+      <node id="31879">
+        <label>/usr/include/gecode/float/rel.hh</label>
+        <link refid="float_2rel_8hh_source"/>
+        <childnode refid="31876" relation="include">
+        </childnode>
+      </node>
+      <node id="31891">
+        <label>/usr/include/gecode/gist/stopbrancher.hh</label>
+        <link refid="stopbrancher_8hh_source"/>
+      </node>
+      <node id="31974">
+        <label>/usr/include/gecode/search/parallel/engine.hh</label>
+        <link refid="engine_8hh_source"/>
+        <childnode refid="31975" relation="include">
+        </childnode>
+        <childnode refid="31976" relation="include">
+        </childnode>
+      </node>
+      <node id="31876">
+        <label>/usr/include/gecode/float/arithmetic.hh</label>
+        <link refid="float_2arithmetic_8hh_source"/>
+      </node>
+      <node id="31874">
+        <label>/usr/include/gecode/flatzinc/registry.hh</label>
+        <link refid="registry_8hh_source"/>
+      </node>
+      <node id="31902">
+        <label>/usr/include/gecode/int/gcc.hh</label>
+        <link refid="gcc_8hh_source"/>
+      </node>
+      <node id="31958">
+        <label>/usr/include/gecode/set/int/minmax.hpp</label>
+        <link refid="minmax_8hpp_source"/>
+        <childnode refid="31957" relation="include">
+        </childnode>
+      </node>
+      <node id="31883">
+        <label>/usr/include/gecode/gist/layoutcursor.hh</label>
+        <link refid="layoutcursor_8hh_source"/>
+        <childnode refid="31884" relation="include">
+        </childnode>
+      </node>
+      <node id="31881">
+        <label>/usr/include/gecode/gist/spacenode.hh</label>
+        <link refid="spacenode_8hh_source"/>
+        <childnode refid="31882" relation="include">
+        </childnode>
+      </node>
+      <node id="31964">
+        <label>/usr/include/gecode/set/precede.hh</label>
+        <link refid="set_2precede_8hh_source"/>
+      </node>
+      <node id="31878">
+        <label>/usr/include/gecode/float/linear.hh</label>
+        <link refid="float_2linear_8hh_source"/>
+      </node>
+      <node id="31977">
+        <label>/usr/include/gecode/search/sequential/path.hh</label>
+        <link refid="sequential_2path_8hh_source"/>
+        <childnode refid="31978" relation="include">
+        </childnode>
+        <childnode refid="31979" relation="include">
+        </childnode>
+      </node>
+      <node id="31981">
+        <label>/usr/include/gecode/search/rbs.hpp</label>
+        <link refid="rbs_8hpp_source"/>
+        <childnode refid="31971" relation="include">
+        </childnode>
+      </node>
+      <node id="31948">
+        <label>/usr/include/gecode/int/val-set.hh</label>
+        <link refid="val-set_8hh_source"/>
+        <childnode refid="31929" relation="include">
+        </childnode>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31894">
+        <label>/usr/include/gecode/int.hh</label>
+        <link refid="int_8hh_source"/>
+        <childnode refid="31872" relation="include">
+        </childnode>
+        <childnode refid="31876" relation="include">
+        </childnode>
+        <childnode refid="31878" relation="include">
+        </childnode>
+        <childnode refid="31879" relation="include">
+        </childnode>
+        <childnode refid="31875" relation="include">
+        </childnode>
+        <childnode refid="31892" relation="include">
+        </childnode>
+        <childnode refid="31895" relation="include">
+        </childnode>
+        <childnode refid="31896" relation="include">
+        </childnode>
+        <childnode refid="31897" relation="include">
+        </childnode>
+        <childnode refid="31906" relation="include">
+        </childnode>
+        <childnode refid="31907" relation="include">
+        </childnode>
+        <childnode refid="31908" relation="include">
+        </childnode>
+        <childnode refid="31909" relation="include">
+        </childnode>
+        <childnode refid="31910" relation="include">
+        </childnode>
+        <childnode refid="31911" relation="include">
+        </childnode>
+        <childnode refid="31918" relation="include">
+        </childnode>
+        <childnode refid="31922" relation="include">
+        </childnode>
+        <childnode refid="31923" relation="include">
+        </childnode>
+        <childnode refid="31925" relation="include">
+        </childnode>
+        <childnode refid="31926" relation="include">
+        </childnode>
+        <childnode refid="31902" relation="include">
+        </childnode>
+        <childnode refid="31927" relation="include">
+        </childnode>
+        <childnode refid="31899" relation="include">
+        </childnode>
+        <childnode refid="31929" relation="include">
+        </childnode>
+        <childnode refid="31930" relation="include">
+        </childnode>
+        <childnode refid="31904" relation="include">
+        </childnode>
+        <childnode refid="31931" relation="include">
+        </childnode>
+        <childnode refid="31932" relation="include">
+        </childnode>
+        <childnode refid="31943" relation="include">
+        </childnode>
+        <childnode refid="31917" relation="include">
+        </childnode>
+        <childnode refid="31944" relation="include">
+        </childnode>
+        <childnode refid="31945" relation="include">
+        </childnode>
+        <childnode refid="31948" relation="include">
+        </childnode>
+        <childnode refid="31949" relation="include">
+        </childnode>
+        <childnode refid="31950" relation="include">
+        </childnode>
+        <childnode refid="31952" relation="include">
+        </childnode>
+        <childnode refid="31954" relation="include">
+        </childnode>
+        <childnode refid="31955" relation="include">
+        </childnode>
+        <childnode refid="31956" relation="include">
+        </childnode>
+        <childnode refid="31958" relation="include">
+        </childnode>
+        <childnode refid="31959" relation="include">
+        </childnode>
+        <childnode refid="31960" relation="include">
+        </childnode>
+      </node>
+      <node id="31903">
+        <label>/usr/include/gecode/int/nvalues/bool-eq.hpp</label>
+        <link refid="bool-eq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31905">
+        <label>/usr/include/gecode/int/nvalues/bool-lq.hpp</label>
+        <link refid="bool-lq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31945">
+        <label>/usr/include/gecode/int/task.hh</label>
+        <link refid="task_8hh_source"/>
+        <childnode refid="31946" relation="include">
+        </childnode>
+        <childnode refid="31947" relation="include">
+        </childnode>
+      </node>
+      <node id="31926">
+        <label>/usr/include/gecode/int/extensional.hh</label>
+        <link refid="extensional_8hh_source"/>
+      </node>
+      <node id="31972">
+        <label>/usr/include/gecode/search/meta/nogoods.hh</label>
+        <link refid="nogoods_8hh_source"/>
+        <childnode refid="31973" relation="include">
+        </childnode>
+        <childnode refid="31977" relation="include">
+        </childnode>
+      </node>
+      <node id="31917">
+        <label>/usr/include/gecode/int/sorted.hh</label>
+        <link refid="sorted_8hh_source"/>
+      </node>
+      <node id="31959">
+        <label>/usr/include/gecode/set/int/weights.hpp</label>
+        <link refid="weights_8hpp_source"/>
+        <childnode refid="31957" relation="include">
+        </childnode>
+      </node>
+      <node id="31931">
+        <label>/usr/include/gecode/int/precede.hh</label>
+        <link refid="int_2precede_8hh_source"/>
+      </node>
+      <node id="31913">
+        <label>/usr/include/gecode/int/nvalues/int-eq.hpp</label>
+        <link refid="nvalues_2int-eq_8hpp_source"/>
+        <childnode refid="31904" relation="include">
+        </childnode>
+      </node>
+      <node id="31877">
+        <label>/usr/include/gecode/float/branch.hh</label>
+        <link refid="float_2branch_8hh_source"/>
+      </node>
+      <node id="31968">
+        <label>/usr/include/gecode/set/sequence.hh</label>
+        <link refid="set_2sequence_8hh_source"/>
+      </node>
+      <node id="31884">
+        <label>/usr/include/gecode/gist/drawingcursor.hh</label>
+        <link refid="drawingcursor_8hh_source"/>
+      </node>
+      <node id="31956">
+        <label>/usr/include/gecode/set/int/card.hpp</label>
+        <link refid="card_8hpp_source"/>
+        <childnode refid="31957" relation="include">
+        </childnode>
+      </node>
+      <node id="31870">
+        <label>/usr/include/gecode/support.hh</label>
+        <link refid="support_8hh_source"/>
+        <childnode refid="31871" relation="include">
+        </childnode>
+      </node>
+      <node id="31900">
+        <label>/usr/include/gecode/int/arithmetic/divmod.hpp</label>
+        <link refid="divmod_8hpp_source"/>
+        <childnode refid="31895" relation="include">
+        </childnode>
+      </node>
+      <node id="31899">
+        <label>/usr/include/gecode/int/linear.hh</label>
+        <link refid="int_2linear_8hh_source"/>
+        <childnode refid="31900" relation="include">
+        </childnode>
+        <childnode refid="31895" relation="include">
+        </childnode>
+        <childnode refid="31901" relation="include">
+        </childnode>
+      </node>
+      <node id="31922">
+        <label>/usr/include/gecode/int/dom.hh</label>
+        <link refid="dom_8hh_source"/>
+      </node>
+      <node id="31952">
+        <label>/usr/include/gecode/set/channel/bool.hpp</label>
+        <link refid="set_2channel_2bool_8hpp_source"/>
+        <childnode refid="31953" relation="include">
+        </childnode>
+      </node>
+      <node id="31939">
+        <label>/usr/include/gecode/int/element/pair.hpp</label>
+        <link refid="pair_8hpp_source"/>
+        <childnode refid="31923" relation="include">
+        </childnode>
+      </node>
+      <node id="31960">
+        <label>/usr/include/gecode/set.hh</label>
+        <link refid="set_8hh_source"/>
+        <childnode refid="31961" relation="include">
+        </childnode>
+        <childnode refid="31955" relation="include">
+        </childnode>
+        <childnode refid="31953" relation="include">
+        </childnode>
+        <childnode refid="31962" relation="include">
+        </childnode>
+        <childnode refid="31963" relation="include">
+        </childnode>
+        <childnode refid="31924" relation="include">
+        </childnode>
+        <childnode refid="31956" relation="include">
+        </childnode>
+        <childnode refid="31958" relation="include">
+        </childnode>
+        <childnode refid="31959" relation="include">
+        </childnode>
+        <childnode refid="31957" relation="include">
+        </childnode>
+        <childnode refid="31928" relation="include">
+        </childnode>
+        <childnode refid="31964" relation="include">
+        </childnode>
+        <childnode refid="31965" relation="include">
+        </childnode>
+        <childnode refid="31966" relation="include">
+        </childnode>
+        <childnode refid="31967" relation="include">
+        </childnode>
+        <childnode refid="31968" relation="include">
+        </childnode>
+      </node>
+      <node id="31969">
+        <label>/usr/include/gecode/iter.hh</label>
+        <link refid="iter_8hh_source"/>
+        <childnode refid="31894" relation="include">
+        </childnode>
+        <childnode refid="31960" relation="include">
+        </childnode>
+      </node>
+      <node id="31982">
+        <label>/usr/include/gecode/search/support.hh</label>
+        <link refid="search_2support_8hh_source"/>
+        <childnode refid="31974" relation="include">
+        </childnode>
+        <childnode refid="31973" relation="include">
+        </childnode>
+        <childnode refid="31981" relation="include">
+        </childnode>
+        <childnode refid="31978" relation="include">
+        </childnode>
+        <childnode refid="31979" relation="include">
+        </childnode>
+        <childnode refid="31977" relation="include">
+        </childnode>
+      </node>
+      <node id="31908">
+        <label>/usr/include/gecode/int/circuit.hh</label>
+        <link refid="circuit_8hh_source"/>
+      </node>
+      <node id="31965">
+        <label>/usr/include/gecode/set/rel-op/post.hpp</label>
+        <link refid="set_2rel-op_2post_8hpp_source"/>
+        <childnode refid="31966" relation="include">
+        </childnode>
+      </node>
+      <node id="31935">
+        <label>/usr/include/gecode/int/arithmetic/pow.hpp</label>
+        <link refid="pow_8hpp_source"/>
+        <childnode refid="31895" relation="include">
+        </childnode>
+      </node>
+      <node id="31962">
+        <label>/usr/include/gecode/set/convex.hh</label>
+        <link refid="convex_8hh_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classGecode_1_1Support_1_1BitSetData" prot="public">Gecode::Support::BitSetData</innerclass>
+    <innerclass refid="classGecode_1_1Support_1_1BitSetBase" prot="public">Gecode::Support::BitSetBase</innerclass>
+    <innernamespace refid="namespaceGecode">Gecode</innernamespace>
+    <innernamespace refid="namespaceGecode_1_1Support">Gecode::Support</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/>-*-<sp/>mode:<sp/>C++;<sp/>c-basic-offset:<sp/>2;<sp/>indent-tabs-mode:<sp/>nil<sp/>-*-<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/>Main<sp/>authors:</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Mikael<sp/>Lagerkvist<sp/>&lt;lagerkvist@gecode.org&gt;</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/>Contributing<sp/>authors:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte<sp/>&lt;schulte@gecode.org&gt;</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/>Copyright:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Mikael<sp/>Lagerkvist,<sp/>2007</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>Christian<sp/>Schulte,<sp/>2007</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/>Last<sp/>modified:</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Date:<sp/>2012-07-13<sp/>02:37:25<sp/>+0200<sp/>(Fri,<sp/>13<sp/>Jul<sp/>2012)<sp/>$<sp/>by<sp/>$Author:<sp/>tack<sp/>$</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>$Revision:<sp/>12962<sp/>$</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>Gecode,<sp/>the<sp/>generic<sp/>constraint</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/>development<sp/>environment:</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.gecode.org</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/>Permission<sp/>is<sp/>hereby<sp/>granted,<sp/>free<sp/>of<sp/>charge,<sp/>to<sp/>any<sp/>person<sp/>obtaining</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/><sp/>a<sp/>copy<sp/>of<sp/>this<sp/>software<sp/>and<sp/>associated<sp/>documentation<sp/>files<sp/>(the</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Software&quot;),<sp/>to<sp/>deal<sp/>in<sp/>the<sp/>Software<sp/>without<sp/>restriction,<sp/>including</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/><sp/>without<sp/>limitation<sp/>the<sp/>rights<sp/>to<sp/>use,<sp/>copy,<sp/>modify,<sp/>merge,<sp/>publish,</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/><sp/>distribute,<sp/>sublicense,<sp/>and/or<sp/>sell<sp/>copies<sp/>of<sp/>the<sp/>Software,<sp/>and<sp/>to</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/><sp/>permit<sp/>persons<sp/>to<sp/>whom<sp/>the<sp/>Software<sp/>is<sp/>furnished<sp/>to<sp/>do<sp/>so,<sp/>subject<sp/>to</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/><sp/>the<sp/>following<sp/>conditions:</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/><sp/>The<sp/>above<sp/>copyright<sp/>notice<sp/>and<sp/>this<sp/>permission<sp/>notice<sp/>shall<sp/>be</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/><sp/>included<sp/>in<sp/>all<sp/>copies<sp/>or<sp/>substantial<sp/>portions<sp/>of<sp/>the<sp/>Software.</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/><sp/>THE<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>&quot;AS<sp/>IS&quot;,<sp/>WITHOUT<sp/>WARRANTY<sp/>OF<sp/>ANY<sp/>KIND,</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/><sp/>EXPRESS<sp/>OR<sp/>IMPLIED,<sp/>INCLUDING<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO<sp/>THE<sp/>WARRANTIES<sp/>OF</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/><sp/>MERCHANTABILITY,<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>AND</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/><sp/>NONINFRINGEMENT.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHORS<sp/>OR<sp/>COPYRIGHT<sp/>HOLDERS<sp/>BE</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>CLAIM,<sp/>DAMAGES<sp/>OR<sp/>OTHER<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>AN<sp/>ACTION</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>OF<sp/>CONTRACT,<sp/>TORT<sp/>OR<sp/>OTHERWISE,<sp/>ARISING<sp/>FROM,<sp/>OUT<sp/>OF<sp/>OR<sp/>IN<sp/>CONNECTION</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/><sp/>WITH<sp/>THE<sp/>SOFTWARE<sp/>OR<sp/>THE<sp/>USE<sp/>OR<sp/>OTHER<sp/>DEALINGS<sp/>IN<sp/>THE<sp/>SOFTWARE.</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;climits&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>_MSC_VER</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;intrin.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(_M_IX86)</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>intrinsic(_BitScanForward)</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>GECODE_SUPPORT_MSVC_32</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(_M_X64)<sp/>||<sp/>defined(_M_IA64)</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#pragma<sp/>intrinsic(_BitScanForward64)</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>GECODE_SUPPORT_MSVC_64</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Gecode<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">Support<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">BitSetBase;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classGecode_1_1Support_1_1BitSetData" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData" kindref="compound">BitSetData</ref><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_SUPPORT_MSVC_64</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>__int64<sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref>;</highlight></codeline>
+<codeline lineno="78" refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>=<sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(CHAR_BIT<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref>));</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ada182b44a1a7745c081a2e1e8988a974" kindref="member">init</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ab190d46f88182af1d0a3df8651005530" kindref="member">set</ref>=</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">data</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a62ab89472d59899c884419414135ae17" kindref="member">operator ()</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0U)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">get</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ab190d46f88182af1d0a3df8651005530" kindref="member">set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a1854fd6bd6461b868c1e56242560c869" kindref="member">clear</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a2b2cbf7ac0470a2301b70adfce1c5d34" kindref="member">next</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=0U)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" kindref="member">all</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" kindref="member">all</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" kindref="member">none</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" kindref="member">none</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>BitSetStatus<sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>BSS_NONE,<sp/></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>BSS_ALL,<sp/><sp/></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>BSS_SOME<sp/><sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classGecode_1_1Support_1_1BitSetBase" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref><sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="116" refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref><sp/>=<sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">BitSetData::bpb</ref>;</highlight></codeline>
+<codeline lineno="118" refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>;</highlight></codeline>
+<codeline lineno="120" refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData" kindref="compound">BitSetData</ref>*<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" kindref="member">_get</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref>&amp;);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref>&amp;<sp/>operator<sp/>=(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref>&amp;);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" kindref="member">set</ref>=</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase" kindref="compound">BitSetBase</ref>&amp;<sp/>bs);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" kindref="member">init</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" kindref="member">set</ref>=</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a999c515e166773bda8171ae2da1f7dc5" kindref="member">size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">get</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" kindref="member">set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afbe1fe7346b3bb27d0cc8cb268819772" kindref="member">clear</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1aeb1175198345390b9deb787618dc34e9" kindref="member">next</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>BitSetStatus<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ac062f6f847702b8107d3fb4d73cc478d" kindref="member">status</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a7451a1005fd33cd0643d308feabe9a71" kindref="member">resize</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" kindref="member">set</ref>=</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a0b6779b7f869feb2a8860323612bb76f" kindref="member">dispose</ref>(A&amp;<sp/>a);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Bitset<sp/>data</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="classGecode_1_1Support_1_1BitSetData_1ada182b44a1a7745c081a2e1e8988a974" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ada182b44a1a7745c081a2e1e8988a974" kindref="member">BitSetData::init</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>=<sp/>set<sp/>?<sp/>~static_cast&lt;<ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref>&gt;(0)<sp/>:<sp/>static_cast&lt;Base&gt;(0);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173" refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s)<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s<sp/>==<sp/>0<sp/>?<sp/>0<sp/>:<sp/>((s-1)<sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="classGecode_1_1Support_1_1BitSetData_1a62ab89472d59899c884419414135ae17" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a62ab89472d59899c884419414135ae17" kindref="member">BitSetData::operator ()</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&gt;&gt;<sp/>i)<sp/>!=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(0U);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="classGecode_1_1Support_1_1BitSetData_1ae2425795c536dc8e07515601624fd47a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae2425795c536dc8e07515601624fd47a" kindref="member">BitSetData::get</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&amp;<sp/>(static_cast&lt;Base&gt;(1U)<sp/>&lt;&lt;<sp/>i))<sp/>!=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(0U);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="classGecode_1_1Support_1_1BitSetData_1ab190d46f88182af1d0a3df8651005530" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ab190d46f88182af1d0a3df8651005530" kindref="member">BitSetData::set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>|=<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U)<sp/>&lt;&lt;<sp/>i);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="classGecode_1_1Support_1_1BitSetData_1a1854fd6bd6461b868c1e56242560c869" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a1854fd6bd6461b868c1e56242560c869" kindref="member">BitSetData::clear</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&amp;=<sp/>~(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U)<sp/>&lt;&lt;<sp/>i);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="classGecode_1_1Support_1_1BitSetData_1a2b2cbf7ac0470a2301b70adfce1c5d34" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a2b2cbf7ac0470a2301b70adfce1c5d34" kindref="member">BitSetData::next</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>!=<sp/>static_cast&lt;Base&gt;(0));</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(GECODE_SUPPORT_MSVC_32)</highlight></codeline>
+<codeline lineno="196"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/>assert(<ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>==<sp/>32);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>_BitScanForward(&amp;p,<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&gt;&gt;<sp/>i);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(p)+i;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(GECODE_SUPPORT_MSVC_64)</highlight></codeline>
+<codeline lineno="201"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/>assert(<ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>==<sp/>64);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/>_BitScanForward64(&amp;p,<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&gt;&gt;<sp/>i);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(p)+i;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(GECODE_HAS_BUILTIN_FFSL)</highlight></codeline>
+<codeline lineno="206"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((<ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>==<sp/>32)<sp/>||<sp/>(<ref refid="classGecode_1_1Support_1_1BitSetData_1a4fb1419e294dea7a31aa57cfed46f3df" kindref="member">bpb</ref><sp/>==<sp/>64))<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p<sp/>=<sp/>__builtin_ffsl(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&gt;&gt;<sp/>i);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>assert(p<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(p-1)+i;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight></codeline>
+<codeline lineno="212"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!</highlight><highlight class="keyword">get</highlight><highlight class="normal">(i))<sp/>i++;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="215"><highlight class="preprocessor"></highlight><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217" refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" kindref="member">BitSetData::all</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>==<sp/>~static_cast&lt;<ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref>&gt;(0U);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="classGecode_1_1Support_1_1BitSetData_1aab45d4773070a80405bcd5e4def12a8f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" kindref="member">BitSetData::all</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref><sp/>mask<sp/>=<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U)<sp/>&lt;&lt;<sp/>i)<sp/>-<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&amp;<sp/>mask)<sp/>==<sp/>mask;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" kindref="member">BitSetData::none</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>==<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(0U);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="classGecode_1_1Support_1_1BitSetData_1ae3d55d0403042c8d0af353919ef48269" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" kindref="member">BitSetData::none</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref><sp/>mask<sp/>=<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U)<sp/>&lt;&lt;<sp/>i)<sp/>-<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(1U);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetData_1a98e5252343b8206859caecf5ffe6f1cf" kindref="member">bits</ref><sp/>&amp;<sp/>mask)<sp/>==<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="classGecode_1_1Support_1_1BitSetData_1acc3b60657f731fa68244758e4becdea3" kindref="member">Base</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(0U);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="238"><highlight class="comment"><sp/><sp/><sp/>*<sp/>Basic<sp/>bit<sp/>sets</highlight></codeline>
+<codeline lineno="239"><highlight class="comment"><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="240"><highlight class="comment"><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243" refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" kindref="member">BitSetBase::_get</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i<sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>].<ref refid="classGecode_1_1Support_1_1BitSetData_1ae2425795c536dc8e07515601624fd47a" kindref="member">get</ref>(i<sp/>%<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247" refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">BitSetBase::_set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i<sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>].<ref refid="classGecode_1_1Support_1_1BitSetData_1ab190d46f88182af1d0a3df8651005530" kindref="member">set</ref>(i<sp/>%<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="253" refid="classGecode_1_1Support_1_1BitSetBase_1a7451a1005fd33cd0643d308feabe9a71" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a7451a1005fd33cd0643d308feabe9a71" kindref="member">BitSetBase::resize</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set)<sp/>{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n&gt;<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref><sp/>=<sp/>a.template<sp/>realloc&lt;BitSetData&gt;(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>,<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1),</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(n+1));</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>)+1;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i&lt;<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(n+1);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data[i].<ref refid="classGecode_1_1Support_1_1BitSetData_1ada182b44a1a7745c081a2e1e8988a974" kindref="member">init</ref>(set);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>%<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>);<sp/>i&lt;<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>;<sp/>i++)</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(set)</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data[<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>].set(i);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data[<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>].clear(i);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>=<sp/>n;<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a0b6779b7f869feb2a8860323612bb76f" kindref="member">BitSetBase::dispose</ref>(A&amp;<sp/>a)<sp/>{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/>a.template<sp/>free&lt;BitSetData&gt;(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>,<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1));</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="277" refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase::BitSetBase</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>sz(0),<sp/>data(NULL)<sp/>{}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase::BitSetBase</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set)</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>sz(s),<sp/></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>data(a.template<sp/>alloc&lt;<ref refid="classGecode_1_1Support_1_1BitSetData" kindref="compound">BitSetData</ref>&gt;(<ref refid="classGecode_1_1Support_1_1BitSetData" kindref="compound">BitSetData</ref>::data(sz+1)))<sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1);<sp/>i--;<sp/>)<sp/></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i].<ref refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" kindref="member">init</ref>(set);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>a<sp/>bit<sp/>at<sp/>position<sp/>sz<sp/>as<sp/>sentinel<sp/>(for<sp/>efficient<sp/>next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/>forceinline</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a82ba6c31951f9aac665bd83a8ff155e1" kindref="member">BitSetBase::BitSetBase</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>BitSetBase&amp;<sp/>bs)</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/>sz(bs.sz),<sp/></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>data(a.template<sp/>alloc&lt;BitSetData&gt;(BitSetData::data(sz+1)))<sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/><ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1);<sp/>i--;<sp/>)<sp/></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i]<sp/>=<sp/>bs.<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">data</ref>[i];</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>a<sp/>bit<sp/>at<sp/>position<sp/>sz<sp/>as<sp/>sentinel<sp/>(for<sp/>efficient<sp/>next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>A&gt;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" kindref="member">BitSetBase::init</ref>(A&amp;<sp/>a,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set)<sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/>assert((<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>==<sp/>0)<sp/>&amp;&amp;<sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref><sp/>==<sp/>NULL));</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>=s;<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>=a.template<sp/>alloc&lt;BitSetData&gt;(<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1));</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=<ref refid="classGecode_1_1Support_1_1BitSetData_1ae05c63109f576c1a6118d19fe6080372" kindref="member">BitSetData::data</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>+1);<sp/>i--;<sp/>)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i].<ref refid="classGecode_1_1Support_1_1BitSetBase_1a311cb14a649917843d9772c0ecc3b597" kindref="member">init</ref>(set);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>a<sp/>bit<sp/>at<sp/>position<sp/>sz<sp/>as<sp/>sentinel<sp/>(for<sp/>efficient<sp/>next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="314" refid="classGecode_1_1Support_1_1BitSetBase_1a999c515e166773bda8171ae2da1f7dc5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a999c515e166773bda8171ae2da1f7dc5" kindref="member">BitSetBase::size</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="319" refid="classGecode_1_1Support_1_1BitSetBase_1adeddf343941d1e169e38b8e3b939f617" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1adeddf343941d1e169e38b8e3b939f617" kindref="member">BitSetBase::get</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1a4d867493169257e8a2d8f823fb27bbfc" kindref="member">_get</ref>(i);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324" refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afeefe511aa558b1571f91d7de74ee1f6" kindref="member">BitSetBase::set</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad6bdd96164d58698a38640013a4c5a7e" kindref="member">_set</ref>(i);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329" refid="classGecode_1_1Support_1_1BitSetBase_1afbe1fe7346b3bb27d0cc8cb268819772" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1afbe1fe7346b3bb27d0cc8cb268819772" kindref="member">BitSetBase::clear</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i<sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>].<ref refid="classGecode_1_1Support_1_1BitSetData_1a1854fd6bd6461b868c1e56242560c869" kindref="member">clear</ref>(i<sp/>%<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/>forceinline<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="335" refid="classGecode_1_1Support_1_1BitSetBase_1aeb1175198345390b9deb787618dc34e9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1aeb1175198345390b9deb787618dc34e9" kindref="member">BitSetBase::next</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;=<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref>);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/>i<sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bit<sp/>=<sp/>i<sp/>%<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos](bit))</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pos<sp/>*<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref><sp/>+<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos].<ref refid="classGecode_1_1Support_1_1BitSetData_1a2b2cbf7ac0470a2301b70adfce1c5d34" kindref="member">next</ref>(bit);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>sentinel<sp/>bit<sp/>guarantees<sp/>that<sp/>this<sp/>loop<sp/>always<sp/>terminates</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"><sp/>{<sp/></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>pos++;<sp/></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos]());</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pos<sp/>*<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref><sp/>+<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos].<ref refid="classGecode_1_1Support_1_1BitSetData_1a2b2cbf7ac0470a2301b70adfce1c5d34" kindref="member">next</ref>();</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/>forceinline<sp/>BitSetStatus</highlight></codeline>
+<codeline lineno="349" refid="classGecode_1_1Support_1_1BitSetBase_1ac062f6f847702b8107d3fb4d73cc478d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ac062f6f847702b8107d3fb4d73cc478d" kindref="member">BitSetBase::status</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>/<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bits<sp/>=<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad8a2a85ea176cf7031e277146399936b" kindref="member">sz</ref><sp/>%<sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ad7a692cafb4d74091836ffd7bb13a589" kindref="member">bpb</ref>;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pos<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[0].all())<sp/>{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=1;<sp/>i&lt;pos;<sp/>i++)</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i].all())</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos].<ref refid="classGecode_1_1Support_1_1BitSetData_1a35b606a8e6698d1859ee5ec82f2c8a0f" kindref="member">all</ref>(bits)<sp/>?<sp/>BSS_ALL<sp/>:<sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[0].none())<sp/>{</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i=1;<sp/>i&lt;pos;<sp/>i++)</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[i].none())</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[pos].<ref refid="classGecode_1_1Support_1_1BitSetData_1ad775567c63bafe9335ba81533a4a7cdf" kindref="member">none</ref>(bits)<sp/>?<sp/>BSS_NONE<sp/>:<sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[0].all(bits))</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_ALL;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classGecode_1_1Support_1_1BitSetBase_1ae36f2431c7867a98e4620c20311b5fa2" kindref="member">data</ref>[0].none(bits))</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_NONE;</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>BSS_SOME;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal">}}</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_SUPPORT_MSVC_32</highlight></codeline>
+<codeline lineno="377"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#undef<sp/>GECODE_SUPPORT_MSVC_32</highlight></codeline>
+<codeline lineno="378"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="379"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#ifdef<sp/>GECODE_SUPPORT_MSVC_64</highlight></codeline>
+<codeline lineno="380"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#undef<sp/>GECODE_SUPPORT_MSVC_64</highlight></codeline>
+<codeline lineno="381"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="382"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight><highlight class="comment">//<sp/>STATISTICS:<sp/>support-any</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/usr/include/gecode/support/bitset-base.hpp"/>
+  </compounddef>
+</doxygen>

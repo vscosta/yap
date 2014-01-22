@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1StatusStatistics" kind="class" prot="public">
+    <compoundname>Gecode::StatusStatistics</compoundname>
+    <derivedcompoundref refid="classGecode_1_1Gist_1_1Statistics" prot="public" virt="non-virtual">Gecode::Gist::Statistics</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1Search_1_1Statistics" prot="public" virt="non-virtual">Gecode::Search::Statistics</derivedcompoundref>
+    <includes refid="core_8hpp" local="no">core.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1StatusStatistics_1a9fbb7e9a20cfc211fc94f7945b725285" prot="public" static="no" mutable="no">
+        <type>unsigned long int</type>
+        <definition>unsigned long int Gecode::StatusStatistics::propagate</definition>
+        <argsstring></argsstring>
+        <name>propagate</name>
+        <briefdescription>
+<para>Number of propagator executions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1276" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1276" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1StatusStatistics_1ac5cf5589641e40dfda1b5c55f308191e" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Gecode::StatusStatistics::wmp</definition>
+        <argsstring></argsstring>
+        <name>wmp</name>
+        <briefdescription>
+<para>Whether a weakly monotonic propagator might have been executed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1278" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1278" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1StatusStatistics_1a506ae402cb397456e7dcc33c3aee4003" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::StatusStatistics::StatusStatistics</definition>
+        <argsstring>(void)</argsstring>
+        <name>StatusStatistics</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1280" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3865" bodyend="3867"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1StatusStatistics_1a07ef9be5e6a80f0ce88ef20865160564" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::StatusStatistics::reset</definition>
+        <argsstring>(void)</argsstring>
+        <name>reset</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Reset information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1282" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3860" bodyend="3863"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1StatusStatistics_1a048ae1675c694c98db9f67ea0bf92a97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref></type>
+        <definition>forceinline StatusStatistics Gecode::StatusStatistics::operator+</definition>
+        <argsstring>(const StatusStatistics &amp;s)</argsstring>
+        <name>operator+</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return sum with <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1284" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3875" bodyend="3878"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1StatusStatistics_1a1965d4b44fac926eb385f28a8e42c4e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref> &amp;</type>
+        <definition>forceinline StatusStatistics &amp; Gecode::StatusStatistics::operator+=</definition>
+        <argsstring>(const StatusStatistics &amp;s)</argsstring>
+        <name>operator+=</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1StatusStatistics" kindref="compound">StatusStatistics</ref> &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Increment by statistics <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/core.hpp" line="1286" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="3869" bodyend="3873"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Statistics for execution of status </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6710">
+        <label>Gecode::Search::Parallel::DFS::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1DFS_1_1Worker"/>
+        <childnode refid="6708" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6709">
+        <label>Gecode::Search::Parallel::BAB::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1BAB_1_1Worker"/>
+        <childnode refid="6708" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6708">
+        <label>Gecode::Search::Parallel::Engine::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Engine_1_1Worker"/>
+        <childnode refid="6707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6712">
+        <label>Gecode::Search::Sequential::DFS</label>
+        <link refid="classGecode_1_1Search_1_1Sequential_1_1DFS"/>
+        <childnode refid="6707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6706">
+        <label>Gecode::Search::Statistics</label>
+        <link refid="classGecode_1_1Search_1_1Statistics"/>
+        <childnode refid="6704" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6705">
+        <label>Gecode::Gist::Statistics</label>
+        <link refid="classGecode_1_1Gist_1_1Statistics"/>
+        <childnode refid="6704" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6711">
+        <label>Gecode::Search::Sequential::BAB</label>
+        <link refid="classGecode_1_1Search_1_1Sequential_1_1BAB"/>
+        <childnode refid="6707" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6707">
+        <label>Gecode::Search::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Worker"/>
+        <childnode refid="6706" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6704">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/core.hpp" line="1273" column="1" bodyfile="/usr/include/gecode/kernel/core.hpp" bodystart="1273" bodyend="1287"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1StatusStatistics_1a048ae1675c694c98db9f67ea0bf92a97" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a1965d4b44fac926eb385f28a8e42c4e4" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a9fbb7e9a20cfc211fc94f7945b725285" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a07ef9be5e6a80f0ce88ef20865160564" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>reset</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a506ae402cb397456e7dcc33c3aee4003" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>StatusStatistics</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1ac5cf5589641e40dfda1b5c55f308191e" prot="public" virt="non-virtual"><scope>Gecode::StatusStatistics</scope><name>wmp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

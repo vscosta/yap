@@ -1,0 +1,359 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge" kind="class" prot="public">
+    <compoundname>Gecode::Search::Parallel::Path::Edge</compoundname>
+    <includes refid="parallel_2path_8hh" local="no">path.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a6a6a154dcdeb6e981dd0dfb1c7f74899" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>Space* Gecode::Search::Parallel::Path::Edge::_space</definition>
+        <argsstring></argsstring>
+        <name>_space</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> corresponding to this edge (might be NULL) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="68" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ae6f742255b76fc06f70743d1e8a65ab9" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Parallel::Path::Edge::_alt</definition>
+        <argsstring></argsstring>
+        <name>_alt</name>
+        <briefdescription>
+<para>Current alternative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="70" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a18cd8c23fd4ad69dc08cf6275227db3a" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Parallel::Path::Edge::_alt_max</definition>
+        <argsstring></argsstring>
+        <name>_alt_max</name>
+        <briefdescription>
+<para>Number of alternatives left. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="72" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a032b074ed2681a22e25ca9dfc8afc863" prot="protected" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>const Choice* Gecode::Search::Parallel::Path::Edge::_choice</definition>
+        <argsstring></argsstring>
+        <name>_choice</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="74" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ab7a3eb4b9941b5f4c567526884580b53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Parallel::Path::Edge::Edge</definition>
+        <argsstring>(void)</argsstring>
+        <name>Edge</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="77" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="158" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ae0bab978d5fe7e11fece30945fc9052a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Parallel::Path::Edge::Edge</definition>
+        <argsstring>(Space *s, Space *c)</argsstring>
+        <name>Edge</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge" kindref="compound">Edge</ref> for space <emphasis>s</emphasis> with clone <emphasis>c</emphasis> (possibly NULL) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="79" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="161" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a62c6482b5f6da9a7f5e8e4d60b47b034" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Search::Parallel::Path::Edge::space</definition>
+        <argsstring>(void) const </argsstring>
+        <name>space</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return space for edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="82" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="167" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa40e60aac966b9b1c3f2bdec1374e84b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::Edge::space</definition>
+        <argsstring>(Space *s)</argsstring>
+        <name>space</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> space to <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="84" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="171" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a4378925a95437bdcb162fb918bb7cd6a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classGecode_1_1Choice" kindref="compound">Choice</ref> *</type>
+        <definition>forceinline const Choice * Gecode::Search::Parallel::Path::Edge::choice</definition>
+        <argsstring>(void) const </argsstring>
+        <name>choice</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return choice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="87" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="207" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a806f83fc850ca0c1967db72b7df23284" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Search::Parallel::Path::Edge::alt</definition>
+        <argsstring>(void) const </argsstring>
+        <name>alt</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return number for alternatives. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="90" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="176" bodyend="178"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ab143bdf3c7e89143284af24f1e7cac00" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Search::Parallel::Path::Edge::truealt</definition>
+        <argsstring>(void) const </argsstring>
+        <name>truealt</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return true number for alternatives (excluding lao optimization) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="92" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="180" bodyend="183"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a9c83a3ceecee6eea58faab070e989ec9" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::Edge::rightmost</definition>
+        <argsstring>(void) const </argsstring>
+        <name>rightmost</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether current alternative is rightmost. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="94" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="185" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa31226cf81aad769e36ae31aca674ebd" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::Edge::lao</definition>
+        <argsstring>(void) const </argsstring>
+        <name>lao</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether current alternative was LAO. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="96" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="189" bodyend="191"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a0496cabef409ab24c304322ed66d567d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Search::Parallel::Path::Edge::work</definition>
+        <argsstring>(void) const </argsstring>
+        <name>work</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test whether there is an alternative that can be stolen. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="98" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="193" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aebb6f0a7fbc62db49bfbf494c6793bf1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::Edge::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Move to next alternative. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="100" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="197" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa5f64563abfd0b2ef8c399e692109bef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>forceinline unsigned int Gecode::Search::Parallel::Path::Edge::steal</definition>
+        <argsstring>(void)</argsstring>
+        <name>steal</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Steal rightmost alternative and return its number. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="102" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a918617668ce19baa0aa7caae677b8fb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Parallel::Path::Edge::dispose</definition>
+        <argsstring>(void)</argsstring>
+        <name>dispose</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Free memory for edge. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/parallel/path.hh" line="105" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="212" bodyend="215"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Search tree edge for recomputation </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1895">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="1891">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="1892" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1894">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="1890">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="1891" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="1894" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="1895" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="1893" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="1896">
+        <label>Gecode::Choice</label>
+        <link refid="classGecode_1_1Choice"/>
+      </node>
+      <node id="1889">
+        <label>Gecode::Search::Parallel::Path::Edge</label>
+        <link refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge"/>
+        <childnode refid="1890" relation="usage">
+          <edgelabel>_space</edgelabel>
+        </childnode>
+        <childnode refid="1896" relation="usage">
+          <edgelabel>_choice</edgelabel>
+        </childnode>
+      </node>
+      <node id="1892">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="1893" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="1893">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/parallel/path.hh" line="65" column="1" bodyfile="/usr/include/gecode/search/parallel/path.hh" bodystart="65" bodyend="106"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ae6f742255b76fc06f70743d1e8a65ab9" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>_alt</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a18cd8c23fd4ad69dc08cf6275227db3a" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>_alt_max</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a032b074ed2681a22e25ca9dfc8afc863" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>_choice</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a6a6a154dcdeb6e981dd0dfb1c7f74899" prot="protected" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>_space</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a806f83fc850ca0c1967db72b7df23284" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>alt</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a4378925a95437bdcb162fb918bb7cd6a" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>choice</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a918617668ce19baa0aa7caae677b8fb5" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>dispose</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ab7a3eb4b9941b5f4c567526884580b53" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>Edge</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ae0bab978d5fe7e11fece30945fc9052a" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>Edge</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa31226cf81aad769e36ae31aca674ebd" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>lao</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aebb6f0a7fbc62db49bfbf494c6793bf1" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>next</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a9c83a3ceecee6eea58faab070e989ec9" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>rightmost</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a62c6482b5f6da9a7f5e8e4d60b47b034" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>space</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa40e60aac966b9b1c3f2bdec1374e84b" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>space</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1aa5f64563abfd0b2ef8c399e692109bef" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>steal</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1ab143bdf3c7e89143284af24f1e7cac00" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>truealt</name></member>
+      <member refid="classGecode_1_1Search_1_1Parallel_1_1Path_1_1Edge_1a0496cabef409ab24c304322ed66d567d" prot="public" virt="non-virtual"><scope>Gecode::Search::Parallel::Path::Edge</scope><name>work</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

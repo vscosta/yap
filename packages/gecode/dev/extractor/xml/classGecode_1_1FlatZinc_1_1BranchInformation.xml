@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1FlatZinc_1_1BranchInformation" kind="class" prot="public">
+    <compoundname>Gecode::FlatZinc::BranchInformation</compoundname>
+    <basecompoundref refid="classGecode_1_1SharedHandle" prot="public" virt="non-virtual">Gecode::SharedHandle</basecompoundref>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1BranchInformation_1acad5102e05c9537f8acfead6f258c79d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::BranchInformation::BranchInformation</definition>
+        <argsstring>(void)</argsstring>
+        <name>BranchInformation</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="329" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1BranchInformation_1ad5ffbb3625b8bba0d20e5b67d3e882af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Gecode::FlatZinc::BranchInformation::BranchInformation</definition>
+        <argsstring>(const BranchInformation &amp;bi)</argsstring>
+        <name>BranchInformation</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1FlatZinc_1_1BranchInformation" kindref="compound">BranchInformation</ref> &amp;</type>
+          <declname>bi</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="331" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1BranchInformation_1a18eeff86c5af7ee455b4a7829e654c67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::FlatZinc::BranchInformation::init</definition>
+        <argsstring>(void)</argsstring>
+        <name>init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialise for use. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="333" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1BranchInformation_1a15abfb9b3aa958d2feed28710da8e912" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::FlatZinc::BranchInformation::add</definition>
+        <argsstring>(const BrancherHandle &amp;bh, const std::string &amp;rel0, const std::string &amp;rel1, const std::vector&lt; std::string &gt; &amp;n)</argsstring>
+        <name>add</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref> &amp;</type>
+          <declname>bh</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>rel0</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>rel1</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Add new brancher information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="335" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1FlatZinc_1_1BranchInformation_1ac0552f00201cca4a8951e89527b92669" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::FlatZinc::BranchInformation::print</definition>
+        <argsstring>(const BrancherHandle &amp;bh, int a, int i, int n, std::ostream &amp;o) const </argsstring>
+        <name>print</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1BrancherHandle" kindref="compound">BrancherHandle</ref> &amp;</type>
+          <declname>bh</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Output branch information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/flatzinc.hh" line="340" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1298">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="1297">
+        <label>Gecode::FlatZinc::BranchInformation</label>
+        <link refid="classGecode_1_1FlatZinc_1_1BranchInformation"/>
+        <childnode refid="1298" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1300">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="1299">
+        <label>Gecode::FlatZinc::BranchInformation</label>
+        <link refid="classGecode_1_1FlatZinc_1_1BranchInformation"/>
+        <childnode refid="1300" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/flatzinc.hh" line="326" column="1" bodyfile="/usr/include/gecode/flatzinc.hh" bodystart="326" bodyend="347"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1FlatZinc_1_1BranchInformation_1a15abfb9b3aa958d2feed28710da8e912" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>add</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1BranchInformation_1acad5102e05c9537f8acfead6f258c79d" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>BranchInformation</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1BranchInformation_1ad5ffbb3625b8bba0d20e5b67d3e882af" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>BranchInformation</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1BranchInformation_1a18eeff86c5af7ee455b4a7829e654c67" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>init</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a703f11794c6cac8c22bfc4a4136eb4f8" prot="protected" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a688e41d609c30fe5517ca35cf908ddee" prot="protected" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>object</name></member>
+      <member refid="classGecode_1_1SharedHandle_1ae484ef9621e41e100aa778b8c908f65e" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>operator=</name></member>
+      <member refid="classGecode_1_1FlatZinc_1_1BranchInformation_1ac0552f00201cca4a8951e89527b92669" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>print</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a421b3931301cdbd047737c7eb920097c" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1a7af0bf287aedc0181643f91ee7f94b92" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1aad7da499195487bdf3085d61ed83d004" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>SharedHandle</name></member>
+      <member refid="classGecode_1_1SharedHandle_1afeb40b81ba09fed2539490f1035788f8" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>update</name></member>
+      <member refid="classGecode_1_1SharedHandle_1abdf052ec870b883c26b79538296819f8" prot="public" virt="non-virtual"><scope>Gecode::FlatZinc::BranchInformation</scope><name>~SharedHandle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

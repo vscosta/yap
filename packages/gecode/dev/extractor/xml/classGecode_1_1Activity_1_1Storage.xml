@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Activity_1_1Storage" kind="class" prot="protected">
+    <compoundname>Gecode::Activity::Storage</compoundname>
+    <includes refid="kernel_2activity_8hpp" local="no">activity.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Storage_1a21ffa79bde66405a4dc1a83eebc96fc8" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Support_1_1Mutex" kindref="compound">Support::Mutex</ref></type>
+        <definition>Support::Mutex Gecode::Activity::Storage::m</definition>
+        <argsstring></argsstring>
+        <name>m</name>
+        <briefdescription>
+<para>Mutex to synchronize globally shared access. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="52" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Storage_1a969964d3e41b6d5bb457f450bf3dc761" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Activity::Storage::use_cnt</definition>
+        <argsstring></argsstring>
+        <name>use_cnt</name>
+        <briefdescription>
+<para>How many references exist for this object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="54" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Storage_1af606440e779bad43604b7305961ee5bc" prot="public" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* Gecode::Activity::Storage::a</definition>
+        <argsstring></argsstring>
+        <name>a</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref> values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="56" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Storage_1afc084e0dd79db66e2c84c0d5d8914bf2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Activity::Storage::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of activity values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="58" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Activity_1_1Storage_1af55ab4069c647a135d0fc32a574a76fc" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::Activity::Storage::d</definition>
+        <argsstring></argsstring>
+        <name>d</name>
+        <briefdescription>
+<para>Decay factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="60" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Storage_1aaa6c73259c9ce5e71aabecf53270cfcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type></type>
+        <definition>Gecode::Activity::Storage::Storage</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, double d, typename BranchTraits&lt; typename View::VarType &gt;::Merit bm)</argsstring>
+        <name>Storage</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type>typename <ref refid="classGecode_1_1BranchTraits" kindref="compound">BranchTraits</ref>&lt; typename View::VarType &gt;::Merit</type>
+          <declname>bm</declname>
+        </param>
+        <briefdescription>
+<para>Allocate activity values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="63" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Storage_1aee85f2e72c0121924b1236de5d4244af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Activity::Storage::~Storage</definition>
+        <argsstring>(void)</argsstring>
+        <name>~Storage</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Delete object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="66" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="292" bodyend="294"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Storage_1a5dacc6be15de838582a9f01d74d23ff8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class View</type>
+          </param>
+        </templateparamlist>
+        <type>forceinline</type>
+        <definition>forceinline Gecode::Activity::Storage::Storage</definition>
+        <argsstring>(Home home, ViewArray&lt; View &gt; &amp;x, double d0, typename BranchTraits&lt; typename View::VarType &gt;::Merit bm)</argsstring>
+        <name>Storage</name>
+        <param>
+          <type><ref refid="classGecode_1_1Home" kindref="compound">Home</ref></type>
+          <declname>home</declname>
+        </param>
+        <param>
+          <type><ref refid="classGecode_1_1ViewArray" kindref="compound">ViewArray</ref>&lt; View &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d0</declname>
+        </param>
+        <param>
+          <type>typename <ref refid="classGecode_1_1BranchTraits" kindref="compound">BranchTraits</ref>&lt; typename View::VarType &gt;::Merit</type>
+          <declname>bm</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="278" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="278" bodyend="290"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Storage_1a060f65f31de0e8a5ca3c5d222921b705" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>forceinline void * Gecode::Activity::Storage::operator new</definition>
+        <argsstring>(size_t s)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Allocate memory from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="68" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="269" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Activity_1_1Storage_1a256a55aba79f111f117245e254865463" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Activity::Storage::operator delete</definition>
+        <argsstring>(void *p)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+<para>Free memory allocated from heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/activity.hpp" line="70" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="273" bodyend="275"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Object for storing activity values. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6744">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="6745" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="6745">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/activity.hpp" line="49" column="1" bodyfile="/usr/include/gecode/kernel/activity.hpp" bodystart="49" bodyend="71"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Activity_1_1Storage_1af606440e779bad43604b7305961ee5bc" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>a</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1af55ab4069c647a135d0fc32a574a76fc" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>d</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1a21ffa79bde66405a4dc1a83eebc96fc8" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>m</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1afc084e0dd79db66e2c84c0d5d8914bf2" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>n</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1a256a55aba79f111f117245e254865463" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>operator delete</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1a060f65f31de0e8a5ca3c5d222921b705" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>operator new</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1aaa6c73259c9ce5e71aabecf53270cfcc" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>Storage</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1a5dacc6be15de838582a9f01d74d23ff8" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>Storage</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1a969964d3e41b6d5bb457f450bf3dc761" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>use_cnt</name></member>
+      <member refid="classGecode_1_1Activity_1_1Storage_1aee85f2e72c0121924b1236de5d4244af" prot="public" virt="non-virtual"><scope>Gecode::Activity::Storage</scope><name>~Storage</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

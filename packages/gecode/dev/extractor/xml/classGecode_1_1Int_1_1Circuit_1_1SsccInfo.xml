@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Circuit_1_1SsccInfo" kind="class" prot="public">
+    <compoundname>Gecode::Int::Circuit::SsccInfo</compoundname>
+    <includes refid="circuit_2base_8hpp" local="no">base.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>class</type>
+        <declname>View</declname>
+        <defname>View</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a6dce5dd8e3ed3078ea7421d3f6dfabba" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Circuit::SsccInfo&lt; View &gt;::min</definition>
+        <argsstring></argsstring>
+        <name>min</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a85aee34fe8fc2402949474563d9f38bd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Circuit::SsccInfo&lt; View &gt;::low</definition>
+        <argsstring></argsstring>
+        <name>low</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1afadc58ca30baf154cfba78e06e8f8872" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Gecode::Int::Circuit::SsccInfo&lt; View &gt;::pre</definition>
+        <argsstring></argsstring>
+        <name>pre</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="59" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a1c826a4bcd4ecd0506bb04d8c6efd47d" prot="public" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Int_1_1ViewValues" kindref="compound">Int::ViewValues</ref>&lt; View &gt;</type>
+        <definition>Int::ViewValues&lt;View&gt; Gecode::Int::Circuit::SsccInfo&lt; View &gt;::v</definition>
+        <argsstring></argsstring>
+        <name>v</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/circuit/base.hpp" line="60" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Information required for non-recursive checking for a single scc. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/circuit/base.hpp" line="57" column="1" bodyfile="/usr/include/gecode/int/circuit/base.hpp" bodystart="57" bodyend="61"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a85aee34fe8fc2402949474563d9f38bd" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::SsccInfo</scope><name>low</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a6dce5dd8e3ed3078ea7421d3f6dfabba" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::SsccInfo</scope><name>min</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1afadc58ca30baf154cfba78e06e8f8872" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::SsccInfo</scope><name>pre</name></member>
+      <member refid="classGecode_1_1Int_1_1Circuit_1_1SsccInfo_1a1c826a4bcd4ecd0506bb04d8c6efd47d" prot="public" virt="non-virtual"><scope>Gecode::Int::Circuit::SsccInfo</scope><name>v</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

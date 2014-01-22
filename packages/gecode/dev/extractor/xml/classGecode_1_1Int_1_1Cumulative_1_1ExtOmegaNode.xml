@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode" kind="class" prot="public">
+    <compoundname>Gecode::Int::Cumulative::ExtOmegaNode</compoundname>
+    <basecompoundref refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode" prot="public" virt="non-virtual">Gecode::Int::Cumulative::OmegaNode</basecompoundref>
+    <includes refid="cumulative_8hh" local="no">cumulative.hh</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1ad2df18e573d8597c313474d2889a2f31" prot="public" static="no" mutable="no">
+        <type>long long int</type>
+        <definition>long long int Gecode::Int::Cumulative::ExtOmegaNode::cenv</definition>
+        <argsstring></argsstring>
+        <name>cenv</name>
+        <briefdescription>
+<para>Energy envelope for subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="589" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="589" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1aef63a8f4d6eee0dfa16f02053fe15c30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Cumulative::ExtOmegaNode::init</definition>
+        <argsstring>(const ExtOmegaNode &amp;l, const ExtOmegaNode &amp;r)</argsstring>
+        <name>init</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode" kindref="compound">ExtOmegaNode</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode" kindref="compound">ExtOmegaNode</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize node from left child <emphasis>l</emphasis> and right child <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="591" column="1" bodyfile="/usr/include/gecode/int/cumulative/tree.hpp" bodystart="96" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1a34b6e8134d86dd2287e6229b90e832fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Int::Cumulative::ExtOmegaNode::update</definition>
+        <argsstring>(const ExtOmegaNode &amp;l, const ExtOmegaNode &amp;r)</argsstring>
+        <name>update</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode" kindref="compound">ExtOmegaNode</ref> &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode" kindref="compound">ExtOmegaNode</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Update node from left child <emphasis>l</emphasis> and right child <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="593" column="1" bodyfile="/usr/include/gecode/int/cumulative/tree.hpp" bodystart="102" bodyend="105"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Node for an extended omega tree. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2292">
+        <label>Gecode::Int::Cumulative::ExtOmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode"/>
+        <childnode refid="2293" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2293">
+        <label>Gecode::Int::Cumulative::OmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2294">
+        <label>Gecode::Int::Cumulative::ExtOmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode"/>
+        <childnode refid="2295" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2295">
+        <label>Gecode::Int::Cumulative::OmegaNode</label>
+        <link refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/cumulative.hh" line="586" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="586" bodyend="594"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1ad2df18e573d8597c313474d2889a2f31" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>cenv</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode_1a63d6000502dac0dbc0faeda16f7f40d9" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>e</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode_1a76d23603df71918da98276ceaab86c51" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>env</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1aef63a8f4d6eee0dfa16f02053fe15c30" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode_1a70b67ec4d59d3978a6af4671ebf09378" prot="public" virt="non-virtual" ambiguityscope="Gecode::Int::Cumulative::OmegaNode::"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>init</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1ExtOmegaNode_1a34b6e8134d86dd2287e6229b90e832fd" prot="public" virt="non-virtual"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>update</name></member>
+      <member refid="classGecode_1_1Int_1_1Cumulative_1_1OmegaNode_1afafe54769331ebf3904287df3961bf84" prot="public" virt="non-virtual" ambiguityscope="Gecode::Int::Cumulative::OmegaNode::"><scope>Gecode::Int::Cumulative::ExtOmegaNode</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

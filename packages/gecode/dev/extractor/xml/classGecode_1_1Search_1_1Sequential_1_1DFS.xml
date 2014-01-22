@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Search_1_1Sequential_1_1DFS" kind="class" prot="public">
+    <compoundname>Gecode::Search::Sequential::DFS</compoundname>
+    <basecompoundref refid="classGecode_1_1Search_1_1Worker" prot="public" virt="non-virtual">Gecode::Search::Worker</basecompoundref>
+    <includes refid="sequential_2dfs_8hh" local="no">dfs.hh</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a5e344ea90a66c4434966fe48aaedb779" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref></type>
+        <definition>Options Gecode::Search::Sequential::DFS::opt</definition>
+        <argsstring></argsstring>
+        <name>opt</name>
+        <briefdescription>
+<para>Search options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="52" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a3f7ca66fa3b8e3f6c8bc0d7b9b3f57c8" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Search_1_1Sequential_1_1Path" kindref="compound">Path</ref></type>
+        <definition>Path Gecode::Search::Sequential::DFS::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <briefdescription>
+<para>Current path ins search tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="54" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a3bf6651d42a687395693f4c77bcf7e99" prot="private" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>Space* Gecode::Search::Sequential::DFS::cur</definition>
+        <argsstring></argsstring>
+        <name>cur</name>
+        <briefdescription>
+<para>Current space being explored. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="56" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a9cb220bc22db6467f0e0d45c765a8472" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Gecode::Search::Sequential::DFS::d</definition>
+        <argsstring></argsstring>
+        <name>d</name>
+        <briefdescription>
+<para>Distance until next clone. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="58" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1aad2193be3190056106bb3107bd1e113d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Sequential::DFS::DFS</definition>
+        <argsstring>(Space *s, const Options &amp;o)</argsstring>
+        <name>DFS</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classGecode_1_1Search_1_1Options" kindref="compound">Options</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+<para>Initialize for space <emphasis>s</emphasis> with options <emphasis>o</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="61" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="75" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a6f6b19d844a1bf511b8b6059c489d684" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+        <definition>forceinline Space * Gecode::Search::Sequential::DFS::next</definition>
+        <argsstring>(void)</argsstring>
+        <name>next</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Search for next solution </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="63" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="106" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a647b14e1e7f54348bcad74a864952bd3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Search_1_1Statistics" kindref="compound">Statistics</ref></type>
+        <definition>forceinline Statistics Gecode::Search::Sequential::DFS::statistics</definition>
+        <argsstring>(void) const </argsstring>
+        <name>statistics</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="65" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="156" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a48c2c0807813c7f8722918148688da63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>forceinline void Gecode::Search::Sequential::DFS::reset</definition>
+        <argsstring>(Space *s)</argsstring>
+        <name>reset</name>
+        <param>
+          <type><ref refid="classGecode_1_1Space" kindref="compound">Space</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Reset engine to restart at space <emphasis>s</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="67" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="88" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1a1632fa61dc2aa3b39a98f40f60e98100" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classGecode_1_1NoGoods" kindref="compound">NoGoods</ref> &amp;</type>
+        <definition>forceinline NoGoods &amp; Gecode::Search::Sequential::DFS::nogoods</definition>
+        <argsstring>(void)</argsstring>
+        <name>nogoods</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return no-goods. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="69" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="101" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Search_1_1Sequential_1_1DFS_1ac73e08ecc25e50b8b5b8fb5c1c9df008" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Search::Sequential::DFS::~DFS</definition>
+        <argsstring>(void)</argsstring>
+        <name>~DFS</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/search/sequential/dfs.hh" line="71" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="161" bodyend="164"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Depth-first search engine implementation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1682">
+        <label>Gecode::Search::Sequential::DFS</label>
+        <link refid="classGecode_1_1Search_1_1Sequential_1_1DFS"/>
+        <childnode refid="1683" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1684">
+        <label>Gecode::Search::Statistics</label>
+        <link refid="classGecode_1_1Search_1_1Statistics"/>
+        <childnode refid="1685" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1683">
+        <label>Gecode::Search::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Worker"/>
+        <childnode refid="1684" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1685">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1686">
+        <label>Gecode::Search::Sequential::DFS</label>
+        <link refid="classGecode_1_1Search_1_1Sequential_1_1DFS"/>
+        <childnode refid="1687" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1688">
+        <label>Gecode::Search::Statistics</label>
+        <link refid="classGecode_1_1Search_1_1Statistics"/>
+        <childnode refid="1689" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1687">
+        <label>Gecode::Search::Worker</label>
+        <link refid="classGecode_1_1Search_1_1Worker"/>
+        <childnode refid="1688" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1689">
+        <label>Gecode::StatusStatistics</label>
+        <link refid="classGecode_1_1StatusStatistics"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/search/sequential/dfs.hh" line="49" column="1" bodyfile="/usr/include/gecode/search/sequential/dfs.hh" bodystart="49" bodyend="72"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Search_1_1Worker_1a2d061c3abbda741dbfd2c24aed937bb4" prot="protected" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>_stopped</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a3bf6651d42a687395693f4c77bcf7e99" prot="private" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>cur</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a9cb220bc22db6467f0e0d45c765a8472" prot="private" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>d</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1aa9cebce8531c44876586bd8da5ecb646" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>depth</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1aad2193be3190056106bb3107bd1e113d" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>DFS</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1abd709acc7f8a83851f063987ceb87731" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>fail</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a6f6b19d844a1bf511b8b6059c489d684" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>next</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1ac23410cf0f6e1df70b10bf9c0c0ca68a" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>node</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1ae8a99cc114f23f5dfa37208dc3aadc85" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>nogood</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a1632fa61dc2aa3b39a98f40f60e98100" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>nogoods</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1a37c0b7e87694cada6a7f6e2595360e05" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a048ae1675c694c98db9f67ea0bf92a97" prot="public" virt="non-virtual" ambiguityscope="Gecode::StatusStatistics::"><scope>Gecode::Search::Sequential::DFS</scope><name>operator+</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1ae2b46b9fb704cc79b7cfdda2ea2e1643" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a1965d4b44fac926eb385f28a8e42c4e4" prot="public" virt="non-virtual" ambiguityscope="Gecode::StatusStatistics::"><scope>Gecode::Search::Sequential::DFS</scope><name>operator+=</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a5e344ea90a66c4434966fe48aaedb779" prot="private" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>opt</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a3f7ca66fa3b8e3f6c8bc0d7b9b3f57c8" prot="private" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>path</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a9fbb7e9a20cfc211fc94f7945b725285" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>propagate</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a48c2c0807813c7f8722918148688da63" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1abb57b4e525f7474f4bd9ea8411fec628" prot="public" virt="non-virtual" ambiguityscope="Gecode::Search::Worker::"><scope>Gecode::Search::Sequential::DFS</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1a6402c3f8e7077cdf7c3d88ad2ba8f1f2" prot="public" virt="non-virtual" ambiguityscope="Gecode::Search::Statistics::"><scope>Gecode::Search::Sequential::DFS</scope><name>reset</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1a7535cc59a9485d80250f6f2d96338492" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>restart</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1a7bd002644a09c5ce4ae3573f906b8cbb" prot="protected" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>root_depth</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1aea8297027ebf65274ee7246e31bccd45" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>stack_depth</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1a07088405145beaced871c48393b202a5" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>start</name></member>
+      <member refid="classGecode_1_1Search_1_1Statistics_1a2ac127fbf22f76dfa0ff5183a3adb12c" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>Statistics</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1a647b14e1e7f54348bcad74a864952bd3" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>statistics</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1a506ae402cb397456e7dcc33c3aee4003" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>StatusStatistics</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1ad251c6f0c758f5ffd5b0350518afae41" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>steal_depth</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1adf65d48a423558102c87cb0634bd484b" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>stop</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1a7a55ce48c41a95be6374f4a724a61613" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>stopped</name></member>
+      <member refid="classGecode_1_1StatusStatistics_1ac5cf5589641e40dfda1b5c55f308191e" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>wmp</name></member>
+      <member refid="classGecode_1_1Search_1_1Worker_1a9f975fa3f422a526e1bb572aeddf0269" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>Worker</name></member>
+      <member refid="classGecode_1_1Search_1_1Sequential_1_1DFS_1ac73e08ecc25e50b8b5b8fb5c1c9df008" prot="public" virt="non-virtual"><scope>Gecode::Search::Sequential::DFS</scope><name>~DFS</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

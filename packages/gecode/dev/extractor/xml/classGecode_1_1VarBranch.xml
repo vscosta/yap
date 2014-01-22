@@ -1,0 +1,489 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1VarBranch" kind="class" prot="public">
+    <compoundname>Gecode::VarBranch</compoundname>
+    <derivedcompoundref refid="classGecode_1_1FloatVarBranch" prot="public" virt="non-virtual">Gecode::FloatVarBranch</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1IntVarBranch" prot="public" virt="non-virtual">Gecode::IntVarBranch</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1SetVarBranch" prot="public" virt="non-virtual">Gecode::SetVarBranch</derivedcompoundref>
+    <includes refid="branch-var_8hpp" local="no">branch-var.hpp</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1a713d031c102733a64f479f7c1397e5d9" prot="protected" static="no" mutable="no">
+        <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+        <definition>BranchTbl Gecode::VarBranch::_tbl</definition>
+        <argsstring></argsstring>
+        <name>_tbl</name>
+        <briefdescription>
+<para>Tie-breaking limit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="58" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1ae485b4100ac951bd4d373b4ccb4c23f5" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+        <definition>Rnd Gecode::VarBranch::_rnd</definition>
+        <argsstring></argsstring>
+        <name>_rnd</name>
+        <briefdescription>
+<para>Random number generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="60" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1a599010728485824eff22c332b2622e48" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Gecode::VarBranch::_decay</definition>
+        <argsstring></argsstring>
+        <name>_decay</name>
+        <briefdescription>
+<para>Decay information for <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> and activity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="62" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+        <definition>AFC Gecode::VarBranch::_afc</definition>
+        <argsstring></argsstring>
+        <name>_afc</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="64" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" prot="protected" static="no" mutable="no">
+        <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+        <definition>Activity Gecode::VarBranch::_act</definition>
+        <argsstring></argsstring>
+        <name>_act</name>
+        <briefdescription>
+<para><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref> information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="66" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classGecode_1_1VarBranch_1a92db9d403c87ca03893a4d95a0f0745b" prot="protected" static="no" mutable="no">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>VoidFunction Gecode::VarBranch::_mf</definition>
+        <argsstring></argsstring>
+        <name>_mf</name>
+        <briefdescription>
+<para>Merit function (generic function pointer) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="68" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1acbbfa0aaf802a681e006af19e89a9674" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(BranchTbl t)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="71" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="102" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a649dd593d4971936a0179e0960374daf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(Rnd r)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with random number generator <emphasis>r</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="73" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="124" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a9edac2036873719eac4dbc6cee49724a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(double d, BranchTbl t)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with decay factor <emphasis>d</emphasis> and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="75" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="106" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a5744348ffae23eb2bce918d4f5ddc2fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(AFC a, BranchTbl t)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> <emphasis>a</emphasis> and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="77" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="110" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a652c07a5b50e1b8595c8111f145bc773" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(Activity a, BranchTbl t)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with activity <emphasis>a</emphasis> and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="79" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="117" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1ae65cd4aa6762b0dc5c89cf31cd654bab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::VarBranch::VarBranch</definition>
+        <argsstring>(void(*f)(void), BranchTbl t)</argsstring>
+        <name>VarBranch</name>
+        <param>
+          <type>void(*)(void)</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with merit function <emphasis>f</emphasis> and tie-break limit function <emphasis>t</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="81" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="131" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1adef279373db40d08e3d6c90b7e98cd78" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="group__TaskModelBranch_1ga9aa0d6360268834e569cb4edb11a0fe6" kindref="member">BranchTbl</ref></type>
+        <definition>forceinline BranchTbl Gecode::VarBranch::tbl</definition>
+        <argsstring>(void) const </argsstring>
+        <name>tbl</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return tie-break limit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="83" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="135" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1ac7f779263336a2a7a09c5520ea50b00a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Rnd" kindref="compound">Rnd</ref></type>
+        <definition>Rnd Gecode::VarBranch::rnd</definition>
+        <argsstring>(void) const </argsstring>
+        <name>rnd</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return random number generator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="85" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="140" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Gecode::VarBranch::decay</definition>
+        <argsstring>(void) const </argsstring>
+        <name>decay</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return decay factor. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="87" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a3cbd6f4a56186c4d7162ced1e76ae7ce" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+        <definition>AFC Gecode::VarBranch::afc</definition>
+        <argsstring>(void) const </argsstring>
+        <name>afc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="89" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="150" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a815610be240e686436bba142253c5b6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::VarBranch::afc</definition>
+        <argsstring>(AFC a)</argsstring>
+        <name>afc</name>
+        <param>
+          <type><ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref></type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> <ref refid="classGecode_1_1AFC" kindref="compound">AFC</ref> to <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="91" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1a845e56e5c48bfbb4299f8a737462877d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+        <definition>Activity Gecode::VarBranch::activity</definition>
+        <argsstring>(void) const </argsstring>
+        <name>activity</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return activity. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="93" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="160" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1acccd1785716306a56eb1933b804fe8bc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Gecode::VarBranch::activity</definition>
+        <argsstring>(Activity a)</argsstring>
+        <name>activity</name>
+        <param>
+          <type><ref refid="classGecode_1_1Activity" kindref="compound">Activity</ref></type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="namespaceGecode_1_1Set" kindref="compound">Set</ref> activity to <emphasis>a</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="95" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="165" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1VarBranch_1acc3b93ec46e124295cfcf7d27e2be92a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceGecode_1a6e982f1b655011d8c781cd9f38cfb907" kindref="member">VoidFunction</ref></type>
+        <definition>forceinline VoidFunction Gecode::VarBranch::merit</definition>
+        <argsstring>(void) const </argsstring>
+        <name>merit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return merit function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/kernel/branch-var.hpp" line="97" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="170" bodyend="172"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Variable branching information. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7633">
+        <label>Gecode::VarBranch</label>
+        <link refid="classGecode_1_1VarBranch"/>
+      </node>
+      <node id="7636">
+        <label>Gecode::SetVarBranch</label>
+        <link refid="classGecode_1_1SetVarBranch"/>
+        <childnode refid="7633" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7635">
+        <label>Gecode::IntVarBranch</label>
+        <link refid="classGecode_1_1IntVarBranch"/>
+        <childnode refid="7633" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7634">
+        <label>Gecode::FloatVarBranch</label>
+        <link refid="classGecode_1_1FloatVarBranch"/>
+        <childnode refid="7633" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7648">
+        <label>Gecode::SharedHandle::Object</label>
+        <link refid="classGecode_1_1SharedHandle_1_1Object"/>
+      </node>
+      <node id="7641">
+        <label>Gecode::Activity::Storage</label>
+        <link refid="classGecode_1_1Activity_1_1Storage"/>
+        <childnode refid="7642" relation="usage">
+          <edgelabel>m</edgelabel>
+        </childnode>
+      </node>
+      <node id="7644">
+        <label>Gecode::LocalObject</label>
+        <link refid="classGecode_1_1LocalObject"/>
+        <childnode refid="7645" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7640">
+        <label>Gecode::Activity</label>
+        <link refid="classGecode_1_1Activity"/>
+        <childnode refid="7640" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7641" relation="usage">
+          <edgelabel>storage</edgelabel>
+        </childnode>
+      </node>
+      <node id="7647">
+        <label>Gecode::VarImpBase</label>
+        <link refid="classGecode_1_1VarImpBase"/>
+      </node>
+      <node id="7637">
+        <label>Gecode::VarBranch</label>
+        <link refid="classGecode_1_1VarBranch"/>
+        <childnode refid="7638" relation="usage">
+          <edgelabel>_rnd</edgelabel>
+        </childnode>
+        <childnode refid="7640" relation="usage">
+          <edgelabel>_act</edgelabel>
+        </childnode>
+        <childnode refid="7643" relation="usage">
+          <edgelabel>_tbl</edgelabel>
+        </childnode>
+        <childnode refid="7649" relation="usage">
+          <edgelabel>_afc</edgelabel>
+        </childnode>
+      </node>
+      <node id="7638">
+        <label>Gecode::Rnd</label>
+        <link refid="classGecode_1_1Rnd"/>
+        <childnode refid="7639" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7639">
+        <label>Gecode::SharedHandle</label>
+        <link refid="classGecode_1_1SharedHandle"/>
+      </node>
+      <node id="7643">
+        <label>Gecode::Space</label>
+        <link refid="classGecode_1_1Space"/>
+        <childnode refid="7644" relation="usage">
+          <edgelabel>local</edgelabel>
+        </childnode>
+        <childnode refid="7647" relation="usage">
+          <edgelabel>vars_u</edgelabel>
+          <edgelabel>vars_noidx</edgelabel>
+        </childnode>
+        <childnode refid="7648" relation="usage">
+          <edgelabel>shared</edgelabel>
+        </childnode>
+        <childnode refid="7646" relation="usage">
+          <edgelabel>active</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="7649">
+        <label>Gecode::AFC</label>
+        <link refid="classGecode_1_1AFC"/>
+        <childnode refid="7649" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7645">
+        <label>Gecode::Actor</label>
+        <link refid="classGecode_1_1Actor"/>
+        <childnode refid="7646" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="7646">
+        <label>Gecode::ActorLink</label>
+        <link refid="classGecode_1_1ActorLink"/>
+      </node>
+      <node id="7642">
+        <label>Gecode::Support::Mutex</label>
+        <link refid="classGecode_1_1Support_1_1Mutex"/>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/kernel/branch-var.hpp" line="55" column="1" bodyfile="/usr/include/gecode/kernel/branch-var.hpp" bodystart="55" bodyend="98"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1VarBranch_1a99f6b1c6ba4de1bf4a60b4284e9647f6" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_act</name></member>
+      <member refid="classGecode_1_1VarBranch_1a0f4c6199cdf2bd9aa5ce4f3734ac19b0" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a599010728485824eff22c332b2622e48" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_decay</name></member>
+      <member refid="classGecode_1_1VarBranch_1a92db9d403c87ca03893a4d95a0f0745b" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_mf</name></member>
+      <member refid="classGecode_1_1VarBranch_1ae485b4100ac951bd4d373b4ccb4c23f5" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_rnd</name></member>
+      <member refid="classGecode_1_1VarBranch_1a713d031c102733a64f479f7c1397e5d9" prot="protected" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>_tbl</name></member>
+      <member refid="classGecode_1_1VarBranch_1a845e56e5c48bfbb4299f8a737462877d" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>activity</name></member>
+      <member refid="classGecode_1_1VarBranch_1acccd1785716306a56eb1933b804fe8bc" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>activity</name></member>
+      <member refid="classGecode_1_1VarBranch_1a3cbd6f4a56186c4d7162ced1e76ae7ce" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a815610be240e686436bba142253c5b6d" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>afc</name></member>
+      <member refid="classGecode_1_1VarBranch_1a804c4a512a4f47b8587293601bd3eeab" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>decay</name></member>
+      <member refid="classGecode_1_1VarBranch_1acc3b93ec46e124295cfcf7d27e2be92a" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>merit</name></member>
+      <member refid="classGecode_1_1VarBranch_1ac7f779263336a2a7a09c5520ea50b00a" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>rnd</name></member>
+      <member refid="classGecode_1_1VarBranch_1adef279373db40d08e3d6c90b7e98cd78" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>tbl</name></member>
+      <member refid="classGecode_1_1VarBranch_1acbbfa0aaf802a681e006af19e89a9674" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a649dd593d4971936a0179e0960374daf" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a9edac2036873719eac4dbc6cee49724a" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a5744348ffae23eb2bce918d4f5ddc2fa" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1a652c07a5b50e1b8595c8111f145bc773" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+      <member refid="classGecode_1_1VarBranch_1ae65cd4aa6762b0dc5c89cf31cd654bab" prot="public" virt="non-virtual"><scope>Gecode::VarBranch</scope><name>VarBranch</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

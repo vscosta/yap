@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="namespaceGecode_1_1Int_1_1Exec" kind="namespace">
+    <compoundname>Gecode::Int::Exec</compoundname>
+    <innerclass refid="classGecode_1_1Int_1_1Exec_1_1When" prot="public">Gecode::Int::Exec::When</innerclass>
+    <briefdescription>
+<para>Synchronized execution. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/exec/when.hpp" line="38" column="1"/>
+  </compounddef>
+</doxygen>

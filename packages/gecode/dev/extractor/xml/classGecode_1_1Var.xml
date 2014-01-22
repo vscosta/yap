@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Var" kind="class" prot="public">
+    <compoundname>Gecode::Var</compoundname>
+    <derivedcompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; VarImp &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; Int::BoolVarImp &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; Int::IntVarImp &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classGecode_1_1VarImpVar" prot="public" virt="non-virtual">Gecode::VarImpVar&lt; Set::SetVarImp &gt;</derivedcompoundref>
+    <includes refid="kernel_2var_8hpp" local="no">var.hpp</includes>
+    <briefdescription>
+<para>Base class for variables. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7611">
+        <label>Gecode::BoolVar</label>
+        <link refid="classGecode_1_1BoolVar"/>
+        <childnode refid="7610" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7610">
+        <label>Gecode::VarImpVar&lt; Int::BoolVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="7606" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7607">
+        <label>Gecode::VarImpVar&lt; VarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="7606" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7608">
+        <label>Gecode::VarImpVar&lt; Float::FloatVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="7606" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7606">
+        <label>Gecode::Var</label>
+        <link refid="classGecode_1_1Var"/>
+      </node>
+      <node id="7613">
+        <label>Gecode::IntVar</label>
+        <link refid="classGecode_1_1IntVar"/>
+        <childnode refid="7612" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7614">
+        <label>Gecode::VarImpVar&lt; Set::SetVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="7606" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7609">
+        <label>Gecode::FloatVar</label>
+        <link refid="classGecode_1_1FloatVar"/>
+        <childnode refid="7608" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7612">
+        <label>Gecode::VarImpVar&lt; Int::IntVarImp &gt;</label>
+        <link refid="classGecode_1_1VarImpVar"/>
+        <childnode refid="7606" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7615">
+        <label>Gecode::SetVar</label>
+        <link refid="classGecode_1_1SetVar"/>
+        <childnode refid="7614" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/usr/include/gecode/kernel/var.hpp" line="44" column="1" bodyfile="/usr/include/gecode/kernel/var.hpp" bodystart="44" bodyend="44"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

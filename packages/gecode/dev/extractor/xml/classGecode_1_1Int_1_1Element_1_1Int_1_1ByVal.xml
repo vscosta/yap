@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal" kind="class" prot="protected">
+    <compoundname>Gecode::Int::Element::Int::ByVal</compoundname>
+    <includes refid="int_2element_8hh" local="no">element.hh</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1aafead54f1cd85eb42566bc8eff5a60e2" prot="protected" static="no" mutable="no">
+        <type>const <ref refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal" kindref="compound">IdxVal</ref> *</type>
+        <definition>const IdxVal* Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::ByVal::iv</definition>
+        <argsstring></argsstring>
+        <name>iv</name>
+        <briefdescription>
+<para>Index-value pairs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="146" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1a55cf2c22d28d061c7e6eef60d7db9900" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>forceinline Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::ByVal::ByVal</definition>
+        <argsstring>(const IdxVal *iv)</argsstring>
+        <name>ByVal</name>
+        <param>
+          <type>const <ref refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal" kindref="compound">IdxVal</ref> *</type>
+          <declname>iv</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with index value pairs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="149" column="1" bodyfile="/usr/include/gecode/int/element/int.hpp" bodystart="147" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1a9ed436dfa924e155a03146f657c1b994" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>forceinline bool Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::ByVal::operator()</definition>
+        <argsstring>(Idx &amp;i, Idx &amp;j)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>Idx &amp;</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>Idx &amp;</type>
+          <declname>j</declname>
+        </param>
+        <briefdescription>
+<para>Compare pairs at positions <emphasis>i</emphasis> and <emphasis>j</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/element.hh" line="151" column="1" bodyfile="/usr/include/gecode/int/element/int.hpp" bodystart="151" bodyend="153"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Sorting pointers to (index,value) pairs in value order. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1328">
+        <label>Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::IdxVal</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1Int_1_1IdxVal"/>
+        <childnode refid="1329" relation="usage">
+          <edgelabel>val</edgelabel>
+        </childnode>
+      </node>
+      <node id="1329">
+        <label>Val</label>
+      </node>
+      <node id="1327">
+        <label>Gecode::Int::Element::Int&lt; V0, V1, Idx, Val &gt;::ByVal</label>
+        <link refid="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal"/>
+        <childnode refid="1328" relation="usage">
+          <edgelabel>iv</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/usr/include/gecode/int/element.hh" line="144" column="1" bodyfile="/usr/include/gecode/int/element.hh" bodystart="144" bodyend="152"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1a55cf2c22d28d061c7e6eef60d7db9900" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::ByVal</scope><name>ByVal</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1aafead54f1cd85eb42566bc8eff5a60e2" prot="protected" virt="non-virtual"><scope>Gecode::Int::Element::Int::ByVal</scope><name>iv</name></member>
+      <member refid="classGecode_1_1Int_1_1Element_1_1Int_1_1ByVal_1a9ed436dfa924e155a03146f657c1b994" prot="public" virt="non-virtual"><scope>Gecode::Int::Element::Int::ByVal</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

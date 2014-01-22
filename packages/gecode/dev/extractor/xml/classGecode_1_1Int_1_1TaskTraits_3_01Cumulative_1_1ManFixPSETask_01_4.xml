@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.6">
+  <compounddef id="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4" kind="class" prot="public">
+    <compoundname>Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;</compoundname>
+    <includes refid="cumulative_8hh" local="no">cumulative.hh</includes>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1ae825beeb70605c6c20c61d3365924188" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1Cumulative_1aad192b45a5d512026bdf1ef84de9645e" kindref="member">Cumulative::ManFixPSETaskFwd</ref></type>
+        <definition>typedef Cumulative::ManFixPSETaskFwd Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;::TaskViewFwd</definition>
+        <argsstring></argsstring>
+        <name>TaskViewFwd</name>
+        <briefdescription>
+<para>The forward task view type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="485" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="485" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1a4e92960598d1fdeda02a1950fd5620a9" prot="public" static="no">
+        <type><ref refid="namespaceGecode_1_1Int_1_1Cumulative_1a288ef788d5098189d073755de7690c71" kindref="member">Cumulative::ManFixPSETaskBwd</ref></type>
+        <definition>typedef Cumulative::ManFixPSETaskBwd Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;::TaskViewBwd</definition>
+        <argsstring></argsstring>
+        <name>TaskViewBwd</name>
+        <briefdescription>
+<para>The backward task view type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="487" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1aa61ff043ec0d45cc557c24d5be2fa836" prot="public" static="no">
+        <type><ref refid="classGecode_1_1Int_1_1Unary_1_1ManFixPSETask" kindref="compound">Unary::ManFixPSETask</ref></type>
+        <definition>typedef Unary::ManFixPSETask Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;::UnaryTask</definition>
+        <argsstring></argsstring>
+        <name>UnaryTask</name>
+        <briefdescription>
+<para>The corresponding unary task type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/usr/include/gecode/int/cumulative.hh" line="489" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="489" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Task traits for mandatory fixed tasks. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/usr/include/gecode/int/cumulative.hh" line="482" column="1" bodyfile="/usr/include/gecode/int/cumulative.hh" bodystart="482" bodyend="490"/>
+    <listofallmembers>
+      <member refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1a4e92960598d1fdeda02a1950fd5620a9" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;</scope><name>TaskViewBwd</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1ae825beeb70605c6c20c61d3365924188" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;</scope><name>TaskViewFwd</name></member>
+      <member refid="classGecode_1_1Int_1_1TaskTraits_3_01Cumulative_1_1ManFixPSETask_01_4_1aa61ff043ec0d45cc557c24d5be2fa836" prot="public" virt="non-virtual"><scope>Gecode::Int::TaskTraits&lt; Cumulative::ManFixPSETask &gt;</scope><name>UnaryTask</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
