@@ -146,7 +146,7 @@ AllocCMem (UInt size, struct intermediates *cip)
   char *p;
   if (ASP <= CellPtr (cip->freep) + 256) {
     CACHE_REGS
-    LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
+    LOCAL_Error_Size = 256+((char *)cip->freep - (char *)HR);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   } 
@@ -856,12 +856,12 @@ void
 Yap_ShowCode (struct intermediates *cint)
 {
   CACHE_REGS
-  CELL *oldH = H;
+  CELL *oldH = HR;
   struct PSEUDO *cpc;
 
   cpc = cint->CodeStart;
   /* MkIntTerm and friends may build terms in the global stack */
-  H = (CELL *)cint->freep;
+  HR = (CELL *)cint->freep;
   while (cpc) {
     compiler_vm_op ic = cpc->op;
     if (ic != nop_op) {
@@ -870,7 +870,7 @@ Yap_ShowCode (struct intermediates *cint)
     cpc = cpc->nextInst;
   }
   Yap_DebugErrorPutc ('\n');
-  H = oldH;
+  HR = oldH;
 }
 
 #endif /* DEBUG */
