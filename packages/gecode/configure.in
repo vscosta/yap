@@ -41,6 +41,10 @@ GECODE_VERSION=unknown-gecode-version
 
 
 if test "$use_gecode" = yes; then
+   if test $i_am_cross_compiling = yes
+   then
+     GECODE_VERSION=4.2.1
+   else
   AC_MSG_CHECKING([gecode version])
   AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include "gecode/support/config.hpp"
@@ -71,6 +75,7 @@ return 0;
      CXXFLAGS="$saved_CXXFLAGS"
      ;;
    esac
+fi
 fi
 
 GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`

@@ -51,6 +51,12 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+  CUDD_LDFLAGS="-L $cudd_dir/lib -lall_cudd"
+else
+
 if test -d "$cudd_dir/util"; then
   LIBS="$LIBS -L $cudd_dir/util"
 fi
@@ -96,6 +102,7 @@ EOF
 
 LIBS="$oldlibs"
 
+fi
 fi
 
 AC_SUBST(ENABLE_CUDD)

@@ -181,11 +181,13 @@ special_functors;
 
 INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
-#if SIZEOF_DOUBLE == SIZEOF_INT_P
-
 #define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
 
 INLINE_ONLY inline EXTERN Term __MkFloatTerm (Float USES_REGS);
+
+INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
+
+#if SIZEOF_DOUBLE == SIZEOF_INT_P
 
 INLINE_ONLY inline EXTERN Term
 __MkFloatTerm (Float dbl USES_REGS)
@@ -195,8 +197,6 @@ __MkFloatTerm (Float dbl USES_REGS)
 		  3, AbsAppl (HR - 3)));
 }
 
-
-INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
 
 INLINE_ONLY inline EXTERN Float
 FloatOfTerm (Term t)
@@ -258,10 +258,6 @@ CpFloatUnaligned (CELL * ptr)
 
 #endif
 
-INLINE_ONLY inline EXTERN Term MkFloatTerm (Float);
-
-#define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
-
 INLINE_ONLY inline EXTERN Term
 __MkFloatTerm (Float dbl USES_REGS)
 {
@@ -272,8 +268,6 @@ __MkFloatTerm (Float dbl USES_REGS)
 		  4, AbsAppl (HR - 4)));
 }
 
-
-INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
 
 INLINE_ONLY inline EXTERN Float
 FloatOfTerm (Term t)

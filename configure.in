@@ -514,6 +514,7 @@ dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
+i_am_cross_compiling=$cross_compiling
 if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
   INSTALL_COMMAND=install_win32
@@ -557,6 +558,7 @@ then
         else
           prefix="$SYSTEMDRIVE/Yap"
         fi
+	i_am_cross_compiling=yes
  	;;
       **)
       if test "$target_cpu" = "x86_64"

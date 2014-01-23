@@ -21,6 +21,14 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    else
      PYTHON="$yap_cv_python"
    fi
+   if test $i_am_cross_compiling = yes
+   then
+     #mingw
+     PYTHON_DIR=`dirname "$PYTHON"`
+     PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+     PYTHON_LIBS="\"$PYTHON_DLL\""
+     PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
+   else
    PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[[:3]])"`
    if test -d "$PYTHONHOME/libs"; then
@@ -48,6 +56,7 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    else
      echo "Could not find includes for Python"
      ENABLE_PYTHON="@# "
+   fi
    fi
 else
     PYTHON_TARGET="dummy"

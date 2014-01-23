@@ -5081,6 +5081,7 @@ fi
 
 
 
+i_am_cross_compiling=$cross_compiling
 if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
   INSTALL_COMMAND=install_win32
@@ -5505,6 +5506,7 @@ fi
         else
           prefix="$SYSTEMDRIVE/Yap"
         fi
+	i_am_cross_compiling=yes
  	;;
       **)
       if test "$target_cpu" = "x86_64"
@@ -10989,6 +10991,12 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+  CUDD_LDFLAGS="-L $cudd_dir/lib -lall_cudd"
+else
+
 if test -d "$cudd_dir/util"; then
   LIBS="$LIBS -L $cudd_dir/util"
 fi
@@ -11312,6 +11320,7 @@ EOF
 LIBS="$oldlibs"
 
 fi
+fi
 
 
 
@@ -11424,7 +11433,23 @@ if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
 
 
 
-for ac_prog in R
+if test $i_am_cross_compiling = yes
+then
+    REAL_TARGET="ritf"
+    REAL_INCLUDES=-I"\"$yap_cv_R\""/include
+    case "$target_cpu" in
+    i*86*)
+      REAL_LIBS="-L\"$yap_cv_R\"/bin/i386 -lR"
+    ;;
+    x86*)
+      REAL_LIBS="-L\"$yap_cv_R\"/bin/x64 -lR"
+    ;;
+    **)
+      REAL_TARGET="dummy"
+    ;;
+    esac
+else
+  for ac_prog in R
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -11467,19 +11492,19 @@ fi
 done
 test -n "$REXE" || REXE=""none""
 
-if test $REXE = none; then
-  REAL_TARGET="dummy"
-else
-  REAL_TARGET="ritf"
-  REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
-  REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
+  if test $REXE = none; then
+    REAL_TARGET="dummy"
+  else
+    REAL_TARGET="ritf"
+    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
+    REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
 
-  ocppflags="$CPPFLAGS"
-  ocflags="$CFLAGS"
-  CPPFLAGS+=" $REAL_INCLUDES"
-  CFLAGS+=" $REAL_INCLUDES"
+    ocppflags="$CPPFLAGS"
+    ocflags="$CFLAGS"
+    CPPFLAGS+=" $REAL_INCLUDES"
+    CFLAGS+=" $REAL_INCLUDES"
 
-  for ac_header in Rinterface.h
+    for ac_header in Rinterface.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "Rinterface.h" "ac_cv_header_Rinterface_h" "$ac_includes_default"
 if test "x$ac_cv_header_Rinterface_h" = xyes; then :
@@ -11492,8 +11517,9 @@ fi
 done
 
 
-  CFLAGS="$ocflags"
-  CPPFLAGS="$ocppflags"
+    CFLAGS="$ocflags"
+    CPPFLAGS="$ocppflags"
+  fi
 fi
 
 
@@ -11729,7 +11755,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11732 "configure" */
+/* #line 11758 "configure" */
 public class Test {
 }
 EOF
@@ -11905,7 +11931,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11908: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11934: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12036,7 +12062,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12039 "configure" */
+/* #line 12065 "configure" */
 public class Test {
 }
 EOF
@@ -12071,7 +12097,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12074 "configure" */
+/* [#]line 12100 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12722,6 +12748,12 @@ _ACEOF
 
 
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
+     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
+fi
 
 
 
@@ -12829,6 +12861,10 @@ GECODE_VERSION=unknown-gecode-version
 
 
 if test "$use_gecode" = yes; then
+   if test $i_am_cross_compiling = yes
+   then
+     GECODE_VERSION=4.2.1
+   else
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking gecode version" >&5
 $as_echo_n "checking gecode version... " >&6; }
   if test "$cross_compiling" = yes; then :
@@ -12913,6 +12949,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
      CXXFLAGS="$saved_CXXFLAGS"
      ;;
    esac
+fi
 fi
 
 GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
@@ -13331,6 +13368,14 @@ test -n "$PYTHON" || PYTHON=""none""
    else
      PYTHON="$yap_cv_python"
    fi
+   if test $i_am_cross_compiling = yes
+   then
+     #mingw
+     PYTHON_DIR=`dirname "$PYTHON"`
+     PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+     PYTHON_LIBS="\"$PYTHON_DLL\""
+     PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
+   else
    PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[:3])"`
    if test -d "$PYTHONHOME/libs"; then
@@ -13414,6 +13459,7 @@ fi
    else
      echo "Could not find includes for Python"
      ENABLE_PYTHON="@# "
+   fi
    fi
 else
     PYTHON_TARGET="dummy"
