@@ -1957,15 +1957,6 @@ Yap_InitBackCPreds(void)
   Yap_InitBackIO();
   Yap_InitBackDB();
   Yap_InitUserBacks();
-#if defined MYDDAS_MYSQL && defined CUT_C
-  Yap_InitBackMYDDAS_MySQLPreds();
-#endif
-#if defined MYDDAS_ODBC && defined CUT_C
-  Yap_InitBackMYDDAS_ODBCPreds();
-#endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-  Yap_InitBackMYDDAS_SharedPreds();
-#endif
 }
 
 typedef void (*Proc)(void);
@@ -2074,18 +2065,6 @@ Yap_InitCPreds(void)
   Yap_InitUnify();
   Yap_InitQLY();
   Yap_InitQLYR();
-#if defined CUT_C && defined MYDDAS_MYSQL 
-  Yap_InitMYDDAS_MySQLPreds();
-#endif
-#if defined CUT_C && defined MYDDAS_ODBC 
-  Yap_InitMYDDAS_ODBCPreds();
-#endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-  Yap_InitMYDDAS_SharedPreds();
-#endif
-#if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
-  Yap_InitMYDDAS_TopLevelPreds();
-#endif
   Yap_udi_init();
   Yap_udi_Interval_init();
   Yap_InitSignalCPreds();

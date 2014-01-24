@@ -684,6 +684,7 @@ CLIB_CRYPTLIBS
 CLIB_NETLIBS
 CLIB_PLTARGETS
 CLIB_TARGETS
+ENABLE_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
 CLIB_PTHREADS
 CHR_TARGETS
@@ -9261,6 +9262,7 @@ fi
 
 if test "$yap_cv_myddas" != "no"
 then
+	ENABLE_MYDDAS=""
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing mysql_init" >&5
 $as_echo_n "checking for library containing mysql_init... " >&6; }
 if ${ac_cv_search_mysql_init+:} false; then :
@@ -9470,8 +9472,11 @@ fi
 	  then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
-
+else
+	ENABLE_MYDDAS="#@ "
 fi
+
+
 
 if test "$yap_cv_myddas" != "no"
 then
@@ -11755,7 +11760,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11758 "configure" */
+/* #line 11763 "configure" */
 public class Test {
 }
 EOF
@@ -11931,7 +11936,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11934: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11939: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12062,7 +12067,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12065 "configure" */
+/* #line 12070 "configure" */
 public class Test {
 }
 EOF
@@ -12097,7 +12102,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12100 "configure" */
+/* [#]line 12105 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -13652,6 +13657,7 @@ mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/ltx2htm
 mkdir -p  packages/meld
+mkdir -p  packages/myddas
 mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
 mkdir -p  packages/pldoc
@@ -13824,6 +13830,11 @@ fi
 
 if test "$ENABLE_REAL" = ""; then
 ac_config_files="$ac_config_files packages/real/Makefile"
+
+fi
+
+if test "$ENABLE_MYDDAS" = ""; then
+ac_config_files="$ac_config_files packages/myddas/Makefile"
 
 fi
 
@@ -14600,6 +14611,7 @@ do
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
     "packages/real/Makefile") CONFIG_FILES="$CONFIG_FILES packages/real/Makefile" ;;
+    "packages/myddas/Makefile") CONFIG_FILES="$CONFIG_FILES packages/myddas/Makefile" ;;
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "packages/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES packages/gecode/Makefile" ;;
     "packages/raptor/Makefile") CONFIG_FILES="$CONFIG_FILES packages/raptor/Makefile" ;;

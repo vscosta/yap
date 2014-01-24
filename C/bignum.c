@@ -26,12 +26,12 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include "YapHeap.h"
+#include "pl-utf8.h"
 
 #ifdef USE_GMP
 
 #include "eval.h"
 #include "alloc.h"
-#include "pl-utf8.h"
 
 Term
 Yap_MkBigIntTerm(MP_INT *big)

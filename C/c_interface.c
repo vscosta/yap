@@ -3225,21 +3225,6 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
-#ifdef MYDDAS_MYSQL
-  if (yap_init->myddas) {
-    Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
-    
-    /* Mandatory Fields */
-    Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
-    Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
-    
-    /* Non-Mandatory Fields */
-    if (yap_init->myddas_pass != NULL)
-      Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
-    if (yap_init->myddas_host != NULL)
-      Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
-  }
-#endif
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }

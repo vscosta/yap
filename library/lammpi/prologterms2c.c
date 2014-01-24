@@ -53,7 +53,7 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 
 #endif
 
-struct buffer_ds buffer; 
+struct buffer_ds buffers[1024]; 
 
 /*********************************************************************************************/
 // prototypes
@@ -100,7 +100,6 @@ expand_buffer(const size_t space ) {
  */
 void
 change_buffer_size(const size_t newsize) {
-
   if ( BUFFER_SIZE>=BLOCK_SIZE && BUFFER_SIZE>=newsize)
     return;
   if (BUFFER_PTR) {
@@ -143,6 +142,7 @@ size_t
 write_term_to_stream(const int fd,const YAP_Term term) {
 
   RESET_BUFFER;
+  printf("BUFFER_PTR=%p\n", BUFFER_PTR);
   p2c_putt(term);
   if (write(fd,(void*)BUFFER_PTR,BUFFER_LEN) < 0) {     // write term
     YAP_Error(0,0,"Prolog2Term: IO error in write.\n");

@@ -447,6 +447,7 @@ extern X_API int PL_get_chars(term_t, char **, unsigned);
 extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
 extern X_API int PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
 extern X_API int PL_get_functor(term_t, functor_t *);
+extern X_API int PL_get_compound_name_arity(term_t t, atom_t *ap, int *ip);
 extern X_API int PL_get_float(term_t, double *);
 extern X_API int PL_get_head(term_t, term_t);
 extern X_API int PL_get_int64(term_t, int64_t *);
