@@ -1627,9 +1627,11 @@ X_API int PL_term_type(term_t t)
     return PL_VARIABLE;
   } else if (IsAtomTerm(v)) {
     return PL_ATOM;
-  } else if (YAP_IsIntTerm(v)) {
+  } else if (IsStringTerm(v)) {
+    return PL_STRING;
+  } else if (IsIntegerTerm(v)) {
     return PL_INTEGER;
-  } else if (YAP_IsFloatTerm(v)) {
+  } else if (IsFloatTerm(v)) {
     return PL_FLOAT;
   } else {
     return PL_TERM;
@@ -1671,14 +1673,14 @@ X_API int PL_is_atomic(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return !YAP_IsVarTerm(t) || !YAP_IsApplTerm(t) || !YAP_IsPairTerm(t);
+  return !IsVarTerm(t) || !IsApplTerm(t) || !IsPairTerm(t);
 }
 
 X_API int PL_is_compound(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return (YAP_IsApplTerm(t) || YAP_IsPairTerm(t));
+  return (IsApplTerm(t) || IsPairTerm(t));
 }
 
 X_API int PL_is_functor(term_t ts, functor_t f)
@@ -1698,7 +1700,7 @@ X_API int PL_is_float(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return YAP_IsFloatTerm(t);
+  return !IsVarTerm(t) && IsFloatTerm(t);
 }
 
 X_API int PL_is_integer(term_t ts)
@@ -1724,6 +1726,13 @@ X_API int PL_is_list(term_t ts)
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return !IsVarTerm(t) && (t == TermNil || IsPairTerm(t));
+}
+
+X_API int PL_is_pair(term_t ts)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  return !IsVarTerm(t) && IsPairTerm(t);
 }
 
 X_API int
@@ -1758,7 +1767,7 @@ X_API int PL_is_number(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t) || YAP_IsFloatTerm(t);
+  return IsIntegerTerm(t) || IsBigIntTerm(t) || IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
