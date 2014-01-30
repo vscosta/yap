@@ -698,6 +698,7 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
 void
 init_myddas(void)
 {
+  CACHE_REGS
 #if defined MYDDAS_MYSQL && defined CUT_C
   Yap_InitBackMYDDAS_MySQLPreds();
 #endif

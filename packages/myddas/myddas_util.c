@@ -364,10 +364,10 @@ myddas_util_get_list_pred(MYDDAS_UTIL_CONNECTION node){
 #ifdef DEBUG
 void check_int( void ){
   CACHE_REGS
-  Int i;
+
   MYDDAS_UTIL_PREDICATE pred = NULL;
   MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
-  for (i=1 ; top!=NULL ; top=top->next)
+  for ( ; top!=NULL ; top=top->next)
     {
       printf ("***************\n");
       printf ("===== top =====\n");
