@@ -366,7 +366,7 @@ add_int(Int i, Int j USES_REGS)
  overflow:
     return Yap_gmp_add_ints(i, j);
 #else
-  RINT(x);
+    RINT(i+j);
 #endif
 }
 

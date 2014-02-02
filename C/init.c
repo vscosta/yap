@@ -1234,10 +1234,6 @@ InitVersion(void)
 {
   Yap_PutValue(AtomVersionNumber,
 	       MkAtomTerm(Yap_LookupAtom(YAP_SVERSION)));
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-  Yap_PutValue(AtomMyddasVersionName,
-	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));
-#endif  
 }
 
 void
@@ -1402,9 +1398,6 @@ Yap_exit (int value)
 #ifdef LOW_PROF
     remove("PROFPREDS");
     remove("PROFILING");
-#endif
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-    Yap_MYDDAS_delete_all_myddas_structs();
 #endif
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();

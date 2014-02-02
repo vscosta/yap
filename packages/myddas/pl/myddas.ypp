@@ -17,6 +17,8 @@
 
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
 
+:- load_foreign_files([myddas], [], init_myddas).
+
 /* Initialize MYDDAS GLOBAL STRUCTURES */
 :- c_db_initialize_myddas.
 
@@ -175,6 +177,7 @@
 :- use_module(lists,[
 		     append/3
 		     ]).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -20,9 +20,6 @@
 #include "cut_c.h"
 #endif
 
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
-#include "myddas.h"
-#endif
 #endif
 
 #define MaxTemps	512

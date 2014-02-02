@@ -60,7 +60,7 @@ YAPSTARTUP=startup.yss
 #
 CC=@CC@
 MPI_CC=@MPI_CC@
-CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/MYDDAS
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CFLAGS=  @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
@@ -202,11 +202,7 @@ HEADERS = \
 	$(srcdir)/OPTYap/locks_pthread.h \
 	$(srcdir)/H/cut_c.h \
 	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
-	$(srcdir)/library/dialect/swi/fli/swi.h \
-	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
-	$(srcdir)/MYDDAS/myddas_statistics.h \
-	$(srcdir)/MYDDAS/myddas_statistics_structs.h \
-	$(srcdir)/MYDDAS/myddas_wkb.h $(srcdir)/MYDDAS/myddas_wkb2prolog.h
+	$(srcdir)/library/dialect/swi/fli/swi.h
 
 IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-codelist.c \
@@ -285,15 +281,7 @@ C_SOURCES= \
 	# $(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
 	$(srcdir)/C/cut_c.c \
 	$(srcdir)/library/dialect/swi/fli/swi.c \
-	$(srcdir)/library/dialect/swi/fli/blobs.c \
-	$(srcdir)/MYDDAS/myddas_mysql.c \
-	$(srcdir)/MYDDAS/myddas_odbc.c \
-	$(srcdir)/MYDDAS/myddas_util.c \
-	$(srcdir)/MYDDAS/myddas_initialization.c \
-	$(srcdir)/MYDDAS/myddas_shared.c \
-	$(srcdir)/MYDDAS/myddas_statistics.c \
-	$(srcdir)/MYDDAS/myddas_top_level.c \
-	$(srcdir)/MYDDAS/myddas_wkb2prolog.c
+	$(srcdir)/library/dialect/swi/fli/blobs.c
 
 PLCONS_SOURCES = \
 	$(srcdir)/console/LGPL/pl-nt.c \
@@ -369,9 +357,7 @@ ENGINE_OBJECTS = \
 	exec.o exo.o exo_udi.o globals.o gmp_support.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
-	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
-	myddas_util.o myddas_statistics.o myddas_top_level.o \
-	myddas_wkb2prolog.o modules.o other.o   \
+	modules.o other.o   \
 	parser.o qlyr.o qlyw.o range.o \
 	save.o scanner.o signals.o text.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
@@ -492,30 +478,6 @@ mpi.o: $(srcdir)/library/mpi/mpi.c config.h
 
 mpe.o: $(srcdir)/library/mpi/mpe.c config.h
 	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
-
-myddas_mysql.o: $(srcdir)/MYDDAS/myddas_mysql.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_mysql.c -o $@
-
-myddas_odbc.o: $(srcdir)/MYDDAS/myddas_odbc.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_odbc.c -o $@
-
-myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_shared.c -o $@
-
-myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_util.c -o $@
-
-myddas_initialization.o: $(srcdir)/MYDDAS/myddas_initialization.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_initialization.c -o $@
-
-myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_top_level.c -o $@
-
-myddas_wkb2prolog.o: $(srcdir)/MYDDAS/myddas_wkb2prolog.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_wkb2prolog.c -o $@
-
-myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_statistics.c -o $@
 
 or.memory.o: $(srcdir)/OPTYap/or.memory.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.memory.c -o $@
@@ -741,6 +703,7 @@ all: startup.yss
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE))
 	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE))
+	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE))
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -811,7 +774,8 @@ install_unix: startup.yss @YAPLIB@
 	@ENABLE_REAL@ @INSTALL_DLLS@ (cd packages/real; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) install)
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE))
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
+	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
@@ -827,7 +791,6 @@ install_unix: startup.yss @YAPLIB@
 	@ENABLE_RAPTOR@ @INSTALL_DLLS@ (cd packages/raptor; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
 
 
 install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
@@ -887,6 +850,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
+	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -961,6 +925,7 @@ clean: clean_docs
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) clean)
 	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) clean)
+	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) clean)
 
 
 

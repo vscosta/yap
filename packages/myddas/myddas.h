@@ -155,5 +155,7 @@ typedef struct myddas_stats_struct *MYDDAS_STATS_STRUCT;
   NUMBER = Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_freed;
 #endif
 
+#include "MyddasProto.h"
+
 
 #endif /*__MYDDAS_H__*/

@@ -211,6 +211,32 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   return 1;
 }
 
+/* SWI: int PL_get_arg(int index, term_t t, term_t a)
+   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
+X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !YAP_IsApplTerm(t) ) {
+    if (YAP_IsPairTerm(t)) {
+      if (ip)
+	*ip = 2;
+      if (ap)
+	*ap = ATOM_nil;
+      return 1;
+    }
+    return 0;
+  } else {
+    Functor f = FunctorOfTerm( t );
+    if (IsExtensionFunctor(f)) return FALSE;
+    if (ip)
+      *ip = ArityOfFunctor( f );
+    if (ap)
+      *ap = AtomToSWIAtom( NameOfFunctor( f ));
+    return 1;
+  }
+}
+
 X_API int _PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
@@ -344,10 +370,14 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {	
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( YAP_IsFloatTerm(t)) {
-    *f = YAP_FloatOfTerm(t);
-  } else if ( YAP_IsIntTerm(t)) {
-    *f = YAP_IntOfTerm(t);
+  if ( IsFloatTerm(t)) {
+    *f = FloatOfTerm(t);
+  } else if ( IsIntegerTerm(t)) {
+    *f = IntegerOfTerm(t);
+#if USE_GMP
+  } else if (IsBigIntTerm(t)) {
+    *f = Yap_gmp_to_float( t );
+#endif
   } else {
     return 0;
   }
@@ -438,7 +468,7 @@ X_API int PL_get_long(term_t ts, long *i)
 
 X_API int PL_get_int64(term_t ts, int64_t *i)
 {
-#if SIZE_OF_LONG_INT==8
+#if SIZE_OF_INT_P==8
   return PL_get_long(ts, (long *)i);
 #else
   CACHE_REGS
@@ -1442,7 +1472,7 @@ int PL_unify_termv(term_t l, va_list ap)
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, intptr_t));
 	break;
       case PL_INT64:
-#if SIZEOF_LONG_INT==8
+#if SIZEOF_INT_P==8
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, long int));
 #elif USE_GMP
 	{
@@ -1646,14 +1676,14 @@ X_API int PL_is_atomic(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return !YAP_IsVarTerm(t) || !YAP_IsApplTerm(t) || !YAP_IsPairTerm(t);
+  return !IsVarTerm(t) || !IsApplTerm(t) || !IsPairTerm(t);
 }
 
 X_API int PL_is_compound(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return (YAP_IsApplTerm(t) || YAP_IsPairTerm(t));
+  return (IsApplTerm(t) || IsPairTerm(t));
 }
 
 X_API int PL_is_functor(term_t ts, functor_t f)
@@ -1673,7 +1703,7 @@ X_API int PL_is_float(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return YAP_IsFloatTerm(t);
+  return !IsVarTerm(t) && IsFloatTerm(t);
 }
 
 X_API int PL_is_integer(term_t ts)
@@ -1740,7 +1770,7 @@ X_API int PL_is_number(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t) || YAP_IsFloatTerm(t);
+  return IsIntegerTerm(t) || IsBigIntTerm(t) || IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
@@ -2635,7 +2665,7 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
   if (IsIntegerTerm(res)) {
     *val = IntegerOfTerm(res);
     return TRUE;
-#if  SIZEOF_LONG_INT==4 && USE_GMP
+#if  SIZEOF_INT_P==4 && USE_GMP
   } else if (YAP_IsBigNumTerm(res)) {
     MP_INT g;
     char s[64];

@@ -419,7 +419,7 @@ int
 get_string_text(word w, PL_chars_t *text ARG_LD)
 {
   text->text.t = (char *)StringOfTerm(w);
-  text->encoding = ENC_ISO_LATIN_1;
+  text->encoding = ENC_UTF8;
   text->length = strlen(text->text.t);
   text->storage = PL_CHARS_STACK;
   text->canonical = TRUE;

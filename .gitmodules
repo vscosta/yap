@@ -51,4 +51,4 @@
 	url = git://git.code.sf.net/p/yap/ltx2htm
 [submodule "packages/raptor"]
 	path = packages/raptor
-	url = https://github.com/davidvaz/yap-raptor.git
+	url = git://git.code.sf.net/p/yap/raptor

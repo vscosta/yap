@@ -356,9 +356,9 @@ sync_with_p:
 #ifndef TABLING
   REMOTE_reply_signal(worker_p) = worker_ready;
 #endif /* TABLING */
+  TR = (tr_fr_ptr) LOCAL_end_trail_copy;
   LOCAL_reply_signal = worker_ready;
   PUT_IN_REQUESTABLE(worker_id);
-  TR = (tr_fr_ptr) LOCAL_end_trail_copy;
 #ifdef TABLING
   adjust_freeze_registers();
 #endif /* TABLING */

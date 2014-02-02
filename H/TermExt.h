@@ -261,7 +261,6 @@ CpFloatUnaligned (CELL * ptr)
 INLINE_ONLY inline EXTERN Term
 __MkFloatTerm (Float dbl USES_REGS)
 {
-  CACHE_REGS
   return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), HR[0] =
 		  (CELL) FunctorDouble, *(Float *) (HR + 1) = dbl, HR[3] =
 		  EndSpecials, HR +=

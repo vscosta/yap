@@ -25,9 +25,6 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #ifdef CUT_C
 #include "cut_c.h"
 #endif
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
-#include "myddas.h"
-#endif
 
 static Int  CallPredicate(PredEntry *, choiceptr, yamop * CACHE_TYPE);
 static Int  EnterCreepMode(Term, Term CACHE_TYPE);
@@ -1804,9 +1801,6 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_InitPreAllocCodeSpace( myworker_id );
 #ifdef CUT_C
   cut_c_initialize( myworker_id );
-#endif
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-  Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
 #endif
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef TABLING

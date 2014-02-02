@@ -751,12 +751,6 @@ else
   ENABLE_ZLIB="@# "
 fi
 
-if test -e "$srcdir"/packages/raptor/Makefile.in; then
-  ENABLE_RAPTOR=""
-else
-  ENABLE_RAPTOR="@# "
-fi
-
 if test "$cross_compiling" = "yes"
 then
   YAP_EXTRAS=
@@ -1811,7 +1805,7 @@ fi
 
 
 
-m4_include([library/MYDDAS/configure.in])
+m4_include([packages/myddas/configure.in])
 
 if test "$ENABLE_CLIB" = ""
 then
@@ -1899,9 +1893,8 @@ fi
 
 m4_include([packages/gecode/configure.in])
 
-if test "$ENABLE_RAPTOR" = ""
-then
-m4_include([packages/raptor/configure.in])
+if test -e "$srcdir"/packages/raptor/Makefile.in; then
+   m4_include([packages/raptor/configure.in])
 fi
 
 m4_include([library/lammpi/configure.in])
@@ -1954,6 +1947,7 @@ mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/ltx2htm
 mkdir -p  packages/meld
+mkdir -p  packages/myddas
 mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
 mkdir -p  packages/pldoc
@@ -2084,16 +2078,16 @@ if test "$ENABLE_REAL" = ""; then
 AC_CONFIG_FILES([packages/real/Makefile])
 fi
 
+if test "$ENABLE_MYDDAS" = ""; then
+AC_CONFIG_FILES([packages/myddas/Makefile])
+fi
+
 if test "$ENABLE_CLPBN_BP" = ""; then
 AC_CONFIG_FILES([packages/CLPBN/horus/Makefile])
 fi
 
 if test "$ENABLE_GECODE" = ""; then
 AC_CONFIG_FILES([packages/gecode/Makefile])
-fi
-
-if test "$ENABLE_RAPTOR" = ""; then
-AC_CONFIG_FILES([packages/raptor/Makefile])
 fi
 
 if test "$ENABLE_PRISM" = ""; then

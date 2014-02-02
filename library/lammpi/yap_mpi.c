@@ -71,7 +71,9 @@ typedef struct broadcast_req BroadcastRequest;
 /********************************************************************
  * Auxiliary data
  ********************************************************************/
-static int mpi_status;
+static int mpi_statuss[1024];
+#define mpi_status (mpi_statuss[YAP_ThreadSelf()])
+
 extern int GLOBAL_argc;
 
 #define HASHSIZE 1777
@@ -110,7 +112,11 @@ static double total_time_spent;     // total time spend in communication code
 
 #define RETURN(p)     {PAUSE_TIMER();return (p);}
 
-static struct timeval _tstart, _tend;
+static struct timeval _tstarts[1024], _tends[1024];
+
+#define _tsart (_tstarts[YAP_ThreadSelf()])
+#define _tend  (_tends[YAP_ThreadSelf()])
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -260,7 +266,7 @@ mpi_init(void){
   char ** my_argv;
   int my_argc = YAP_Argv(&my_argv);
   //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
-  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
+  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_MULTIPLE, &thread_level);
 #ifdef DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
