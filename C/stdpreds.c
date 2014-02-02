@@ -692,6 +692,10 @@ p_univ( USES_REGS1 )
     return (FALSE);
   if (IsApplTerm(tin)) {
     Functor         fun = FunctorOfTerm(tin);
+    if (IsExtensionFunctor ( fun ) ) {
+      twork = MkPairTerm(tin, MkAtomTerm(AtomNil));
+      return (Yap_unify(twork, ARG2));
+    }
     arity = ArityOfFunctor(fun);
     at = NameOfFunctor(fun);
 #ifdef SFUNC

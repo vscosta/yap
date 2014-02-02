@@ -55,7 +55,25 @@ get_string_from_list( Term t, seq_tv_t *inp, char *s, int atoms USES_REGS)
     max = inp->max;
   }
 
-  if (atoms) {
+  if (TRUE /* atoms == -1 */) {
+    while (t != TermNil) {
+      Term h = HeadOfTerm(t);
+      if (IsAtomTerm(h)) {
+	Atom at;
+	if (IsWideAtom(at = AtomOfTerm(h)))
+	  *s++ = RepAtom(at)->WStrOfAE[0];
+	else
+	  *s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
+      } else {
+	*s++  = IntOfTerm(h);
+      }
+      if (--max == 0) {
+	*s++ = 0;
+	return s0;
+      }
+      t = TailOfTerm(t);
+    }
+  } else if (atoms) {
     while (t != TermNil) {
       Atom at;
       if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t)))) {
@@ -101,7 +119,25 @@ get_wide_from_list( Term t, seq_tv_t *inp, wchar_t *s, int atoms USES_REGS)
     max = inp->max;
   }
 
-  if (atoms) {
+  if (TRUE /* atoms == -1*/) {
+    while (t != TermNil) {
+      Term h = HeadOfTerm(t);
+      if (IsAtomTerm(h)) {
+	Atom at;
+	if (IsWideAtom(at = AtomOfTerm(h)))
+	  *s++ = RepAtom(at)->WStrOfAE[0];
+	else
+	  *s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
+      } else {
+	*s++ = IntOfTerm(h);
+      }
+      if (--max == 0) {
+	*s++ = 0;
+	return s0;
+      }
+      t = TailOfTerm(t);
+    }
+  } else if (atoms) {
     while (t != TermNil) {
       Atom at;
       if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t))))
@@ -166,8 +202,8 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
 	  length =  -INSTANTIATION_ERROR;
 	} else if (IsAtomTerm(hd)) {
 	  (*atoms)++;
-	  if (*atoms < length)
-	    { *tailp = l; return -TYPE_ERROR_STRING; }
+	  /* if (*atoms < length)
+	     { *tailp = l; return -TYPE_ERROR_STRING; } */
 	  if (IsWideAtom(AtomOfTerm(hd))) {
 	    if ((RepAtom(AtomOfTerm(hd))->WStrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER; }
 	    *wide = TRUE;
@@ -177,7 +213,7 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
 	  }
 	} else if (IsIntTerm(hd)) {
 	  Int ch = IntOfTerm(hd);
-	  if ( *atoms || ch < 0) { *tailp = l; if (*atoms) length = -TYPE_ERROR_STRING; length = -DOMAIN_ERROR_NOT_LESS_THAN_ZERO; }
+	  if (/* *atoms|| */ch < 0) { *tailp = l; /*if (*atoms) length = -TYPE_ERROR_STRING;*/ length = -DOMAIN_ERROR_NOT_LESS_THAN_ZERO; }
 	  else if (ch > 0x80) { *wide = TRUE; }
 	} else {
 	  length = -TYPE_ERROR_INTEGER;
@@ -219,11 +255,12 @@ Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *le
     LOCAL_Error_Term = *r;
     return NULL;
   }
-  if (n && !atoms) {
+  /*  if (n && !atoms) {
     LOCAL_Error_Term = t;
     LOCAL_Error_TYPE = TYPE_ERROR_CHARACTER;
     return NULL;
   }
+  */
   *lenp = n;
   if (*widep) {
     wchar_t *s;
