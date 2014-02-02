@@ -193,19 +193,21 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( !YAP_IsApplTerm(t) ) {
-    if (YAP_IsPairTerm(t)) {
+  if (IsVarTerm( t ))
+      return 0;
+  if ( !IsApplTerm(t) ) {
+    if (IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,YAP_HeadOfTerm(t) PASS_REGS);
+	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
 	return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,YAP_TailOfTerm(t) PASS_REGS);
+	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
 	return 1;
       }
     }
     return 0;
   }
-  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t) PASS_REGS);
+  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
 
@@ -770,10 +772,11 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     tmp = RepAppl(t)+1;
   }
   for (i = 0; i < arity; i++) {
-    Yap_unify(tmp[i],Yap_GetFromSlot(a0 PASS_REGS));
+    tmp[i] = Yap_GetFromSlot(a0 PASS_REGS);
     a0++;
   }
   Yap_PutInSlot(d,t PASS_REGS);
+
   return TRUE;
 }
 
@@ -1593,13 +1596,15 @@ X_API int PL_term_type(term_t t)
   CACHE_REGS
   /* YAP_ does not support strings as different objects */
   YAP_Term v = Yap_GetFromSlot(t PASS_REGS);
-  if (YAP_IsVarTerm(v)) {
+  if (IsVarTerm(v)) {
     return PL_VARIABLE;
   } else if (IsAtomTerm(v)) {
     return PL_ATOM;
-  } else if (YAP_IsIntTerm(v)) {
+  } else if (IsIntegerTerm(v)) {
     return PL_INTEGER;
-  } else if (YAP_IsFloatTerm(v)) {
+  } else if (IsStringTerm(v)) {
+    return PL_STRING;
+  } else if (IsFloatTerm(v)) {
     return PL_FLOAT;
   } else {
     return PL_TERM;
@@ -1694,6 +1699,13 @@ X_API int PL_is_list(term_t ts)
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return !IsVarTerm(t) && (t == TermNil || IsPairTerm(t));
+}
+
+X_API int PL_is_pair(term_t ts)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  return !IsVarTerm(t) && IsPairTerm(t);
 }
 
 X_API int

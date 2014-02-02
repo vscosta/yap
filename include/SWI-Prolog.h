@@ -539,6 +539,7 @@ extern X_API  int PL_is_ground(term_t);
 extern X_API  int PL_is_callable(term_t);
 extern X_API  int PL_is_integer(term_t);
 extern X_API  int PL_is_list(term_t);
+extern X_API  int PL_is_pair(term_t);
 extern X_API  int PL_is_number(term_t);
 extern X_API  int PL_is_string(term_t);
 extern X_API  int PL_is_variable(term_t);
