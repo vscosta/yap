@@ -112,3 +112,5 @@ install: $(PROGRAMS)
 	for p in $(DIALECT_SWI); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi; done
 	for p in $(DIALECT_BP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/bprolog; done
 
+realclean:
+	rm -f *def Makefile

@@ -930,7 +930,7 @@ clean: clean_docs
 
 
 realclean: clean realclean_docs
-	rm -f yap@EXEC_SUFFIX@ startup.yss config.log config.cache config.h
+	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile *.h config.log config.status config.cache
 
 dist:
 
