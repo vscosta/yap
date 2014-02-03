@@ -675,7 +675,7 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);
     case string_e:
-      return strcmp( (char *)pt0[2], (char *)RepAppl (d1)[2] ) == 0;
+      return strcmp( (char *)(pt0+2), (char *)(RepAppl (d1)+2) ) == 0;
     case big_int_e:
 #ifdef USE_GMP
       return (Yap_gmp_tcmp_big_big(d0,d1) == 0);
