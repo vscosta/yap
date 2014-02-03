@@ -9897,8 +9897,8 @@ esac
   export CC LD CFLAGS LDFLAGS;
   mkdir -p packages/clib/maildrop/rfc822;
   mkdir -p packages/clib/maildrop/rfc2045;
-  ( cd packages/clib/maildrop/rfc822  && $SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc822/configure --host=$host)
-  ( cd packages/clib/maildrop/rfc2045  && $SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc2045/configure --host=$host)
+  ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc822/configure --host=$host)
+  ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc2045/configure --host=$host)
 )
 
 
@@ -12747,12 +12747,6 @@ _ACEOF
 
 
 
-if test $i_am_cross_compiling = yes
-then
-     #mingw: we know where things are
-     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
-     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
-fi
 
 
 
