@@ -58,7 +58,7 @@ static void share_private_nodes(int worker_q);
 #else
 #define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
         REMOTE_start_global_copy(Q) = (CELL) (H0);                       \
-        REMOTE_end_global_copy(Q)   = (CELL) (H);                        \
+        REMOTE_end_global_copy(Q)   = (CELL) (HR);                       \
         REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
         REMOTE_end_local_copy(Q)    = (CELL) (GLOBAL_root_cp);           \
         REMOTE_start_trail_copy(Q)  = (CELL) (GLOBAL_root_cp->cp_tr);    \
@@ -311,7 +311,7 @@ sync_with_p:
   /* install fase --> TR and LOCAL_top_cp->cp_tr are equal */
   aux_tr = ((choiceptr) LOCAL_start_local_copy)->cp_tr;
   TR = ((choiceptr) LOCAL_end_local_copy)->cp_tr;
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR);
   while (TR != aux_tr) {
     aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {

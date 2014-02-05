@@ -1233,7 +1233,9 @@ p_close_static_array( USES_REGS1 )
 	if (val) {
 #endif
 	    return(val);
+#if USE_SYSTEM_MALLOC
 	}
+#endif
 #endif
 	Yap_FreeAtomSpace((char *)(ptr->ValueOfVE.ints));
 	ptr->ValueOfVE.ints = NULL;

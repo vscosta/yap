@@ -128,7 +128,7 @@
       } else if (IsPairTerm(d1)) {
 	CELL *pt = RepPair(d1);
 	      
-	if (IN_BETWEEN(H0,pt,H) && IsAttVar(pt)) {
+	if (IN_BETWEEN(H0,pt,HR) && IsAttVar(pt)) {
 	  CELL val = Deref(*pt);
 	  if (IsVarTerm(val)) {
 	    Bind(VarOfTerm(val), MkAtomTerm(AtomCut));

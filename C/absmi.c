@@ -1091,7 +1091,7 @@ interrupt_dexecute( USES_REGS1 )
   { 
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-    if (YENV > (CELL *) top_b || YENV < H) YENV = (CELL *) top_b;
+    if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
 #else
     if (YENV > (CELL *) top_b) YENV = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -1295,7 +1295,7 @@ Yap_absmi(int inp)
     ops_done++;
     /*    if (B->cp_b > 0x103fff90)
       fprintf(stderr,"(%ld) doing %s, done %s, B is %p, HB is %p, H is %p\n",
-      ops_done,Yap_op_names[opcode],Yap_op_names[old_op],B,B->cp_h,H);*/
+      ops_done,Yap_op_names[opcode],Yap_op_names[old_op],B,B->cp_h,HR);*/
 #endif
 #endif /* ANALYST */
 

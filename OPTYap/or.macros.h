@@ -158,7 +158,7 @@ static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
         SCH_check_share_request()
 
 #define SCH_last_alternative(curpc, CP_PTR)    \
-        H = HBREG = PROTECT_FROZEN_H(CP_PTR);  \
+        HR = HBREG = PROTECT_FROZEN_H(CP_PTR); \
         CPREG = CP_PTR->cp_cp;		       \
         ENV = CP_PTR->cp_env;                  \
         SCH_new_alternative(curpc, NULL)
