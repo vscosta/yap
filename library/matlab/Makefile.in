@@ -58,3 +58,6 @@ install: all
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+realclean: clean
+	rm -f Makefile
+

@@ -160,7 +160,7 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
 X_API term_t PL_copy_term_ref(term_t from)
 {
   CACHE_REGS
-  return YAP_InitSlot(Yap_GetFromSlot(from PASS_REGS));
+  return Yap_InitSlot(Yap_GetFromSlot(from PASS_REGS) PASS_REGS);
 }
 
 X_API term_t PL_new_term_ref(void)
@@ -182,7 +182,7 @@ X_API void PL_reset_term_refs(term_t after)
 {
   CACHE_REGS
   term_t new = Yap_NewSlots(1 PASS_REGS);
-  YAP_RecoverSlots(after-new);
+  Yap_RecoverSlots(after-new PASS_REGS);
 }
 
 /* begin PL_get_* functions =============================*/
