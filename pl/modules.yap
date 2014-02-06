@@ -147,6 +147,7 @@ module(N) :-
 % A6: head module (this is the one used in compiling and accessing).
 %
 %
+'$module_expansion'(H,H,H,_M,_HM) :- var(H), !.
 '$module_expansion'((H:-B),(H:-B1),(H:-BOO),M,HM) :- !,
 	'$is_mt'(M, H, B, IB, MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
@@ -300,10 +301,10 @@ expand_goal(G, G).
 	NG =.. [Name|NGArgs].
 
 '$expand_args'([], _, [], []).
-'$expand_args'(A.GArgs, CurMod, 0.GDefs, NA.NGArgs) :-
+'$expand_args'([A|GArgs], CurMod, 0.GDefs, [NA|NGArgs]) :-
 	'$do_expand'(A, CurMod, NA), !,
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
-'$expand_args'(A.GArgs, CurMod, _.GDefs, A.NGArgs) :-
+'$expand_args'([A|GArgs], CurMod, _.GDefs, [A|NGArgs]) :-
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
 
 % args are:
@@ -570,6 +571,8 @@ source_module(Mod) :-
 	forall(0,0),
 	format(+,:),
 	format(+,+,:),
+	format_time(?,+,:),
+	format_time(?,+,:,+),
 	freeze(?,0),
 	hide_predicate(:),
 	if(0,0,0),
