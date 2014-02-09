@@ -316,6 +316,10 @@ else
   then
     use_malloc="no"
   fi
+  if test "$orparallelism" = threads
+  then
+    threads="yes"
+  fi
   tabling="no"
 fi
 
@@ -719,6 +723,12 @@ if test -e "$srcdir"/packages/R/Makefile.in; then
   ENABLE_R=""
 else
   ENABLE_R="@# "
+fi
+
+if test -e "$srcdir"/packages/raptor/Makefile.in; then
+  ENABLE_RAPTOR=""
+else
+  ENABLE_RAPTOR="@# "
 fi
 
 if test -e "$srcdir"/packages/RDF/Makefile.in; then
@@ -1140,19 +1150,12 @@ if test "$threads" = "yes"
   if test "$GCC" = "yes"
   then
     YAP_EXTRAS="$YAP_EXTRAS -D_GNU_SOURCE"
-  fi			    
+  fi
   case "$orparallelism" in
-    sba)
+    sba|a-cow|copy)
       AC_MSG_FAILURE(
-                   [--or-parallelism=sba incompatible with threads])
-    ;;
-    a-cow)
-      AC_MSG_FAILURE(
-                   [--or-parallelism=a-cow incompatible with threads])
-    ;;
-    copy)
-      AC_MSG_FAILURE(
-                   [--or-parallelism=copy incompatible with threads])
+                   [--or-parallelism=$orparallelism incompatible with threads]
+      )
     ;;
     yes|threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
@@ -1165,9 +1168,6 @@ else
     ;;
     a-cow)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
-    ;;
-    threads)
-     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
     yes|copy)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
@@ -1894,7 +1894,11 @@ fi
 m4_include([packages/gecode/configure.in])
 
 if test -e "$srcdir"/packages/raptor/Makefile.in; then
+   ENABLE_RAPTOR=""
+
    m4_include([packages/raptor/configure.in])
+else
+   ENABLE_RAPTOR="@# "
 fi
 
 m4_include([library/lammpi/configure.in])
@@ -2098,4 +2102,3 @@ fi
 AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])
 
 AC_OUTPUT()
-

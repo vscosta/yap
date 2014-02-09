@@ -4490,6 +4490,10 @@ _ACEOF
   then
     use_malloc="no"
   fi
+  if test "$orparallelism" = threads
+  then
+    threads="yes"
+  fi
   tabling="no"
 fi
 
@@ -6507,6 +6511,12 @@ else
   ENABLE_R="@# "
 fi
 
+if test -e "$srcdir"/packages/raptor/Makefile.in; then
+  ENABLE_RAPTOR=""
+else
+  ENABLE_RAPTOR="@# "
+fi
+
 if test -e "$srcdir"/packages/RDF/Makefile.in; then
   ENABLE_RDF=""
 else
@@ -7193,22 +7203,11 @@ if test "$threads" = "yes"
     YAP_EXTRAS="$YAP_EXTRAS -D_GNU_SOURCE"
   fi
   case "$orparallelism" in
-    sba)
+    sba|a-cow|copy)
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=sba incompatible with threads
-See \`config.log' for more details" "$LINENO" 5; }
-    ;;
-    a-cow)
-      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=a-cow incompatible with threads
-See \`config.log' for more details" "$LINENO" 5; }
-    ;;
-    copy)
-      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=copy incompatible with threads
+as_fn_error $? "--or-parallelism=$orparallelism incompatible with threads
+
 See \`config.log' for more details" "$LINENO" 5; }
     ;;
     yes|threads)
@@ -7222,9 +7221,6 @@ else
     ;;
     a-cow)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
-    ;;
-    threads)
-     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
     yes|copy)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
@@ -11754,7 +11750,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11757 "configure" */
+/* #line 11753 "configure" */
 public class Test {
 }
 EOF
@@ -11930,7 +11926,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11933: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11929: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12061,7 +12057,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12064 "configure" */
+/* #line 12060 "configure" */
 public class Test {
 }
 EOF
@@ -12096,7 +12092,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12099 "configure" */
+/* [#]line 12095 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12960,6 +12956,8 @@ fi
 
 
 if test -e "$srcdir"/packages/raptor/Makefile.in; then
+   ENABLE_RAPTOR=""
+
 
 
 
@@ -14408,6 +14406,8 @@ fi
 
 
 
+else
+   ENABLE_RAPTOR="@# "
 fi
 
 
@@ -16541,5 +16541,4 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
 

@@ -230,7 +230,7 @@ static CELL
 worker_p_binding(int worker_p, CELL *aux_ptr)
 {
   CACHE_REGS
-  if (aux_ptr > H) {
+  if (aux_ptr > HR) {
     CELL reg = REMOTE_ThreadHandle(worker_p).current_yaam_regs->LCL0_[aux_ptr-LCL0];
     reg = AdjustGlobTerm(reg PASS_REGS);
     return reg;
@@ -255,7 +255,7 @@ RestoreTrail(int worker_p USES_REGS)
   if (aux_tr < TR){
     Yap_Error(SYSTEM_ERROR, TermNil, "oops");
   }
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (TR != aux_tr) {
     CELL aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
