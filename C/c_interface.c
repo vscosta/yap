@@ -1780,6 +1780,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
+    LOCAL_CurSlot = CurSlot;
     if (!ret) {
       Term t;
 
@@ -1907,6 +1908,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     return TRUE;
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
+    LOCAL_CurSlot = CurSlot;
     if (!ret) {
       Term t;
 
