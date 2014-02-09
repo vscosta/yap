@@ -249,26 +249,15 @@ init_current_module( USES_REGS1 )
 static Int
 p_strip_module( USES_REGS1 )
 {
-  Term t1 = Deref(ARG1), t2, tmod = CurrentModule;
+  Term t1 = Deref(ARG1), tmod = CurrentModule;
   if (tmod == PROLOG_MODULE) {
     tmod = TermProlog;
   }
-  if (IsVarTerm(t1) ||
-      !IsApplTerm(t1) ||
-      FunctorOfTerm(t1) != FunctorModule ||
-      IsVarTerm(t2 = ArgOfTerm(1,t1)) ||
-      !IsAtomTerm(t2)) {
-    return Yap_unify(ARG3, t1) &&
-      Yap_unify(ARG2, tmod);
+  t1 = Yap_StripModule( t1, &tmod );
+  if (!t1) {
+    Yap_Error(TYPE_ERROR_CALLABLE,ARG1,"trying to obtain module");
+    return FALSE;
   }
-  do {
-    tmod = t2;
-    t1 = ArgOfTerm(2,t1);
-  } while (!IsVarTerm(t1) &&
-	   IsApplTerm(t1) &&
-	   FunctorOfTerm(t1) == FunctorModule &&
-	   !IsVarTerm(t2 = ArgOfTerm(1,t1)) &&
-	   IsAtomTerm(t2));
   return Yap_unify(ARG3, t1) &&
     Yap_unify(ARG2, tmod);      
 }
@@ -303,11 +292,17 @@ Yap_StripModule(Term t,  Term *modp)
 
   if (modp)
     tmod = *modp;
-  else
+  else {
     tmod = CurrentModule;
+    if (tmod == PROLOG_MODULE) {
+      tmod = TermProlog;
+    }
+  }
  restart:
   if (IsVarTerm(t)) {
-    return 0L;
+    if (modp)
+      *modp = tmod;
+    return t;
   } else if (IsAtomTerm(t) || IsPairTerm(t)) {
     if (modp)
       *modp = tmod;
@@ -315,11 +310,13 @@ Yap_StripModule(Term t,  Term *modp)
   } else if (IsApplTerm(t)) {
     Functor    fun = FunctorOfTerm(t);
     if (fun == FunctorModule) {
-      tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod) ) {
-	return 0L;
+      Term t1 = ArgOfTerm(1, t); 
+      if (IsVarTerm( t1 ) ) {
+	*modp = tmod;
+	return t;
       }
-      if (!IsAtomTerm(tmod) ) {
+      tmod = t1;
+      if (!IsVarTerm(tmod) && !IsAtomTerm(tmod) ) {
 	return 0L;
       }
       t = ArgOfTerm(2, t);
