@@ -118,7 +118,7 @@ Int    YAP_RunGoalOnce(Term);
 
 /* cdmgr.c */
 Term	Yap_all_calls(void);
-Atom	Yap_ConsultingFile(void);
+Atom  Yap_ConsultingFile( USES_REGS1 );
 struct pred_entry *Yap_PredForChoicePt(choiceptr);
 void	Yap_InitCdMgr(void);
 void	Yap_init_consult(int, char *);
