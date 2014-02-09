@@ -245,6 +245,7 @@ load_files(Files,Opts) :-
         ;
 	  true
         ), !,
+	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(if, TOpts, If),
 	( var(If) -> If = true ; true ),
 	'$lf_opt'(imports, TOpts, Imports),
@@ -258,13 +259,13 @@ load_files(Files,Opts) :-
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _File, _Dir, Opts),
-	'$reexport'( TOpts, UserFile, Imports, Mod ).
+	'$reexport'( TOpts, ParentF, Imports, _File ).
 '$start_lf'(changed, Mod, Stream, TOpts, UserFile, Imports) :-
 	'$file_unchanged'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _File, _Dir, Opts),
-	'$reexport'( TOpts, UserFile, Imports, Mod ).
+	'$reexport'( TOpts, ParentF, Imports, _File ).
 '$start_lf'(_, Mod, Stream, TOpts, File, _) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
@@ -391,13 +392,12 @@ use_module(M,F,Is) :-
 	nb_setval('$if_level',OldIfLevel),
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(Mod, UseModule),
-%	( File = '/Users/vsc/Yap/bins/threads/share/Yap/error.pl' -> start_low_level_trace ; stop_low_level_trace ),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	'$reexport'( TOpts, File, Imports, ContextModule ),
+	'$reexport'( TOpts, ParentF, Imports, File ),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
-%	format( 'O=~w~n', [Mod=UserFile] ),
+	% format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
 % are we in autoload and autoload_flag is false?
@@ -432,6 +432,13 @@ use_module(M,F,Is) :-
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
 
+'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
+	\+ recorded('$module','$module'(File, _Module, _ModExports, _),_),
+	% enable loading C-predicates from a different file
+	recorded( '$load_foreign_done', [File, M0], _),
+	'$import_foreign'(File, M0, ContextModule ),
+	fail.
+	
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
 	recorded('$module','$module'(File, Module, ModExports, _),_),
 	Module \= ContextModule, !,
@@ -578,13 +585,13 @@ initialization(G,OPT) :-
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
 	nb_setval('$included_file',OY).
 
-'$reexport'( TOpts, File, Imports, ContextModule ) :-
+'$reexport'( TOpts, File, Imports, OldF ) :-
 	'$lf_opt'(reexport, TOpts, Reexport),
 	( Reexport == false -> true ;
 	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
-	  '$extend_exports'(ContextModule, Imports)
+	  '$extend_exports'(File, Imports, OldF )
 	).
 
 '$do_startup_reconsult'(X) :-

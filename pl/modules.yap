@@ -86,9 +86,11 @@ module(N) :-
 	( source_location(_, Line) -> true ; Line = 0 ),
 	recorda('$module','$module'(F,Module,AllExports, Line),_).
 
-'$extend_exports'(Module, NewExports) :-
-	'$convert_for_export'(all, NewExports, Module, Module, _TranslationTab, NewExports1, load_files),
-	recorded('$module','$module'(F,Module,OriginalExports,Line),R),
+'$extend_exports'(F, Exps , NewF) :-
+writeln( (Exps, F, NewF ) ),
+	recorded('$module','$module'(NewF,NMod, NewExports, _),_R),
+	recorded('$module','$module'(F, Module,OriginalExports,Line),R),
+	'$convert_for_export'(Exps, NewExports, NMod, NMod, _TranslationTab, NewExports1, load_files),
 	'$add_exports'( NewExports1, OriginalExports, Exports ),
 	erase(R),
 	sort( Exports, AllExports ),
