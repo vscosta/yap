@@ -477,6 +477,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
   }
   pe->CodeOfPred = p_code;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
+  pe->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   pe->cs.f_code = code;
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_allocate);

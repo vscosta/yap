@@ -515,7 +515,6 @@ static Int  p_call_count_info( USES_REGS1 );
 static Int  p_call_count_set( USES_REGS1 );
 static Int  p_call_count_reset( USES_REGS1 );
 static Int  p_toggle_static_predicates_in_use( USES_REGS1 );
-static Atom  YapConsultingFile( USES_REGS1 );
 static Int  PredForCode(yamop *, Atom *, UInt *, Term *);
 static void  kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 static LogUpdIndex *find_owner_log_index(LogUpdIndex *, yamop *);
@@ -2033,7 +2032,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 	!(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, static_in_use(p,TRUE));
     }
-    p->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
+    p->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   }
   return TRUE;		/* careful */
 }
@@ -2363,7 +2362,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & MultiFileFlag) {
     /* add Info on new clause for multifile predicates to the DB */
     Term t[5], tn;
-    t[0] = MkAtomTerm(YapConsultingFile( PASS_REGS1 ));
+    t[0] = MkAtomTerm(Yap_ConsultingFile( PASS_REGS1 ));
     t[1] = MkAtomTerm(at);
     t[2] = MkIntegerTerm(Arity);
     t[3] = mod;
@@ -2571,21 +2570,14 @@ p_compile_dynamic( USES_REGS1 )
   return TRUE;
 }
 
-static Atom
-YapConsultingFile ( USES_REGS1 )
+Atom
+Yap_ConsultingFile ( USES_REGS1 )
 {
   if (LOCAL_consult_level == 0) {
     return(AtomUser);
   } else {
     return(Yap_LookupAtom(LOCAL_ConsultBase[2].filename));
   }
-}
-
-Atom
-Yap_ConsultingFile ( void )
-{
-  CACHE_REGS
-  return YapConsultingFile( PASS_REGS1 );
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
@@ -2992,7 +2984,7 @@ p_new_multifile( USES_REGS1 )
     /* static */
     pe->PredFlags |= (SourcePredFlag|CompiledPredFlag);
   }
-  pe->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
+  pe->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   UNLOCKPE(43,pe);
   return (TRUE);
 }
@@ -3101,7 +3093,7 @@ p_mk_d( USES_REGS1 )
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     pe->OpcodeOfPred = FAIL_OPCODE;
   }
-  pe->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
+  pe->src.OwnerFile = Yap_ConsultingFile( PASS_REGS1 );
   UNLOCKPE(50,pe);
   return TRUE;
 }
