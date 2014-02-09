@@ -1113,7 +1113,9 @@ bootstrap(F) :-
 %                       Expanded is the final expanded term.
 %
 '$precompile_term'(Term, Expanded0, Expanded, BodyMod, SourceMod) :-
+%format('[ ~w~n',[Term]),  
 	'$module_expansion'(Term, Expanded0, ExpandedI, BodyMod, SourceMod), !,
+%format('      -> ~w~n',[Expanded0]),  
 	(
 	 '$access_yap_flags'(9,1)      /* strict_iso on */
         ->

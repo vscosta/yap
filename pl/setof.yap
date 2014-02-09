@@ -142,7 +142,7 @@ bagof(Template, Generator, Bag) :-
 % But this version of all does not allow for repeated answers
 % if you want them use findall	
 
-all(T,G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
+all(T, G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
 all(T,G,S) :- 
 	'$init_db_queue'(Ref),
 	( '$catch'(Error,'$clean_findall'(Ref,Error),_),

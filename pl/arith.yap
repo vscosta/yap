@@ -40,8 +40,8 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$do_c_built_metacall'(G, M, OUT).
 '$do_c_built_in'(Mod:G, _, OUT) :- 
 	strip_module(Mod:G, M, G1),
-	var(G1), !,
-	'$do_c_built_metacall'(G1, M, OUT).
+	( var(G1) -> M = M2, G1 = G2 ; G1 = M2:G2), !, 
+	'$do_c_built_metacall'(G2, M2, OUT).
 '$do_c_built_in'(\+ G, _, OUT) :-
 	nonvar(G),
 	G = (A = B),

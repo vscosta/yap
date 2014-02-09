@@ -1063,3 +1063,33 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 	'$set_flag'(P, M, Flag, V).
 
 
+unknown(V0, V) :-
+    strip_module(V, M, G),
+    recorded('$unknown_handle', M0:G0, R), !,
+    recordz('$unknown_handle', M:G, _),
+    erase( R ),
+    strip_module(V0, M0, G0).
+unknown(V0, V) :-
+    strip_module(V, M, G),
+    recordz('$unknown_handle', M:G, _),
+    V0 = fail.
+
+%%% The unknown predicate,
+%	informs about what the user wants to be done when
+%	there are no clauses for a certain predicate */
+
+'$unknown_error'(Call) :-
+    recorded( '$unknown_handle', M:Goal, _), 
+    arg(1, Goal, Call), !,
+    once(M:Goal).
+'$unknown_error'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
+
+'$unknown_warning'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
+	fail.
+

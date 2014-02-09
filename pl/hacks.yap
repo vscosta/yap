@@ -35,7 +35,7 @@ prolog:'$stack_dump' :-
 run_formats([], _).
 run_formats([Com-Args|StackInfo], Stream) :-
 	format(Stream, Com, Args),
-	run_formats(StackInfo, user_error).
+	run_formats(StackInfo, Stream).
 
 display_stack_info(CPs,Envs,Lim,PC) :-
 	display_stack_info(CPs,Envs,Lim,CP,Lines,[]),

@@ -146,24 +146,6 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	'$nb_getval'('$catch', Ball, fail),
 	throw(Ball).	
 
-%%% The unknown predicate,
-%	informs about what the user wants to be done when
-%	there are no clauses for a certain predicate */
-
-unknown(V0, V) :-
-	prolog_flag(unknown, V0, V).
-
-'$unknown_error'(Mod:Goal) :-
-	functor(Goal,Name,Arity),
-	'$program_continuation'(PMod,PName,PAr),
-	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
-
-'$unknown_warning'(Mod:Goal) :-
-	functor(Goal,Name,Arity),
-	'$program_continuation'(PMod,PName,PAr),
-	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
-	fail.
-
 %%% Some "dirty" predicates
 
 % Only efective if yap compiled with -DDEBUG

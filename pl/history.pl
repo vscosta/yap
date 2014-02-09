@@ -49,7 +49,6 @@
 %   call Goal and pretend it has not seen anything.  This hook is used
 %   by the GNU-Emacs interface to for communication between GNU-EMACS
 %   and SWI-Prolog.
-
 prolog:read_history(History, Help, DontStore, Prompt, Term, Bindings) :-
 	repeat,
 	    prompt_history(Prompt),

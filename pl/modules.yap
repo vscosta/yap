@@ -301,10 +301,10 @@ expand_goal(G, G).
 	NG =.. [Name|NGArgs].
 
 '$expand_args'([], _, [], []).
-'$expand_args'([A|GArgs], CurMod, 0.GDefs, [NA|NGArgs]) :-
+'$expand_args'([A|GArgs], CurMod, [0|GDefs], [NA|NGArgs]) :-
 	'$do_expand'(A, CurMod, NA), !,
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
-'$expand_args'([A|GArgs], CurMod, _.GDefs, [A|NGArgs]) :-
+'$expand_args'([A|GArgs], CurMod, [_|GDefs], [A|NGArgs]) :-
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
 
 % args are:
@@ -459,21 +459,43 @@ expand_goal(G, G).
 '$module_u_vars'(_,[],_).
 
 '$module_u_vars'(0,_,_,[]) :- !.
-'$module_u_vars'(I,D,H,[Y|L]) :-
+'$module_u_vars'(I,D,H,LF) :-
 	arg(I,D,X), ( X=':' ; integer(X)),
-	arg(I,H,Y), var(Y), !,
+	arg(I,H,A), '$uvar'(A, LF, L), !,
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
 '$module_u_vars'(I,D,H,L) :-
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
 
+'$uvar'(Y, [Y|L], L)  :- var(Y), !.
+% support all/3
+'$uvar'(same( G, _), LF, L)  :-
+    '$uvar'(G, LF, L).
+
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
+'$meta_expansion0'(G,_Mod,MP,_HM, G1,_HVars) :-
+    var(G), !,
+    G1 = call(MP:G).
+'$meta_expansion0'(M:G,_Mod,_MP,_HM,G1,_HVars) :-
+    var(M), !,
+    G1 = '$execute_wo_mod'(G,M).
+% support for all/3
+'$meta_expansion0'(same(G, P),Mod,MP,HM, same(G1, P),HVars) :- !,
+    '$meta_expansion0'(G,Mod,MP,HM,G1,HVars).
+'$meta_expansion0'(G,Mod,MP,HM,M2:G2,HVars) :-
+    nonvar(G), G \= _:_,
+    '$module_expansion'(G,_,G1,MP,MP,HM,HVars), !,
+    strip_module(MP:G1, M2, G2).
+'$meta_expansion0'(G,Mod,MP,HM,M1:G1,HVars) :-
+    strip_module(MP:G,M1,G1).
+
+
 '$meta_expansion'(G,Mod,MP,HM,G1,HVars) :-
 	functor(G,F,N),
-	'$meta_predicate'(F,Mod,N,D), !,
+	'$meta_predicate'(F,Mod,N,D), !, % we're in an argument
 %	format(user_error,'[ ~w ',[G]),
 	functor(G1,F,N),
 	'$meta_expansion_loop'(N, D, G, G1, HVars, Mod, MP, HM).
@@ -483,9 +505,15 @@ expand_goal(G, G).
 '$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
 '$meta_expansion_loop'(I,D,G,NG,HVars,CurMod,M,HM) :- 
 	arg(I,D,X), (X==':' -> true ; integer(X)),
-	arg(I,G,A), '$do_expand'(A,HVars),
+	arg(I,G,A), 
+	'$should_expand'(A,HVars),
 	!,
-	arg(I,NG,M:A),
+	( X ==0 ->
+	      '$meta_expansion0'(A,CurMod,M,HM,NA,HVars)
+	  ;
+	      NA = M:A
+	),
+	arg(I,NG,NA),
 	I1 is I-1,
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
 '$meta_expansion_loop'(I, D, G, NG, HVars, CurMod, M, HM) :- 
@@ -495,9 +523,9 @@ expand_goal(G, G).
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
 
 % check if an argument should be expanded
-'$do_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
-'$do_expand'(_:_,_) :- !, fail.
-'$do_expand'(_,_).
+'$should_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
+'$should_expand'(_:_,_) :- !, fail.
+'$should_expand'(_,_).
 
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
@@ -571,8 +599,6 @@ source_module(Mod) :-
 	forall(0,0),
 	format(+,:),
 	format(+,+,:),
-	format_time(?,+,:),
-	format_time(?,+,:,+),
 	freeze(?,0),
 	hide_predicate(:),
 	if(0,0,0),
