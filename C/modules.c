@@ -299,15 +299,11 @@ Yap_StripModule(Term t,  Term *modp)
     }
   }
  restart:
-  if (IsVarTerm(t)) {
+  if (IsVarTerm(t) || !IsApplTerm(t)) {
     if (modp)
       *modp = tmod;
     return t;
-  } else if (IsAtomTerm(t) || IsPairTerm(t)) {
-    if (modp)
-      *modp = tmod;
-    return t;
-  } else if (IsApplTerm(t)) {
+  } else {
     Functor    fun = FunctorOfTerm(t);
     if (fun == FunctorModule) {
       Term t1 = ArgOfTerm(1, t); 
