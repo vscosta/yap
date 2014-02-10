@@ -67,6 +67,11 @@ install: all
 	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+	rm -f *.o *~ $(OBJS) *.BAK
+
+realclean:
+	rm -f $(SOBJS) Makefile
 
