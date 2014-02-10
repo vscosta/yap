@@ -25,8 +25,12 @@ srcdir=@srcdir@
 
 PROGRAMS= $(srcdir)/clp_events.pl
 
+all:
+
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/clp
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/clp; done
+
+install-examples:
 
