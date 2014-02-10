@@ -72,7 +72,7 @@ static char SccsId[] = "%W% %G%";
 #ifdef BP_FREE
 /***************************************************************
 * Use bp as PREG for X86 machines		               *
-***************************************************************/
+********************************************Term*******************/
 #if defined(IN_ABSMI_C)
 register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define PREG P1REG

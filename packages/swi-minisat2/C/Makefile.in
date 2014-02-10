@@ -76,8 +76,13 @@ pl-minisat.o : $(srcdir)/pl-minisat.C
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+realclean:
+	rm -f Makefile $(OBJS)
 
 
 depend: $(HEADERS) $(C_SOURCES)

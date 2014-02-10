@@ -56,6 +56,11 @@ yap_random.o: $(srcdir)/yap_random.c
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+realclean: clean
+	rm -f Makefile $(SOBJS)
 

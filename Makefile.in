@@ -224,8 +224,8 @@ IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-tai.c  \
 	$(srcdir)/os/pl-text.c \
 	$(srcdir)/os/pl-version.c \
-		$(srcdir)/os/pl-write.c \
-	$(srcdir)/C/pl-yap.c @ENABLE_WINCONSOLE@$(srcdir)/os/windows/uxnt.c
+	$(srcdir)/os/pl-write.c \
+	$(srcdir)/C/pl-yap.c @WINDOWS@$(srcdir)/os/windows/uxnt.c
 
 C_SOURCES= \
 	$(IOLIB_SOURCES) \
@@ -346,7 +346,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-tai.o pl-text.o pl-utf8.o \
 	pl-version.o pl-write.o \
-	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
+	pl-yap.o @WINDOWS@ uxnt.o
 
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
@@ -402,7 +402,7 @@ PLCONS_OBJECTS = \
 	pl-ntconsole.o \
 	pl-ntmain.o
 
-all: parms.h startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
+all: parms.h startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
 
 Makefile: $(srcdir)/Makefile.in
 
@@ -435,6 +435,11 @@ parms.h:	Makefile
 		@if cmp -s $@% $@; then rm $@%; else mv $@% $@; fi
 
 
+$(OBJECTS): config.h
+
+yap.o: $(srcdir)/console/yap.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@
+
 #special rule for this one: we cannot use -fomit-frame-pointer because this will
 # interface with the outside world.
 c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h config.h
@@ -446,86 +451,26 @@ yap-argss.o: $(srcdir)/C/yap-args.c $(srcdir)/include/c_interface.h config.h
 clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
 
-init.o: $(srcdir)/C/init.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/init.c -o $@
-
-load_foreign.o: $(srcdir)/C/load_foreign.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
-
-qlyr.o: $(srcdir)/C/qlyr.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/qlyr.c -o $@
-
-qlyw.o: $(srcdir)/C/qlyw.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/qlyw.c -o $@
-
-save.o: $(srcdir)/C/save.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
-
-signals.o: $(srcdir)/C/signals.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/signals.c -o $@
-
-sysbits.o: $(srcdir)/C/sysbits.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/C/sysbits.c -o $@
-
 udi.o: $(srcdir)/C/udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
 
-yap.o: $(srcdir)/console/yap.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@
+%.o: $(srcdir)/C/%.c config.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
-mpi.o: $(srcdir)/library/mpi/mpi.c config.h
-	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
+%.o: $(srcdir)/OPTYap/%.c config.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
-mpe.o: $(srcdir)/library/mpi/mpe.c config.h
-	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
-
-or.memory.o: $(srcdir)/OPTYap/or.memory.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.memory.c -o $@
-
-opt.init.o: $(srcdir)/OPTYap/opt.init.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.init.c -o $@
-
-opt.preds.o: $(srcdir)/OPTYap/opt.preds.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.preds.c -o $@
-
-or.cut.o: $(srcdir)/OPTYap/or.cut.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cut.c -o $@
-
-or.copy_engine.o: $(srcdir)/OPTYap/or.copy_engine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.copy_engine.c -o $@
-
-or.cow_engine.o: $(srcdir)/OPTYap/or.cow_engine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cow_engine.c -o $@
-
-or.sba_engine.o: $(srcdir)/OPTYap/or.sba_engine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sba_engine.c -o $@
-
-or.thread_engine.o: $(srcdir)/OPTYap/or.thread_engine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.thread_engine.c -o $@
-
-or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.scheduler.c -o $@
-
-tab.tries.o: $(srcdir)/OPTYap/tab.tries.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.tries.c -o $@
-
-tab.completion.o: $(srcdir)/OPTYap/tab.completion.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.completion.c -o $@
-
-eam_showcode.o:  $(srcdir)/BEAM/eam_showcode.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_showcode.c -o $@
-
-eam_am.o:  $(srcdir)/BEAM/eam_am.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_am.c -o $@
-
-eamamasm.o:  $(srcdir)/BEAM/eamamasm.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamamasm.c -o $@
-
-eamindex.o:  $(srcdir)/BEAM/eamindex.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamindex.c -o $@
+%.o: $(srcdir)/BEAM/%.c config.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
 sys.o: $(srcdir)/library/system/sys.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
+	$(CC) -c $(CFPLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
+
+yap_random.o: $(srcdir)/library/random/yap_random.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/yap_random.c  -o $@
+
+%.o: $(srcdir)/library/regex/%.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $< -o $@
 
 swi.o: $(srcdir)/library/dialect/swi/fli/swi.c  $(srcdir)/library/dialect/swi/fli/swi.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/os/SWI-Stream.h config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/swi.c  -o $@
@@ -533,26 +478,8 @@ swi.o: $(srcdir)/library/dialect/swi/fli/swi.c  $(srcdir)/library/dialect/swi/fl
 blobs.o: $(srcdir)/library/dialect/swi/fli/blobs.c  $(srcdir)/library/dialect/swi/fli/swi.h  $(srcdir)/include/SWI-Prolog.h config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/blobs.c  -o $@
 
-yap_random.o: $(srcdir)/library/random/yap_random.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/yap_random.c  -o $@
-
-regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexp.c -o regexp.o
-
-regcomp.o: $(srcdir)/library/regex/regcomp.c $(srcdir)/library/regex/regex2.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regcomp.c -o regcomp.o
-
-regerror.o: $(srcdir)/library/regex/regerror.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regerror.c -o regerror.o
-
-regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regfree.c -o regfree.o
-
-regexec.o: $(srcdir)/library/regex/regexec.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
-
-pl-nt.o: $(srcdir)/os/pl-nt.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-nt.c -o $@
+%.o: $(srcdir)/os/%.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
 
 pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
@@ -563,91 +490,11 @@ pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
 	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
-pl-buffer.o: $(srcdir)/os/pl-buffer.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os  @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/os/pl-buffer.c -o $@
-
-pl-codelist.o: $(srcdir)/os/pl-codelist.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-codelist.c -o $@
-
-pl-ctype.o: $(srcdir)/os/pl-ctype.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-ctype.c -o $@
-
-pl-dtoa.o: $(srcdir)/os/pl-dtoa.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-dtoa.c -o $@
-
-pl-error.o: $(srcdir)/os/pl-error.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-error.c -o $@
-
-pl-file.o: $(srcdir)/os/pl-file.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-file.c -o $@
-
-pl-files.o: $(srcdir)/os/pl-files.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-files.c -o $@
-
-pl-fmt.o: $(srcdir)/os/pl-fmt.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-fmt.c -o $@
-
-pl-glob.o: $(srcdir)/os/pl-glob.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-glob.c -o $@
-
-pl-locale.o: $(srcdir)/os/pl-locale.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-locale.c -o $@
-
-pl-option.o: $(srcdir)/os/pl-option.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-option.c -o $@
-
-pl-os.o: $(srcdir)/os/pl-os.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-os.c -o $@
-
-pl-privitf.o: $(srcdir)/os/pl-privitf.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-privitf.c -o $@
-
-pl-prologflag.o: $(srcdir)/os/pl-prologflag.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-prologflag.c -o $@
-
-pl-rl.o: $(srcdir)/os/pl-rl.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-rl.c -o $@
-
-pl-read.o: $(srcdir)/os/pl-read.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-read.c -o $@
-
-pl-stream.o: $(srcdir)/os/pl-stream.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-stream.c -o $@
-
-pl-string.o: $(srcdir)/os/pl-string.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-string.c -o $@
-
-pl-table.o: $(srcdir)/os/pl-table.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-table.c -o $@
-
-pl-text.o: $(srcdir)/os/pl-text.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-text.c -o $@
-
-pl-utf8.o: $(srcdir)/os/pl-utf8.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-utf8.c -o $@
-
-pl-version.o: $(srcdir)/os/pl-version.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-version.c -o $@
-
-pl-write.o: $(srcdir)/os/pl-write.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-write.c -o $@
-
-pl-yap.o: $(srcdir)/C/pl-yap.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/C/pl-yap.c -o $@
-
-pl-tai.o: $(srcdir)/os/pl-tai.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/os/pl-tai.c -o $@
-
 uxnt.o: $(srcdir)/os/windows/uxnt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/windows/uxnt.c -o $@
 
 # libtai rule
 %.o : $(srcdir)/os/libtai/%.c config.h
-	$(CC) -c $(CFLAGS) $< -o $@
-
-
-# default rule
-%.o : $(srcdir)/C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
@@ -666,44 +513,49 @@ c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
 mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
+INSTALLED_PACKAGES= \
+	library/random \
+	library/regex \
+	library/rltree \
+	library/system \
+	library/tries \
+	packages/ProbLog \
+	packages/yap-lbfgs \
+	@PKG_BDDLIB@ \
+	@PKG_CLPBN@ \
+	@PKG_CUDA@ \
+	@PKG_CPLINT@ \
+	@PKG_GECODE@ \
+	@PKG_MATLAB@ \
+	@PKG_MINISAT@ \
+	@PKG_MPI@ \
+	@PKG_MYDDAS@ \
+	@PKG_PRISM@ \
+	@PKG_PYTHON@ \
+	@PKG_RAPTOR@ \
+	@PKG_CHR@ \
+	@PKG_CLIB@ \
+	@PKG_JPL@ \
+	@PKG_LIBARCHIVE@ \
+	@PKG_LTX2HTM@ \
+	@PKG_ODBC@ \
+	@PKG_PLDOC@ \
+	@PKG_PLUNIT@ \
+	@PKG_REAL@ \
+	@PKG_RDF@ \
+	@PKG_SEMWEB@ \
+	@PKG_SGML@ \
+	@PKG_WINCONSOLE@ \
+	@PKG_ZLIB@
+
+PACKAGES=  \
+	library \
+	swi/library \
+	swi/library/clp \
+	$(INSTALLED_PACKAGES)
+
 all: startup.yss
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE))
-	@INSTALL_MPI@ (cd library/lammpi; $(MAKE))
-	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
-	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
-	@INSTALL_DLLS@ (cd library/random; $(MAKE))
-	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
-	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
-	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE))
-	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE))
-	@INSTALL_DLLS@ (cd library/system; $(MAKE))
-	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
-	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE))
-	@ENABLE_CHR@ (cd packages/chr; $(MAKE))
-	@ENABLE_LIBARCHIVE@ @INSTALL_DLLS@ (cd packages/archive; $(MAKE))
-	@ENABLE_LTX2HTM@ @INSTALL_DLLS@ (cd packages/ltx2htm; $(MAKE))
-	@ENABLE_ODBC@ @INSTALL_DLLS@ (cd packages/odbc; $(MAKE))
-	@ENABLE_PLDOC@  @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE))
-	@ENABLE_PLUNIT@ @INSTALL_DLLS@ (cd packages/plunit; $(MAKE))
-	@ENABLE_RDF@ @INSTALL_DLLS@ (cd packages/RDF; $(MAKE))
-	@ENABLE_SEMWEB@ @INSTALL_DLLS@ (cd packages/semweb; $(MAKE))
-	@ENABLE_SGML@ @INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
-	@ENABLE_REAL@ @INSTALL_DLLS@ (cd packages/real; $(MAKE))
-	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
-	@ENABLE_CLPBN_BP@ @INSTALL_DLLS@ (cd packages/CLPBN/horus; $(MAKE))
-	@ENABLE_MINISAT@ @INSTALL_DLLS@ (cd packages/swi-minisat2/C; $(MAKE))
-	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
-	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
-	@ENABLE_CPLINT@ (cd packages/cplint/slipcase; $(MAKE))
-	@ENABLE_PRISM@ @INSTALL_DLLS@ (cd packages/prism/src/c; $(MAKE))
-	@ENABLE_BDDLIB@ @INSTALL_DLLS@ (cd packages/bdd; $(MAKE))
-	@ENABLE_RAPTOR@ @INSTALL_DLLS@ (cd packages/raptor; $(MAKE))
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
-	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE))
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE))
-	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE))
+	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) ); done
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -728,154 +580,43 @@ libYap.a: $(LIB_OBJECTS)
 @DYNYAPLIB@: $(LIB_OBJECTS)
 	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 
-install: install_bin install_data
-
-install_bin: @INSTALL_COMMAND@
+install: @INSTALL_COMMAND@
 
 install_unix: startup.yss @YAPLIB@
 	mkdir -p $(DESTDIR)$(BINDIR)
-	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
-	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
-	@INSTALL_DLLS@ $(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
+	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
+	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	@INSTALL_MPI@ (cd library/lammpi; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE) install)
-	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
-	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
-	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install-examples)
-	@ENABLE_LIBARCHIVE@ @INSTALL_DLLS@ (cd packages/archive; $(MAKE) install)
-	@ENABLE_LTX2HTM@ @INSTALL_DLLS@ (cd packages/ltx2htm; $(MAKE) install)
-	@ENABLE_ODBC@ @INSTALL_DLLS@ (cd packages/odbc; $(MAKE) install)
-	@ENABLE_PLDOC@ @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) install)
-	@ENABLE_PLDOC@ @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) install-examples)
-	@ENABLE_PLUNIT@ @INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
-	@ENABLE_PLUNIT@ @INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install-examples)
-	@ENABLE_RDF@ @INSTALL_DLLS@ (cd packages/RDF; $(MAKE) install)
-	@ENABLE_SEMWEB@ @INSTALL_DLLS@ (cd packages/semweb; $(MAKE) install)
-	@ENABLE_SGML@ @INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
-	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) install)
-	@ENABLE_CLPBN_BP@ @INSTALL_DLLS@ (cd packages/CLPBN/horus; $(MAKE) install)
-	@ENABLE_MINISAT@ @INSTALL_DLLS@ (cd packages/swi-minisat2/C; $(MAKE) install)
-	@INSTALL_MATLAB@ @INSTALL_DLLS@ (cd library/matlab; $(MAKE) install)
-	@ENABLE_REAL@ @INSTALL_DLLS@ (cd packages/real; $(MAKE) install)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
-	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) install)
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
-	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) install)
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/src/parms.h
 	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
-	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
-	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) install)
-	@ENABLE_PRISM@ @INSTALL_DLLS@ (cd packages/prism/src/c; $(MAKE) install)
-	@ENABLE_PRISM@ @INSTALL_DLLS@ (cd packages/prism/src/prolog; $(MAKE) install)
-	@ENABLE_BDDLIB@ @INSTALL_DLLS@ (cd packages/bdd; $(MAKE) install)
-	@ENABLE_RAPTOR@ @INSTALL_DLLS@ (cd packages/raptor; $(MAKE) install)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
+	for f in $(PACKAGES); do ( echo $$f; cd $$f ; $(MAKE) install ); done
+	for f in $(PACKAGES); do ( echo $$f; cd $$f ; $(MAKE) install-examples ); done
 
-
-install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
-	mkdir -p $(DESTDIR)$(BINDIR)
-	mkdir -p $(DESTDIR)$(LIBDIR)
-	mkdir -p $(DESTDIR)$(YAPLIBDIR)
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
+install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
-	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
-	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
-	$(INSTALL_PROGRAM) -m 755 @YAPLIB@ $(DESTDIR)$(YAPLIBDIR)/@YAPLIB@
-	$(INSTALL_PROGRAM) -m 755 startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
-	mkdir -p $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)/README.TXT
-	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)/COPYING.TXT
-	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
-	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
-	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
-	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
-	(cd library/random; $(MAKE) install)
-	(cd library/matrix; $(MAKE) install)
-	(cd library/regex; $(MAKE) install)
-	(cd library/rltree; $(MAKE) install)
-	(cd library/system; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) install)
-	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) install)
-	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
-	(cd library/tries; $(MAKE) install)
-	@ENABLE_CLIB@ (cd packages/clib; $(MAKE) install)
-	@ENABLE_PLDOC@ (cd packages/pldoc; $(MAKE) install)
-	@ENABLE_PLDOC@ (cd packages/pldoc; $(MAKE) install-examples)
-	@ENABLE_PLUNIT@ (cd packages/plunit; $(MAKE) install)
-	@ENABLE_PLUNIT@ (cd packages/plunit; $(MAKE) install-examples)
-	@ENABLE_HTTP@ (cd packages/http; $(MAKE) install)
-	@ENABLE_LTX2HTM@ (cd packages/ltx2htm; $(MAKE) install)
-	@ENABLE_REAL@ (cd packages/real; $(MAKE) install)
-	@ENABLE_RDF@ (cd packages/RDF; $(MAKE) install)
-	@ENABLE_SEMWEB@ (cd packages/semweb; $(MAKE) install)
-	@ENABLE_SGML@ (cd packages/sgml; $(MAKE) install)
-	@ENABLE_ZLIB@ (cd packages/zlib; $(MAKE) install)
-	(cd packages/CLPBN ; $(MAKE) install)
-	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) install)
-	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
-	@ENABLE_PYTHON@ (cd packages/python ; $(MAKE) install)
-	@ENABLE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
-	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
-	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) install)
-	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) install)
-	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) install)
-	@ENABLE_RAPTOR@ (cd packages/raptor; $(MAKE) install)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
-	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) install)
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
-install_data: install_copied_files install_bin
-	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
-	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install-examples)
-	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)
-
-install_copied_files:
-	(cd library ; $(MAKE) install)
-	@ENABLE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) install)
-	(cd swi/library ; $(MAKE) install)
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
-	@INSTALLCLP@(cd swi/library/clp ; $(MAKE) install)
-	(cd packages/CLPBN ; $(MAKE) install)
-	(cd packages/meld; $(MAKE) install)
-	(cd packages/xml; $(MAKE) install)
-	(cd  packages/ProbLog ; $(MAKE) install)
-
 ##########
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
-	etags  $(C_SOURCES)  $(PL_SOURCES) $(HEADERS)
+	etags  $(C_SOURCES)  $(PL_SOURCES) $(HEADERS) 
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
@@ -887,47 +628,7 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE) clean)
-	@INSTALL_MPI@ (cd library/lammpi; $(MAKE) clean)
-	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/regex; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) clean)
-	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/system; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
-	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) clean)
-	@ENABLE_LTX2HTM@ @INSTALL_DLLS@ (cd packages/ltx2htm; $(MAKE) clean)
-	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) clean)
-	@ENABLE_PLDOC@ @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) clean)
-	@ENABLE_PLUNIT@ @INSTALL_DLLS@ (cd packages/plunit; $(MAKE) clean)
-	@ENABLE_R@ @INSTALL_DLLS@ (cd packages/R; $(MAKE) clean)
-	@ENABLE_RDF@ @INSTALL_DLLS@ (cd packages/RDF; $(MAKE) clean)
-	@ENABLE_SEMWEB@ @INSTALL_DLLS@ (cd packages/semweb; $(MAKE) clean)
-	@ENABLE_SGML@ @INSTALL_DLLS@ (cd packages/sgml; $(MAKE) clean)
-	@ENABLE_REAL@ (cd packages/real; $(MAKE) clean)
-	@ENABLE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) clean)
-	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) clean)
-	@ENABLE_CHR@ (cd packages/chr; $(MAKE) clean)
-	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) clean)
-	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) clean)
-	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) clean)
-	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) clean)
-	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
-	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) clean)
-	@ENABLE_RAPTOR@ (cd packages/raptor; $(MAKE) clean)
-	@ENABLE_LIBARCHIVE@ (cd packages/archive; $(MAKE) clean)
-	@ENABLE_ODBC@ (cd packages/odbc; $(MAKE) clean)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
-	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) clean)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
-	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) clean)
-	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) clean)
-	@ENABLE_MYDDAS@ @INSTALL_DLLS@ (cd packages/myddas; $(MAKE) clean)
-
-
+	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) clean ); done
 
 distclean: clean realclean_docs
 	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile */Makefile */*/Makefile */*defs */*/*/Makefile *.h config.*

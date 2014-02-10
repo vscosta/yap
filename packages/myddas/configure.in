@@ -31,7 +31,7 @@ AC_ARG_ENABLE(myddas-top-level,
 
 if test "$yap_cv_myddas" != "no"
 then
-	ENABLE_MYDDAS=""
+	PKG_MYDDAS="packages/myddas"
 	dnl check for mysql
 	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
 	if test "$yap_cv_mysql" = yes 
@@ -58,6 +58,7 @@ then
 	     ODBC_LIBS="$ODBC_LIBS -liodbc"
 	  fi
         fi
+	AC_CHECK_HEADERS(mysql/mysql.h)
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
@@ -73,13 +74,9 @@ then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
 else
-	ENABLE_MYDDAS="#@ "
+	ENABLE_MYDDAS=""
 fi	
 
-AC_SUBST(ENABLE_MYDDAS)
+AC_SUBST(PKG_MYDDAS)
 
-if test "$yap_cv_myddas" != "no"
-then
-  AC_CHECK_HEADERS(mysql/mysql.h)
-fi
 

@@ -69,6 +69,9 @@ gecode.yap: $(srcdir)/gecode$(GECODE_MAJOR)_yap_hand_written.yap $(srcdir)/$(GEC
 clean:
 	-rm -f *.o *.so *~ gecode.yap
 
+realclean:
+	-rm -f $(SOBJS) Makefile 
+
 install: all
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
@@ -76,3 +79,5 @@ install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL) gecode.yap $(DESTDIR)$(SHAREDIR)/Yap
 	$(INSTALL) $(srcdir)/clpfd.yap $(DESTDIR)$(SHAREDIR)/Yap/gecode
+
+install-examples:
