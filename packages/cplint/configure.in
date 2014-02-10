@@ -19,7 +19,6 @@ if test ! "$yap_cv_cplint" = "no"
 		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
 		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
 	fi
-	ENABLE_CPLINT=""
 	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
 		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
@@ -28,12 +27,23 @@ if test ! "$yap_cv_cplint" = "no"
 		CPLINT_SHLIB_LD=$SHLIB_LD
 		SHLIB_SUFFIX="so"
 	fi
+	PKG_CPLINT="packages/cplint packages/cplint/splipcase packages/cplint/approx/simplecuddLPADs"
+	AC_SUBST(PKG_CPLINT)
 	AC_SUBST(CPLINT_LIBS)
 	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
 	AC_SUBST(CPLINT_SHLIB_LD)
 	AC_SUBST(SHLIB_SUFFIX)
 else
-	ENABLE_CPLINT="@#"
+	PKG_CPLINT=""
 fi
+
+mkdir -p  packages/cplint
+mkdir -p  packages/cplint/approx
+mkdir -p  packages/cplint/approx/simplecuddLPADs
+
+AC_CONFIG_FILES([packages/cplint/Makefile])
+AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
+AC_CONFIG_FILES([packages/cplint/slipcase/Makefile])
+
 
