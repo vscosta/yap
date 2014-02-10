@@ -117,6 +117,7 @@ CLPBN_LEARNING_EXAMPLES= \
 	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
 	$(CLPBN_EXDIR)/learning/train.yap
 
+all:
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
@@ -128,6 +129,8 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
+
+install-examples:
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
