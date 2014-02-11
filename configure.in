@@ -80,12 +80,6 @@ AC_ARG_ENABLE(tabling,
 AC_ARG_ENABLE(or-parallelism,
 	[ --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads ],
 	orparallelism="$enableval", orparallelism=no)
-AC_ARG_ENABLE(rational-trees,
-	[ --enable-rational-trees    support infinite rational trees ],
-	rationaltrees="$enableval" , rationaltrees=yes)
-AC_ARG_ENABLE(coroutining,
-	[ --enable-coroutining       support co-routining, attributed variables and constraints],
-	rationaltrees="$enableval";coroutining="$enableval", coroutining=yes)
 AC_ARG_ENABLE(depth-limit,
 	[ --enable-depth-limit       support depth-bound computation ],
 	depthlimit="$enableval", depthlimit=yes)
@@ -1051,23 +1045,8 @@ else
   YAPLIB_CFLAGS="$CFLAGS"
 fi
 
-if test "$coroutining" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DCUT_C=1"
-fi
-  
-if test "$rationaltrees" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DRATIONAL_TREES=1"
-fi
+YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DCUT_C=1  -DRATIONAL_TREES=1"
 
-if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
-  then
-  INSTALLCLP=""
-  else
-  INSTALLCLP="@#"
-fi
-  
 if test "$debugyap" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEBUG=1"

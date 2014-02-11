@@ -835,8 +835,6 @@ ac_user_opts='
 enable_option_checking
 enable_tabling
 enable_or_parallelism
-enable_rational_trees
-enable_coroutining
 enable_depth_limit
 enable_wam_profile
 enable_low_level_tracer
@@ -1513,8 +1511,6 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
  --enable-tabling           support tabling
  --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads
- --enable-rational-trees    support infinite rational trees
- --enable-coroutining       support co-routining, attributed variables and constraints
  --enable-depth-limit       support depth-bound computation
  --enable-wam-profile       support low level profiling of abstract machine
  --enable-low-level-tracer  support support for procedure-call tracing
@@ -4114,20 +4110,6 @@ else
   orparallelism=no
 fi
 
-# Check whether --enable-rational-trees was given.
-if test "${enable_rational_trees+set}" = set; then :
-  enableval=$enable_rational_trees; rationaltrees="$enableval"
-else
-  rationaltrees=yes
-fi
-
-# Check whether --enable-coroutining was given.
-if test "${enable_coroutining+set}" = set; then :
-  enableval=$enable_coroutining; rationaltrees="$enableval";coroutining="$enableval"
-else
-  coroutining=yes
-fi
-
 # Check whether --enable-depth-limit was given.
 if test "${enable_depth_limit+set}" = set; then :
   enableval=$enable_depth_limit; depthlimit="$enableval"
@@ -6410,22 +6392,22 @@ CMFLAGS=-fpic
 CIFLAGS=-I.
 
 if test "$use_prism" = no; then
-  PKG_PRISM="@# "
-else
   PKG_PRISM=""
+else
+  PKG_PRISM="packages/prism/src/c packages/prism/src/prolog"
 fi
 
 
 if test -e "$srcdir"/packages/archive/Makefile.in; then
-  PKG_LIBARCHIVE=""
+  PKG_LIBARCHIVE="packages/archive"
 else
-  PKG_LIBARCHIVE="@# "
+  PKG_LIBARCHIVE=""
 fi
 
 if test -e "$srcdir"/packages/odbc/Makefile.in; then
-  PKG_ODBC=""
+  PKG_ODBC="packages/odbc"
 else
-  PKG_ODBC="@# "
+  PKG_ODBC=""
 fi
 
 if test "$use_chr" = no; then
@@ -7103,22 +7085,7 @@ else
   YAPLIB_CFLAGS="$CFLAGS"
 fi
 
-if test "$coroutining" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DCUT_C=1"
-fi
-
-if test "$rationaltrees" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DRATIONAL_TREES=1"
-fi
-
-if test "$rationaltrees" = "yes" -a "$coroutining" = "yes"
-  then
-  INSTALLCLP=""
-  else
-  INSTALLCLP="@#"
-fi
+YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DCUT_C=1  -DRATIONAL_TREES=1"
 
 if test "$debugyap" = "yes"
   then
@@ -9424,7 +9391,7 @@ fi
 
 
 
-if test "$PKG_CLIB" = ""
+if test "$PKG_CLIB" != ""
 then
 
 
@@ -10103,7 +10070,7 @@ fi
 
 fi
 
-if test "$PKG_LIBARCHIVE" = ""
+if test "$PKG_LIBARCHIVE" != ""
 then
 
 
@@ -10238,12 +10205,12 @@ fi
 
 if test "$ARCHIVE_TARGETS" = "nolib"
 then
-  PKG_LIBARCHIVE="@# "
+  PKG_LIBARCHIVE=""
 fi
 
 fi
 
-if test "$PKG_ODBC" = ""; then
+if test "$PKG_ODBC" != ""; then
 
 
 
@@ -10836,7 +10803,7 @@ ODBC_PLTARGETS=`echo $ODBC_TARGETS | sed "s/4pl\.$SO/.pl/g"`
 
 if test "$ODBC_TARGETS" = "nolib"
 then
-  PKG_ODBC="@# "
+  PKG_ODBC=""
 fi
 
 else
@@ -11276,7 +11243,7 @@ fi
 
 
 
-if test "$PKG_ZLIB" = ""
+if test "$PKG_ZLIB" != ""
 then
 
 
@@ -11364,7 +11331,7 @@ fi
 
 if test "$ZLIB_TARGETS" = "nolib"
 then
-  PKG_ZLIB="@# "
+  PKG_ZLIB=""
 fi
 
 fi
@@ -11703,7 +11670,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11706 "configure" */
+/* #line 11673 "configure" */
 public class Test {
 }
 EOF
@@ -11879,7 +11846,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11882: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11849: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12010,7 +11977,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12013 "configure" */
+/* #line 11980 "configure" */
 public class Test {
 }
 EOF
@@ -12045,7 +12012,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12048 "configure" */
+/* [#]line 12015 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12696,12 +12663,6 @@ _ACEOF
 
 
 
-if test $i_am_cross_compiling = yes
-then
-     #mingw: we know where things are
-     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
-     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
-fi
 
 
 
@@ -14617,7 +14578,7 @@ if test "$ac_res" != no; then :
 
 else
   echo "Could not find libraries for Python";
-     ENABLE_PYTHON="@# "
+     PKG_PYTHON=""
 fi
 
    PYTHON_LIBS=$LIBS
