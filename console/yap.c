@@ -19,9 +19,7 @@
 #include "config.h"
 #include "YapInterface.h"
 
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
 
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef  HAVE_UNISTD_H

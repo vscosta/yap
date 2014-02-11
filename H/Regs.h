@@ -16,10 +16,7 @@
 
 /*********  abstract machine registers **********************************/
 #ifdef YAP_H
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
-
 #endif
 
 #define MaxTemps	512
@@ -104,10 +101,8 @@ typedef struct regstore_t
 #endif  /* DEPTH_LIMIT */
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
-#ifdef CUT_C
     struct cut_c_str *CUT_C_TOP;
-#endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
     struct myddas_global *MYDDAS_GLOBAL_POINTER;
 #endif
     yamop *P_;			/* 7 prolog machine program counter           */

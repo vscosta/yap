@@ -497,9 +497,7 @@
 #include "absmi.h"
 #include "heapgc.h"
 
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
 
 #ifdef PUSH_X
 #else
@@ -2688,14 +2686,12 @@ Yap_absmi(int inp)
 
       /* trust_fail                       */
       BOp(trust_fail, e);
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  { 
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -3603,11 +3599,9 @@ Yap_absmi(int inp)
 
 	/* cut */
 	BACKUP_B();
-#ifdef CUT_C
 	while (POP_CHOICE_POINT(B->cp_b)) {
 	    POP_EXECUTE();
 	}
-#endif /* CUT_C */
         B = B->cp_b;  /* cut_fail */
         HB = B->cp_h; /* cut_fail */
         RECOVER_B();
@@ -7659,10 +7653,8 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
-#ifdef CUT_C
       /* Alocate space for the cut_c structure*/
       CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
-#endif  
       S_YREG = S_YREG - PREG->u.OtapFs.extra;
       store_args(PREG->u.OtapFs.s);
       store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
@@ -7680,21 +7672,17 @@ Yap_absmi(int inp)
 	saveregs();
 	SREG = (CELL *) ((f) (PASS_REGS1));
       	/* This last instruction changes B B*/
-#ifdef CUT_C
 	while (POP_CHOICE_POINT(B)){ 
 	  cut_c_pop();
 	}
-#endif 
 	setregs();
       }
       if (!SREG) {
-#ifdef CUT_C
 	/* Removes the cut functions from the stack
 	 without executing them because we have fail 
 	 and not cuted the predicate*/
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
-#endif 
 	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
@@ -7727,7 +7715,6 @@ Yap_absmi(int inp)
       goto TRYCC;
       ENDBOp();
 
-#ifdef CUT_C
       BOp(cut_c, OtapFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
@@ -7736,17 +7723,14 @@ Yap_absmi(int inp)
       printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
 #endif /*DEBUG*/
       ENDBOp();
-#endif
 
       BOp(try_userc, OtapFs);
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
       CACHE_Y(YREG);
-#ifdef CUT_C
       /* Alocate space for the cut_c structure*/
       CUT_C_PUSH(NEXTOP(NEXTOP(PREG,OtapFs),OtapFs),S_YREG);
-#endif
       S_YREG = S_YREG - PREG->u.OtapFs.extra;
       store_args(PREG->u.OtapFs.s);
       store_yaam_regs(NEXTOP(PREG, OtapFs), 0);
@@ -7806,13 +7790,11 @@ Yap_absmi(int inp)
       setregs();
       LOCAL_PrologMode &= ~UserCCallMode;
       if (!SREG) {
-#ifdef CUT_C
 	/* Removes the cut functions from the stack
 	 without executing them because we have fail 
 	 and not cuted the predicate*/
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
-#endif 
 	FAIL();
       }
       if ((CELL *) B == YREG && ASP != (CELL *) B) {
@@ -7828,7 +7810,6 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-#ifdef CUT_C
       BOp(cut_userc, OtapFs);
       /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
@@ -7839,7 +7820,6 @@ Yap_absmi(int inp)
       CACHE_A1();
       JMPNext();
       ENDBOp();
-#endif
 
 
 /************************************************************************\

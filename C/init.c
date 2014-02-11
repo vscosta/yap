@@ -69,11 +69,7 @@ static void  InTTYLine(char *);
 static void  SetOp(int, int, char *, Term);
 static void  InitOps(void);
 static void  InitDebug(void);
-#ifdef CUT_C
 static void  CleanBack(PredEntry *, CPredicate, CPredicate, CPredicate);
-#else
-static void  CleanBack(PredEntry *, CPredicate, CPredicate);
-#endif
 static void  InitStdPreds(void);
 static void  InitFlags(void);
 static void  InitCodes(void);
@@ -682,11 +678,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
 
 
 static void 
-#ifdef CUT_C
 CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
-#else
-CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
-#endif
 {
   yamop   *code;
   if (pe->cs.p_code.FirstClause != pe->cs.p_code.LastClause ||
@@ -717,7 +709,6 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
   code->u.OtapFs.f = Cont;
-#ifdef CUT_C
   code = NEXTOP(code,OtapFs);
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_cut_c);
@@ -725,11 +716,8 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
     code->opc = Yap_opcode(_cut_userc);
   code->u.OtapFs.p = pe;
   code->u.OtapFs.f = Cut;
-#endif
 }
 
-
-#ifdef CUT_C
 void 
 Yap_InitCPredBack(char *Name, unsigned long int Arity,
 		  unsigned int Extra, CPredicate Start,
@@ -743,24 +731,11 @@ Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
 		     CPredicate Cont,CPredicate Cut, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
 }
-#else
-Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
-		     unsigned int Extra, CPredicate Start,
-		     CPredicate Cont,CPredicate Cut, UInt flags){
-  Yap_InitCPredBack(Name,Arity,Extra,Start,Cont,flags);
-}
-#endif /* CUT_C */
 
 void
-#ifdef CUT_C 
 Yap_InitCPredBack_(char *Name, unsigned long int Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, CPredicate Cut, UInt flags)
-#else
-Yap_InitCPredBack(char *Name, unsigned long int Arity,
-		  unsigned int Extra, CPredicate Start,
-		  CPredicate Cont, UInt flags)
-#endif 
 {
   CACHE_REGS
   PredEntry      *pe = NULL;
@@ -796,11 +771,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
   if (pe->cs.p_code.FirstClause != NIL)
     {
       flags = update_flags_from_prolog(flags, pe);      
-#ifdef CUT_C
       CleanBack(pe, Start, Cont, Cut);
-#else
-      CleanBack(pe, Start, Cont);
-#endif /*CUT_C*/
     }
   else {
     StaticClause *cl;
@@ -814,11 +785,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
     
-#ifdef CUT_C
     cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l));
-#else
-    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),l));
-#endif
     
     if (cl == NULL) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
@@ -826,15 +793,9 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     }
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
-#ifdef CUT_C
     Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),e);
-#else
-    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),l);
-    cl->ClSize = 
-      (CELL)NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),e);
-#endif
     cl->usc.ClLine = Yap_source_line_no();
 
     code = cl->ClCode;
@@ -866,7 +827,6 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
     code = NEXTOP(code,OtapFs);
-#ifdef CUT_C
     if (flags & UserCPredFlag)
       code->opc = Yap_opcode(_cut_userc);
     else
@@ -876,7 +836,6 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     code->u.OtapFs.s = Arity;
     code->u.OtapFs.extra = Extra;
     code = NEXTOP(code,OtapFs);
-#endif /* CUT_C */
     code->opc = Yap_opcode(_Ystop);
     code->u.l.l = cl->ClCode;
   }
