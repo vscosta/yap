@@ -653,7 +653,7 @@ LTLIBOBJS
 LIBOBJS
 RAPTOR_CPPFLAGS
 RAPTOR_LDFLAGS
-PKG_RAPTOR
+ENABLE_RAPTOR
 LTX_PL
 _ACJNI_JAVAC
 JAVADOC
@@ -9827,9 +9827,8 @@ esac
   export CC LD CFLAGS LDFLAGS;
   mkdir -p packages/clib/maildrop/rfc822;
   mkdir -p packages/clib/maildrop/rfc2045;
-  DIR=`dirname "$srcdir"/packages/clib/maildrop`
-  ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL $DIR/rfc822/configure --host=$host)
-  ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL $DIR/rfc2045/configure --host=$host)
+  ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc822/configure --host=$host)
+  ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL ../../../../"$srcdir"/packages/clib/maildrop/rfc2045/configure --host=$host)
 )
 
 
@@ -11699,11 +11698,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-<<<<<<< HEAD
-/* #line 11753 "configure" */
-=======
-/* #line 11706 "configure" */
->>>>>>> bcde1666fb9dc38ece7ef3b95cc46c18f6632f74
+/* #line 11701 "configure" */
 public class Test {
 }
 EOF
@@ -11879,11 +11874,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-<<<<<<< HEAD
-        echo "configure: 11929: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
-=======
-        echo "configure: 11882: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
->>>>>>> bcde1666fb9dc38ece7ef3b95cc46c18f6632f74
+        echo "configure: 11877: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12014,11 +12005,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-<<<<<<< HEAD
-/* #line 12060 "configure" */
-=======
-/* #line 12013 "configure" */
->>>>>>> bcde1666fb9dc38ece7ef3b95cc46c18f6632f74
+/* #line 12008 "configure" */
 public class Test {
 }
 EOF
@@ -12053,11 +12040,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-<<<<<<< HEAD
-/* [#]line 12095 "configure" */
-=======
-/* [#]line 12048 "configure" */
->>>>>>> bcde1666fb9dc38ece7ef3b95cc46c18f6632f74
+/* [#]line 12043 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12744,175 +12727,6 @@ else
 fi
 
 if test -e "$srcdir"/packages/raptor/Makefile.in; then
-
-
-
-
-
-# Check whether --with-raptor was given.
-if test "${with_raptor+set}" = set; then :
-  withval=$with_raptor; yap_cv_raptor="$withval"
-else
-  yap_cv_raptor=no
-fi
-
-
-if test "$yap_cv_raptor" = no
-then
-  PKG_RAPTOR=""
-else
-  PKG_RAPTOR="packages/raptor"
-fi
-
-if test "$yap_cv_raptor" != no; then
-
-oldlibs="$LIBS"
-
-if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
-   RAPTOR_CPPFLAGS="-I $yap_cv_raptor/include"
-   raptor_dir="$yap_cv_raptor"
-elif test "$prefix" != "NONE"; then
-   RAPTOR_CPPFLAGS="-I $prefix/include"
-   raptor_dir="$prefix"
-else
-   RAPTOR_CPPFLAGS="-I /usr/local/include"
-   raptor_dir=/usr/local
-fi
-
-OLD_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $RAPTOR_CPPFLAGS"
-
-for ac_header in raptor2/raptor2.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "raptor2/raptor2.h" "ac_cv_header_raptor2_raptor2_h" "$ac_includes_default"
-if test "x$ac_cv_header_raptor2_raptor2_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_RAPTOR2_RAPTOR2_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in raptor.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "raptor.h" "ac_cv_header_raptor_h" "$ac_includes_default"
-if test "x$ac_cv_header_raptor_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_RAPTOR_H 1
-_ACEOF
-
-fi
-
-<<<<<<< HEAD
-
-if test "$use_gecode" = yes; then
-   if test $i_am_cross_compiling = yes
-   then
-     GECODE_VERSION=4.2.1
-   else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking gecode version" >&5
-$as_echo_n "checking gecode version... " >&6; }
-  if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include "gecode/support/config.hpp"
-#include <stdio.h>
-
-int
-main ()
-{
-
-  FILE* out = fopen("conftest.out","w");
-  fprintf(out,"%s\n",GECODE_VERSION);
-  fclose(out);
-  return 0;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  GECODE_VERSION=$(cat conftest.out)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $GECODE_VERSION" >&5
-$as_echo "$GECODE_VERSION" >&6; }
-else
-  as_fn_error $? "cannot determine gecode version" "$LINENO" 5
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-   case "$target_os" in
-     *darwin*)
-     { $as_echo "$as_me:${as_lineno-$LINENO}: checking if -framework gecode is required" >&5
-$as_echo_n "checking if -framework gecode is required... " >&6; }
-     ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-     saved_CXXFLAGS="$CXXFLAGS"
-     CXXFLAGS="$CXXFLAGS -framework gecode"
-     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include "gecode/int.hh"
-
-int
-main ()
-{
-
-Gecode::Exception e("","");
-return 0;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  GECODE_EXTRALIBS="-framework gecode"
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-     ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-     CXXFLAGS="$saved_CXXFLAGS"
-     ;;
-   esac
-fi
-fi
-
-GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
-
-
-
-if test "$GECODE_MAJOR" = "3"; then
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
-else
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
-fi
-
-
-
-
-
-if test -e "$srcdir"/packages/raptor/Makefile.in; then
    ENABLE_RAPTOR=""
 
 
@@ -12975,8 +12789,6 @@ _ACEOF
 
 fi
 
-=======
->>>>>>> bcde1666fb9dc38ece7ef3b95cc46c18f6632f74
 done
 
 
@@ -13042,7 +12854,7 @@ RAPTOR_LDFLAGS="$LIBS"
 
 if test "$raptor_available" = no
 then
-  PKG_RAPTOR=""
+  ENABLE_RAPTOR="@# "
   cat << EOF
 ##################################################################
 # ERROR: Could not find raptor library. Either I don't have the
@@ -13050,7 +12862,7 @@ then
 ##################################################################
 EOF
 else
-  PKG_RAPTOR="packages/raptor"
+  ENABLE_RAPTOR=""
 fi
 
 
