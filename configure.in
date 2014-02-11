@@ -623,22 +623,22 @@ CMFLAGS=-fpic
 CIFLAGS=-I.
 
 if test "$use_prism" = no; then
-  PKG_PRISM="@# "
-else
   PKG_PRISM=""
+else
+  PKG_PRISM="packages/prism/src/c packages/prism/src/prolog"
 fi
 AC_SUBST(PKG_PRISM)
 
 if test -e "$srcdir"/packages/archive/Makefile.in; then
-  PKG_LIBARCHIVE=""
+  PKG_LIBARCHIVE="packages/archive"
 else
-  PKG_LIBARCHIVE="@# "
+  PKG_LIBARCHIVE=""
 fi
 
 if test -e "$srcdir"/packages/odbc/Makefile.in; then
-  PKG_ODBC=""
+  PKG_ODBC="packages/odbc"
 else
-  PKG_ODBC="@# "
+  PKG_ODBC=""
 fi
 
 if test "$use_chr" = no; then
@@ -1743,32 +1743,32 @@ fi
 
 m4_include([packages/myddas/configure.in])
 
-if test "$PKG_CLIB" = ""
+if test "$PKG_CLIB" != ""
 then
 
 m4_include([packages/clib/configure.in])
 
 fi
 
-if test "$PKG_LIBARCHIVE" = ""
+if test "$PKG_LIBARCHIVE" != ""
 then
 
 m4_include([packages/archive/configure.in])
 
 if test "$ARCHIVE_TARGETS" = "nolib"
 then
-  PKG_LIBARCHIVE="@# "
+  PKG_LIBARCHIVE=""
 fi
 
 fi
 
-if test "$PKG_ODBC" = ""; then
+if test "$PKG_ODBC" != ""; then
 
 m4_include([packages/odbc/configure.in])
 
 if test "$ODBC_TARGETS" = "nolib"
 then
-  PKG_ODBC="@# "
+  PKG_ODBC=""
 fi
 
 else
@@ -1780,14 +1780,14 @@ fi
 m4_include([packages/bdd/configure.in])
 
 dnl zlib
-if test "$PKG_ZLIB" = ""
+if test "$PKG_ZLIB" != ""
 then
 
 m4_include([packages/zlib/configure.in])
 
 if test "$ZLIB_TARGETS" = "nolib"
 then
-  PKG_ZLIB="@# "
+  PKG_ZLIB=""
 fi
 
 fi
