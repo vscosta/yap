@@ -181,20 +181,20 @@ UTESTS_OBJS = \
 	$(utestsdir)/UnitTesting.o
 
 
-LIB = $(srcdir)/horus.@SO@
-HCLI = $(srcdir)/hcli
+SOBJS = horus.@SO@
+HCLI = hcli
 UTESTING = $(srcdir)/run_tests
 
 
-all: $(LIB) $(HCLI)
+all: $(SOBJS) $(HCLI)
 
 
 # Don't require $(UTESTING) by default as we
 # don't want a hard dependency on CppUnit
-with_tests: $(LIB) $(HCLI) $(UTESTING)
+with_tests: $(SOBJS) $(HCLI) $(UTESTING)
 
 
-@DO_SECOND_LD@$(LIB): $(LIB_OBJS)
+@DO_SECOND_LD@$(SOBJS): $(LIB_OBJS)
 @DO_SECOND_LD@	@SHLIB_CXX_LD@ $(LDFLAGS) -o $@ $(LIB_OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 
@@ -212,13 +212,15 @@ $(UTESTING): $(UTESTS_OBJS)
 
 
 install: all
-	$(INSTALL_PROGRAM) $(LIB) $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) $(HCLI) $(DESTDIR)$(BINDIR)
 
 
 clean:
-	rm -f $(LIB) $(HCLI) $(UTESTING) *.o *~ $(utestsdir)/*.o $(utestsdir)/*~
+	rm -f $(SOBJS) $(HCLI) $(UTESTING) *.o *~ $(utestsdir)/*.o $(utestsdir)/*~
 
+distclean: clean
+	rm -f Makefile
 
 remove_dots:
 	rm -f *.dot *.png *.svg
