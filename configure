@@ -12696,6 +12696,12 @@ _ACEOF
 
 
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
+     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
+fi
 
 
 
