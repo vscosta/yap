@@ -67,12 +67,8 @@
       pc = pc->u.OtaLl.n;
       break;
       /* instructions type OtapFs */
-#ifdef CUT_C
     case _cut_c:
-#endif
-#ifdef CUT_C
     case _cut_userc:
-#endif
     case _retry_c:
     case _retry_userc:
     case _try_c:

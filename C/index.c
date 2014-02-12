@@ -492,9 +492,7 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
 
 #if defined(YAPOR) || defined(THREADS)
 #define SET_JLBL(X) jlbl = &(ipc->u.X)
@@ -6200,14 +6198,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #if TABLING
     case _table_trust:
 #endif
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  {
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -6230,14 +6226,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _table_trust_me:
 #endif
       b0 = B;
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  {
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -6369,7 +6363,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	    LogUpdClause *lcl = ipc->u.OtILl.d;
 	    /* make sure we don't erase the clause we are jumping to, notice that
 	       ErLogUpdIndex may remove several references in one go.
-	       Notice we only need to do this if we´ re jumping to the clause.
+	       Notice we only need to do this if weÂ´ re jumping to the clause.
 	     */
 	    if (newpc && !(lcl->ClFlags & (DirtyMask|InUseMask))) {
 	      lcl->ClFlags |= InUseMask;
@@ -6383,14 +6377,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  }
 	}
 #endif
-#ifdef CUT_C
 	{
 	  while (POP_CHOICE_POINT(B->cp_b))
 	    {
 	      POP_EXECUTE();
 	    }
 	}
-#endif /* CUT_C */
 #ifdef YAPOR
 	{
 	  choiceptr cut_pt;
@@ -6657,14 +6649,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	return NULL;
     default:
       if (b0) {
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  {
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
 #ifdef YAPOR
 	{
 	  choiceptr cut_pt;
@@ -6687,14 +6677,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   }
   if (b0) {
     /* I did a trust */
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  {
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
 #ifdef YAPOR
     {
       choiceptr cut_pt;

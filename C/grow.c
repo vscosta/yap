@@ -22,9 +22,7 @@
 #include "sshift.h"
 #include "compile.h"
 #include "attvar.h"
-#ifdef CUT_C
 #include "cut_c.h"
-#endif /* CUT_C */
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -137,10 +135,8 @@ SetHeapRegs(int copying_threads USES_REGS)
   UNLOCK(LOCAL_SignalLock);
   if (HR)
     HR = PtoGloAdjust(HR);
-#ifdef CUT_C
   if (Yap_REGS.CUT_C_TOP)
     Yap_REGS.CUT_C_TOP = CutCAdjust(Yap_REGS.CUT_C_TOP);
-#endif
   if (HB)
     HB = PtoGloAdjust(HB);
   if (LOCAL_OpenArray)
@@ -1986,9 +1982,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   if (ASP > CellPtr(B))
     ASP = CellPtr(B);
   LCL0 = REMOTE_ThreadHandle(worker_p).current_yaam_regs->LCL0_;
-#ifdef CUT_C
   Yap_REGS.CUT_C_TOP = REMOTE_ThreadHandle(worker_p).current_yaam_regs->CUT_C_TOP;
-#endif
   LOCAL_DynamicArrays = NULL;
   LOCAL_StaticArrays = NULL;
   LOCAL_GlobalVariables = NULL;

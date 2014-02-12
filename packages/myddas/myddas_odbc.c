@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined MYDDAS_ODBC && defined CUT_C
+#if defined MYDDAS_ODBC
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -765,7 +765,7 @@ c_db_odbc_get_fields_properties( USES_REGS1 ) {
   list = fields_properties_list;
   
   SQLSMALLINT bind_prim_key;
-  //por causa de as rows em odbc começam em 1 :)
+  //por causa de as rows em odbc comeï¿½am em 1 :)
   Short *null=(Short *)malloc(sizeof(Short)*(1+num_fields));
   
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt2, "db_get_fields_properties"))

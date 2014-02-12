@@ -22,9 +22,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "pl-shared.h"
 #include "yapio.h"
 #include "attvar.h"
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
 
 static Int  CallPredicate(PredEntry *, choiceptr, yamop * CACHE_TYPE);
 static Int  EnterCreepMode(Term, Term CACHE_TYPE);
@@ -1229,7 +1227,6 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
     /* restore the old environment */
     /* get to previous environment */
     cut_B = (choiceptr)ENV[E_CB];
-#ifdef CUT_C
     {
       /* Note that 
 	 cut_B == (choiceptr)ENV[E_CB] */
@@ -1238,7 +1235,6 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 	  POP_EXECUTE();
 	}
     }
-#endif /* CUT_C */
 #ifdef YAPOR
     CUT_prune_to(cut_B);
 #endif /* YAPOR */
@@ -1799,9 +1795,7 @@ Yap_InitYaamRegs( int myworker_id )
 #endif
   Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
   Yap_InitPreAllocCodeSpace( myworker_id );
-#ifdef CUT_C
   cut_c_initialize( myworker_id );
-#endif
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */

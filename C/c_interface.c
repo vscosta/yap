@@ -363,9 +363,7 @@
 #include "or.macros.h"
 #endif	/* YAPOR */
 #include "threads.h"
-#ifdef CUT_C
 #include "cut_c.h"
-#endif /* CUT_C */
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -515,10 +513,8 @@ X_API void    YAP_PredicateInfo(void *,Atom *,UInt *,Term *);
 X_API void    YAP_UserCPredicate(char *,CPredicate,UInt);
 X_API void    YAP_UserBackCPredicate(char *,CPredicate,CPredicate,UInt,unsigned int);
 X_API void    YAP_UserCPredicateWithArgs(char *,CPredicate,UInt,Term);
-#ifdef CUT_C
 X_API void    YAP_UserBackCutCPredicate(char *,CPredicate,CPredicate,CPredicate,UInt,unsigned int);
 X_API void   *YAP_ExtraSpaceCut(void);
-#endif
 X_API Term     YAP_SetCurrentModule(Term);
 X_API Term     YAP_CurrentModule(void);
 X_API Term     YAP_CreateModule(Atom);
@@ -1166,7 +1162,6 @@ YAP_ArityOfFunctor(Functor f)
   return (ArityOfFunctor(f));
 }
 
-#ifdef CUT_C
 X_API void *
 YAP_ExtraSpaceCut(void)
 {
@@ -1179,7 +1174,6 @@ YAP_ExtraSpaceCut(void)
   RECOVER_B();
   return(ptr);
 }
-#endif /*CUT_C*/
 
 X_API void *
 YAP_ExtraSpace(void)
@@ -1203,14 +1197,12 @@ YAP_cut_up(void)
 {
   CACHE_REGS
   BACKUP_B();
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  { 
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
       /* This is complicated: make sure we can restore the ASP
 	 pointer back to where cut_up called it. Slots depend on it. */
   if (ENV > B->cp_env) {
@@ -3505,23 +3497,16 @@ X_API void
 YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 		   UInt arity, unsigned int extra)
 {
-#ifdef CUT_C
   Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL ,UserCPredFlag);
-#else
-  Yap_InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
-#endif
 
 }
 
-#ifdef CUT_C
 X_API void 
 YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredicate cut,
 			  UInt arity, unsigned int extra)
 {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
 }
-#endif
-
 
 X_API void
 YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)

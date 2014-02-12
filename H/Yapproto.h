@@ -238,9 +238,7 @@ void	Yap_InitAsmPred(char *, unsigned long int, int, CPredicate, UInt);
 void	Yap_InitCmpPred(char *, unsigned long int, CmpPredicate, UInt);
 void	Yap_InitCPredBack(char *, unsigned long int, unsigned int, CPredicate,CPredicate,UInt);
 void	Yap_InitCPredBackCut(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-#ifdef CUT_C
 void    Yap_InitCPredBack_(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-#endif
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
 
 #ifdef YAPOR

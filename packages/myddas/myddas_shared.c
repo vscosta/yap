@@ -268,7 +268,7 @@ c_db_preds_conn_start ( USES_REGS1 ){
   MYDDAS_UTIL_CONNECTION node = 
     myddas_util_search_connection(conn);
   
-  /* Caso a ligacao j· tenha sido apagada*/
+  /* Caso a ligacao j√° tenha sido apagada*/
   if (node == NULL)
     {
       cut_fail();
@@ -699,22 +699,22 @@ void
 init_myddas(void)
 {
   CACHE_REGS
-#if defined MYDDAS_MYSQL && defined CUT_C
+#if defined MYDDAS_MYSQL
   Yap_InitBackMYDDAS_MySQLPreds();
 #endif
-#if defined MYDDAS_ODBC && defined CUT_C
+#if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
   Yap_InitBackMYDDAS_SharedPreds();
 #endif
-#if defined CUT_C && defined MYDDAS_MYSQL 
+#if defined MYDDAS_MYSQL
   Yap_InitMYDDAS_MySQLPreds();
 #endif
-#if defined CUT_C && defined MYDDAS_ODBC 
+#if defined MYDDAS_ODBC
   Yap_InitMYDDAS_ODBCPreds();
 #endif
-#if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
   Yap_InitMYDDAS_SharedPreds();
 #endif
 #if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
@@ -767,4 +767,4 @@ int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved)
 
 
 
-#endif /*CUT_C && (MYDDAS_MYSQL || MYDDAS_ODBC)*/
+#endif /*MYDDAS_MYSQL || MYDDAS_ODBC*/

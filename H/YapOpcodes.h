@@ -203,14 +203,10 @@
   OPCODE(call_c_wfail               ,slp),
   OPCODE(try_c                      ,OtapFs),
   OPCODE(retry_c                    ,OtapFs),
-#ifdef CUT_C
   OPCODE(cut_c                      ,OtapFs),
-#endif
   OPCODE(try_userc                  ,OtapFs),
   OPCODE(retry_userc                ,OtapFs),
-#ifdef CUT_C
   OPCODE(cut_userc                  ,OtapFs),
-#endif
   OPCODE(lock_pred                  ,e),
   OPCODE(index_pred                 ,e),
 #ifdef THREADS

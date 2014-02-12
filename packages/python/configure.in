@@ -44,7 +44,7 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    OLIBS=$LIBS
    LIBS=$PYTHON_LIBS
    AC_SEARCH_LIBS(Py_Initialize, [python"$PYTHONVERSION" python"$PYTHONVERSION"m],,[echo "Could not find libraries for Python";
-     ENABLE_PYTHON="@# "],"$OLIBS")  
+     PKG_PYTHON=""],"$OLIBS")  
    PYTHON_LIBS=$LIBS
    LIBS=$OLIBS
    if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
