@@ -825,7 +825,7 @@ void PrintNodeQueue(Queue q , extmanager MyManager){
 /* will be changed at later stage */
 static extmanager * ineedtostorethatsomehow;
 int comparator(void *av, void *bv){
-    int ret;
+    int ret = 0;
     DdNode* a = (DdNode*)av;
     DdNode* b = (DdNode*)bv;
     int aindex,bindex, aperm, bperm;

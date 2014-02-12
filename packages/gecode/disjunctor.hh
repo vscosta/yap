@@ -100,7 +100,7 @@ namespace Gecode { namespace Disjunctor_ {
     // list.
     //=========================================================================
 
-    class BasicForwarder;
+    struct BasicForwarder;
     using Int::IntView;
     using Int::BoolView;
     using Set::SetView;
