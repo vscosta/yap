@@ -85,6 +85,8 @@ install: all install_myddas
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 install_myddas:
 	count=`echo "$(YAP_EXTRAS)" | grep MYDDAS | wc -l`; \
 	if [ $$count -ne 0 ]; then \
@@ -98,3 +100,5 @@ install_myddas:
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+distclean: clean
+	rm -f Makefile
