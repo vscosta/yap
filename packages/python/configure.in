@@ -11,10 +11,10 @@ AC_ARG_WITH(python,
 
 if test "$yap_cv_python" = "no"; then
     PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
+    PKG_PYTHON=""
 elif test -e "$srcdir"/packages/python/Makefile.in ; then
    PYTHON_TARGET="pitf"
-   ENABLE_PYTHON=""
+   PKG_PYTHON="packages/python"
    if test "$yap_cv_python" = "yes"
    then
       AC_CHECK_PROGS(PYTHON, python, "none")
@@ -39,7 +39,7 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
      PYTHON_LIBS="-L $PYTHONHOME/lib"
    else
      echo "Could not find libraries for Python"
-     ENABLE_PYTHON="@# "
+     PKG_PYTHON=""
    fi
    OLIBS=$LIBS
    LIBS=$PYTHON_LIBS
@@ -55,20 +55,20 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include"
    else
      echo "Could not find includes for Python"
-     ENABLE_PYTHON="@# "
+     PKG_PYTHON=""
    fi
    fi
 else
     PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
+    PKG_PYTHON=""
 fi
 
 AC_SUBST(PYTHON_TARGET)
-AC_SUBST(ENABLE_PYTHON)
+AC_SUBST(PKG_PYTHON)
 AC_SUBST(PYTHON_INCLUDES)
 AC_SUBST(PYTHON_LIBS)
 
-if test "$ENABLE_PYTHON" = ""; then
+if test "$PKG_PYTHON" != ""; then
 AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 

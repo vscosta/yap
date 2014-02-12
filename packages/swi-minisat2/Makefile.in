@@ -34,10 +34,18 @@ EXAMPLE_PROGRAMS= \
 	$(srcdir)/examples/adder.pl \
 	$(srcdir)/examples/pearl_examples.pl
 
+all:
+
 install: $(PROGRAMS) 
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(EXAMPLE_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat; done
 
+install-examples:
+
 clean:
+
+realclean:
+	rm Makefile
+

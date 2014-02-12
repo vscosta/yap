@@ -1,0 +1,44 @@
+AC_ARG_WITH(matlab,
+	[ --with-matlab[=DIR]      use MATLAB package in DIR],
+	if test "$withval" = yes; then
+		yap_cv_matlab=yes
+	elif test "$withval" = no; then
+		yap_cv_matlab=no
+	else
+		yap_cv_matlab=$with_matlab
+		MATLAB_INCLUDE="-I${yap_cv_matlab}/extern/include"
+	fi,
+	[yap_cv_matlab=no])
+
+dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
+if test "$yap_cv_matlab" = no 
+then
+  PKG_MATLAB=""
+elif test "$yap_cv_matlab" = yes 
+then
+  PKG_MATLAB=""
+else
+  case "$target_cpu" in
+  i*86*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/glnx86"
+  ;;
+  x86*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/glnxa64"
+  ;;
+  sparc*)
+     LDFLAGS="$LDFLAGS -L${yap_cv_matlab}/bin/sol2"
+  ;;
+  esac
+  PKG_MATLAB="library/matlab"
+
+AC_SUBST(MATLAB_INCLUDE)
+
+mkdir -p  library/matlab
+
+AC_CONFIG_FILES([library/matlab/Makefile])
+
+fi
+
+AC_SUBST(PKG_MATLAB)
+
+
