@@ -143,7 +143,7 @@ IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
 	$(srcdir)/os/pl-table.h \
 	$(srcdir)/os/pl-text.h \
 	$(srcdir)/os/pl-utf8.h \
-	$(srcdir)/H/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/popen.c 
+	$(srcdir)/H/pl-yap.h @WINDOWS@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/popen.c 
 
 HEADERS = \
 	$(srcdir)/H/Atoms.h \

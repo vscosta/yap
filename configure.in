@@ -469,7 +469,7 @@ AC_PROG_RANLIB
 AC_CHECK_TOOL(AR,ar,:)
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 AC_PATH_PROG(SHELL,sh)
-
+AC_CHECK_TOOL([INDENT], [indent], [:])
 
 dnl Check for libraries.
 dnl mingw does not get along well with libm
@@ -686,9 +686,9 @@ else
 fi
 
 if test -e "$srcdir"/packages/raptor/Makefile.in; then
-  ENABLE_RAPTOR=""
+  ENABLE_RAPTOR="packages/raptor"
 else
-  ENABLE_RAPTOR="@# "
+  ENABLE_RAPTOR=""
 fi
 
 if test -e "$srcdir"/packages/RDF/Makefile.in; then
@@ -1289,6 +1289,7 @@ AC_SUBST(STATIC_MODE)
 AC_SUBST(PKG_WINCONSOLE)
 AC_SUBST(WINDOWS)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
+AC_SUBST(INDENT)
 
 AC_SUBST(PKG_MINISAT)
 AC_SUBST(PKG_REAL)
@@ -1801,11 +1802,11 @@ else
 fi
 
 if test -e "$srcdir"/packages/raptor/Makefile.in; then
-   ENABLE_RAPTOR=""
+  PKG_RAPTOR="packages/raptor"
 
    m4_include([packages/raptor/configure.in])
 else
-   ENABLE_RAPTOR="@# "
+   PKG_RAPTOR=""
 fi
 
 m4_include([library/matlab/configure.in])
