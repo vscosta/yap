@@ -626,12 +626,15 @@ depend: $(HEADERS) $(C_SOURCES)
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
 	fi
 
-clean: clean_docs
-	rm -f *.o *~ *.BAK *.a
+clean: clean_docs clean_local
 	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) clean ); done
 
-distclean: clean realclean_docs
-	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile */Makefile */*/Makefile */*defs */*/*/Makefile *.h config.*
+clean_local:
+	rm -f *.o *~ *.BAK *.a 	
+
+distclean:  realclean_docs clean_local
+	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile packages/Makefile.defs packages/Dialect.defs
+	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) distclean ); done
 
 dist:
 
