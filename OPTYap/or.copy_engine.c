@@ -353,6 +353,7 @@ sync_with_p:
 #endif /* incremental */
 
   /* update registers and return */
+  PUT_OUT_ROOT_NODE(worker_id);
 #ifndef TABLING
   REMOTE_reply_signal(worker_p) = worker_ready;
 #endif /* TABLING */

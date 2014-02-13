@@ -17,22 +17,19 @@
 
   PBOp(getwork_first_time,e)
     /* wait for a new parallel goal */
-    while (BITMAP_same(GLOBAL_bm_present_workers, GLOBAL_bm_finished_workers));
+    while (BITMAP_same(GLOBAL_bm_present_workers,GLOBAL_bm_finished_workers));
     make_root_choice_point();  
-    PUT_IN_EXECUTING(worker_id);
-    /* wait until everyone else is executing! */
-    while (! BITMAP_same(GLOBAL_bm_present_workers, GLOBAL_bm_executing_workers));
     SCHEDULER_GET_WORK();
   shared_end:
     PUT_IN_FINISHED(worker_id);
     /* wait until everyone else is finished! */
-    while (! BITMAP_same(GLOBAL_bm_present_workers, GLOBAL_bm_finished_workers));
-    PUT_OUT_EXECUTING(worker_id);
+    while (! BITMAP_same(GLOBAL_bm_present_workers,GLOBAL_bm_finished_workers));
+    PUT_OUT_ROOT_NODE(worker_id);
     if (worker_id == 0) {
       finish_yapor();
       free_root_choice_point();
       /* wait until no one is executing */
-      while (! BITMAP_empty(GLOBAL_bm_executing_workers));
+      while (! BITMAP_empty(GLOBAL_bm_root_cp_workers));
       goto fail;
     } else {
       PREG = GETWORK_FIRST_TIME;
@@ -40,6 +37,7 @@
       GONext();
     }
   ENDPBOp();
+
 
 
 
