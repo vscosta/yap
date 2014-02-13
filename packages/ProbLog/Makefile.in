@@ -86,12 +86,12 @@ install: $(PROGRAMS) $(PROBLOG_PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
 	mkdir -p $(DESTDIR)$(DOCSDIR)
-	mkdir -p $(DESTDIR)$(EXDOCSDIR)
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
 	$(INSTALL_DATA) $(srcdir)/LICENSE $(DESTDIR)$(DOCSDIR)
 
 install-examples:  $(PROBLOG_EXAMPLES)
+	mkdir -p $(DESTDIR)$(EXDOCSDIR)
 	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EXDOCSDIR); done
 
 pdf: $(MANUAL)
