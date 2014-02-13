@@ -54,6 +54,7 @@
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");
   AtomCodes = Yap_LookupAtom("codes");
+  AtomCoInductive = Yap_LookupAtom("coinductive");
   AtomComma = Yap_LookupAtom(",");
   AtomCommentHook = Yap_LookupAtom("comment_hook");
   AtomCompound = Yap_LookupAtom("compound");

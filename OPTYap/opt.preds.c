@@ -125,13 +125,13 @@ struct page_statistics {
           while (pg_hd) {                                                                  \
             aux_ptr = PgHd_first_str(pg_hd);                                               \
             while (aux_ptr) {                                                              \
-	      cont++;                                                                      \
-	      aux_ptr = aux_ptr->next;                                                     \
-	    }                                                                              \
-	    pg_hd = PgHd_next(pg_hd);                                                      \
-	  }                                                                                \
-	  TABLING_ERROR_CHECKING(CHECK_PAGE_FREE_STRUCTS, PgEnt_strs_free(PAGE) != cont);  \
-	}
+              cont++;                                                                      \
+              aux_ptr = aux_ptr->next;                                                     \
+            }                                                                              \
+            pg_hd = PgHd_next(pg_hd);                                                      \
+          }                                                                                \
+          TABLING_ERROR_CHECKING(CHECK_PAGE_FREE_STRUCTS, PgEnt_strs_free(PAGE) != cont);  \
+        }
 #else
 #define CHECK_PAGE_FREE_STRUCTS(STR_TYPE, PAGE)
 #endif /* DEBUG_TABLING */
@@ -173,7 +173,7 @@ struct page_statistics {
               INCREMENT_PAGE_STATS(STATS, REMOTE##_PAGES(wid));        \
             }                                                          \
           }                                                            \
-	}                                                              \
+        }                                                              \
         UNLOCK(GLOBAL_ThreadHandlesLock)
 #else
 #define GET_ALL_PAGE_STATS(STATS, STR_TYPE, _PAGES)                    \
@@ -185,10 +185,10 @@ struct page_statistics {
         INIT_PAGE_STATS(STATS);                                                 \
         GET_ALL_PAGE_STATS(STATS, STR_TYPE, _PAGES);                            \
         PgEnt_bytes_in_use(STATS) = PgEnt_strs_in_use(STATS) * sizeof(STR_TYPE)
-#define SHOW_PAGE_STATS(OUT_STREAM, STR_TYPE, _PAGES, STR_NAME)	                                       \
+#define SHOW_PAGE_STATS(OUT_STREAM, STR_TYPE, _PAGES, STR_NAME)                                               \
         { struct page_statistics stats;                                                                \
-          GET_PAGE_STATS(stats, STR_TYPE, _PAGES);	                                               \
-	  Sfprintf(OUT_STREAM, SHOW_PAGE_STATS_MSG(STR_NAME), SHOW_PAGE_STATS_ARGS(stats, STR_TYPE));  \
+          GET_PAGE_STATS(stats, STR_TYPE, _PAGES);                                                       \
+          Sfprintf(OUT_STREAM, SHOW_PAGE_STATS_MSG(STR_NAME), SHOW_PAGE_STATS_ARGS(stats, STR_TYPE));  \
           return stats;                                                                                \
         }
 
@@ -327,18 +327,18 @@ static Int p_table( USES_REGS1 ) {
     for (i = 0; i < arity; i++) {
       int mode = IntOfTerm(HeadOfTerm(list));
       if (mode == MODE_DIRECTED_INDEX)
-	pos_index++;
+        pos_index++;
       else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)
-	pos_min_max++;
+        pos_min_max++;
       else if (mode == MODE_DIRECTED_ALL)
-	pos_all++;
+        pos_all++;
       else if (mode == MODE_DIRECTED_SUM || mode == MODE_DIRECTED_LAST) {
-	if (pos_sum_last) {
-	  free(aux_mode_directed);
-	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (more than one argument with modes 'sum' and/or 'last')", AtomName(at), arity);
-	  return(FALSE);
-	} else
-	  pos_sum_last = 1;
+        if (pos_sum_last) {
+          free(aux_mode_directed);
+          Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (more than one argument with modes 'sum' and/or 'last')", AtomName(at), arity);
+          return(FALSE);
+        } else
+          pos_sum_last = 1;
       }
       aux_mode_directed[i] = mode;
       list = TailOfTerm(list);
@@ -352,15 +352,15 @@ static Int p_table( USES_REGS1 ) {
     for (i = 0; i < arity; i++) {
       int aux_pos = 0;
       if (aux_mode_directed[i] == MODE_DIRECTED_INDEX)
-	aux_pos = pos_index++;	
+        aux_pos = pos_index++;        
       else if (aux_mode_directed[i] == MODE_DIRECTED_MIN || aux_mode_directed[i] == MODE_DIRECTED_MAX)
-	aux_pos = pos_min_max++;
+        aux_pos = pos_min_max++;
       else if (aux_mode_directed[i] == MODE_DIRECTED_ALL)
-	aux_pos = pos_all++;		
+        aux_pos = pos_all++;                
       else if (aux_mode_directed[i] == MODE_DIRECTED_SUM || aux_mode_directed[i] == MODE_DIRECTED_LAST)
-	aux_pos = pos_sum_last++;	
+        aux_pos = pos_sum_last++;        
       else if(aux_mode_directed[i] == MODE_DIRECTED_FIRST)
-	aux_pos = pos_first++;
+        aux_pos = pos_first++;
       mode_directed[aux_pos] = MODE_DIRECTED_SET(i, aux_mode_directed[i]);
     }
     free(aux_mode_directed);
@@ -404,6 +404,8 @@ static Int p_tabling_mode( USES_REGS1 ) {
       t = MkPairTerm(MkAtomTerm(AtomBatched), t);
     else if (IsMode_Local(TabEnt_flags(tab_ent)))
       t = MkPairTerm(MkAtomTerm(AtomLocal), t);
+    if (IsMode_CoInductive(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomCoInductive), t);
     t = MkPairTerm(MkAtomTerm(AtomDefault), t);
     t = MkPairTerm(t, TermNil);
     if (IsMode_LocalTrie(TabEnt_mode(tab_ent)))
@@ -425,40 +427,43 @@ static Int p_tabling_mode( USES_REGS1 ) {
     if (value == 1) {  /* batched */
       SetMode_Batched(TabEnt_flags(tab_ent));
       if (! IsMode_Local(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_Batched(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_Batched(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
     } else if (value == 2) {  /* local */
       SetMode_Local(TabEnt_flags(tab_ent));
       if (! IsMode_Batched(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_Local(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_Local(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
     } else if (value == 3) {  /* exec_answers */
       SetMode_ExecAnswers(TabEnt_flags(tab_ent));
       if (! IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
     } else if (value == 4) {  /* load_answers */
       SetMode_LoadAnswers(TabEnt_flags(tab_ent));
       if (! IsMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_LoadAnswers(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
     } else if (value == 5) {  /* local_trie */
       SetMode_LocalTrie(TabEnt_flags(tab_ent));
       if (! IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_LocalTrie(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_LocalTrie(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
     } else if (value == 6) {  /* global_trie */
       SetMode_GlobalTrie(TabEnt_flags(tab_ent));
       if (! IsMode_LocalTrie(yap_flags[TABLING_MODE_FLAG])) {
-	SetMode_GlobalTrie(TabEnt_mode(tab_ent));
-	return(TRUE);
+        SetMode_GlobalTrie(TabEnt_mode(tab_ent));
+        return(TRUE);
       }
-    }    
+    }  else if (value == 7) {  /* coinductive */ //only affect the predicate flag. Also it cant be unset
+      SetMode_CoInductive(TabEnt_flags(tab_ent));
+      return(TRUE);
+    }
   }
   return (FALSE);
 }

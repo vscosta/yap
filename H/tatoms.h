@@ -106,6 +106,8 @@
 #define AtomCodeSpace Yap_heap_regs->AtomCodeSpace_
   Atom AtomCodes_;
 #define AtomCodes Yap_heap_regs->AtomCodes_
+  Atom AtomCoInductive_;
+#define AtomCoInductive Yap_heap_regs->AtomCoInductive_
   Atom AtomComma_;
 #define AtomComma Yap_heap_regs->AtomComma_
   Atom AtomCommentHook_;

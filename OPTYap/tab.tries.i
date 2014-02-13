@@ -47,7 +47,7 @@
 #else
 #define SUBGOAL_CHECK_INSERT_ENTRY(TAB_ENT, NODE, ENTRY)                           \
         NODE = subgoal_trie_check_insert_entry(TAB_ENT, NODE, ENTRY PASS_REGS)
-#define ANSWER_CHECK_INSERT_ENTRY(SG_FR, NODE, ENTRY, INSTR)	                   \
+#define ANSWER_CHECK_INSERT_ENTRY(SG_FR, NODE, ENTRY, INSTR)                           \
         NODE = answer_trie_check_insert_entry(SG_FR, NODE, ENTRY, INSTR PASS_REGS)
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
@@ -56,9 +56,9 @@
 #define ANSWER_SAFE_INSERT_ENTRY(NODE, ENTRY, INSTR)                       \
         { ans_node_ptr new_node;                                           \
           NEW_ANSWER_TRIE_NODE(new_node, INSTR, ENTRY, NULL, NODE, NULL);  \
-	  TrNode_child(NODE) = new_node;                                   \
+          TrNode_child(NODE) = new_node;                                   \
           NODE = new_node;                                                 \
-	}
+        }
 #ifdef THREADS
 #define INVALIDATE_ANSWER_TRIE_NODE(NODE, SG_FR)        \
         TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
@@ -1048,19 +1048,26 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
   goto subgoal_search_loop_non_atomic;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
+#ifdef TRIE_RATIONAL_TERMS
+  /* Needed structures, variables to support rational terms */
+  term_array Ts;
+  void* CyclicTerm;
+  term_array_init(&Ts, 10);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+
   do {
     if (IsVarTerm(t)) {
       if (IsTableVarTerm(t)) {
-	t = MakeTableVarTerm(VarIndexOfTerm(t));
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
+        t = MakeTableVarTerm(VarIndexOfTerm(t));
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
       } else {
-	if (subs_arity == MAX_TABLE_VARS)
-	  Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
-	STACK_PUSH_UP(t, stack_vars);
-	*((CELL *)t) = GLOBAL_table_var_enumerator(subs_arity);
-	t = MakeTableVarTerm(subs_arity);
-	subs_arity = subs_arity + 1;
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
+        if (subs_arity == MAX_TABLE_VARS)
+          Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
+        STACK_PUSH_UP(t, stack_vars);
+        *((CELL *)t) = GLOBAL_table_var_enumerator(subs_arity);
+        t = MakeTableVarTerm(subs_arity);
+        subs_arity = subs_arity + 1;
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
       }
     } else if (IsAtomOrIntTerm(t)) {
       SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
@@ -1075,48 +1082,103 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
       current_node = subgoal_trie_check_insert_gt_entry(tab_ent, current_node, (Term) entry_node PASS_REGS);
 #else /* ! MODE_TERMS_LOOP */
     } else 
+#ifdef TRIE_RATIONAL_TERMS
+    if (IsRationalTerm(t)) {
+      t = STACK_POP_DOWN(stack_terms);
+      SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
+    } else     
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
 #if defined(MODE_GLOBAL_TRIE_LOOP)
       /* for the global trie, it is safe to start here in the first iteration */
       subgoal_search_loop_non_atomic:
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 #ifdef TRIE_COMPACT_PAIRS
     if (IsPairTerm(t)) {
+#ifdef TRIE_RATIONAL_TERMS
+      CyclicTerm = NULL;
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
       CELL *aux_pair = RepPair(t);
       if (aux_pair == PairTermMark) {
-	t = STACK_POP_DOWN(stack_terms);
-	if (IsPairTerm(t)) {
-	  aux_pair = RepPair(t);
-	  t = Deref(aux_pair[1]);
-	  if (t == TermNil) {
-	    SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndList);
-	  } else {
-	    /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
-	    /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
-	    ** up 3 terms has already initially checked for the CompactPairInit term         */
-	    STACK_PUSH_UP(t, stack_terms);
-	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	  }
-	  STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
-	} else {
-	  SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndTerm);
-	  STACK_PUSH_UP(t, stack_terms);
-	}
+        t = STACK_POP_DOWN(stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        if (IsPairTerm(t) && ! IsRationalTerm(t)) {
+          term_array_push(&Ts, (void *) t, (void *) current_node);
+#else
+        if (IsPairTerm(t)) {
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          aux_pair = RepPair(t);
+          t = Deref(aux_pair[1]);
+#ifdef TRIE_RATIONAL_TERMS
+          if (IsVarTerm(aux_pair[1]) || IsPairTerm(aux_pair[1])) {
+            CyclicTerm = term_array_member(Ts, (void *) t);
+          }
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);
+            STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          if (t == TermNil) {
+            SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndList);
+          } else {
+            /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
+            /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+            ** up 3 terms has already initially checked for the CompactPairInit term         */
+            STACK_PUSH_UP(t, stack_terms);
+            STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+          }
+#ifdef TRIE_RATIONAL_TERMS
+          CyclicTerm = NULL;
+          if (IsVarTerm(aux_pair[0]) || IsPairTerm(aux_pair[0]))
+            CyclicTerm = term_array_member(Ts, (void *) Deref(aux_pair[0]));
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
+        } else {
+          SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndTerm);
+          STACK_PUSH_UP(t, stack_terms);
+        }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
       } else if (current_node != GLOBAL_root_gt) {
-	gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms PASS_REGS);
-	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node PASS_REGS);
+        gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms PASS_REGS);
+        current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node PASS_REGS);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
       } else {
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairInit);
-	t = Deref(aux_pair[1]);
-	if (t == TermNil) {
-	  SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndList);
-	} else {
-	  AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);
-	  STACK_PUSH_UP(t, stack_terms);
-	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	}
-	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        term_array_push(&Ts, (void *) t, (void *) current_node);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairInit);
+        t = Deref(aux_pair[1]);
+#ifdef TRIE_RATIONAL_TERMS
+        if (IsVarTerm(aux_pair[1]) || IsPairTerm(aux_pair[1])) {
+          CyclicTerm = term_array_member(Ts, (void *) t);
+        }
+        if (CyclicTerm != NULL) {
+          STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+          STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+        } else 
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        if (t == TermNil) {
+          SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, CompactPairEndList);
+        } else {
+          AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);
+          STACK_PUSH_UP(t, stack_terms);
+          STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+        }
+#ifdef TRIE_RATIONAL_TERMS
+        CyclicTerm = NULL;
+        if (IsVarTerm(aux_pair[0]) || IsPairTerm(aux_pair[0]))
+          CyclicTerm = term_array_member(Ts, (void *) Deref(aux_pair[0]));
+        if (CyclicTerm != NULL) {
+          STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+        } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
     } else if (current_node != GLOBAL_root_gt) {
@@ -1140,25 +1202,25 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
     } else if (IsApplTerm(t)) {
       Functor f = FunctorOfTerm(t);
       if (f == FunctorDouble) {
-	union {
-	  Term t_dbl[sizeof(Float)/sizeof(Term)];
-	  Float dbl;
-	} u;
-	u.dbl = FloatOfTerm(t);
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+        union {
+          Term t_dbl[sizeof(Float)/sizeof(Term)];
+          Float dbl;
+        } u;
+        u.dbl = FloatOfTerm(t);
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[1]);
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[1]);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[0]);
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[0]);
 #ifdef MODE_GLOBAL_TRIE_LOOP
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
       } else if (f == FunctorLongInt) {
-	Int li = LongIntOfTerm(t);
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, li);
+        Int li = LongIntOfTerm(t);
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, li);
 #ifdef MODE_GLOBAL_TRIE_LOOP
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
       } else if (f == FunctorBigInt || f == FunctorString) {
 	CELL *new = Yap_HeapStoreOpaqueTerm(t);
@@ -1170,12 +1232,25 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
       } else if (f == FunctorDBRef) {
 	Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unsupported type tag FunctorDBRef");
       } else {
-	int i;
-	CELL *aux_appl = RepAppl(t);
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
-	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
-	for (i = ArityOfFunctor(f); i >= 1; i--)
-	  STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        term_array_push(&Ts, (void *) t, (void *) current_node);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        int i;
+        CELL *aux_appl = RepAppl(t);
+        SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+        AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
+        for (i = ArityOfFunctor(f); i >= 1; i--) {
+#ifdef TRIE_RATIONAL_TERMS
+          CyclicTerm = NULL;
+          if (IsVarTerm(aux_appl[i]) || IsApplTerm(aux_appl[i]))
+            CyclicTerm = term_array_member(Ts, (void *) Deref(aux_appl[i]));
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+            STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
+        }
       }
     } else {
       Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unknown type tag");
@@ -1183,7 +1258,9 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
     }
     t = STACK_POP_DOWN(stack_terms);
   } while (t);
-  
+#ifdef TRIE_RATIONAL_TERMS
+  term_array_free(&Ts);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
   *subs_arity_ptr = subs_arity;
   *stack_vars_ptr = stack_vars;
   return current_node;
@@ -1261,20 +1338,26 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
   goto answer_search_loop_non_atomic;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
+#ifdef TRIE_RATIONAL_TERMS
+  term_array Ts;
+  void* CyclicTerm;
+  term_array_init(&Ts, 10);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+
   do {
     if (IsVarTerm(t)) {
       t = Deref(t);
       if (IsTableVarTerm(t)) {
-	t = MakeTableVarTerm(VarIndexOfTerm(t));
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
+        t = MakeTableVarTerm(VarIndexOfTerm(t));
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
       } else {
-	if (vars_arity == MAX_TABLE_VARS)
-	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
-	stack_vars_base[vars_arity] = t;
-	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
-	t = MakeTableVarTerm(vars_arity);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
-	vars_arity = vars_arity + 1;
+        if (vars_arity == MAX_TABLE_VARS)
+          Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
+        stack_vars_base[vars_arity] = t;
+        *((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
+        t = MakeTableVarTerm(vars_arity);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
+        vars_arity = vars_arity + 1;
       }
 #ifdef TRIE_COMPACT_PAIRS
       in_pair = 0;
@@ -1294,52 +1377,109 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 #endif /*  GLOBAL_TRIE_FOR_SUBTERMS */
       current_node = answer_trie_check_insert_gt_entry(sg_fr, current_node, (Term) entry_node, _trie_retry_gterm + in_pair PASS_REGS);
 #else /* ! MODE_TERMS_LOOP */
-    } else 
+    } else
+#ifdef TRIE_RATIONAL_TERMS
+    if (IsRationalTerm(t)) {
+      t = STACK_POP_DOWN(stack_terms);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair); //TODO create _trie_.._rational
+    } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
 #if defined(MODE_GLOBAL_TRIE_LOOP)
       /* for the global trie, it is safe to start here in the first iteration */
       answer_search_loop_non_atomic:
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 #ifdef TRIE_COMPACT_PAIRS
     if (IsPairTerm(t)) {
+#ifdef TRIE_RATIONAL_TERMS
+      CyclicTerm = NULL;    
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
       CELL *aux_pair = RepPair(t);
       if (aux_pair == PairTermMark) {
-	t = STACK_POP_DOWN(stack_terms);
-	if (IsPairTerm(t)) {
-	  aux_pair = RepPair(t);
-	  t = Deref(aux_pair[1]);
-	  if (t == TermNil) {
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
-	  } else {
-	    /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
-	    /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
-	    ** up 3 terms has already initially checked for the CompactPairInit term         */
-	    STACK_PUSH_UP(t, stack_terms);
-	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	    in_pair = 4;
-	  }
-	  STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
-	} else {
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndTerm, _trie_retry_null);
-	  STACK_PUSH_UP(t, stack_terms);
-	}
+        t = STACK_POP_DOWN(stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        if (IsPairTerm(t) && ! IsRationalTerm(t)) {
+          term_array_push(&Ts, (void *) t, (void *) current_node);
+#else
+        if (IsPairTerm(t)) {
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          aux_pair = RepPair(t);
+          t = Deref(aux_pair[1]);
+#ifdef TRIE_RATIONAL_TERMS
+          if (IsVarTerm(aux_pair[1]) || IsPairTerm(aux_pair[1])) {
+            CyclicTerm = term_array_member(Ts, (void *) t);
+          }
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          // CyclicTerm 
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);
+            STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+            in_pair = 4;
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          if (t == TermNil) {
+            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
+          } else {
+            /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
+            /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
+            ** up 3 terms has already initially checked for the CompactPairInit term         */
+            STACK_PUSH_UP(t, stack_terms);
+            STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+            in_pair = 4;
+          }
+#ifdef TRIE_RATIONAL_TERMS
+          CyclicTerm = NULL;
+          if (IsVarTerm(aux_pair[0]) || IsPairTerm(aux_pair[0]))
+            CyclicTerm = term_array_member(Ts, (void *) Deref(aux_pair[0]));
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
+        } else {
+          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndTerm, _trie_retry_null);
+          STACK_PUSH_UP(t, stack_terms);
+        }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
       } else if (current_node != GLOBAL_root_gt) {
-	gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms PASS_REGS);
-	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node PASS_REGS);
+        gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms PASS_REGS);
+        current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node PASS_REGS);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
       } else {
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairInit, _trie_retry_null + in_pair);
-	t = Deref(aux_pair[1]);
-	if (t == TermNil) {
-	   ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
-	   in_pair = 0;
-	} else {
-	  AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);
-	  STACK_PUSH_UP(t, stack_terms);
-	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	  in_pair = 4;
-	}
-	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        term_array_push(&Ts, (void *) t, (void *) current_node);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairInit, _trie_retry_null + in_pair);
+        t = Deref(aux_pair[1]);
+#ifdef TRIE_RATIONAL_TERMS
+        if (IsVarTerm(aux_pair[1]) || IsPairTerm(aux_pair[1])) {
+          CyclicTerm = term_array_member(Ts, (void *) t);
+        }
+        if (CyclicTerm != NULL) {
+          STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+          STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+          in_pair = 4;
+        } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        if (t == TermNil) {
+           ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
+           in_pair = 0;
+        } else {
+          AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);
+          STACK_PUSH_UP(t, stack_terms);
+          STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
+          in_pair = 4;
+        }
+#ifdef TRIE_RATIONAL_TERMS
+        CyclicTerm = NULL;
+        if (IsVarTerm(aux_pair[0]) || IsPairTerm(aux_pair[0]))
+          CyclicTerm = term_array_member(Ts, (void *) Deref(aux_pair[0]));
+        if (CyclicTerm != NULL) {
+          STACK_PUSH_UP((Term) CyclicTerm, stack_terms);          
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);          
+        } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
     } else if (current_node != GLOBAL_root_gt) {
@@ -1363,17 +1503,17 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
     } else if (IsApplTerm(t)) {
       Functor f = FunctorOfTerm(t);
       if (f == FunctorDouble) {
-	union {
-	  Term t_dbl[sizeof(Float)/sizeof(Term)];
-	  Float dbl;
-	} u;
-	u.dbl = FloatOfTerm(t);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+        union {
+          Term t_dbl[sizeof(Float)/sizeof(Term)];
+          Float dbl;
+        } u;
+        u.dbl = FloatOfTerm(t);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
       } else if (f == FunctorLongInt) {
 	Int li = LongIntOfTerm (t);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
@@ -1387,12 +1527,25 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
       } else if (f == FunctorDBRef) {
 	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
       } else {
-	int i;
-	CELL *aux_appl = RepAppl(t);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_appl + in_pair);
-	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
-	for (i = ArityOfFunctor(f); i >= 1; i--)
-	  STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        term_array_push(&Ts, (void *) t, (void *) current_node);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        int i;
+        CELL *aux_appl = RepAppl(t);
+        ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_appl + in_pair);
+        AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
+        for (i = ArityOfFunctor(f); i >= 1; i--) {
+#ifdef TRIE_RATIONAL_TERMS
+          CyclicTerm = NULL;
+          if (IsVarTerm(aux_appl[i]) || IsApplTerm(aux_appl[i]))
+            CyclicTerm = term_array_member(Ts, (void *) Deref(aux_appl[i]));
+          if (CyclicTerm != NULL) {
+            STACK_PUSH_UP((Term) CyclicTerm, stack_terms);
+            STACK_PUSH_UP((Term) RationalMark, stack_terms);
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
+        }
       }
 #ifdef TRIE_COMPACT_PAIRS
       in_pair = 0;
@@ -1403,7 +1556,9 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
     }
     t = STACK_POP_DOWN(stack_terms);
   } while (t);
-
+#ifdef TRIE_RATIONAL_TERMS
+  term_array_free(&Ts);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
   *vars_arity_ptr = vars_arity;
   return current_node;
 
@@ -1439,8 +1594,8 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
       trie_value = MkLongIntTerm( (Int) TrNode_entry(child_node) );
     } else if (f == FunctorDouble) {
       union {
-	Term t_dbl[sizeof(Float)/sizeof(Term)];
-	Float dbl;
+        Term t_dbl[sizeof(Float)/sizeof(Term)];
+        Float dbl;
       } u;
       u.t_dbl[0] = TrNode_entry(child_node);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
@@ -1469,8 +1624,8 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
     Functor f = FunctorOfTerm(t);
     if (f == FunctorDouble) {
       union {
-	Term t_dbl[sizeof(Float)/sizeof(Term)];
-	Float dbl;
+        Term t_dbl[sizeof(Float)/sizeof(Term)];
+        Float dbl;
       } u;
       u.dbl = FloatOfTerm(t);
       ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
@@ -1519,8 +1674,8 @@ static inline ans_node_ptr answer_search_sum(sg_fr_ptr sg_fr, ans_node_ptr curre
       trie_value = MkLongIntTerm( (Int) TrNode_entry(child_node) );
     } else if (f == FunctorDouble) {
       union {
-	Term t_dbl[sizeof(Float)/sizeof(Term)];
-	Float dbl;
+        Term t_dbl[sizeof(Float)/sizeof(Term)];
+        Float dbl;
       } u;
       u.t_dbl[0] = TrNode_entry(child_node);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
@@ -1585,18 +1740,18 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
     do {
       current_node = *bucket;
       if (current_node) {
-	ans_node_ptr next_node = TrNode_next(current_node);
-	if (IS_ANSWER_LEAF_NODE(current_node)) {
-	  INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
-	} else {
-	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
-	  INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
-	}
-	while (next_node) {
-	  current_node = next_node;
-	  next_node = TrNode_next(current_node);
-	  invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT PASS_REGS);
-	}
+        ans_node_ptr next_node = TrNode_next(current_node);
+        if (IS_ANSWER_LEAF_NODE(current_node)) {
+          INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
+        } else {
+          invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
+          INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
+        }
+        while (next_node) {
+          current_node = next_node;
+          next_node = TrNode_next(current_node);
+          invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT PASS_REGS);
+        }
       }
     } while (++bucket != last_bucket); 
     if (Hash_next(hash))
@@ -1611,22 +1766,22 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
     if (position == TRAVERSE_POSITION_FIRST) {
       ans_node_ptr next_node = TrNode_next(current_node);
       if (IS_ANSWER_LEAF_NODE(current_node)) {
-	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
+        INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
-	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
+        invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
+        INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
       while (next_node) {
-	current_node = next_node;
-	next_node = TrNode_next(current_node);
-	invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT PASS_REGS);
+        current_node = next_node;
+        next_node = TrNode_next(current_node);
+        invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT PASS_REGS);
       }
     } else {
       if (IS_ANSWER_LEAF_NODE(current_node)) {
-	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
+        INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
-	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
+        invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
+        INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
     }
   }
@@ -1692,47 +1847,115 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
   current_node = (ans_node_ptr) UNTAG_ANSWER_NODE(TrNode_parent(current_node));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
+#ifdef TRIE_RATIONAL_TERMS
+  term_array Ts;
+  void* CyclicTerm;
+  term_array_init(&Ts, 10);
+  Term RationalTermTMP; // a temporary temp to be used from the rational code
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+
   do {
+#ifdef TRIE_RATIONAL_TERMS
+    CyclicTerm = term_array_member(Ts, (void *) current_node);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
     if (IsVarTerm(t)) {
+#ifdef TRIE_RATIONAL_TERMS
+      if (t > VarIndexOfTableTerm(MAX_TABLE_VARS) && TrNode_child((gt_node_ptr) t) != (gt_node_ptr)(1))  { //TODO: substitute the != 1 test to something more appropriate
+        /* Rational term */
+        RationalTermTMP = (Term) term_array_member(Ts, (void *) t);
+        if (RationalTermTMP) {
+          /* rational term is assigned a variable already */
+          AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
+          STACK_PUSH_UP(RationalTermTMP, stack_terms);
+        } else {
+          RationalTermTMP = MkVarTerm();
+          STACK_PUSH_UP(RationalTermTMP, stack_terms);
+          /* memorize the rational term and assign it a variable */
+          term_array_push(&Ts, (void *) t, (void *) RationalTermTMP);
+        }
+      } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+      {
 #if ! defined(MODE_GLOBAL_TRIE_LOOP) || defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
-	stack_terms = load_substitution_loop((gt_node_ptr) t, &vars_arity, stack_terms PASS_REGS);
-      } else 
+        if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
+          stack_terms = load_substitution_loop((gt_node_ptr) t, &vars_arity, stack_terms PASS_REGS);
+        } else 
 #endif /* ! MODE_GLOBAL_TRIE_LOOP || GLOBAL_TRIE_FOR_SUBTERMS */
-      { int var_index = VarIndexOfTableTerm(t);
-	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit - vars_arity + var_index + 1);
-	if (var_index >= vars_arity) {
-	  while (vars_arity < var_index)
-	    stack_vars_base[vars_arity++] = 0; 
-	  stack_vars_base[vars_arity++] = MkVarTerm(); 
-	} else if (stack_vars_base[var_index] == 0)
-	  stack_vars_base[var_index] = MkVarTerm(); 
-	STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
+        { int var_index = VarIndexOfTableTerm(t);
+          AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit - vars_arity + var_index + 1);
+          if (var_index >= vars_arity) {
+            while (vars_arity < var_index)
+              stack_vars_base[vars_arity++] = 0; 
+            stack_vars_base[vars_arity++] = MkVarTerm(); 
+          } else if (stack_vars_base[var_index] == 0)
+            stack_vars_base[var_index] = MkVarTerm(); 
+          STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
+        }
       }
     } else if (IsAtomOrIntTerm(t)) {
       AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
+#ifdef TRIE_RATIONAL_TERMS
+      if (CyclicTerm) {
+        AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 4);
+        STACK_PUSH_UP((Term) RationalMark, stack_terms); // Add a rational term marker necessary as we read both ways the stack //
+        STACK_PUSH_UP(t, stack_terms);                   // Add the term //
+        STACK_PUSH_UP(CyclicTerm, stack_terms);          // Add the variable that the term will unify with //
+        STACK_PUSH_UP((Term) RationalMark, stack_terms); // Add a rational term marker necessary as we read both ways the stack //
+      } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
       STACK_PUSH_UP(t, stack_terms);
     } else if (IsPairTerm(t)) {
 #ifdef TRIE_COMPACT_PAIRS
       if (t == CompactPairInit) { 
-	Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
-	Term head, tail = STACK_POP_UP(stack_aux);
-	while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
-	  head = STACK_POP_UP(stack_aux);
-	  tail = MkPairTerm(head, tail);
-	}
-	stack_terms = stack_terms_base - stack_terms_pair_offset;
-	stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
-	STACK_PUSH_UP(tail, stack_terms);
+        Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
+        Term head, tail = STACK_POP_UP(stack_aux);
+#ifdef TRIE_RATIONAL_TERMS
+        if (IsRationalTerm(tail)) {
+          Yap_Error(INTERNAL_ERROR, tail, "Rational element of a Rational Term appears as the first Tail of a list");
+        }
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
+          head = STACK_POP_UP(stack_aux);
+#ifdef TRIE_RATIONAL_TERMS
+          if (IsRationalTerm(head)) {
+            head = STACK_POP_UP(stack_aux);     // thats the rational term
+            RationalTermTMP = STACK_POP_UP(stack_aux); // that is the variable to unify with
+            (void) STACK_POP_UP(stack_aux);            // eat the second rational mark
+            tail = MkPairTerm(head, tail);
+            Yap_unify(RationalTermTMP, tail);
+          } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+          tail = MkPairTerm(head, tail);
+        }
+        stack_terms = stack_terms_base - stack_terms_pair_offset;
+        stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
+        STACK_PUSH_UP(tail, stack_terms);
       } else {  /* CompactPairEndList / CompactPairEndTerm */
-	Term last;
-	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);
-	last = STACK_POP_DOWN(stack_terms);
-	STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
-	stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
-	if (t == CompactPairEndList)
-	  STACK_PUSH_UP(TermNil, stack_terms);
-	STACK_PUSH_UP(last, stack_terms);
+        Term last;
+        AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);
+        last = STACK_POP_DOWN(stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        RationalTermTMP = TermNil;
+        if (IsRationalTerm(last)) {                // rather unlikely case the rational term is the last of a list
+          RationalTermTMP = STACK_POP_DOWN(stack_terms);  // in this case we need to invert the term with the end of list
+          last = STACK_POP_DOWN(stack_terms);      // variable to unify with
+          (void) STACK_POP_DOWN(stack_terms);             // eat the second rational mark
+        }
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
+        stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
+        if (t == CompactPairEndList)
+          STACK_PUSH_UP(TermNil, stack_terms);
+#ifdef TRIE_RATIONAL_TERMS
+        if (RationalTermTMP && RationalTermTMP != TermNil) {
+          /* most probably this never occurs */
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);
+          STACK_PUSH_UP(last, stack_terms);
+          STACK_PUSH_UP(RationalTermTMP, stack_terms);
+          STACK_PUSH_UP((Term) RationalMark, stack_terms);
+        } else
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+        STACK_PUSH_UP(last, stack_terms);
       }
 #else /* ! TRIE_COMPACT_PAIRS */
       Term head = STACK_POP_DOWN(stack_terms);
@@ -1743,20 +1966,20 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
     } else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble) {
-	union {
-	  Term t_dbl[sizeof(Float)/sizeof(Term)];
-	  Float dbl;
-	} u;
-	t = TrNode_entry(current_node);
-	current_node = TrNode_parent(current_node);
-	u.t_dbl[0] = t;
+        union {
+          Term t_dbl[sizeof(Float)/sizeof(Term)];
+          Float dbl;
+        } u;
+        t = TrNode_entry(current_node);
+        current_node = TrNode_parent(current_node);
+        u.t_dbl[0] = t;
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	t = TrNode_entry(current_node);
-	current_node = TrNode_parent(current_node);
-	u.t_dbl[1] = t;
+        t = TrNode_entry(current_node);
+        current_node = TrNode_parent(current_node);
+        u.t_dbl[1] = t;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	current_node = TrNode_parent(current_node);
-	t = MkFloatTerm(u.dbl);
+        current_node = TrNode_parent(current_node);
+        t = MkFloatTerm(u.dbl);
       } else if (f == FunctorLongInt) {
 	Int li = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
@@ -1768,17 +1991,34 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
 	current_node = TrNode_parent(current_node);
 	t = AbsAppl( ptr );
       } else {
-	int f_arity = ArityOfFunctor(f);
-	t = Yap_MkApplTerm(f, f_arity, stack_terms);
-	stack_terms += f_arity;
+        int f_arity = ArityOfFunctor(f);
+        t = Yap_MkApplTerm(f, f_arity, stack_terms);
+        stack_terms += f_arity;
       }
       AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
       STACK_PUSH_UP(t, stack_terms);
     }
+#ifdef TRIE_RATIONAL_TERMS
+    if (CyclicTerm) {
+      RationalTermTMP = STACK_POP_DOWN(stack_terms);
+      if IsRationalTerm(RationalTermTMP) {
+        //printf("Special Case\n");
+      } else if (IsPairTerm(RationalTermTMP)) {
+        Yap_unify((Term) CyclicTerm, RationalTermTMP);
+      } else if (IsApplTerm(RationalTermTMP)) {
+        Yap_unify((Term) CyclicTerm, RationalTermTMP);
+      }
+      STACK_PUSH_UP(RationalTermTMP, stack_terms);
+    }
+    RationalTermTMP = TermNil;
+    CyclicTerm = NULL;
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
     t = TrNode_entry(current_node);
     current_node = TrNode_parent(current_node);
   } while (current_node);
-
+#ifdef TRIE_RATIONAL_TERMS
+  term_array_free(&Ts);
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
 #ifdef MODE_GLOBAL_TRIE_LOOP
   *vars_arity_ptr = vars_arity;
 #endif /* MODE_GLOBAL_TRIE_LOOP */

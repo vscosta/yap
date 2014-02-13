@@ -149,789 +149,817 @@ static struct trie_statistics{
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)		                                            \
         if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) && REF > VarIndexOfTableTerm(MAX_TABLE_VARS)) {  \
           register gt_node_ptr gt_node = (gt_node_ptr) (REF);	                                            \
-          TrNode_child(gt_node) = (gt_node_ptr) ((UInt) TrNode_child(gt_node) - 1);            \
-	   if (TrNode_child(gt_node) == 0)                                                                   \
-	     FREE_GLOBAL_TRIE_BRANCH(gt_node,TRAVERSE_MODE_NORMAL);		                            \
-	 }
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
- #define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)	                                    \
-	 CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)
- #define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
-	 free_global_trie_branch(NODE,MODE PASS_REGS)
- #else
- #define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)
- #define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
-	 free_global_trie_branch(NODE PASS_REGS)
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+          TrNode_child(gt_node) = (gt_node_ptr) ((unsigned long int) TrNode_child(gt_node) - 1);            \
+          if (TrNode_child(gt_node) == 0)                                                                   \
+            FREE_GLOBAL_TRIE_BRANCH(gt_node,TRAVERSE_MODE_NORMAL);		                            \
+        }
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+#define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)	                                    \
+        CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)
+#define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
+        free_global_trie_branch(NODE,MODE PASS_REGS)
+#else
+#define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)
+#define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
+        free_global_trie_branch(NODE PASS_REGS)
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+
+/******************************
+** Rational Terms Support    **
+******************************/
+#ifdef TRIE_RATIONAL_TERMS
+#include "tab.rational.i"
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+
+
+/******************************
+**      Local functions      **
+******************************/
+
+#define INCLUDE_SUBGOAL_TRIE_CHECK_INSERT  /* subgoal_trie_check_insert_entry */
+#define INCLUDE_ANSWER_TRIE_CHECK_INSERT   /* answer_trie_check_insert_entry */
+#define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_entry */
+#include "tab.tries.i"
+#undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
+#undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
+#undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
+
+#define MODE_GLOBAL_TRIE_ENTRY
+#define INCLUDE_SUBGOAL_TRIE_CHECK_INSERT  /* subgoal_trie_check_insert_gt_entry */
+#define INCLUDE_ANSWER_TRIE_CHECK_INSERT   /* answer_trie_check_insert_gt_entry */
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+#define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_gt_entry */
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+#include "tab.tries.i"
+#undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
+#undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
+#undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
+#undef MODE_GLOBAL_TRIE_ENTRY
+
+#define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_loop */
+#define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_loop */
+#define INCLUDE_LOAD_ANSWER_LOOP           /* load_answer_loop */
+#include "tab.tries.i"
+#undef INCLUDE_LOAD_ANSWER_LOOP
+#undef INCLUDE_ANSWER_SEARCH_LOOP
+#undef INCLUDE_SUBGOAL_SEARCH_LOOP
+
+#define MODE_TERMS_LOOP
+#define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_terms_loop */
+#define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_terms_loop */
+#ifdef TRIE_RATIONAL_TERMS
+#undef TRIE_RATIONAL_TERMS
+#include "tab.tries.i"
+#define TRIE_RATIONAL_TERMS
+#else
+#include "tab.tries.i"
+#endif
+#undef INCLUDE_ANSWER_SEARCH_LOOP
+#undef INCLUDE_SUBGOAL_SEARCH_LOOP
+#undef MODE_TERMS_LOOP
+
+#define MODE_GLOBAL_TRIE_LOOP
+#define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_global_trie_(terms)_loop */
+#define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_global_trie_(terms)_loop */
+#define INCLUDE_LOAD_ANSWER_LOOP           /* load_substitution_loop */
+#ifdef TRIE_RATIONAL_TERMS
+#undef TRIE_RATIONAL_TERMS
+#include "tab.tries.i"
+#define TRIE_RATIONAL_TERMS
+#else
+#include "tab.tries.i"
+#endif
+#undef INCLUDE_LOAD_ANSWER_LOOP
+#undef INCLUDE_ANSWER_SEARCH_LOOP
+#undef INCLUDE_SUBGOAL_SEARCH_LOOP
+#undef MODE_GLOBAL_TRIE_LOOP
+
+#ifdef MODE_DIRECTED_TABLING
+#define INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
+#include "tab.tries.i"                     /* answer_search_min_max + answer_search_sum + invalidate_answer_trie */
+#undef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
+#endif /* MODE_DIRECTED_TABLING */
 
 
 
- /******************************
- **      Local functions      **
- ******************************/
+static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stack_vars_ptr, CELL *stack_terms USES_REGS) {
+/************************************************************************
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+           YENV -->  |   N+1   |  <-- stack_vars
+                     -----------
+                     |  VAR_N  |
+                     -----------
+                     |   ...   |
+                     -----------
+                     |  VAR_0  |
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
+                     |  TERM_1 |          \|/
+                     ===========           *
+ LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
+                     -----------
+************************************************************************/
+  CELL *stack_vars = *stack_vars_ptr;
+  CELL *stack_terms_limit = (CELL *) TR;
+#ifdef TRIE_COMPACT_PAIRS
+#define stack_terms_base ((CELL *) LOCAL_TrailTop)
+  int stack_terms_pair_offset = 0;
+#endif /* TRIE_COMPACT_PAIRS */
+  Term t = TrNode_entry(current_node);
+  current_node = TrNode_parent(current_node);
 
- #define INCLUDE_SUBGOAL_TRIE_CHECK_INSERT  /* subgoal_trie_check_insert_entry */
- #define INCLUDE_ANSWER_TRIE_CHECK_INSERT   /* answer_trie_check_insert_entry */
- #define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_entry */
- #include "tab.tries.i"
- #undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
- #undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
- #undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
+  do {
+    if (IsVarTerm(t)) {
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+      if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
+	stack_terms = exec_substitution_loop((gt_node_ptr) t, &stack_vars, stack_terms PASS_REGS);
+      } else 
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+      {
+	int var_index = VarIndexOfTableTerm(t);
+        int vars_arity = *stack_vars;
+	t = MkVarTerm();
+	if (var_index >= vars_arity) {
+	  while (vars_arity < var_index) {
+	    *stack_vars-- = 0;
+	    vars_arity++;
+	  }
+	  *stack_vars-- = t;
+	  vars_arity++;
+	  *stack_vars = vars_arity;
+	} else {
+	  /* do the same as in macro stack_trie_val_instr() */
+	  CELL aux_sub, aux_var, *vars_ptr;
+	  vars_ptr = stack_vars + vars_arity - var_index;
+	  aux_sub = *((CELL *) t);
+	  aux_var = *vars_ptr;
+	  if (aux_var == 0) {
+	    *vars_ptr = t;
+	  } else {
+	    if (aux_sub > aux_var) {
+	      if ((CELL *) aux_sub <= HR) {
+		Bind_Global((CELL *) aux_sub, aux_var);
+	      } else if ((CELL *) aux_var <= HR) {
+		Bind_Local((CELL *) aux_sub, aux_var);
+	      } else {
+		Bind_Local((CELL *) aux_var, aux_sub);
+		*vars_ptr = aux_sub;
+	      }
+	    } else {            
+	      if ((CELL *) aux_var <= HR) {
+		Bind_Global((CELL *) aux_var, aux_sub);
+		*vars_ptr = aux_sub;
+	      } else if ((CELL *) aux_sub <= HR) {
+		Bind_Local((CELL *) aux_var, aux_sub);
+		*vars_ptr = aux_sub;
+	      } else {
+		Bind_Local((CELL *) aux_sub, aux_var);
+	      }
+	    }
+	  }
+	}
+	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
+	STACK_PUSH_UP(t, stack_terms);
+      }
+    } else if (IsAtomOrIntTerm(t)) {
+      AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
+      STACK_PUSH_UP(t, stack_terms);
+    } else if (IsPairTerm(t)) {
+#ifdef TRIE_COMPACT_PAIRS
+      if (t == CompactPairInit) {
+	Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
+	Term head, tail = STACK_POP_UP(stack_aux);
+	while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
+	  head = STACK_POP_UP(stack_aux);
+	  tail = MkPairTerm(head, tail);
+	}
+	stack_terms = stack_terms_base - stack_terms_pair_offset;
+	stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
+	STACK_PUSH_UP(tail, stack_terms);
+      } else {  /* CompactPairEndList / CompactPairEndTerm */
+	Term last;
+	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);
+	last = STACK_POP_DOWN(stack_terms);
+	STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
+	stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
+	if (t == CompactPairEndList)
+	  STACK_PUSH_UP(TermNil, stack_terms);
+	STACK_PUSH_UP(last, stack_terms);
+      }
+#else
+      Term head = STACK_POP_DOWN(stack_terms);
+      Term tail = STACK_POP_DOWN(stack_terms);
+      t = MkPairTerm(head, tail);
+      STACK_PUSH_UP(t, stack_terms);
+#endif /* TRIE_COMPACT_PAIRS */
+    } else if (IsApplTerm(t)) {
+      Functor f = (Functor) RepAppl(t);
+      if (f == FunctorDouble) {
+	union {
+	  Term t_dbl[sizeof(Float)/sizeof(Term)];
+	  Float dbl;
+	} u;
+	t = TrNode_entry(current_node);
+	current_node = TrNode_parent(current_node);
+	u.t_dbl[0] = t;
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	t = TrNode_entry(current_node);
+	current_node = TrNode_parent(current_node);
+	u.t_dbl[1] = t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	current_node = TrNode_parent(current_node);
+	t = MkFloatTerm(u.dbl);
+      } else if (f == FunctorLongInt) {
+	Int li = TrNode_entry(current_node);
+	current_node = TrNode_parent(current_node);
+	current_node = TrNode_parent(current_node);
+	t = MkLongIntTerm(li);
+      } else {
+	int f_arity = ArityOfFunctor(f);
+	t = Yap_MkApplTerm(f, f_arity, stack_terms);
+	stack_terms += f_arity;
+      }
+      AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
+      STACK_PUSH_UP(t, stack_terms);
+    }
+    t = TrNode_entry(current_node);
+    current_node = TrNode_parent(current_node);
+  } while (current_node);
 
- #define MODE_GLOBAL_TRIE_ENTRY
- #define INCLUDE_SUBGOAL_TRIE_CHECK_INSERT  /* subgoal_trie_check_insert_gt_entry */
- #define INCLUDE_ANSWER_TRIE_CHECK_INSERT   /* answer_trie_check_insert_gt_entry */
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
- #define INCLUDE_GLOBAL_TRIE_CHECK_INSERT   /* global_trie_check_insert_gt_entry */
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
- #include "tab.tries.i"
- #undef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
- #undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
- #undef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
- #undef MODE_GLOBAL_TRIE_ENTRY
+  *stack_vars_ptr = stack_vars;
+  return stack_terms;
 
- #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_loop */
- #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_loop */
- #define INCLUDE_LOAD_ANSWER_LOOP           /* load_answer_loop */
- #include "tab.tries.i"
- #undef INCLUDE_LOAD_ANSWER_LOOP
- #undef INCLUDE_ANSWER_SEARCH_LOOP
- #undef INCLUDE_SUBGOAL_SEARCH_LOOP
-
- #define MODE_TERMS_LOOP
- #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_terms_loop */
- #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_terms_loop */
- #include "tab.tries.i"
- #undef INCLUDE_ANSWER_SEARCH_LOOP
- #undef INCLUDE_SUBGOAL_SEARCH_LOOP
- #undef MODE_TERMS_LOOP
-
- #define MODE_GLOBAL_TRIE_LOOP
- #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_global_trie_(terms)_loop */
- #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_global_trie_(terms)_loop */
- #define INCLUDE_LOAD_ANSWER_LOOP           /* load_substitution_loop */
- #include "tab.tries.i"
- #undef INCLUDE_LOAD_ANSWER_LOOP
- #undef INCLUDE_ANSWER_SEARCH_LOOP
- #undef INCLUDE_SUBGOAL_SEARCH_LOOP
- #undef MODE_GLOBAL_TRIE_LOOP
-
- #ifdef MODE_DIRECTED_TABLING
- #define INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
- #include "tab.tries.i"                     /* answer_search_min_max + answer_search_sum + invalidate_answer_trie */
- #undef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
- #endif /* MODE_DIRECTED_TABLING */
-
-
-
- static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stack_vars_ptr, CELL *stack_terms USES_REGS) {
- /************************************************************************
-		      ===========
-		      |         |
-		      |   ...   |
-		      |         |
-		      -----------
-	    YENV -->  |   N+1   |  <-- stack_vars
-		      -----------
-		      |  VAR_N  |
-		      -----------
-		      |   ...   |
-		      -----------
-		      |  VAR_0  |
-		      -----------
-		      |         |
-		      |   ...   |
-		      |         |
-		      ===========
-		      |         |
-		      |   ...   |
-		      |         |
-		      -----------
-	      TR -->  |         |  <-- stack_terms_limit
-		      -----------
-		      |         |
-		      |   ...   |
-		      |         |
-		      ----------|
-		      |  TERM_N |  <-- stack_terms
-		      ----------|           *
-		      |   ...   |          /|\
-		      ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
-		      |  TERM_1 |          \|/
-		      ===========           *
-  LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
-		      -----------
- ************************************************************************/
-   CELL *stack_vars = *stack_vars_ptr;
-   CELL *stack_terms_limit = (CELL *) TR;
- #ifdef TRIE_COMPACT_PAIRS
- #define stack_terms_base ((CELL *) LOCAL_TrailTop)
-   int stack_terms_pair_offset = 0;
- #endif /* TRIE_COMPACT_PAIRS */
-   Term t = TrNode_entry(current_node);
-   current_node = TrNode_parent(current_node);
-
-   do {
-     if (IsVarTerm(t)) {
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-       if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
-	 stack_terms = exec_substitution_loop((gt_node_ptr) t, &stack_vars, stack_terms PASS_REGS);
-       } else 
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-       {
-	 int var_index = VarIndexOfTableTerm(t);
-	 int vars_arity = *stack_vars;
-	 t = MkVarTerm();
-	 if (var_index >= vars_arity) {
-	   while (vars_arity < var_index) {
-	     *stack_vars-- = 0;
-	     vars_arity++;
-	   }
-	   *stack_vars-- = t;
-	   vars_arity++;
-	   *stack_vars = vars_arity;
-	 } else {
-	   /* do the same as in macro stack_trie_val_instr() */
-	   CELL aux_sub, aux_var, *vars_ptr;
-	   vars_ptr = stack_vars + vars_arity - var_index;
-	   aux_sub = *((CELL *) t);
-	   aux_var = *vars_ptr;
-	   if (aux_var == 0) {
-	     *vars_ptr = t;
-	   } else {
-	     if (aux_sub > aux_var) {
-	       if ((CELL *) aux_sub <= HR) {
-		 Bind_Global((CELL *) aux_sub, aux_var);
-	       } else if ((CELL *) aux_var <= HR) {
-		 Bind_Local((CELL *) aux_sub, aux_var);
-	       } else {
-		 Bind_Local((CELL *) aux_var, aux_sub);
-		 *vars_ptr = aux_sub;
-	       }
-	     } else {            
-	       if ((CELL *) aux_var <= HR) {
-		 Bind_Global((CELL *) aux_var, aux_sub);
-		 *vars_ptr = aux_sub;
-	       } else if ((CELL *) aux_sub <= HR) {
-		 Bind_Local((CELL *) aux_var, aux_sub);
-		 *vars_ptr = aux_sub;
-	       } else {
-		 Bind_Local((CELL *) aux_sub, aux_var);
-	       }
-	     }
-	   }
-	 }
-	 AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
-	 STACK_PUSH_UP(t, stack_terms);
-       }
-     } else if (IsAtomOrIntTerm(t)) {
-       AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
-       STACK_PUSH_UP(t, stack_terms);
-     } else if (IsPairTerm(t)) {
- #ifdef TRIE_COMPACT_PAIRS
-       if (t == CompactPairInit) {
-	 Term *stack_aux = stack_terms_base - stack_terms_pair_offset;
-	 Term head, tail = STACK_POP_UP(stack_aux);
-	 while (STACK_NOT_EMPTY(stack_aux, stack_terms)) {
-	   head = STACK_POP_UP(stack_aux);
-	   tail = MkPairTerm(head, tail);
-	 }
-	 stack_terms = stack_terms_base - stack_terms_pair_offset;
-	 stack_terms_pair_offset = (int) STACK_POP_DOWN(stack_terms);
-	 STACK_PUSH_UP(tail, stack_terms);
-       } else {  /* CompactPairEndList / CompactPairEndTerm */
-	 Term last;
-	 AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);
-	 last = STACK_POP_DOWN(stack_terms);
-	 STACK_PUSH_UP(stack_terms_pair_offset, stack_terms);
-	 stack_terms_pair_offset = (int) (stack_terms_base - stack_terms);
-	 if (t == CompactPairEndList)
-	   STACK_PUSH_UP(TermNil, stack_terms);
-	 STACK_PUSH_UP(last, stack_terms);
-       }
- #else
-       Term head = STACK_POP_DOWN(stack_terms);
-       Term tail = STACK_POP_DOWN(stack_terms);
-       t = MkPairTerm(head, tail);
-       STACK_PUSH_UP(t, stack_terms);
- #endif /* TRIE_COMPACT_PAIRS */
-     } else if (IsApplTerm(t)) {
-       Functor f = (Functor) RepAppl(t);
-       if (f == FunctorDouble) {
-	 union {
-	   Term t_dbl[sizeof(Float)/sizeof(Term)];
-	   Float dbl;
-	 } u;
-	 t = TrNode_entry(current_node);
-	 current_node = TrNode_parent(current_node);
-	 u.t_dbl[0] = t;
- #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	 t = TrNode_entry(current_node);
-	 current_node = TrNode_parent(current_node);
-	 u.t_dbl[1] = t;
- #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	 current_node = TrNode_parent(current_node);
-	 t = MkFloatTerm(u.dbl);
-       } else if (f == FunctorLongInt) {
-	 Int li = TrNode_entry(current_node);
-	 current_node = TrNode_parent(current_node);
-	 current_node = TrNode_parent(current_node);
-	 t = MkLongIntTerm(li);
-       } else if (f == FunctorBigInt || f == FunctorString) {
-	 CELL *li = (CELL *)TrNode_entry(current_node);
-	 current_node = TrNode_parent(current_node);
-	 current_node = TrNode_parent(current_node);
-	 t = AbsAppl(li);
-       } else {
-	 int f_arity = ArityOfFunctor(f);
-	 t = Yap_MkApplTerm(f, f_arity, stack_terms);
-	 stack_terms += f_arity;
-       }
-       AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit);
-       STACK_PUSH_UP(t, stack_terms);
-     }
-     t = TrNode_entry(current_node);
-     current_node = TrNode_parent(current_node);
-   } while (current_node);
-
-   *stack_vars_ptr = stack_vars;
-   return stack_terms;
-
- #ifdef TRIE_COMPACT_PAIRS
- #undef stack_terms_base
- #endif /* TRIE_COMPACT_PAIRS */
- }
+#ifdef TRIE_COMPACT_PAIRS
+#undef stack_terms_base
+#endif /* TRIE_COMPACT_PAIRS */
+}
 
 
- #ifdef YAPOR
- #ifdef TABLING_INNER_CUTS
- static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr current_node) {
-   int ltt;
-   if (! IS_ANSWER_LEAF_NODE(current_node)) {
-     if (TrNode_child(current_node)) {
-       TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
-       update_answer_trie_branch(NULL, TrNode_child(current_node));
-       if (TrNode_child(current_node))
-	 goto update_next_trie_branch;
-     }
-     /* node belonging to a pruned answer */
-     if (previous_node) {
-       TrNode_next(previous_node) = TrNode_next(current_node);
-       FREE_ANSWER_TRIE_NODE(current_node);
-       if (TrNode_next(previous_node)) {
-	 return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
-       } else {
-	 TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
-	 return 0;
-       }
-     } else {
-       TrNode_child(TrNode_parent(current_node)) = TrNode_next(current_node);
-       if (TrNode_next(current_node)) {
-	 TrNode_instr(TrNode_next(current_node)) -= 1;  /* retry --> try */
-	 update_answer_trie_branch(NULL, TrNode_next(current_node));          
-       }
-       FREE_ANSWER_TRIE_NODE(current_node);
-       return 0;
-     }
-   }
- update_next_trie_branch:
-   if (TrNode_next(current_node)) {
-     ltt = 1 + update_answer_trie_branch(current_node, TrNode_next(current_node));
-   } else {
-     TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
-     ltt = 1;
-   }
+#ifdef YAPOR
+#ifdef TABLING_INNER_CUTS
+static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr current_node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(current_node)) {
+    if (TrNode_child(current_node)) {
+      TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
+      update_answer_trie_branch(NULL, TrNode_child(current_node));
+      if (TrNode_child(current_node))
+        goto update_next_trie_branch;
+    }
+    /* node belonging to a pruned answer */
+    if (previous_node) {
+      TrNode_next(previous_node) = TrNode_next(current_node);
+      FREE_ANSWER_TRIE_NODE(current_node);
+      if (TrNode_next(previous_node)) {
+        return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
+      } else {
+        TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
+        return 0;
+      }
+    } else {
+      TrNode_child(TrNode_parent(current_node)) = TrNode_next(current_node);
+      if (TrNode_next(current_node)) {
+        TrNode_instr(TrNode_next(current_node)) -= 1;  /* retry --> try */
+        update_answer_trie_branch(NULL, TrNode_next(current_node));          
+      }
+      FREE_ANSWER_TRIE_NODE(current_node);
+      return 0;
+    }
+  }
+update_next_trie_branch:
+  if (TrNode_next(current_node)) {
+    ltt = 1 + update_answer_trie_branch(current_node, TrNode_next(current_node));
+  } else {
+    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
+  }
 
-   TrNode_or_arg(current_node) = ltt;
-   TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
-   return ltt;
- }
- #else /* YAPOR && ! TABLING_INNER_CUTS */
- static int update_answer_trie_branch(ans_node_ptr current_node) {
-   int ltt;
-   if (! IS_ANSWER_LEAF_NODE(current_node)) {
-     TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
-     update_answer_trie_branch(TrNode_child(current_node));
-   }
-   if (TrNode_next(current_node)) {
-     ltt = 1 + update_answer_trie_branch(TrNode_next(current_node));
-   } else {
-     TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
-     ltt = 1;
-   }
-   TrNode_or_arg(current_node) = ltt;
-   TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
-   return ltt;
- }
- #endif
- #else /* ! YAPOR */
- static void update_answer_trie_branch(ans_node_ptr current_node, int position) {
-   if (! IS_ANSWER_LEAF_NODE(current_node))
-     update_answer_trie_branch(TrNode_child(current_node), TRAVERSE_POSITION_FIRST);  /* retry --> try */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     ans_node_ptr next = TrNode_next(current_node);
-     if (next) {
-       while (TrNode_next(next)) {
-	 update_answer_trie_branch(next, TRAVERSE_POSITION_NEXT);  /* retry --> retry */
-	 next = TrNode_next(next);
-       }
-       update_answer_trie_branch(next, TRAVERSE_POSITION_LAST);  /* retry --> trust */
-     } else
-       position += TRAVERSE_POSITION_LAST;  /* try --> do */
-   }
-   TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node) - position);
-   return;
- }
+  TrNode_or_arg(current_node) = ltt;
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
+  return ltt;
+}
+#else /* YAPOR && ! TABLING_INNER_CUTS */
+static int update_answer_trie_branch(ans_node_ptr current_node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(current_node)) {
+    TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
+    update_answer_trie_branch(TrNode_child(current_node));
+  }
+  if (TrNode_next(current_node)) {
+    ltt = 1 + update_answer_trie_branch(TrNode_next(current_node));
+  } else {
+    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
+  }
+  TrNode_or_arg(current_node) = ltt;
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
+  return ltt;
+}
+#endif
+#else /* ! YAPOR */
+static void update_answer_trie_branch(ans_node_ptr current_node, int position) {
+  if (! IS_ANSWER_LEAF_NODE(current_node))
+    update_answer_trie_branch(TrNode_child(current_node), TRAVERSE_POSITION_FIRST);  /* retry --> try */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    ans_node_ptr next = TrNode_next(current_node);
+    if (next) {
+      while (TrNode_next(next)) {
+	update_answer_trie_branch(next, TRAVERSE_POSITION_NEXT);  /* retry --> retry */
+	next = TrNode_next(next);
+      }
+      update_answer_trie_branch(next, TRAVERSE_POSITION_LAST);  /* retry --> trust */
+    } else
+      position += TRAVERSE_POSITION_LAST;  /* try --> do */
+  }
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node) - position);
+  return;
+}
 
- #endif /* YAPOR */
+#endif /* YAPOR */
 
 
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
- static void free_global_trie_branch(gt_node_ptr current_node, int mode USES_REGS) {
-   Term t = TrNode_entry(current_node);
- #else
- static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-   gt_node_ptr parent_node, child_node;
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+static void free_global_trie_branch(gt_node_ptr current_node, int mode USES_REGS) {
+  Term t = TrNode_entry(current_node);
+#else
+static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+  gt_node_ptr parent_node, child_node;
 
-   parent_node = TrNode_parent(current_node);
-   child_node  = TrNode_child(parent_node);
-   if (IS_GLOBAL_TRIE_HASH(child_node)) {
-     gt_hash_ptr hash = (gt_hash_ptr) child_node;
-     gt_node_ptr *bucket = Hash_buckets(hash) + HASH_ENTRY(TrNode_entry(current_node), Hash_num_buckets(hash));
-     int num_nodes = --Hash_num_nodes(hash);
-     child_node = *bucket;
-     if (child_node != current_node) {
-       while (TrNode_next(child_node) != current_node)
-	 child_node = TrNode_next(child_node);
-       TrNode_next(child_node) = TrNode_next(current_node);
-       CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
-       FREE_GLOBAL_TRIE_NODE(current_node);
-     } else {
-       *bucket = TrNode_next(current_node);
-       CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
-       FREE_GLOBAL_TRIE_NODE(current_node);
-       if (num_nodes == 0) {
-	 FREE_BUCKETS(Hash_buckets(hash));
-	 FREE_GLOBAL_TRIE_HASH(hash);
-	 if (parent_node != GLOBAL_root_gt) {
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-	   if (mode == TRAVERSE_MODE_NORMAL) {
-	     if (IsApplTerm(t)) {
-	       Functor f = (Functor) RepAppl(t);
-	       if (f == FunctorDouble)
-		 mode = TRAVERSE_MODE_DOUBLE;
-	       else if (f == FunctorLongInt)
-		 mode = TRAVERSE_MODE_LONGINT;
-	       else if (f == FunctorBigInt || f == FunctorString)
-		 mode = TRAVERSE_MODE_BIGINT_OR_STRING;
-	       else
-		 mode = TRAVERSE_MODE_NORMAL;
-	     } else
-	       mode = TRAVERSE_MODE_NORMAL;
-	   } else if (mode == TRAVERSE_MODE_LONGINT)
-	     mode = TRAVERSE_MODE_LONGINT_END;
+  parent_node = TrNode_parent(current_node);
+  child_node  = TrNode_child(parent_node);
+  if (IS_GLOBAL_TRIE_HASH(child_node)) {
+    gt_hash_ptr hash = (gt_hash_ptr) child_node;
+    gt_node_ptr *bucket = Hash_buckets(hash) + HASH_ENTRY(TrNode_entry(current_node), Hash_num_buckets(hash));
+    int num_nodes = --Hash_num_nodes(hash);
+    child_node = *bucket;
+    if (child_node != current_node) {
+      while (TrNode_next(child_node) != current_node)
+	child_node = TrNode_next(child_node);
+      TrNode_next(child_node) = TrNode_next(current_node);
+      CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
+      FREE_GLOBAL_TRIE_NODE(current_node);
+    } else {
+      *bucket = TrNode_next(current_node);
+      CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
+      FREE_GLOBAL_TRIE_NODE(current_node);
+      if (num_nodes == 0) {
+	FREE_BUCKETS(Hash_buckets(hash));
+	FREE_GLOBAL_TRIE_HASH(hash);
+	if (parent_node != GLOBAL_root_gt) {
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+	  if (mode == TRAVERSE_MODE_NORMAL) {
+	    if (IsApplTerm(t)) {
+	      Functor f = (Functor) RepAppl(t);
+	      if (f == FunctorDouble)
+		mode = TRAVERSE_MODE_DOUBLE;
+	      else if (f == FunctorLongInt)
+		mode = TRAVERSE_MODE_LONGINT;
+	      else if (f == FunctorBigInt || f == FunctorString)
+		mode = TRAVERSE_MODE_BIGINT_OR_STRING;
+	      else
+		mode = TRAVERSE_MODE_NORMAL;
+	    } else
+	      mode = TRAVERSE_MODE_NORMAL;
+	  } else if (mode == TRAVERSE_MODE_LONGINT)
+	    mode = TRAVERSE_MODE_LONGINT_END;
 	   } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING)
 	     mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
-	   else if (mode == TRAVERSE_MODE_DOUBLE)
- #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	     mode = TRAVERSE_MODE_DOUBLE2;
-	   else if (mode == TRAVERSE_MODE_DOUBLE2)
- #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	     mode = TRAVERSE_MODE_DOUBLE_END;
-	   else
-	     mode = TRAVERSE_MODE_NORMAL;
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-	   FREE_GLOBAL_TRIE_BRANCH(parent_node, mode);
-	 } else
-	   TrNode_child(parent_node) = NULL;
-       }
-     }
-   } else if (child_node != current_node) {
-     while (TrNode_next(child_node) != current_node)
-       child_node = TrNode_next(child_node);
-     TrNode_next(child_node) = TrNode_next(current_node);
-     CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
-     FREE_GLOBAL_TRIE_NODE(current_node);
-   } else if (TrNode_next(current_node) == NULL) {
-     CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
-     FREE_GLOBAL_TRIE_NODE(current_node);
-     if (parent_node != GLOBAL_root_gt) {
- #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-       if (mode == TRAVERSE_MODE_NORMAL) {
-	 if (IsApplTerm(t)) {
-	   Functor f = (Functor) RepAppl(t);
-	   if (f == FunctorDouble)
-	     mode = TRAVERSE_MODE_DOUBLE;
-	   else if (f == FunctorLongInt)
-	     mode = TRAVERSE_MODE_LONGINT;
+	  else if (mode == TRAVERSE_MODE_DOUBLE)
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	    mode = TRAVERSE_MODE_DOUBLE2;
+	  else if (mode == TRAVERSE_MODE_DOUBLE2)
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	    mode = TRAVERSE_MODE_DOUBLE_END;
+	  else
+	    mode = TRAVERSE_MODE_NORMAL;
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+	  FREE_GLOBAL_TRIE_BRANCH(parent_node, mode);
+	} else
+	  TrNode_child(parent_node) = NULL;
+      }
+    }
+  } else if (child_node != current_node) {
+    while (TrNode_next(child_node) != current_node)
+      child_node = TrNode_next(child_node);
+    TrNode_next(child_node) = TrNode_next(current_node);
+    CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
+    FREE_GLOBAL_TRIE_NODE(current_node);
+  } else if (TrNode_next(current_node) == NULL) {
+    CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
+    FREE_GLOBAL_TRIE_NODE(current_node);
+    if (parent_node != GLOBAL_root_gt) {
+#ifdef GLOBAL_TRIE_FOR_SUBTERMS
+      if (mode == TRAVERSE_MODE_NORMAL) {
+	if (IsApplTerm(t)) {
+	  Functor f = (Functor) RepAppl(t);
+	  if (f == FunctorDouble)
+	    mode = TRAVERSE_MODE_DOUBLE;
+	  else if (f == FunctorLongInt)
+	    mode = TRAVERSE_MODE_LONGINT;
 	   else if (f == FunctorBigInt || f == FunctorString)
 	     mode = TRAVERSE_MODE_BIGINT_OR_STRING;
-	   else
-	     mode = TRAVERSE_MODE_NORMAL;
-	 } else
-	   mode = TRAVERSE_MODE_NORMAL;
-       } else if (mode == TRAVERSE_MODE_LONGINT)
-	 mode = TRAVERSE_MODE_LONGINT_END;
-       } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING)
+	  else
+	    mode = TRAVERSE_MODE_NORMAL;
+	} else
+	  mode = TRAVERSE_MODE_NORMAL;
+      } else if (mode == TRAVERSE_MODE_LONGINT) {
+	mode = TRAVERSE_MODE_LONGINT_END;
+      } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
 	 mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
-       else if (mode == TRAVERSE_MODE_DOUBLE)
- #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	 mode = TRAVERSE_MODE_DOUBLE2;
-       else if (mode == TRAVERSE_MODE_DOUBLE2)
- #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	 mode = TRAVERSE_MODE_DOUBLE_END;
-       else
-	 mode = TRAVERSE_MODE_NORMAL;
- #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-       FREE_GLOBAL_TRIE_BRANCH(parent_node, mode);
-     } else
-       TrNode_child(parent_node) = NULL;
-   } else {
-     TrNode_child(parent_node) = TrNode_next(current_node);
-     CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
-     FREE_GLOBAL_TRIE_NODE(current_node);
-   }
-   return;
- }
+      } else if (mode == TRAVERSE_MODE_DOUBLE)
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	mode = TRAVERSE_MODE_DOUBLE2;
+      else if (mode == TRAVERSE_MODE_DOUBLE2)
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	mode = TRAVERSE_MODE_DOUBLE_END;
+      else
+	mode = TRAVERSE_MODE_NORMAL;
+#endif /* GLOBAL_TRIE_FOR_SUBTERMS */
+      FREE_GLOBAL_TRIE_BRANCH(parent_node, mode);
+    } else
+      TrNode_child(parent_node) = NULL;
+  } else {
+    TrNode_child(parent_node) = TrNode_next(current_node);
+    CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
+    FREE_GLOBAL_TRIE_NODE(current_node);
+  }
+  return;
+}
 
 
- static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
-   int *current_arity = NULL, current_str_index = 0, current_mode = 0;
+static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
+  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
 
-   /* test if hashing */
-   if (IS_SUBGOAL_TRIE_HASH(current_node)) {
-     sg_node_ptr *bucket, *last_bucket;
-     sg_hash_ptr hash;
-     hash = (sg_hash_ptr) current_node;
-     bucket = Hash_buckets(hash);
-     last_bucket = bucket + Hash_num_buckets(hash);
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     do {
-       if (*bucket) {
-	 traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-	 memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-	 if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	   str[str_index - 1] = ',';
- #else
-	 if (arity[arity[0]] == -1)
-	   str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       }
-     } while (++bucket != last_bucket);
-     free(current_arity);
-     return;
-   }
+  /* test if hashing */
+  if (IS_SUBGOAL_TRIE_HASH(current_node)) {
+    sg_node_ptr *bucket, *last_bucket;
+    sg_hash_ptr hash;
+    hash = (sg_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
 
-   /* save current state if first sibling node */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     current_str_index = str_index;
-     current_mode = mode;
-   }
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_mode = mode;
+  }
 
-   /* process current trie node */
-   TrStat_sg_nodes++;
-   traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL PASS_REGS);
+  /* process current trie node */
+  TrStat_sg_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL PASS_REGS);
 
-   /* show answers ... */
-   if (IS_SUBGOAL_LEAF_NODE(current_node)) {
-     sg_fr_ptr sg_fr = get_subgoal_frame(current_node);
-     if (sg_fr) {
-       TrStat_subgoals++;
-       str[str_index] = 0;
-       SHOW_TABLE_STRUCTURE("%s.\n", str);
-       TrStat_ans_nodes++;
-       if (SgFr_first_answer(sg_fr) == NULL) {
-	 if (SgFr_state(sg_fr) < complete) {
-	   TrStat_sg_incomplete++;
-	   SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
-	 } else {
-	   TrStat_answers_no++;
-	   SHOW_TABLE_STRUCTURE("    NO\n");
-	 }
-       } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-	 TrStat_answers_true++;
-	 SHOW_TABLE_STRUCTURE("    TRUE\n");
-       } else {
-	 arity[0] = 0;
-	 traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST PASS_REGS);
-	 if (SgFr_state(sg_fr) < complete) {
-	   TrStat_sg_incomplete++;
-	   SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
-	 }
-       }
-     }
-   } else
-   /* ... or continue with child node */
-     traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-   /* restore the initial state and continue with sibling nodes */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     str_index = current_str_index;
-     mode = current_mode;
-     current_node = TrNode_next(current_node);
-     while (current_node) {
-       memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	 str[str_index - 1] = ',';
- #else
-       if (arity[arity[0]] == -1)
-	 str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
-       current_node = TrNode_next(current_node);
-     }
-     free(current_arity);
-   }
-   return;
- }
-
-
- static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position USES_REGS) {
-   int *current_arity = NULL, current_str_index = 0, current_var_index = 0, current_mode = 0;
-
-   /* test if hashing */
-   if (IS_ANSWER_TRIE_HASH(current_node)) {
-     ans_node_ptr *bucket, *last_bucket;
-     ans_hash_ptr hash;
-     hash = (ans_hash_ptr) current_node;
-     bucket = Hash_buckets(hash);
-     last_bucket = bucket + Hash_num_buckets(hash);
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     do {
-       if (*bucket) {
-	 traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-	 memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-	 if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	   str[str_index - 1] = ',';
- #else
-	 if (arity[arity[0]] == -1)
-	   str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       }
-     } while (++bucket != last_bucket);
-     free(current_arity);
-     return;
-   }
-
-   /* save current state if first sibling node */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     current_str_index = str_index;
-     current_var_index = var_index;
-     current_mode = mode;
-   }
-
-   /* print VAR if starting a term */
-   if (arity[0] == 0 && mode == TRAVERSE_MODE_NORMAL) {
-     str_index += sprintf(& str[str_index], "    VAR%d: ", var_index);
-     var_index++;
-   }
-
-   /* process current trie node */
-   TrStat_ans_nodes++;
-   traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER PASS_REGS);
-
-   /* show answer .... */
-   if (IS_ANSWER_LEAF_NODE(current_node)) {
-     TrStat_answers++;
-     str[str_index] = 0;
-     SHOW_TABLE_STRUCTURE("%s\n", str);
-   }
- #ifdef TABLING_INNER_CUTS
-   /* ... or continue with pruned node */
-   else if (TrNode_child(current_node) == NULL) {
-     TrStat_answers++;
-     TrStat_answers_pruned++;
-   }
- #endif /* TABLING_INNER_CUTS */
-   /* ... or continue with child node */
-   else
-     traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-
-   /* restore the initial state and continue with sibling nodes */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     str_index = current_str_index;
-     var_index = current_var_index;
-     mode = current_mode;
-     current_node = TrNode_next(current_node);
-     while (current_node) {
-       memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	 str[str_index - 1] = ',';
- #else
-       if (arity[arity[0]] == -1)
-	 str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
-       current_node = TrNode_next(current_node);
-     }
-     free(current_arity);
-   }
-
-   return;
- }
+  /* show answers ... */
+  if (IS_SUBGOAL_LEAF_NODE(current_node)) {
+    sg_fr_ptr sg_fr = get_subgoal_frame(current_node);
+    if (sg_fr) {
+      TrStat_subgoals++;
+      str[str_index] = 0;
+      SHOW_TABLE_STRUCTURE("%s.\n", str);
+      TrStat_ans_nodes++;
+      if (SgFr_first_answer(sg_fr) == NULL) {
+	if (SgFr_state(sg_fr) < complete) {
+	  TrStat_sg_incomplete++;
+	  SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
+	} else {
+	  TrStat_answers_no++;
+	  SHOW_TABLE_STRUCTURE("    NO\n");
+	}
+      } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+	TrStat_answers_true++;
+	SHOW_TABLE_STRUCTURE("    TRUE\n");
+      } else {
+	arity[0] = 0;
+	traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST PASS_REGS);
+	if (SgFr_state(sg_fr) < complete) {
+	  TrStat_sg_incomplete++;
+	  SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
+	}
+      }
+    }
+  } else
+  /* ... or continue with child node */
+    traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+  return;
+}
 
 
- static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
-   int *current_arity = NULL, current_str_index = 0, current_mode = 0;
+static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position USES_REGS) {
+  int *current_arity = NULL, current_str_index = 0, current_var_index = 0, current_mode = 0;
 
-   /* test if hashing */
-   if (IS_GLOBAL_TRIE_HASH(current_node)) {
-     gt_node_ptr *bucket, *last_bucket;
-     gt_hash_ptr hash;
-     hash = (gt_hash_ptr) current_node;
-     bucket = Hash_buckets(hash);
-     last_bucket = bucket + Hash_num_buckets(hash);
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     do {
-       if (*bucket) {
-	 traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-	 memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-	 if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	   str[str_index - 1] = ',';
- #else
-	 if (arity[arity[0]] == -1)
-	   str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       }
-     } while (++bucket != last_bucket);
-     free(current_arity);
-     return;
-   }
+  /* test if hashing */
+  if (IS_ANSWER_TRIE_HASH(current_node)) {
+    ans_node_ptr *bucket, *last_bucket;
+    ans_hash_ptr hash;
+    hash = (ans_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
 
-   /* save current state if first sibling node */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-     current_str_index = str_index;
-     current_mode = mode;
-   }
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_var_index = var_index;
+    current_mode = mode;
+  }
 
-   /* process current trie node */
-   TrStat_gt_nodes++;
-   traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_GT_SUBGOAL PASS_REGS);
+  /* print VAR if starting a term */
+  if (arity[0] == 0 && mode == TRAVERSE_MODE_NORMAL) {
+    str_index += sprintf(& str[str_index], "    VAR%d: ", var_index);
+    var_index++;
+  }
 
-   /* continue with child node ... */
-   if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
-     traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
-   /* ... or show term */
-   else {
-     TrStat_gt_terms++;
-     str[str_index] = 0;
-     SHOW_TABLE_STRUCTURE("  TERMx%ld: %s\n", (UInt) TrNode_child(current_node), str);
-   }
+  /* process current trie node */
+  TrStat_ans_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER PASS_REGS);
 
-   /* restore the initial state and continue with sibling nodes */
-   if (position == TRAVERSE_POSITION_FIRST) {
-     str_index = current_str_index;
-     mode = current_mode;
-     current_node = TrNode_next(current_node);
-     while (current_node) {
-       memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
- #ifdef TRIE_COMPACT_PAIRS
-       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	 str[str_index - 1] = ',';
- #else
-       if (arity[arity[0]] == -1)
-	 str[str_index - 1] = '|';
- #endif /* TRIE_COMPACT_PAIRS */
-       traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
-       current_node = TrNode_next(current_node);
-     }
-     free(current_arity);
-   }
+  /* show answer .... */
+  if (IS_ANSWER_LEAF_NODE(current_node)) {
+    TrStat_answers++;
+    str[str_index] = 0;
+    SHOW_TABLE_STRUCTURE("%s\n", str);
+  }
+#ifdef TABLING_INNER_CUTS
+  /* ... or continue with pruned node */
+  else if (TrNode_child(current_node) == NULL) {
+    TrStat_answers++;
+    TrStat_answers_pruned++;
+  }
+#endif /* TABLING_INNER_CUTS */
+  /* ... or continue with child node */
+  else
+    traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
 
-   return;
- }
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    var_index = current_var_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+
+  return;
+}
 
 
- static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type USES_REGS) {
-   if (TrNode_parent(current_node) != GLOBAL_root_gt)
-     traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type PASS_REGS);
-   traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type PASS_REGS);
-   return;
- }
+static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
+  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
+
+  /* test if hashing */
+  if (IS_GLOBAL_TRIE_HASH(current_node)) {
+    gt_node_ptr *bucket, *last_bucket;
+    gt_hash_ptr hash;
+    hash = (gt_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
+
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_mode = mode;
+  }
+
+  /* process current trie node */
+  TrStat_gt_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_GT_SUBGOAL PASS_REGS);
+
+  /* continue with child node ... */
+  if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
+    traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
+  /* ... or show term */
+  else {
+    TrStat_gt_terms++;
+    str[str_index] = 0;
+    SHOW_TABLE_STRUCTURE("  TERMx%ld: %s\n", (unsigned long int) TrNode_child(current_node), str);
+  }
+
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+
+  return;
+}
 
 
- static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int *arity, int *mode_ptr, int type USES_REGS) {
-   int mode = *mode_ptr;
-   int str_index = *str_index_ptr;
+static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type USES_REGS) {
+  if (TrNode_parent(current_node) != GLOBAL_root_gt)
+    traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type PASS_REGS);
+  traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type PASS_REGS);
+  return;
+}
 
-   /* test the node type */
-   if (mode == TRAVERSE_MODE_DOUBLE) {
- #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-     arity[0]++;
-     arity[arity[0]] = (int) t;
-     mode = TRAVERSE_MODE_DOUBLE2;
-   } else if (mode == TRAVERSE_MODE_DOUBLE2) {
-     union {
-       Term t_dbl[sizeof(Float)/sizeof(Term)];
-       Float dbl;
-     } u;
-     u.dbl = 0.0;
-     u.t_dbl[0] = t;
-     u.t_dbl[1] = (Term) arity[arity[0]];
-     arity[0]--;
- #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
-     union {
-       Term t_dbl[sizeof(Float)/sizeof(Term)];
-       Float dbl;
-     } u;
-     u.t_dbl[0] = t;
- #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-     str_index += sprintf(& str[str_index], "%.15g", u.dbl);
-     traverse_update_arity(str, &str_index, arity);
-     if (type == TRAVERSE_TYPE_SUBGOAL)
-       mode = TRAVERSE_MODE_NORMAL;
-     else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
-       mode = TRAVERSE_MODE_DOUBLE_END;
-   } else if (mode == TRAVERSE_MODE_DOUBLE_END) {
-     mode = TRAVERSE_MODE_NORMAL;
-   } else if (mode == TRAVERSE_MODE_LONGINT) {
-     Int li = (Int) t;
-     str_index += sprintf(& str[str_index], UInt_FORMAT, li);
-     traverse_update_arity(str, &str_index, arity);
-     if (type == TRAVERSE_TYPE_SUBGOAL)
-       mode = TRAVERSE_MODE_NORMAL;
-     else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
-       mode = TRAVERSE_MODE_LONGINT_END;
-   } else if (mode == TRAVERSE_MODE_LONGINT_END) {
-     mode = TRAVERSE_MODE_NORMAL;
-   }  else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
-     str_index += Yap_OpaqueTermToString(AbsAppl((CELL *)t), str+str_index, 0);
-     traverse_update_arity(str, &str_index, arity);
-     if (type == TRAVERSE_TYPE_SUBGOAL)
-       mode = TRAVERSE_MODE_NORMAL;
-     else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
-       mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
-   } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING_END) {
-     mode = TRAVERSE_MODE_NORMAL;
-   } else if (IsVarTerm(t)) {
-     if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
-       TrStat_gt_refs++;
-       /* (type % 2 + 2): TRAVERSE_TYPE_ANSWER  --> TRAVERSE_TYPE_GT_ANSWER  */
-       /* (type % 2 + 2): TRAVERSE_TYPE_SUBGOAL --> TRAVERSE_TYPE_GT_SUBGOAL */
-       traverse_global_trie_for_term((gt_node_ptr) t, str, &str_index, arity, &mode, type % 2 + 2 PASS_REGS);
-     } else {
-       if (type == TRAVERSE_TYPE_SUBGOAL || type == TRAVERSE_TYPE_GT_SUBGOAL)
-	 str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
-       else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_ANSWER */
-	 str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
-       traverse_update_arity(str, &str_index, arity);
-     }
-   } else if (IsIntTerm(t)) {
-     str_index += sprintf(& str[str_index], Int_FORMAT, IntOfTerm(t));
+
+static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int *arity, int *mode_ptr, int type USES_REGS) {
+  int mode = *mode_ptr;
+  int str_index = *str_index_ptr;
+
+  /* test the node type */
+  if (mode == TRAVERSE_MODE_DOUBLE) {
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    arity[0]++;
+    arity[arity[0]] = (int) t;
+    mode = TRAVERSE_MODE_DOUBLE2;
+  } else if (mode == TRAVERSE_MODE_DOUBLE2) {
+    union {
+      Term t_dbl[sizeof(Float)/sizeof(Term)];
+      Float dbl;
+    } u;
+    u.dbl = 0.0;
+    u.t_dbl[0] = t;
+    u.t_dbl[1] = (Term) arity[arity[0]];
+    arity[0]--;
+#else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
+    union {
+      Term t_dbl[sizeof(Float)/sizeof(Term)];
+      Float dbl;
+    } u;
+    u.t_dbl[0] = t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+    str_index += sprintf(& str[str_index], "%.15g", u.dbl);
+    traverse_update_arity(str, &str_index, arity);
+    if (type == TRAVERSE_TYPE_SUBGOAL)
+      mode = TRAVERSE_MODE_NORMAL;
+    else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
+      mode = TRAVERSE_MODE_DOUBLE_END;
+  } else if (mode == TRAVERSE_MODE_DOUBLE_END) {
+    mode = TRAVERSE_MODE_NORMAL;
+  } else if (mode == TRAVERSE_MODE_LONGINT) {
+    Int li = (Int) t;
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", li);
+#else
+    str_index += sprintf(& str[str_index], "%d", li);
+#endif /* SHORT_INTS */
+    traverse_update_arity(str, &str_index, arity);
+    if (type == TRAVERSE_TYPE_SUBGOAL)
+      mode = TRAVERSE_MODE_NORMAL;
+    else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
+      mode = TRAVERSE_MODE_LONGINT_END;
+  } else if (mode == TRAVERSE_MODE_LONGINT_END) {
+    mode = TRAVERSE_MODE_NORMAL;
+  }  else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+    str_index += Yap_OpaqueTermToString(AbsAppl((CELL *)t), str+str_index, 0);
+    traverse_update_arity(str, &str_index, arity);
+    if (type == TRAVERSE_TYPE_SUBGOAL)
+      mode = TRAVERSE_MODE_NORMAL;
+    else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
+      mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+  } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING_END) {
+    mode = TRAVERSE_MODE_NORMAL;
+  } else if (IsVarTerm(t)) {
+#ifdef TRIE_RATIONAL_TERMS
+    if (t > VarIndexOfTableTerm(MAX_TABLE_VARS) && TrNode_child((gt_node_ptr) t) != (gt_node_ptr)1)  { //TODO: substitute the != 1 test to something more appropriate
+      /* Rational term */
+  	  str_index += sprintf(& str[str_index], "**");
+      traverse_update_arity(str, &str_index, arity);
+    } else    
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
+    if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
+      TrStat_gt_refs++;
+      /* (type % 2 + 2): TRAVERSE_TYPE_ANSWER  --> TRAVERSE_TYPE_GT_ANSWER  */
+      /* (type % 2 + 2): TRAVERSE_TYPE_SUBGOAL --> TRAVERSE_TYPE_GT_SUBGOAL */
+      traverse_global_trie_for_term((gt_node_ptr) t, str, &str_index, arity, &mode, type % 2 + 2 PASS_REGS);
+    } else {
+      if (type == TRAVERSE_TYPE_SUBGOAL || type == TRAVERSE_TYPE_GT_SUBGOAL)
+	str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
+      else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_ANSWER */
+	str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
+      traverse_update_arity(str, &str_index, arity);
+    }
+  } else if (IsIntTerm(t)) {
+#if SHORT_INTS
+    str_index += sprintf(& str[str_index], "%ld", IntOfTerm(t));
+#else
+    str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
+#endif /* SHORT_INTS */
     traverse_update_arity(str, &str_index, arity);
   } else if (IsAtomTerm(t)) {
 #ifndef TRIE_COMPACT_PAIRS

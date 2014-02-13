@@ -88,6 +88,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define Flag_LocalTrie          0x100
 #define Flag_GlobalTrie         0x200
 #define Flags_TrieMode          (Flag_LocalTrie | Flag_GlobalTrie)
+#define Flag_CoInductive        0x008
 
 #define SetMode_Batched(X)      (X) = ((X) & ~Flags_SchedulingMode) | Flag_Batched
 #define SetMode_Local(X)        (X) = ((X) & ~Flags_SchedulingMode) | Flag_Local
@@ -95,12 +96,14 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define SetMode_LoadAnswers(X)  (X) = ((X) & ~Flags_AnswersMode) | Flag_LoadAnswers
 #define SetMode_LocalTrie(X)    (X) = ((X) & ~Flags_TrieMode) | Flag_LocalTrie
 #define SetMode_GlobalTrie(X)   (X) = ((X) & ~Flags_TrieMode) | Flag_GlobalTrie
+#define SetMode_CoInductive(X)  (X) = (X) | Flag_CoInductive
 #define IsMode_Batched(X)       ((X) & Flag_Batched)
 #define IsMode_Local(X)         ((X) & Flag_Local)
 #define IsMode_ExecAnswers(X)   ((X) & Flag_ExecAnswers)
 #define IsMode_LoadAnswers(X)   ((X) & Flag_LoadAnswers)
 #define IsMode_LocalTrie(X)     ((X) & Flag_LocalTrie)
 #define IsMode_GlobalTrie(X)    ((X) & Flag_GlobalTrie)
+#define IsMode_CoInductive(X)   ((X) & Flag_CoInductive)
 
 
 
