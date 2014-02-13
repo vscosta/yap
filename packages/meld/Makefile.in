@@ -51,11 +51,11 @@ all:
 install: $(PROGRAMS)examples-install
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/meld
-	mkdir -p $(DESTDIR)$(EX_INSTALL_DIR)
 	$(INSTALL_DATA) $(srcdir)/meld.yap $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(MELD_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/meld; done
 
 install-examples: $(EXAMPLES) 
+	mkdir -p $(DESTDIR)$(EX_INSTALL_DIR)
 	for p in $(MELD_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EX_INSTALL_DIR); done
 
 clean:
