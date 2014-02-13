@@ -122,13 +122,11 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   BITMAP_clear(GLOBAL_bm_root_cp_workers);
   BITMAP_clear(GLOBAL_bm_invisible_workers);
   BITMAP_clear(GLOBAL_bm_requestable_workers);
-  BITMAP_clear(GLOBAL_bm_executing_workers);
   BITMAP_copy(GLOBAL_bm_finished_workers, GLOBAL_bm_present_workers);
   INIT_LOCK(GLOBAL_locks_bm_idle_workers);
   INIT_LOCK(GLOBAL_locks_bm_root_cp_workers);
   INIT_LOCK(GLOBAL_locks_bm_invisible_workers);
   INIT_LOCK(GLOBAL_locks_bm_requestable_workers);
-  INIT_LOCK(GLOBAL_locks_bm_executing_workers);
   INIT_LOCK(GLOBAL_locks_bm_finished_workers);
 #ifdef TABLING_INNER_CUTS
   INIT_LOCK(GLOBAL_locks_bm_pruning_workers);

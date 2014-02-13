@@ -730,7 +730,6 @@ static Int p_yapor_start( USES_REGS1 ) {
   GLOBAL_parallel_mode = PARALLEL_MODE_RUNNING;
   GLOBAL_execution_time = current_time();
   BITMAP_clear(GLOBAL_bm_finished_workers);
-  PUT_IN_EXECUTING(worker_id);
   return (TRUE);
 }
 
