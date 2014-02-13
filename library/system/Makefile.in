@@ -53,9 +53,14 @@ sys.o: $(srcdir)/sys.c
 @DO_SECOND_LD@sys.@SO@: sys.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o sys.@SO@ sys.o @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+install-examples:
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+
+distclean: clean
+	rm -f Makefilee

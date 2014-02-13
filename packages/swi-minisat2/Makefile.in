@@ -36,7 +36,7 @@ EXAMPLE_PROGRAMS= \
 
 all:
 
-install: $(PROGRAMS) 
+install: $(PROGRAMS)  install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
@@ -46,6 +46,6 @@ install-examples:
 
 clean:
 
-realclean:
+distclean:
 	rm Makefile
 

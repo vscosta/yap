@@ -81,7 +81,7 @@ install-examples:
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
-realclean:
+distclean:
 	rm -f Makefile $(OBJS)
 
 

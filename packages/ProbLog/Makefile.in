@@ -82,7 +82,7 @@ MANUAL = $(srcdir)/$(MANUAL_NAME)
 
 all:
 
-install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
+install: $(PROGRAMS) $(PROBLOG_PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
 	mkdir -p $(DESTDIR)$(DOCSDIR)
@@ -91,7 +91,7 @@ install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
 	$(INSTALL_DATA) $(srcdir)/LICENSE $(DESTDIR)$(DOCSDIR)
 
-install-examples:
+install-examples:  $(PROBLOG_EXAMPLES)
 	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EXDOCSDIR); done
 
 pdf: $(MANUAL)
@@ -104,5 +104,6 @@ install_docs: pdf
 
 clean:
 
-realclean:
+distclean:
 	rm -f Makefile
+

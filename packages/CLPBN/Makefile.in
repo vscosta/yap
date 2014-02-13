@@ -119,7 +119,7 @@ CLPBN_LEARNING_EXAMPLES= \
 
 all:
 
-install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
+install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
 	mkdir -p $(DESTDIR)$(EXDIR)
@@ -130,7 +130,7 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 
-install-examples:
+install-examples: $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
@@ -146,3 +146,7 @@ docs: $(MANUAL)
 install_docs: docs
 	$(INSTALL_DATA) pfl.pdf $(DESTDIR)$(EXDIR)
 
+clean:
+
+distclean: clean
+	rm -f Makefile

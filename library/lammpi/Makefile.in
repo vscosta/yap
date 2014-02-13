@@ -61,7 +61,7 @@ hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
 @DO_SECOND_LD@yap_mpi.@SO@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_mpi.@SO@ $(OBJS)  $(MPILDF) @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all  install-examples
 	@if test "$(SOBJS)" = ""; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
 
 clean:
@@ -70,3 +70,7 @@ clean:
 no:
 	@echo "YAP LAM/MPI module not compiled."
 
+install-examples:
+
+distclean: clean
+	rm -f Makefile

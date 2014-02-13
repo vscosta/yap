@@ -61,11 +61,17 @@ PROGRAMS= \
 
 all:
 
-install: $(PROGRAMS) $(EXAMPLES)
+install: $(PROGRAMS)  install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/xml
 	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/xml
 	$(INSTALL_DATA) $(srcdir)/xml.pl $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(XML_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/xml; done
+
+install-examples: $(EXAMPLES)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/xml
 	for p in $(XML_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/xml; done
 
+clean:
+
+distclean: clean
+	rm -r Makefile

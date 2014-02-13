@@ -211,10 +211,11 @@ $(UTESTING): $(UTESTS_OBJS)
 	$(CXX) -o $@ -c $(CXXFLAGS) $<
 
 
-install: all
+install: all install-exaamples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) $(HCLI) $(DESTDIR)$(BINDIR)
 
+install-examples:
 
 clean:
 	rm -f $(SOBJS) $(HCLI) $(UTESTING) *.o *~ $(utestsdir)/*.o $(utestsdir)/*~

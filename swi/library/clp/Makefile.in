@@ -34,3 +34,7 @@ install: $(PROGRAMS)
 
 install-examples:
 
+clean:
+
+distclean: clean
+	rm -f Makefile

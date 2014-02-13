@@ -70,3 +70,5 @@ PLTOTEX=$(PUBLICPL) -q -l $(srcdir)/pltotex -g pltotex --
 %.o: $(srcdir)/%.c
 		$(CC) -c $(CFLAGS) $< -o $@
 
+
+install-examples::

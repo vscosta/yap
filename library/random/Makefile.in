@@ -53,7 +53,7 @@ yap_random.o: $(srcdir)/yap_random.c
 @DO_SECOND_LD@yap_random.@SO@: yap_random.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_random.@SO@ yap_random.o @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 install-examples:
@@ -61,6 +61,7 @@ install-examples:
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
-realclean: clean
-	rm -f Makefile $(SOBJS)
+distclean: clean
+	rm -f Makefile
+
 

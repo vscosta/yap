@@ -1687,7 +1687,7 @@ if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
 then
   PKG_MINISAT=""
 else
-  PKG_MINISAT="packages/swi-minisat2"
+  PKG_MINISAT="packages/swi-minisat2 packages/swi-minisat2/C"
 fi
 
 

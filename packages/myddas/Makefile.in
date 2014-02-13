@@ -81,7 +81,7 @@ all: $(SOBJS)
 @DO_SECOND_LD@%.@SO@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ 
 
-install: all install_myddas
+install: all install_myddas install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
@@ -102,3 +102,4 @@ clean:
 
 distclean: clean
 	rm -f Makefile
+

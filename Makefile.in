@@ -514,12 +514,15 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 INSTALLED_PACKAGES= \
+	library/matrix \
 	library/random \
 	library/regex \
 	library/rltree \
 	library/system \
 	library/tries \
+	packages/meld \
 	packages/ProbLog \
+	packages/xml \
 	packages/yap-lbfgs \
 	@PKG_BDDLIB@ \
 	@PKG_CLPBN@ \
@@ -602,8 +605,7 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/src/parms.h
 	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
-	for f in $(PACKAGES); do ( echo $$f; cd $$f ; $(MAKE) install ); done
-	for f in $(PACKAGES); do ( echo $$f; cd $$f ; $(MAKE) install-examples ); done
+	for f in $(PACKAGES); do ( echo "**** INSTALLING **** " $$f; cd $$f ; $(MAKE) install ); done
 
 install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
@@ -632,9 +634,9 @@ clean: clean_docs clean_local
 clean_local:
 	rm -f *.o *~ *.BAK *.a 	
 
-distclean:  realclean_docs clean_local
+distclean:  distclean_docs clean_local
+	for f in $(PACKAGES); do ( ECHO "**** CLEANING ****" $$f; cd $$f ; $(MAKE) distclean ); done
 	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile packages/Makefile.defs packages/Dialect.defs
-	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) distclean ); done
 
 dist:
 
@@ -718,7 +720,7 @@ yap.pdf:  $(YAPDOCS)
 clean_docs:
 	rm -f *.aux *.ca *.cas *.cn *.cns *.cp *.cps *.cy *.cys *.dvi *.fn *.fns *.ky *.log *.sa *.sas *.sn *.sns *.sy *.sys *~ *.tp *.vr *.toc *.pg
 
-realclean_docs: clean_docs
+distclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
 installcheck:

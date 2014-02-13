@@ -102,7 +102,7 @@ DIALECT_BP= \
 	$(srcdir)/dialect/bprolog/foreach.pl \
 	$(srcdir)/dialect/bprolog/hashtable.yap
 
-install: $(PROGRAMS)
+install: $(PROGRAMS)  install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi
@@ -112,5 +112,10 @@ install: $(PROGRAMS)
 	for p in $(DIALECT_SWI); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi; done
 	for p in $(DIALECT_BP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/bprolog; done
 
-realclean:
+
+install-examples:
+
+clean:
+
+distclean: clean
 	rm -f *def Makefile
