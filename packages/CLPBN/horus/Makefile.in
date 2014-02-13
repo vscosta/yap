@@ -211,7 +211,7 @@ $(UTESTING): $(UTESTS_OBJS)
 	$(CXX) -o $@ -c $(CXXFLAGS) $<
 
 
-install: all install-exaamples
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) $(HCLI) $(DESTDIR)$(BINDIR)
 
