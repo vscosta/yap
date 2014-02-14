@@ -524,9 +524,9 @@ true :- true.
 	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
 	  ;
-%	   copy_term_nat(V, NV), 
-%	   LGs = [], 
-	   term_factorized(V, NV, LGs),
+	   copy_term_nat(V, NV), 
+	   LGs = [], 
+%	   term_factorized(V, NV, LGs),
 	   NCP = 0
         ).
 
