@@ -11964,6 +11964,8 @@ Yap_absmi(int inp)
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
+	if (IsBigIntTerm( d0 ))
+	  FAIL();
 	saveregs();
 	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();
@@ -12151,6 +12153,8 @@ Yap_absmi(int inp)
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
+	if (IsBigIntTerm( d0 ))
+	  FAIL();
 	saveregs();
 	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();

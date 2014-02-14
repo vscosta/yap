@@ -508,7 +508,8 @@ p_arg( USES_REGS1 )
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
-	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	if (!IsBigIntTerm( d0 ))
+	  Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	return(FALSE);
       }
 
