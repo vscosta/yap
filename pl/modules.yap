@@ -87,13 +87,12 @@ module(N) :-
 	recorda('$module','$module'(F,Module,AllExports, Line),_).
 
 '$extend_exports'(F, Exps , NewF) :-
-writeln( (Exps, F, NewF ) ),
 	recorded('$module','$module'(NewF,NMod, NewExports, _),_R),
 	recorded('$module','$module'(F, Module,OriginalExports,Line),R),
 	'$convert_for_export'(Exps, NewExports, NMod, NMod, _TranslationTab, NewExports1, load_files),
 	'$add_exports'( NewExports1, OriginalExports, Exports ),
-	erase(R),
 	sort( Exports, AllExports ),
+	erase(R),
 	recorda('$module','$module'(F,Module,AllExports,Line),_),
 	fail.
 '$extend_exports'(_F, _Module, _NewExports).
@@ -731,44 +730,50 @@ export_list(Module, List) :-
 '$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,
 	( lists:memberchk(N1/A1, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'((N1/A1 as A2), Module, ContextModule)
-	).	
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).	
 '$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
 	(
 	 lists:memberchk(N1/A1, List)
 	->
-	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	   true
 	;
 	  '$bad_export'(N1/A1, Module, ContextModule)
-	).
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([N1//A1|Ps], List, Module, ContextModule, [N1/A2-N1/A2|Tab], [N1/A2|MyExports], Goal) :- !,
 	A2 is A1+2,
 	(
 	  lists:memberchk(N1/A2, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'(N1//A1, Module, ContextModule)
-	).
+
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([N1//A1 as N2|Ps], List, Module, ContextModule, [N2/A2-N1/A2|Tab], [N2/A2|MyExports], Goal) :- !,
 	A2 is A1+2,
 	(
 	  lists:memberchk(N2/A2, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'((N1//A1 as A2), Module, ContextModule)
-	).
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|MyExports], Goal) :- !,
 	(
 	 lists:memberchk(op(Prio,Assoc,Name), List)
 	->
-	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	 true
 	;
-	  '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
-	).
+	 '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([P|_], _List, _, _, _, _, Goal) :-
 	'$do_error'(domain_error(module_export_predicates,P), Goal).
 
