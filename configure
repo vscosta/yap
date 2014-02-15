@@ -9171,7 +9171,7 @@ if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
 then
   PKG_MINISAT=""
 else
-  PKG_MINISAT="packages/swi-minisat2"
+  PKG_MINISAT="packages/swi-minisat2 packages/swi-minisat2/C"
 fi
 
 
@@ -9446,7 +9446,9 @@ if test "x$ac_cv_header_mysql_mysql_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_MYSQL_MYSQL_H 1
 _ACEOF
-
+ yap_cv_odbc="yes"
+else
+  yap_cv_odbc="no"
 fi
 
 done
@@ -11752,7 +11754,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11755 "configure" */
+/* #line 11757 "configure" */
 public class Test {
 }
 EOF
@@ -11928,7 +11930,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11931: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11933: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12059,7 +12061,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12062 "configure" */
+/* #line 12064 "configure" */
 public class Test {
 }
 EOF
@@ -12094,7 +12096,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12097 "configure" */
+/* [#]line 12099 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12745,6 +12747,12 @@ _ACEOF
 
 
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
+     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
+fi
 
 
 
@@ -12844,6 +12852,7 @@ _ACEOF
 fi
 
 done
+
 
 
 

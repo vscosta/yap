@@ -60,6 +60,7 @@ PROGRAMS= \
 	$(srcdir)/www_browser.pl\
 	$(srcdir)/dcg/basics.pl
 
+all:
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap

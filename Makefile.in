@@ -190,6 +190,8 @@ HEADERS = \
 	$(srcdir)/H/trim_trail.h \
 	$(srcdir)/H/yapio.h \
 	$(srcdir)/H/YapText.h \
+	$(srcdir)/H/cut_c.h \
+	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
 	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
@@ -200,8 +202,6 @@ HEADERS = \
 	$(srcdir)/OPTYap/locks_mips_funcs.h $(srcdir)/OPTYap/locks_alpha.h \
 	$(srcdir)/OPTYap/locks_alpha_funcs.h \
 	$(srcdir)/OPTYap/locks_pthread.h \
-	$(srcdir)/H/cut_c.h \
-	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
 	$(srcdir)/library/dialect/swi/fli/swi.h
 
 IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
@@ -558,7 +558,10 @@ PACKAGES=  \
 	$(INSTALLED_PACKAGES)
 
 all: startup.yss
-	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) ); done
+	for p in $(PACKAGES); do \
+	  echo " ============== " $$p; \
+	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p || exit 1; fi; \
+	done
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -605,7 +608,10 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/src/parms.h
 	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
-	for f in $(PACKAGES); do ( echo "**** INSTALLING **** " $$f; cd $$f ; $(MAKE) install ); done
+	for p in $(PACKAGES); do \
+	  echo " ============== INSTALLING" $$p; \
+	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p install || exit 1; fi; \
+	done
 
 install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
@@ -635,7 +641,10 @@ clean_local:
 	rm -f *.o *~ *.BAK *.a 	
 
 distclean:  distclean_docs clean_local
-	for f in $(PACKAGES); do ( ECHO "**** CLEANING ****" $$f; cd $$f ; $(MAKE) distclean ); done
+	for p in $(PACKAGES); do \
+      echo " ============== DISTCLEAN " $$p; \
+	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p distclean || exit 1; fi; \
+	done
 	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile packages/Makefile.defs packages/Dialect.defs
 
 dist:
@@ -724,7 +733,7 @@ distclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
 installcheck:
-	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) installcheck)
+	(cd packages/cplint; $(MAKE) installcheck)
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

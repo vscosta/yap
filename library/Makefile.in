@@ -102,6 +102,8 @@ DIALECT_BP= \
 	$(srcdir)/dialect/bprolog/foreach.pl \
 	$(srcdir)/dialect/bprolog/hashtable.yap
 
+all:
+
 install: $(PROGRAMS)  install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect
