@@ -53,8 +53,8 @@ if test "$yap_cv_mpi" != "no" -a "$INSTALL_DLLS" != "no"; then
      OLD_CC=${CC}
      CC=${MPI_CC}
      AC_CHECK_LIB(mpe,MPE_Init_log,
-		[AC_DEFINE(HAVE_LIBMPE, 1)],
-		[AC_DEFINE(HAVE_LIBMPE, 0)])
+		[AC_DEFINE(HAVE_LIBMPE, 1, [MPI Debugging on])],
+		[AC_DEFINE(HAVE_LIBMPE, 0, [MPI Debugging off])])
      if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
      then
 	MPI_1LIBS="-lmpe"

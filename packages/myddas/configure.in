@@ -1,3 +1,6 @@
+MYDDAS_VERSION=0.9.1
+AC_DEFINE_UNQUOTED(MYDDAS_VERSION, $MYDDAS_VERSION, [myddas release])
+
 AC_ARG_ENABLE(myddas,
 	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then

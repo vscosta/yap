@@ -56,7 +56,7 @@
 #endif
 #endif
 
-
+#include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 
 #define COMMON(X) extern X
@@ -128,7 +128,7 @@ typedef int bool;
 
 typedef struct redir_context
 { int		magic;			/* REDIR_MAGIC */
-  IOSTREAM     *stream;			/* temporary output */
+  struct io_stream     *stream;			/* temporary output */
   int		is_stream;		/* redirect to stream */
   int		redirected;		/* output is redirected */
   term_t	term;			/* redirect target */
@@ -298,7 +298,7 @@ atom_t                YAP_SWIAtomFromAtom(Atom at);
 static inline Functor
 SWIFunctorToFunctor(functor_t f)
 {
-  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
     return SWI_Functors[((CELL)f)/4];
   return (Functor)f;
 }

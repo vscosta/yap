@@ -34,7 +34,7 @@
 /* include all stuff that is exported to yap */
 #include "pl-shared.h"
 
-#define PLVERSION YAP_VERSION
+#define PLVERSION YAP_NUMERIC_VERSION
 #define PLNAME "yap"
 
 #define SWIP "swi_"
@@ -62,7 +62,6 @@ typedef struct pred_entry *      Procedure;      /* predicate */
 // used by swi
 #ifdef SIZEOF_INT_P
 #define SIZEOF_VOIDP SIZEOF_INT_P
-#define SIZEOF_LONG  SIZEOF_LONG_INT
 #else
 bad config
 #endif

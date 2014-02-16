@@ -521,18 +521,18 @@ Sread_readline(void *handle, char *buf, size_t size)
 static int
 prolog_complete(int ignore, int key)
 { if ( rl_point > 0 && rl_line_buffer[rl_point-1] != ' ' )
-  { rl_begin_undo_group();
+  {
+#if HAVE_RL_CATCH_SIGNAL		/* actually version >= 1.2, or true readline */
+	rl_begin_undo_group();
     rl_complete(ignore, key);
     if ( rl_point > 0 && rl_line_buffer[rl_point-1] == ' ' )
     {
-#ifdef HAVE_RL_INSERT_CLOSE		/* actually version >= 1.2 */
       rl_delete_text(rl_point-1, rl_point);
       rl_point -= 1;
-#else
       rl_delete(-1, key);
-#endif
     }
     rl_end_undo_group();
+#endif
   } else
     rl_complete(ignore, key);
 
@@ -592,7 +592,9 @@ PL_install_readline(void)
 #endif
 
   alevel = setAccessLevel(ACCESS_LEVEL_SYSTEM);
+#if HAVE_RL_CATCH_SIGNAL
   rl_catch_signals = 0;
+#endif
   rl_readline_name = "Prolog";
   rl_attempted_completion_function = prolog_completion;
 #ifdef __WINDOWS__

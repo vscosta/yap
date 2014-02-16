@@ -621,7 +621,8 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='PKG_ODBC
+ac_subst_vars='SED
+PKG_ODBC
 PKG_LIBARCHIVE
 GECODE_EXTRALIBS
 GECODE_VERSION
@@ -763,9 +764,6 @@ INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
 LN_S
-DefTrailSpace
-DefStackSpace
-DefHeapSpace
 target_os
 target_vendor
 target_cpu
@@ -855,7 +853,7 @@ enable_chr
 enable_clpqr
 enable_april
 enable_dlcompat
-enable_clpbn_bp
+enable_clpbn_horus
 with_gmp
 with_R
 with_judy
@@ -1531,7 +1529,7 @@ Optional Features:
  --enable-clpqr            install clpqr library
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
- --enable-clpbn-bp           enable belief propagation solver in CLPBN.
+ --enable-clpbn-horus           enable CLPBN HORUS library.
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
@@ -1546,7 +1544,7 @@ Optional Packages:
  --with-R=DIR              interface to R language
   --with-judy=DIR UDI needs judy library
  --enable-minisat           use minisat interface
- --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
+ --with-java=JAVA_HOME       use JPL with Java setup in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-heap-space=space  default heap size in Kbytes
  --with-stack-space=space default stack size in Kbytes
@@ -2690,6 +2688,9 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
+
+DOC_VERSION=4.2.9
 
 ac_config_headers="$ac_config_headers config.h"
 
@@ -4074,9 +4075,13 @@ test -n "$target_alias" &&
   program_prefix=${target_alias}-
 
 
+
 cat >>confdefs.h <<_ACEOF
 #define HOST_ALIAS "${target}"
 _ACEOF
+
+
+
 
 
 
@@ -4247,11 +4252,11 @@ else
 fi
 
 
-# Check whether --enable-clpbn-bp was given.
-if test "${enable_clpbn_bp+set}" = set; then :
-  enableval=$enable_clpbn_bp; yap_cv_clpbn_bp="$enableval"
+# Check whether --enable-clpbn-horus was given.
+if test "${enable_clpbn_horus+set}" = set; then :
+  enableval=$enable_clpbn_horus; yap_cv_clpbn_horus="$enableval"
 else
-  yap_cv_clpbn_bp=yes
+  horus=yes
 fi
 
 
@@ -4267,11 +4272,12 @@ if test "${with_gmp+set}" = set; then :
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
-	CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
+	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi
 else
   yap_cv_gmp=yes
 fi
+
 
 
 # Check whether --with-R was given.
@@ -4433,24 +4439,21 @@ else
 fi
 
 
-if test "$orparallelism" = no
-then
-  $as_echo "#define MinHeapSpace (1000*SIZEOF_INT_P)" >>confdefs.h
 
-  $as_echo "#define MinStackSpace (300*SIZEOF_INT_P)" >>confdefs.h
+$as_echo "#define MinHeapSpace (2048*SIZEOF_INT_P)" >>confdefs.h
 
-  $as_echo "#define MinTrailSpace ( 48*SIZEOF_INT_P)" >>confdefs.h
+
+$as_echo "#define MinStackSpace (1024*SIZEOF_INT_P)" >>confdefs.h
+
+
+$as_echo "#define MinTrailSpace (256*SIZEOF_INT_P)" >>confdefs.h
 
   $as_echo "#define MAX_WORKERS 1" >>confdefs.h
 
-else
-  $as_echo "#define MinHeapSpace (2000*SIZEOF_INT_P)" >>confdefs.h
+if test "$orparallelism" = no
+then
 
-  $as_echo "#define MinStackSpace (600*SIZEOF_INT_P)" >>confdefs.h
-
-  $as_echo "#define MinTrailSpace (100*SIZEOF_INT_P)" >>confdefs.h
-
-  cat >>confdefs.h <<_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define MAX_WORKERS $yap_cv_max_workers
 _ACEOF
 
@@ -4462,36 +4465,33 @@ _ACEOF
   then
     threads="yes"
   fi
-  tabling="no"
 fi
+
 
 cat >>confdefs.h <<_ACEOF
 #define DefHeapSpace $yap_cv_heap_space
 _ACEOF
 
+
 cat >>confdefs.h <<_ACEOF
 #define DefStackSpace $yap_cv_stack_space
 _ACEOF
+
 
 cat >>confdefs.h <<_ACEOF
 #define DefTrailSpace $yap_cv_trail_space
 _ACEOF
 
 
-
-
-
-
 if test "$threads" = no
 then
-  $as_echo "#define MAX_THREADS 1" >>confdefs.h
+  yap_cv_max_threads=1
+fi
 
-else
- cat >>confdefs.h <<_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define MAX_THREADS $yap_cv_max_threads
 _ACEOF
 
-fi
 
 
 if test "$yap_cv_prism" = no
@@ -4559,7 +4559,8 @@ then
   CC="condor_compile $CC"
   CXX="condor_compile $CXX"
     yap_cv_readline="no"
-  $as_echo "#define SUPPORT_CONDOR 1" >>confdefs.h
+
+$as_echo "#define SUPPORT_CONDOR 1" >>confdefs.h
 
     yap_cv_minisat=no
   STATIC_MODE=""
@@ -5561,7 +5562,6 @@ fi
        ;;
       esac
     fi
-    echo $prefix
     WINDOWS=""
     PKG_WINCONSOLE="swi/console"
   else
@@ -5572,6 +5572,23 @@ fi
     EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   fi
 else
+  if test "$prefix" = "NONE"
+  then
+    prefix=/usr/local
+  fi
+  if test -d "${prefix}/lib64" -a "$YAP_TARGET" = amd64
+  then
+     LDFLAGS="$LDFLAGS -L${prefix}/lib64"
+  fi
+  LDFLAGS="$LDFLAGS -L${prefix}/lib"
+  CPPFLAGS="$CPPFLAGS -I${prefix}/include"
+  if test "$exec_prefix" != "NONE" -a "$exec_prefix" != "$prefix"
+  then
+     if test -d "${exec_prefix}/lib64" -a "$YAP_TARGET" = amd64; then
+       LDFLAGS="$LDFLAGS -L${exec_prefix}/lib64"
+     fi
+     LDFLAGS="$LDFLAGS -L${exec_prefix}/lib"
+  fi
   INSTALL_COMMAND="install_unix"
   WINDOWS="#"
   PKG_WINCONSOLE=""
@@ -5942,19 +5959,6 @@ _ACEOF
 
 fi
 
-  if test "$prefix" != "NONE"; then
-     if test -d "${prefix}/lib64" -a "$YAP_TARGET" = amd64; then
-       LDFLAGS="$LDFLAGS -L${prefix}/lib64"
-     fi
-     LDFLAGS="$LDFLAGS -L${prefix}/lib"
-     CPPFLAGS="$CPPFLAGS -I${prefix}/include"
-  fi
-  if test "$exec_prefix" != "NONE"; then
-     if test -d "${exec_prefix}/lib64" -a "$YAP_TARGET" = amd64; then
-       LDFLAGS="$LDFLAGS -L${exec_prefix}/lib64"
-     fi
-     LDFLAGS="$LDFLAGS -L${exec_prefix}/lib"
-  fi
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -6471,7 +6475,8 @@ done
 
   if test "$pthreadlocking" = yes
   then
-    $as_echo "#define USE_PTHREAD_LOCKING 1" >>confdefs.h
+
+$as_echo "#define USE_PTHREAD_LOCKING 1" >>confdefs.h
 
   fi
   use_malloc=yes
@@ -6486,6 +6491,7 @@ else
 fi
 CMFLAGS=-fpic
 CIFLAGS=-I.
+
 
 if test "$use_prism" = no; then
   PKG_PRISM=""
@@ -6588,11 +6594,11 @@ else
   PKG_ZLIB=""
 fi
 
-if test "$cross_compiling" = "yes"
-then
-  YAP_EXTRAS=
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sys/wait.h that is POSIX.1 compatible" >&5
+	if test "$cross_compiling" = "yes"
+	then
+	  YAP_EXTRAS=""
+	else
+	  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sys/wait.h that is POSIX.1 compatible" >&5
 $as_echo_n "checking for sys/wait.h that is POSIX.1 compatible... " >&6; }
 if ${ac_cv_header_sys_wait_h+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6704,24 +6710,24 @@ $as_echo "#define HAVE_RESTARTABLE_SYSCALLS 1" >>confdefs.h
 
 fi
 
-fi
+	fi
 
-INSTALL_DLLS="no"
-EXTRA_OBJS=""
-SHLIB_LD="#"
-SHLIB_CXX_LD="#"
-DO_SECOND_LD="#"
-M4="m4"
-MERGE_DLL_OBJS="#"
-IN_UNIX=""
+		INSTALL_DLLS="no"
+	EXTRA_OBJS=""
+	SHLIB_LD="#"
+	SHLIB_CXX_LD="#"
+	DO_SECOND_LD="#"
+	M4="m4"
+	MERGE_DLL_OBJS="#"
+	IN_UNIX=""
 
-YAPLIB="libYap.a"
+		YAPLIB="libYap.a"
 
-case "$target_os" in
-      *linux*)
-        if test "$static_compilation" = "no"
-        then
-	  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -ldl" >&5
+			case "$target_os" in
+	      *linux*)
+	        if test "$static_compilation" = "no"
+	        then
+		  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -ldl" >&5
 $as_echo_n "checking for dlopen in -ldl... " >&6; }
 if ${ac_cv_lib_dl_dlopen+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6764,102 +6770,105 @@ else
   have_dl=no
 fi
 
-          if test "$have_dl" = "yes"
-	  then
-	    SO="so"
-            SHLIB_LD="$CC -shared -export-dynamic"
-            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
-            DO_SECOND_LD=""
-	    LIBS="$LIBS -ldl"
-	    case "$target_cpu" in
-	      alpha*)
-	        LDFLAGS="-dynamic $LDFLAGS"
-              ;;
-              *)
-	        if test "$CC" != "lcc"
-                then
-	          LDFLAGS="-rdynamic $LDFLAGS"
-                fi
-              ;;
-            esac
-          fi
-	  if test "$ac_cv_c_compiler_gnu" = "yes"
-	  then
-	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
-	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
-	   INSTALL_DLLS="yes"
-          fi
-	  LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
-          DYNYAPLIB=libYap."$SO"
-          SONAMEFLAG="-Wl,-soname=$DYNYAPLIB"
-        fi
-        if test "$have_nsl" = yes
-	 then
-	 LIBS="$LIBS -lnsl"
-        fi
-        if test "$dynamic_loading" = "yes"
-        then
-           YAPLIB_LD="\$(CC) -shared"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-        else
-           YAPLIB_LD="\$(CC)"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-        fi
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
-	;;
-      *sunos4*)
-	M4="/usr/5bin/m4"
-	LDFLAGS="$LDFLAGS -N"
-        if test "$have_nsl" = yes
-	 then
-	 LIBS="$LIBS -lnsl"
-        fi
-        SO="o"
-	INSTALL_DLLS="yes"
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
-        DYNYAPLIB=libYap."$SO"
-	SONAMEFLAG=""
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
-        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-	;;
-      *hpux*)
-	#do not use the first memory quadrant
-	$as_echo "#define FORCE_SECOND_QUADRANT 1" >>confdefs.h
+	          if test "$have_dl" = "yes"
+		  then
+		    SO="so"
+	            SHLIB_LD="$CC -shared -export-dynamic"
+	            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
+	            DO_SECOND_LD=""
+		    LIBS="$LIBS -ldl"
+		    case "$target_cpu" in
+		      alpha*)
+		        LDFLAGS="-dynamic $LDFLAGS"
+	              ;;
+	              *)
+		        if test "$CC" != "lcc"
+	                then
+		          LDFLAGS="-rdynamic $LDFLAGS"
+	                fi
+	              ;;
+	            esac
+	          fi
+		  if test "$ac_cv_c_compiler_gnu" = "yes"
+		  then
+		   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
+		   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+		   INSTALL_DLLS="yes"
+	          fi
+		  LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
+	          DYNYAPLIB=libYap."$SO"
+	          SONAMEFLAG="-Wl,-soname=$DYNYAPLIB"
+	        fi
+	        if test "$have_nsl" = yes
+		 then
+		 LIBS="$LIBS -lnsl"
+	        fi
+	        if test "$dynamic_loading" = "yes"
+	        then
+	           YAPLIB_LD="\$(CC) -shared"
+	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
+	           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+	        else
+	           YAPLIB_LD="\$(CC)"
+	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
+	           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+	        fi
+	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
+		;;
+	      *sunos4*)
+		M4="/usr/5bin/m4"
+		LDFLAGS="$LDFLAGS -N"
+	        if test "$have_nsl" = yes
+		 then
+		 LIBS="$LIBS -lnsl"
+	        fi
+	        SO="o"
+		INSTALL_DLLS="yes"
+		LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
+	        DYNYAPLIB=libYap."$SO"
+		SONAMEFLAG=""
+	        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
+	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
+	        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+		;;
+	      *hpux*)
+		#do not use the first memory quadrant
 
-	M4="/usr/bin/m4"
-	if test ${use_condor} = no
-        then
-	  SHLIB_INTERFACE="load_shl.o"
-	  if test "$CC" = cc -o "$CC" = c89
-	  then
-	    #this tells ld to export all non-static symbols,
-	    #otherwise no external predicates.
-            SHLIB_LD="$CC -shared -export-dynamic"
-            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
-            DO_SECOND_LD=""
-            SO="sl"
+$as_echo "#define FORCE_SECOND_QUADRANT 1" >>confdefs.h
+
+		M4="/usr/bin/m4"
+		if test ${use_condor} = no
+	        then
+		  SHLIB_INTERFACE="load_shl.o"
+		  if test "$CC" = cc -o "$CC" = c89
+		  then
+		    #this tells ld to export all non-static symbols,
+		    #otherwise no external predicates.
+	            SHLIB_LD="$CC -shared -export-dynamic"
+	            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
+	            DO_SECOND_LD=""
+	            SO="sl"
 	    SHLIB_CFLAGS="+z $CFLAGS"
 	    SHLIB_CXXFLAGS="+z $CXXFLAGS"
 	    INSTALL_DLLS="yes"
 	    # If the xnet library was found, turn on X/Open networking
 	    if test "$ac_cv_lib_xnet_getsockname" = yes
 	    then
-	     $as_echo "#define _XOPEN_SOURCE 1" >>confdefs.h
 
-	     $as_echo "#define _XOPEN_SOURCE_EXTENDED 1" >>confdefs.h
+$as_echo "#define _XOPEN_SOURCE 1" >>confdefs.h
+
+
+$as_echo "#define _XOPEN_SOURCE_EXTENDED 1" >>confdefs.h
 
 	    fi
 	  else
 	    INSTALL_DLLS="no"
           fi
         fi
-	#do not use realloc() from HP-UX 10.20 together with MPI
 	if test ${target_os} = hpux10.20
 	then
-	  $as_echo "#define MPI_AVOID_REALLOC 1" >>confdefs.h
+
+$as_echo "#define MPI_AVOID_REALLOC 1" >>confdefs.h
 
 	fi
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
@@ -7187,7 +7196,7 @@ else
   YAPLIB_CFLAGS="$CFLAGS"
 fi
 
-YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
+YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1 -DTABLING=1"
 
 if test "$debugyap" = "yes"
   then
@@ -7254,10 +7263,6 @@ else
   esac
 fi
 
-if test "$tabling" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
-fi
 
 
 
@@ -7690,6 +7695,40 @@ _ACEOF
 fi
 done
 
+
+if ${yap_cv_rl_catch+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <readline/readline.h>
+
+int
+main ()
+{
+printf("Signal value is %d\n", rl_catch_signal);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  yap_cv_rl_catch=yes
+else
+  yap_cv_rl_catch=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_rl_catch" >&5
+$as_echo "$yap_cv_rl_catch" >&6; }
+if test "$yap_cv_rl_catch" = yes
+then
+
+$as_echo "#define HAVE_RL_CATCH_SIGNAL 1" >>confdefs.h
+
+fi
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
@@ -8000,6 +8039,39 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+# The cast to long int works around a bug in the HP C Compiler
+# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
+# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
+# This bug is HP SR number 8606223364.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of void *" >&5
+$as_echo_n "checking size of void *... " >&6; }
+if ${ac_cv_sizeof_void_p+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (void *))" "ac_cv_sizeof_void_p"        "$ac_includes_default"; then :
+
+else
+  if test "$ac_cv_type_void_p" = yes; then
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error 77 "cannot compute sizeof (void *)
+See \`config.log' for more details" "$LINENO" 5; }
+   else
+     ac_cv_sizeof_void_p=0
+   fi
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_void_p" >&5
+$as_echo "$ac_cv_sizeof_void_p" >&6; }
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_VOID_P $ac_cv_sizeof_void_p
+_ACEOF
+
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for type of malloc" >&5
 $as_echo_n "checking for type of malloc... " >&6; }
@@ -8034,9 +8106,15 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_malloct *" >&5
 $as_echo "$yap_cv_malloct *" >&6; }
 if test "$yap_cv_malloct" = void
-then $as_echo "#define MALLOC_T void *" >>confdefs.h
+then
+cat >>confdefs.h <<_ACEOF
+#define MALLOC_T void *
+_ACEOF
 
-else $as_echo "#define MALLOC_T char *" >>confdefs.h
+else
+cat >>confdefs.h <<_ACEOF
+#define MALLOC_T char *
+_ACEOF
 
 fi
 
@@ -8073,12 +8151,11 @@ $as_echo "$yap_cv_gcc" >&6; }
 if test "$yap_cv_gcc" = yes
 then
 M4GENHDRS=m4/gcc_genhdrs.m4
+
 $as_echo "#define HAVE_GCC 1" >>confdefs.h
 
 else
 M4GENHDRS=m4/cc_genhdrs.m4
-$as_echo "#define HAVE_GCC 0" >>confdefs.h
-
 fi
 
 
@@ -8184,12 +8261,11 @@ fi
 $as_echo "$yap_cv_threaded_code" >&6; }
 if test "$yap_cv_threaded_code" = yes && test "$yap_cv_gcc" = yes
 then
-	$as_echo "#define USE_THREADED_CODE 1" >>confdefs.h
+
+$as_echo "#define USE_THREADED_CODE 1" >>confdefs.h
 
 	M4GENABSMI=gen_gcc.m4
 else
-	$as_echo "#define USE_THREADED_CODE 0" >>confdefs.h
-
 	M4GENABSMI=gen_ansi.m4
 fi
 
@@ -8230,10 +8306,8 @@ fi
 $as_echo "$yap_cv_ffieee" >&6; }
 if test "$yap_cv_ffieee" = yes
 then
-$as_echo "#define FFIEEE 1" >>confdefs.h
 
-else
-$as_echo "#define FFIEEE 0" >>confdefs.h
+$as_echo "#define FFIEEE 1" >>confdefs.h
 
 fi
 
@@ -8270,10 +8344,8 @@ fi
 $as_echo "$yap_cv_sigsetjmp" >&6; }
 if test "$yap_cv_sigsetjmp" = yes
 then
-$as_echo "#define HAVE_SIGSETJMP 1" >>confdefs.h
 
-else
-$as_echo "#define HAVE_SIGSETJMP 0" >>confdefs.h
+$as_echo "#define HAVE_SIGSETJMP 1" >>confdefs.h
 
 fi
 
@@ -8309,10 +8381,8 @@ fi
 $as_echo "$yap_cv_sigsegv" >&6; }
 if test "$yap_cv_sigsegv" = yes
 then
-$as_echo "#define HAVE_SIGSEGV 1" >>confdefs.h
 
-else
-$as_echo "#define HAVE_SIGSEGV 0" >>confdefs.h
+$as_echo "#define HAVE_SIGSEGV 1" >>confdefs.h
 
 fi
 
@@ -8348,10 +8418,8 @@ fi
 $as_echo "$yap_cv_sigprof" >&6; }
 if test "$yap_cv_sigsegv" = yes
 then
-$as_echo "#define HAVE_SIGPROF 1" >>confdefs.h
 
-else
-$as_echo "#define HAVE_SIGPROF 0" >>confdefs.h
+$as_echo "#define HAVE_SIGPROF 1" >>confdefs.h
 
 fi
 
@@ -8387,10 +8455,8 @@ fi
 $as_echo "$yap_cv_siginfo" >&6; }
 if test "$yap_cv_siginfo" = yes
 then
-$as_echo "#define HAVE_SIGINFO 1" >>confdefs.h
 
-else
-$as_echo "#define HAVE_SIGINFO 0" >>confdefs.h
+$as_echo "#define HAVE_SIGINFO 1" >>confdefs.h
 
 fi
 
@@ -8440,7 +8506,7 @@ ac_fn_c_check_member "$LINENO" "struct tm" "tm_gmtoff" "ac_cv_member_struct_tm_t
 "
 if test "x$ac_cv_member_struct_tm_tm_gmtoff" = xyes; then :
 
-$as_echo "#define HAVE_STRUCT_TIME_TM_GMTOFF /**/" >>confdefs.h
+$as_echo "#define HAVE_STRUCT_TIME_TM_GMTOFF 1" >>confdefs.h
 
 fi
 
@@ -8474,7 +8540,8 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $union_wait_ok" >&5
 $as_echo "$union_wait_ok" >&6; }
 if test "$union_wait_ok" = no; then
-    $as_echo "#define NO_UNION_WAIT 1" >>confdefs.h
+
+$as_echo "#define NO_UNION_WAIT 1" >>confdefs.h
 
 fi
 
@@ -8503,7 +8570,8 @@ rm -f core conftest.err conftest.$ac_objext \
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $environ_ok" >&5
 $as_echo "$environ_ok" >&6; }
 if test "$environ_ok" = yes; then
-    $as_echo "#define HAVE_ENVIRON 1" >>confdefs.h
+
+$as_echo "#define HAVE_ENVIRON 1" >>confdefs.h
 
 fi
 
@@ -8899,10 +8967,8 @@ fi
 $as_echo "$yap_cv_mpz_xor" >&6; }
 if test "$yap_cv_mpz_xor" = yes
 then
-$as_echo "#define HAVE_MPZ_XOR 1" >>confdefs.h
 
-else
-$as_echo "#define HAVE_MPZ_XOR 0" >>confdefs.h
+$as_echo "#define HAVE_MPZ_XOR 1" >>confdefs.h
 
 fi
 
@@ -8910,6 +8976,7 @@ if test "$use_malloc" = "yes" -a "$maxmemory" = "yes"
 then
   maxmemory="no"
 fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if fflush(NULL) clobbers input pipes" >&5
 $as_echo_n "checking if fflush(NULL) clobbers input pipes... " >&6; }
@@ -8971,30 +9038,24 @@ $as_echo "failed" >&6; }
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_broken_fflush_null" >&5
 $as_echo "$yap_cv_broken_fflush_null" >&6; }
-if test "$yap_cv_broken_fflush_null" = no
+if test "$yap_cv_broken_fflush_null" = yes
 then
-  $as_echo "#define BROKEN_FFLUSH_NULL 0" >>confdefs.h
 
-else
-      $as_echo "#define BROKEN_FFLUSH_NULL 1" >>confdefs.h
+$as_echo "#define BROKEN_FFLUSH_NULL /**/" >>confdefs.h
 
 fi
 
-if test "$use_malloc" = yes
+
+if test "$use_malloc" = yes -o "$maxmemory" = yes
 then
+
 $as_echo "#define USE_SYSTEM_MALLOC 1" >>confdefs.h
 
+
 $as_echo "#define GC_NO_TAGS 1" >>confdefs.h
 
 fi
 
-if test "$maxmemory" = yes
-then
-$as_echo "#define GC_NO_TAGS 1" >>confdefs.h
-
-$as_echo "#define USE_DL_MALLOC 1" >>confdefs.h
-
-fi
 
 PROLOG_SYSTEM=yap
 IN_YAP=
@@ -9133,7 +9194,7 @@ ac_fn_c_check_member "$LINENO" "struct tm" "tm_gmtoff" "ac_cv_member_struct_tm_t
 "
 if test "x$ac_cv_member_struct_tm_tm_gmtoff" = xyes; then :
 
-$as_echo "#define HAVE_STRUCT_TIME_TM_GMTOFF /**/" >>confdefs.h
+$as_echo "#define HAVE_STRUCT_TIME_TM_GMTOFF 1" >>confdefs.h
 
 fi
 
@@ -9192,11 +9253,18 @@ if test "x$PLARCH" = "x"; then
       PLARCH=`echo $host | sed 's/\(^-*\)-^-*-\(^-*\)-gnu/\1-\2/'`
       ;;
     *)
-      PLARCH=`echo $host | sed 's/\(^-*\)-^-*-\(^-*\)/\1-\2/'`
+      PLARCH=`echo $host | sed 's/\(^-*\)-^-*-\(^-*\)/\1-\2/'` #'
       ;;
   esac
 fi
 
+
+
+MYDDAS_VERSION=0.9.1
+
+cat >>confdefs.h <<_ACEOF
+#define MYDDAS_VERSION $MYDDAS_VERSION
+_ACEOF
 
 
 # Check whether --enable-myddas was given.
@@ -11327,6 +11395,7 @@ fi
 
 
 
+
 if test "$PKG_ZLIB" != ""
 then
 
@@ -11536,9 +11605,12 @@ else
     PKG_REAL=""
 fi
 
-if test "$yap_cv_java" = no; then
+
+if test "$yap_cv_java" = no
+then
 	PKG_JPL=""
-elif test -e "$srcdir"/packages/jpl/Makefile.in; then
+elif test -e "$srcdir"/packages/jpl/Makefile.in
+then
 	PKG_JPL="packages/jpl"
 	if test "$yap_cv_java" != "yes"; then
           JAVA_HOME=$yap_cv_java
@@ -11754,7 +11826,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11757 "configure" */
+/* #line 11829 "configure" */
 public class Test {
 }
 EOF
@@ -11930,7 +12002,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11933: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12005: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12061,7 +12133,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12064 "configure" */
+/* #line 12136 "configure" */
 public class Test {
 }
 EOF
@@ -12096,7 +12168,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12099 "configure" */
+/* [#]line 12171 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12762,7 +12834,8 @@ fi
 
 fi
 
-if test -e "$srcdir"/packages/ltx2htm/Makefile.in; then
+if test -e "$srcdir"/packages/ltx2htm/Makefile.in
+then
    PKG_LTX22HTM="packages/ltx2htm"
 
 
@@ -12788,7 +12861,8 @@ else
     PKG_LTX2HTM=""
 fi
 
-if test -e "$srcdir"/packages/raptor/Makefile.in; then
+if test -e "$srcdir"/packages/raptor/Makefile.in
+then
   PKG_RAPTOR="packages/raptor"
 
 
@@ -14487,10 +14561,12 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpe_MPE_Init_log" >&5
 $as_echo "$ac_cv_lib_mpe_MPE_Init_log" >&6; }
 if test "x$ac_cv_lib_mpe_MPE_Init_log" = xyes; then :
-  $as_echo "#define HAVE_LIBMPE 1" >>confdefs.h
+
+$as_echo "#define HAVE_LIBMPE 1" >>confdefs.h
 
 else
-  $as_echo "#define HAVE_LIBMPE 0" >>confdefs.h
+
+$as_echo "#define HAVE_LIBMPE 0" >>confdefs.h
 
 fi
 
@@ -15037,6 +15113,198 @@ fi
 
 
 
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
+$as_echo_n "checking for a sed that does not truncate output... " >&6; }
+if ${ac_cv_path_SED+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+            ac_script=s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/
+     for ac_i in 1 2 3 4 5 6 7; do
+       ac_script="$ac_script$as_nl$ac_script"
+     done
+     echo "$ac_script" 2>/dev/null | sed 99q >conftest.sed
+     { ac_script=; unset ac_script;}
+     if test -z "$SED"; then
+  ac_path_SED_found=false
+  # Loop through the user's path and test for each of PROGNAME-LIST
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_prog in sed gsed; do
+    for ac_exec_ext in '' $ac_executable_extensions; do
+      ac_path_SED="$as_dir/$ac_prog$ac_exec_ext"
+      as_fn_executable_p "$ac_path_SED" || continue
+# Check for GNU ac_path_SED and select it if it is found.
+  # Check for GNU $ac_path_SED
+case `"$ac_path_SED" --version 2>&1` in
+*GNU*)
+  ac_cv_path_SED="$ac_path_SED" ac_path_SED_found=:;;
+*)
+  ac_count=0
+  $as_echo_n 0123456789 >"conftest.in"
+  while :
+  do
+    cat "conftest.in" "conftest.in" >"conftest.tmp"
+    mv "conftest.tmp" "conftest.in"
+    cp "conftest.in" "conftest.nl"
+    $as_echo '' >> "conftest.nl"
+    "$ac_path_SED" -f conftest.sed < "conftest.nl" >"conftest.out" 2>/dev/null || break
+    diff "conftest.out" "conftest.nl" >/dev/null 2>&1 || break
+    as_fn_arith $ac_count + 1 && ac_count=$as_val
+    if test $ac_count -gt ${ac_path_SED_max-0}; then
+      # Best one so far, save it but keep looking for a better one
+      ac_cv_path_SED="$ac_path_SED"
+      ac_path_SED_max=$ac_count
+    fi
+    # 10*(2^10) chars as input seems more than enough
+    test $ac_count -gt 10 && break
+  done
+  rm -f conftest.in conftest.tmp conftest.nl conftest.out;;
+esac
+
+      $ac_path_SED_found && break 3
+    done
+  done
+  done
+IFS=$as_save_IFS
+  if test -z "$ac_cv_path_SED"; then
+    as_fn_error $? "no acceptable sed could be found in \$PATH" "$LINENO" 5
+  fi
+else
+  ac_cv_path_SED=$SED
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_path_SED" >&5
+$as_echo "$ac_cv_path_SED" >&6; }
+ SED="$ac_cv_path_SED"
+  rm -f conftest.sed
+
+
+
+    YAP_VERSION="$PACKAGE_VERSION"
+    YAP_MAJOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/\([^.][^.]*\).*/\1/'`
+    YAP_MINOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.\([^.][^.]*\).*/\1/'`
+    YAP_POINT_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.[^.][^.]*.\(.*\)/\1/'`
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Major version" >&5
+$as_echo_n "checking Major version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MAJOR_VERSION" >&5
+$as_echo "$YAP_MAJOR_VERSION" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Minor version" >&5
+$as_echo_n "checking Minor version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MINOR_VERSION" >&5
+$as_echo "$YAP_MINOR_VERSION" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Point version" >&5
+$as_echo_n "checking Point version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_POINT_VERSION" >&5
+$as_echo "$YAP_POINT_VERSION" >&6; }
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_STARTUP  "$yap_startup"
+_ACEOF
+
+
+yap_timestamp=`date`
+yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YAP_POINT_VERSION`
+yap_startup=startup.yss
+
+
+cat >>confdefs.h <<_ACEOF
+#define C_CC  "$CC"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define C_CFLAGS "$CFLAGS $YAP_EXTRAS $DEFS  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define C_LDFLAGS  "$LDFLAGS"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define C_LIBS  "$LIBS"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define C_LIBPLSO  "$LIBS $EXTRA_LIBS_FOR_DLLS"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define SO_EXT  "$SO"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define SO_PATH  "$YAPLIBDIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_ARCH  "$ARCH"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_BINDIR  "$prefix/bin"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_FULL_VERSION  "YAP $YAP_VERSION ($ARCH): $yap_timestamp"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_LIBDIR  "$prefix/lib/Yap"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_NUMERIC_VERSION  $yap_nversion
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_PL_SRCDIR  "$prefix/share/Yap/pl"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_ROOTDIR  "$prefix"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_SHAREDIR  "$prefix/share/Yap"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_TIMESTAMP  "$yap_timestamp"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_VERSION  "$YAP_VERSION"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define YAP_YAPLIB  "$YAPLIB"
+_ACEOF
 
 
 
