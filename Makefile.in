@@ -575,14 +575,13 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
-	$(INSTALL) Artistic $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) README $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) COPYING $(DESTDIR)$(DOCSDIR)
-	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
-	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
+	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
+	for f in $(PL_SOURCES); do $(INSTALL) $(srcdir)/$$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
+	for h in $(INTERFACE_HEADERS); do $(INSTALL) $(srcdir)/$$h $(DESTDIR)$(INCLUDEDIR); done
+	for h in $(HEADERS); do $(INSTALL) $(srcdir)/$$h $(DESTDIR)$(INCLUDEDIR)/src; done
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
-	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/src/parms.h
 	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
 	for p in $(PACKAGES); do \
 	  echo " ============== INSTALLING" $$p; \

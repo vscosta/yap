@@ -48,7 +48,7 @@ PROGRAMS= \
 
 all:
 
-install: $(PROGRAMS) examples-install
+install: $(PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/meld
 	$(INSTALL_DATA) $(srcdir)/meld.yap $(DESTDIR)$(SHAREDIR)/Yap
