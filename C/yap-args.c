@@ -144,7 +144,7 @@ dump_runtime_variables(void)
   fprintf(stdout,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
   fprintf(stdout,"YAP_LIBS=\"%s\"\n",C_LIBS);
   fprintf(stdout,"YAP_SHLIB_SUFFIX=\"%s\"\n",SO_EXT);
-  fprintf(stdout,"YAP_VERSION=%d\n",YAP_VERSION);
+  fprintf(stdout,"YAP_VERSION=%d\n",YAP_NUMERIC_VERSION);
   exit(0);
   return 1;
 }

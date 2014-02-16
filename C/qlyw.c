@@ -800,7 +800,7 @@ save_header(IOSTREAM *stream)
 {
   char     msg[256];
 
-  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_SVERSION);
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_FULL_VERSION);
   return save_bytes(stream, msg, strlen(msg)+1);
 }
 

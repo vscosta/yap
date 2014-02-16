@@ -344,7 +344,7 @@ put_info(int info, int mode USES_REGS)
 {
   char     msg[256];
 
-  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%cYAP-%s", YAP_BINDIR, 1, YAP_SVERSION);
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%cYAP-%s", YAP_BINDIR, 1, YAP_FULL_VERSION);
   if (mywrite(splfild, msg, strlen(msg) + 1))
     return -1;
   if (putout(Unsigned(info)) < 0)
@@ -677,7 +677,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     }
   } while (pp[0] != 1);
   /* now check the version */
-  sprintf(msg, "YAP-%s", YAP_SVERSION);
+  sprintf(msg, "YAP-%s", YAP_FULL_VERSION);
   {
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {

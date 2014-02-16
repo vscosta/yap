@@ -1193,7 +1193,7 @@ static void
 InitVersion(void)
 {
   Yap_PutValue(AtomVersionNumber,
-	       MkAtomTerm(Yap_LookupAtom(YAP_SVERSION)));
+	       MkAtomTerm(Yap_LookupAtom(YAP_FULL_VERSION)));
 }
 
 void
