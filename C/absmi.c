@@ -813,7 +813,7 @@ interrupt_fail( USES_REGS1 )
      better wait.
   */
   if (!LOCAL_ActiveSignals || 
-      LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) {
+      (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL))) {
     return FALSE;
   }
   S = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
@@ -1068,8 +1068,8 @@ interrupt_dexecute( USES_REGS1 )
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   PP = P->u.pp.p0;
-  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL &&
-      PP->ExtraPredFlags & NoDebugPredFlag) {
+  if ((LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) &&
+      (PP->ExtraPredFlags & NoDebugPredFlag)) {
     return 2;
   }
   /* set S for next instructions */
@@ -9322,6 +9322,7 @@ Yap_absmi(int inp)
 	  case (CELL)FunctorDouble:
 	    PREG = NEXTOP(PREG, xl);
 	    GONext();
+	    break;
 	  default:
 	    PREG = PREG->u.xl.F;
 	    GONext();
@@ -9363,10 +9364,12 @@ Yap_absmi(int inp)
 		GONext();
 	      }
 	    }
+	  break;
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorDouble:
 	    PREG = NEXTOP(PREG, yl);
 	    GONext();
+	    break;
 	  default:
 	    PREG = PREG->u.yl.F;
 	    GONext();
@@ -11860,6 +11863,7 @@ Yap_absmi(int inp)
 	    }
 	    PREG = PREG->u.l.l;
 	    GONext();
+	    break;
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 	    if (f1 != FunctorBigInt) {
@@ -11882,6 +11886,7 @@ Yap_absmi(int inp)
 	      PREG = NEXTOP(PREG, l);
 	      GONext();
 	    }
+	    break;
 	  default:
 	    PREG = PREG->u.l.l;
 	    GONext();
