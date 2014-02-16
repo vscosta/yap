@@ -63,7 +63,7 @@ MPI_CC=@MPI_CC@
 CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CFLAGS=  @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
-C_INTERF_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
+C_INTERF_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -Iinclude
 C_PARSER_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 #
 #
@@ -83,8 +83,8 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_INFO=@INSTALL_INFO@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
-M4GENHDRS=$(srcdir)/@M4GENHDRS@
-M4GENABSMI=$(srcdir)/@M4GENABSMI@
+M4GENHDRS=@M4GENHDRS@
+M4GENABSMI=@M4GENABSMI@
 INDENT=@INDENT@
 SHELL=@SHELL@
 RANLIB=@RANLIB@
@@ -99,241 +99,242 @@ TEXI2PDF=texi2pdf
 YAPLIB=@YAPLIB@
 SONAMEFLAG=@SONAMEFLAG@
 
-#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+VPATH=@srcdir@
 CWD=$(PWD)
 #
-VERSION=6.3.4
-MYDDAS_VERSION=MYDDAS-0.9.1
+VERSION=@YAP_VERSION@
+DOC_VERSION=@DOC_VERSION@
+MYDDAS_VERSION=@MYDDAS_VERSION@
 #
 
 INTERFACE_HEADERS = \
 	$(IOLIB_HEADERS) \
-	$(srcdir)/include/c_interface.h \
-	$(srcdir)/include/clause_list.h \
-	$(srcdir)/include/dswiatoms.h \
-	$(srcdir)/include/udi.h \
-	$(srcdir)/include/yap_structs.h \
-	$(srcdir)/include/YapInterface.h \
-	$(srcdir)/include/SWI-Prolog.h \
-	$(srcdir)/include/YapError.h \
-	$(srcdir)/H/TermExt.h \
-	$(srcdir)/H/YapTags.h \
-	$(srcdir)/H/Tags_32bits.h \
-	$(srcdir)/H/Tags_32Ops.h \
-	$(srcdir)/H/Tags_32LowTag.h \
-	$(srcdir)/H/Tags_64bits.h \
-	$(srcdir)/H/Tags_24bits.h \
-	$(srcdir)/H/YapCompoundTerm.h \
-	$(srcdir)/include/YapRegs.h \
-	$(srcdir)/H/YapTerm.h \
-	$(srcdir)/library/dialect/bprolog/fli/bprolog.h \
-	$(srcdir)/os/pl-thread.h \
-	$(srcdir)/os/SWI-Stream.h
+	include/c_interface.h \
+	include/clause_list.h \
+	include/dswiatoms.h \
+	include/udi.h \
+	include/yap_structs.h \
+	include/YapInterface.h \
+	include/SWI-Prolog.h \
+	include/YapError.h \
+	H/TermExt.h \
+	H/YapTags.h \
+	H/Tags_32bits.h \
+	H/Tags_32Ops.h \
+	H/Tags_32LowTag.h \
+	H/Tags_64bits.h \
+	H/Tags_24bits.h \
+	H/YapCompoundTerm.h \
+	include/YapRegs.h \
+	H/YapTerm.h \
+	library/dialect/bprolog/fli/bprolog.h \
+	os/pl-thread.h \
+	os/SWI-Stream.h
 
-IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
-	$(srcdir)/os/pl-ctype.h  \
-	$(srcdir)/H/pl-codelist.h \
-	$(srcdir)/os/pl-dtoa.h \
-	$(srcdir)/os/dtoa.c  \
-	$(srcdir)/H/pl-incl.h \
-	$(srcdir)/H/pl-global.h \
-	$(srcdir)/os/pl-option.h  \
-	$(srcdir)/os/pl-os.h \
-	$(srcdir)/os/pl-privitf.h \
-	$(srcdir)/os/pl-table.h \
-	$(srcdir)/os/pl-text.h \
-	$(srcdir)/os/pl-utf8.h \
-	$(srcdir)/H/pl-yap.h @WINDOWS@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/popen.c 
+IOLIB_HEADERS=os/pl-buffer.h \
+	os/pl-ctype.h  \
+	H/pl-codelist.h \
+	os/pl-dtoa.h \
+	os/dtoa.c  \
+	H/pl-incl.h \
+	H/pl-global.h \
+	os/pl-option.h  \
+	os/pl-os.h \
+	os/pl-privitf.h \
+	os/pl-table.h \
+	os/pl-text.h \
+	os/pl-utf8.h \
+	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c 
 
 HEADERS = \
-	$(srcdir)/H/Atoms.h \
-	$(srcdir)/H/sshift.h \
-	$(srcdir)/H/Yap.h \
-	$(srcdir)/H/Yatom.h \
-	$(srcdir)/H/YapHeap.h \
-	$(srcdir)/H/Regs.h \
-	$(srcdir)/H/Yapproto.h \
-	$(srcdir)/H/absmi.h  \
-	$(srcdir)/H/alloc.h \
-	$(srcdir)/H/amidefs.h \
-	$(srcdir)/H/amiops.h \
-	$(srcdir)/H/arrays.h \
-	$(srcdir)/H/arith2.h \
-	$(srcdir)/H/attvar.h \
-	$(srcdir)/H/clause.h \
-	$(srcdir)/H/compile.h \
-	$(srcdir)/H/corout.h \
-	$(srcdir)/H/dlmalloc.h \
-	$(srcdir)/H/dglobals.h \
-	$(srcdir)/H/dlocals.h \
-	$(srcdir)/H/dhstruct.h \
-	$(srcdir)/H/eval.h \
-	$(srcdir)/H/heapgc.h   \
-	$(srcdir)/H/hglobals.h \
-	$(srcdir)/H/hlocals.h \
-	$(srcdir)/H/hstruct.h \
-	$(srcdir)/H/iglobals.h \
-	$(srcdir)/H/ihstruct.h \
-	$(srcdir)/H/ilocals.h \
-	$(srcdir)/H/index.h \
-	$(srcdir)/H/inline-only.h \
-	$(srcdir)/H/iopreds.h \
-	$(srcdir)/H/iswiatoms.h \
-	$(srcdir)/H/qly.h \
-	$(srcdir)/H/rclause.h \
-	$(srcdir)/H/rglobals.h \
-	$(srcdir)/H/rlocals.h \
-	$(srcdir)/H/rheap.h \
-	$(srcdir)/H/rhstruct.h \
-	$(srcdir)/H/threads.h \
-	$(srcdir)/H/tracer.h \
-	$(srcdir)/H/trim_trail.h \
-	$(srcdir)/H/yapio.h \
-	$(srcdir)/H/YapText.h \
-	$(srcdir)/H/cut_c.h \
-	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
-	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
-	$(srcdir)/OPTYap/opt.config.h \
-	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
-	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \
-	$(srcdir)/OPTYap/or.sba_amiops.h $(srcdir)/OPTYap/or.sba_unify.h \
-	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/locks_x86.h \
-	$(srcdir)/OPTYap/locks_sparc.h $(srcdir)/OPTYap/locks_mips.h \
-	$(srcdir)/OPTYap/locks_mips_funcs.h $(srcdir)/OPTYap/locks_alpha.h \
-	$(srcdir)/OPTYap/locks_alpha_funcs.h \
-	$(srcdir)/OPTYap/locks_pthread.h \
-	$(srcdir)/library/dialect/swi/fli/swi.h
+	H/Atoms.h \
+	H/sshift.h \
+	H/Yap.h \
+	H/Yatom.h \
+	H/YapHeap.h \
+	H/Regs.h \
+	H/Yapproto.h \
+	H/absmi.h  \
+	H/alloc.h \
+	H/amidefs.h \
+	H/amiops.h \
+	H/arrays.h \
+	H/arith2.h \
+	H/attvar.h \
+	H/clause.h \
+	H/compile.h \
+	H/corout.h \
+	H/dlmalloc.h \
+	H/dglobals.h \
+	H/dlocals.h \
+	H/dhstruct.h \
+	H/eval.h \
+	H/heapgc.h   \
+	H/hglobals.h \
+	H/hlocals.h \
+	H/hstruct.h \
+	H/iglobals.h \
+	H/ihstruct.h \
+	H/ilocals.h \
+	H/index.h \
+	H/inline-only.h \
+	H/iopreds.h \
+	H/iswiatoms.h \
+	H/qly.h \
+	H/rclause.h \
+	H/rglobals.h \
+	H/rlocals.h \
+	H/rheap.h \
+	H/rhstruct.h \
+	H/threads.h \
+	H/tracer.h \
+	H/trim_trail.h \
+	H/yapio.h \
+	H/YapText.h \
+	H/cut_c.h \
+	H/iatoms.h H/ratoms.h H/tatoms.h \
+	BEAM/eam.h BEAM/eamamasm.h \
+	OPTYap/opt.config.h \
+	OPTYap/opt.proto.h OPTYap/opt.structs.h \
+	OPTYap/opt.macros.h OPTYap/or.macros.h \
+	OPTYap/or.sba_amiops.h OPTYap/or.sba_unify.h \
+	OPTYap/tab.structs.h OPTYap/locks_x86.h \
+	OPTYap/locks_sparc.h OPTYap/locks_mips.h \
+	OPTYap/locks_mips_funcs.h OPTYap/locks_alpha.h \
+	OPTYap/locks_alpha_funcs.h \
+	OPTYap/locks_pthread.h \
+	library/dialect/swi/fli/swi.h
 
-IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
-	$(srcdir)/os/pl-codelist.c \
-	$(srcdir)/os/pl-dtoa.c  \
-	$(srcdir)/os/pl-error.c  \
-	$(srcdir)/os/pl-file.c \
-	$(srcdir)/os/pl-files.c  \
-	$(srcdir)/os/pl-fmt.c  \
-	$(srcdir)/os/pl-locale.h \
-	$(srcdir)/os/pl-glob.c  \
-	$(srcdir)/os/pl-option.c  \
-	$(srcdir)/os/pl-os.c \
-	$(srcdir)/os/pl-prologflag.c \
-	$(srcdir)/os/pl-privitf.c \
-	$(srcdir)/os/pl-read.c \
-	$(srcdir)/os/pl-rl.c  \
-	$(srcdir)/os/pl-stream.c $(srcdir)/os/pl-string.c \
-	$(srcdir)/os/pl-table.c \
-	$(srcdir)/os/pl-tai.c  \
-	$(srcdir)/os/pl-text.c \
-	$(srcdir)/os/pl-version.c \
-	$(srcdir)/os/pl-write.c \
-	$(srcdir)/C/pl-yap.c @WINDOWS@$(srcdir)/os/windows/uxnt.c
+IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
+	os/pl-codelist.c \
+	os/pl-dtoa.c  \
+	os/pl-error.c  \
+	os/pl-file.c \
+	os/pl-files.c  \
+	os/pl-fmt.c  \
+	os/pl-locale.h \
+	os/pl-glob.c  \
+	os/pl-option.c  \
+	os/pl-os.c \
+	os/pl-prologflag.c \
+	os/pl-privitf.c \
+	os/pl-read.c \
+	os/pl-rl.c  \
+	os/pl-stream.c os/pl-string.c \
+	os/pl-table.c \
+	os/pl-tai.c  \
+	os/pl-text.c \
+	os/pl-version.c \
+	os/pl-write.c \
+	C/pl-yap.c @WINDOWS@os/windows/uxnt.c
 
 C_SOURCES= \
 	$(IOLIB_SOURCES) \
-	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
-	$(srcdir)/C/agc.c $(srcdir)/C/alloc.c \
-	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
-	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
-	$(srcdir)/C/atomic.c \
-	$(srcdir)/C/arrays.c \
-	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
-	$(srcdir)/C/bignum.c \
-	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
-	$(srcdir)/C/clause_list.c \
-	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
-	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/dlmalloc.c \
-	$(srcdir)/C/errors.c \
-	$(srcdir)/C/eval.c $(srcdir)/C/exec.c \
-	$(srcdir)/C/exo.c \
-	$(srcdir)/C/exo_udi.c \
-	$(srcdir)/C/globals.c $(srcdir)/C/gmp_support.c \
-	$(srcdir)/C/gprof.c $(srcdir)/C/grow.c \
-	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c	   \
-	$(srcdir)/C/init.c $(srcdir)/C/inlines.c	   \
-	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c \
-	$(srcdir)/C/load_foreign.c \
-	$(srcdir)/C/load_dl.c $(srcdir)/C/load_dld.c $(srcdir)/C/load_none.c \
-	$(srcdir)/C/load_aout.c $(srcdir)/C/load_aix.c $(srcdir)/C/load_dll.c \
-	$(srcdir)/C/load_shl.c $(srcdir)/C/load_dyld.c \
-	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
-	$(srcdir)/C/parser.c \
-	$(srcdir)/C/qlyr.c \
-	$(srcdir)/C/qlyw.c \
-	$(srcdir)/C/range.c \
-	$(srcdir)/C/save.c $(srcdir)/C/scanner.c $(srcdir)/C/signals.c \
-	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
-	$(srcdir)/C/text.c \
-	$(srcdir)/C/threads.c \
-	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
-	$(srcdir)/C/udi.c \
-	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
-	$(srcdir)/C/yap-args.c \
-	$(srcdir)/C/ypstdio.c \
-	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
-	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
-	$(srcdir)/BEAM/eam_gc.c $(srcdir)/BEAM/eam_split.c \
-	$(srcdir)/OPTYap/or.memory.c $(srcdir)/OPTYap/opt.init.c \
-	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.copy_engine.c \
-	$(srcdir)/OPTYap/or.cow_engine.c $(srcdir)/OPTYap/or.sba_engine.c \
-	$(srcdir)/OPTYap/or.thread_engine.c \
-	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
-	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.completion.c \
-	# $(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
-	# $(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
-	$(srcdir)/C/cut_c.c \
-	$(srcdir)/library/dialect/swi/fli/swi.c \
-	$(srcdir)/library/dialect/swi/fli/blobs.c
+	C/absmi.c C/adtdefs.c \
+	C/agc.c C/alloc.c \
+	C/amasm.c C/analyst.c \
+	C/arith0.c C/arith1.c C/arith2.c \
+	C/atomic.c \
+	C/arrays.c \
+	C/attvar.c C/bb.c \
+	C/bignum.c \
+	C/c_interface.c C/cdmgr.c C/cmppreds.c \
+	C/clause_list.c \
+	C/compiler.c C/computils.c \
+	C/corout.c C/dbase.c C/dlmalloc.c \
+	C/errors.c \
+	C/eval.c C/exec.c \
+	C/exo.c \
+	C/exo_udi.c \
+	C/globals.c C/gmp_support.c \
+	C/gprof.c C/grow.c \
+	C/heapgc.c C/index.c	   \
+	C/init.c C/inlines.c	   \
+	C/iopreds.c C/depth_bound.c \
+	C/load_foreign.c \
+	C/load_dl.c C/load_dld.c C/load_none.c \
+	C/load_aout.c C/load_aix.c C/load_dll.c \
+	C/load_shl.c C/load_dyld.c \
+	C/mavar.c C/modules.c C/other.c       \
+	C/parser.c \
+	C/qlyr.c \
+	C/qlyw.c \
+	C/range.c \
+	C/save.c C/scanner.c C/signals.c \
+	C/sort.c C/stdpreds.c C/sysbits.c \
+	C/text.c \
+	C/threads.c \
+	C/tracer.c C/unify.c C/userpreds.c  \
+	C/udi.c \
+	C/utilpreds.c C/write.c console/yap.c \
+	C/yap-args.c \
+	C/ypstdio.c \
+	BEAM/eam_am.c BEAM/eam_showcode.c \
+	BEAM/eamindex.c BEAM/eamamasm.c \
+	BEAM/eam_gc.c BEAM/eam_split.c \
+	OPTYap/or.memory.c OPTYap/opt.init.c \
+	OPTYap/opt.preds.c OPTYap/or.copy_engine.c \
+	OPTYap/or.cow_engine.c OPTYap/or.sba_engine.c \
+	OPTYap/or.thread_engine.c \
+	OPTYap/or.scheduler.c OPTYap/or.cut.c \
+	OPTYap/tab.tries.c OPTYap/tab.completion.c \
+	# library/mpi/mpi.c library/mpi/mpe.c \
+	# library/lammpi/yap_mpi.c library/lammpi/hash.c library/lammpi/prologterms2c.c  \
+	C/cut_c.c \
+	library/dialect/swi/fli/swi.c \
+	library/dialect/swi/fli/blobs.c
 
 PLCONS_SOURCES = \
-	$(srcdir)/console/LGPL/pl-nt.c \
-	$(srcdir)/console/LGPL/pl-ntcon.c \
-	$(srcdir)/console/LGPL/pl-ntconsole.c \
-	$(srcdir)/console/LGPL/pl-ntmain.c
+	console/LGPL/pl-nt.c \
+	console/LGPL/pl-ntcon.c \
+	console/LGPL/pl-ntconsole.c \
+	console/LGPL/pl-ntmain.c
 
 PL_SOURCES= \
-	$(srcdir)/pl/arith.yap \
-	$(srcdir)/pl/arrays.yap \
-	$(srcdir)/pl/attributes.yap \
-	$(srcdir)/pl/boot.yap \
-	$(srcdir)/pl/callcount.yap\
-	$(srcdir)/pl/checker.yap $(srcdir)/pl/chtypes.yap \
-	$(srcdir)/pl/consult.yap \
-	$(srcdir)/pl/control.yap \
-	$(srcdir)/pl/corout.yap $(srcdir)/pl/debug.yap \
-	$(srcdir)/pl/dbload.yap \
-	$(srcdir)/pl/depth_bound.yap \
-	$(srcdir)/pl/dialect.yap \
-	$(srcdir)/pl/directives.yap \
-	$(srcdir)/pl/eam.yap \
-	$(srcdir)/pl/eval.yap \
-	$(srcdir)/pl/errors.yap	\
-	$(srcdir)/pl/flags.yap	\
-	$(srcdir)/pl/grammar.yap \
-	$(srcdir)/pl/ground.yap \
-	$(srcdir)/pl/hacks.yap \
-	$(srcdir)/pl/init.yap \
-	$(srcdir)/pl/listing.yap \
-	$(srcdir)/pl/lists.yap \
-	$(srcdir)/pl/messages.yap \
-	$(srcdir)/pl/load_foreign.yap \
-	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
-	$(srcdir)/pl/profile.yap \
-	$(srcdir)/pl/protect.yap \
-	$(srcdir)/pl/qly.yap \
-	$(srcdir)/pl/save.yap \
-	$(srcdir)/pl/setof.yap \
-	$(srcdir)/pl/signals.yap \
-	$(srcdir)/pl/sort.yap \
-	$(srcdir)/pl/statistics.yap \
-	$(srcdir)/pl/strict_iso.yap \
-	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
-	$(srcdir)/pl/udi.yap \
-	$(srcdir)/pl/utils.yap \
-	$(srcdir)/pl/history.pl \
-	$(srcdir)/pl/swi.yap \
-	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
+	pl/arith.yap \
+	pl/arrays.yap \
+	pl/attributes.yap \
+	pl/boot.yap \
+	pl/callcount.yap\
+	pl/checker.yap pl/chtypes.yap \
+	pl/consult.yap \
+	pl/control.yap \
+	pl/corout.yap pl/debug.yap \
+	pl/dbload.yap \
+	pl/depth_bound.yap \
+	pl/dialect.yap \
+	pl/directives.yap \
+	pl/eam.yap \
+	pl/eval.yap \
+	pl/errors.yap	\
+	pl/flags.yap	\
+	pl/grammar.yap \
+	pl/ground.yap \
+	pl/hacks.yap \
+	pl/init.yap \
+	pl/listing.yap \
+	pl/lists.yap \
+	pl/messages.yap \
+	pl/load_foreign.yap \
+	pl/modules.yap pl/preds.yap \
+	pl/profile.yap \
+	pl/protect.yap \
+	pl/qly.yap \
+	pl/save.yap \
+	pl/setof.yap \
+	pl/signals.yap \
+	pl/sort.yap \
+	pl/statistics.yap \
+	pl/strict_iso.yap \
+	pl/tabling.yap pl/threads.yap \
+	pl/udi.yap \
+	pl/utils.yap \
+	pl/history.pl \
+	pl/swi.yap \
+	pl/yapor.yap pl/yio.yap
 
-YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
-	$(srcdir)/docs/clpr.tex $(srcdir)/docs/swi.tex
+YAPDOCS=docs/yap.tex docs/chr.tex \
+	docs/clpr.tex docs/swi.tex
 
 IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-file.o pl-files.o pl-fmt.o \
@@ -402,116 +403,91 @@ PLCONS_OBJECTS = \
 	pl-ntconsole.o \
 	pl-ntmain.o
 
-all: parms.h startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
+all: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
 
-Makefile: $(srcdir)/Makefile.in
+Makefile: Makefile.in
 
-$(srcdir)/H/Yap.h: config.h YapTermConfig.h \
-		$(srcdir)/H/YapTags.h \
-		$(srcdir)/H/YapCompoundTerm.h
-
-config.h:	parms.h
-
-parms.h:	Makefile
-		@echo "#define YAP_ROOTDIR       \"$(prefix)\""   > $@%
-		@echo "#define YAP_BINDIR	    \"$(BINDIR)\""   >> $@%
-		@echo "#define YAP_LIBDIR	    \"$(YAPLIBDIR)\""   >> $@%
-		@echo "#define YAP_SHAREDIR	    \"$(SHAREDIR)\""   >> $@%
-		@echo "#define YAP_PL_SRCDIR	    \"$(SHAREDIR)/Yap/pl\""   >> $@%
-		@echo "#define YAP_STARTUP   \"$(YAPSTARTUP)\"" >> $@%
-		@echo $(VERSION) | $(AWK) -F. '{ printf("#define YAP_VERSION %d\n", $$1 * 10000 + $$2 * 100 + $$3); }' >> $@%
-		@echo "#define MYDDAS_VERSION	    \"$(MYDDAS_VERSION)\""       >> $@%
-		@echo "#define YAP_ARCH	    \"$(ARCH)\""       >> $@%
-		@echo "#define C_LIBS	    \"$(LIBS)\""     >> $@%
-		@echo "#define C_LIBPLSO	    \"$(DLL_LIBS)\""     >> $@%
-		@echo "#define YAP_YAPLIB	    \"$(YAPLIB)\""   >> $@%
-		@echo "#define C_CC	    \"$(CC)\""	       >> $@%
-		@echo "#define C_CFLAGS	    \"$(CFLAGS)\"" >> $@%
-		@echo "#define C_LDFLAGS    \"$(LDFLAGS)\""    >> $@%
-		@echo "#define SO_EXT     \"$(SO)\""    >> $@%
-		@echo "#define SO_PATH    \"$(YAPLIBDIR)\""    >> $@%
-		@echo "#define YAP_TIMESTAMP \"`date +%s`\"" >> $@%
-		@echo "#define YAP_SVERSION   \"YAP $(VERSION) ($(ARCH)): `date`\"" >> $@%
-		@if cmp -s $@% $@; then rm $@%; else mv $@% $@; fi
-
+H/Yap.h: config.h YapTermConfig.h \
+		H/YapTags.h \
+		H/YapCompoundTerm.h
 
 $(OBJECTS): config.h
 
-yap.o: $(srcdir)/console/yap.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@
+yap.o: console/yap.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $< -o $@
 
 #special rule for this one: we cannot use -fomit-frame-pointer because this will
 # interface with the outside world.
-c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h config.h
-	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/c_interface.c -o c_interface.o
+c_interface.o: C/c_interface.c include/c_interface.h config.h
+	$(CC) $(C_INTERF_FLAGS) -c $< -o c_interface.o
 
-yap-argss.o: $(srcdir)/C/yap-args.c $(srcdir)/include/c_interface.h config.h
-	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/yap-args.c -o yap-args.o
+yap-argss.o: C/yap-args.c include/c_interface.h config.h
+	$(CC) $(C_INTERF_FLAGS) -c $< -o yap-args.o
 
-clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h config.h
-	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
+clause_list.o: C/clause_list.c include/clause_list.h config.h
+	$(CC) $(C_INTERF_FLAGS) -c $< -o clause_list.o
 
-udi.o: $(srcdir)/C/udi.c config.h
-	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
+udi.o: C/udi.c config.h
+	$(CC) -c $(C_INTERF_FLAGS) $< -o $@
 
-%.o: $(srcdir)/C/%.c config.h
+%.o: C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-%.o: $(srcdir)/OPTYap/%.c config.h
+%.o: OPTYap/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-%.o: $(srcdir)/BEAM/%.c config.h
+%.o: BEAM/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-sys.o: $(srcdir)/library/system/sys.c config.h
-	$(CC) -c $(CFPLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
+sys.o: library/system/sys.c config.h
+	$(CC) -c $(CFPLAGS) -I$(srcdir)/include $<  -o $@
 
-yap_random.o: $(srcdir)/library/random/yap_random.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/yap_random.c  -o $@
+yap_random.o: library/random/yap_random.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $<  -o $@
 
-%.o: $(srcdir)/library/regex/%.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $< -o $@
+%.o: library/regex/%.c  @NO_BUILTIN_REGEXP@ library/regex/regex2.h  library/regex/engine.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -Ilibrary/regex $< -o $@
 
-swi.o: $(srcdir)/library/dialect/swi/fli/swi.c  $(srcdir)/library/dialect/swi/fli/swi.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/os/SWI-Stream.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/swi.c  -o $@
+swi.o: library/dialect/swi/fli/swi.c  library/dialect/swi/fli/swi.h include/SWI-Prolog.h os/SWI-Stream.h config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -Ilibrary/dialect/swi/fli  $<  -o $@
 
-blobs.o: $(srcdir)/library/dialect/swi/fli/blobs.c  $(srcdir)/library/dialect/swi/fli/swi.h  $(srcdir)/include/SWI-Prolog.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/blobs.c  -o $@
+blobs.o: library/dialect/swi/fli/blobs.c  library/dialect/swi/fli/swi.h  include/SWI-Prolog.h config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $<  -o $@
 
-%.o: $(srcdir)/os/%.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
+%.o: os/%.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
 
-pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
-	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
+pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
 
-pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
-	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
+pl-ntconsole.o: console/LGPL/pl-ntconsole.c config.h
+	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
-pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
-	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
+pl-ntmain.o: console/LGPL/pl-ntmain.c config.h
+	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
-uxnt.o: $(srcdir)/os/windows/uxnt.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/windows/uxnt.c -o $@
+uxnt.o: os/windows/uxnt.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
 # libtai rule
-%.o : $(srcdir)/os/libtai/%.c config.h
+%.o : os/libtai/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
 ## CPP'ed files (for macro debugging)
 
-%.i : $(srcdir)/C/%.c
+%.i : C/%.c
 	$(CC) -E $< $(CFLAGS) > $@
 
-absmi.i: $(srcdir)/C/absmi.c
-	$(CC) -E $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c > $@
+absmi.i: C/absmi.c
+	$(CC) -E $(CFLAGS) $(ABSMI_FLAGS) C/absmi.c > $@
 
-c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
-	$(CC) -E $(C_INTERF_FLAGS) $(srcdir)/C/c_interface.c > $@
+c_interface.i: C/c_interface.c include/c_interface.h
+	$(CC) -E $(C_INTERF_FLAGS) C/c_interface.c > $@
 #
 
-mycb: $(srcdir)/mycb.c
-	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
+mycb: mycb.c
+	$(CC) $(CFLAGS) mycb.c -o mycb
 
 INSTALLED_PACKAGES= \
 	library/matrix \
@@ -599,9 +575,9 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
-	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
@@ -630,7 +606,7 @@ depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
 	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(C_SOURCES) >> Makefile;\
 	else\
-          makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
+          makedepend -f - -- $(CFLAGS) -Iinclude -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
 	fi
 
@@ -654,7 +630,7 @@ dist:
 
 # use my own .def file.
 libWYap.a: yap.dll
-	dlltool --def $(srcdir)/misc/yap.def \
+	dlltool --def misc/yap.def \
 	--dllname yap.dll \
 	--output-lib libWYap.a
 
@@ -676,7 +652,7 @@ install_info:
 	  fi \
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" yap.info $(DESTDIR)$(INFODIR)/dir; \
-	cd $(srcdir)/LGPL/pillow/doc ; \
+	cd LGPL/pillow/doc ; \
 	$(INSTALL) pillow_doc.info $(DESTDIR)$(INFODIR); \
 	if test -e $(DESTDIR)$(INFODIR)/emacs.bz2; then \
 	  bzip2 --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
@@ -692,39 +668,39 @@ install_docs:
 	$(MAKE) html
 	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/changes4.3.html $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/changes-5.0.html $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/changes-5.1.html $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) $(srcdir)/changes-6.0.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) COPYING $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) changes4.3.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) changes-5.0.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) changes-5.1.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) changes-6.0.html $(DESTDIR)$(DOCSDIR)
 
 
 info: yap.info
 
 yap.info: $(YAPDOCS)
-	$(MAKEINFO)  $(srcdir)/docs/yap.tex
+	$(MAKEINFO)  docs/yap.tex
 
 html: yap.html
 
-yap.html: $(srcdir)/docs/yap.tex
-	$(TEXI2HTML) $(srcdir)/docs/yap.tex
+yap.html: docs/yap.tex
+	$(TEXI2HTML) docs/yap.tex
 
 dvi: yap.dvi
 
 yap.dvi: $(YAPDOCS)
-	$(TEXI2DVI) $(srcdir)/docs/yap.tex
+	$(TEXI2DVI) docs/yap.tex
 
 ps:	yap.ps
 
 yap.ps:  $(YAPDOCS)
-	dvips -o yap.ps $(srcdir)/docs/yap
+	dvips -o yap.ps docs/yap
 
 pdf: yap.pdf
 
 yap.pdf:  $(YAPDOCS)
-	$(TEXI2PDF) $(srcdir)/docs/yap.tex
+	$(TEXI2PDF) docs/yap.tex
 
 clean_docs:
 	rm -f *.aux *.ca *.cas *.cn *.cns *.cp *.cps *.cy *.cys *.dvi *.fn *.fns *.ky *.log *.sa *.sas *.sn *.sns *.sy *.sys *~ *.tp *.vr *.toc *.pg
