@@ -157,13 +157,13 @@ true :- true.
 			(print_message(error, E),
 	                 '$handle_toplevel_error'(Line, E))),
 	(   
-	    current_predicate(_, user:rl_add_history(_))
+	    '$pred_exists'(rl_add_history(_), user)
 	-> 
 	    format(atom(CompleteLine), '~W~W',
 		   [ Line, [partial(true)],
 		     '.', [partial(true)]
 		   ]),
-	    call(user:rl_add_history(CompleteLine))
+	    user:rl_add_history(CompleteLine)
 	;   
 	    true
 	),
@@ -751,11 +751,11 @@ incore(G) :- '$execute'(G).
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	 ( '$$save_by'(CP1),
+	 ( '$$save_by'(CP),
 	 '$enable_debugging',
 	 '$call'(G, CP, M:G, M),
 	 '$$save_by'(CP2),
-	 (CP1 == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
+	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
 	 '$disable_debugging'
      ;
 	'$disable_debugging',
