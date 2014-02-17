@@ -9952,6 +9952,7 @@ esac
   mkdir -p packages/clib/maildrop/rfc822;
   mkdir -p packages/clib/maildrop/rfc2045;
   MIME_DIR=`dirname "$srcdir"/packages/clib/maildrop`
+  MIME_DIR=`cd $MIME_DIR && pwd`
   ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc822/configure --host=$host)
   ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc2045/configure --host=$host))
 
@@ -11826,7 +11827,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11829 "configure" */
+/* #line 11830 "configure" */
 public class Test {
 }
 EOF
@@ -12002,7 +12003,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12005: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12006: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12133,7 +12134,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12136 "configure" */
+/* #line 12137 "configure" */
 public class Test {
 }
 EOF
@@ -12168,7 +12169,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12171 "configure" */
+/* [#]line 12172 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12926,7 +12927,6 @@ _ACEOF
 fi
 
 done
-
 
 
 
