@@ -47,7 +47,7 @@ typedef struct StructClauseDef {
     yamop *WorkPC;		/* start of code for clause */
     Term   t_ptr;
     CELL  *c_sreg;
-  } u;
+  } ucd;
 } ClauseDef;
 
 
@@ -70,7 +70,7 @@ typedef struct {
   union {
     UInt  Label;
     yamop *labp;
-  } u;
+  } u_a;
 } AtomSwiEntry;
 
 /* switch_on_func */
@@ -79,7 +79,7 @@ typedef struct {
   union {
     UInt  Label;
     yamop *labp;
-  } u;
+  } u_f;
 } FuncSwiEntry;
 
 /* switch_on_type */
@@ -116,7 +116,7 @@ typedef struct {
       ClauseUnion *block;
       yamop **entry_code;
     } cle;
-  } u;
+  } uip;
 } path_stack_entry;
 
 #define MAX_ISTACK_DEPTH 32

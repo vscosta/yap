@@ -36,8 +36,6 @@
 
 //void do_write(void) { exo_write=TRUE;}
 
-#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
-
 #define MAX_ARITY 256
 
 #define FNV32_PRIME ((UInt)16777619)

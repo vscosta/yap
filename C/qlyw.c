@@ -194,7 +194,7 @@ GrowPredTable(void) {
     }
     newp->val = p->val;
     newp->arity = p->arity;
-    newp->u.f = p->u.f;
+    newp->u_af.f = p->u_af.f;
     newp->module = p->module;
   }
   LOCAL_ExportPredEntryHashChain = newt;
@@ -223,23 +223,23 @@ LookupPredEntry(PredEntry *pe)
   p->val = pe;
   if (pe->ModuleOfPred != IDB_MODULE) {
     if (arity) {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
       LookupFunctor(pe->FunctorOfPred);
     } else {
-      p->u.a = (Atom)(pe->FunctorOfPred);
+      p->u_af.a = (Atom)(pe->FunctorOfPred);
       LookupAtom((Atom)(pe->FunctorOfPred));
     }
   } else {
     if (pe->PredFlags & AtomDBPredFlag) {
-      p->u.a = (Atom)(pe->FunctorOfPred);
+      p->u_af.a = (Atom)(pe->FunctorOfPred);
       p->arity = (CELL)(-2);
       LookupAtom((Atom)(pe->FunctorOfPred));
     } else if (!(pe->PredFlags & NumberDBPredFlag)) {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
       p->arity = (CELL)(-1);
       LookupFunctor(pe->FunctorOfPred);
     } else {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
     }
   }
   if (pe->ModuleOfPred) {
@@ -604,7 +604,7 @@ SaveHash(IOSTREAM *stream)
     CHECK(save_uint(stream, (UInt)(p->val)));
     CHECK(save_uint(stream, p->arity));
     CHECK(save_uint(stream, (UInt)p->module));
-    CHECK(save_uint(stream, (UInt)p->u.f));
+    CHECK(save_uint(stream, (UInt)p->u_af.f));
   }
   save_tag(stream, QLY_START_DBREFS);
   save_uint(stream, LOCAL_ExportDBRefHashTableNum);

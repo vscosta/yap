@@ -522,7 +522,6 @@ static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
-#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
 #define IN_BLOCK(P,B,SZ)     ((CODEADDR)(P) >= (CODEADDR)(B) && \
 			      (CODEADDR)(P) < (CODEADDR)(B)+(SZ))

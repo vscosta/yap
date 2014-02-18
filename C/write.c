@@ -66,7 +66,7 @@ typedef  struct  rewind_term {
   union {
     struct union_slots s;
     struct union_direct d;
-  } u;
+  } u_sd;
 } rwts;
 
 typedef struct write_globs {
@@ -687,23 +687,23 @@ from_pointer(CELL *ptr0, struct rewind_term *rwt, struct write_globs *wglb)
   if (wglb->Keep_terms) {
     struct rewind_term *x = rwt->parent;
 
-    rwt->u.s.old = Yap_InitSlot(t PASS_REGS);
-    rwt->u.s.ptr = Yap_InitSlot((CELL)ptr0 PASS_REGS);
+    rwt->u_sd.s.old = Yap_InitSlot(t PASS_REGS);
+    rwt->u_sd.s.ptr = Yap_InitSlot((CELL)ptr0 PASS_REGS);
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
-	if (Yap_GetDerefedFromSlot(x->u.s.old PASS_REGS) == t)
+	if (Yap_GetDerefedFromSlot(x->u_sd.s.old PASS_REGS) == t)
 	  return TermFoundVar;
 	x = x->parent;
       }
     }
   } else {
-    rwt->u.d.old = t;
-    rwt->u.d.ptr = ptr0;
+    rwt->u_sd.d.old = t;
+    rwt->u_sd.d.ptr = ptr0;
     if ( !IsVarTerm(t) && !IsAtomicTerm(t)) {
       struct rewind_term *x = rwt->parent;
       
       while (x) {
-	if (x->u.d.old == t)
+	if (x->u_sd.d.old == t)
 	  return TermFoundVar;
 	x = x->parent;
       }
@@ -719,12 +719,12 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
   CELL *ptr;
 
   if (wglb->Keep_terms) {
-    ptr = (CELL*)Yap_GetPtrFromSlot(rwt->u.s.ptr PASS_REGS);
+    ptr = (CELL*)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
     Yap_RecoverSlots(2 PASS_REGS);
   } else {
-    ptr = rwt->u.d.ptr;
+    ptr = rwt->u_sd.d.ptr;
   }
-  rwt->u.s.ptr = 0;
+  rwt->u_sd.s.ptr = 0;
   return ptr;
 }
 
@@ -745,7 +745,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
       exts ext = ExtFromCell(t);
       struct rewind_term nrwt;
       nrwt.parent = rwt;
-      nrwt.u.s.ptr = 0;
+      nrwt.u_sd.s.ptr = 0;
 
       wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
@@ -779,13 +779,13 @@ check_infinite_loop(Term t, struct rewind_term *x, struct write_globs *wglb)
   CACHE_REGS
   if (wglb->Keep_terms) {
     while (x) {
-      if (Yap_GetFromSlot(x->u.s.old PASS_REGS) == t)
+      if (Yap_GetFromSlot(x->u_sd.s.old PASS_REGS) == t)
 	return TermFoundVar;
       x = x->parent;
     }
   } else {
     while (x) {
-      if (x->u.d.old == t)
+      if (x->u_sd.d.old == t)
 	return TermFoundVar;
 	x = x->parent;
     }
@@ -799,7 +799,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   Term ti;
   struct rewind_term nrwt;
   nrwt.parent = rwt;
-  nrwt.u.s.ptr = 0;
+  nrwt.u_sd.s.ptr = 0;
 
   while (1) {
     int ndirection;
@@ -868,7 +868,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   CACHE_REGS
   struct rewind_term nrwt;
   nrwt.parent = rwt;
-  nrwt.u.s.ptr = 0;
+  nrwt.u_sd.s.ptr = 0;
 
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);

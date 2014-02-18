@@ -547,12 +547,12 @@ dump_action(logical, _, _, L) :-
 	    CELL *pt = RepAppl(t);
 
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    clause->u.c_sreg = pt;
+	    clause->ucd.c_sreg = pt;
 	  } else if (IsPairTerm(t)) {
 	    CELL *pt = RepPair(t);
 
 	    clause->Tag = AbsPair(NULL);
-	    clause->u.c_sreg = pt-1;
+	    clause->ucd.c_sreg = pt-1;
 	  } else {
 	    clause->Tag = t;
 	  }
@@ -570,20 +570,20 @@ check_atom_dbref(Constant, What, ExtraAction) :-
 	format_to_chars("if (IsApplTerm(~s)) {
           CELL *pt = RepAppl(~s);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = ~s;
+	  clause->ucd.t_ptr = ~s;
 	} else
 	  ",[What,What,What], ExtraAction).	
 check_atom_dbref(_, _, "").
 
 handle_bind_extra([], _, "").
 handle_bind_extra(t_ptr=[], _,S) :- !,
-	format_to_chars("~n	clause->u.t_ptr = (CELL)NULL;",[],S).
+	format_to_chars("~n	clause->ucd.t_ptr = (CELL)NULL;",[],S).
 handle_bind_extra(t_ptr=F, Type, S) :-
-	format_to_chars("~n	clause->u.t_ptr = AbsAppl(cl->u.~s.~s);",[Type,F],S).
+	format_to_chars("~n	clause->ucd.t_ptr = AbsAppl(cl->u.~s.~s);",[Type,F],S).
 handle_bind_extra(workpc=nextop, T,S) :-
-	format_to_chars("~n	clause->u.WorkPC = NEXTOP(cl,~s);",[T],S).
+	format_to_chars("~n	clause->ucd.WorkPC = NEXTOP(cl,~s);",[T],S).
 handle_bind_extra(workpc=currentop, _,S) :-
-	format_to_chars("~n	clause->u.WorkPC = cl;",[],S).
+	format_to_chars("~n	clause->ucd.WorkPC = cl;",[],S).
 
 handle_constant(What, T, Const) :-
 	What = [C|_],
@@ -697,15 +697,15 @@ dump_head_action(logical, _, _, L) :-
 	
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
 	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
-	      clause->u.t_ptr = t;
+	      clause->ucd.t_ptr = t;
 	    } else {
-	      clause->u.c_sreg = pt;
+	      clause->ucd.c_sreg = pt;
 	    }
 	  } else if (IsPairTerm(t)) {
 	    CELL *pt = RepPair(t);
 
 	    clause->Tag = AbsPair(NULL);
-	    clause->u.c_sreg = pt-1;
+	    clause->ucd.c_sreg = pt-1;
 	  } else {
 	    clause->Tag = t;
 	  }

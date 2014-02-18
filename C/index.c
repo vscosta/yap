@@ -596,7 +596,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	int cases = cpc->rnd1, i;
 
 	for (i = 0; i < cases; i++) {
-	  sz = cleanup_sw_on_clauses(target[i].u.Label, sz, ecls);
+	  sz = cleanup_sw_on_clauses(target[i].u_a.Label, sz, ecls);
 	}
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
@@ -618,7 +618,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	int cases = cpc->rnd1, i;
 	
 	for (i = 0; i < cases; i++) {
-	  sz = cleanup_sw_on_clauses(target[i].u.Label, sz, ecls);
+	  sz = cleanup_sw_on_clauses(target[i].u_f.Label, sz, ecls);
 	}
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
@@ -1031,7 +1031,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
   if (ap->ModuleOfPred == IDB_MODULE) {
     cl = clause->Code;
   } else {
-    cl = clause->u.WorkPC;
+    cl = clause->ucd.WorkPC;
   }
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
@@ -1137,7 +1137,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_list:
       if (argno == 1) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = NEXTOP(cl,o);
+	clause->ucd.WorkPC = NEXTOP(cl,o);
 	return;
       }
       argno += 1; /* 2-1: have two extra arguments to skip */
@@ -1175,7 +1175,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_float:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->u.t_ptr = AbsAppl(cl->u.od.d);
+	clause->ucd.t_ptr = AbsAppl(cl->u.od.d);
 	return;
       }
       cl = NEXTOP(cl,od);
@@ -1185,7 +1185,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_longint:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
-	clause->u.t_ptr = AbsAppl(cl->u.oi.i);
+	clause->ucd.t_ptr = AbsAppl(cl->u.oi.i);
 	return;
       }
       argno--;
@@ -1195,7 +1195,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_bigint:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
-	clause->u.t_ptr = cl->u.oc.c;
+	clause->ucd.t_ptr = cl->u.oc.c;
 	return;
       }
       cl = NEXTOP(cl,oc);
@@ -1205,7 +1205,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_string:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorString);
-	clause->u.t_ptr = cl->u.ou.u;
+	clause->ucd.t_ptr = cl->u.ou.u;
 	return;
       }
       cl = NEXTOP(cl,ou);
@@ -1224,7 +1224,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_struc:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)cl->u.ofa.f);
-	clause->u.WorkPC = NEXTOP(cl,ofa);
+	clause->ucd.WorkPC = NEXTOP(cl,ofa);
 	return;
       }
       /* must skip next n arguments */
@@ -1254,7 +1254,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_idb_term:
     case _copy_idb_term:
       {
-	Term t = clause->u.c_sreg[argno];
+	Term t = clause->ucd.c_sreg[argno];
 
 	if (IsVarTerm(t)) {
 	  clause->Tag = (CELL)NULL;
@@ -1263,15 +1263,15 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
 
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
 	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
-	    clause->u.t_ptr = t;
+	    clause->ucd.t_ptr = t;
 	  } else {
-	    clause->u.c_sreg = pt;
+	    clause->ucd.c_sreg = pt;
 	  }
 	} else if (IsPairTerm(t)) {
 	  CELL *pt = RepPair(t);
 
 	  clause->Tag = AbsPair(NULL);
-	  clause->u.c_sreg = pt-1;
+	  clause->ucd.c_sreg = pt-1;
 	} else {
 	  clause->Tag = t;
 	}
@@ -1331,7 +1331,7 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
       */
     case _unify_struct:
     case _unify_l_struc:
-      if (cl == clause->u.WorkPC) {
+      if (cl == clause->ucd.WorkPC) {
 	clause->CurrentCode = cl;
       } else {
 	clause->CurrentCode = clause->Code;
@@ -1636,7 +1636,7 @@ emit_cswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
     target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint, 0);
     for (i=0; i<n; i++) {
       target[i].Tag = Zero;
-      target[i].u.labp = fail_l;
+      target[i].u_a.labp = fail_l;
     }
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
@@ -1646,10 +1646,10 @@ emit_cswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
     target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint, 0);
 
     for (i=0; i<n; i++) {
-      target[i].u.labp = fail_l;
+      target[i].u_a.labp = fail_l;
     }
     target[n].Tag = Zero;
-    target[n].u.labp = fail_l;
+    target[n].u_a.labp = fail_l;
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
@@ -1703,7 +1703,7 @@ emit_fswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
     target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<n; i++) {
       target[i].Tag = NULL;
-      target[i].u.labp = fail_l;
+      target[i].u_f.labp = fail_l;
     }
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
@@ -1712,10 +1712,10 @@ emit_fswitch(COUNT n, yamop *fail_l, struct intermediates *cint)
     op = if_f_op;
     target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<n; i++) {
-      target[i].u.labp = fail_l;
+      target[i].u_f.labp = fail_l;
     }
     target[n].Tag = NULL;
-    target[n].u.labp = fail_l;
+    target[n].u_f.labp = fail_l;
     Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
@@ -2033,17 +2033,17 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
     if (min != max) {
       if (sreg != NULL) {
 	if (ap->PredFlags & LogUpdatePredFlag && max > min) {
-	  ics->u.Label = suspend_indexing(min, max, ap, cint);
+	  ics->u_a.Label = suspend_indexing(min, max, ap, cint);
 	} else {
-	    ics->u.Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+	    ics->u_a.Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno, nxtlbl, first, last_arg, clleft, top, TRUE);
 	}
       } else if (ap->PredFlags & LogUpdatePredFlag) {
-	ics->u.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
+	ics->u_a.Label = suspend_indexing(min, max, cint->CurrentPred, cint);
       } else {
-	ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+	ics->u_a.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
       }
     } else {
-      ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+      ics->u_a.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2072,9 +2072,9 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 	   (max+1)->Tag == min->Tag) max++;
     if (min != max &&
 	(ap->PredFlags & LogUpdatePredFlag)) {
-      ics->u.Label = suspend_indexing(min, max, ap, cint);
+      ics->u_a.Label = suspend_indexing(min, max, ap, cint);
     } else {
-      ics->u.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
+      ics->u_a.Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2115,11 +2115,11 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
-	ifs->u.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
+	ifs->u_f.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
       else if (f == FunctorLongInt || f == FunctorBigInt) 
-	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, FALSE);
+	ifs->u_f.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, FALSE);
       else
-	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, TRUE);
+	ifs->u_f.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, TRUE);
 	
     } else {
       CELL *sreg;
@@ -2129,7 +2129,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
       } else {
 	sreg = NULL;
       }
-      ifs->u.Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno, nxtlbl, first, last_arg, clleft, top, TRUE);
+      ifs->u_f.Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno, nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2357,15 +2357,15 @@ cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno, int in_idb)
 	
 	  cl->Tag = AbsAppl((CELL *)pt[0]);
 	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
-	    cl->u.t_ptr = t;
+	    cl->ucd.t_ptr = t;
 	  } else {
-	    cl->u.c_sreg = pt;
+	    cl->ucd.c_sreg = pt;
 	  }
 	} else if (IsPairTerm(t)) {
 	  CELL *pt = RepPair(t);
 
 	  cl->Tag = AbsPair(NULL);
-	  cl->u.c_sreg = pt-1;
+	  cl->ucd.c_sreg = pt-1;
 	} else {
 	  cl->Tag = t;
 	}
@@ -2637,7 +2637,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
   cl = min;
   
   while (cl <= max) {
-    cl->Tag = cl->u.t_ptr;
+    cl->Tag = cl->ucd.t_ptr;
     cl++;
   }
   ngroups = groups_in(min, max, group, cint);
@@ -2665,12 +2665,12 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
   cl = min;
   
   while (cl <= max) {
-    if (cl->u.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
+    if (cl->ucd.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
       cl->Tag = Zero;
     } else if (blob) {
-      cl->Tag = Yap_Double_key(cl->u.t_ptr);
+      cl->Tag = Yap_Double_key(cl->ucd.t_ptr);
     } else {
-      cl->Tag = Yap_Int_key(cl->u.t_ptr);
+      cl->Tag = Yap_Int_key(cl->ucd.t_ptr);
     }
     cl++;
   }
@@ -2923,18 +2923,18 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	Functor f = (Functor)RepAppl(cls->Tag);
 	if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
-	    if (cls->u.t_ptr != sp->extra) break;
+	    if (cls->ucd.t_ptr != sp->extra) break;
 	  } else if (f == FunctorDouble) {
-	    if (cls->u.t_ptr &&
-		Yap_Double_key(sp->extra) != Yap_Double_key(cls->u.t_ptr))
+	    if (cls->ucd.t_ptr &&
+		Yap_Double_key(sp->extra) != Yap_Double_key(cls->ucd.t_ptr))
 		break;
 	  } else if (f == FunctorString) {
-	    if (cls->u.t_ptr &&
-		Yap_String_key(sp->extra) != Yap_String_key(cls->u.t_ptr))
+	    if (cls->ucd.t_ptr &&
+		Yap_String_key(sp->extra) != Yap_String_key(cls->ucd.t_ptr))
 		break;
 	  } else {
-	    if (cls->u.t_ptr && 
-		Yap_Int_key(sp->extra) != Yap_Int_key(cls->u.t_ptr))
+	    if (cls->ucd.t_ptr &&
+		Yap_Int_key(sp->extra) != Yap_Int_key(cls->ucd.t_ptr))
 		break;
 	  }
 	}
@@ -3078,14 +3078,14 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	Functor f = (Functor)RepAppl(cls->Tag);
 	if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
-	    if (cls->u.t_ptr != sp->extra) break;
+	    if (cls->ucd.t_ptr != sp->extra) break;
 	  } else if (f == FunctorDouble) {
-	    if (cls->u.t_ptr &&  
-		Yap_Double_key(sp->extra) != Yap_Double_key(cls->u.t_ptr))
+	    if (cls->ucd.t_ptr &&
+		Yap_Double_key(sp->extra) != Yap_Double_key(cls->ucd.t_ptr))
 		break;
 	  } else {
-	    if (cls->u.t_ptr && 
-		Yap_Int_key(sp->extra) != Yap_Int_key(cls->u.t_ptr))
+	    if (cls->ucd.t_ptr &&
+		Yap_Int_key(sp->extra) != Yap_Int_key(cls->ucd.t_ptr))
 		break;
 	  }
 	}
@@ -3677,9 +3677,9 @@ expand_index(struct intermediates *cint) {
 	} else {
 	  fe = lookup_f(f,ipc->u.sssl.l,ipc->u.sssl.s);
 	}
-	newpc = fe->u.labp;
+	newpc = fe->u_f.labp;
 
-	labp = &(fe->u.labp);
+	labp = &(fe->u_f.labp);
 	if (newpc == e_code) {
 	  /* we found it */
 	  parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
@@ -3703,14 +3703,14 @@ expand_index(struct intermediates *cint) {
 	  ae = lookup_c(t,ipc->u.sssl.l,ipc->u.sssl.s);
 	}
 
-	labp = &(ae->u.labp);
-	if (ae->u.labp == e_code) {
+	labp = &(ae->u_a.labp);
+	if (ae->u_a.labp == e_code) {
 	  /* we found it */
 	  parentcl = code_to_indexcl(ipc->u.sssl.l,is_lu);
 	  ipc = NULL;
 	} else {
 	  ClausePointer npar = code_to_indexcl(ipc->u.sssl.l,is_lu);
-	  ipc = ae->u.labp;
+	  ipc = ae->u_a.labp;
 	  parentcl = index_jmp(npar, parentcl, ipc, is_lu, e_code);
 	}
       }
@@ -4151,11 +4151,11 @@ push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediat
     siglongjmp(cint->CompilerBotch,4);    
   }
   sp->flag = pc_entry;
-  sp->u.pce.pi_pc = pipc;
-  sp->u.pce.code = clp->Code;
-  sp->u.pce.current_code = clp->CurrentCode;
-  sp->u.pce.work_pc = clp->u.WorkPC;
-  sp->u.pce.tag = clp->Tag;
+  sp->uip.pce.pi_pc = pipc;
+  sp->uip.pce.code = clp->Code;
+  sp->uip.pce.current_code = clp->CurrentCode;
+  sp->uip.pce.work_pc = clp->ucd.WorkPC;
+  sp->uip.pce.tag = clp->Tag;
   return sp+1;
 }
 		 
@@ -4169,11 +4169,11 @@ fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct interm
   }
   /* add current position */
   sp->flag = block_entry;
-  sp->u.cle.entry_code = pipc;
+  sp->uip.cle.entry_code = pipc;
   if (ap->PredFlags & LogUpdatePredFlag) {
-    sp->u.cle.block = (ClauseUnion *)ClauseCodeToLogUpdIndex(*pipc);
+    sp->uip.cle.block = (ClauseUnion *)ClauseCodeToLogUpdIndex(*pipc);
   } else {
-    sp->u.cle.block = (ClauseUnion *)ClauseCodeToStaticIndex(*pipc);
+    sp->uip.cle.block = (ClauseUnion *)ClauseCodeToStaticIndex(*pipc);
   }
   return sp+1;
 }
@@ -4184,11 +4184,11 @@ init_block_stack(path_stack_entry *sp, yamop *ipc, PredEntry *ap)
   /* add current position */
   
   sp->flag = block_entry;
-  sp->u.cle.entry_code = NULL;
+  sp->uip.cle.entry_code = NULL;
   if (ap->PredFlags & LogUpdatePredFlag) {
-    sp->u.cle.block = (ClauseUnion *)ClauseCodeToLogUpdIndex(ipc);
+    sp->uip.cle.block = (ClauseUnion *)ClauseCodeToLogUpdIndex(ipc);
   } else {
-    sp->u.cle.block = (ClauseUnion *)ClauseCodeToStaticIndex(ipc);
+    sp->uip.cle.block = (ClauseUnion *)ClauseCodeToStaticIndex(ipc);
   }
   return sp+1;
 }
@@ -4203,7 +4203,7 @@ cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermedia
   do {
     UInt bsize;
     while ((--tsp)->flag != block_entry);
-    block = tsp->u.cle.block;
+    block = tsp->uip.cle.block;
     if (block->lui.ClFlags & LogUpdMask)
       bsize = block->lui.ClSize;
     else
@@ -4215,18 +4215,18 @@ cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermedia
 	if (tsp->flag == pc_entry) {
 	  if (nsp != tsp) {
 	    nsp->flag = pc_entry;
-	    nsp->u.pce.pi_pc = tsp->u.pce.pi_pc;
-	    nsp->u.pce.code = tsp->u.pce.code;
-	    nsp->u.pce.current_code = tsp->u.pce.current_code;
-	    nsp->u.pce.work_pc = tsp->u.pce.work_pc;
-	    nsp->u.pce.tag = tsp->u.pce.tag;
+	    nsp->uip.pce.pi_pc = tsp->uip.pce.pi_pc;
+	    nsp->uip.pce.code = tsp->uip.pce.code;
+	    nsp->uip.pce.current_code = tsp->uip.pce.current_code;
+	    nsp->uip.pce.work_pc = tsp->uip.pce.work_pc;
+	    nsp->uip.pce.tag = tsp->uip.pce.tag;
 	  }
 	  nsp++;
 	}
       }
       return nsp;
     }
-  } while (tsp->u.cle.entry_code != NULL);
+  } while (tsp->uip.cle.entry_code != NULL);
   /* moved to a new block */
   return fetch_new_block(sp, pipc, ap, cint);
 }
@@ -4240,16 +4240,16 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap, struct intermedi
 
   while ((--sp)->flag != pc_entry);
   *spp = sp;
-  clp->Code = sp->u.pce.code;
-  clp->CurrentCode = sp->u.pce.current_code;
-  clp->u.WorkPC = sp->u.pce.work_pc;
-  clp->Tag = sp->u.pce.tag;
-  if (sp->u.pce.pi_pc == NULL) {
+  clp->Code = sp->uip.pce.code;
+  clp->CurrentCode = sp->uip.pce.current_code;
+  clp->ucd.WorkPC = sp->uip.pce.work_pc;
+  clp->Tag = sp->uip.pce.tag;
+  if (sp->uip.pce.pi_pc == NULL) {
     *spp = sp;
     return NULL;
   }
-  nipc = *(sp->u.pce.pi_pc);
-  *spp = cross_block(sp, sp->u.pce.pi_pc, ap, cint);
+  nipc = *(sp->uip.pce.pi_pc);
+  *spp = cross_block(sp, sp->uip.pce.pi_pc, ap, cint);
   return nipc;
 }
 
@@ -4357,10 +4357,10 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     n = 1;
     for (i = 0; i < pc->u.sssl.s; i++,tmp++) {
       if (tmp->Tag != Zero) n++;
-      else fail_l = tmp->u.Label;
+      else fail_l = tmp->u_a.Label;
     }
   } else {
-    fail_l = old_ae[n].u.Label;
+    fail_l = old_ae[n].u_a.Label;
     n++;
   }
   if (n > MIN_HASH_ENTRIES) {
@@ -4376,14 +4376,14 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     pc->u.sssl.s = cases;
     for (i=0; i<cases; i++) {
       target[i].Tag = Zero;
-      target[i].u.Label = fail_l;
+      target[i].u_a.Label = fail_l;
     }
   } else {
     pc->opc = Yap_opcode(_if_cons);
     pc->u.sssl.s = n;
     target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint, 0);
     target[n].Tag = Zero;
-    target[n].u.Label = fail_l;
+    target[n].u_a.Label = fail_l;
   }
   for (i = 0; i < i0; i++,old_ae++) {
     Term tag = old_ae->Tag;
@@ -4391,7 +4391,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
     if (tag != Zero) {
       AtomSwiEntry *ics = fetch_centry(target, tag, i, n);
       ics->Tag = tag;
-      ics->u.Label = old_ae->u.Label;    
+      ics->u_a.Label = old_ae->u_a.Label;
     }
   }
   /* support for threads */
@@ -4416,10 +4416,10 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     n = 1;
     for (i = 0; i < pc->u.sssl.s; i++,tmp++) {
       if (tmp->Tag != Zero) n++;
-      else fail_l = tmp->u.Label;
+      else fail_l = tmp->u_f.Label;
     }
   } else {
-    fail_l = old_fe[n].u.Label;
+    fail_l = old_fe[n].u_f.Label;
     n++;
   }
   if (n > MIN_HASH_ENTRIES) {
@@ -4438,7 +4438,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     for (i=0; i<cases; i++) {
       target[i].Tag = NULL;
-      target[i].u.Label = fail_l;
+      target[i].u_f.Label = fail_l;
     }
   } else {
     pc->opc = Yap_opcode(_if_func);
@@ -4447,7 +4447,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     pc->u.sssl.w = 0;
     target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint, FuncSwitchMask);
     target[n].Tag = Zero;
-    target[n].u.Label = fail_l;
+    target[n].u_f.Label = fail_l;
   }
   for (i = 0; i < i0; i++,old_fe++) {
     Functor f = old_fe->Tag;
@@ -4455,7 +4455,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f
     if (f != NULL) {
       FuncSwiEntry *ifs = fetch_fentry(target, f, i, n);
       ifs->Tag = old_fe->Tag;
-      ifs->u.Label = old_fe->u.Label;    
+      ifs->u_f.Label = old_fe->u_f.Label;
     }
   }
   replace_index_block(blk, pc->u.sssl.l, (yamop *)target, ap);
@@ -4480,21 +4480,21 @@ static ClauseUnion *
 current_block(path_stack_entry *sp)
 {
   while ((--sp)->flag != block_entry);
-  return sp->u.cle.block;
+  return sp->uip.cle.block;
 }
 
 static path_stack_entry *
 kill_block(path_stack_entry *sp, PredEntry *ap)
 {
   while ((--sp)->flag != block_entry);
-  if (sp->u.cle.entry_code == NULL) {
-    Yap_kill_iblock(sp->u.cle.block, NULL, ap);
+  if (sp->uip.cle.entry_code == NULL) {
+    Yap_kill_iblock(sp->uip.cle.block, NULL, ap);
   } else {
     path_stack_entry *nsp = sp;
     
     while ((--nsp)->flag != block_entry);
-    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
-    *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
+    Yap_kill_iblock(sp->uip.cle.block, nsp->uip.cle.block, ap);
+    *sp->uip.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
   }
   return sp;
 }
@@ -4638,7 +4638,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
   path_stack_entry *sp = sp0;
 
   while ((--sp)->flag != block_entry);
-  blk = (LogUpdIndex *)(sp->u.cle.block);
+  blk = (LogUpdIndex *)(sp->uip.cle.block);
   start = blk->ClCode;
   op0 = Yap_op_from_opcode(start->opc);
   while (op0 == _lock_lu) {
@@ -4667,8 +4667,8 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
     nsp = sp;
     while ((--nsp)->flag != block_entry);
     /* make us point straight at clause */
-    *sp->u.cle.entry_code = tgl->ClCode;
-    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
+    *sp->uip.cle.entry_code = tgl->ClCode;
+    Yap_kill_iblock(sp->uip.cle.block, nsp->uip.cle.block, ap);
     return sp;
   } else {
     if (
@@ -4691,7 +4691,7 @@ static path_stack_entry *
 expanda_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt, struct intermediates *cint)
 {
   while ((--sp)->flag != block_entry);
-  Yap_kill_iblock(sp->u.cle.block, NULL, ap);
+  Yap_kill_iblock(sp->uip.cle.block, NULL, ap);
   return sp;
 }
 
@@ -4699,7 +4699,7 @@ static path_stack_entry *
 expandz_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt, struct intermediates *cint)
 {
   while ((--sp)->flag != block_entry);
-  Yap_kill_iblock(sp->u.cle.block, NULL, ap);
+  Yap_kill_iblock(sp->uip.cle.block, NULL, ap);
   return sp;
 }
 
@@ -4796,18 +4796,18 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
 {
   yamop *ipc;
   while ((--sp)->flag != block_entry);
-  if (sp->u.cle.entry_code == NULL) {
+  if (sp->uip.cle.entry_code == NULL) {
     /* we have reached the top */
     Yap_RemoveIndexation(ap);
     return sp;
   }
-  ipc = *sp->u.cle.entry_code;
+  ipc = *sp->uip.cle.entry_code;
   if (Yap_op_from_opcode(ipc->opc) == op) {
     /* the new block was the current clause */
     ClauseDef cld[2];
 
     if (remove) {
-      *sp->u.cle.entry_code = FAILCODE;
+      *sp->uip.cle.entry_code = FAILCODE;
       return sp;
     }
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4822,10 +4822,10 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
 	cld[1].Code = cls[0].Code;
       }
       intrs.expand_block = NULL;
-      *sp->u.cle.entry_code = (yamop *)suspend_indexing(cld, cld+1, ap, &intrs);
+      *sp->uip.cle.entry_code = (yamop *)suspend_indexing(cld, cld+1, ap, &intrs);
     } else {
       /* static predicate, shouldn't do much, just suspend the code here */
-      *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
+      *sp->uip.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
       return sp;
     }
     return sp;
@@ -4917,8 +4917,8 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
     } while (compactz_expand_clauses(ipc));
   }
   while ((--sp)->flag != block_entry);
-  if (sp->u.cle.entry_code) {
-    *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
+  if (sp->uip.cle.entry_code) {
+    *sp->uip.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
   }
   recover_ecls_block(ipc);
   return pop_path(spp, cls, ap, cint);
@@ -4946,7 +4946,7 @@ nullify_expand_clause(yamop *ipc, path_stack_entry *sp, ClauseDef *cls)
     while ((--sp)->flag != block_entry);
     while (TRUE) {
       if (*st && *st != cls->Code) {
-	*sp->u.cle.entry_code = *st;
+	*sp->uip.cle.entry_code = *st;
 	recover_ecls_block(ipc);
 	return;
       }
@@ -5341,7 +5341,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	if (!IsExtensionFunctor(f)) {
 	  current_arity = ArityOfFunctor(f);
 	}
-	newpc = fe->u.labp;
+	newpc = fe->u_f.labp;
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap, cint);
@@ -5360,29 +5360,29 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    ipc->u.sssl.e++;
 	  }
 	  if (ap->PredFlags & LogUpdatePredFlag) {
-	     fe->u.labp = cls->Code;
+	     fe->u_f.labp = cls->Code;
 	  } else {
-	    fe->u.labp = cls->CurrentCode;
+	    fe->u_f.labp = cls->CurrentCode;
 	  }
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
-	  yamop *newpc = fe->u.labp;
+	  yamop *newpc = fe->u_f.labp;
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
-	  sp = cross_block(sp, &(fe->u.labp), ap, cint);
+	  sp = cross_block(sp, &(fe->u_f.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
       break;
     case _index_dbref:
-      cls->Tag = cls->u.t_ptr;
+      cls->Tag = cls->ucd.t_ptr;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      cls->Tag = Yap_Double_key(cls->u.t_ptr);
+      cls->Tag = Yap_Double_key(cls->ucd.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      cls->Tag = Yap_Int_key(cls->u.t_ptr);
+      cls->Tag = Yap_Int_key(cls->ucd.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -5398,7 +5398,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	} else {
 	  ae = lookup_c(at, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	newpc = ae->u.labp;
+	newpc = ae->u_a.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* nothing more to do */
@@ -5413,16 +5413,16 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	    ipc->u.sssl.e++;
 	  }
 	  if (ap->PredFlags & LogUpdatePredFlag) {
-	    ae->u.labp = cls->Code;
+	    ae->u_a.labp = cls->Code;
 	  } else {
-	    ae->u.labp = cls->CurrentCode;
+	    ae->u_a.labp = cls->CurrentCode;
 	  }
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
-	  yamop *newpc = ae->u.labp;
+	  yamop *newpc = ae->u_a.labp;
 
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
-	  sp = cross_block(sp, &(ae->u.labp), ap, cint);
+	  sp = cross_block(sp, &(ae->u_a.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
@@ -5441,7 +5441,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _op_fail:
       while ((--sp)->flag != block_entry);
-      *sp->u.cle.entry_code = cls->Code;
+      *sp->uip.cle.entry_code = cls->Code;
       ipc = pop_path(&sp, cls, ap, cint);
       break;
     default:
@@ -5543,7 +5543,7 @@ contract_ftable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Functor f) {
     fep = (FuncSwiEntry *)(ipc->u.sssl.l);
     while (fep->Tag != f) fep++;
   }
-  fep->u.labp = FAILCODE;
+  fep->u_f.labp = FAILCODE;
 }
 
 static void
@@ -5557,7 +5557,7 @@ contract_ctable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Term at) {
     cep = (AtomSwiEntry *)(ipc->u.sssl.l);
     while (cep->Tag != at) cep++;
   }
-  cep->u.labp = FAILCODE;
+  cep->u_a.labp = FAILCODE;
 }
 
 static void
@@ -5840,35 +5840,35 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	} else {
 	  fe = lookup_f(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	newpc = fe->u.labp;
+	newpc = fe->u_f.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap, cint);
-	} else if (IN_BETWEEN(bg,fe->u.Label,lt)) {
+	} else if (IN_BETWEEN(bg,fe->u_f.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ftable(ipc, current_block(sp), ap, f);
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
-	  yamop *newpc = fe->u.labp;
+	  yamop *newpc = fe->u_f.labp;
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
-	  sp = cross_block(sp, &(fe->u.labp), ap, cint);
+	  sp = cross_block(sp, &(fe->u_f.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
       break;
     case _index_dbref:
-      cls->Tag = cls->u.t_ptr;
+      cls->Tag = cls->ucd.t_ptr;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      cls->Tag = Yap_Double_key(cls->u.t_ptr);
+      cls->Tag = Yap_Double_key(cls->ucd.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      cls->Tag = Yap_Int_key(cls->u.t_ptr);
+      cls->Tag = Yap_Int_key(cls->ucd.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -5884,22 +5884,22 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	} else {
 	  ae = lookup_c(at, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
-	newpc = ae->u.labp;
+	newpc = ae->u_a.labp;
 
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else if (newpc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap, cint);
-	} else if (IN_BETWEEN(bg,ae->u.Label,lt)) {
+	} else if (IN_BETWEEN(bg,ae->u_a.Label,lt)) {
 	  /* oops, nothing there */
 	  contract_ctable(ipc, current_block(sp), ap, at);
 	  ipc = pop_path(&sp, cls, ap, cint);
 	} else {
-	  yamop *newpc = ae->u.labp;
+	  yamop *newpc = ae->u_a.labp;
 
 	  sp = fetch_new_block(sp, &(ipc->u.sssl.l), ap, cint);
-	  sp = cross_block(sp, &(ae->u.labp), ap, cint);
+	  sp = cross_block(sp, &(ae->u_a.labp), ap, cint);
 	  ipc = newpc;
 	}
       }
@@ -6539,9 +6539,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  fe = lookup_f(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
 #if defined(YAPOR) || defined(THREADS)
-	jlbl = &(fe->u.labp);
+	jlbl = &(fe->u_f.labp);
 #endif
-	ipc = fe->u.labp;
+	ipc = fe->u_f.labp;
       }
       break;
     case _index_dbref:
@@ -6572,9 +6572,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  ae = lookup_c(t, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
 #if defined(YAPOR) || defined(THREADS)
-	jlbl = &(ae->u.labp);
+	jlbl = &(ae->u_a.labp);
 #endif
-	ipc = ae->u.labp;
+	ipc = ae->u_a.labp;
       }
       break;
     case _expand_index:

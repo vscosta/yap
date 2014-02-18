@@ -81,7 +81,7 @@ typedef struct mem_blk {
   union {
     struct mem_blk *next;
     double fill;
-  } u;
+  } ublock;
   char contents[1];
 } MemBlk;
 
@@ -110,7 +110,7 @@ AllocCMem (UInt size, struct intermediates *cip)
       if (LOCAL_CMemFirstBlock) {
 	p = LOCAL_CMemFirstBlock;
 	blksz = LOCAL_CMemFirstBlockSz;
-	p->u.next = NULL;
+	p->ublock.next = NULL;
       } else {
 	if (blksz < FIRST_CMEM_BLK_SIZE)
 	  blksz = FIRST_CMEM_BLK_SIZE;
@@ -132,7 +132,7 @@ AllocCMem (UInt size, struct intermediates *cip)
 	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
     }
-    p->u.next = cip->blks;
+    p->ublock.next = cip->blks;
     cip->blks = p;
     cip->blk_cur = p->contents;
     cip->blk_top = (char *)p+blksz;
@@ -163,7 +163,7 @@ Yap_ReleaseCMem (struct intermediates *cip)
   CACHE_REGS
   struct mem_blk *p = cip->blks;
   while (p) {
-    struct mem_blk *nextp = p->u.next;
+    struct mem_blk *nextp = p->ublock.next;
     if (p != LOCAL_CMemFirstBlock)
       Yap_FreeCodeSpace((ADDR)p);
     p = nextp;
