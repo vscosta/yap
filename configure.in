@@ -1903,7 +1903,7 @@ AC_DEFINE_UNQUOTED( YAP_LIBDIR, [ "$prefix/lib/Yap" ], [where to look for shared
 AC_DEFINE_UNQUOTED( YAP_NUMERIC_VERSION, [ $yap_nversion ], [numerical version])
 AC_DEFINE_UNQUOTED( YAP_PL_SRCDIR, [ "$prefix/share/Yap/pl" ], [where to look for Prolog sources])
 AC_DEFINE_UNQUOTED( YAP_ROOTDIR, [ "$prefix" ], [where YAP lives])
-AC_DEFINE_UNQUOTED( YAP_SHAREDIR, [ "$prefix/share/Yap" ], [where to look for the Prolog library])
+AC_DEFINE_UNQUOTED( YAP_SHAREDIR, [ "$prefix/share" ], [where to look for the Prolog library])
 AC_DEFINE_UNQUOTED( YAP_TIMESTAMP, [ "$yap_timestamp" ], [date of compilation])
 AC_DEFINE_UNQUOTED( YAP_VERSION, [ "$YAP_VERSION" ], [yap version])
 AC_DEFINE_UNQUOTED( YAP_YAPLIB, [ "$YAPLIB" ], [name of YAP library])

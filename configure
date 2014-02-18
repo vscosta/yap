@@ -10026,9 +10026,6 @@ esac
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"Done\"" >&5
-$as_echo "\"Done\"" >&6; }
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking h_errno" >&5
 $as_echo_n "checking h_errno... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -11895,7 +11892,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11898 "configure" */
+/* #line 11895 "configure" */
 public class Test {
 }
 EOF
@@ -12071,7 +12068,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12074: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12071: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12202,7 +12199,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12205 "configure" */
+/* #line 12202 "configure" */
 public class Test {
 }
 EOF
@@ -12237,7 +12234,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12240 "configure" */
+/* [#]line 12237 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -15356,7 +15353,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define YAP_SHAREDIR  "$prefix/share/Yap"
+#define YAP_SHAREDIR  "$prefix/share"
 _ACEOF
 
 
