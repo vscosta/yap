@@ -59,13 +59,6 @@ typedef struct pred_entry *      Procedure;      /* predicate */
 #undef H
 #endif
 
-// used by swi
-#ifdef SIZEOF_INT_P
-#define SIZEOF_VOIDP SIZEOF_INT_P
-#else
-bad config
-#endif
-
 /* swi code called from pl-incl.h */
 /* should have messages here */
 #ifdef  DEBUG

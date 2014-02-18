@@ -4102,6 +4102,14 @@ case "$target_cpu" in
  esac
 
 
+$as_echo "#define MSHIFTOFFS 1" >>confdefs.h
+
+
+$as_echo "#define ALIGN_LONGS 1" >>confdefs.h
+
+# AC_DEFINE(LOW_ABSMI, 1, [absmi located at initial addresses, unused.])
+
+
 # Check whether --enable-tabling was given.
 if test "${enable_tabling+set}" = set; then :
   enableval=$enable_tabling; tabling="$enableval"
@@ -5492,6 +5500,9 @@ _ACEOF
 fi
 
     fi
+
+$as_echo "#define __WINDOWS__ 1" >>confdefs.h
+
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
 $as_echo_n "checking for main in -lpsapi... " >&6; }
@@ -7627,6 +7638,7 @@ fi
 
 done
 
+
 if test "$yap_cv_gmp" != "no"
 then
   for ac_header in gmp.h
@@ -7641,7 +7653,14 @@ fi
 
 done
 
+  if test "x$ac_cv_header_gmp_h" = xyes -a  "x$ac_cv_lib_gmp_main" = xyes
+  then
+
+$as_echo "#define USE_GMP 1" >>confdefs.h
+
+  fi
 fi
+
 if test "$yap_cv_judy" != "no"; then
   for ac_header in Judy.h
 do :
@@ -7655,6 +7674,12 @@ fi
 
 done
 
+  if test "x$ac_cv_header_Judy_h" = xyes -a "x$ac_cv_lib_Judy_Judy1Set" = xyes
+  then
+
+$as_echo "#define USE_JUDY 1" >>confdefs.h
+
+  fi
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -8069,6 +8094,13 @@ $as_echo "$ac_cv_sizeof_void_p" >&6; }
 
 cat >>confdefs.h <<_ACEOF
 #define SIZEOF_VOID_P $ac_cv_sizeof_void_p
+_ACEOF
+
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define CELLSIZE $ac_cv_sizeof_void_p
 _ACEOF
 
 
@@ -9046,15 +9078,51 @@ $as_echo "#define BROKEN_FFLUSH_NULL /**/" >>confdefs.h
 fi
 
 
-if test "$use_malloc" = yes -o "$maxmemory" = yes
+if test "$threads" = "yes"
 then
+  if test "$use_malloc" = "no"
+  then
+
+$as_echo "#define USE_DL_MALLOC 1" >>confdefs.h
+
+  else
 
 $as_echo "#define USE_SYSTEM_MALLOC 1" >>confdefs.h
 
+  fi
+else
+  case "$orparallelism" in
+    sba|yes|copy)
+      if test x"$ac_cv_func_mmap" = x"yes"
+      then
+
+$as_echo "#define USE_SYSTEM_MMAP 1" >>confdefs.h
+
+      else
+
+$as_echo "#define USE_SYSTEM_SHM 1" >>confdefs.h
+
+      fi
+    ;;
+#    a-cow)
+    **)
+      if test "$use_malloc" = "no"
+      then
+
+$as_echo "#define USE_DL_MALLOC 1" >>confdefs.h
+
+      else
+
+$as_echo "#define USE_SYSTEM_MALLOC 1" >>confdefs.h
+
+      fi
+    ;;
+  esac
+fi
 
 $as_echo "#define GC_NO_TAGS 1" >>confdefs.h
 
-fi
+
 
 
 PROLOG_SYSTEM=yap
@@ -11827,7 +11895,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11830 "configure" */
+/* #line 11898 "configure" */
 public class Test {
 }
 EOF
@@ -12003,7 +12071,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12006: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12074: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12134,7 +12202,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12137 "configure" */
+/* #line 12205 "configure" */
 public class Test {
 }
 EOF
@@ -12169,7 +12237,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12172 "configure" */
+/* [#]line 12240 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

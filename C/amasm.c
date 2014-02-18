@@ -283,8 +283,6 @@ static void a_fetch_cv(cmp_op_info *, int, struct intermediates *);
 static void a_fetch_vc(cmp_op_info *, int, struct intermediates *);
 static yamop *a_f2(cmp_op_info *, yamop *, int, struct intermediates *);
 
-#define CELLSIZE sizeof(CELL)
-
 #define GONEXT(TYPE)      code_p = ((yamop *)(&(code_p->u.TYPE.next)))
 
 inline static yslot

@@ -39,51 +39,7 @@
 
 #include "config.h"
 
-#define  ALIGN_LONGS 1
-#define  LOW_ABSMI 0
-
-#define  MSHIFTOFFS 1
-
-#undef  USE_DL_MALLOC
-#undef  USE_MALLOC
-#undef  USE_SYSTEM_MALLOC
-#define USE_MMAP    (HAVE_MMAP  & !USE_MALLOC & !USE_SYSTEM_MALLOC)
-#define USE_SHM     (HAVE_SHMAT & !HAVE_MMAP & !USE_MALLOC & !USE_SYSTEM_MALLOC)
-#define USE_SBRK    (HAVE_SBRK  & !HAVE_MMAP & !HAVE_SHMAT & !USE_MALLOC & !USE_SYSTEM_MALLOC)
-
-#if __MINGW32__
-#define __WINDOWS__ 1
-#endif
-
-#if (HAVE_SOCKET || defined(__MINGW32__)) && !defined(SIMICS)
-#define USE_SOCKET 1
-#endif
-
 #define FunAdr(X) X
-
-#if HAVE_GMP_H && HAVE_LIBGMP
-#define USE_GMP 1
-#endif
-
-#if HAVE_JUDY_H && HAVE_LIBJUDY
-#define USE_JUDY 1
-#endif
-
-/* Should we use MPI ? */
-#if defined(HAVE_MPI_H) && (defined(HAVE_LIBMPI) || defined(HAVE_LIBMPICH))
- #define HAVE_MPI 1
-#else
- #define HAVE_MPI 0
-#endif
-
-/* Should we use MPE ? */
-#if defined(HAVE_MPI_H) && HAVE_LIBMPE &&  HAVE_MPI
- #define HAVE_MPE 1
-#else
- #define HAVE_MPE 0
-#endif
-
-#define CELLSIZE SIZEOF_VOID_P
 
 #include "inline-only.h"
 #if defined(YAPOR) || defined(TABLING)

@@ -91,6 +91,11 @@ case "$target_cpu" in
     ;;
  esac
 
+dnl hardware/engine
+AC_DEFINE(MSHIFTOFFS, 1, [compiler should shift offsets.])
+AC_DEFINE(ALIGN_LONGS, 1, [longs should be in addresses that are multiple of four.])
+# AC_DEFINE(LOW_ABSMI, 1, [absmi located at initial addresses, unused.])
+
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
@@ -508,6 +513,7 @@ then
       AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(shell32,main)
     fi
+    AC_DEFINE(__WINDOWS__, 1, [compiling for Windows])
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
@@ -1155,12 +1161,22 @@ AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h unistd.h utime.h wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(zlib.h zutil.h)
 AC_CHECK_HEADERS(mach-o/dyld.h LibLoaderAPI.h)
+
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
+  if test "x$ac_cv_header_gmp_h" = xyes -a  "x$ac_cv_lib_gmp_main" = xyes
+  then
+    AC_DEFINE(USE_GMP, 1, [use bignums/rationals in YAP code.])
+  fi
 fi
+
 if test "$yap_cv_judy" != "no"; then
   AC_CHECK_HEADERS(Judy.h)
+  if test "x$ac_cv_header_Judy_h" = xyes -a "x$ac_cv_lib_Judy_Judy1Set" = xyes
+  then
+    AC_DEFINE(USE_JUDY, 1, [use Judy library for UDI indexing in YAP code.])
+  fi
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -1194,6 +1210,9 @@ AC_CHECK_SIZEOF(long long int,8)
 AC_CHECK_SIZEOF(float,4)
 AC_CHECK_SIZEOF(double,8)
 AC_CHECK_SIZEOF(void *,4)
+
+AC_DEFINE_UNQUOTED(CELLSIZE, $ac_cv_sizeof_void_p, [size of a cell in bytes.])
+
 
 dnl check type of malloc (i.e. char *  or void *)
 AC_MSG_CHECKING(for type of malloc)
@@ -1600,11 +1619,37 @@ fi
 
 dnl disable smart memory management
 
-if test "$use_malloc" = yes -o "$maxmemory" = yes
+if test "$threads" = "yes"
 then
-  AC_DEFINE(USE_SYSTEM_MALLOC,1,[use OS malloc])
-  AC_DEFINE(GC_NO_TAGS,1,[use Barts idea of allocating extra memory])
+  if test "$use_malloc" = "no"
+  then
+    AC_DEFINE(USE_DL_MALLOC,1,[use Doug Lea's malloc for all allocation])
+  else
+    AC_DEFINE(USE_SYSTEM_MALLOC,1,[use OS malloc for all allocation])
+  fi
+else
+  case "$orparallelism" in
+    sba|yes|copy)
+      if test x"$ac_cv_func_mmap" = x"yes"
+      then
+        AC_DEFINE(USE_SYSTEM_MMAP,1,[use mmap in or-parallel allocation])
+      else
+        AC_DEFINE(USE_SYSTEM_SHM,1,[use shm in or-parallel allocation])
+      fi
+    ;;
+#    a-cow)
+    **)
+      if test "$use_malloc" = "no"
+      then
+        AC_DEFINE(USE_DL_MALLOC,1,[use Doug Lea's malloc for all allocation])
+      else
+        AC_DEFINE(USE_SYSTEM_MALLOC,1,[use OS malloc for all allocation])
+      fi
+    ;;
+  esac
 fi
+AC_DEFINE(GC_NO_TAGS,1,[use Barts idea of allocating extra memory])
+
 
 
 dnl SWI compatibility support!

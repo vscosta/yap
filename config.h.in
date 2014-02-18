@@ -3,8 +3,14 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* longs should be in addresses that are multiple of four. */
+#undef ALIGN_LONGS
+
 /* if fflush(NULL) clobbers input pipes1 */
 #undef BROKEN_FFLUSH_NULL
+
+/* size of a cell in bytes. */
+#undef CELLSIZE
 
 /* c-compiler used */
 #undef C_CC
@@ -847,6 +853,9 @@
 /* o not use realloc() from HP-UX 10.20 together with MPI */
 #undef MPI_AVOID_REALLOC
 
+/* compiler should shift offsets. */
+#undef MSHIFTOFFS
+
 /* myddas release */
 #undef MYDDAS_VERSION
 
@@ -937,11 +946,26 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
+/* use Doug Lea's malloc for all allocation */
+#undef USE_DL_MALLOC
+
+/* use bignums/rationals in YAP code. */
+#undef USE_GMP
+
+/* use Judy library for UDI indexing in YAP code. */
+#undef USE_JUDY
+
 /* do not use our own locking routines */
 #undef USE_PTHREAD_LOCKING
 
-/* use OS malloc */
+/* use OS malloc for all allocation */
 #undef USE_SYSTEM_MALLOC
+
+/* use mmap in or-parallel allocation */
+#undef USE_SYSTEM_MMAP
+
+/* use shm in or-parallel allocation */
+#undef USE_SYSTEM_SHM
 
 /* threaded emulator */
 #undef USE_THREADED_CODE
@@ -1002,6 +1026,9 @@
 
 /* HP-UX old socket stuff */
 #undef _XOPEN_SOURCE_EXTENDED
+
+/* compiling for Windows */
+#undef __WINDOWS__
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */

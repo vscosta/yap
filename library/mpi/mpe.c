@@ -21,6 +21,20 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,
 
 #include "Yap.h"
 
+/* Should we use MPI ? */
+#if defined(HAVE_MPI_H) && (defined(HAVE_LIBMPI) || defined(HAVE_LIBMPICH))
+ #define HAVE_MPI 1
+#else
+ #define HAVE_MPI 0
+#endif
+
+/* Should we use MPE ? */
+#if defined(HAVE_MPI_H) && HAVE_LIBMPE &&  HAVE_MPI
+ #define HAVE_MPE 1
+#else
+ #define HAVE_MPE 0
+#endif
+
 #if HAVE_MPE
 
 #if 0
