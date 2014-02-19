@@ -598,12 +598,20 @@ install_library: @YAPLIB@
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 ##########
+FULL_PATH_C_SOURCES=$(addprefix $(srcdir)/, $(C_SOURCES) ) 
+FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) ) 
+FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) ) 
+
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
-	etags  $(C_SOURCES)  $(PL_SOURCES) $(HEADERS) 
+	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS) 
+	for p in $(PACKAGES); do \
+	  echo " ============== INSTALLING" $$p; \
+	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p TAGS || exit 1; fi; \
+	done
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(C_SOURCES) >> Makefile;\
+	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(FULL_PATH_C_SOURCES) >> Makefile;\
 	else\
           makedepend -f - -- $(CFLAGS) -Iinclude -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
