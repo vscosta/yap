@@ -75,6 +75,7 @@ AC_DEFUN([AX_SPLIT_VERSION],[
     AC_MSG_RESULT([$YAP_POINT_VERSION])
 ])
 
+AX_SPLIT_VERSION
 
 case "$target_cpu" in
     i*86*)
@@ -334,9 +335,9 @@ fi
 
 if test "$yap_cv_prism" = no 
 then
-  INSTALL_PRISM="packages/prism/src/c packages/prism/src/prolog"
-else
   INSTALL_PRISM=""
+else
+  INSTALL_PRISM="packages/prism/src/c packages/prism/src/prolog"
 fi
 
 if test "$yap_cv_clpbn_bp"="yes"; then
@@ -741,6 +742,22 @@ else
   PKG_ZLIB=""
 fi
 
+dnl --enable-new-dtags seems to enable the use of --runpath
+dnl instead of --rpath.
+
+if test "$static_compilation" = "no"
+then
+  OLDLDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS -Wl,--enable-new-dtags"
+  AC_MSG_CHECKING([whether ld supports --enable-new-dtags])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
+    [AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no]) 
+     LDFLAGS="$OLDLDFLAGS"]
+  )
+fi
+
+
 	if test "$cross_compiling" = "yes"
 	then
 	  YAP_EXTRAS=""
@@ -795,19 +812,20 @@ fi
 		   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
 		   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
 		   INSTALL_DLLS="yes"
-	          fi
+	      fi
 		  LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
-	          DYNYAPLIB=libYap."$SO"
-	          SONAMEFLAG="-Wl,-soname=$DYNYAPLIB"
-	        fi
-	        if test "$have_nsl" = yes
+	      DYNYAPLIB=libYap."$SO"."$YAP_VERSION"
+	      EXTRAYAPLIBS="libYap.$SO libYap.$SO.$YAP_MAJOR_VERSION"
+	      SONAMEFLAG="-Wl,-soname=libYap.$SO.$YAP_MAJOR_VERSION"
+	     fi
+	     if test "$have_nsl" = yes
 		 then
-		 LIBS="$LIBS -lnsl"
-	        fi
+		    LIBS="$LIBS -lnsl"
+	     fi
 	        if test "$dynamic_loading" = "yes"
 	        then 
 	           YAPLIB_LD="\$(CC) -shared"
-	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
+	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-rpath=\$(YAPLIBDIR) -Wl,-rpath=\$(LIBDIR)"
 	           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	        else
 	           YAPLIB_LD="\$(CC)"
@@ -817,17 +835,17 @@ fi
 	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
 		;;
 	      *sunos4*)
-		M4="/usr/5bin/m4"
-		LDFLAGS="$LDFLAGS -N"
+		    M4="/usr/5bin/m4"
+		    LDFLAGS="$LDFLAGS -N"
 	        if test "$have_nsl" = yes
-		 then
-		 LIBS="$LIBS -lnsl"
+		    then
+		      LIBS="$LIBS -lnsl"
 	        fi
 	        SO="o"
-		INSTALL_DLLS="yes"
-		LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
+		    INSTALL_DLLS="yes"
+		    LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
 	        DYNYAPLIB=libYap."$SO"
-		SONAMEFLAG=""
+		    SONAMEFLAG=""
 	        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
 	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
 	        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -1278,7 +1296,8 @@ dnl System stuff for dynamic linking.
 dnl
 dnl Exports:
 dnl
-dnl "" if we can do dynamic linking, "#" otherwise
+AC_SUBST(EXTRAYAPLIBS)
+dnl "" if we can do dynamic linking, "#" otherwise\
 AC_SUBST(INSTALL_DLLS)
 dnl if we need to merge several .o files into a single dll.
 AC_SUBST(MERGE_DLL_OBJS)
@@ -1880,8 +1899,6 @@ AC_SUBST(PKG_LIBARCHIVE)
 AC_SUBST(PKG_ODBC)
 
 dnl parms.h
-
-AX_SPLIT_VERSION
 
 AC_DEFINE_UNQUOTED(YAP_STARTUP,  [ "$yap_startup" ], [saved state file])
 

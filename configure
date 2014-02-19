@@ -621,8 +621,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SED
-PKG_ODBC
+ac_subst_vars='PKG_ODBC
 PKG_LIBARCHIVE
 GECODE_EXTRALIBS
 GECODE_VERSION
@@ -748,6 +747,7 @@ SHLIB_CXXFLAGS
 SHLIB_CFLAGS
 MERGE_DLL_OBJS
 INSTALL_DLLS
+EXTRAYAPLIBS
 ARCH
 M4GENHDRS
 M4
@@ -764,6 +764,7 @@ INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
 LN_S
+SED
 target_os
 target_vendor
 target_cpu
@@ -4085,6 +4086,94 @@ _ACEOF
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
+$as_echo_n "checking for a sed that does not truncate output... " >&6; }
+if ${ac_cv_path_SED+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+            ac_script=s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/
+     for ac_i in 1 2 3 4 5 6 7; do
+       ac_script="$ac_script$as_nl$ac_script"
+     done
+     echo "$ac_script" 2>/dev/null | sed 99q >conftest.sed
+     { ac_script=; unset ac_script;}
+     if test -z "$SED"; then
+  ac_path_SED_found=false
+  # Loop through the user's path and test for each of PROGNAME-LIST
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_prog in sed gsed; do
+    for ac_exec_ext in '' $ac_executable_extensions; do
+      ac_path_SED="$as_dir/$ac_prog$ac_exec_ext"
+      as_fn_executable_p "$ac_path_SED" || continue
+# Check for GNU ac_path_SED and select it if it is found.
+  # Check for GNU $ac_path_SED
+case `"$ac_path_SED" --version 2>&1` in
+*GNU*)
+  ac_cv_path_SED="$ac_path_SED" ac_path_SED_found=:;;
+*)
+  ac_count=0
+  $as_echo_n 0123456789 >"conftest.in"
+  while :
+  do
+    cat "conftest.in" "conftest.in" >"conftest.tmp"
+    mv "conftest.tmp" "conftest.in"
+    cp "conftest.in" "conftest.nl"
+    $as_echo '' >> "conftest.nl"
+    "$ac_path_SED" -f conftest.sed < "conftest.nl" >"conftest.out" 2>/dev/null || break
+    diff "conftest.out" "conftest.nl" >/dev/null 2>&1 || break
+    as_fn_arith $ac_count + 1 && ac_count=$as_val
+    if test $ac_count -gt ${ac_path_SED_max-0}; then
+      # Best one so far, save it but keep looking for a better one
+      ac_cv_path_SED="$ac_path_SED"
+      ac_path_SED_max=$ac_count
+    fi
+    # 10*(2^10) chars as input seems more than enough
+    test $ac_count -gt 10 && break
+  done
+  rm -f conftest.in conftest.tmp conftest.nl conftest.out;;
+esac
+
+      $ac_path_SED_found && break 3
+    done
+  done
+  done
+IFS=$as_save_IFS
+  if test -z "$ac_cv_path_SED"; then
+    as_fn_error $? "no acceptable sed could be found in \$PATH" "$LINENO" 5
+  fi
+else
+  ac_cv_path_SED=$SED
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_path_SED" >&5
+$as_echo "$ac_cv_path_SED" >&6; }
+ SED="$ac_cv_path_SED"
+  rm -f conftest.sed
+
+
+
+    YAP_VERSION="$PACKAGE_VERSION"
+    YAP_MAJOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/\([^.][^.]*\).*/\1/'`
+    YAP_MINOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.\([^.][^.]*\).*/\1/'`
+    YAP_POINT_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.[^.][^.]*.\(.*\)/\1/'`
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Major version" >&5
+$as_echo_n "checking Major version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MAJOR_VERSION" >&5
+$as_echo "$YAP_MAJOR_VERSION" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Minor version" >&5
+$as_echo_n "checking Minor version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MINOR_VERSION" >&5
+$as_echo "$YAP_MINOR_VERSION" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Point version" >&5
+$as_echo_n "checking Point version... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_POINT_VERSION" >&5
+$as_echo "$YAP_POINT_VERSION" >&6; }
+
 
 case "$target_cpu" in
     i*86*)
@@ -4504,9 +4593,9 @@ _ACEOF
 
 if test "$yap_cv_prism" = no
 then
-  INSTALL_PRISM="packages/prism/src/c packages/prism/src/prolog"
-else
   INSTALL_PRISM=""
+else
+  INSTALL_PRISM="packages/prism/src/c packages/prism/src/prolog"
 fi
 
 if test "$yap_cv_clpbn_bp"="yes"; then
@@ -6605,6 +6694,38 @@ else
   PKG_ZLIB=""
 fi
 
+
+if test "$static_compilation" = "no"
+then
+  OLDLDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS -Wl,--enable-new-dtags"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ld supports --enable-new-dtags" >&5
+$as_echo_n "checking whether ld supports --enable-new-dtags... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+     LDFLAGS="$OLDLDFLAGS"
+
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+
+
 	if test "$cross_compiling" = "yes"
 	then
 	  YAP_EXTRAS=""
@@ -6805,19 +6926,20 @@ fi
 		   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
 		   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
 		   INSTALL_DLLS="yes"
-	          fi
+	      fi
 		  LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
-	          DYNYAPLIB=libYap."$SO"
-	          SONAMEFLAG="-Wl,-soname=$DYNYAPLIB"
-	        fi
-	        if test "$have_nsl" = yes
+	      DYNYAPLIB=libYap."$SO"."$YAP_VERSION"
+	      EXTRAYAPLIBS="libYap.$SO libYap.$SO.$YAP_MAJOR_VERSION"
+	      SONAMEFLAG="-Wl,-soname=libYap.$SO.$YAP_MAJOR_VERSION"
+	     fi
+	     if test "$have_nsl" = yes
 		 then
-		 LIBS="$LIBS -lnsl"
-	        fi
+		    LIBS="$LIBS -lnsl"
+	     fi
 	        if test "$dynamic_loading" = "yes"
 	        then
 	           YAPLIB_LD="\$(CC) -shared"
-	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
+	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-rpath=\$(YAPLIBDIR) -Wl,-rpath=\$(LIBDIR)"
 	           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	        else
 	           YAPLIB_LD="\$(CC)"
@@ -6827,17 +6949,17 @@ fi
 	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
 		;;
 	      *sunos4*)
-		M4="/usr/5bin/m4"
-		LDFLAGS="$LDFLAGS -N"
+		    M4="/usr/5bin/m4"
+		    LDFLAGS="$LDFLAGS -N"
 	        if test "$have_nsl" = yes
-		 then
-		 LIBS="$LIBS -lnsl"
+		    then
+		      LIBS="$LIBS -lnsl"
 	        fi
 	        SO="o"
-		INSTALL_DLLS="yes"
-		LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
+		    INSTALL_DLLS="yes"
+		    LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
 	        DYNYAPLIB=libYap."$SO"
-		SONAMEFLAG=""
+		    SONAMEFLAG=""
 	        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
 	        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
 	        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -8209,6 +8331,7 @@ fi
 
 
 CMDEXT=sh
+
 
 
 
@@ -11892,7 +12015,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11895 "configure" */
+/* #line 12018 "configure" */
 public class Test {
 }
 EOF
@@ -12068,7 +12191,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12071: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12194: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12199,7 +12322,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12202 "configure" */
+/* #line 12325 "configure" */
 public class Test {
 }
 EOF
@@ -12234,7 +12357,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12237 "configure" */
+/* [#]line 12360 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12885,12 +13008,6 @@ _ACEOF
 
 
 
-if test $i_am_cross_compiling = yes
-then
-     #mingw: we know where things are
-     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
-     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
-fi
 
 
 
@@ -15180,95 +15297,6 @@ fi
 
 
 
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
-$as_echo_n "checking for a sed that does not truncate output... " >&6; }
-if ${ac_cv_path_SED+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-            ac_script=s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/
-     for ac_i in 1 2 3 4 5 6 7; do
-       ac_script="$ac_script$as_nl$ac_script"
-     done
-     echo "$ac_script" 2>/dev/null | sed 99q >conftest.sed
-     { ac_script=; unset ac_script;}
-     if test -z "$SED"; then
-  ac_path_SED_found=false
-  # Loop through the user's path and test for each of PROGNAME-LIST
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_prog in sed gsed; do
-    for ac_exec_ext in '' $ac_executable_extensions; do
-      ac_path_SED="$as_dir/$ac_prog$ac_exec_ext"
-      as_fn_executable_p "$ac_path_SED" || continue
-# Check for GNU ac_path_SED and select it if it is found.
-  # Check for GNU $ac_path_SED
-case `"$ac_path_SED" --version 2>&1` in
-*GNU*)
-  ac_cv_path_SED="$ac_path_SED" ac_path_SED_found=:;;
-*)
-  ac_count=0
-  $as_echo_n 0123456789 >"conftest.in"
-  while :
-  do
-    cat "conftest.in" "conftest.in" >"conftest.tmp"
-    mv "conftest.tmp" "conftest.in"
-    cp "conftest.in" "conftest.nl"
-    $as_echo '' >> "conftest.nl"
-    "$ac_path_SED" -f conftest.sed < "conftest.nl" >"conftest.out" 2>/dev/null || break
-    diff "conftest.out" "conftest.nl" >/dev/null 2>&1 || break
-    as_fn_arith $ac_count + 1 && ac_count=$as_val
-    if test $ac_count -gt ${ac_path_SED_max-0}; then
-      # Best one so far, save it but keep looking for a better one
-      ac_cv_path_SED="$ac_path_SED"
-      ac_path_SED_max=$ac_count
-    fi
-    # 10*(2^10) chars as input seems more than enough
-    test $ac_count -gt 10 && break
-  done
-  rm -f conftest.in conftest.tmp conftest.nl conftest.out;;
-esac
-
-      $ac_path_SED_found && break 3
-    done
-  done
-  done
-IFS=$as_save_IFS
-  if test -z "$ac_cv_path_SED"; then
-    as_fn_error $? "no acceptable sed could be found in \$PATH" "$LINENO" 5
-  fi
-else
-  ac_cv_path_SED=$SED
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_path_SED" >&5
-$as_echo "$ac_cv_path_SED" >&6; }
- SED="$ac_cv_path_SED"
-  rm -f conftest.sed
-
-
-
-    YAP_VERSION="$PACKAGE_VERSION"
-    YAP_MAJOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/\([^.][^.]*\).*/\1/'`
-    YAP_MINOR_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.\([^.][^.]*\).*/\1/'`
-    YAP_POINT_VERSION=`echo "$PACKAGE_VERSION" | $SED 's/[^.][^.]*.[^.][^.]*.\(.*\)/\1/'`
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Major version" >&5
-$as_echo_n "checking Major version... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MAJOR_VERSION" >&5
-$as_echo "$YAP_MAJOR_VERSION" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Minor version" >&5
-$as_echo_n "checking Minor version... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_MINOR_VERSION" >&5
-$as_echo "$YAP_MINOR_VERSION" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Point version" >&5
-$as_echo_n "checking Point version... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $YAP_POINT_VERSION" >&5
-$as_echo "$YAP_POINT_VERSION" >&6; }
 
 
 
