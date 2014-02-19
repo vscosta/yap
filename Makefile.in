@@ -76,6 +76,7 @@ DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 LIBS=@LIBS@
 DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
 LDFLAGS=@LDFLAGS@
+EXTRAYAPLIBS=@EXTRAYAPLIBS@
 LN_S=@LN_S@
 M4=@M4@
 GCC=@GCC@
@@ -561,6 +562,9 @@ libYap.a: $(LIB_OBJECTS)
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
 	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+	for p in $(EXTRAYAPLIBS); do \
+	  $(LN_S) -f @DYNYAPLIB@ $$p; \
+	done
 
 install: @INSTALL_COMMAND@
 
@@ -575,6 +579,9 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
+	for p in $(EXTRAYAPLIBS); do \
+	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $$p; \
+	done
 	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
