@@ -182,7 +182,7 @@
   % remove any debugging info after an abort.
   %
 
- trace :-
+trace :-
 	 '$init_debugger',
 	'$nb_getval'('$trace', on, fail), !.
 trace :-
@@ -407,15 +407,8 @@ debugging :-
 	fail.
 
 % if we are in 
-'$loop_spy2'(GoalNumber, G0, Module, CalledFromDebugger, CP) :- 
+'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :- 
 /* the following choice point is where the predicate is  called */
-	   (
-             '$is_metapredicate'(G0, Module)
-	   ->
-	    '$meta_expansion'(G0,Module,Module,Module,G,[])
-	   ;
-	     G = G0
-	   ),
 	   b_getval('$spy_glist',[Info|_]),	/* get goal list		*/
 	   Info = info(_,_,_,Retry,Det,false),
 	   (
@@ -512,18 +505,25 @@ debugging :-
 	 '$system_module'(M)
 	),
 	!,
-	(
-	   '$is_metapredicate'(G,M)
-	->
-	   '$creep'(G,M)
+	( '$is_metapredicate'(G, M)
+	   ->
+	  '$meta_expansion'(G,M,M,M,G1,[]),
+	  '$creep'(G1, M)
 	;
-	    '$execute'(M:G)
+	'$execute'(M:G)
 	).
 '$spycall'(G, M, _, _) :-
         '$tabled_predicate'(G,M),
 	 !,
 	'$continue_debugging_goal'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
+	'$is_metapredicate'(G, M), !,
+	'$meta_expansion'(G,M,M,M,G1,[]),
+	'$spycall_expanded'(G1, M, CalledFromDebugger, InRedo).
+'$spycall'(G, M, CalledFromDebugger, InRedo) :-
+	'$spycall_expanded'(G, M, CalledFromDebugger, InRedo).
+
+'$spycall_expanded'(G, M, CalledFromDebugger, InRedo) :-
 	'$flags'(G,M,F,F),
 	F /\ 0x08402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
@@ -531,11 +531,11 @@ debugging :-
 	'$clause'(G, M, Cl, _),
 	% I may backtrack to here from far away
 	( '$do_spy'(Cl, M, CP, debugger) ; InRedo = true ).
-'$spycall'(G, M, CalledFromDebugger, InRedo) :-
+'$spycall_expanded'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,
 	'$find_goal_definition'(M, G, NM, Goal),
 	'$spycall'(Goal, NM, CalledFromDebugger, InRedo).
-'$spycall'(G, M, _, InRedo) :-
+'$spycall_expanded'(G, M, _, InRedo) :-
 	% I lost control here.
 	CP is '$last_choice_pt',
 	'$static_clause'(G,M,_,R),

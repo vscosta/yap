@@ -2585,6 +2585,13 @@ p_free_variables_in_term( USES_REGS1 )	/* variables within term t		 */
 	}
       } else if (f == FunctorModule) {
 	found_module = ArgOfTerm(1, t);
+      } else if (f == FunctorCall) {
+	t = ArgOfTerm(1, t);
+	continue;
+      } else if (f == FunctorExecuteInMod) {
+	found_module = ArgOfTerm(2, t);
+	t = ArgOfTerm(1, t);
+	continue;
       } else {
 	break;
       }

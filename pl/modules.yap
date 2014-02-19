@@ -473,6 +473,8 @@ expand_goal(G, G).
 % support all/3
 '$uvar'(same( G, _), LF, L)  :-
     '$uvar'(G, LF, L).
+'$uvar'('^'( _, G), LF, L)  :-
+    '$uvar'(G, LF, L).
 
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
