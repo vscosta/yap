@@ -580,7 +580,7 @@ install_unix: startup.yss @YAPLIB@
 	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	for p in $(EXTRAYAPLIBS); do \
-	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $$p; \
+	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $(DESTDIR)$(LIBDIR)/$$p; \
 	done
 	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
