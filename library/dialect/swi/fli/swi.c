@@ -1809,7 +1809,7 @@ PL_record_external
       return NULL;
     if ((nsz = Yap_ExportTerm(t, s, len, 0))) {
       *sz = nsz;
-      return s;
+      return (record_t)s;
     } else {
       if (len < 16*1024) 
 	len = len *2;
