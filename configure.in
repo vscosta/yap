@@ -953,7 +953,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
         then 
-	   SHLIB_LD="$CC  -dynamiclib"
+	       SHLIB_LD="$CC  -dynamiclib"
            SHLIB_CXX_LD="$CXX  -dynamiclib"
            EXTRA_LIBS_FOR_DLLS="-L\$(abs_top_builddir) $LIBS $EXTRA_LIBS_FOR_DLLS -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -971,10 +971,11 @@ dnl Linux has both elf and a.out, in this case we found elf
 	   INSTALL_DLLS="yes"
         fi
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
-        DYNYAPLIB=libYap."$SO"
-	SONAMEFLAG=""
-        YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.$SO"
+        DYNYAPLIB=libYap."$YAP_VERSION.$SO"
+	    SONAMEFLAG="-Wl,-install_name,$prefix/lib/libYap.$YAP_MAJOR_VERSION.$SO -Wl,-compatibility_version,$YAP_MAJOR_VERSION.$YAP_MINOR_VERSION -Wl,-current_version,$YAP_VERSION"
+        YAPLIB_LD="$CC -dynamiclib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$DYLD_LIBRARY_PATH"
+        EXTRAYAPLIBS="libYap.$SO libYap.$YAP_MAJOR_VERSION.$SO"
 	;;
       *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -1538,7 +1539,7 @@ AC_CHECK_FUNCS(mbsnrtowcs)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
 AC_CHECK_FUNCS(nanosleep mktime opendir)
 AC_CHECK_FUNCS(putenv rand random readlink regexec)
-AC_CHECK_FUNCS(rename rint sbrk select setbuf)
+AC_CHECK_FUNCS(rename rint sbrk select setbuf setlinebuf)
 AC_CHECK_FUNCS(setitimer setlocale setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket srand srandom stat)

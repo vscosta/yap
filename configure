@@ -7152,7 +7152,7 @@ fi
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
         then
-	   SHLIB_LD="$CC  -dynamiclib"
+	       SHLIB_LD="$CC  -dynamiclib"
            SHLIB_CXX_LD="$CXX  -dynamiclib"
            EXTRA_LIBS_FOR_DLLS="-L\$(abs_top_builddir) $LIBS $EXTRA_LIBS_FOR_DLLS -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -7170,10 +7170,11 @@ fi
 	   INSTALL_DLLS="yes"
         fi
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
-        DYNYAPLIB=libYap."$SO"
-	SONAMEFLAG=""
-        YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.$SO"
+        DYNYAPLIB=libYap."$YAP_VERSION.$SO"
+	    SONAMEFLAG="-Wl,-install_name,$prefix/lib/libYap.$YAP_MAJOR_VERSION.$SO -Wl,-compatibility_version,$YAP_MAJOR_VERSION.$YAP_MINOR_VERSION -Wl,-current_version,$YAP_VERSION"
+        YAPLIB_LD="$CC -dynamiclib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$DYLD_LIBRARY_PATH"
+        EXTRAYAPLIBS="libYap.$SO libYap.$YAP_MAJOR_VERSION.$SO"
 	;;
       *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -8963,7 +8964,7 @@ _ACEOF
 fi
 done
 
-for ac_func in rename rint sbrk select setbuf
+for ac_func in rename rint sbrk select setbuf setlinebuf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12015,7 +12016,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12018 "configure" */
+/* #line 12019 "configure" */
 public class Test {
 }
 EOF
@@ -12191,7 +12192,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12194: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12195: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12322,7 +12323,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12325 "configure" */
+/* #line 12326 "configure" */
 public class Test {
 }
 EOF
@@ -12357,7 +12358,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12360 "configure" */
+/* [#]line 12361 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -13008,6 +13009,12 @@ _ACEOF
 
 
 
+if test $i_am_cross_compiling = yes
+then
+     #mingw: we know where things are
+     JPLCFLAGS="-I \"$yap_cv_java\"/include -I \"$yap_cv_java\"/include/win32"
+     JAVALIBS="-L \"$yap_cv_java\"/jre/bin/server -L \"$yap_cv_java\"/jre/bin/client -ljvm"
+fi
 
 
 

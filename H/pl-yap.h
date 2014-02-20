@@ -36,6 +36,7 @@ extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
 extern void Yap_setCurrentSourceLocation( void *rd );
 extern void   *Yap_GetStreamHandle(Atom at);
+extern void	Yap_WriteAtom(IOSTREAM *s, Atom atom);
 
 extern atom_t codeToAtom(int chrcode);
 

@@ -249,7 +249,7 @@ writeTopTerm(term_t t, int prec, write_options *options)
 
 int
 writeAtomToStream(IOSTREAM *s, atom_t atom)
-{ Yap_plwrite(MkAtomTerm(YAP_AtomFromSWIAtom(atom)), s, 0, 0, 1200);
+{ Yap_WriteAtom( s, YAP_AtomFromSWIAtom(atom));
   return 1;
 }
 

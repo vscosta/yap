@@ -1448,7 +1448,11 @@ PRED_IMPL("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
 void
 PL_write_prompt(int dowrite)
 { GET_LD
+#if __YAP_PROLOG__
+  IOSTREAM *s = getStream(Suser_error);
+#else
   IOSTREAM *s = getStream(Suser_output);
+#endif
 
   if ( s )
   { if ( dowrite )
@@ -1457,7 +1461,6 @@ PL_write_prompt(int dowrite)
       if ( a )
 	writeAtomToStream(s, a);
     }
-
     Sflush(s);
     releaseStream(s);
   }
@@ -2937,7 +2940,6 @@ PRED_IMPL("prompt", 2, prompt, 0)
 void
 prompt1(atom_t prompt)
 { GET_LD
-
   if ( LD->prompt.first != prompt )
   { if ( LD->prompt.first )
       PL_unregister_atom(LD->prompt.first);

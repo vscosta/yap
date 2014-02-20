@@ -575,7 +575,7 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
   wrf stream = wglb->stream;
 
   if (IsBlob(atom)) {
-    wrputblob(RepAtom(atom),wglb->Quote_illegal,wglb);
+    wrputblob(RepAtom(atom),Quote_illegal,wglb);
     return;
   }
   if (IsWideAtom(atom)) {
@@ -619,6 +619,15 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
   } else {
     wrputs((char *)s, stream);
   }
+}
+
+void
+Yap_WriteAtom(IOSTREAM *s, Atom atom)
+{
+	struct write_globs wglb;
+	wglb.stream = s;
+	wglb.Quote_illegal = FALSE;
+	putAtom(atom, 0, &wglb);
 }
 
 static int 

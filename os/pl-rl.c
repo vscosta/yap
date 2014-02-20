@@ -415,7 +415,6 @@ Sread_readline(void *handle, char *buf, size_t size)
   int fd = (int) h;
   int ttymode = PL_ttymode(Suser_input); /* Not so nice */
   int rval;
-
   PL_write_prompt(ttymode == PL_NOTTY);
 
   switch( ttymode )
@@ -474,6 +473,9 @@ Sread_readline(void *handle, char *buf, size_t size)
 	  reset_readline();
 	}
 
+#if __YAP_PROLOG__
+	rl_outstream = stderr;
+#endif
 	if ( in_readline++ )
 	{ int state = rl_readline_state;
 
