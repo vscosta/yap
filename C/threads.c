@@ -721,7 +721,7 @@ p_new_mutex( USES_REGS1 )
     return FALSE;
   }
   pthread_mutexattr_init(&mat);
-#ifdef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+#if defined(HAVE_PTHREAD_MUTEXATTR_SETKIND_NP)  && !defined(__MINGW32__)
   pthread_mutexattr_setkind_np(&mat, PTHREAD_MUTEX_RECURSIVE_NP);
 #else
 #ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
