@@ -209,6 +209,7 @@ true :- true.
 	'$swi_current_prolog_flag'(break_level, BreakLevel),
 	( Breaklevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
+        flush_output,
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
 	'$read_toplevel'(Command,Varnames),

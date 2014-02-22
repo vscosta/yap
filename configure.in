@@ -497,6 +497,9 @@ then
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
+    if test "$threads" = yes; then
+      AC_CHECK_LIB(pthread, main)
+    fi
     if test "$target_cpu" = x86_64; then
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
