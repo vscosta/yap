@@ -67,7 +67,6 @@ true :- true.
 %	;
 %	 true
 %	),
-    '$enter_system_mode',
     '$init_globals',
     '$swi_set_prolog_flag'(fileerrors, true),
     set_value('$gc',on),
@@ -95,7 +94,6 @@ true :- true.
 	'$init_consult',
 	% '$swi_set_prolog_flag'(break_level, 0),
 	% '$set_read_error_handler'(error), let the user do that 
-	nb_setval('$system_mode',off),
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
@@ -159,13 +157,13 @@ true :- true.
 			(print_message(error, E),
 	                 '$handle_toplevel_error'(Line, E))),
 	(   
-	    current_predicate(_, user:rl_add_history(_))
+	    '$pred_exists'(rl_add_history(_), user)
 	-> 
 	    format(atom(CompleteLine), '~W~W',
 		   [ Line, [partial(true)],
 		     '.', [partial(true)]
 		   ]),
-	    call(user:rl_add_history(CompleteLine))
+	    user:rl_add_history(CompleteLine)
 	;   
 	    true
 	),
@@ -211,6 +209,7 @@ true :- true.
 	'$swi_current_prolog_flag'(break_level, BreakLevel),
 	( Breaklevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
+        flush_output,
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
 	'$read_toplevel'(Command,Varnames),
@@ -479,7 +478,7 @@ true :- true.
 	 (
 	  '$current_choice_point'(CP),
 	  '$current_module'(M),
-	  '$execute_outside_system_mode'(G, M),
+	  '$user_call'(G, M),
 	  '$current_choice_point'(NCP),
 	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
@@ -528,6 +527,7 @@ true :- true.
 	  ;
 	   copy_term_nat(V, NV), 
 	   LGs = [], 
+%	   term_factorized(V, NV, LGs),
 	   NCP = 0
         ).
 
@@ -543,7 +543,7 @@ true :- true.
 	!,
 	'$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
-	'$execute_outside_system_mode'(G, M).
+	'$user_call'(G, M).
 
 '$write_query_answer_true'([]) :- !,
 	format(user_error,'true',[]).
@@ -750,6 +750,28 @@ incore(G) :- '$execute'(G).
 '$meta_call'(G, M) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
+
+'$user_call'(G, M) :-
+	 ( '$$save_by'(CP),
+	 '$enable_debugging',
+	 '$call'(G, CP, M:G, M),
+	 '$$save_by'(CP2),
+	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
+	 '$disable_debugging'
+     ;
+	'$disable_debugging',
+	fail
+    ).
+
+'$enable_debugging' :-
+	'$swi_current_prolog_flag'(debug, false), !.
+'$enable_debugging' :-
+	'$nb_getval'('$trace', on, fail), !,
+	'$creep'.
+'$enable_debugging'.
+
+'$disable_debugging' :-
+	'$stop_creeping'.
 
 
 ','(X,Y) :-
@@ -1022,11 +1044,6 @@ bootstrap(F) :-
 	!,
 	close(Stream).
 
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, false) :- !,
-       read_term(Stream, T, [ /* module(Mod), */ variable_names(V), term_position(Pos), syntax_errors(dec10)  ]).
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
-       read_term(Stream, T, [module(Mod), variable_names(V), term_position(Pos), syntax_errors(dec10),  comments( ReadComments ) ]).
-
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),	
 	prompt1('|     '), prompt(_,'| '),
@@ -1046,36 +1063,25 @@ bootstrap(F) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
-	(
-	 Status = top
-	;
-	 '$undefined'(comment_hook(_,_,_),prolog)
-	;
-	 '$number_of_clauses'(comment_hook(_,_,_),prolog,0)
-	), !,
 	repeat,
 		prompt1('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,OldModule,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
 	!.
-% support comment hook
-'$loop'(Stream,Status) :-
-	repeat,
-		prompt1('|     '), prompt(_,'| '),
-		'$current_module'(OldModule),
-		'$system_catch'('$enter_command_with_hook'(Stream,OldModule,Status), OldModule, Error,
-			 user:'$LoopError'(Error, Status)),
-	!.
 
 '$enter_command'(Stream,Mod,Status) :-
-	'$read_vars'(Stream,Command,Mod,Pos,Vars, '|: ', false),
-	'$command'(Command,Vars,Pos,Status).
-
-% support SWI hook in a separate predicate, to avoid slow down standard consult.
-'$enter_command_with_hook'(Stream,Mod,Status) :-
-	'$read_vars'(Stream,Command,Mod,Pos,Vars, '|: ', Comments),
-	( prolog:comment_hook(Comments,Pos,Command) -> true ; true ),
+	read_term(Stream, Command, [module(Mod), variable_names(Vars), term_position(Pos), syntax_errors(dec10), process_comment(true), singletons( Singletons ) ]),
+	( Singletons == []
+         -> 
+	 true
+        ;
+	  get_value('$syntaxchecksinglevar',on)
+        ->
+	 '$sv_warning'(Singletons, Command )
+        ;
+	  true
+        ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
@@ -1108,7 +1114,9 @@ bootstrap(F) :-
 %                       Expanded is the final expanded term.
 %
 '$precompile_term'(Term, Expanded0, Expanded, BodyMod, SourceMod) :-
+%format('[ ~w~n',[Term]),  
 	'$module_expansion'(Term, Expanded0, ExpandedI, BodyMod, SourceMod), !,
+%format('      -> ~w~n',[Expanded0]),  
 	(
 	 '$access_yap_flags'(9,1)      /* strict_iso on */
         ->
@@ -1224,65 +1232,9 @@ catch_ball(C, C).
 	( call(user:H1) -> true ; true).
 '$run_toplevel_hooks'.
 
-'$enter_system_mode' :-
-	'$stop_creeping',
-	nb_setval('$system_mode',on).
-
-'$in_system_mode' :-
-	'$nb_getval'('$system_mode',on,fail).
-
-'$execute_outside_system_mode'(G,M) :-
-	CP is '$last_choice_pt',	
-	'$execute_outside_system_mode'(G,M,CP).
-
-'$execute_outside_system_mode'(V,M,_) :-
-	var(V), !,
-	call(M:V).
-'$execute_outside_system_mode'(M:G, _M, CP) :- !,
-	'$execute_outside_system_mode'(G, M, CP).
-'$execute_outside_system_mode'((G1,G2), M, CP) :- !,
-	'$execute_outside_system_mode'(G1, M, CP),
-	'$execute_outside_system_mode'(G2, M, CP).
-'$execute_outside_system_mode'((G1;G2), M, CP) :- !,
-	(
-	 '$execute_outside_system_mode'(G1, M, CP)
-	;
-	 '$execute_outside_system_mode'(G2, M, CP)
-	).
-'$execute_outside_system_mode'(G, M, CP) :-
-	'$nb_getval'('$trace', on, fail), !,
-	(
-	   '$$save_by'(CP1),
-	  '$do_spy'(G, M, CP, meta_creep),
-	   % we may exit system mode...
-	   '$$save_by'(CP2),
-	   (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
-	   '$enter_system_mode'
-	;
-	   '$enter_system_mode',
-	   fail
-	).
-'$execute_outside_system_mode'(G, M, CP) :-
-	(
-	 '$$save_by'(CP1),
-	 '$exit_system_mode',
-	 '$call'(G, CP, M:G, M),
-	 '$$save_by'(CP2),
-	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
-	 '$enter_system_mode'
-	;
-	  '$enter_system_mode',
-	  fail
-	).
-
-
-'$exit_system_mode' :-
-	nb_setval('$system_mode',off),
-	( '$nb_getval'('$trace',on,fail) -> '$meta_creep' ; true).
-
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
-	'$execute_outside_sysem_mode'(D, M),
+	'$meta_call'(D, M),
 	fail.
 '$run_at_thread_start'.
 

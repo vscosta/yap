@@ -147,3 +147,6 @@ install-examples:
 	for p in $(EXS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism; done
 	for p in $(EXS_JTREE); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/jtree; done
 	for p in $(EXS_NOISY_OR); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/noisy_or; done
+
+distclean: clean
+	rm -f Makefile

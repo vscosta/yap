@@ -1,3 +1,6 @@
+
+:- '$set_yap_flags'(11,1). % source.
+
 %   memberchk(+Element, +Set)
 %   means the same thing, but may only be used to test whether a known
 %   Element occurs in a known Set.  In return for this limited use, it
@@ -21,4 +24,5 @@ lists:append([H|T], L, [H|R]) :-
 	lists:append(T, L, R).
 
 
+:- '$set_yap_flags'(11,0). % :- no_source.
 

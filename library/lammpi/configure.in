@@ -34,7 +34,7 @@ fi
 
 dnl LAM/MPI interface
 
-if test "$yap_cv_mpi" != "no"; then
+if test "$yap_cv_mpi" != "no" -a "$INSTALL_DLLS" != "no"; then
     if test "$yap_cv_mpi" != "yes"; then
       AC_PATH_PROG(MPI_CC,mpicc,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
     else
@@ -43,7 +43,7 @@ if test "$yap_cv_mpi" != "no"; then
     MPILDF=`"$MPI_CC" --showme:link`
     MPICF=`"$MPI_CC" --showme:compile`
     LIBS="$LIBS $MPILDF"
-    INSTALL_MPI=""
+    PKG_MPI="library/mpi"
     OLD_CC=${CC}
     CC=${MPI_CC}
     AC_CHECK_HEADERS(mpi.h)
@@ -53,8 +53,8 @@ if test "$yap_cv_mpi" != "no"; then
      OLD_CC=${CC}
      CC=${MPI_CC}
      AC_CHECK_LIB(mpe,MPE_Init_log,
-		[AC_DEFINE(HAVE_LIBMPE, 1)],
-		[AC_DEFINE(HAVE_LIBMPE, 0)])
+		[AC_DEFINE(HAVE_LIBMPE, 1, [MPI Debugging on])],
+		[AC_DEFINE(HAVE_LIBMPE, 0, [MPI Debugging off])])
      if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
      then
 	MPI_1LIBS="-lmpe"
@@ -64,11 +64,14 @@ if test "$yap_cv_mpi" != "no"; then
      CC=${OLD_CC}
    fi
 else
-  INSTALL_MPI="# "
+  PKG_MPI=""
   MPI_CC=${CC}
 fi
 
 
+AC_SUBST(PKG_MPI)
 AC_SUBST(YAPMPILIB)
 AC_SUBST(MPILDF)
 AC_SUBST(MPICF)
+
+mkdir -p  library/lammpi

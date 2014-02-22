@@ -284,6 +284,7 @@ int main(int argc, char **arg) {
   SETMAXBUFSIZE(params.maxbufsize);
 
   signal(SIGINT, termhandler);
+#ifndef __MINGW32__
   if (params.ppid != NULL) {
     signal(SIGALRM, pidhandler);
     alarm(5);
@@ -291,6 +292,7 @@ int main(int argc, char **arg) {
     signal(SIGALRM, handler);
     alarm(params.timeout);
   }
+#endif
   
   if (params.online) {
     MyManager.manager = simpleBDDinit(0);
@@ -688,7 +690,9 @@ void pidhandler(int num) {
   s = (char *) malloc(sizeof(char) * (19 + strlen(params.ppid)));
   strcpy(s, "ps "); strcat(s, params.ppid); strcat(s, " >/dev/null");
   if (system(s) != 0) exit(4);
+#ifndef __MINGW32__
   signal(SIGALRM, pidhandler);
+#endif
   alarm(5);
   free(s);
 }
@@ -821,7 +825,7 @@ void PrintNodeQueue(Queue q , extmanager MyManager){
 /* will be changed at later stage */
 static extmanager * ineedtostorethatsomehow;
 int comparator(void *av, void *bv){
-    int ret;
+    int ret = 0;
     DdNode* a = (DdNode*)av;
     DdNode* b = (DdNode*)bv;
     int aindex,bindex, aperm, bperm;

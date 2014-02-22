@@ -78,6 +78,8 @@ all: $(TARGETS)
 install: $(TARGETS)
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean: clean_subdirs
 	$(RM) $(TARGET)
 
@@ -85,6 +87,9 @@ clean_subdirs:
 	for i in $(SUBDIRS); do                     \
 	  $(RM) $$i/*.o;                            \
 	done
+
+distclean: clean
+	rm -f Makefile $(SOBJS)
 
 ##----------------------------------------------------------------------
 

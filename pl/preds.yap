@@ -355,47 +355,18 @@ clause(V,Q,R) :-
 
 :- '$init_preds'.
 
-nth_clause(V,I,R) :- var(V), var(R), !,
-	'$do_error'(instantiation_error,nth_clause(V,I,R)).
-nth_clause(M:V,I,R) :- !,
-	'$nth_clause'(V,M,I,R).
 nth_clause(V,I,R) :-
 	'$current_module'(M),
-	'$nth_clause'(V,M,I,R).
+	strip_module(M:V, M1, P), !,
+	'$nth_clause'(P, M1, I, R).
 
 
-'$nth_clause'(V,M,I,R) :- var(V), var(R), !, 
-	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
-'$nth_clause'(P1,_,I,R) :- nonvar(P1), P1 = M:P, !,
-	'$nth_clause'(P,M,I,R).
-'$nth_clause'(P,M,I,R) :- nonvar(R), !,
-	'$nth_clause_ref'(P,M,I,R).
-'$nth_clause'(C,M,I,R) :- number(C), !,
-	'$do_error'(type_error(callable,C),M:nth_clause(C,I,R)).
-'$nth_clause'(R,M,I,R) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),M:nth_clause(R,I,R)).
-'$nth_clause'(P,M,I,R) :- var(I), var(R), !,
-	'$number_of_clauses'(P,M,N), N > 0,
-	between(1, N, I),
-	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$p_nth_clause'(P,M,I,R), writeln(R), !.
+	var(I), var(R), !,
+	'$clause'(P,M,_,R),
+	'$fetch_nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$is_dynamic'(P,M), !,
-	'$nth_instancep'(M:P,I,R).
-'$nth_clause'(P,M,I,R) :-
-	( '$system_predicate'(P,M) -> true ;
-	    '$number_of_clauses'(P,M,N), N > 0 ),
-	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
-	      nth_clause(M:P,I,R)).
-
-'$nth_clause_ref'(Cl,M,I,R) :-
-	'$pred_for_code'(R, _, _, M1, I), I > 0, !,
-	instance(R, Cl),
-	M1 = M.
-'$nth_clause_ref'(P,M,I,R) :-
-	'$nth_instancep'(M:P,I,R).
+	'$fetch_nth_clause'(P,M,I,R).
 
 retract(M:C) :- !,
 	'$retract'(C,M).
@@ -983,9 +954,9 @@ current_predicate(F0) :-
 
 '$$current_predicate'(F, M) :-
         ( var(M) ->			% only for the predicate
-	'$current_module'(M),
-	M \= prolog
+	'$current_module'(M)
 	; true),
+	M \= prolog,
 	'$current_predicate3'(F,M).
 
 '$current_predicate3'(A/Arity,M) :-
@@ -1068,9 +1039,15 @@ compile_predicates(Ps) :-
 
 
 clause_property(ClauseRef, file(FileName)) :-
-	'$instance_property'(ClauseRef, 2, FileName).
+	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
+	-> true
+	;
+	'$instance_property'(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, source(FileName)) :-
-	'$instance_property'(ClauseRef, 2, FileName).
+	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
+	-> true
+	;
+	'$instance_property'(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
 	'$instance_property'(ClauseRef, 4, LineNumber),
 	LineNumber > 0.
@@ -1085,4 +1062,34 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 	functor(P, N, Ar),
 	'$set_flag'(P, M, Flag, V).
 
+
+unknown(V0, V) :-
+    strip_module(V, M, G),
+    recorded('$unknown_handle', M0:G0, R), !,
+    recordz('$unknown_handle', M:G, _),
+    erase( R ),
+    strip_module(V0, M0, G0).
+unknown(V0, V) :-
+    strip_module(V, M, G),
+    recordz('$unknown_handle', M:G, _),
+    V0 = fail.
+
+%%% The unknown predicate,
+%	informs about what the user wants to be done when
+%	there are no clauses for a certain predicate */
+
+'$unknown_error'(Call) :-
+    recorded( '$unknown_handle', M:Goal, _), 
+    arg(1, Goal, Call), !,
+    once(M:Goal).
+'$unknown_error'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	'$do_error'(existence_error(procedure,Name/Arity),context(Mod:Goal,PMod:PName/PAr)).
+
+'$unknown_warning'(Mod:Goal) :-
+	functor(Goal,Name,Arity),
+	'$program_continuation'(PMod,PName,PAr),
+	print_message(error,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
+	fail.
 

@@ -186,12 +186,14 @@ Yap_InitSysPath(void) {
   int commons_done = FALSE;
   {
     char *dir;
-    if ((dir = Yap_RegistryGetString("library"))) {
+    if ((dir = Yap_RegistryGetString("library")) &&
+	is_directory(dir)) {
       Yap_PutValue(AtomSystemLibraryDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
       dir_done = TRUE;
     }
-    if ((dir = Yap_RegistryGetString("prolog_commons"))) {
+    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
+	is_directory(dir)) {
       Yap_PutValue(AtomPrologCommonsDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
       commons_done = TRUE;
@@ -203,12 +205,10 @@ Yap_InitSysPath(void) {
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   {
-    DWORD fatts;
     int buflen;
     char *pt;
 
-    if ((fatts = GetFileAttributes(LOCAL_FileNameBuf)) == 0xFFFFFFFFL ||
-	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
+    if (!is_directory(LOCAL_FileNameBuf)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
       if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
@@ -2549,7 +2549,7 @@ p_alarm( USES_REGS1 )
     if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
       LOCAL_ActiveSignals &= ~YAP_ALARM_SIGNAL;
       if (!LOCAL_ActiveSignals) {
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
       }
     }
     UNLOCK(LOCAL_SignalLock);
@@ -2732,7 +2732,9 @@ set_fpu_exceptions(int flag)
 #if HAVE_FETESTEXCEPT
     feclearexcept(FE_ALL_EXCEPT);
 #endif
+#ifndef _WIN32
     my_signal (SIGFPE, HandleMatherr);
+#endif
   } else {
     /* do IEEE arithmetic in the way the big boys do */
 #if defined(__hpux)
@@ -2747,7 +2749,9 @@ set_fpu_exceptions(int flag)
     int v = _FPU_IEEE;
    _FPU_SETCW(v);
 #endif    
+#ifndef _WIN32
     my_signal (SIGFPE, SIG_IGN);
+#endif
   }
 }
 
@@ -2861,6 +2865,8 @@ p_enable_interrupts( USES_REGS1 )
   LOCAL_InterruptsDisabled--;
   if (LOCAL_ActiveSignals && !LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
+    if ( LOCAL_ActiveSignals != YAP_CREEP_SIGNAL )
+      EventFlag = Unsigned( LCL0 );
   }
   UNLOCK(LOCAL_SignalLock);
   return TRUE;
@@ -2872,7 +2878,7 @@ p_disable_interrupts( USES_REGS1 )
   LOCK(LOCAL_SignalLock);
   LOCAL_InterruptsDisabled++;
   if (LOCAL_ActiveSignals) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   UNLOCK(LOCAL_SignalLock);
   return TRUE;

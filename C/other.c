@@ -52,11 +52,11 @@ Term
 Yap_MkNewPairTerm(void)
 {
   CACHE_REGS
-  register CELL  *p = H;
+  register CELL  *p = HR;
 
-  RESET_VARIABLE(H);
-  RESET_VARIABLE(H+1);
-  H+=2;
+  RESET_VARIABLE(HR);
+  RESET_VARIABLE(HR+1);
+  HR+=2;
   return (AbsPair(p));
 }
 
@@ -66,15 +66,15 @@ Yap_MkApplTerm(Functor f, unsigned int n, register Term *a)
       * args a */
 {
   CACHE_REGS
-  CELL           *t = H;
+  CELL           *t = HR;
 
   if (n == 0)
     return (MkAtomTerm(NameOfFunctor(f)));
   if (f == FunctorList)
     return MkPairTerm(a[0], a[1]);
-  *H++ = (CELL) f;
+  *HR++ = (CELL) f;
   while (n--)
-    *H++ = (CELL) * a++;
+    *HR++ = (CELL) * a++;
   return (AbsAppl(t));
 }
 
@@ -84,20 +84,20 @@ Yap_MkNewApplTerm(Functor f, unsigned int n)
       * args a */
 {
   CACHE_REGS
-  CELL           *t = H;
+  CELL           *t = HR;
 
   if (n == 0)
     return (MkAtomTerm(NameOfFunctor(f)));
   if (f == FunctorList) {
-    RESET_VARIABLE(H);
-    RESET_VARIABLE(H+1);
-    H+=2;
+    RESET_VARIABLE(HR);
+    RESET_VARIABLE(HR+1);
+    HR+=2;
     return (AbsPair(t));
   }
-  *H++ = (CELL) f;
+  *HR++ = (CELL) f;
   while (n--) {
-    RESET_VARIABLE(H);
-    H++;
+    RESET_VARIABLE(HR);
+    HR++;
   }
   return (AbsAppl(t));
 }
@@ -113,7 +113,7 @@ Yap_Globalise(Term t)
   if (!IsVarTerm(t))
     return t;
   vt = VarOfTerm(t);
-  if (vt <= H && vt > H0)
+  if (vt <= HR && vt > H0)
     return t;
   tn = MkVarTerm();
   Yap_unify(t, tn);

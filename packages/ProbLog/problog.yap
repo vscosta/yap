@@ -538,7 +538,8 @@ problog_dir(PD):- problog_path(PD).
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 init_global_params :-
-  grow_atom_table(1000000), % this will reserve us some memory, there are cases where you might need more
+% vsc: removed this, it is major league weird...
+%	grow_atom_table(1000000), % this will reserve us some memory, there are cases where you might need more
 
   %%%%%%%%%%%%
   % working directory: all the temporary and output files will be located there

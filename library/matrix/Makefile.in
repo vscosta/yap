@@ -53,9 +53,15 @@ matrix.o: $(srcdir)/matrix.c
 @DO_SECOND_LD@matrix.@SO@: matrix.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o matrix.@SO@ matrix.o  @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+
+install-examples:
+
+distclean: clean
+	rm -f Makefile
 

@@ -846,16 +846,26 @@ initEncoding(void)
 
   if ( LD )
   { if ( !LD->encoding )
-    { char *enc;
+      { char *enc, *encp;
 
       if ( !init_locale() )
       { LD->encoding = ENC_ISO_LATIN_1;
       } else if ( (enc = setlocale(LC_CTYPE, NULL)) )
       { LD->encoding = ENC_ANSI;		/* text encoding */
 
-	if ( (enc = strchr(enc, '.')) )
+	if ( (encp = strchr(enc, '.')) )
 	{ const enc_map *m;
-	  enc++;				/* skip '.' */
+	  encp++;				/* skip '.' */
+
+	  for ( m=map; m->name; m++ )
+	  { if ( strcmp(encp, m->name) == 0 )
+	    { LD->encoding = m->encoding;
+	      break;
+	    }
+	  }
+	} else {
+	  /* vsc: just test LC_CTYPE, works on Macs */
+	  const enc_map *m;
 
 	  for ( m=map; m->name; m++ )
 	  { if ( strcmp(enc, m->name) == 0 )

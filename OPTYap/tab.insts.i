@@ -43,11 +43,11 @@
           gcp = NORM_CP(YENV);                                            \
           SgFr_gen_cp(SG_FR) = gcp;                                       \
           /* store generator choice point */                              \
-          HBREG = H;                                                      \
+          HBREG = HR;                                                      \
           store_yaam_reg_cpdepth(gcp);                                    \
           gcp->cp_tr = TR;                                                \
           gcp->cp_ap = (yamop *)(AP);                                     \
-          gcp->cp_h  = H;                                                 \
+          gcp->cp_h  = HR;                                                 \
           gcp->cp_b  = B;                                                 \
           gcp->cp_env = ENV;                                              \
           gcp->cp_cp = CPREG;                                             \
@@ -55,7 +55,7 @@
             /* go local */                                                \
             register dep_fr_ptr new_dep_fr;                               \
             /* adjust freeze registers */                                 \
-            H_FZ = H;                                                     \
+            H_FZ = HR;                                                     \
             B_FZ = gcp;                                                   \
             TR_FZ = TR;                                                   \
             /* store dependency frame */                                  \
@@ -85,12 +85,12 @@
 	  gcp = NORM_CP(YENV);                                        \
           SgFr_gen_cp(SG_FR) = gcp;                                   \
           /* store deterministic generator choice point */            \
-          HBREG = H;                                                  \
+          HBREG = HR;                                                  \
           store_yaam_reg_cpdepth(gcp);                                \
           gcp->cp_ap = COMPLETION;                                    \
           gcp->cp_b  = B;                                             \
           gcp->cp_tr = TR;           	  	                      \
-          gcp->cp_h = H;                                              \
+          gcp->cp_h = HR;                                              \
 	  DET_GEN_CP(gcp)->cp_sg_fr = SG_FR;                          \
           store_low_level_trace_info(DET_GEN_CP(gcp), TAB_ENT);       \
           set_cut((CELL *)gcp, B);                                    \
@@ -120,11 +120,11 @@
           gccp = NORM_CP(YENV);                                             \
           SgFr_gen_cp(SG_FR) = gccp;					    \
           /* store generator choice point */		                    \
-          HBREG = H;                                                        \
+          HBREG = HR;                                                        \
           store_yaam_reg_cpdepth(gccp);                                     \
           gccp->cp_tr = TR;                                                 \
           gccp->cp_ap = ANSWER_RESOLUTION_COMPLETION;                       \
-          gccp->cp_h  = H;                                                  \
+          gccp->cp_h  = HR;                                                  \
           gccp->cp_b  = B;                                                  \
           gccp->cp_env = ENV;                                               \
           gccp->cp_cp = CPREG;                                              \
@@ -135,7 +135,7 @@
           GEN_CP(gccp)->cp_dep_fr = LOCAL_top_dep_fr;                       \
           GEN_CP(gccp)->cp_sg_fr = SG_FR;                                   \
 	  /* adjust freeze registers */					    \
-	  H_FZ = H;							    \
+	  H_FZ = HR;							    \
 	  B_FZ = gccp;							    \
 	  TR_FZ = TR;							    \
 	  store_low_level_trace_info(GEN_CP(gccp), TAB_ENT);		    \
@@ -152,7 +152,7 @@
         { register CELL *pt_args, *x_args;              \
           register choiceptr gcp = B;                   \
           /* restore generator choice point */          \
-          H = HBREG = PROTECT_FROZEN_H(gcp);            \
+          HR = HBREG = PROTECT_FROZEN_H(gcp);            \
           restore_yaam_reg_cpdepth(gcp);                \
           CPREG = gcp->cp_cp;                           \
           ENV = gcp->cp_env;                            \
@@ -174,7 +174,7 @@
         { register CELL *pt_args, *x_args;      \
           register choiceptr gcp = B;           \
           /* pop generator choice point */      \
-          H = PROTECT_FROZEN_H(gcp);            \
+          HR = PROTECT_FROZEN_H(gcp);            \
           pop_yaam_reg_cpdepth(gcp);            \
           CPREG = gcp->cp_cp;                   \
           ENV = gcp->cp_env;                    \
@@ -202,7 +202,7 @@
           YENV = (CELL *) (CONS_CP(YENV) - 1);                                   \
           ccp = NORM_CP(YENV);                                                   \
           /* adjust freeze registers */                                          \
-          H_FZ = H;                                                              \
+          H_FZ = HR;                                                              \
           B_FZ = ccp;                    	                                 \
           TR_FZ = TR;                                                            \
           /* store dependency frame */                                           \
@@ -210,11 +210,11 @@
                                LEADER_CP, ccp, SG_FR, FALSE, LOCAL_top_dep_fr);  \
           LOCAL_top_dep_fr = new_dep_fr;                                         \
           /* store consumer choice point */                                      \
-          HBREG = H;                                                             \
+          HBREG = HR;                                                             \
           store_yaam_reg_cpdepth(ccp);                                           \
           ccp->cp_tr = TR;         	                                         \
           ccp->cp_ap = ANSWER_RESOLUTION;                                        \
-          ccp->cp_h  = H;                                                        \
+          ccp->cp_h  = HR;                                                        \
           ccp->cp_b  = B;                                                        \
           ccp->cp_env= ENV;                                                      \
           ccp->cp_cp = CPREG;                                                    \
@@ -232,7 +232,7 @@
 #define consume_answer_and_procceed(DEP_FR, ANSWER)                            \
         { CELL *subs_ptr;                                                      \
           /* restore consumer choice point */                                  \
-          H = HBREG = PROTECT_FROZEN_H(B);                                     \
+          HR = HBREG = PROTECT_FROZEN_H(B);                                     \
           restore_yaam_reg_cpdepth(B);                                         \
           CPREG = B->cp_cp;                                                    \
           ENV = B->cp_env;                                                     \
@@ -257,7 +257,7 @@
 #define consume_answer_and_procceed(DEP_FR, ANSWER)                            \
         { CELL *subs_ptr;                                                      \
           /* restore consumer choice point */                                  \
-          H = HBREG = PROTECT_FROZEN_H(B);                                     \
+          HR = HBREG = PROTECT_FROZEN_H(B);                                     \
           restore_yaam_reg_cpdepth(B);                                         \
           CPREG = B->cp_cp;                                                    \
           ENV = B->cp_env;                                                     \
@@ -287,11 +287,11 @@
 	  /* initialize lcp */                                \
           lcp = NORM_CP(LOAD_CP(YENV) - 1);                   \
           /* store loader choice point */                     \
-          HBREG = H;                                          \
+          HBREG = HR;                                          \
           store_yaam_reg_cpdepth(lcp);                        \
           lcp->cp_tr = TR;         	                      \
           lcp->cp_ap = LOAD_ANSWER;                           \
-          lcp->cp_h  = H;                                     \
+          lcp->cp_h  = HR;                                     \
           lcp->cp_b  = B;                                     \
           lcp->cp_env= ENV;                                   \
           lcp->cp_cp = CPREG;                                 \
@@ -306,7 +306,7 @@
 
 
 #define restore_loader_node(ANSWER)           \
-        H = HBREG = PROTECT_FROZEN_H(B);      \
+        HR = HBREG = PROTECT_FROZEN_H(B);      \
         restore_yaam_reg_cpdepth(B);          \
         CPREG = B->cp_cp;                     \
         ENV = B->cp_env;                      \
@@ -315,7 +315,7 @@
 
 
 #define pop_loader_node()             \
-        H = PROTECT_FROZEN_H(B);      \
+        HR = PROTECT_FROZEN_H(B);      \
         pop_yaam_reg_cpdepth(B);      \
 	CPREG = B->cp_cp;             \
         TABLING_close_alt(B);	      \
@@ -412,7 +412,7 @@
     if(ans_node) {
       CELL *subs_ptr = (CELL *) (GEN_CP(B) + 1) + SgFr_arity(sg_fr);
 
-      H = HBREG = PROTECT_FROZEN_H(B);
+      HR = HBREG = PROTECT_FROZEN_H(B);
       restore_yaam_reg_cpdepth(B);
       CPREG = B->cp_cp;
       ENV = B->cp_env;
@@ -513,27 +513,47 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      /* subgoal incomplete --> start by loading the answers already found */
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      CELL *subs_ptr = YENV;
-      init_subgoal_frame(sg_fr);
-      UNLOCK_SG_FR(sg_fr);
-      SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      load_answer(ans_node, subs_ptr);
-      YENV = ENV;
-      GONext();
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
+        /* subgoal incomplete --> start by loading the answers already found */
+        ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+        CELL *subs_ptr = YENV;
+        init_subgoal_frame(sg_fr);
+        UNLOCK_SG_FR(sg_fr);
+        SgFr_try_answer(sg_fr) = ans_node;
+        store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        load_answer(ans_node, subs_ptr);
+        YENV = ENV;
+        GONext();
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      /* subgoal in evaluation */
-      choiceptr leader_cp;
-      int leader_dep_on_stack;
-      find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK_SG_FR(sg_fr);
-      find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        /* Used for coinductive tabling strategy */
+        CELL *subs_ptr;
+        subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
+        subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
+        int i;
+        for (i = 0; i < subs_ptr[0]; i++)
+          Yap_unify(subs_ptr[i+1], YENV[i+1]);
+        /* yes answer --> procceed */
+        UNLOCK_SG_FR(sg_fr);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        YENV = ENV; // Consume the variables
+        GONext(); // Succeed the goal :-D
+      } else {
+        /* subgoal in evaluation */
+        choiceptr leader_cp;
+        int leader_dep_on_stack;
+        find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
+        UNLOCK_SG_FR(sg_fr);
+        find_leader_node(leader_cp, leader_dep_on_stack);
+        store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
@@ -653,27 +673,35 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      /* subgoal incomplete --> start by loading the answers already found */
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      CELL *subs_ptr = YENV;
-      init_subgoal_frame(sg_fr);
-      UNLOCK_SG_FR(sg_fr);
-      SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      load_answer(ans_node, subs_ptr);
-      YENV = ENV;
-      GONext();
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
+        /* subgoal incomplete --> start by loading the answers already found */
+        ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+        CELL *subs_ptr = YENV;
+        init_subgoal_frame(sg_fr);
+        UNLOCK_SG_FR(sg_fr);
+        SgFr_try_answer(sg_fr) = ans_node;
+        store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        load_answer(ans_node, subs_ptr);
+        YENV = ENV;
+        GONext();
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      /* subgoal in evaluation */
-      choiceptr leader_cp;
-      int leader_dep_on_stack;
-      find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK_SG_FR(sg_fr);
-      find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
+        /* subgoal in evaluation */
+        choiceptr leader_cp;
+        int leader_dep_on_stack;
+        find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
+        UNLOCK_SG_FR(sg_fr);
+        find_leader_node(leader_cp, leader_dep_on_stack);
+        store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
@@ -793,27 +821,47 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      /* subgoal incomplete --> start by loading the answers already found */
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      CELL *subs_ptr = YENV;
-      init_subgoal_frame(sg_fr);
-      UNLOCK_SG_FR(sg_fr);
-      SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      load_answer(ans_node, subs_ptr);
-      YENV = ENV;
-      GONext();
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
+        /* subgoal incomplete --> start by loading the answers already found */
+        ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+        CELL *subs_ptr = YENV;
+        init_subgoal_frame(sg_fr);
+        UNLOCK_SG_FR(sg_fr);
+        SgFr_try_answer(sg_fr) = ans_node;
+        store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        load_answer(ans_node, subs_ptr);
+        YENV = ENV;
+        GONext();
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      /* subgoal in evaluation */
-      choiceptr leader_cp;
-      int leader_dep_on_stack;
-      find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK_SG_FR(sg_fr);
-      find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
+        /* Used for coinductive tabling strategy */
+        CELL *subs_ptr;
+        subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
+        subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
+        int i;
+        for (i = 0; i < subs_ptr[0]; i++)
+          Yap_unify(subs_ptr[i+1], YENV[i+1]);
+        /* yes answer --> procceed */
+        UNLOCK_SG_FR(sg_fr);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        YENV = ENV; // Consume the variables
+        GONext(); // Succeed the goal :-D
+      } else {
+        /* subgoal in evaluation */
+        choiceptr leader_cp;
+        int leader_dep_on_stack;
+        find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
+        UNLOCK_SG_FR(sg_fr);
+        find_leader_node(leader_cp, leader_dep_on_stack);
+        store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;

@@ -417,7 +417,7 @@ extern int Yap_page_size;
         }
 #endif /***********************************************************************************/
 
-#ifdef THREADS
+#if defined(THREADS) && defined(TABLING)
 #define ALLOC_STRUCT(STR, STR_TYPE, _PG_ENT)                          \
         GET_FREE_STRUCT(STR, STR_TYPE, LOCAL##_PG_ENT, GLOBAL##_PG_ENT)
 #define FREE_STRUCT(STR, STR_TYPE, _PG_ENT)                           \

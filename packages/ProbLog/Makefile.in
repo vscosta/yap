@@ -80,14 +80,18 @@ PROBLOG_EXAMPLES = \
 MANUAL_NAME = problog
 MANUAL = $(srcdir)/$(MANUAL_NAME)
 
-install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
+all:
+
+install: $(PROGRAMS) $(PROBLOG_PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
 	mkdir -p $(DESTDIR)$(DOCSDIR)
-	mkdir -p $(DESTDIR)$(EXDOCSDIR)
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
 	$(INSTALL_DATA) $(srcdir)/LICENSE $(DESTDIR)$(DOCSDIR)
+
+install-examples:  $(PROBLOG_EXAMPLES)
+	mkdir -p $(DESTDIR)$(EXDOCSDIR)
 	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EXDOCSDIR); done
 
 pdf: $(MANUAL)
@@ -97,3 +101,9 @@ pdf: $(MANUAL)
 
 install_docs: pdf
 	$(INSTALL_DATA) problog.pdf $(DESTDIR)$(DOCSDIR)
+
+clean:
+
+distclean:
+	rm -f Makefile
+

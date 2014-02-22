@@ -1,5 +1,3 @@
-#ifdef CUT_C
-
 #include "Yap.h"
 #include "cut_c.h"
 #include <stdio.h>
@@ -33,5 +31,3 @@ void cut_c_push(cut_c_str_ptr new_top){
   Yap_REGS.CUT_C_TOP=new_top;
   return;
 }
-
-#endif /*CUT_C*/

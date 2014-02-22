@@ -45,18 +45,20 @@ typedef enum
 {
   db_ref_e = sizeof (Functor *),
   attvar_e = 2*sizeof (Functor *),
-  long_int_e = 3 * sizeof (Functor *),
-  big_int_e = 4 * sizeof (Functor *),
-  double_e = 5 * sizeof (Functor *)
+  double_e = 3 * sizeof (Functor *),
+  long_int_e = 4 * sizeof (Functor *),
+  big_int_e = 5 * sizeof (Functor *),
+  string_e = 6 * sizeof (Functor *)
 }
 blob_type;
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
 #define   FunctorAttVar   ((Functor)(attvar_e))
+#define   FunctorDouble   ((Functor)(double_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
 #define   FunctorBigInt   ((Functor)(big_int_e))
-#define   FunctorDouble   ((Functor)(double_e))
-#define   EndSpecials     (double_e+sizeof(Functor *))
+#define   FunctorString   ((Functor)(string_e))
+#define   EndSpecials     (string_e+sizeof(Functor *))
 
 #include "inline-only.h"
 
@@ -69,7 +71,7 @@ __IsAttVar (CELL *pt USES_REGS)
 {
 #ifdef YAP_H
   return (pt)[-1] == (CELL)attvar_e
-    && pt < H;
+    && pt < HR;
 #else
   return (pt)[-1] == (CELL)attvar_e;
 #endif
@@ -92,8 +94,6 @@ typedef enum
     ARRAY_INT =    0x21,
     ARRAY_FLOAT =  0x22,
     CLAUSE_LIST =  0x40,
-    BLOB_STRING =  0x80, /* SWI style strings */
-    BLOB_WIDE_STRING =  0x81, /* SWI style strings */
     EXTERNAL_BLOB =  0x100, /* generic data */
     USER_BLOB_START =  0x1000, /* user defined blob */
     USER_BLOB_END =  0x1100 /* end of user defined blob */
@@ -181,22 +181,22 @@ special_functors;
 
 INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
-#if SIZEOF_DOUBLE == SIZEOF_LONG_INT
-
 #define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
 
 INLINE_ONLY inline EXTERN Term __MkFloatTerm (Float USES_REGS);
 
+INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
+
+#if SIZEOF_DOUBLE == SIZEOF_INT_P
+
 INLINE_ONLY inline EXTERN Term
 __MkFloatTerm (Float dbl USES_REGS)
 {
-  return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
-		  dbl, H[2] = EndSpecials, H +=
-		  3, AbsAppl (H - 3)));
+  return (Term) ((HR[0] = (CELL) FunctorDouble, *(Float *) (HR + 1) =
+		  dbl, HR[2] = EndSpecials, HR +=
+		  3, AbsAppl (HR - 3)));
 }
 
-
-INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
 
 INLINE_ONLY inline EXTERN Float
 FloatOfTerm (Term t)
@@ -216,7 +216,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #else
 
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
@@ -228,9 +228,9 @@ AlignGlobalForDouble( USES_REGS1 )
 {
   /* Force Alignment for floats. Note that garbage collector may
      break the alignment; */
-  if (!DOUBLE_ALIGNED(H)) {
-    RESET_VARIABLE(H);
-    H++;
+  if (!DOUBLE_ALIGNED(HR)) {
+    RESET_VARIABLE(HR);
+    HR++;
   }
 }
 
@@ -258,20 +258,15 @@ CpFloatUnaligned (CELL * ptr)
 
 #endif
 
-INLINE_ONLY inline EXTERN Term MkFloatTerm (Float);
-
 INLINE_ONLY inline EXTERN Term
-MkFloatTerm (Float dbl)
+__MkFloatTerm (Float dbl USES_REGS)
 {
-  CACHE_REGS
-  return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), H[0] =
-		  (CELL) FunctorDouble, *(Float *) (H + 1) = dbl, H[3] =
-		  EndSpecials, H +=
-		  4, AbsAppl (H - 4)));
+  return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), HR[0] =
+		  (CELL) FunctorDouble, *(Float *) (HR + 1) = dbl, HR[3] =
+		  EndSpecials, HR +=
+		  4, AbsAppl (HR - 4)));
 }
 
-
-INLINE_ONLY inline EXTERN Float FloatOfTerm (Term t);
 
 INLINE_ONLY inline EXTERN Float
 FloatOfTerm (Term t)
@@ -295,13 +290,6 @@ OOPS
 #include <stddef.h>
 #endif
 
-Term Yap_MkBlobStringTerm(const char *, size_t len);
-Term Yap_MkBlobWideStringTerm(const wchar_t *, size_t len);
-char *Yap_BlobStringOfTerm(Term);
-wchar_t *Yap_BlobWideStringOfTerm(Term);
-char *Yap_BlobStringOfTermAndLength(Term, size_t *);
-
-
 
 INLINE_ONLY inline EXTERN int IsFloatTerm (Term);
 
@@ -310,8 +298,6 @@ IsFloatTerm (Term t)
 {
   return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorDouble);
 }
-
-
 
 
 /* extern Functor FunctorLongInt; */
@@ -323,11 +309,11 @@ INLINE_ONLY inline EXTERN Term __MkLongIntTerm (Int USES_REGS);
 INLINE_ONLY inline EXTERN Term
 __MkLongIntTerm (Int i USES_REGS)
 {
-  H[0] = (CELL) FunctorLongInt;
-  H[1] = (CELL) (i);
-  H[2] =  EndSpecials;
-  H += 3;
-  return AbsAppl(H - 3);
+  HR[0] = (CELL) FunctorLongInt;
+  HR[1] = (CELL) (i);
+  HR[2] =  EndSpecials;
+  HR += 3;
+  return AbsAppl(HR - 3);
 }
 
 
@@ -350,6 +336,53 @@ IsLongIntTerm (Term t)
 }
 
 
+/****************************************************/
+
+/*********** strings, coded as UTF-8 ****************/
+
+#include <string.h>
+
+/* extern Functor FunctorString; */
+
+#define MkStringTerm(i) __MkStringTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkStringTerm (const char *s USES_REGS);
+
+INLINE_ONLY inline EXTERN Term
+__MkStringTerm (const char *s USES_REGS)
+{
+  Term t = AbsAppl(HR);
+  size_t sz = ALIGN_YAPTYPE(strlen(s)+1,CELL);
+  HR[0] = (CELL) FunctorString;
+  HR[1] = (CELL) sz;
+  strcpy((char *)(HR+2), s);
+  HR[2+sz] =  EndSpecials;
+  HR += 3+sz;
+  return t;
+}
+
+
+INLINE_ONLY inline EXTERN const char *StringOfTerm (Term t);
+
+INLINE_ONLY inline EXTERN const char *
+StringOfTerm (Term t)
+{
+  return (const char *) (RepAppl (t)+2);
+}
+
+
+
+INLINE_ONLY inline EXTERN int IsStringTerm (Term);
+
+INLINE_ONLY inline EXTERN int
+IsStringTerm (Term t)
+{
+  return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorString);
+}
+
+
+
+/****************************************************/
 
 #ifdef USE_GMP
 
@@ -438,30 +471,6 @@ IsLargeIntTerm (Term t)
 
 #endif
 
-typedef struct string_struct {
-  UInt len;
-}  blob_string_t;
-
-INLINE_ONLY inline EXTERN int IsBlobStringTerm (Term);
-
-INLINE_ONLY inline EXTERN int
-IsBlobStringTerm (Term t)
-{
-  return (int) (IsApplTerm (t) &&
-		FunctorOfTerm (t) == FunctorBigInt &&
-		(RepAppl(t)[1] & BLOB_STRING) == BLOB_STRING);
-}
-
-INLINE_ONLY inline EXTERN int IsWideBlobStringTerm (Term);
-
-INLINE_ONLY inline EXTERN int
-IsWideBlobStringTerm (Term t)
-{
-  return (int) (IsApplTerm (t) &&
-		FunctorOfTerm (t) == FunctorBigInt &&
-		RepAppl(t)[1] == BLOB_WIDE_STRING);
-}
-
 /* extern Functor FunctorLongInt; */
 
 INLINE_ONLY inline EXTERN int IsLargeNumTerm (Term);
@@ -470,8 +479,8 @@ INLINE_ONLY inline EXTERN int
 IsLargeNumTerm (Term t)
 {
   return (int) (IsApplTerm (t)
-		&& ((FunctorOfTerm (t) <= FunctorDouble)
-		    && (FunctorOfTerm (t) >= FunctorLongInt)));
+		&& ((FunctorOfTerm (t) <= FunctorBigInt)
+		    && (FunctorOfTerm (t) >= FunctorDouble)));
 }
 
 INLINE_ONLY inline EXTERN int IsExternalBlobTerm (Term, CELL);
@@ -523,7 +532,7 @@ INLINE_ONLY inline EXTERN Int IsExtensionFunctor (Functor);
 INLINE_ONLY inline EXTERN Int
 IsExtensionFunctor (Functor f)
 {
-  return (Int) (f <= FunctorDouble);
+  return (Int) (f <= FunctorString);
 }
 
 
@@ -533,7 +542,7 @@ INLINE_ONLY inline EXTERN Int IsBlobFunctor (Functor);
 INLINE_ONLY inline EXTERN Int
 IsBlobFunctor (Functor f)
 {
-  return (Int) ((f <= FunctorDouble && f >= FunctorDBRef));
+  return (Int) ((f <= FunctorString && f >= FunctorDBRef));
 }
 
 
@@ -665,6 +674,8 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);
+    case string_e:
+      return strcmp( (char *)(pt0+2), (char *)(RepAppl (d1)+2) ) == 0;
     case big_int_e:
 #ifdef USE_GMP
       return (Yap_gmp_tcmp_big_big(d0,d1) == 0);
@@ -675,7 +686,7 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       {
 	CELL *pt1 = RepAppl (d1);
 	return (pt0[1] == pt1[1]
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 		&& pt0[2] == pt1[2]
 #endif
 	  );
@@ -707,7 +718,7 @@ CELL Yap_Int_key(Term t)
 static inline
 CELL Yap_DoubleP_key(CELL *pt)
 {
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE1 == 2*SIZEOF_INT_P
   CELL val = pt[0]^pt[1];
 #else
   CELL val = pt[0];
@@ -719,6 +730,23 @@ static inline
 CELL Yap_Double_key(Term t)
 {
   return Yap_DoubleP_key(RepAppl(t)+1);
+}
+
+static inline
+CELL Yap_StringP_key(CELL *pt)
+{
+  UInt n = pt[1], i;
+  CELL val = pt[2];
+  for (i=1; i<n; i++) {
+    val ^= pt[i+1];
+  }
+  return MkIntTerm(val & (MAX_ABS_INT-1));  
+}
+
+static inline
+CELL Yap_String_key(Term t)
+{
+  return Yap_StringP_key(RepAppl(t)+1);
 }
 
 #endif

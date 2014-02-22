@@ -168,7 +168,7 @@ INLINE_ONLY inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 INLINE_ONLY inline EXTERN Term
 MkVarTerm__ ( USES_REGS1 )
 {
-  return (Term) ((*H = 0, H++));
+  return (Term) ((*HR = 0, HR++));
 }
 
 
@@ -191,7 +191,7 @@ INLINE_ONLY inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 INLINE_ONLY inline EXTERN Term
 MkVarTerm__ ( USES_REGS1 )
 {
-  return (Term) ((*H = (CELL) H, H++));
+  return (Term) ((*HR = (CELL) HR, HR++));
 }
 
 
@@ -319,11 +319,11 @@ INLINE_ONLY EXTERN inline Term MkPairTerm__(Term head, Term  tail USES_REGS );
 INLINE_ONLY EXTERN inline Term
 MkPairTerm__ (Term head, Term tail USES_REGS)
 {
-  register CELL *p = H;
+  register CELL *p = HR;
 
-  H[0] = head;
-  H[1] = tail;
-  H += 2;
+  HR[0] = head;
+  HR[1] = tail;
+  HR += 2;
   return (AbsPair (p));
 }
 

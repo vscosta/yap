@@ -20,7 +20,7 @@ void
 init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 {  CACHE_REGS
    memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
-
+  
   _PL_rd->magic = RD_MAGIC;
   _PL_rd->varnames = 0;
   _PL_rd->module = Yap_GetModuleEntry(CurrentModule);
@@ -37,46 +37,6 @@ init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 void
 free_read_data(ReadData _PL_rd)
 { 
-}
-
-static void
-ptr_to_location(const unsigned char *here, source_location *pos, ReadData _PL_rd)
-{ unsigned char const *s, *ll = NULL;
-  int c;
-
-  *pos = _PL_rd->start_of_term;
-
-						/* update line number */
-  for(s=rdbase; s<here; s = utf8_get_uchar(s, &c))
-  { pos->position.charno++;
-
-    if ( c == '\n' )
-    { pos->position.lineno++;
-      ll = s+1;
-    }
-  }
-						/* update line position */
-  if ( ll )
-  { s = ll;
-    pos->position.linepos = 0;
-  } else
-  { s = rdbase;
-  }
-
-  for(; s<here; s++)
-  { switch(*s)
-    { case '\b':
-	if ( pos->position.linepos > 0 )
-	  pos->position.linepos--;
-      break;
-    case '\t':
-      pos->position.linepos |= 7;		/* TBD: set tab distance */
-    default:
-      pos->position.linepos++;
-    }
-  }
-
-  pos->position.byteno = 0;			/* we do not know */
 }
 
 static int 
@@ -356,14 +316,10 @@ addToBuffer(int c, ReadData _PL_rd)
 
 #if __YAP_PROLOG__
 void
-Yap_setCurrentSourceLocation(IOSTREAM ** rd)
+Yap_setCurrentSourceLocation( void *rd )
 {
   GET_LD
-  if (*rd) {
-    read_data rdt;
-    rdt._rb.stream = *rd;
-    setCurrentSourceLocation(&rdt PASS_LD);
-  }
+  setCurrentSourceLocation(rd PASS_LD);
 }
 #endif
 
@@ -420,7 +376,7 @@ PRED_IMPL("$qq_open", 2, qq_open, 0)
     if ( PL_get_arg(1, A1, arg) && PL_get_pointer_ex(arg, &ptr) &&
 	 PL_get_arg(2, A1, arg) && PL_get_intptr(arg, (intptr_t *)&start) &&
 	 PL_get_arg(3, A1, arg) && PL_get_intptr(arg, (intptr_t *)&len) )
-      {  source_location pos;
+      {  //source_location pos;
       if ( (s=Sopenmem(&start, &len, "r")) )
 	  s->encoding = ENC_UTF8;
 
@@ -975,6 +931,35 @@ raw_read(ReadData _PL_rd, unsigned char **endp ARG_LD)
   return s;
 }
 
+static void
+callCommentHook(term_t comments, term_t tpos, term_t term)
+{ GET_LD
+  fid_t fid;
+  term_t av;
+
+  if ( (fid = PL_open_foreign_frame()) &&
+       (av = PL_new_term_refs(3)) )
+  { qid_t qid;
+
+    PL_put_term(av+0, comments);
+    PL_put_term(av+1, tpos);
+    PL_put_term(av+2, term);
+
+    if ( (qid = PL_open_query(NULL, PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION,
+			      (predicate_t)PredCommentHook, av)) )
+    { term_t ex;
+
+      if ( !PL_next_solution(qid) && (ex=PL_exception(qid)) )
+	printMessage(ATOM_error, PL_TERM, ex);
+
+      PL_close_query(qid);
+    }
+
+    PL_discard_foreign_frame(fid);
+  }
+}
+
+
 
 		/********************************
 		*       PROLOG CONNECTION       *
@@ -1110,6 +1095,7 @@ static const opt_spec read_term_options[] =
   { ATOM_syntax_errors,     OPT_ATOM },
   { ATOM_backquoted_string, OPT_BOOL },
   { ATOM_comments,	    OPT_TERM },
+  { ATOM_process_comment,   OPT_BOOL },
 #ifdef O_QUASIQUOTATIONS
   { ATOM_quasi_quotations,  OPT_TERM },
 #endif
@@ -1121,7 +1107,9 @@ static const opt_spec read_term_options[] =
 static foreign_t
 read_term_from_stream(IOSTREAM *s, term_t term, term_t options ARG_LD)
 { term_t tpos = 0;
-  term_t tcomments = 0;
+  term_t comments = 0;
+  term_t opt_comments = 0;
+  int process_comment;
   int rval;
   atom_t w;
   read_data rd;
@@ -1130,6 +1118,8 @@ read_term_from_stream(IOSTREAM *s, term_t term, term_t options ARG_LD)
   atom_t mname = NULL_ATOM;
   fid_t fid = PL_open_foreign_frame();
 
+  if (!fid)
+    return FALSE;
 retry:
   init_read_data(&rd, s PASS_LD);
 
@@ -1144,7 +1134,8 @@ retry:
 		     &mname,
 		     &rd.on_error,
 		     &rd.backquoted_string,
-		     &tcomments,
+		     &opt_comments,
+		     &process_comment,
 #ifdef O_QUASIQUOTATIONS
 		     &rd.quasi_quotations,
 #endif
@@ -1152,6 +1143,21 @@ retry:
     PL_discard_foreign_frame(fid);
     free_read_data(&rd);
     return FALSE;
+  }
+
+  // yap specific, do not call process comment if undefined 
+  if (process_comment) {
+    OPCODE ophook = PredCommentHook->OpcodeOfPred;
+    if (ophook == UNDEF_OPCODE || ophook == FAIL_OPCODE)
+      process_comment = FALSE;
+  }	
+
+  if ( opt_comments )
+  { comments = PL_new_term_ref();
+  } else if ( process_comment )
+  { if ( !tpos )
+      tpos = PL_new_term_ref();
+    comments = PL_new_term_ref();
   }
 
   if ( mname )
@@ -1171,8 +1177,8 @@ retry:
   }
   if ( rd.singles && PL_get_atom(rd.singles, &w) && w == ATOM_warning )
     rd.singles = TRUE;
-  if ( tcomments )
-    rd.comments = PL_copy_term_ref(tcomments);
+  if ( comments )
+    rd.comments = PL_copy_term_ref(comments);
 
   rval = read_term(term, &rd PASS_LD);
   if ( Sferror(s) ) {
@@ -1186,9 +1192,11 @@ retry:
   if ( rval )
   { if ( tpos )
       rval = unify_read_term_position(tpos PASS_LD);
-    if ( rval && tcomments )
-    { if ( !PL_unify_nil(rd.comments) )
-	rval = FALSE;
+    if (rval) { 
+      if ( opt_comments )
+	rval = PL_unify(opt_comments, comments);
+      else if (comments && !PL_get_nil(comments) )
+	callCommentHook(comments, tpos, term);
     }
   } else {
     if ( rd.has_exception && reportReadError(&rd) )
@@ -1302,6 +1310,7 @@ atom_to_term(term_t atom, term_t term, term_t bindings)
     Sclose(stream);
     LD->read_source = oldsrc;
 
+    //   getchar();
     return rval;
   }
 

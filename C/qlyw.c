@@ -194,7 +194,7 @@ GrowPredTable(void) {
     }
     newp->val = p->val;
     newp->arity = p->arity;
-    newp->u.f = p->u.f;
+    newp->u_af.f = p->u_af.f;
     newp->module = p->module;
   }
   LOCAL_ExportPredEntryHashChain = newt;
@@ -223,23 +223,23 @@ LookupPredEntry(PredEntry *pe)
   p->val = pe;
   if (pe->ModuleOfPred != IDB_MODULE) {
     if (arity) {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
       LookupFunctor(pe->FunctorOfPred);
     } else {
-      p->u.a = (Atom)(pe->FunctorOfPred);
+      p->u_af.a = (Atom)(pe->FunctorOfPred);
       LookupAtom((Atom)(pe->FunctorOfPred));
     }
   } else {
     if (pe->PredFlags & AtomDBPredFlag) {
-      p->u.a = (Atom)(pe->FunctorOfPred);
+      p->u_af.a = (Atom)(pe->FunctorOfPred);
       p->arity = (CELL)(-2);
       LookupAtom((Atom)(pe->FunctorOfPred));
     } else if (!(pe->PredFlags & NumberDBPredFlag)) {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
       p->arity = (CELL)(-1);
       LookupFunctor(pe->FunctorOfPred);
     } else {
-      p->u.f = pe->FunctorOfPred;
+      p->u_af.f = pe->FunctorOfPred;
     }
   }
   if (pe->ModuleOfPred) {
@@ -604,7 +604,7 @@ SaveHash(IOSTREAM *stream)
     CHECK(save_uint(stream, (UInt)(p->val)));
     CHECK(save_uint(stream, p->arity));
     CHECK(save_uint(stream, (UInt)p->module));
-    CHECK(save_uint(stream, (UInt)p->u.f));
+    CHECK(save_uint(stream, (UInt)p->u_af.f));
   }
   save_tag(stream, QLY_START_DBREFS);
   save_uint(stream, LOCAL_ExportDBRefHashTableNum);
@@ -688,6 +688,9 @@ static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
   CHECK(save_uint(stream, (UInt)ap));
   CHECK(save_uint(stream, ap->PredFlags));
+#if SIZEOF_INT_P==4
+  CHECK(save_uint(stream, ap->ExtraPredFlags));
+#endif
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_uint(stream, ap->src.IndxId));
   CHECK(save_uint(stream, ap->TimeStampOfPred));
@@ -797,7 +800,7 @@ save_header(IOSTREAM *stream)
 {
   char     msg[256];
 
-  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_SVERSION);
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_FULL_VERSION);
   return save_bytes(stream, msg, strlen(msg)+1);
 }
 

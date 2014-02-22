@@ -60,11 +60,17 @@ cudd.o: $(srcdir)/cudd.c
 @DO_SECOND_LD@cudd.@SO@: cudd.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o cudd.@SO@ cudd.o @EXTRA_LIBS_FOR_DLLS@  @CUDD_LDFLAGS@
 
-install: all
+install: all install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+distclean: clean
+	rm -f $(SOBJS) Makefile
+
 

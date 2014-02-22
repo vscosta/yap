@@ -52,9 +52,13 @@ matlab.o: $(srcdir)/matlab.c
 @DO_SECOND_LD@matlab.@SO@: matlab.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o matlab.@SO@ matlab.o  @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all  install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+realclean: clean
+	rm -f Makefile $(SOBJS) 
+
+install-examples:

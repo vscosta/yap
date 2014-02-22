@@ -62,11 +62,16 @@ memory.o: $(srcdir)/memory.cu $(srcdir)/pred.h
 @DO_SECOND_LD@cuda.@SO@: $(OBJS)
 @DO_SECOND_LD@	@CUDA_SHLIB_LD@ $(CUDA_LDFLAGS) -o cuda.@SO@ $(OBJS)
 
-install: all
+install: all install-exampleS
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
+install-examples:
+
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+	rm -f *.o *~ $(OBJS) *.BAK
+
+distclean: clean
+	rm -f $(SOBJS) Makefile
 

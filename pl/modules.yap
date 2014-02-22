@@ -86,12 +86,13 @@ module(N) :-
 	( source_location(_, Line) -> true ; Line = 0 ),
 	recorda('$module','$module'(F,Module,AllExports, Line),_).
 
-'$extend_exports'(Module, NewExports) :-
-	'$convert_for_export'(all, NewExports, Module, Module, _TranslationTab, NewExports1, load_files),
-	recorded('$module','$module'(F,Module,OriginalExports,Line),R),
+'$extend_exports'(F, Exps , NewF) :-
+	recorded('$module','$module'(NewF,NMod, NewExports, _),_R),
+	recorded('$module','$module'(F, Module,OriginalExports,Line),R),
+	'$convert_for_export'(Exps, NewExports, NMod, NMod, _TranslationTab, NewExports1, load_files),
 	'$add_exports'( NewExports1, OriginalExports, Exports ),
-	erase(R),
 	sort( Exports, AllExports ),
+	erase(R),
 	recorda('$module','$module'(F,Module,AllExports,Line),_),
 	fail.
 '$extend_exports'(_F, _Module, _NewExports).
@@ -105,7 +106,7 @@ module(N) :-
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$import'(Mod,M,_,_,N,A),R), erase(R), abolish(M:N/A), fail; true),
+	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	( source_location(_, Line) -> true ; Line = 0 ),
 	recorda('$module','$module'(F,Mod,Exports, Line),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
@@ -147,6 +148,7 @@ module(N) :-
 % A6: head module (this is the one used in compiling and accessing).
 %
 %
+'$module_expansion'(H,H,H,_M,_HM) :- var(H), !.
 '$module_expansion'((H:-B),(H:-B1),(H:-BOO),M,HM) :- !,
 	'$is_mt'(M, H, B, IB, MM),
 	'$module_u_vars'(H,UVars,M),	 % collect head variables in
@@ -300,10 +302,10 @@ expand_goal(G, G).
 	NG =.. [Name|NGArgs].
 
 '$expand_args'([], _, [], []).
-'$expand_args'(A.GArgs, CurMod, 0.GDefs, NA.NGArgs) :-
+'$expand_args'([A|GArgs], CurMod, [0|GDefs], [NA|NGArgs]) :-
 	'$do_expand'(A, CurMod, NA), !,
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
-'$expand_args'(A.GArgs, CurMod, _.GDefs, A.NGArgs) :-
+'$expand_args'([A|GArgs], CurMod, [_|GDefs], [A|NGArgs]) :-
 	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
 
 % args are:
@@ -458,21 +460,45 @@ expand_goal(G, G).
 '$module_u_vars'(_,[],_).
 
 '$module_u_vars'(0,_,_,[]) :- !.
-'$module_u_vars'(I,D,H,[Y|L]) :-
+'$module_u_vars'(I,D,H,LF) :-
 	arg(I,D,X), ( X=':' ; integer(X)),
-	arg(I,H,Y), var(Y), !,
+	arg(I,H,A), '$uvar'(A, LF, L), !,
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
 '$module_u_vars'(I,D,H,L) :-
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
 
+'$uvar'(Y, [Y|L], L)  :- var(Y), !.
+% support all/3
+'$uvar'(same( G, _), LF, L)  :-
+    '$uvar'(G, LF, L).
+'$uvar'('^'( _, G), LF, L)  :-
+    '$uvar'(G, LF, L).
+
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
+'$meta_expansion0'(G,_Mod,MP,_HM, G1,_HVars) :-
+    var(G), !,
+    G1 = call(MP:G).
+'$meta_expansion0'(M:G,_Mod,_MP,_HM,G1,_HVars) :-
+    var(M), !,
+    G1 = '$execute_wo_mod'(G,M).
+% support for all/3
+'$meta_expansion0'(same(G, P),Mod,MP,HM, same(G1, P),HVars) :- !,
+    '$meta_expansion0'(G,Mod,MP,HM,G1,HVars).
+'$meta_expansion0'(G,Mod,MP,HM,M2:G2,HVars) :-
+    nonvar(G), G \= _:_,
+    '$module_expansion'(G,_,G1,MP,MP,HM,HVars), !,
+    strip_module(MP:G1, M2, G2).
+'$meta_expansion0'(G,Mod,MP,HM,M1:G1,HVars) :-
+    strip_module(MP:G,M1,G1).
+
+
 '$meta_expansion'(G,Mod,MP,HM,G1,HVars) :-
 	functor(G,F,N),
-	'$meta_predicate'(F,Mod,N,D), !,
+	'$meta_predicate'(F,Mod,N,D), !, % we're in an argument
 %	format(user_error,'[ ~w ',[G]),
 	functor(G1,F,N),
 	'$meta_expansion_loop'(N, D, G, G1, HVars, Mod, MP, HM).
@@ -482,9 +508,15 @@ expand_goal(G, G).
 '$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
 '$meta_expansion_loop'(I,D,G,NG,HVars,CurMod,M,HM) :- 
 	arg(I,D,X), (X==':' -> true ; integer(X)),
-	arg(I,G,A), '$do_expand'(A,HVars),
+	arg(I,G,A), 
+	'$should_expand'(A,HVars),
 	!,
-	arg(I,NG,M:A),
+	( X ==0 ->
+	      '$meta_expansion0'(A,CurMod,M,HM,NA,HVars)
+	  ;
+	      NA = M:A
+	),
+	arg(I,NG,NA),
 	I1 is I-1,
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
 '$meta_expansion_loop'(I, D, G, NG, HVars, CurMod, M, HM) :- 
@@ -494,9 +526,9 @@ expand_goal(G, G).
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
 
 % check if an argument should be expanded
-'$do_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
-'$do_expand'(_:_,_) :- !, fail.
-'$do_expand'(_,_).
+'$should_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
+'$should_expand'(_:_,_) :- !, fail.
+'$should_expand'(_,_).
 
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
@@ -622,7 +654,7 @@ abolish_module(Mod) :-
 	recorded('$module','$module'(_,Mod,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
-	recorded('$import','$import'(Mod,M,_,_,N,A),R), erase(R), abolish(M:N/A),
+	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
 	'$current_predicate'(Mod,Na,Ar),
@@ -700,44 +732,50 @@ export_list(Module, List) :-
 '$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,
 	( lists:memberchk(N1/A1, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'((N1/A1 as A2), Module, ContextModule)
-	).	
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).	
 '$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
 	(
 	 lists:memberchk(N1/A1, List)
 	->
-	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	   true
 	;
 	  '$bad_export'(N1/A1, Module, ContextModule)
-	).
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([N1//A1|Ps], List, Module, ContextModule, [N1/A2-N1/A2|Tab], [N1/A2|MyExports], Goal) :- !,
 	A2 is A1+2,
 	(
 	  lists:memberchk(N1/A2, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'(N1//A1, Module, ContextModule)
-	).
+
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([N1//A1 as N2|Ps], List, Module, ContextModule, [N2/A2-N1/A2|Tab], [N2/A2|MyExports], Goal) :- !,
 	A2 is A1+2,
 	(
 	  lists:memberchk(N2/A2, List)
 	->
-	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	  true
 	;
 	  '$bad_export'((N1//A1 as A2), Module, ContextModule)
-	).
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|MyExports], Goal) :- !,
 	(
 	 lists:memberchk(op(Prio,Assoc,Name), List)
 	->
-	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	 true
 	;
-	  '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
-	).
+	 '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
+	),
+	'$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal).
 '$clean_conversion'([P|_], _List, _, _, _, _, Goal) :-
 	'$do_error'(domain_error(module_export_predicates,P), Goal).
 
@@ -806,9 +844,9 @@ export_list(Module, List) :-
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod = user ->
-	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true )
+	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true)
 	  ;
-	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_)  -> true ; true )
+	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_) -> true ; true )
 	  )
 	;
 	  true

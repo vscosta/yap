@@ -77,9 +77,13 @@ regexec.o: $(srcdir)/regexec.c
 @DO_SECOND_LD@regexec.@SO@: regexec.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regexec.@SO@ regexec.o @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+install-examples:
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+distclean: clean
+	rm -f Makefile

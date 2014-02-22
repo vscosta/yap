@@ -34,7 +34,7 @@
 /* include all stuff that is exported to yap */
 #include "pl-shared.h"
 
-#define PLVERSION YAP_VERSION
+#define PLVERSION YAP_NUMERIC_VERSION
 #define PLNAME "yap"
 
 #define SWIP "swi_"
@@ -57,14 +57,6 @@ typedef struct pred_entry *      Procedure;      /* predicate */
 #endif
 #ifdef H
 #undef H
-#endif
-
-// used by swi
-#ifdef SIZEOF_INT_P
-#define SIZEOF_VOIDP SIZEOF_INT_P
-#define SIZEOF_LONG  SIZEOF_LONG_INT
-#else
-bad config
 #endif
 
 /* swi code called from pl-incl.h */
@@ -511,7 +503,6 @@ typedef struct wakeup_state
 Defining built-in predicates using the new interface 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#define EOS '\0'
 #define ESC			((char) 27)
 #define streq(s, q)		((strcmp((s), (q)) == 0))
 
@@ -574,6 +565,7 @@ extern void PL_cleanup_fork(void);
 extern int PL_rethrow(void);
 extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
+extern int PL_unify_termv(term_t l, va_list args);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
 
@@ -726,7 +718,6 @@ extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
 extern int warning(const char *fm, ...);
-extern int raiseSignal(PL_local_data_t *ld, int sig);
 
 /**** stuff from pl-files.c ****/
 void initFiles(void);
@@ -883,6 +874,32 @@ extern void unallocStream(IOSTREAM *s);
 
 extern atom_t accessLevel(void);
 int currentBreakLevel(void);
+
+#ifdef __WINDOWS__
+int hasConsole(void);
+int PL_wait_for_console_input(void *handle);
+void PlMessage(const char *fm, ...);
+const char *WinError(void);
+word pl_win_exec(term_t cmd, term_t how);
+foreign_t pl_win_module_file(term_t module, term_t file);
+
+#ifdef EMULATE_DLOPEN
+	/* file is in UTF-8, POSIX path */
+void *dlopen(const char *file, int flags);
+const char *dlerror(void);
+void *dlsym(void *handle, char *symbol);
+int dlclose(void *handle);
+#endif
+
+int ms_snprintf(char *buffer, size_t count, const char *fmt, ...);
+void getDefaultsFromRegistry(void);
+
+DWORD RunSilent(const char* strCommand);
+FILE *pt_popen(const char *cmd, const char *mode);
+int pt_pclose(FILE *fd);
+
+int PL_w32thread_raise(DWORD id, int sig);
+#endif
 
 extern const PL_extension PL_predicates_from_ctype[];
 extern const PL_extension PL_predicates_from_file[];

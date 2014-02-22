@@ -235,7 +235,7 @@ AccessFile(const char *path, int mode)
 
   return access(OsPath(path, tmp), m) == 0 ? TRUE : FALSE;
 #else
-#error "No implementation for AccessFile()"
+# error "No implementation for AccessFile()"
 #endif
 }
 

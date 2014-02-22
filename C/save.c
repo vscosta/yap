@@ -344,7 +344,7 @@ put_info(int info, int mode USES_REGS)
 {
   char     msg[256];
 
-  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%cYAP-%s", YAP_BINDIR, 1, YAP_SVERSION);
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%cYAP-%s", YAP_BINDIR, 1, YAP_FULL_VERSION);
   if (mywrite(splfild, msg, strlen(msg) + 1))
     return -1;
   if (putout(Unsigned(info)) < 0)
@@ -369,7 +369,7 @@ put_info(int info, int mode USES_REGS)
   if (putout(Unsigned(LCL0)-Unsigned(ASP)) < 0)
     return -1;
   /* Space used for global stack */
-  if (putout(Unsigned(H) - Unsigned(LOCAL_GlobalBase)) < 0)
+  if (putout(Unsigned(HR) - Unsigned(LOCAL_GlobalBase)) < 0)
     return -1;
   /* Space used for trail */
   if (putout(Unsigned(TR) - Unsigned(LOCAL_TrailBase)) < 0)
@@ -396,7 +396,7 @@ save_regs(int mode USES_REGS)
       return -1;
     if (putcellptr(LCL0) < 0)
       return -1;
-    if (putcellptr(H) < 0)
+    if (putcellptr(HR) < 0)
       return -1;
     if (putcellptr(HB) < 0)
       return -1;
@@ -411,6 +411,8 @@ save_regs(int mode USES_REGS)
     if (putcellptr((CELL *)P) < 0)
       return -1;
     if (putout(CreepFlag) < 0)
+      return -1;
+    if (putout(EventFlag) < 0)
       return -1;
     if (putcellptr((CELL *)EX) < 0)
       return -1;
@@ -533,7 +535,7 @@ save_stacks(int mode USES_REGS)
     if (mywrite(splfild, (char *) ASP, j) < 0)
       return -1;
     /* Save the global stack */
-    j = Unsigned(H) - Unsigned(LOCAL_GlobalBase);
+    j = Unsigned(HR) - Unsigned(LOCAL_GlobalBase);
     if (mywrite(splfild, (char *) LOCAL_GlobalBase, j) < 0)
       return -1;
     /* Save the trail */
@@ -675,7 +677,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     }
   } while (pp[0] != 1);
   /* now check the version */
-  sprintf(msg, "YAP-%s", YAP_SVERSION);
+  sprintf(msg, "YAP-%s", YAP_FULL_VERSION);
   {
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
@@ -832,7 +834,7 @@ get_regs(int flag USES_REGS)
     LCL0 = get_cellptr();
     if (LOCAL_ErrorMessage)
       return -1;
-    H = get_cellptr();
+    HR = get_cellptr();
     if (LOCAL_ErrorMessage)
       return -1;
     HB = get_cellptr();
@@ -854,6 +856,9 @@ get_regs(int flag USES_REGS)
     if (LOCAL_ErrorMessage)
       return -1;
     CreepFlag = get_cell();
+    if (LOCAL_ErrorMessage)
+      return -1;
+    EventFlag = get_cell();
     if (LOCAL_ErrorMessage)
       return -1;
     EX = (struct DB_TERM *)get_cellptr();
@@ -924,7 +929,7 @@ get_regs(int flag USES_REGS)
     LOCAL_OldASP = ASP;
     LOCAL_OldLCL0 = LCL0;
     LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
-    LOCAL_OldH = H;
+    LOCAL_OldH = HR;
     LOCAL_OldTR = TR;
     LOCAL_GDiff = Unsigned(NewGlobalBase) - Unsigned(LOCAL_GlobalBase);
     LOCAL_GDiff0 = 0;
@@ -972,7 +977,7 @@ CopyStacks( USES_REGS1 )
   NewASP = (char *) (Unsigned(ASP) + (Unsigned(LCL0) - Unsigned(LOCAL_OldLCL0)));
   if (myread(splfild, (char *) NewASP, j) < 0)
     return -1;
-  j = Unsigned(H) - Unsigned(LOCAL_OldGlobalBase);
+  j = Unsigned(HR) - Unsigned(LOCAL_OldGlobalBase);
   if (myread(splfild, (char *) LOCAL_GlobalBase, j) < 0)
     return -1;
   j = Unsigned(TR) - Unsigned(LOCAL_OldTrailBase);
@@ -1055,7 +1060,7 @@ restore_regs(int flag USES_REGS)
     CP = PtoOpAdjust(CP);
     ENV = PtoLocAdjust(ENV);
     ASP = PtoLocAdjust(ASP);
-    H = PtoGloAdjust(H);
+    HR = PtoGloAdjust(HR);
     B = (choiceptr)PtoLocAdjust(CellPtr(B));
     TR = PtoTRAdjust(TR);
     P = PtoOpAdjust(P);
@@ -1144,8 +1149,8 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
 
   if (LOCAL_HDiff == 0)
       return;
-  basep = H;
-  if (H + (NOfE*2) > ASP) {
+  basep = HR;
+  if (HR + (NOfE*2) > ASP) {
     basep = (CELL *)TR;
     if (basep + (NOfE*2) > (CELL *)LOCAL_TrailTop) {
       if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-LOCAL_TrailTop, TRUE)) {

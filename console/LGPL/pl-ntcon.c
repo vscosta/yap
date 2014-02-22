@@ -28,6 +28,10 @@
 #include "SWI-Prolog.h"
 #include <signal.h>
 
+int APP_main(int argc, char **argv);
+		/* decode ANSI color sequences (ESC[...m) */
+void PL_w32_wrap_ansi_console(void);
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This is the simple main  program   of  swipl.exe; the SWI-Prolog console
 application. It can be used as   a  basis for console-based applications

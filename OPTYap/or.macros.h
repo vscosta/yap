@@ -18,8 +18,8 @@
 /* get a def for NULL */
 #include <stdlib.h>
 
-static inline void PUT_IN_EXECUTING(int);
-static inline void PUT_OUT_EXECUTING(int);
+static inline void PUT_IN_ROOT_NODE(int);
+static inline void PUT_OUT_ROOT_NODE(int);
 static inline void PUT_IN_FINISHED(int);
 #ifdef TABLING_INNER_CUTS
 static inline void PUT_IN_PRUNING(int);
@@ -158,7 +158,7 @@ static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
         SCH_check_share_request()
 
 #define SCH_last_alternative(curpc, CP_PTR)    \
-        H = HBREG = PROTECT_FROZEN_H(CP_PTR);  \
+        HR = HBREG = PROTECT_FROZEN_H(CP_PTR); \
         CPREG = CP_PTR->cp_cp;		       \
         ENV = CP_PTR->cp_env;                  \
         SCH_new_alternative(curpc, NULL)
@@ -213,24 +213,22 @@ static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
 /* ---------------------- **
 **      Engine Stuff      **
 ** ---------------------- */
-
-static inline 
-void PUT_IN_EXECUTING(int w) {
-  LOCK(GLOBAL_locks_bm_executing_workers);
-  BITMAP_insert(GLOBAL_bm_executing_workers, w);
-  UNLOCK(GLOBAL_locks_bm_executing_workers);
+static inline
+void PUT_IN_ROOT_NODE(int worker_num) {
+  LOCK(GLOBAL_locks_bm_root_cp_workers);
+  BITMAP_insert(GLOBAL_bm_root_cp_workers, worker_num);
+  UNLOCK(GLOBAL_locks_bm_root_cp_workers);
   return;
 }
 
 
-static inline 
-void PUT_OUT_EXECUTING(int w) {
-  LOCK(GLOBAL_locks_bm_executing_workers);
-  BITMAP_delete(GLOBAL_bm_executing_workers, w);
-  UNLOCK(GLOBAL_locks_bm_executing_workers);
+static inline
+void PUT_OUT_ROOT_NODE(int worker_num) {
+  LOCK(GLOBAL_locks_bm_root_cp_workers);
+  BITMAP_delete(GLOBAL_bm_root_cp_workers, worker_num);
+  UNLOCK(GLOBAL_locks_bm_root_cp_workers);
   return;
 }
-
 
 static inline 
 void PUT_IN_FINISHED(int w) {

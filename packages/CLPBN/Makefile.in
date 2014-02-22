@@ -117,17 +117,20 @@ CLPBN_LEARNING_EXAMPLES= \
 	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
 	$(CLPBN_EXDIR)/learning/train.yap
 
+all:
 
-install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
+install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
+	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
+	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
+
+install-examples: $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
 	mkdir -p $(DESTDIR)$(EXDIR)
 	mkdir -p $(DESTDIR)$(EXDIR)/School
 	mkdir -p $(DESTDIR)$(EXDIR)/HMMer
 	mkdir -p $(DESTDIR)$(EXDIR)/learning
-	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
-	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
-	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
@@ -143,3 +146,7 @@ docs: $(MANUAL)
 install_docs: docs
 	$(INSTALL_DATA) pfl.pdf $(DESTDIR)$(EXDIR)
 
+clean:
+
+distclean: clean
+	rm -f Makefile

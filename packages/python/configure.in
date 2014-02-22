@@ -11,47 +11,64 @@ AC_ARG_WITH(python,
 
 if test "$yap_cv_python" = "no"; then
     PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
+    PKG_PYTHON=""
 elif test -e "$srcdir"/packages/python/Makefile.in ; then
    PYTHON_TARGET="pitf"
-   ENABLE_PYTHON=""
+   PKG_PYTHON="packages/python"
    if test "$yap_cv_python" = "yes"
    then
       AC_CHECK_PROGS(PYTHON, python, "none")
    else
      PYTHON="$yap_cv_python"
    fi
-   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
+   if test $i_am_cross_compiling = yes
+   then
+     #mingw
+     PYTHON_DIR=`dirname "$PYTHON"`
+     PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+     PYTHON_LIBS="\"$PYTHON_DLL\""
+     PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
+   else
+   PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[[:3]])"`
    if test -d "$PYTHONHOME/libs"; then
      dnl windows
      PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
-     PYTHON_LIBS="-L $PYTHONHOME/libs -lpython$PYTHONV"
+     PYTHON_LIBS="-L $PYTHONHOME/libs"
    elif test -d "$PYTHONHOME/lib"; then
-     PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+     PYTHON_LIBS="-L $PYTHONHOME/lib"
    else
-     echo "Could not find includes for Python"
-     ENABLE_PYTHON="@# "
+     echo "Could not find libraries for Python"
+     PKG_PYTHON=""
    fi
+   OLIBS=$LIBS
+   LIBS=$PYTHON_LIBS
+   AC_SEARCH_LIBS(Py_Initialize, [python"$PYTHONVERSION" python"$PYTHONVERSION"m],,[echo "Could not find libraries for Python";
+     PKG_PYTHON=""],"$OLIBS")  
+   PYTHON_LIBS=$LIBS
+   LIBS=$OLIBS
    if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+   elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
+     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
    elif test -d "$PYTHONHOME/include"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include"
    else
      echo "Could not find includes for Python"
-     ENABLE_PYTHON="@# "
+     PKG_PYTHON=""
+   fi
    fi
 else
     PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
+    PKG_PYTHON=""
 fi
 
 AC_SUBST(PYTHON_TARGET)
-AC_SUBST(ENABLE_PYTHON)
+AC_SUBST(PKG_PYTHON)
 AC_SUBST(PYTHON_INCLUDES)
 AC_SUBST(PYTHON_LIBS)
 
-if test "$ENABLE_PYTHON" = ""; then
+if test "$PKG_PYTHON" != ""; then
 AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 

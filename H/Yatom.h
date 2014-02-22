@@ -650,10 +650,14 @@ IsValProperty (int flags)
 	    for	the pred.
     C_Preds are	things write, read, ...	implemented in C. In this case
 	    CodeOfPred holds the address of the	correspondent C-function.
+
+don;t forget to also add in qly.h
 */
 typedef enum
 {
-  QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
+  NoDebugPredFlag = ((UInt)0x00000004L << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
+  NoTracePredFlag = ((UInt)0x00000002L << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
+  QuasiQuotationPredFlag = ((UInt)0x00000001L << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = 0x40000000L,	/* local to a thread */
   MultiFileFlag = 0x20000000L,	/* is multi-file */
@@ -1277,6 +1281,12 @@ IsTranslationProperty (int flags)
 }
 
 
+typedef enum {
+  STATIC_ARRAY = 1,
+  DYNAMIC_ARRAY = 2,
+  MMAP_ARRAY = 4,
+  FIXED_ARRAY = 8
+} array_type;
 
 
 /*		array property entry structure				*/
@@ -1286,6 +1296,7 @@ typedef struct array_entry
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   Int ArrayEArity;		/* Arity of Array (positive)            */
+  array_type TypeOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #if THREADS
@@ -1337,6 +1348,7 @@ typedef struct static_array_entry
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   Int ArrayEArity;		/* Arity of Array (negative)            */
+  array_type TypeOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #endif
@@ -1437,7 +1449,7 @@ INLINE_ONLY inline EXTERN int ArrayIsDynamic (ArrayEntry *);
 INLINE_ONLY inline EXTERN int
 ArrayIsDynamic (ArrayEntry * are)
 {
-  return (int) (((are)->ArrayEArity > 0));
+  return (int) (((are)->TypeOfAE & DYNAMIC_ARRAY));
 }
 
 

@@ -14,14 +14,14 @@ CUDA_LDFLAGS=""
 CUDA_CPPFLAGS=""
 if test "$yap_cv_cuda" = no 
 then
-  ENABLE_CUDA="@# "
+  PKG_CUDA=""
 else
   AC_PATH_PROG(NVCC, [nvcc], [no], [$yap_cv_cuda/bin])
   if test "$yap_cv_cuda" = no
   then
-    ENABLE_CUDA="@# "
+    PKG_CUDA=""
   else
-    ENABLE_CUDA=""
+    PKG_CUDA="packages/cuda"
     case "$target_os" in
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
@@ -37,11 +37,13 @@ else
  fi
 fi
 
-AC_SUBST(ENABLE_CUDA)
+AC_SUBST(PKG_CUDA)
 AC_SUBST(NVCC)
 AC_SUBST(CUDA_SHLIB_LD)
 AC_SUBST(CUDA_CPPFLAGS)
 AC_SUBST(CUDA_LDFLAGS)
 
 AC_CONFIG_FILES([packages/cuda/Makefile])
+
+mkdir -p  packages/cuda
 

@@ -69,10 +69,13 @@ itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/itries.c
 @DO_SECOND_LD@itries.@SO@: core_tries.o base_itries.o itries.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o itries.@SO@ core_tries.o base_itries.o itries.o @EXTRA_LIBS_FOR_DLLS@
 
-install: all
+install: all install-examples
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+install-examples:
 
+distclean: clean
+	rm -f Makefile

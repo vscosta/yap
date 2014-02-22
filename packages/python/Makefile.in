@@ -24,7 +24,7 @@ python.@SO@:	$(OBJS)
 
 install:	install-@PYTHON_TARGET@
 install-dummy::
-install-pitf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
+install-pitf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL)) install-examples
 		mkdir -p $(DESTDIR)$(SOLIBDIR)
 		rm -f $(DESTDIR)$(SOLIBDIR)/python.@SO@
 		$(INSTALL_PROGRAM) $(SOLIBS) $(SOLIBDIR)
@@ -52,6 +52,8 @@ uninstall::
 		(cd $(SOLIBDIR) && rm -f $(TARGETS))
 		(cd $(PLBASE)/library && rm -f $(LIBPL))
 		$(MKINDEX)
+
+install-examples::
 
 ################################################################
 # Documentation

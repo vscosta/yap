@@ -283,8 +283,6 @@ static void a_fetch_cv(cmp_op_info *, int, struct intermediates *);
 static void a_fetch_vc(cmp_op_info *, int, struct intermediates *);
 static yamop *a_f2(cmp_op_info *, yamop *, int, struct intermediates *);
 
-#define CELLSIZE sizeof(CELL)
-
 #define GONEXT(TYPE)      code_p = ((yamop *)(&(code_p->u.TYPE.next)))
 
 inline static yslot
@@ -1144,6 +1142,21 @@ a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobs
   return code_p;
 }
 
+// strings are blobs
+inline static yamop *
+a_ustring(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.ou.opcw = emit_op(opcode_w);
+    code_p->u.ou.u = 
+      AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));      
+  }
+  *clause_has_blobsp = TRUE;
+  GONEXT(ou);
+  return code_p;
+}
+
 inline static yamop *
 a_udbt(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_dbtermp, yamop *code_p, int pass_no, struct intermediates *cip)
 {
@@ -1381,6 +1394,19 @@ a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, stru
   }
   *clause_has_blobsp = TRUE;
   GONEXT(xN);
+  return code_p;
+}
+
+inline static yamop *
+a_rstring(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xu.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xu.u = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+  }
+  *clause_has_blobsp = TRUE;
+  GONEXT(xu);
   return code_p;
 }
 
@@ -2421,6 +2447,16 @@ copy_blob(yamop *code_p, int pass_no, struct PSEUDO *cpc)
   return code_p;
 }
 
+static yamop *
+copy_string(yamop *code_p, int pass_no, struct PSEUDO *cpc)
+{
+  /* copy the blob to code space, making no effort to align if a double */
+  int max = cpc->rnd1, i;
+  for (i = 0; i < max; i++)
+    code_p = fill_a(cpc->arnds[i], code_p, pass_no);
+  return code_p;
+}
+
 
 static void
 a_fetch_vv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
@@ -3240,6 +3276,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case get_bigint_op:
       code_p = a_rb(_get_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case get_string_op:
+      code_p = a_rstring(_get_string, clause_has_blobsp, code_p, pass_no, cip);
+      break;
     case get_dbterm_op:
       code_p = a_dbt(_get_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
@@ -3257,6 +3296,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case put_bigint_op:
       code_p = a_rb(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
+      break;
+    case put_string_op:
+      code_p = a_rstring(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case put_dbterm_op:
       code_p = a_dbt(_put_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
@@ -3318,6 +3360,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case unify_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case unify_string_op:
+      code_p = a_ustring(cip->cpc->rnd1, _unify_string, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      break;
     case unify_dbterm_op:
       code_p = a_udbt(cip->cpc->rnd1, _unify_dbterm, _unify_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
       break;
@@ -3336,6 +3381,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case unify_last_bigint_op:
       code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
+    case unify_last_string_op:
+      code_p = a_ustring(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      break;
     case unify_last_dbterm_op:
       code_p = a_udbt(cip->cpc->rnd1, _unify_l_dbterm, _unify_l_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
       break;
@@ -3352,6 +3400,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_wi(_write_longint, code_p, pass_no, cip->cpc);
       break;
     case write_bigint_op:
+      code_p = a_wblob(cip->cpc->rnd1, _write_bigint, clause_has_blobsp, code_p, pass_no, cip);
+      break;
+    case write_string_op:
       code_p = a_wblob(cip->cpc->rnd1, _write_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case write_dbterm_op:
@@ -3540,14 +3591,15 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  cip->cpc->nextInst != NULL &&
 	  (cip->cpc->nextInst->op == mark_initialised_pvars_op ||
 	   cip->cpc->nextInst->op == mark_live_regs_op ||
-	   cip->cpc->nextInst->op == blob_op)) {
+	   cip->cpc->nextInst->op == blob_op ||
+	   cip->cpc->nextInst->op == string_op)) {
 	ystop_found = TRUE;
 	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
       }
       if (!pass_no) {
 #if !USE_SYSTEM_MALLOC
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
-	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
+	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)HR);
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, 3);	  
 	}
@@ -3737,7 +3789,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case align_float_op:
       /* install a blob */
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
       if (!((CELL)code_p & 0x4))
 	GONEXT(e);
 #endif
@@ -3745,6 +3797,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case blob_op:
       /* install a blob */
       code_p = copy_blob(code_p, pass_no, cip->cpc);
+      break;
+    case string_op:
+      /* install a blob */
+      code_p = copy_string(code_p, pass_no, cip->cpc);
       break;
     case empty_call_op:
       /* create an empty call */
@@ -3784,18 +3840,18 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 static DBTerm *
 fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep USES_REGS)
 {
-  CELL *h0 = H;
+  CELL *h0 = HR;
   DBTerm *x;
 
   /* This stuff should be just about fetching the space from the data-base,
      unfortunately we have to do all sorts of error handling :-( */
-  H = (CELL *)cip->freep;
+  HR = (CELL *)cip->freep;
   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
-    H = h0;
+    HR = h0;
     switch (LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
-      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
+      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)HR);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch,3);
     case OUT_OF_TRAIL_ERROR:
@@ -3827,10 +3883,10 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
     default:
       return NULL;
     }
-    h0 = H;
-    H = (CELL *)cip->freep;
+    h0 = HR;
+    HR = (CELL *)cip->freep;
   }
-  H = h0;
+  HR = h0;
   return x;
 }
 
@@ -3915,6 +3971,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
     cl->lusl.ClSource = x;
+    cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
@@ -3933,6 +3990,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
+    cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     LOCAL_ProfEnd=code_p;

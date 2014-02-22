@@ -268,7 +268,7 @@ c_db_preds_conn_start ( USES_REGS1 ){
   MYDDAS_UTIL_CONNECTION node = 
     myddas_util_search_connection(conn);
   
-  /* Caso a ligacao já tenha sido apagada*/
+  /* Caso a ligacao jÃ¡ tenha sido apagada*/
   if (node == NULL)
     {
       cut_fail();
@@ -695,7 +695,76 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
 }
 
 
+void
+init_myddas(void)
+{
+  CACHE_REGS
+#if defined MYDDAS_MYSQL
+  Yap_InitBackMYDDAS_MySQLPreds();
+#endif
+#if defined MYDDAS_ODBC
+  Yap_InitBackMYDDAS_ODBCPreds();
+#endif
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+  Yap_InitBackMYDDAS_SharedPreds();
+#endif
+#if defined MYDDAS_MYSQL
+  Yap_InitMYDDAS_MySQLPreds();
+#endif
+#if defined MYDDAS_ODBC
+  Yap_InitMYDDAS_ODBCPreds();
+#endif
+#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
+  Yap_InitMYDDAS_SharedPreds();
+#endif
+#if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
+  Yap_InitMYDDAS_TopLevelPreds();
+#endif
+#ifdef MYDDAS_MYSQL_INIT
+  if (yap_init->myddas) {
+    Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
+    
+    /* Mandatory Fields */
+    Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
+    Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
+    
+    /* Non-Mandatory Fields */
+    if (yap_init->myddas_pass != NULL)
+      Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
+    if (yap_init->myddas_host != NULL)
+      Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
+  }
+#endif
+#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
+  Yap_PutValue(AtomMyddasVersionName,
+	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));
+  Yap_HaltRegisterHook((HaltHookFunc)Yap_MYDDAS_delete_all_myddas_structs,NULL);
+  Yap_MYDDAS_delete_all_myddas_structs();
+#endif
+}
+
+#ifdef _WIN32
+
+int WINAPI PROTO(win_myddas, (HANDLE, DWORD, LPVOID));
+
+int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved)
+{
+  switch (reason) 
+    {
+    case DLL_PROCESS_ATTACH:
+      break;
+    case DLL_PROCESS_DETACH:
+      break;
+    case DLL_THREAD_ATTACH:
+      break;
+    case DLL_THREAD_DETACH:
+      break;
+    }
+  return 1;
+}
+#endif
 
 
 
-#endif /*CUT_C && (MYDDAS_MYSQL || MYDDAS_ODBC)*/
+#endif /*MYDDAS_MYSQL || MYDDAS_ODBC*/

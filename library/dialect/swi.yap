@@ -6,7 +6,6 @@
 :- module(system, [concat_atom/2,
 		   concat_atom/3,
 		   read_clause/1,
-		   string/1,
 		   chdir/1,
 		   compile_aux_clauses/1,
 		   convert_time/2,
@@ -15,8 +14,6 @@
 		   '$set_predicate_attribute'/3,
 		   stamp_date_time/3,
 		   date_time_stamp/2,
-		   format_time/3,
-		   format_time/4,
 		   time_file/2,
 		   flag/3,
 		   require/1,
@@ -96,6 +93,7 @@
 
 :- set_prolog_flag(user_flags,silent).
 
+
 % Time is given as a float in SWI-Prolog.
 swi_get_time(FSecs) :- datime(Datime),  mktime(Datime, Secs), FSecs is Secs*1.0.
 
@@ -156,8 +154,6 @@ concat_atom(List, New) :-
 
 read_clause(X,Y) :-
 	read_term(X,Y,[singetons(warning)]).
-
-string(_) :- fail.
 
 bindings_message(V) -->
        { cvt_bindings(V, Bindings) },

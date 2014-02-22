@@ -58,12 +58,12 @@ build_new_list(CELL *pt, Term t USES_REGS)
     }
     pt += 2;
     if (pt > ASP - 4096) {
-      if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
+      if (!Yap_gcl((ASP-HR)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);
       }
       t = Deref(ARG1);
-      pt = H;
+      pt = HR;
       out = 0;
       goto restart;
     }
@@ -346,7 +346,7 @@ static Int
 p_sort( USES_REGS1 )
 {
   /* use the heap to build a new list */
-  CELL *pt = H;
+  CELL *pt = HR;
   Term out;
   /* list size */
   Int size;
@@ -355,13 +355,13 @@ p_sort( USES_REGS1 )
     return(FALSE);
   if (size < 2)
      return(Yap_unify(ARG1, ARG2));
-  pt = H;            /* because of possible garbage collection */
+  pt = HR;            /* because of possible garbage collection */
   /* make sure no one writes on our temp data structure */
-  H += size*2;
+  HR += size*2;
   /* reserve the necessary space */
   size = compact_mergesort(pt, size, M_EVEN);
   /* reajust space */
-  H = pt+size*2;
+  HR = pt+size*2;
   adjust_vector(pt, size);
   out = AbsPair(pt);
   return(Yap_unify(out, ARG2));
@@ -371,7 +371,7 @@ static Int
 p_msort( USES_REGS1 )
 {
   /* use the heap to build a new list */
-  CELL *pt = H;
+  CELL *pt = HR;
   Term out;
   /* list size */
   Int size;
@@ -380,9 +380,9 @@ p_msort( USES_REGS1 )
     return(FALSE);
   if (size < 2)
      return(Yap_unify(ARG1, ARG2));
-  pt = H;            /* because of possible garbage collection */
+  pt = HR;            /* because of possible garbage collection */
   /* reserve the necessary space */
-  H += size*2;
+  HR += size*2;
   simple_mergesort(pt, size, M_EVEN);
   adjust_vector(pt, size);
   out = AbsPair(pt);
@@ -393,7 +393,7 @@ static Int
 p_ksort( USES_REGS1 )
 {
   /* use the heap to build a new list */
-  CELL *pt = H;
+  CELL *pt = HR;
   Term out;
   /* list size */
   Int size;
@@ -403,8 +403,8 @@ p_ksort( USES_REGS1 )
   if (size < 2)
      return(Yap_unify(ARG1, ARG2));
   /* reserve the necessary space */
-  pt = H;            /* because of possible garbage collection */
-  H += size*2;
+  pt = HR;            /* because of possible garbage collection */
+  HR += size*2;
   if (!key_mergesort(pt, size, M_EVEN, FunctorMinus))
     return(FALSE);
   adjust_vector(pt, size);

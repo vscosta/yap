@@ -146,7 +146,7 @@ extern IOENC			initEncoding(void);
 extern int			reportStreamError(IOSTREAM *s);
 extern record_t			PL_record(term_t t);
 extern int			PL_thread_self(void);
-
+extern void			unallocStream(IOSTREAM *s);
 
 		 /*******************************
 		 *	      BUFFER		*
@@ -2662,7 +2662,6 @@ Swrite_file(void *handle, char *buf, size_t size)
 #else
     bytes = write((int)h, buf, size);
 #endif
-
     if ( bytes == -1 && errno == EINTR )
     { if ( PL_handle_signals() < 0 )
       { errno = EPLEXCEPTION;
@@ -3541,8 +3540,15 @@ SinitStreams(void)
 
       if ( !isatty(i) && s->functions == &Sttyfunctions )
       { s->flags &= ~SIO_ISATTY;
-	s->functions = &Sfilefunctions; /* Check for pipe? */
+	    s->functions = &Sfilefunctions; /* Check for pipe? */
+#if HAVE_SETLINEBUF
+	    /* make sure wwe buffer on new line for ttys, eg eclipse console */
+      } else if (i == 1) {
+    	  setlinebuf( stdout );
+#endif
       }
+      if ( s > 0)
+	s->newline = SIO_NL_DOS;
       if ( s->encoding == ENC_ISO_LATIN_1 )
 	s->encoding = enc;
 #ifdef O_PLMT

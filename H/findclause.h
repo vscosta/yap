@@ -29,7 +29,7 @@
 	if (IsApplTerm(cl->u.cc.c1)) {
           CELL *pt = RepAppl(cl->u.cc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cc.c1;
+	  clause->ucd.t_ptr = cl->u.cc.c1;
 	} else
 	  clause->Tag = cl->u.cc.c1;
 	return;
@@ -38,7 +38,7 @@
 	if (IsApplTerm(cl->u.cc.c2)) {
           CELL *pt = RepAppl(cl->u.cc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cc.c2;
+	  clause->ucd.t_ptr = cl->u.cc.c2;
 	} else
 	  clause->Tag = cl->u.cc.c2;
 	return;
@@ -50,7 +50,7 @@
 	if (IsApplTerm(cl->u.ccc.c1)) {
           CELL *pt = RepAppl(cl->u.ccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccc.c1;
+	  clause->ucd.t_ptr = cl->u.ccc.c1;
 	} else
 	  clause->Tag = cl->u.ccc.c1;
 	return;
@@ -59,7 +59,7 @@
 	if (IsApplTerm(cl->u.ccc.c2)) {
           CELL *pt = RepAppl(cl->u.ccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccc.c2;
+	  clause->ucd.t_ptr = cl->u.ccc.c2;
 	} else
 	  clause->Tag = cl->u.ccc.c2;
 	return;
@@ -68,7 +68,7 @@
 	if (IsApplTerm(cl->u.ccc.c3)) {
           CELL *pt = RepAppl(cl->u.ccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccc.c3;
+	  clause->ucd.t_ptr = cl->u.ccc.c3;
 	} else
 	  clause->Tag = cl->u.ccc.c3;
 	return;
@@ -80,7 +80,7 @@
 	if (IsApplTerm(cl->u.cccc.c1)) {
           CELL *pt = RepAppl(cl->u.cccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccc.c1;
+	  clause->ucd.t_ptr = cl->u.cccc.c1;
 	} else
 	  clause->Tag = cl->u.cccc.c1;
 	return;
@@ -89,7 +89,7 @@
 	if (IsApplTerm(cl->u.cccc.c2)) {
           CELL *pt = RepAppl(cl->u.cccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccc.c2;
+	  clause->ucd.t_ptr = cl->u.cccc.c2;
 	} else
 	  clause->Tag = cl->u.cccc.c2;
 	return;
@@ -98,7 +98,7 @@
 	if (IsApplTerm(cl->u.cccc.c3)) {
           CELL *pt = RepAppl(cl->u.cccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccc.c3;
+	  clause->ucd.t_ptr = cl->u.cccc.c3;
 	} else
 	  clause->Tag = cl->u.cccc.c3;
 	return;
@@ -107,7 +107,7 @@
 	if (IsApplTerm(cl->u.cccc.c4)) {
           CELL *pt = RepAppl(cl->u.cccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccc.c4;
+	  clause->ucd.t_ptr = cl->u.cccc.c4;
 	} else
 	  clause->Tag = cl->u.cccc.c4;
 	return;
@@ -119,7 +119,7 @@
 	if (IsApplTerm(cl->u.ccccc.c1)) {
           CELL *pt = RepAppl(cl->u.ccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccccc.c1;
+	  clause->ucd.t_ptr = cl->u.ccccc.c1;
 	} else
 	  clause->Tag = cl->u.ccccc.c1;
 	return;
@@ -128,7 +128,7 @@
 	if (IsApplTerm(cl->u.ccccc.c2)) {
           CELL *pt = RepAppl(cl->u.ccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccccc.c2;
+	  clause->ucd.t_ptr = cl->u.ccccc.c2;
 	} else
 	  clause->Tag = cl->u.ccccc.c2;
 	return;
@@ -137,7 +137,7 @@
 	if (IsApplTerm(cl->u.ccccc.c3)) {
           CELL *pt = RepAppl(cl->u.ccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccccc.c3;
+	  clause->ucd.t_ptr = cl->u.ccccc.c3;
 	} else
 	  clause->Tag = cl->u.ccccc.c3;
 	return;
@@ -146,7 +146,7 @@
 	if (IsApplTerm(cl->u.ccccc.c4)) {
           CELL *pt = RepAppl(cl->u.ccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccccc.c4;
+	  clause->ucd.t_ptr = cl->u.ccccc.c4;
 	} else
 	  clause->Tag = cl->u.ccccc.c4;
 	return;
@@ -155,7 +155,7 @@
 	if (IsApplTerm(cl->u.ccccc.c5)) {
           CELL *pt = RepAppl(cl->u.ccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.ccccc.c5;
+	  clause->ucd.t_ptr = cl->u.ccccc.c5;
 	} else
 	  clause->Tag = cl->u.ccccc.c5;
 	return;
@@ -167,7 +167,7 @@
 	if (IsApplTerm(cl->u.cccccc.c1)) {
           CELL *pt = RepAppl(cl->u.cccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c1;
+	  clause->ucd.t_ptr = cl->u.cccccc.c1;
 	} else
 	  clause->Tag = cl->u.cccccc.c1;
 	return;
@@ -176,7 +176,7 @@
 	if (IsApplTerm(cl->u.cccccc.c2)) {
           CELL *pt = RepAppl(cl->u.cccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c2;
+	  clause->ucd.t_ptr = cl->u.cccccc.c2;
 	} else
 	  clause->Tag = cl->u.cccccc.c2;
 	return;
@@ -185,7 +185,7 @@
 	if (IsApplTerm(cl->u.cccccc.c3)) {
           CELL *pt = RepAppl(cl->u.cccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c3;
+	  clause->ucd.t_ptr = cl->u.cccccc.c3;
 	} else
 	  clause->Tag = cl->u.cccccc.c3;
 	return;
@@ -194,7 +194,7 @@
 	if (IsApplTerm(cl->u.cccccc.c4)) {
           CELL *pt = RepAppl(cl->u.cccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c4;
+	  clause->ucd.t_ptr = cl->u.cccccc.c4;
 	} else
 	  clause->Tag = cl->u.cccccc.c4;
 	return;
@@ -203,7 +203,7 @@
 	if (IsApplTerm(cl->u.cccccc.c5)) {
           CELL *pt = RepAppl(cl->u.cccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c5;
+	  clause->ucd.t_ptr = cl->u.cccccc.c5;
 	} else
 	  clause->Tag = cl->u.cccccc.c5;
 	return;
@@ -212,7 +212,7 @@
 	if (IsApplTerm(cl->u.cccccc.c6)) {
           CELL *pt = RepAppl(cl->u.cccccc.c6);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.cccccc.c6;
+	  clause->ucd.t_ptr = cl->u.cccccc.c6;
 	} else
 	  clause->Tag = cl->u.cccccc.c6;
 	return;
@@ -236,12 +236,12 @@
 	    CELL *pt = RepAppl(t);
 
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    clause->u.c_sreg = pt;
+	    clause->ucd.c_sreg = pt;
 	  } else if (IsPairTerm(t)) {
 	    CELL *pt = RepPair(t);
 
 	    clause->Tag = AbsPair(NULL);
-	    clause->u.c_sreg = pt-1;
+	    clause->ucd.c_sreg = pt-1;
 	  } else {
 	    clause->Tag = t;
 	  }
@@ -271,12 +271,12 @@
 	    CELL *pt = RepAppl(t);
 
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
-	    clause->u.c_sreg = pt;
+	    clause->ucd.c_sreg = pt;
 	  } else if (IsPairTerm(t)) {
 	    CELL *pt = RepPair(t);
 
 	    clause->Tag = AbsPair(NULL);
-	    clause->u.c_sreg = pt-1;
+	    clause->ucd.c_sreg = pt-1;
 	  } else {
 	    clause->Tag = t;
 	  }
@@ -408,6 +408,12 @@
       break;
     case _unify_n_atoms_write:
       cl = NEXTOP(cl,osc);
+      break;
+    case _unify_l_string:
+      cl = NEXTOP(cl,ou);
+      break;
+    case _unify_string:
+      cl = NEXTOP(cl,ou);
       break;
     case _save_appl_x:
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.ox.x))) {
@@ -643,7 +649,7 @@
     case _get_list:
       if (is_regcopy(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = NEXTOP(cl,x);
+	clause->ucd.WorkPC = NEXTOP(cl,x);
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -682,7 +688,7 @@
     case _get_bigint:
       if (is_regcopy(myregs, nofregs, cl->u.xN.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xN);
@@ -699,7 +705,7 @@
 	if (IsApplTerm(cl->u.xc.c)) {
           CELL *pt = RepAppl(cl->u.xc.c);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.xc.c;
+	  clause->ucd.t_ptr = cl->u.xc.c;
 	} else
 	  clause->Tag = cl->u.xc.c;
 	return;
@@ -716,7 +722,7 @@
     case _get_float:
       if (is_regcopy(myregs, nofregs, cl->u.xd.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->u.t_ptr = AbsAppl(cl->u.xd.d);
+	clause->ucd.t_ptr = AbsAppl(cl->u.xd.d);
 	return;
       }
       cl = NEXTOP(cl,xd);
@@ -731,7 +737,7 @@
     case _get_struct:
       if (is_regcopy(myregs, nofregs, cl->u.xfa.x)) {
 	clause->Tag = AbsAppl((CELL *)cl->u.xfa.f);
-	clause->u.WorkPC = NEXTOP(cl,xfa);
+	clause->ucd.WorkPC = NEXTOP(cl,xfa);
 	return;
       }
       cl = NEXTOP(cl,xfa);
@@ -746,7 +752,7 @@
     case _get_longint:
       if (is_regcopy(myregs, nofregs, cl->u.xi.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
-	clause->u.t_ptr = AbsAppl(cl->u.xi.i);
+	clause->ucd.t_ptr = AbsAppl(cl->u.xi.i);
 	return;
       }
       cl = NEXTOP(cl,xi);
@@ -765,7 +771,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -777,7 +783,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -789,7 +795,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -801,7 +807,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -813,7 +819,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -825,7 +831,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -844,7 +850,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -856,7 +862,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
@@ -868,10 +874,18 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.xl.x)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xl);
+      break;
+    case _get_string:
+      if (is_regcopy(myregs, nofregs, cl->u.xu.x)) {
+	clause->Tag = AbsAppl((CELL *)FunctorString);
+	clause->ucd.t_ptr = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xu);
       break;
     case _get_x_val:
       if (!(nofregs = link_regcopies(myregs, nofregs, cl->u.xx.xl, cl->u.xx.xr))) {
@@ -890,7 +904,7 @@
     case _gl_void_valx:
       if (is_regcopy(myregs, nofregs, cl->u.xx.xl)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,xx);
@@ -898,7 +912,7 @@
     case _gl_void_varx:
       if (is_regcopy(myregs, nofregs, cl->u.xx.xl)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.xx.xr))) {
@@ -910,7 +924,7 @@
     case _glist_valx:
       if (is_regcopy(myregs, nofregs, cl->u.xx.xl)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,xx);
@@ -1146,7 +1160,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1158,7 +1172,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1170,7 +1184,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1182,7 +1196,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1194,7 +1208,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1206,7 +1220,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1225,7 +1239,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1237,7 +1251,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1249,7 +1263,7 @@
       }
       if (is_regcopy(myregs, nofregs, cl->u.yl.y)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
-	clause->u.t_ptr = (CELL)NULL;
+	clause->ucd.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yl);
@@ -1271,7 +1285,7 @@
     case _gl_void_valy:
       if (is_regcopy(myregs, nofregs, cl->u.yx.y)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,yx);
@@ -1279,7 +1293,7 @@
     case _gl_void_vary:
       if (is_regcopy(myregs, nofregs, cl->u.yx.y)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yx.y))) {
@@ -1291,7 +1305,7 @@
     case _glist_valy:
       if (is_regcopy(myregs, nofregs, cl->u.yx.x)) {
 	clause->Tag = AbsPair(NULL);
-	clause->u.WorkPC = cl;
+	clause->ucd.WorkPC = cl;
 	return;
       }
       cl = NEXTOP(cl,yx);

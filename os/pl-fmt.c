@@ -174,6 +174,8 @@ outtext(format_state *state, PL_chars_t *txt)
 { switch(txt->encoding)
   { case ENC_ISO_LATIN_1:
       return outstring(state, txt->text.t, txt->length);
+    case ENC_UTF8:
+      return oututf8(state, txt->text.t, txt->length);
     case ENC_WCHAR:
     { const pl_wchar_t *s = txt->text.w;
       const pl_wchar_t *e = &s[txt->length];

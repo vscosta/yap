@@ -417,4 +417,6 @@
 #define REMOTE_CurSlot(wid) REMOTE(wid)->CurSlot_
 #define LOCAL_SourceModule LOCAL->SourceModule_
 #define REMOTE_SourceModule(wid) REMOTE(wid)->SourceModule_
+#define LOCAL_MAX_SIZE LOCAL->MAX_SIZE_
+#define REMOTE_MAX_SIZE(wid) REMOTE(wid)->MAX_SIZE_
 

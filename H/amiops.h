@@ -253,7 +253,7 @@ extern void	Yap_WakeUp(CELL *v);
 
 #define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
 #define Bind_Global(A,D)       { *(A) = (D); if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);   }
-#define Bind(A,D)              { *(A) = (D); if (A < H) {  if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);  } else { TRAIL_LOCAL(A,D); }	 }
+#define Bind(A,D)              { *(A) = (D); if (A < HR) {  if (__builtin_expect(GlobalIsAttVar(A),0)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);  } else { TRAIL_LOCAL(A,D); }	 }
 #define Bind_NonAtt(A,D)       { *(A) = (D); TRAIL(A,D);	 }
 #define Bind_Global_NonAtt(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); }
 #define Bind_and_Trail(A,D)       { *(A) = (D); DO_TRAIL(A, D); }
@@ -412,11 +412,9 @@ Yap_unify_constant(register Term a, register Term cons)
 static inline int
 do_cut(int i) {
   CACHE_REGS
-#ifdef CUT_C
   if (POP_CHOICE_POINT(B->cp_b)) {
     cut_c_pop();
   }
-#endif
   Yap_TrimTrail();
   B = B->cp_b;
   return i;

@@ -26,6 +26,8 @@ Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);
 struct operator_entry *Yap_GetOpPropForAModuleHavingALock(AtomEntry *, Term);
 Atom	Yap_LookupAtom(char *);
+Atom	Yap_LookupAtomWithLength(char *, size_t);
+Atom	Yap_LookupUTF8Atom(char *);
 Atom	Yap_LookupMaybeWideAtom(wchar_t *);
 Atom	Yap_LookupMaybeWideAtomWithLength(wchar_t *, size_t);
 Atom	Yap_FullLookupAtom(char *);
@@ -39,19 +41,6 @@ Functor	Yap_MkFunctor(Atom,unsigned int);
 void	Yap_MkFunctorWithAddress(Atom,unsigned int,FunctorEntry *);
 void	Yap_PutValue(Atom,Term);
 void	Yap_ReleaseAtom(Atom);
-Term	Yap_StringToList(char *);
-Term	Yap_NStringToList(char *, size_t);
-Term	Yap_WideStringToList(wchar_t *);
-Term	Yap_NWideStringToList(wchar_t *, size_t);
-Term	Yap_StringToDiffList(char *,Term CACHE_TYPE);
-Term	Yap_NStringToDiffList(char *,Term, size_t);
-Term	Yap_WideStringToDiffList(wchar_t *,Term);
-Term	Yap_NWideStringToDiffList(wchar_t *,Term, size_t);
-Term	Yap_StringToListOfAtoms(char *);
-Term	Yap_NStringToListOfAtoms(char *, size_t);
-Term	Yap_WideStringToListOfAtoms(wchar_t *);
-Term	Yap_NWideStringToListOfAtoms(wchar_t *, size_t);
-Term	Yap_NWideStringToDiffListOfAtoms(wchar_t *, Term, size_t);
 int     Yap_AtomIncreaseHold(Atom);
 int     Yap_AtomDecreaseHold(Atom);
 struct operator_entry *Yap_OpPropForModule(Atom, Term);
@@ -117,6 +106,8 @@ Term   Yap_RatTermToApplTerm(Term);
 void   Yap_InitBigNums(void);
 Term   Yap_AllocExternalDataInStack(CELL, size_t);
 int    Yap_CleanOpaqueVariable(CELL *);
+CELL  *Yap_HeapStoreOpaqueTerm(Term t);
+size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
 
 /* c_interface.c */
 Int    YAP_Execute(struct pred_entry *, CPredicate);
@@ -127,7 +118,7 @@ Int    YAP_RunGoalOnce(Term);
 
 /* cdmgr.c */
 Term	Yap_all_calls(void);
-Atom	Yap_ConsultingFile(void);
+Atom  Yap_ConsultingFile( USES_REGS1 );
 struct pred_entry *Yap_PredForChoicePt(choiceptr);
 void	Yap_InitCdMgr(void);
 void	Yap_init_consult(int, char *);
@@ -138,7 +129,7 @@ void	Yap_EraseMegaClause(yamop *,struct pred_entry *);
 void	Yap_ResetConsultStack(void);
 void	Yap_AssertzClause(struct pred_entry *, yamop *);
 void    Yap_HidePred(struct pred_entry *pe);
-
+int     Yap_SetNoTrace(char *name, UInt arity, Term tmod);
 
 /* cmppreds.c */
 Int	Yap_compare_terms(Term,Term);
@@ -169,6 +160,8 @@ void	Yap_RestartYap(int);
 void	Yap_exit(int);
 yamop  *Yap_Error(yap_error_number,Term,char *msg, ...);
 yamop  *Yap_NilError(yap_error_number,char *msg, ...);
+int     Yap_HandleError( const char *msg, ... );
+int     Yap_SWIHandleError( const char *, ... );
 
 /* eval.c */
 void	Yap_InitEval(void);
@@ -245,9 +238,7 @@ void	Yap_InitAsmPred(char *, unsigned long int, int, CPredicate, UInt);
 void	Yap_InitCmpPred(char *, unsigned long int, CmpPredicate, UInt);
 void	Yap_InitCPredBack(char *, unsigned long int, unsigned int, CPredicate,CPredicate,UInt);
 void	Yap_InitCPredBackCut(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-#ifdef CUT_C
 void    Yap_InitCPredBack_(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-#endif
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
 
 #ifdef YAPOR
@@ -348,6 +339,7 @@ void	Yap_InitSignalCPreds(void);
 /* sort.c */
 void    Yap_InitSortPreds(void);
 
+
 /* stdpreds.c */
 void	Yap_InitBackCPreds(void);
 void	Yap_InitCPreds(void);
@@ -430,81 +422,7 @@ Int     Yap_SkipList(Term *, Term **);
 
 /* write.c */
 void	Yap_plwrite(Term, void *, int, int, int);
-
-
-/* MYDDAS */
-
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-
-/* myddas_initialization.c */
-MYDDAS_GLOBAL          myddas_init_initialize_myddas(void);
-MYDDAS_UTIL_CONNECTION myddas_init_initialize_connection(void *,void *,MYDDAS_UTIL_CONNECTION);
-MYDDAS_UTIL_PREDICATE  myddas_init_initialize_predicate(char *, int, char *,MYDDAS_UTIL_PREDICATE);
-
-#ifdef MYDDAS_STATS
-/* myddas_statistics.c */
-MYDDAS_GLOBAL          myddas_stats_initialize_global_stats(MYDDAS_GLOBAL);
-MYDDAS_STATS_STRUCT    myddas_stats_initialize_connection_stats(void);
-void                   myddas_stats_delete_stats_list(MYDDAS_STATS_STRUCT);
-#endif /* MYDDAS_STATS */
-
-#ifdef MYDDAS_MYSQL
-/* myddas_util.c */
-void                   myddas_util_table_write(MYSQL_RES *);
-#endif
-Short                  myddas_util_connection_type(void *);
-MYDDAS_UTIL_CONNECTION myddas_util_add_connection(void *,void *);
-MYDDAS_UTIL_CONNECTION myddas_util_search_connection(void *);
-void                   myddas_util_delete_connection(void *);
-MYDDAS_UTIL_CONNECTION myddas_util_add_predicate(char * ,Int , char *,void *);
-MYDDAS_UTIL_PREDICATE  myddas_util_search_predicate(char * ,Int , char *);
-void                   myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE);
-
-/* Get's the number of queries to save */
-UInt                   myddas_util_get_total_multi_queries_number(MYDDAS_UTIL_CONNECTION);
-void                   myddas_util_set_total_multi_queries_number(MYDDAS_UTIL_CONNECTION,UInt);
-#ifdef MYDDAS_ODBC
-/* Return enviromment identifier*/
-SQLHENV                myddas_util_get_odbc_enviromment(SQLHDBC);
-#endif
-
-void *                 myddas_util_get_list_pred(MYDDAS_UTIL_CONNECTION);
-void *                 myddas_util_get_pred_next(void *);
-char *                 myddas_util_get_pred_module(void *);
-char *                 myddas_util_get_pred_name(void *);
-MyddasInt              myddas_util_get_pred_arity(void *);
-//DELETE THIS WHEN DB_STATS  IS COMPLETED
-MyddasInt              get_myddas_top(void);
-
-#ifdef DEBUG
-void check_int(void);
-#endif
-
-#endif /* MYDDAS_MYSQL || MYDDAS_ODBC */
-
-/* myddas_mysql.c */
-#if defined MYDDAS_MYSQL
-void    Yap_InitMYDDAS_MySQLPreds(void);
-void    Yap_InitBackMYDDAS_MySQLPreds(void);
-#endif
-
-/* myddas_odbc.c */
-#if defined MYDDAS_ODBC
-void    Yap_InitMYDDAS_ODBCPreds(void);
-void    Yap_InitBackMYDDAS_ODBCPreds(void);
-#endif
-
-/* myddas_shared.c */
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
-void    Yap_MYDDAS_delete_all_myddas_structs(void);
-void    Yap_InitMYDDAS_SharedPreds(void);
-void    Yap_InitBackMYDDAS_SharedPreds(void);
-#endif
-
-/* myddas_top_level.c */
-#if defined MYDDAS_TOP_LEVEL && defined MYDDAS_MYSQL //&& defined HAVE_LIBREADLINE
-void    Yap_InitMYDDAS_TopLevelPreds(void);
-#endif
+int     Yap_FormatFloat( Float f, const char *s, size_t sz );
 
 /* yap2swi.c */
 void	Yap_swi_install(void);

@@ -384,7 +384,7 @@ locale_grouping_property(PL_locale *l, term_t prop ARG_LD)
 
 typedef struct
 { functor_t functor;			/* functor of property */
-  int (*function)();			/* function to generate */
+   int (*function)();			/* function to generate */
 } lprop;
 
 static const lprop lprop_list [] =
@@ -482,7 +482,7 @@ PRED_IMPL("locale_property", 2, locale_property, PL_FA_NONDETERMINISTIC)
   term_t locale = A1;
   term_t property = A2;
   lprop_enum statebuf;
-  lprop_enum *state;
+  lprop_enum *state = NULL;
 
   switch( CTX_CNTRL )
   { case FRG_FIRST_CALL:

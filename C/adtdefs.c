@@ -30,6 +30,7 @@ static Prop	PredPropByFunc(Functor, Term);
 static Prop	PredPropByAtom(Atom, Term);
 #include "Yatom.h"
 #include "yapio.h"
+#include "pl-shared.h"
 #include <stdio.h>
 #include <wchar.h>
 #if HAVE_STRING_H
@@ -301,43 +302,59 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len)
+Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
   wchar_t *p = atom, c;
-  size_t len0 = 0;
+  size_t len = 0;
   Atom at;
   int wide = FALSE;
-
   while ((c = *p++)) { 
     if (c > 255) wide = TRUE;
-    len0++;
-    if (len0 == len) break;
+    len++;
+    if (len == len0) break;
   }
-  if (p[0] == '\0' && wide) return LookupWideAtom(atom);
-  else if (wide) {
-    wchar_t *ptr, *ptr0;
-    p = atom;
-    ptr0 = ptr = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t)*(len+1));
-    if (!ptr)
+  if (wide) {
+    wchar_t *ptr0;
+    ptr0 = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t)*(len0+1));
+    if (!ptr0)
       return NIL;
-    while (len--) {*ptr++ = *p++;}
-    ptr[0] = '\0';
+    memcpy(ptr0, atom, len0*sizeof(wchar_t));
+    ptr0[len0] = '\0';
     at = LookupWideAtom(ptr0);
     Yap_FreeCodeSpace((char *)ptr0);
     return at;
   } else {
-    char *ptr, *ptr0;
-    /* not really a wide atom */
-    p = atom;
-    ptr0 = ptr = Yap_AllocCodeSpace(len+1);
-    if (!ptr)
+    char *ptr0;
+    Int i;
+    ptr0 = (char *)Yap_AllocCodeSpace((len0+1));
+    if (!ptr0)
       return NIL;
-    while (len--) {*ptr++ = *p++;}
-    ptr[0] = '\0';
+    for (i=0; i < len0; i++) ptr0[i] = atom[i];
+    ptr0[len0] = '\0';
     at = LookupAtom(ptr0);
     Yap_FreeCodeSpace(ptr0);
     return at;
   }
+}
+
+Atom
+Yap_LookupAtomWithLength(char *atom, size_t len0)
+{				/* lookup atom in atom table            */
+  char *p = atom;
+  Atom at;
+
+  char *ptr, *ptr0;
+  size_t len = 0;
+  /* not really a wide atom */
+  p = atom;
+  ptr0 = ptr = Yap_AllocCodeSpace(len0+1);
+  if (!ptr)
+    return NIL;
+  while (len++ < len0) {int ch = *ptr++ = *p++; if (ch == '\0') break;}
+  ptr[0] = '\0';
+  at = LookupAtom(ptr0);
+  Yap_FreeCodeSpace(ptr0);
+  return at;
 }
 
 Atom
@@ -770,7 +787,7 @@ ExpandPredHash(void)
 /* fe is supposed to be locked */
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
-{
+{ GET_LD
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
@@ -821,6 +838,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -849,6 +869,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       p->PredFlags |= GoalExPredFlag;
     }
   }
+  if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   p->FunctorOfPred = fe;
   WRITE_UNLOCK(fe->FRWLock);
   {
@@ -863,7 +886,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 #if THREADS
 Prop
 Yap_NewThreadPred(PredEntry *ap USES_REGS)
-{
+{ LD_FROM_REGS
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
@@ -875,6 +898,9 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = ap->PredFlags & ~(IndexedPredFlag|SpiedPredFlag);
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -898,6 +924,9 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   LOCAL_ThreadHandle.local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
   Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
+  if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
     Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_THREAD);
   }
@@ -907,7 +936,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
 
 Prop
 Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
-{
+{ GET_LD
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
@@ -923,6 +952,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
@@ -963,6 +995,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   AddPropToAtom(ae, (PropEntry *)p);
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
+  if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   WRITE_UNLOCK(ae->ARWLock);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_ATOM);
@@ -1060,6 +1095,9 @@ Yap_GetValue(Atom a)
     } else if (f == FunctorLongInt) {
       CACHE_REGS
       out = MkLongIntTerm(LongIntOfTerm(out));
+    } else if (f == FunctorString) {
+      CACHE_REGS
+      out = MkStringTerm(StringOfTerm(out));
     }
 #ifdef USE_GMP
     else {
@@ -1167,6 +1205,21 @@ Yap_PutValue(Atom a, Term v)
     memcpy((void *)pt, (void *)ap, sz);
     p->ValueOfVE = AbsAppl(pt);
 #endif
+  } else if (IsStringTerm(v)) {
+    CELL *ap = RepAppl(v);
+    Int sz = 
+      sizeof(CELL)*(3+ap[1]);
+    CELL *pt = (CELL *) Yap_AllocAtomSpace(sz);
+
+    if (pt == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return;
+    }
+    if (IsApplTerm(t0)) {
+      Yap_FreeCodeSpace((char *) RepAppl(t0));
+    }
+    memcpy((void *)pt, (void *)ap, sz);
+    p->ValueOfVE = AbsAppl(pt);
   } else {
     if (IsApplTerm(t0)) {
       /* recover space */
@@ -1199,209 +1252,6 @@ Yap_PutAtomTranslation(Atom a, Int i)
   /* take care that the lock for the property will be inited even
      if someone else searches for the property */
   WRITE_UNLOCK(ae->ARWLock);
-}
-
-Term
-Yap_StringToList(char *s)
-{
-  CACHE_REGS
-  register Term t;
-  register unsigned char *cp = (unsigned char *)s + strlen(s);
-
-  t = MkAtomTerm(AtomNil);
-  while (cp > (unsigned char *)s) {
-    t = MkPairTerm(MkIntTerm(*--cp), t);
-  }
-  return (t);
-}
-
-Term
-Yap_NStringToList(char *s, size_t len)
-{
-  CACHE_REGS
-  Term t;
-  unsigned char *cp = (unsigned char *)s + len;
-
-  t = MkAtomTerm(AtomNil);
-  while (cp > (unsigned char *)s) {
-    t = MkPairTerm(MkIntegerTerm(*--cp), t);
-  }
-  return t;
-}
-
-
-Term
-Yap_WideStringToList(wchar_t *s)
-{
-  CACHE_REGS
-  Term t;
-  wchar_t *cp = s + wcslen(s);
-
-  t = MkAtomTerm(AtomNil);
-  while (cp > s) {
-    if (ASP < H+1024)
-      return (CELL)0;    
-    t = MkPairTerm(MkIntegerTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_NWideStringToList(wchar_t *s, size_t len)
-{
-  CACHE_REGS
-  Term t;
-  wchar_t *cp = s + len;
-
-  t = MkAtomTerm(AtomNil);
-  while (cp > s) {
-    if (ASP < H+1024)
-      return (CELL)0;    
-    t = MkPairTerm(MkIntegerTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_StringToDiffList(char *s, Term t USES_REGS)
-{
-  register unsigned char *cp = (unsigned char *)s + strlen(s);
-
- t = Yap_Globalise(t);
-  while (cp > (unsigned char *)s) {
-    if (ASP < H+1024)
-      return (CELL)0;
-    t = MkPairTerm(MkIntTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_NStringToDiffList(char *s, Term t, size_t len)
-{
-  CACHE_REGS
-  register unsigned char *cp = (unsigned char *)s + len;
-
-  t = Yap_Globalise(t);
-  while (cp > (unsigned char *)s) {
-    t = MkPairTerm(MkIntTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_WideStringToDiffList(wchar_t *s, Term t)
-{
-  CACHE_REGS
- wchar_t *cp = s + wcslen(s);
-
-  t = Yap_Globalise(t);
-  while (cp > s) {
-    t = MkPairTerm(MkIntegerTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_NWideStringToDiffList(wchar_t *s, Term t, size_t len)
-{
-  CACHE_REGS
- wchar_t *cp = s + len;
-
- t = Yap_Globalise(t);
-  while (cp > s) {
-    t = MkPairTerm(MkIntegerTerm(*--cp), t);
-  }
-  return t;
-}
-
-Term
-Yap_StringToListOfAtoms(char *s)
-{
-  CACHE_REGS
-  register Term t;
-  char so[2];
-  register unsigned char *cp = (unsigned char *)s + strlen(s);
-
-  so[1] = '\0';
-  t = MkAtomTerm(AtomNil);
-  while (cp > (unsigned char *)s) {
-    so[0] = *--cp;
-    t = MkPairTerm(MkAtomTerm(LookupAtom(so)), t);
-  }
-  return t;
-}
-
-Term
-Yap_NStringToListOfAtoms(char *s, size_t len)
-{
-  CACHE_REGS
-  register Term t;
-  char so[2];
-  register unsigned char *cp = (unsigned char *)s + len;
-
-  so[1] = '\0';
-  t = MkAtomTerm(AtomNil);
-  while (cp > (unsigned char *)s) {
-    so[0] = *--cp;
-    t = MkPairTerm(MkAtomTerm(LookupAtom(so)), t);
-  }
-  return t;
-}
-
-Term
-Yap_WideStringToListOfAtoms(wchar_t *s)
-{
-  CACHE_REGS
-  register Term t;
-  wchar_t so[2];
-  wchar_t *cp = s + wcslen(s);
-
-  so[1] = '\0';
-  t = MkAtomTerm(AtomNil);
-  while (cp > s) {
-    so[0] = *--cp;
-    if (ASP < H+1024)
-      return (CELL)0;    
-    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
-  }
-  return t;
-}
-
-Term
-Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
-{
-  CACHE_REGS
-  register Term t;
-  wchar_t so[2];
-  wchar_t *cp = s + len;
-
-  so[1] = '\0';
-  t = MkAtomTerm(AtomNil);
-  while (cp > s) {
-    if (ASP < H+1024)
-      return (CELL)0;    
-    so[0] = *--cp;
-    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
-  }
-  return t;
-}
-
-Term
-Yap_NWideStringToDiffListOfAtoms(wchar_t *s, Term t0, size_t len)
-{
-  CACHE_REGS
-  register Term t;
-  wchar_t so[2];
-  wchar_t *cp = s + len;
-
-  so[1] = '\0';
-  t = Yap_Globalise(t0);
-  while (cp > s) {
-    so[0] = *--cp;
-    t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
-  }
-  return t;
 }
 
 Term

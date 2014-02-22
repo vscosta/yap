@@ -354,6 +354,7 @@
 #include "yap_structs.h"
 #define _yap_c_interface_h 1
 #include "pl-shared.h"
+#include "YapText.h"
 #include "pl-read.h"
 #ifdef TABLING
 #include "tab.macros.h"
@@ -362,9 +363,7 @@
 #include "or.macros.h"
 #endif	/* YAPOR */
 #include "threads.h"
-#ifdef CUT_C
 #include "cut_c.h"
-#endif /* CUT_C */
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -378,8 +377,6 @@
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
-#else
-#define X_API
 #endif
 
 X_API Term    YAP_A(int);
@@ -516,10 +513,8 @@ X_API void    YAP_PredicateInfo(void *,Atom *,UInt *,Term *);
 X_API void    YAP_UserCPredicate(char *,CPredicate,UInt);
 X_API void    YAP_UserBackCPredicate(char *,CPredicate,CPredicate,UInt,unsigned int);
 X_API void    YAP_UserCPredicateWithArgs(char *,CPredicate,UInt,Term);
-#ifdef CUT_C
 X_API void    YAP_UserBackCutCPredicate(char *,CPredicate,CPredicate,CPredicate,UInt,unsigned int);
 X_API void   *YAP_ExtraSpaceCut(void);
-#endif
 X_API Term     YAP_SetCurrentModule(Term);
 X_API Term     YAP_CurrentModule(void);
 X_API Term     YAP_CreateModule(Atom);
@@ -566,6 +561,7 @@ X_API void    *YAP_ExternalDataInStackFromTerm(Term);
 X_API int      YAP_NewOpaqueType(void *);
 X_API Term     YAP_NewOpaqueObject(int, size_t);
 X_API void    *YAP_OpaqueObjectFromTerm(Term);
+X_API CELL    *YAP_HeapStoreOpaqueTerm(Term t);
 X_API int      YAP_Argv(char *** argvp);
 X_API YAP_tag_t YAP_TagOfTerm(Term);
 X_API size_t   YAP_ExportTerm(Term, char *, size_t);
@@ -800,21 +796,21 @@ YAP_MkBlobTerm(unsigned int sz)
   MP_INT *dst;
   BACKUP_H();
 
-  while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
+  while (HR+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
     if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", LOCAL_ErrorMessage);
       return TermNil;
     }
   }
-  I = AbsAppl(H);
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = ARRAY_INT;
-  dst = (MP_INT *)(H+2);
+  I = AbsAppl(HR);
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = ARRAY_INT;
+  dst = (MP_INT *)(HR+2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
-  H += (2+sizeof(MP_INT)/sizeof(CELL));
-  H[sz] = EndSpecials;
-  H += sz+1;
+  HR += (2+sizeof(MP_INT)/sizeof(CELL));
+  HR[sz] = EndSpecials;
+  HR += sz+1;
   RECOVER_H();
 
   return I;
@@ -980,7 +976,7 @@ YAP_MkPairTerm(Term t1, Term t2)
   Term t; 
   BACKUP_H();
 
-  while (H > ASP-1024) {
+  while (HR > ASP-1024) {
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     RECOVER_H();
@@ -1006,7 +1002,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
   if (sz == 0)
     return TermNil;
   BACKUP_H();
-  while (H+sz*2 > ASP-1024) {
+  while (HR+sz*2 > ASP-1024) {
     Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
     RECOVER_H();
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
@@ -1016,7 +1012,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
     ta =  (CELL *)Yap_GetFromSlot(sl1 PASS_REGS);
     Yap_RecoverSlots(1 PASS_REGS);
   }
-  h = H;
+  h = HR;
   t = AbsPair(h);
   while (sz--) {
     Term ti = *ta++;
@@ -1030,7 +1026,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
     h += 2;
   }
   h[-1] = TermNil;
-  H = h;
+  HR = h;
   RECOVER_H();
   return t;
 }
@@ -1042,7 +1038,7 @@ YAP_MkNewPairTerm()
   Term t; 
   BACKUP_H();
 
-  if (H > ASP-1024)
+  if (HR > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkNewPairTerm();
@@ -1100,7 +1096,7 @@ YAP_MkApplTerm(Functor f,UInt arity, Term args[])
   Term t; 
   BACKUP_H();
 
-  if (H+arity > ASP-1024)
+  if (HR+arity > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkApplTerm(f, arity, args);
@@ -1116,7 +1112,7 @@ YAP_MkNewApplTerm(Functor f,UInt arity)
   Term t; 
   BACKUP_H();
 
-  if (H+arity > ASP-1024)
+  if (HR+arity > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkNewApplTerm(f, arity);
@@ -1166,7 +1162,6 @@ YAP_ArityOfFunctor(Functor f)
   return (ArityOfFunctor(f));
 }
 
-#ifdef CUT_C
 X_API void *
 YAP_ExtraSpaceCut(void)
 {
@@ -1179,7 +1174,6 @@ YAP_ExtraSpaceCut(void)
   RECOVER_B();
   return(ptr);
 }
-#endif /*CUT_C*/
 
 X_API void *
 YAP_ExtraSpace(void)
@@ -1191,7 +1185,7 @@ YAP_ExtraSpace(void)
 
   /* find a pointer to extra space allocable */
   ptr = (void *)((CELL *)(B+1)+P->u.OtapFs.s);
-  B->cp_h = H;
+  B->cp_h = HR;
 
   RECOVER_H();
   RECOVER_B();
@@ -1203,14 +1197,12 @@ YAP_cut_up(void)
 {
   CACHE_REGS
   BACKUP_B();
-#ifdef CUT_C
       {
 	while (POP_CHOICE_POINT(B->cp_b))
 	  { 
 	    POP_EXECUTE();
 	  }
       }
-#endif /* CUT_C */
       /* This is complicated: make sure we can restore the ASP
 	 pointer back to where cut_up called it. Slots depend on it. */
   if (ENV > B->cp_env) {
@@ -1644,7 +1636,7 @@ complete_fail(choiceptr ptr, int has_cp USES_REGS)
 static int
 complete_exit(choiceptr ptr, int has_cp, int cut_all USES_REGS)
 {
-  // the user often leaves open frames, especially in forward execuryion
+  // the user often leaves open frames, especially in forward execution
   while (B && (!ptr ||  B < ptr)) {
     if (cut_all || B->cp_ap == NOCODE) {/* separator */
       do_cut( TRUE ); // pushes B up
@@ -1780,6 +1772,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
+    LOCAL_CurSlot = CurSlot;
     if (!ret) {
       Term t;
 
@@ -1907,6 +1900,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     return TRUE;
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
+    LOCAL_CurSlot = CurSlot;
     if (!ret) {
       Term t;
 
@@ -1984,42 +1978,16 @@ YAP_FreeSpaceFromYap(void *ptr)
 X_API int
 YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
 {
-  unsigned int j = 0;
-
-  while (t != TermNil) {
-    register Term   Head;
-    register Int    i;
-
-    Head = HeadOfTerm(t);
-    if (IsVarTerm(Head)) {
-      Yap_Error(INSTANTIATION_ERROR,Head,"user defined procedure");
-      return(FALSE);
-    } else if (!IsIntTerm(Head)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return FALSE;		
-    }
-    i = IntOfTerm(Head);
-    if (i < 0 || i > 255) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return FALSE;		
-    }
-    if (j == bufsize) {
-      buf[bufsize-1] = '\0';
-      return FALSE;
-    } else {
-      buf[j++] = i;
-    }
-    t = TailOfTerm(t);
-    if (IsVarTerm(t)) {
-      Yap_Error(INSTANTIATION_ERROR,t,"user defined procedure");
-      return FALSE;
-    } else if (!IsPairTerm(t) && t != TermNil) {
-      Yap_Error(TYPE_ERROR_LIST, t, "user defined procedure");
-      return FALSE;
-    }
-  }
-  buf[j] = '\0';
-  return(TRUE);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.t = t;
+  inp.type = YAP_STRING_CODES|YAP_STRING_TRUNC;
+  inp.max = bufsize;
+  out.type = YAP_STRING_CHARS;
+  out.val.c = buf;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return FALSE;
+  return TRUE;
 }
 
 
@@ -2030,7 +1998,14 @@ YAP_BufferToString(char *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToList(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2043,7 +2018,16 @@ YAP_NBufferToString(char *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToList(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2056,7 +2040,14 @@ YAP_WideBufferToString(wchar_t *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToList(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2069,7 +2060,16 @@ YAP_NWideBufferToString(wchar_t *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToList(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2131,7 +2131,14 @@ YAP_BufferToAtomList(char *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToListOfAtoms(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_ATOMS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2144,7 +2151,16 @@ YAP_NBufferToAtomList(char *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToListOfAtoms(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2157,7 +2173,14 @@ YAP_WideBufferToAtomList(wchar_t *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToListOfAtoms(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2170,7 +2193,16 @@ YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToListOfAtoms(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2183,7 +2215,17 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToDiffListOfAtoms(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2193,11 +2235,18 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
 X_API Term
 YAP_BufferToDiffList(char *s, Term t0)
 {
-  CACHE_REGS
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToDiffList(s, t0 PASS_REGS);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2210,7 +2259,17 @@ YAP_NBufferToDiffList(char *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToDiffList(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2223,7 +2282,15 @@ YAP_WideBufferToDiffList(wchar_t *s, Term t0)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToDiffList(s, t0);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2236,7 +2303,17 @@ YAP_NWideBufferToDiffList(wchar_t *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToDiffList(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2300,9 +2377,9 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
 {
   int out;
 
-  LOCAL_PrologMode = UserMode;
+  LOCAL_PrologMode &= ~(UserCCallMode|CCallMode);
   out = Yap_absmi(0);
-  LOCAL_PrologMode = UserCCallMode;
+  LOCAL_PrologMode |= UserCCallMode;
   return out;
 }
 
@@ -2313,6 +2390,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   int out;
 
   BACKUP_MACHINE_REGS();
+  LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
@@ -2380,7 +2458,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
     P = FAILCODE;
     Yap_exec_absmi(TRUE);
     /* recover stack space */
-    H = B->cp_h;
+    HR = B->cp_h;
     TR = B->cp_tr;
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
@@ -2506,6 +2584,12 @@ YAP_OpaqueObjectFromTerm(Term t)
   return ExternalBlobFromTerm (t);
 }
 
+X_API CELL *
+YAP_HeapStoreOpaqueTerm(Term t)
+{
+  return Yap_HeapStoreOpaqueTerm(t);
+}
+
 X_API Int
 YAP_RunGoalOnce(Term t)
 {
@@ -2610,7 +2694,7 @@ YAP_ShutdownGoal(int backtrack)
       P = FAILCODE;
       Yap_exec_absmi(TRUE);
       /* recover stack space */
-      H = cut_pt->cp_h;
+      HR = cut_pt->cp_h;
       TR = cut_pt->cp_tr;
     }
     /* we can always recover the stack */
@@ -2767,7 +2851,7 @@ YAP_Read(IOSTREAM *inp)
   BACKUP_MACHINE_REGS();
 
 
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos, &rd);
   if (LOCAL_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
@@ -3087,7 +3171,11 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR || TABLING */
 #ifdef YAPOR
     Yap_init_yapor_workers();
+#if YAPOR_THREADS
+    if (Yap_thread_self() != 0) {
+#else
     if (worker_id != 0) {
+#endif
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
       /*
 	In the SBA we cannot just happily inherit registers
@@ -3131,21 +3219,6 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
-#ifdef MYDDAS_MYSQL
-  if (yap_init->myddas) {
-    Yap_PutValue(AtomMyddasGoal,MkIntegerTerm(yap_init->myddas));
-    
-    /* Mandatory Fields */
-    Yap_PutValue(AtomMyddasUser,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_user)));
-    Yap_PutValue(AtomMyddasDB,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_db)));
-    
-    /* Non-Mandatory Fields */
-    if (yap_init->myddas_pass != NULL)
-      Yap_PutValue(AtomMyddasPass,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_pass)));
-    if (yap_init->myddas_host != NULL)
-      Yap_PutValue(AtomMyddasHost,MkAtomTerm(Yap_LookupAtom(yap_init->myddas_host)));
-  }
-#endif
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }
@@ -3168,12 +3241,13 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_AttsSize = Atts*1024;
     else
       Yap_AttsSize = 2048*sizeof(CELL);
+      /* reset stacks */
+    //    Yap_StartSlots( PASS_REGS1 );
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
-      //      Yap_InitYaamRegs( 0 );
-      /* reset stacks */
+      Yap_InitYaamRegs( 0 );
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
@@ -3284,9 +3358,6 @@ YAP_Reset(void)
 {
   CACHE_REGS
   int res = TRUE;
-#if !defined(YAPOR) && !defined(THREADS)
-  int worker_id = 0;
-#endif
   BACKUP_MACHINE_REGS();
 
   YAP_ClearExceptions();
@@ -3304,6 +3375,9 @@ YAP_Reset(void)
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   P = CP = YESCODE;
+  // ensure that we have slots where we need them
+  LOCAL_CurSlot = 0;
+  Yap_StartSlots( PASS_REGS1 );
   RECOVER_MACHINE_REGS();
   return res;
 }
@@ -3423,23 +3497,16 @@ X_API void
 YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 		   UInt arity, unsigned int extra)
 {
-#ifdef CUT_C
   Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL ,UserCPredFlag);
-#else
-  Yap_InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
-#endif
 
 }
 
-#ifdef CUT_C
 X_API void 
 YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredicate cut,
 			  UInt arity, unsigned int extra)
 {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
 }
-#endif
-
 
 X_API void
 YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)
@@ -3607,8 +3674,8 @@ YAP_FloatsToList(double *dblp, size_t sz)
 
   if (!sz)
     return TermNil;
-  while (ASP-1024 < H + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_LONG_INT)) {
-    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
+  while (ASP-1024 < HR + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_INT_P)) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < HR) {
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
@@ -3619,12 +3686,12 @@ YAP_FloatsToList(double *dblp, size_t sz)
     dblp = (double *)LOCAL_OpenArray;
     LOCAL_OpenArray = NULL;
   }
-  t = AbsPair(H);
+  t = AbsPair(HR);
   while (sz) {
-    oldH = H;
-    H +=2;
+    oldH = HR;
+    HR +=2;
     oldH[0] = MkFloatTerm(*dblp++);
-    oldH[1] = AbsPair(H);
+    oldH[1] = AbsPair(HR);
     sz--;
   }
   oldH[1] = TermNil;
@@ -3679,8 +3746,8 @@ YAP_IntsToList(Int *dblp, size_t sz)
 
   if (!sz)
     return TermNil;
-  while (ASP-1024 < H + sz*3) {
-    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
+  while (ASP-1024 < HR + sz*3) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < HR) {
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
@@ -3691,12 +3758,12 @@ YAP_IntsToList(Int *dblp, size_t sz)
     dblp = (Int *)LOCAL_OpenArray;
     LOCAL_OpenArray = NULL;
   }
-  t = AbsPair(H);
+  t = AbsPair(HR);
   while (sz) {
-    oldH = H;
-    H +=2;
+    oldH = HR;
+    HR +=2;
     oldH[0] = MkIntegerTerm(*dblp++);
-    oldH[1] = AbsPair(H);
+    oldH[1] = AbsPair(HR);
     sz--;
   }
   oldH[1] = TermNil;
@@ -3735,14 +3802,14 @@ YAP_OpenList(int n)
   Term t;
   BACKUP_H();
 
-  while (H+2*n > ASP-1024) {
+  while (HR+2*n > ASP-1024) {
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
   }
-  t = AbsPair(H);
-  H += 2*n;
+  t = AbsPair(HR);
+  HR += 2*n;
 
   RECOVER_H();
   return t;
@@ -3955,7 +4022,7 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 Int YAP_VarSlotToNumber(Int s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
-  if (t < H)
+  if (t < HR)
     return t-H0;
   return t-LCL0;
 }
@@ -4165,11 +4232,11 @@ YAP_RequiresExtraStack(size_t sz) {
 
   if (sz < 16*1024) 
     sz = 16*1024;
-  if (H <= ASP-sz) {
+  if (HR <= ASP-sz) {
     return FALSE;
   }
   BACKUP_H();
-  while (H > ASP-sz) {
+  while (HR > ASP-sz) {
     CACHE_REGS
     RECOVER_H();
     if (!Yap_dogc( 0, NULL PASS_REGS )) {

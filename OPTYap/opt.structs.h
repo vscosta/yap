@@ -235,7 +235,6 @@ struct global_optyap_locks {
   lockvar bitmap_root_cp_workers;
   lockvar bitmap_invisible_workers;
   lockvar bitmap_requestable_workers;
-  lockvar bitmap_executing_workers;
   lockvar bitmap_finished_workers;
 #ifdef TABLING_INNER_CUTS
   lockvar bitmap_pruning_workers;
@@ -309,7 +308,6 @@ struct global_optyap_data {
   volatile bitmap root_cp_workers;
   volatile bitmap invisible_workers;
   volatile bitmap requestable_workers;
-  volatile bitmap executing_workers;
   volatile bitmap finished_workers;
 #ifdef TABLING_INNER_CUTS
   volatile bitmap pruning_workers;
@@ -384,14 +382,12 @@ struct global_optyap_data {
 #define GLOBAL_bm_root_cp_workers               (GLOBAL_optyap_data.root_cp_workers)
 #define GLOBAL_bm_invisible_workers             (GLOBAL_optyap_data.invisible_workers)
 #define GLOBAL_bm_requestable_workers           (GLOBAL_optyap_data.requestable_workers)
-#define GLOBAL_bm_executing_workers             (GLOBAL_optyap_data.executing_workers)
 #define GLOBAL_bm_finished_workers              (GLOBAL_optyap_data.finished_workers)
 #define GLOBAL_bm_pruning_workers               (GLOBAL_optyap_data.pruning_workers)
 #define GLOBAL_locks_bm_idle_workers            (GLOBAL_optyap_data.locks.bitmap_idle_workers)
 #define GLOBAL_locks_bm_root_cp_workers         (GLOBAL_optyap_data.locks.bitmap_root_cp_workers)
 #define GLOBAL_locks_bm_invisible_workers       (GLOBAL_optyap_data.locks.bitmap_invisible_workers)
 #define GLOBAL_locks_bm_requestable_workers     (GLOBAL_optyap_data.locks.bitmap_requestable_workers)
-#define GLOBAL_locks_bm_executing_workers       (GLOBAL_optyap_data.locks.bitmap_executing_workers)
 #define GLOBAL_locks_bm_finished_workers        (GLOBAL_optyap_data.locks.bitmap_finished_workers)
 #define GLOBAL_locks_bm_pruning_workers         (GLOBAL_optyap_data.locks.bitmap_pruning_workers)
 #define GLOBAL_locks_who_locked_heap            (GLOBAL_optyap_data.locks.who_locked_heap)

@@ -82,7 +82,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
   CACHE_REGS
-  register CELL **to_visit = (CELL **)H;
+  register CELL **to_visit = (CELL **)HR;
   register int out = 0;
 
  loop:
@@ -136,6 +136,26 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  out = rfloat(FloatOfTerm(d0) - FloatOfTerm(d1));
 	} else if (IsRefTerm(d1)) {
 	  out = 1;
+	} else {
+	  out = -1;
+	}
+	if (out != 0)
+	  goto done;
+      } else if (IsStringTerm(d0)) {
+	if (IsStringTerm(d1)){
+	  out = strcmp(StringOfTerm(d0) , StringOfTerm(d1));
+	} else if (IsIntTerm(d1))
+	  out = 1;
+	else if (IsFloatTerm(d1)) {
+	  out = 1;
+	} else if (IsLongIntTerm(d1)) {
+	  out = 1;
+#ifdef USE_GMP
+	} else if (IsBigIntTerm(d1)) {
+	  out = 1;
+#endif
+	} else if (IsRefTerm(d1)) {
+	  out = 1 ;
 	} else {
 	  out = -1;
 	}
@@ -269,7 +289,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)H) {
+  if (to_visit > (CELL **)HR) {
 #ifdef RATIONAL_TREES
     to_visit -= 4;
     pt0 = to_visit[0];
@@ -288,7 +308,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
  done:
   /* failure */
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)H) {
+  while (to_visit > (CELL **)HR) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -319,24 +339,30 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	return cmp_atoms(AtomOfTerm(t1),AtomOfTerm(t2));
       if (IsPrimitiveTerm(t2))
 	return 1;
+      if (IsStringTerm(t2))
+	return 1;
       return -1;
     } else {
       if (IsIntTerm(t2)) {
 	return IntOfTerm(t1) - IntOfTerm(t2);
       }
-      if (IsFloatTerm(t2)) {
-	return 1;
-      }
-      if (IsLongIntTerm(t2)) {
-	return IntOfTerm(t1) - LongIntOfTerm(t2);
-      }
+      if (IsApplTerm(t2)) {
+	Functor fun2 = FunctorOfTerm(t2);
+	switch ((CELL)fun2) {
+	case double_e:
+	  return 1;
+	case long_int_e:
+	  return IntOfTerm(t1) - LongIntOfTerm(t2);
 #ifdef USE_GMP
-      if (IsBigIntTerm(t2)) {
-	return Yap_gmp_tcmp_int_big(IntOfTerm(t1), t2);
-      }
+	case big_int_e:
+	  return Yap_gmp_tcmp_int_big(IntOfTerm(t1), t2);
 #endif
-      if (IsRefTerm(t2))
-	return 1;
+	case db_ref_e:
+	  return 1;
+	case string_e:
+	  return -1;
+	}
+      }
       return -1;
     }
   } else if (IsPairTerm(t1)) {
@@ -408,6 +434,28 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	  return -1;
 	}
 #endif
+      case string_e:
+	{
+	  if (IsApplTerm(t2)) {
+	    Functor fun2 = FunctorOfTerm(t2);
+	    switch ((CELL)fun2) {
+	    case double_e:
+	      return 1;
+	    case long_int_e:
+	      return 1;
+#ifdef USE_GMP
+	    case big_int_e:
+	      return 1;
+#endif
+	    case db_ref_e:
+	      return 1;
+	    case string_e:
+	      return strcmp(StringOfTerm(t1), StringOfTerm(t2));
+	    }
+	    return -1;
+	  }
+	  return -1;
+	}
       case db_ref_e:
 	if (IsRefTerm(t2))
 	  return Unsigned(RefOfTerm(t2)) -

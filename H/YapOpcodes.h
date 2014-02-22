@@ -76,6 +76,7 @@
   OPCODE(get_list                   ,x),
   OPCODE(get_struct                 ,xfa),
   OPCODE(get_float                  ,xd),
+  OPCODE(get_string                 ,xu),
   OPCODE(get_longint                ,xi),
   OPCODE(get_bigint                 ,xN),
   OPCODE(get_dbterm                 ,xD),
@@ -131,6 +132,8 @@
   OPCODE(unify_float_write          ,od),
   OPCODE(unify_l_float              ,od),
   OPCODE(unify_l_float_write        ,od),
+  OPCODE(unify_string               ,ou),
+  OPCODE(unify_l_string             ,ou),
   OPCODE(unify_longint              ,oi),
   OPCODE(unify_longint_write        ,oi),
   OPCODE(unify_l_longint            ,oi),
@@ -200,14 +203,10 @@
   OPCODE(call_c_wfail               ,slp),
   OPCODE(try_c                      ,OtapFs),
   OPCODE(retry_c                    ,OtapFs),
-#ifdef CUT_C
   OPCODE(cut_c                      ,OtapFs),
-#endif
   OPCODE(try_userc                  ,OtapFs),
   OPCODE(retry_userc                ,OtapFs),
-#ifdef CUT_C
   OPCODE(cut_userc                  ,OtapFs),
-#endif
   OPCODE(lock_pred                  ,e),
   OPCODE(index_pred                 ,e),
 #ifdef THREADS
@@ -413,6 +412,10 @@
   OPCODE(trie_trust_longint         ,e),
   OPCODE(trie_try_longint           ,e),
   OPCODE(trie_retry_longint         ,e),
+  OPCODE(trie_do_bigint             ,e),
+  OPCODE(trie_trust_bigint          ,e),
+  OPCODE(trie_try_bigint            ,e),
+  OPCODE(trie_retry_bigint          ,e),
   OPCODE(trie_do_gterm              ,e),
   OPCODE(trie_trust_gterm           ,e),
   OPCODE(trie_try_gterm             ,e),

@@ -31,6 +31,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "YapText.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -270,7 +271,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   Int start, err = 0, end;
   Term tf[7];
   Term *error = tf+3;
-  CELL *Hi = H;
+  CELL *Hi = HR;
   int has_qq = FALSE;
 
   /* make sure to globalise variable */
@@ -279,12 +280,12 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   clean_vars(LOCAL_AnonVarTable);
   while (1) {
     Term ts[2];
-    if (H > ASP-1024) {
+    if (HR > ASP-1024) {
       tf[3] = TermNil;
       err = 0;
       end = 0;
       /* for some reason moving this earlier confuses gcc on solaris */
-      H = Hi;
+      HR = Hi;
       break;
     }
     if (tokptr == LOCAL_toktide) {
@@ -301,6 +302,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
       }
       break;
     case QuasiQuotes_tok:
+    case WQuasiQuotes_tok:
       {
 	if (has_qq) {
 	  Term t0[1];
@@ -324,7 +326,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	VarEntry *varinfo = (VarEntry *)info;
 
 	t[0] = MkIntTerm(0);
-	t[1] = Yap_StringToList(varinfo->VarRep);
+	t[1] = Yap_CharsToListOfCodes((const char *)varinfo->VarRep PASS_REGS);
 	if (varinfo->VarAdr == TermNil) {
 	  t[2] = varinfo->VarAdr = MkVarTerm();
 	} else {
@@ -335,13 +337,13 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
       break;
     case String_tok:
       {
-	Term t0 = Yap_StringToList((char *)info);
+	Term t0 = Yap_CharsToListOfCodes((const char *)info PASS_REGS);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;
     case WString_tok:
       {
-	Term t0 = Yap_WideStringToList((wchar_t *)info);
+	Term t0 = Yap_WCharsToListOfCodes((const wchar_t *)info PASS_REGS);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;
@@ -371,7 +373,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   }
   /* now we can throw away tokens, so we can unify and possibly overwrite TR */
   Yap_unify(*outp, MkVarTerm());
-  if (IsVarTerm(*outp) && (VarOfTerm(*outp) > H || VarOfTerm(*outp) < H0)) {
+  if (IsVarTerm(*outp) && (VarOfTerm(*outp) > HR || VarOfTerm(*outp) < H0)) {
     tf[0] = Yap_MkNewApplTerm(Yap_MkFunctor(AtomRead,1),1);
   } else {
     tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,outp);
@@ -500,12 +502,12 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     }
     /* Scans the term using stack space */
     while (TRUE) {
-      old_H = H;
+      old_H = HR;
       LOCAL_Comments = TermNil;
       LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
-      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos);
+      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos, rd);
       if (LOCAL_Error_TYPE != YAP_NO_ERROR && seekable) {
-	H = old_H;
+	HR = old_H;
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	if (seekable) {
 	  Sseek64(inp_stream, cpos, SIO_SEEK_SET);
@@ -539,7 +541,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
-    old_H = H;
+    old_H = HR;
     if (tokstart != NULL && tokstart->Tok == Ord (eot_tok)) {
       /* did we get the end of file from an abort? */
       if (LOCAL_ErrorMessage &&
@@ -566,7 +568,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	  tr_fr_ptr old_TR = TR;
 
 
-	  H = old_H;
+	  HR = old_H;
 	  TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	  
 	  if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow"))
@@ -578,7 +580,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	  if (res) {
 	    LOCAL_ScannerStack = (char *)TR;
 	    TR = old_TR;
-	    old_H = H;
+	    old_H = HR;
 	    LOCAL_tokptr = LOCAL_toktide = tokstart;
 	    LOCAL_ErrorMessage = NULL;
 	    goto repeat_cycle;
@@ -610,7 +612,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     return FALSE;
   if (rd->varnames) {
     while (TRUE) {
-      CELL *old_H = H;
+      CELL *old_H = HR;
 
       if (setjmp(LOCAL_IOBotch) == 0) {
 	v = Yap_VarNames(LOCAL_VarTable, TermNil);
@@ -621,7 +623,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
 	old_TR = TR;
 	/* restart global */
-	H = old_H;
+	HR = old_H;
 	TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	LOCAL_ScannerStack = (char *)TR;
@@ -635,7 +637,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
   if (rd->variables) {
     while (TRUE) {
-      CELL *old_H = H;
+      CELL *old_H = HR;
 
       if (setjmp(LOCAL_IOBotch) == 0) {
 	v = Yap_Variables(LOCAL_VarTable, TermNil);
@@ -646,7 +648,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
 	old_TR = TR;
 	/* restart global */
-	H = old_H;
+	HR = old_H;
 	TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	LOCAL_ScannerStack = (char *)TR;
@@ -658,7 +660,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
   }
   if (rd->singles) {
     while (TRUE) {
-      CELL *old_H = H;
+      CELL *old_H = HR;
 
       if (setjmp(LOCAL_IOBotch) == 0) {
 	v = Yap_Singletons(LOCAL_VarTable, TermNil);
@@ -669,7 +671,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 
 	old_TR = TR;
 	/* restart global */
-	H = old_H;
+	HR = old_H;
 	TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	LOCAL_ScannerStack = (char *)TR;

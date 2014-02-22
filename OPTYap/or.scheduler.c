@@ -45,8 +45,6 @@ static int search_for_hidden_shared_work(bitmap stable_busy);
 static inline void PUT_NO_WORK_IN_UPPER_NODES(void);
 static inline void PUT_IDLE(int);
 static inline void PUT_BUSY(int);
-static inline void PUT_IN_ROOT_NODE(int);
-static inline void PUT_OUT_ROOT_NODE(int);
 static inline void move_up_to_prune_request(void);
 
 
@@ -77,24 +75,6 @@ void PUT_BUSY(int worker_num) {
   LOCK(GLOBAL_locks_bm_idle_workers);
   BITMAP_delete(GLOBAL_bm_idle_workers, worker_num);
   UNLOCK(GLOBAL_locks_bm_idle_workers);
-  return;
-}
-
-
-static inline
-void PUT_IN_ROOT_NODE(int worker_num) {
-  LOCK(GLOBAL_locks_bm_root_cp_workers);
-  BITMAP_insert(GLOBAL_bm_root_cp_workers, worker_num);
-  UNLOCK(GLOBAL_locks_bm_root_cp_workers);
-  return;
-}
-
-
-static inline
-void PUT_OUT_ROOT_NODE(int worker_num) {
-  LOCK(GLOBAL_locks_bm_root_cp_workers);
-  BITMAP_delete(GLOBAL_bm_root_cp_workers, worker_num);
-  UNLOCK(GLOBAL_locks_bm_root_cp_workers);
   return;
 }
 
@@ -216,7 +196,7 @@ int get_work(void) {
   
   counter = 0;
   BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
-  while (1) {
+   while (1) {
     while (BITMAP_subset(GLOBAL_bm_idle_workers, OrFr_members(LOCAL_top_or_fr)) &&
            Get_LOCAL_top_cp() != Get_GLOBAL_root_cp()) {
       /* no busy workers here and below */
@@ -227,13 +207,17 @@ int get_work(void) {
     }
     if (Get_LOCAL_top_cp() == Get_GLOBAL_root_cp()) {
       if (! BITMAP_member(GLOBAL_bm_root_cp_workers, worker_id))
+        /* We need this extra bitmap because the GLOBAL_bm_idle_workers bitmap 
+           is not enough to deal with sequential predicates. The condition of
+           all workers being idle is not sufficient to ensure that there is no 
+           available computation since a sequential predicate can still be resumed.
+           Only when all workers are idle and in the root choicepoint it is safe to
+           finish execution. */
         PUT_IN_ROOT_NODE(worker_id);
-      if (BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_root_cp_workers) &&
-          BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_present_workers)) {
-        /* All workers are idle in root choicepoint. Execution 
+      if (BITMAP_same(GLOBAL_bm_root_cp_workers, GLOBAL_bm_present_workers))
+        /* All workers are idle in the root choicepoint. Execution 
            must finish as there is no available computation. */
         return FALSE;
-      }
     }
     if (get_work_below()) {
       PUT_BUSY(worker_id);

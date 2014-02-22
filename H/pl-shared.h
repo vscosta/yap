@@ -56,7 +56,7 @@
 #endif
 #endif
 
-
+#include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 
 #define COMMON(X) extern X
@@ -128,7 +128,7 @@ typedef int bool;
 
 typedef struct redir_context
 { int		magic;			/* REDIR_MAGIC */
-  IOSTREAM     *stream;			/* temporary output */
+  struct io_stream     *stream;			/* temporary output */
   int		is_stream;		/* redirect to stream */
   int		redirected;		/* output is redirected */
   term_t	term;			/* redirect target */
@@ -140,6 +140,8 @@ typedef struct redir_context
 } redir_context;
 
 #include "pl-file.h"
+
+#define EOS '\0'
 
 		/********************************
 		*       HASH TABLES             *
@@ -262,9 +264,32 @@ getUnknownModule(module_t m);
 
 COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
-COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
+COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 
-#define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
+extern int raiseSignal(PL_local_data_t *ld, int sig);
+
+#ifdef YATOM_H
+
+static inline atom_t
+AtomToSWIAtom(Atom at)
+{
+  TranslationEntry *p;
+
+  if ((p = Yap_GetTranslationProp(at)) != NULL)
+    return (atom_t)(p->Translation*2+1);
+  return (atom_t)at;
+}
+
+#endif
+
+static inline Atom
+SWIAtomToAtom(atom_t at)
+{
+  if ((CELL)at & 1)
+    return SWI_Atoms[at/2];
+  return (Atom)at;
+}
+
 Atom                  YAP_AtomFromSWIAtom(atom_t at);
 atom_t                YAP_SWIAtomFromAtom(Atom at);
 
@@ -273,7 +298,7 @@ atom_t                YAP_SWIAtomFromAtom(Atom at);
 static inline Functor
 SWIFunctorToFunctor(functor_t f)
 {
-  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
     return SWI_Functors[((CELL)f)/4];
   return (Functor)f;
 }
@@ -284,14 +309,14 @@ OpenList(int n USES_REGS)
   Term t;
   BACKUP_H();
 
-  while (H+2*n > ASP-1024) {
+  while (HR+2*n > ASP-1024) {
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
   }
-  t = AbsPair(H);
-  H += 2*n;
+  t = AbsPair(HR);
+  HR += 2*n;
 
   RECOVER_H();
   return t;

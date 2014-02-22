@@ -39,6 +39,7 @@ A	B			F	"$last_choice_pt"
 A	Batched			N	"batched"
 A	Between			N	"between"
 A	HugeInt			N	"huge_int"
+A	BigNum			N	"big_num"
 A	BinaryStream		N	"binary_stream"
 A	Braces			N	"{}"
 A	Break			F	"$break"
@@ -58,7 +59,9 @@ A	CleanCall		F	"$clean_call"
 A	Colomn			N	":"
 A	CodeSpace		N	"code_space"
 A	Codes			N	"codes"
+A	CoInductive			N	"coinductive"
 A	Comma			N	","
+A	CommentHook		N	"comment_hook"
 A	Compound		N	"compound"
 A	ConsistencyError	N	"consistency_error"
 A	ConsultOnBoot		F	"$consult_on_boot"
@@ -301,6 +304,7 @@ A	StreamOrAlias		N	"stream_or_alias"
 A	StreamPos		F	"$stream_position"
 A	StreamPosition		N	"stream_position"
 A	String			N	"string"
+A	STRING			F	"String"
 A	Swi			N	"swi"
 A	SyntaxError		N	"syntax_error"
 A	SyntaxErrorHandler	N	"syntax_error_handler"
@@ -310,6 +314,7 @@ A	SystemLibraryDir	N	"system_library_directory"
 A	Term			N	"term"
 A	Terms			N	"terms"
 A	TermExpansion		N	"term_expansion"
+A	Text			N	"text"
 A	TextStream		N	"text_stream"
 A	Threads			N	"threads"
 A	Throw			N	"throw"
@@ -363,6 +368,7 @@ F	CleanCall		CleanCall	2
 F	Clist			When		4
 F	Codes			Codes		2
 F	Comma			Comma		2
+F	CommentHook		CommentHook	3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		1

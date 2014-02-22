@@ -34,6 +34,7 @@
   AtomBatched = Yap_LookupAtom("batched");
   AtomBetween = Yap_LookupAtom("between");
   AtomHugeInt = Yap_LookupAtom("huge_int");
+  AtomBigNum = Yap_LookupAtom("big_num");
   AtomBinaryStream = Yap_LookupAtom("binary_stream");
   AtomBraces = Yap_LookupAtom("{}");
   AtomBreak = Yap_FullLookupAtom("$break");
@@ -53,7 +54,9 @@
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");
   AtomCodes = Yap_LookupAtom("codes");
+  AtomCoInductive = Yap_LookupAtom("coinductive");
   AtomComma = Yap_LookupAtom(",");
+  AtomCommentHook = Yap_LookupAtom("comment_hook");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
   AtomConsultOnBoot = Yap_FullLookupAtom("$consult_on_boot");
@@ -296,6 +299,7 @@
   AtomStreamPos = Yap_FullLookupAtom("$stream_position");
   AtomStreamPosition = Yap_LookupAtom("stream_position");
   AtomString = Yap_LookupAtom("string");
+  AtomSTRING = Yap_FullLookupAtom("String");
   AtomSwi = Yap_LookupAtom("swi");
   AtomSyntaxError = Yap_LookupAtom("syntax_error");
   AtomSyntaxErrorHandler = Yap_LookupAtom("syntax_error_handler");
@@ -305,6 +309,7 @@
   AtomTerm = Yap_LookupAtom("term");
   AtomTerms = Yap_LookupAtom("terms");
   AtomTermExpansion = Yap_LookupAtom("term_expansion");
+  AtomText = Yap_LookupAtom("text");
   AtomTextStream = Yap_LookupAtom("text_stream");
   AtomThreads = Yap_LookupAtom("threads");
   AtomThrow = Yap_LookupAtom("throw");
@@ -358,6 +363,7 @@
   FunctorClist = Yap_MkFunctor(AtomWhen,4);
   FunctorCodes = Yap_MkFunctor(AtomCodes,2);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
+  FunctorCommentHook = Yap_MkFunctor(AtomCommentHook,3);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);

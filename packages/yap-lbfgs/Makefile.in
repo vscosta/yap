@@ -1,4 +1,4 @@
-	#
+#
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
 #
@@ -59,6 +59,10 @@ install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	for h in $(PLLIB); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 
+install-examples:
+
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
+distclean: clean
+	rm -f Makefile

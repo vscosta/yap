@@ -144,7 +144,7 @@ dump_runtime_variables(void)
   fprintf(stdout,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
   fprintf(stdout,"YAP_LIBS=\"%s\"\n",C_LIBS);
   fprintf(stdout,"YAP_SHLIB_SUFFIX=\"%s\"\n",SO_EXT);
-  fprintf(stdout,"YAP_VERSION=%d\n",YAP_VERSION);
+  fprintf(stdout,"YAP_VERSION=%d\n",YAP_NUMERIC_VERSION);
   exit(0);
   return 1;
 }
@@ -165,9 +165,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   int BootMode = YAP_FULL_BOOT_FROM_PROLOG;
 #else
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
-#endif
-#ifdef MYDDAS_MYSQL
-  char *myddas_temp;
 #endif
   unsigned long int *ssize;
 
@@ -199,13 +196,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   iap->Argc = argc;
   iap->Argv = argv;
   iap->def_c = 0;
-#ifdef MYDDAS_MYSQL
-  iap->myddas = 0;
-  iap->myddas_user = NULL;
-  iap->myddas_pass = NULL;
-  iap->myddas_db = NULL;
-  iap->myddas_host = NULL;
-#endif  
   iap->ErrorNo = 0;
   iap->ErrorCause = NULL;
   iap->QuietMode = FALSE;
@@ -259,36 +249,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      break;
 	    }
 	    break;
-#ifdef MYDDAS_MYSQL 
-	  case 'm':
-	    if (strncmp(p,"myddas_",7) == 0)
-	      {
-		iap->myddas = 1;
-		if ((*argv)[0] == '\0') 
-		  myddas_temp = *argv;
-		else {
-		  argc--;
-		  if (argc == 0) {
-		    fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
-		    exit(EXIT_FAILURE);
-		  }
-		  argv++;
-		  myddas_temp = *argv;
-		}
-		
-		if (strstr(p,"user") != NULL)
-		  iap->myddas_user = myddas_temp;
-		else if (strstr(p,"pass") != NULL)
-		  iap->myddas_pass = myddas_temp;
-		else if (strstr(p,"db") != NULL)
-		  iap->myddas_db = myddas_temp;
-		else if (strstr(p,"host") != NULL)
-		  iap->myddas_host = myddas_temp;
-		else
-		  goto myddas_error_print;
-		break;
-	      }
-#endif
          // execution mode
           case 'J':
 	    switch (p[1]) {
@@ -498,7 +458,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      iap->PrologShouldHandleInterrupts = FALSE;
 	      break;
 	    }
-	    goto myddas_error_print;
+	    break;
 	  case 'p':
 	    if ((*argv)[0] == '\0') 
 	      iap->YapPrologAddPath = *argv;
@@ -540,11 +500,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 	  default:
 	    {
-	    myddas_error_print :
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
-#ifdef MYDDAS_MYSQL
-	    myddas_error :
-#endif
 	      print_usage();
 	      exit(EXIT_FAILURE);
 	    }
@@ -553,15 +509,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	iap->SavedState = p;
       }
     }
-#ifdef MYDDAS_MYSQL
-  /* Check MYDDAS Arguments */
-  if (iap->myddas_user != NULL || iap->myddas_pass != NULL
-      || iap->myddas_db != NULL || iap->myddas_host != NULL)
-    if (iap->myddas_user == NULL || iap->myddas_db == NULL){
-      fprintf(stderr,"[ YAP unrecoverable error: Missing Mandatory Arguments for MYDDAS ]\n");
-      goto myddas_error;
-    }
-#endif
   GD->cmdline.appl_argc = argc;
   GD->cmdline.appl_argv = argv;
   return BootMode;

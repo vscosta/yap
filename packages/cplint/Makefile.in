@@ -149,7 +149,7 @@ CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/rib \
 	$(CPLINT_SRCDIR)/slipcase \
 	$(CPLINT_SRCDIR)/slipcover
-	
+
 
 all: $(SOBJS)
 
@@ -167,7 +167,7 @@ cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
-install: all 
+install: all install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/cplint/doc
@@ -185,6 +185,8 @@ install: all
 	cp $(CPLINT_SRCDIR)/slipcover/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	$(INSTALL_PROGRAM) slipcase/bddem.so $(DESTDIR)$(YAPLIBDIR)
 
+install_examples:
+
 installcheck: 
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
 
@@ -192,3 +194,5 @@ installcheck:
 test%:  	
 	echo "t. halt." | yap -l $(CPLINT_SRCDIR)/$@.pl
 
+distclean: clean
+	rm -f Makefile

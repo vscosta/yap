@@ -216,7 +216,7 @@ int q_share_work(int worker_p) {
   Yap_CopyThreadStacks(worker_id, worker_p, FALSE);
 #endif
 
-
+  PUT_OUT_ROOT_NODE(worker_id);
   /* update registers and return */
 #ifndef TABLING
   REMOTE_reply_signal(worker_p) = worker_ready;

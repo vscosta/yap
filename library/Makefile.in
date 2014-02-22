@@ -84,15 +84,6 @@ PROGRAMS= \
 	$(srcdir)/flags.yap \
 	$(srcdir)/block_diagram.yap
 
-MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \
-	$(srcdir)/MYDDAS/myddas_assert_predicates.ypp \
-	$(srcdir)/MYDDAS/myddas_mysql.ypp \
-	$(srcdir)/MYDDAS/myddas_top_level.ypp \
-	$(srcdir)/MYDDAS/myddas_errors.ypp \
-	$(srcdir)/MYDDAS/myddas_prolog2sql.ypp \
-	$(srcdir)/MYDDAS/myddas_util_predicates.ypp \
-	$(srcdir)/MYDDAS/myddas_prolog2sql_optimizer.ypp
-
 DIALECT_PROGRAMS= \
 	$(srcdir)/dialect/commons.yap \
 	$(srcdir)/dialect/bprolog.yap \
@@ -111,7 +102,9 @@ DIALECT_BP= \
 	$(srcdir)/dialect/bprolog/foreach.pl \
 	$(srcdir)/dialect/bprolog/hashtable.yap
 
-install: $(PROGRAMS) install_myddas
+all:
+
+install: $(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi
@@ -121,16 +114,18 @@ install: $(PROGRAMS) install_myddas
 	for p in $(DIALECT_SWI); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi; done
 	for p in $(DIALECT_BP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/bprolog; done
 
-install_myddas: $(MYDDAS_PROGRAMS)
-	count=`echo "$(YAP_EXTRAS)" | grep MYDDAS | wc -l`; \
-	if [ $$count -ne 0 ]; then \
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap; \
-	for p in $(MYDDAS_PROGRAMS); \
-	do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; \
-	done; \
-	for p in $(DESTDIR)$(SHAREDIR)/Yap/myddas*.ypp; \
-	do name=`basename $$p .ypp`; \
-	cpp $(YAP_EXTRAS) -P -E -w $$p > $(DESTDIR)$(SHAREDIR)/Yap/$$name.yap; \
-	rm -fr $$p; \
-	done; \
-	fi
+
+install-examples:
+
+clean:
+
+distclean: clean
+	rm -f *def Makefile
+
+
+##########
+FULL_PATH_PL_SOURCES=$(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) 
+
+TAGS: $(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) 
+	etags --append ../TAGS $(FULL_PATH_PL_SOURCES) 
+

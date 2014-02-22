@@ -53,6 +53,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "YapText.h"
 #include "pl-read.h"
 #include "pl-text.h"
 #if HAVE_STRING_H
@@ -82,7 +83,7 @@ static Term ParseTerm(read_data *, int, JMPBUFF * CACHE_TYPE);
 #define TRY(S,P)                               \
   {	Volatile JMPBUFF *saveenv, newenv;     \
 	Volatile TokEntry *saveT=LOCAL_tokptr;   \
-        Volatile CELL *saveH=H;                \
+        Volatile CELL *saveH=HR;                \
         Volatile int savecurprio=curprio;      \
         saveenv=FailBuff;                      \
         if(!sigsetjmp(newenv.JmpBuff, 0)) {      \
@@ -92,7 +93,7 @@ static Term ParseTerm(read_data *, int, JMPBUFF * CACHE_TYPE);
 		P;                             \
 	  }                                    \
 	else { FailBuff=saveenv;               \
-		H=saveH;                       \
+		HR=saveH;                       \
 		curprio = savecurprio;         \
                 LOCAL_tokptr=saveT;              \
 	}                                      \
@@ -101,7 +102,7 @@ static Term ParseTerm(read_data *, int, JMPBUFF * CACHE_TYPE);
 #define TRY3(S,P,F)                            \
   {	Volatile JMPBUFF *saveenv, newenv;     \
 	Volatile TokEntry *saveT=LOCAL_tokptr;   \
-        Volatile CELL *saveH=H;                \
+        Volatile CELL *saveH=HR;                \
         saveenv=FailBuff;                      \
         if(!sigsetjmp(newenv.JmpBuff, 0)) {      \
                 FailBuff = &newenv;            \
@@ -111,7 +112,7 @@ static Term ParseTerm(read_data *, int, JMPBUFF * CACHE_TYPE);
 	  }                                    \
 	else {                                 \
                 FailBuff=saveenv;              \
-                H=saveH;                       \
+                HR=saveH;                       \
                 LOCAL_tokptr=saveT;              \
                 F }                            \
    }
@@ -192,7 +193,7 @@ VarNames(VarEntry *p,Term l USES_REGS)
       o = Yap_MkApplTerm(FunctorEq, 2, t);
       o = MkPairTerm(o, VarNames(p->VarRight,
 				 VarNames(p->VarLeft,l PASS_REGS) PASS_REGS));
-      if (H > ASP-4096) {
+      if (HR > ASP-4096) {
 	save_machine_regs();
 	siglongjmp(LOCAL_IOBotch,1);
       }  
@@ -225,7 +226,7 @@ Singletons(VarEntry *p,Term l USES_REGS)
       o = Yap_MkApplTerm(FunctorEq, 2, t);
       o = MkPairTerm(o, Singletons(p->VarRight,
 				 Singletons(p->VarLeft,l PASS_REGS) PASS_REGS));
-      if (H > ASP-4096) {
+      if (HR > ASP-4096) {
 	save_machine_regs();
 	siglongjmp(LOCAL_IOBotch,1);
       }  
@@ -252,7 +253,7 @@ Variables(VarEntry *p,Term l USES_REGS)
   if (p != NULL) {
     Term o;
     o = MkPairTerm(p->VarAdr, Variables(p->VarRight,Variables(p->VarLeft,l PASS_REGS) PASS_REGS));
-    if (H > ASP-4096) {
+    if (HR > ASP-4096) {
       save_machine_regs();
       siglongjmp(LOCAL_IOBotch,1);
     }  
@@ -392,7 +393,7 @@ checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS)
 
 static int
 is_quasi_quotation_syntax(Term goal, ReadData _PL_rd, Atom *pat)
-{ GET_LD
+{ CACHE_REGS
   Term m = CurrentModule, t;
   Atom at;
   UInt arity;
@@ -471,7 +472,7 @@ ParseArgs(read_data *rd, Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USE
 	FAIL;
       }
       t = Yap_MkApplTerm(func, nargs, p);
-      if (H > ASP-4096) {
+      if (HR > ASP-4096) {
 	LOCAL_ErrorMessage = "Stack Overflow";
 	return TermNil;
       }  
@@ -499,7 +500,7 @@ ParseArgs(read_data *rd, Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USE
    * Needed because the arguments for the functor are placed in reverse
    * order 
    */
-  if (H > ASP-(nargs+1)) {
+  if (HR > ASP-(nargs+1)) {
     LOCAL_ErrorMessage = "Stack Overflow";
     FAIL;
   }  
@@ -519,7 +520,7 @@ ParseArgs(read_data *rd, Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USE
   else
     t = Yap_MkApplTerm(func, nargs, p);
 #endif
-  if (H > ASP-4096) {
+  if (HR > ASP-4096) {
     LOCAL_ErrorMessage = "Stack Overflow";
     return TermNil;
   }  
@@ -546,10 +547,10 @@ ParseList(read_data *rd, JMPBUFF *FailBuff USES_REGS)
 {
   Term o;
   CELL *to_store;
-  o = AbsPair(H);
+  o = AbsPair(HR);
  loop:
-  to_store = H;
-  H+=2;
+  to_store = HR;
+  HR+=2;
   to_store[0] = ParseTerm(rd, 999, FailBuff PASS_REGS);
   if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int) LOCAL_tokptr->TokInfo) == ',') {
@@ -560,12 +561,12 @@ ParseList(read_data *rd, JMPBUFF *FailBuff USES_REGS)
 	to_store[1] = ParseTerm(rd, 999, FailBuff PASS_REGS);
       } else {
 	/* check for possible overflow against local stack */
-	if (H > ASP-4096) {
+	if (HR > ASP-4096) {
 	  to_store[1] = TermNil;
 	  LOCAL_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	} else {
-	  to_store[1] = AbsPair(H);
+	  to_store[1] = AbsPair(HR);
 	  goto loop;
 	}
       }
@@ -663,7 +664,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	  t = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
-	  if (H > ASP-4096) {
+	  if (HR > ASP-4096) {
 	    LOCAL_ErrorMessage = "Stack Overflow";
 	    FAIL;
 	  }  
@@ -688,23 +689,9 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
   case String_tok:	/* build list on the heap */
     {
       Volatile char *p = (char *) LOCAL_tokptr->TokInfo;
-      if (*p == 0)
-	t = MkAtomTerm(AtomNil);
-      else {
-	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
-	if (flags &  DBLQ_CHARS)
-	  t = Yap_StringToListOfAtoms(p);
-	else if (flags & DBLQ_ATOM) {
-	  Atom at = Yap_LookupAtom(p);
-	  if (at == NIL) {
-	    LOCAL_ErrorMessage = "Heap Overflow";
-	    FAIL;	  
-	  }
-	  t = MkAtomTerm(at);
-	} else if (flags & DBLQ_STRING) {
-	  t = Yap_MkBlobStringTerm(p, strlen(p));
-	} else
-	  t = Yap_StringToList(p);
+      t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+	FAIL;
       }
       NextToken;
     }
@@ -713,26 +700,8 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
   case WString_tok:	/* build list on the heap */
     {
       Volatile wchar_t *p = (wchar_t *) LOCAL_tokptr->TokInfo;
-      if (*p == 0)
-	t = MkAtomTerm(AtomNil);
-      else {
-	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
-	if (flags &  DBLQ_CHARS)
-	  t = Yap_WideStringToListOfAtoms(p);
-	else if (flags & DBLQ_ATOM) {
-	  Atom at = Yap_LookupWideAtom(p);
-	  if (at == NIL) {
-	    LOCAL_ErrorMessage = "Heap Overflow";
-	    FAIL;	  
-	  }
-	  t = MkAtomTerm(at);
-	} else if (flags & DBLQ_STRING) {
-	  t = Yap_MkBlobWideStringTerm(p, wcslen(p));
-	} else
-	  t = Yap_WideStringToList(p);
-      }
-      if (t == 0L) {
-	LOCAL_ErrorMessage = "Stack Overflow";
+      t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
 	FAIL;
       }
       NextToken;
@@ -780,7 +749,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
       t = ParseTerm(rd, 1200, FailBuff PASS_REGS);
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
-      if (H > ASP-4096) {
+      if (HR > ASP-4096) {
 	LOCAL_ErrorMessage = "Stack Overflow";
 	FAIL;
       }  
@@ -891,7 +860,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	       args[1] = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	       t = Yap_MkApplTerm(func, 2, args);
 	       /* check for possible overflow against local stack */
-	       if (H > ASP-4096) {
+	       if (HR > ASP-4096) {
 		 LOCAL_ErrorMessage = "Stack Overflow";
 		 FAIL;
 	       }  
@@ -914,7 +883,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	}
 	t = Yap_MkApplTerm(func, 1, &t);
 	/* check for possible overflow against local stack */
-	if (H > ASP-4096) {
+	if (HR > ASP-4096) {
 	  LOCAL_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
@@ -933,7 +902,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	args[1] = ParseTerm(rd, 1000, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorComma, 2, args);
 	/* check for possible overflow against local stack */
-	if (H > ASP-4096) {
+	if (HR > ASP-4096) {
 	  LOCAL_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
@@ -948,7 +917,7 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	args[1] = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
-	if (H > ASP-4096) {
+	if (HR > ASP-4096) {
 	  LOCAL_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  

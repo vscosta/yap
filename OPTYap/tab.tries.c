@@ -19,6 +19,7 @@
 #ifdef TABLING
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "eval.h"
 #include "tab.macros.h"
 
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
@@ -163,6 +164,12 @@ static struct trie_statistics{
         free_global_trie_branch(NODE PASS_REGS)
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 
+/******************************
+** Rational Terms Support    **
+******************************/
+#ifdef TRIE_RATIONAL_TERMS
+#include "tab.rational.i"
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
 
 
 /******************************
@@ -200,7 +207,13 @@ static struct trie_statistics{
 #define MODE_TERMS_LOOP
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_terms_loop */
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_terms_loop */
+#ifdef TRIE_RATIONAL_TERMS
+#undef TRIE_RATIONAL_TERMS
 #include "tab.tries.i"
+#define TRIE_RATIONAL_TERMS
+#else
+#include "tab.tries.i"
+#endif
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
 #undef MODE_TERMS_LOOP
@@ -209,7 +222,13 @@ static struct trie_statistics{
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_global_trie_(terms)_loop */
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_global_trie_(terms)_loop */
 #define INCLUDE_LOAD_ANSWER_LOOP           /* load_substitution_loop */
+#ifdef TRIE_RATIONAL_TERMS
+#undef TRIE_RATIONAL_TERMS
 #include "tab.tries.i"
+#define TRIE_RATIONAL_TERMS
+#else
+#include "tab.tries.i"
+#endif
 #undef INCLUDE_LOAD_ANSWER_LOOP
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
@@ -299,19 +318,19 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
 	    *vars_ptr = t;
 	  } else {
 	    if (aux_sub > aux_var) {
-	      if ((CELL *) aux_sub <= H) {
+	      if ((CELL *) aux_sub <= HR) {
 		Bind_Global((CELL *) aux_sub, aux_var);
-	      } else if ((CELL *) aux_var <= H) {
+	      } else if ((CELL *) aux_var <= HR) {
 		Bind_Local((CELL *) aux_sub, aux_var);
 	      } else {
 		Bind_Local((CELL *) aux_var, aux_sub);
 		*vars_ptr = aux_sub;
 	      }
 	    } else {            
-	      if ((CELL *) aux_var <= H) {
+	      if ((CELL *) aux_var <= HR) {
 		Bind_Global((CELL *) aux_var, aux_sub);
 		*vars_ptr = aux_sub;
-	      } else if ((CELL *) aux_sub <= H) {
+	      } else if ((CELL *) aux_sub <= HR) {
 		Bind_Local((CELL *) aux_var, aux_sub);
 		*vars_ptr = aux_sub;
 	      } else {
@@ -517,12 +536,16 @@ static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
 		mode = TRAVERSE_MODE_DOUBLE;
 	      else if (f == FunctorLongInt)
 		mode = TRAVERSE_MODE_LONGINT;
+	      else if (f == FunctorBigInt || f == FunctorString)
+		mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	      else
 		mode = TRAVERSE_MODE_NORMAL;
 	    } else
 	      mode = TRAVERSE_MODE_NORMAL;
 	  } else if (mode == TRAVERSE_MODE_LONGINT)
 	    mode = TRAVERSE_MODE_LONGINT_END;
+	   } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING)
+	     mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
 	  else if (mode == TRAVERSE_MODE_DOUBLE)
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	    mode = TRAVERSE_MODE_DOUBLE2;
@@ -555,13 +578,17 @@ static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
 	    mode = TRAVERSE_MODE_DOUBLE;
 	  else if (f == FunctorLongInt)
 	    mode = TRAVERSE_MODE_LONGINT;
+	   else if (f == FunctorBigInt || f == FunctorString)
+	     mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	  else
 	    mode = TRAVERSE_MODE_NORMAL;
 	} else
 	  mode = TRAVERSE_MODE_NORMAL;
-      } else if (mode == TRAVERSE_MODE_LONGINT)
+      } else if (mode == TRAVERSE_MODE_LONGINT) {
 	mode = TRAVERSE_MODE_LONGINT_END;
-      else if (mode == TRAVERSE_MODE_DOUBLE)
+      } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+	 mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+      } else if (mode == TRAVERSE_MODE_DOUBLE)
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	mode = TRAVERSE_MODE_DOUBLE2;
       else if (mode == TRAVERSE_MODE_DOUBLE2)
@@ -898,7 +925,23 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       mode = TRAVERSE_MODE_LONGINT_END;
   } else if (mode == TRAVERSE_MODE_LONGINT_END) {
     mode = TRAVERSE_MODE_NORMAL;
+  }  else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+    str_index += Yap_OpaqueTermToString(AbsAppl((CELL *)t), str+str_index, 0);
+    traverse_update_arity(str, &str_index, arity);
+    if (type == TRAVERSE_TYPE_SUBGOAL)
+      mode = TRAVERSE_MODE_NORMAL;
+    else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
+      mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+  } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING_END) {
+    mode = TRAVERSE_MODE_NORMAL;
   } else if (IsVarTerm(t)) {
+#ifdef TRIE_RATIONAL_TERMS
+    if (t > VarIndexOfTableTerm(MAX_TABLE_VARS) && TrNode_child((gt_node_ptr) t) != (gt_node_ptr)1)  { //TODO: substitute the != 1 test to something more appropriate
+      /* Rational term */
+  	  str_index += sprintf(& str[str_index], "**");
+      traverse_update_arity(str, &str_index, arity);
+    } else    
+#endif /* RATIONAL TERM SUPPORT FOR TRIES */
     if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
       TrStat_gt_refs++;
       /* (type % 2 + 2): TRAVERSE_TYPE_ANSWER  --> TRAVERSE_TYPE_GT_ANSWER  */
@@ -950,6 +993,8 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       mode = TRAVERSE_MODE_DOUBLE;
     } else if (f == FunctorLongInt) {
       mode = TRAVERSE_MODE_LONGINT;
+    } else if (f == FunctorBigInt || f == FunctorString) {
+      mode = TRAVERSE_MODE_BIGINT_OR_STRING;
     } else if (f == FunctorComma) {
       if (arity[arity[0]] != -3) {
 	str_index += sprintf(& str[str_index], "(");
@@ -1369,20 +1414,26 @@ void free_subgoal_trie(sg_node_ptr current_node, int mode, int position) {
 	  child_mode = TRAVERSE_MODE_DOUBLE;
 	else if (f == FunctorLongInt)
 	  child_mode = TRAVERSE_MODE_LONGINT;
+	else if (f == FunctorBigInt || f == FunctorString)
+	  child_mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	else
 	  child_mode = TRAVERSE_MODE_NORMAL;
       } else
 	child_mode = TRAVERSE_MODE_NORMAL;
-    } else if (mode == TRAVERSE_MODE_LONGINT)
+    } else if (mode == TRAVERSE_MODE_LONGINT) {
       child_mode = TRAVERSE_MODE_LONGINT_END;
-    else if (mode == TRAVERSE_MODE_DOUBLE)
+    } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+      Yap_FreeCodeSpace((char *)TrNode_entry(current_node));
+      child_mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+    } else if (mode == TRAVERSE_MODE_DOUBLE) {
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
       child_mode = TRAVERSE_MODE_DOUBLE2;
-    else if (mode == TRAVERSE_MODE_DOUBLE2)
+    } else if (mode == TRAVERSE_MODE_DOUBLE2) {
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
       child_mode = TRAVERSE_MODE_DOUBLE_END;
-    else
+    } else {
       child_mode = TRAVERSE_MODE_NORMAL;
+    }
     free_subgoal_trie(TrNode_child(current_node), child_mode, TRAVERSE_POSITION_FIRST);
   } else {
     sg_fr_ptr sg_fr = get_subgoal_frame_for_abolish(current_node PASS_REGS);
@@ -1461,20 +1512,26 @@ void free_answer_trie(ans_node_ptr current_node, int mode, int position) {
 	  child_mode = TRAVERSE_MODE_DOUBLE;
 	else if (f == FunctorLongInt)
 	  child_mode = TRAVERSE_MODE_LONGINT;
+	else if (f == FunctorBigInt || f == FunctorString)
+	  child_mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	else
 	  child_mode = TRAVERSE_MODE_NORMAL;
       } else
 	child_mode = TRAVERSE_MODE_NORMAL;
-    } else if (mode == TRAVERSE_MODE_LONGINT)
+    } else if (mode == TRAVERSE_MODE_LONGINT) {
       child_mode = TRAVERSE_MODE_LONGINT_END;
-    else if (mode == TRAVERSE_MODE_DOUBLE)
+    } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+      Yap_FreeCodeSpace((char *)TrNode_entry(current_node));
+      child_mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+    } else if (mode == TRAVERSE_MODE_DOUBLE) {
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
       child_mode = TRAVERSE_MODE_DOUBLE2;
-    else if (mode == TRAVERSE_MODE_DOUBLE2)
+    } else if (mode == TRAVERSE_MODE_DOUBLE2) {
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
       child_mode = TRAVERSE_MODE_DOUBLE_END;
-    else
+    } else {
       child_mode = TRAVERSE_MODE_NORMAL;
+    }
     free_answer_trie(TrNode_child(current_node), child_mode, TRAVERSE_POSITION_FIRST);
   }
   if (position == TRAVERSE_POSITION_FIRST) {

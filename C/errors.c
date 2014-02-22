@@ -29,6 +29,84 @@
 #endif
 #include "Foreign.h"
 
+int Yap_HandleError( const char *s, ... ) {
+  CACHE_REGS
+    yap_error_number err = LOCAL_Error_TYPE;
+  char *serr;
+
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  if (LOCAL_ErrorMessage) {
+    serr = LOCAL_ErrorMessage;
+  } else {
+    serr = (char *)s;
+  }
+  switch (err) {
+  case OUT_OF_STACK_ERROR:
+    if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, serr);
+      return(FALSE);
+    }
+    return TRUE;
+  case OUT_OF_AUXSPACE_ERROR:
+    if (LOCAL_MAX_SIZE < (char *)AuxSp-AuxBase) {
+      LOCAL_MAX_SIZE += 1024;
+    }
+    if (!Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE)) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, serr);
+      return FALSE;
+    }
+    return TRUE;
+  case OUT_OF_HEAP_ERROR:
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, ARG2, serr);
+      return FALSE;
+    }
+  default:
+    Yap_Error(err, LOCAL_Error_Term, serr);
+    return(FALSE);
+  }
+}
+  
+int Yap_SWIHandleError( const char *s, ... )
+{
+  CACHE_REGS
+    yap_error_number err = LOCAL_Error_TYPE;
+  char *serr;
+
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  if (LOCAL_ErrorMessage) {
+    serr = LOCAL_ErrorMessage;
+  } else {
+    serr = (char *)s;
+  }
+  switch (err) {
+  case OUT_OF_STACK_ERROR:
+    if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, serr);
+      return(FALSE);
+    }
+    return TRUE;
+  case OUT_OF_AUXSPACE_ERROR:
+    if (LOCAL_MAX_SIZE < (char *)AuxSp-AuxBase) {
+      LOCAL_MAX_SIZE += 1024;
+    }
+    if (!Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE)) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, serr);
+      return FALSE;
+    }
+    return TRUE;
+  case OUT_OF_HEAP_ERROR:
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, ARG2, serr);
+      return FALSE;
+    }
+  default:
+    Yap_Error(err, LOCAL_Error_Term, serr);
+    return(FALSE);
+  }
+}
 
 void
 Yap_RestartYap ( int flag )
@@ -47,7 +125,7 @@ static void detect_bug_location(yamop *,find_pred_type,char *, int);
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 
-#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(H)  && CellPtr(ptr) < CellPtr(LOCAL_LocalBase))
+#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(HR)  && CellPtr(ptr) < CellPtr(LOCAL_LocalBase))
 
 static int
 hidden (Atom at)
@@ -285,13 +363,13 @@ dump_stack( USES_REGS1 )
   if (handled_exception( PASS_REGS1 ))
     return;
 #if DEBUG
-  fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
+  fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,HR,TR,HeapTop);
   fprintf(stderr,"%% YAP mode: %ux\n",(unsigned int)LOCAL_PrologMode);
   if (LOCAL_ErrorMessage)
     fprintf(stderr,"%% LOCAL_ErrorMessage: %s\n",LOCAL_ErrorMessage);
 #endif
-  if (H > ASP || H > LCL0) {
-    fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",H,ASP);
+  if (HR > ASP || HR > LCL0) {
+    fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",HR,ASP);
   } else   if (HeapTop > (ADDR)LOCAL_GlobalBase) {
     fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, LOCAL_GlobalBase);
   } else {
@@ -308,11 +386,11 @@ dump_stack( USES_REGS1 )
     }
 #endif
 #endif
-    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"%%\n%% PC: %s\n",(char *)H); 
-    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
-    fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
+    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%\n%% PC: %s\n",(char *)HR); 
+    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%   Continuation: %s\n",(char *)HR); 
+    fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(HR-H0))/1024,H0,HR); 
     fprintf (stderr,"%%    %luKB of Local Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
     fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-LOCAL_TrailBase)/1024,LOCAL_TrailBase,TR); 
     fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)LOCAL_GcCalls);
@@ -390,8 +468,8 @@ void
 Yap_bug_location(yamop *pc)
 {
   CACHE_REGS
-  detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-  fprintf(stderr,"%s\n",(char *)H);
+  detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+  fprintf(stderr,"%s\n",(char *)HR);
   dump_stack( PASS_REGS1 );
 }
 
@@ -489,10 +567,10 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       fprintf(stderr,"%% YAP OOOPS: %s.\n",tmpbuf);
       fprintf(stderr,"%%\n%%\n");
     }
-    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"%%\n%% PC: %s\n",(char *)H); 
-    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
-    fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
+    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%\n%% PC: %s\n",(char *)HR); 
+    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
+    fprintf (stderr,"%%   Continuation: %s\n",(char *)HR); 
     DumpActiveGoals( PASS_REGS1 );
     error_exit_yap (1);
   }
@@ -1382,6 +1460,19 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case REPRESENTATION_ERROR_INT:
+    {
+      int i;
+      Term ti[1];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomInt);
+      nt[0] = Yap_MkApplTerm(FunctorRepresentationError, 1, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case REPRESENTATION_ERROR_MAX_ARITY:
     {
       int i;
@@ -1450,11 +1541,8 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case SYNTAX_ERROR:
     {
       int i;
-      Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(AtomSyntaxError);
-      nt[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, ti);
       psize -= i;
       fun = FunctorError;
       serious = TRUE;
@@ -1528,6 +1616,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomAtomic);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+  case TYPE_ERROR_BIGNUM:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomBigNum);
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
       psize -= i;
@@ -1745,6 +1847,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case TYPE_ERROR_REFERENCE:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomDBReference);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case TYPE_ERROR_STRING:
     {
       int i;
@@ -1752,6 +1868,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomString);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+  case TYPE_ERROR_TEXT:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomText);
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
       psize -= i;
@@ -1847,7 +1977,7 @@ E);
   if (serious) {
     /* disable active signals at this point */
     LOCAL_ActiveSignals = 0;
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
     LOCAL_PrologMode &= ~InErrorMode;
     LOCK(LOCAL_SignalLock);
     /* we might be in the middle of a critical region */

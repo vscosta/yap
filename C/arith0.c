@@ -138,12 +138,12 @@ eval0(Int fi) {
     RINT(((CELL *)TR)-LCL0);
 #endif
   case op_stackfree:
-    RINT(Unsigned(ASP) - Unsigned(H));
+    RINT(Unsigned(ASP) - Unsigned(HR));
   case op_globalsp:
 #if YAPOR_SBA
-    RINT((Int)H);
+    RINT((Int)HR);
 #else
-    RINT(H - H0);
+    RINT(HR - H0);
 #endif
   }
   RERROR();

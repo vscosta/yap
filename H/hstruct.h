@@ -141,6 +141,7 @@
   struct pred_entry  *pred_is;
   struct pred_entry  *pred_safe_call_cleanup;
   struct pred_entry  *pred_restore_regs;
+  struct pred_entry  *pred_comment_hook;
 #ifdef YAPOR
   struct pred_entry  *pred_getwork;
   struct pred_entry  *pred_getwork_seq;

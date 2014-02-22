@@ -54,3 +54,4 @@ typedef int (*GetsFunc)(int, UInt, char *);
 void Yap_InitStdStreams(void);
 Term Yap_StreamPosition(struct io_stream *);
 void Yap_InitPlIO(void);
+

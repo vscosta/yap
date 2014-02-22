@@ -117,12 +117,8 @@
       pc = NEXTOP(pc,OtaLl);
       break;
       /* instructions type OtapFs */
-#ifdef CUT_C
     case _cut_c:
-#endif
-#ifdef CUT_C
     case _cut_userc:
-#endif
     case _retry_c:
     case _retry_userc:
     case _try_c:
@@ -406,6 +402,13 @@
       CHECK(save_ConstantTerm(stream, pc->u.osc.c));
       pc = NEXTOP(pc,osc);
       break;
+      /* instructions type ou */
+    case _unify_l_string:
+    case _unify_string:
+      CHECK(save_Opcode(stream, pc->u.ou.opcw));
+      CHECK(save_BlobTermInCode(stream, pc->u.ou.u));
+      pc = NEXTOP(pc,ou);
+      break;
       /* instructions type ox */
     case _save_appl_x:
     case _save_appl_x_write:
@@ -653,6 +656,12 @@
       CHECK(save_Constant(stream, pc->u.xps.s));
       pc = NEXTOP(pc,xps);
       break;
+      /* instructions type xu */
+    case _get_string:
+      CHECK(save_X(stream, pc->u.xu.x));
+      CHECK(save_BlobTermInCode(stream, pc->u.xu.u));
+      pc = NEXTOP(pc,xu);
+      break;
       /* instructions type xx */
     case _get_x_val:
     case _get_x_var:
@@ -891,6 +900,7 @@
     case _trie_do_appl_in_pair:
     case _trie_do_atom:
     case _trie_do_atom_in_pair:
+    case _trie_do_bigint:
     case _trie_do_double:
     case _trie_do_extension:
     case _trie_do_gterm:
@@ -906,6 +916,7 @@
     case _trie_retry_appl_in_pair:
     case _trie_retry_atom:
     case _trie_retry_atom_in_pair:
+    case _trie_retry_bigint:
     case _trie_retry_double:
     case _trie_retry_extension:
     case _trie_retry_gterm:
@@ -921,6 +932,7 @@
     case _trie_trust_appl_in_pair:
     case _trie_trust_atom:
     case _trie_trust_atom_in_pair:
+    case _trie_trust_bigint:
     case _trie_trust_double:
     case _trie_trust_extension:
     case _trie_trust_gterm:
@@ -936,6 +948,7 @@
     case _trie_try_appl_in_pair:
     case _trie_try_atom:
     case _trie_try_atom_in_pair:
+    case _trie_try_bigint:
     case _trie_try_double:
     case _trie_try_extension:
     case _trie_try_gterm:

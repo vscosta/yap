@@ -60,3 +60,9 @@ clean:
 
 install: default
 	$(INSTALL_PROGRAM) problogbdd $(DESTDIR)$(SHAREDIR)/Yap
+
+install-examples:
+
+distclean: clean
+	rm -f Makefile
+

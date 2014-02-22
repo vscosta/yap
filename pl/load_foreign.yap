@@ -15,11 +15,19 @@
 *									 *
 *************************************************************************/
 
+load_foreign_files(_Objs,_Libs,_Entry) :-
+    prolog_load_context(file, F),
+    prolog_load_context(module, M),
+    recorded( '$load_foreign_done', [F, M0], _), !,
+    '$import_foreign'(F, M0, M).
 load_foreign_files(Objs,Libs,Entry) :-
 	'$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
 	'$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
 	'$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
-	'$load_foreign_files'(NewObjs,NewLibs,Entry).
+	'$load_foreign_files'(NewObjs,NewLibs,Entry),
+	prolog_load_context(file, F),
+	prolog_load_context(module, M),
+	ignore( recordzifnot( '$load_foreign_done', [F, M], _) ), !.
 
 '$check_objs_for_load_foreign_files'(V,_,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -67,6 +75,14 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$checklib_prefix'(F, Lib) :-
 	atom_concat(lib, F, Lib).
 
+'$import_foreign'(F, M0, M) :-
+    M \= M0,
+    predicate_property(M0:P,built_in),
+    predicate_property(M0:P,file(F)),
+    functor(P, N, K),
+    '$do_import'(N/K-N/K, M0, M),
+    fail.
+'$import_foreign'(_F, _M0, _M).
 
 '$check_entry_for_load_foreign_files'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).

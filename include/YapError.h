@@ -84,6 +84,7 @@ typedef enum
   PRED_ENTRY_COUNTER_UNDERFLOW,
   REPRESENTATION_ERROR_CHARACTER,
   REPRESENTATION_ERROR_CHARACTER_CODE,
+  REPRESENTATION_ERROR_INT,
   REPRESENTATION_ERROR_MAX_ARITY,
   REPRESENTATION_ERROR_VARIABLE,
   RESOURCE_ERROR_HUGE_INT,
@@ -98,6 +99,7 @@ typedef enum
   TYPE_ERROR_ARRAY,
   TYPE_ERROR_ATOM,
   TYPE_ERROR_ATOMIC,
+  TYPE_ERROR_BIGNUM,
   TYPE_ERROR_BYTE,
   TYPE_ERROR_CALLABLE,
   TYPE_ERROR_CHAR,
@@ -113,12 +115,84 @@ typedef enum
   TYPE_ERROR_NUMBER,
   TYPE_ERROR_PREDICATE_INDICATOR,
   TYPE_ERROR_PTR,
+  TYPE_ERROR_REFERENCE,
   TYPE_ERROR_STRING,
+  TYPE_ERROR_TEXT,
   TYPE_ERROR_UBYTE,
   TYPE_ERROR_UCHAR,
   TYPE_ERROR_VARIABLE,
   UNKNOWN_ERROR
 } yap_error_number;
+
+#define JMP_LOCAL_ERROR(v, LAB)   \
+  if (H + 2*(v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    goto LAB;				  \
+  }
+
+#define LOCAL_ERROR(v)   \
+  if (HR + (v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    return NULL; \
+  }
+
+#define LOCAL_TERM_ERROR(v)   \
+  if (HR + (v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    return 0L; \
+  }
+
+#define AUX_ERROR(t, n, s, TYPE)      \
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return NULL; \
+    }
+
+#define AUX_TERM_ERROR(t, n, s, TYPE)      \
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return 0L; \
+    }
+
+#define JMP_AUX_ERROR(n, s, t, TYPE, LAB)	\
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    goto LAB; \
+    }
+
+#define HEAP_ERROR(a,TYPE) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return NULL;\
+    }
+
+#define HEAP_TERM_ERROR(a,TYPE) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return 0L;\
+    }
+
+#define JMP_HEAP_ERROR(a,n,t,TYPE, LAB) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    goto LAB;\
+    }
+
 
 
 #endif

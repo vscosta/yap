@@ -221,7 +221,7 @@ static int	rlc_from_queue(RlcQueue q);
 static int	rlc_is_empty_queue(RlcQueue q);
 static void	rlc_empty_queue(RlcQueue q);
 
-extern int	main();
+extern int	main(void);
 
 static RlcUpdateHook	_rlc_update_hook;
 static RlcTimerHook	_rlc_timer_hook;
@@ -551,7 +551,7 @@ rlc_kill_wnd_proc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 }
 
 static TCHAR *
-rlc_kill_window_class()
+rlc_kill_window_class(void)
 { static TCHAR winclassname[32];
   static WNDCLASS wndClass;
   HINSTANCE instance = _rlc_hinstance;
@@ -1383,7 +1383,7 @@ rlc_yield()
 		 *******************************/
 
 static void
-rlc_init_word_chars()
+rlc_init_word_chars(void)
 { int i;
 
   for(i=0; i<CHAR_MAX; i++)
@@ -1411,7 +1411,7 @@ rlc_is_word_char(int chr)
 		 *	    SELECTION		*
 		 *******************************/
 
-#define SelLT(l1, c1, l2, c2) ((l1) < (l2) || (l1) == (l2) && (c1) < (c2))
+#define SelLT(l1, c1, l2, c2) ((l1) < (l2) || ((l1) == (l2) && (c1) < (c2)))
 #define SelEQ(l1, c1, l2, c2) ((l1) == (l2) && (c1) == (c2))
 
 static int
@@ -1652,7 +1652,7 @@ rlc_read_from_window(RlcData b, int sl, int sc, int el, int ec)
   TCHAR *buf;
   int i = 0;
 
-  if ( el < sl || el == sl && ec < sc )
+  if ( el < sl || (el == sl && ec < sc) )
     return NULL;			/* invalid region */
   if ( !(buf = rlc_malloc(bufsize * sizeof(TCHAR))) )
     return NULL;			/* not enough memory */

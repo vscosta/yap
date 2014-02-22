@@ -7,6 +7,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "pl-incl.h"
+#include "YapText.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif
@@ -84,13 +85,17 @@ codeToAtom(int chrcode)
 word
 globalString(size_t size, char *s)
 {
-  return Yap_MkBlobStringTerm(s, size);
+  CACHE_REGS
+
+  return Yap_CharsToString(s PASS_REGS);
 }
 
 word
 globalWString(size_t size, wchar_t *s)
 {
-  return Yap_MkBlobWideStringTerm(s, size);
+  CACHE_REGS
+
+  return Yap_WCharsToString(s PASS_REGS);
 }
 
 int
@@ -385,14 +390,13 @@ typedef union
 int
 get_atom_ptr_text(Atom a, PL_chars_t *text)
 { 
-  YAP_Atom ya = (YAP_Atom)a;
-  if (YAP_IsWideAtom(ya)) {
-    pl_wchar_t *name = (pl_wchar_t *)YAP_WideAtomName(ya);
+  if (IsWideAtom(a)) {
+    pl_wchar_t *name = (pl_wchar_t *)a->WStrOfAE;
     text->text.w   = name;
     text->length   = wcslen(name);
     text->encoding = ENC_WCHAR;
   } else
-    { char *name = (char *)YAP_AtomName(ya);
+    { char *name = a->StrOfAE;
     text->text.t   = name;
     text->length   = strlen(name);
     text->encoding = ENC_ISO_LATIN_1;
@@ -406,7 +410,7 @@ get_atom_ptr_text(Atom a, PL_chars_t *text)
 
 int
 get_atom_text(atom_t atom, PL_chars_t *text)
-{ Atom a = (Atom)atomValue(atom);
+{ Atom a = YAP_AtomFromSWIAtom(atom);
 
   return get_atom_ptr_text(a, text);
 }
@@ -414,16 +418,9 @@ get_atom_text(atom_t atom, PL_chars_t *text)
 int
 get_string_text(word w, PL_chars_t *text ARG_LD)
 {
-  CELL fl = RepAppl(w)[1];
-  if (fl == BLOB_STRING) {
-    text->text.t = Yap_BlobStringOfTerm(w);
-    text->encoding = ENC_ISO_LATIN_1;
-    text->length = strlen(text->text.t);
-  } else {
-    text->text.w = Yap_BlobWideStringOfTerm(w);
-    text->encoding = ENC_WCHAR;
-    text->length = wcslen(text->text.w);
-  }
+  text->text.t = (char *)StringOfTerm(w);
+  text->encoding = ENC_UTF8;
+  text->length = strlen(text->text.t);
   text->storage = PL_CHARS_STACK;
   text->canonical = TRUE;
   return TRUE;

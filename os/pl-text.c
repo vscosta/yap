@@ -160,7 +160,7 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
 
   if ( (flags & CVT_ATOM) && isAtom(w) )
 #if __YAP_PROLOG__
-    { if ( !get_atom_text(atomFromTerm(w), text) )
+    { if ( !get_atom_ptr_text(AtomOfTerm(w), text) )
 #else
     { if ( !get_atom_text(w, text) )
 #endif

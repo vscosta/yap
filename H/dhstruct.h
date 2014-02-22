@@ -141,6 +141,7 @@
 #define PredIs Yap_heap_regs->pred_is
 #define PredSafeCallCleanup Yap_heap_regs->pred_safe_call_cleanup
 #define PredRestoreRegs Yap_heap_regs->pred_restore_regs
+#define PredCommentHook Yap_heap_regs->pred_comment_hook
 #ifdef YAPOR
 #define PredGetwork Yap_heap_regs->pred_getwork
 #define PredGetworkSeq Yap_heap_regs->pred_getwork_seq

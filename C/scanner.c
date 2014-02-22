@@ -42,7 +42,7 @@
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
 #include "pl-read.h"
-#include "pl-utf8.h"
+#include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__) 
 #if HAVE_FINITE==1
 #undef HAVE_FINITE
@@ -631,22 +631,18 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       }
     }
     if (ch == 'e' || ch == 'E') {
-      char cbuff = ch;
-
       if (--max_size == 0) {
 	return num_send_error_message("Number Too Long");
       }
       *sp++ = ch;
       ch = getchr(inp_stream);
       if (ch == '-') {
-	cbuff = '-';
 	if (--max_size == 0) {
 	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = '-';
 	ch = getchr(inp_stream);
       } else if (ch == '+') {
-	cbuff = '+';
 	ch = getchr(inp_stream);
       }
       if (chtype(ch) != NU) {
@@ -719,7 +715,7 @@ Yap_scan_num(IOSTREAM *inp)
     return TermNil;
   }
   cherr = '\0';
-  if (ASP-H < 1024)
+  if (ASP-HR < 1024)
     return TermNil;
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
@@ -731,7 +727,7 @@ Yap_scan_num(IOSTREAM *inp)
 
 
 #define CHECK_SPACE() \
-	  if (ASP-H < 1024) { \
+	  if (ASP-HR < 1024) { \
 	    LOCAL_ErrorMessage = "Stack Overflow";     \
 	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	\
 	    LOCAL_Error_Size = 0L;	               \
@@ -744,8 +740,8 @@ Yap_scan_num(IOSTREAM *inp)
 
 static void
 open_comment(int ch, IOSTREAM *inp_stream USES_REGS) {
-  CELL *h0 = H;
-  H += 5;
+  CELL *h0 = HR;
+  HR += 5;
   h0[0] = AbsAppl(h0+2);
   h0[1] = TermNil;
   if (!LOCAL_CommentsTail) {
@@ -780,7 +776,7 @@ extend_comment(int ch USES_REGS) {
 static void
 close_comment( USES_REGS1 ) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
-  *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
+  *LOCAL_CommentsNextChar = Yap_WCharsToString(LOCAL_CommentsBuff PASS_REGS);
   free(LOCAL_CommentsBuff);
   LOCAL_CommentsBuff = NULL;
   LOCAL_CommentsBuffLim = 0;
@@ -820,7 +816,7 @@ ch_to_wide(char *base, char *charp)
   { charp = _PL__utf8_put_char(charp, ch); } }
 
 TokEntry *
-Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
+Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,  void *rd0)
 {
   GET_LD
   TokEntry *t, *l, *p;
@@ -829,6 +825,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
   int ch;
   wchar_t *wcharp;
   struct qq_struct_t	       *cur_qq = NULL;
+  struct read_data_t *rd = rd0;
 
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
@@ -843,7 +840,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
-  Yap_setCurrentSourceLocation(&inp_stream);
+  Yap_setCurrentSourceLocation( rd );
   LOCAL_StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
@@ -907,7 +904,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  }
 	  CHECK_SPACE();
 	  *tposp = Yap_StreamPosition(inp_stream);
-	  Yap_setCurrentSourceLocation(&inp_stream);
+	  Yap_setCurrentSourceLocation( rd );
 	}
 	goto restart;
       } else {
@@ -1230,7 +1227,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	    }
 	    CHECK_SPACE();
 	    *tposp = Yap_StreamPosition(inp_stream);
-	    Yap_setCurrentSourceLocation(&inp_stream);
+	    Yap_setCurrentSourceLocation( rd );
 	  }
 	}
 	goto restart;

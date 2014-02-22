@@ -22,12 +22,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "pl-shared.h"
 #include "yapio.h"
 #include "attvar.h"
-#ifdef CUT_C
 #include "cut_c.h"
-#endif
-#if defined MYDDAS_ODBC || defined MYDDAS_MYSQL
-#include "myddas.h"
-#endif
 
 static Int  CallPredicate(PredEntry *, choiceptr, yamop * CACHE_TYPE);
 static Int  EnterCreepMode(Term, Term CACHE_TYPE);
@@ -166,13 +161,14 @@ do_execute(Term t, Term mod USES_REGS)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
-      CreepFlag = CalculateStackGap();
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
+      CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
     return CallMetaCall(ARG1, mod PASS_REGS);
-  } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
+  } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled &&
+	     !(LOCAL_PrologMode & (AbortMode|InterruptMode|SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
  restart_exec:
@@ -254,34 +250,34 @@ do_execute(Term t, Term mod USES_REGS)
 static Term
 copy_execn_to_heap(Functor f, CELL *pt, unsigned int n, unsigned int arity, Term mod USES_REGS)
 {
-  CELL *h0 = H;
+  CELL *h0 = HR;
   Term tf;
   unsigned int i;
 
   if (arity == 2 &&
       NameOfFunctor(f) == AtomDot) {
     for (i = 0; i<arity-n;i++) {
-      *H++ = pt[i];
+      *HR++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[(int)(i-n)];
+      *HR++ = h0[(int)(i-n)];
     }
     tf = AbsPair(h0);
   } else {
-    *H++ = (CELL)f;
+    *HR++ = (CELL)f;
     for (i = 0; i<arity-n;i++) {
-      *H++ = pt[i];
+      *HR++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[(int)(i-n)];
+      *HR++ = h0[(int)(i-n)];
     }
     tf = AbsAppl(h0);
   }
   if (mod != CurrentModule) {
-    CELL *h0 = H;
-    *H++ = (CELL)FunctorModule;
-    *H++ = mod;
-    *H++ = tf;
+    CELL *h0 = HR;
+    *HR++ = (CELL)FunctorModule;
+    *HR++ = mod;
+    *HR++ = tf;
     tf = AbsAppl(h0);
   }
   return tf;
@@ -338,9 +334,9 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
-      CreepFlag = CalculateStackGap();
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
+      CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
     t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
@@ -374,7 +370,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
 #endif
   }
   for (i = arity-n+1; i <= arity; i++,j++) {
-    XREGS[i] = H[j];
+    XREGS[i] = HR[j];
   }
   return CallPredicate(pen, B, pen->CodeOfPred PASS_REGS);
 }
@@ -404,7 +400,7 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
     }
   }
   LOCK(LOCAL_SignalLock);
-  CreepFlag = CalculateStackGap();
+  CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   P_before_spy = P;
   return CallPredicate(PredCreep, B, PredCreep->CodeOfPred PASS_REGS);
@@ -421,15 +417,15 @@ static void
 heap_store(Term t USES_REGS)
 {
   if (IsVarTerm(t)) {
-    if (VarOfTerm(t) < H) {
-      *H++ = t;
+    if (VarOfTerm(t) < HR) {
+      *HR++ = t;
     } else {
-      RESET_VARIABLE(H);
-      Bind_Local(VarOfTerm(t), (CELL)H);
-      H++;
+      RESET_VARIABLE(HR);
+      Bind_Local(VarOfTerm(t), (CELL)HR);
+      HR++;
     }
   } else {
-    *H++ = t;
+    *HR++ = t;
   }
 }
 
@@ -640,8 +636,8 @@ p_execute_clause( USES_REGS1 )
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)) {
-    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL)) {
+    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
     Yap_signal(YAP_CREEP_SIGNAL);
   }
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
@@ -656,7 +652,7 @@ p_execute_in_mod( USES_REGS1 )
 static Int
 p_do_goal_expansion( USES_REGS1 )
 {
-  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = Deref(ARG2);
@@ -664,9 +660,9 @@ p_do_goal_expansion( USES_REGS1 )
   ARG2 = ARG3;
   /* disable creeping */
   LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);    
+  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);    
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   
   /* CurMod:goal_expansion(A,B) */
@@ -719,16 +715,16 @@ p_do_goal_expansion( USES_REGS1 )
 static Int
 p_do_term_expansion( USES_REGS1 )
 {
-  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = CurrentModule;
 
   /* disable creeping */
   LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   
   /* CurMod:term_expansion(A,B) */
@@ -902,8 +898,8 @@ p_execute_nonstop( USES_REGS1 )
   /*	N = arity; */
   /* call may not define new system predicates!! */
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)  && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL)  && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
       Yap_signal(YAP_CREEP_SIGNAL);
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -1092,7 +1088,7 @@ exec_absmi(int top USES_REGS)
 	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
 	LOCAL_PrologMode = UserMode;
 	UNLOCK(LOCAL_SignalLock);
 	P = (yamop *)FAILCODE;
@@ -1126,7 +1122,7 @@ exec_absmi(int top USES_REGS)
   /* make sure we don't leave a FAIL signal hanging around */ 
   LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   return out;
 }
 
@@ -1162,7 +1158,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
   }
   B = (choiceptr)ASP;
   B--;
-  B->cp_h     = H;
+  B->cp_h     = HR;
   B->cp_tr    = TR;
   B->cp_cp    = CP;
   B->cp_ap    = NOCODE;
@@ -1173,7 +1169,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   YENV[E_CB] = (CELL)B;
-  HB = H;
+  HB = HR;
   CP = YESCODE;
 }
 
@@ -1231,7 +1227,6 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
     /* restore the old environment */
     /* get to previous environment */
     cut_B = (choiceptr)ENV[E_CB];
-#ifdef CUT_C
     {
       /* Note that 
 	 cut_B == (choiceptr)ENV[E_CB] */
@@ -1240,7 +1235,6 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 	  POP_EXECUTE();
 	}
     }
-#endif /* CUT_C */
 #ifdef YAPOR
     CUT_prune_to(cut_B);
 #endif /* YAPOR */
@@ -1271,7 +1265,7 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
   } else if (out == 0) {
     P    = saved_p;
     CP   = saved_cp;
-    H    = B->cp_h;
+    HR    = B->cp_h;
 #ifdef DEPTH_LIMIT
     DEPTH= B->cp_depth;
 #endif
@@ -1337,7 +1331,7 @@ Yap_trust_last(void)
   CACHE_REGS
   ASP  = B->cp_env;
   CP   = B->cp_cp;
-  H    = B->cp_h;
+  HR    = B->cp_h;
 #ifdef DEPTH_LIMIT
   DEPTH= B->cp_depth;
 #endif
@@ -1756,7 +1750,7 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_ResetExceptionTerm ( myworker_id );
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1; // +1: hack to ensure the gc does not try to mark mistakenly
+  HR = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1; // +1: hack to ensure the gc does not try to mark mistakenly
   LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -1769,7 +1763,7 @@ Yap_InitYaamRegs( int myworker_id )
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
 #ifdef FROZEN_STACKS
-  H_FZ = H;
+  H_FZ = HR;
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
@@ -1777,7 +1771,7 @@ Yap_InitYaamRegs( int myworker_id )
   TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
   LOCK(REMOTE_SignalLock(myworker_id));
-  CreepFlag = CalculateStackGap();
+  CalculateStackGap( PASS_REGS1 );
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   REMOTE_GlobalArena(myworker_id) = TermNil;
@@ -1801,12 +1795,7 @@ Yap_InitYaamRegs( int myworker_id )
 #endif
   Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
   Yap_InitPreAllocCodeSpace( myworker_id );
-#ifdef CUT_C
   cut_c_initialize( myworker_id );
-#endif
-#if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-  Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
-#endif
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
@@ -1814,6 +1803,9 @@ Yap_InitYaamRegs( int myworker_id )
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
   UNLOCK(REMOTE_SignalLock(myworker_id));
+  // make sure we have slots in case we don go through the top-level */
+  Yap_StartSlots( PASS_REGS1 );
+
 }
 
 static Int

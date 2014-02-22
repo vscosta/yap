@@ -88,6 +88,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define Flag_LocalTrie          0x100
 #define Flag_GlobalTrie         0x200
 #define Flags_TrieMode          (Flag_LocalTrie | Flag_GlobalTrie)
+#define Flag_CoInductive        0x008
 
 #define SetMode_Batched(X)      (X) = ((X) & ~Flags_SchedulingMode) | Flag_Batched
 #define SetMode_Local(X)        (X) = ((X) & ~Flags_SchedulingMode) | Flag_Local
@@ -95,12 +96,14 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define SetMode_LoadAnswers(X)  (X) = ((X) & ~Flags_AnswersMode) | Flag_LoadAnswers
 #define SetMode_LocalTrie(X)    (X) = ((X) & ~Flags_TrieMode) | Flag_LocalTrie
 #define SetMode_GlobalTrie(X)   (X) = ((X) & ~Flags_TrieMode) | Flag_GlobalTrie
+#define SetMode_CoInductive(X)  (X) = (X) | Flag_CoInductive
 #define IsMode_Batched(X)       ((X) & Flag_Batched)
 #define IsMode_Local(X)         ((X) & Flag_Local)
 #define IsMode_ExecAnswers(X)   ((X) & Flag_ExecAnswers)
 #define IsMode_LoadAnswers(X)   ((X) & Flag_LoadAnswers)
 #define IsMode_LocalTrie(X)     ((X) & Flag_LocalTrie)
 #define IsMode_GlobalTrie(X)    ((X) & Flag_GlobalTrie)
+#define IsMode_CoInductive(X)   ((X) & Flag_CoInductive)
 
 
 
@@ -111,12 +114,16 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 /* traverse macros */
 #define SHOW_MODE_STRUCTURE        0
 #define SHOW_MODE_STATISTICS       1
-#define TRAVERSE_MODE_NORMAL       0
-#define TRAVERSE_MODE_DOUBLE       1
-#define TRAVERSE_MODE_DOUBLE2      2
-#define TRAVERSE_MODE_DOUBLE_END   3
-#define TRAVERSE_MODE_LONGINT      4
-#define TRAVERSE_MODE_LONGINT_END  5
+typedef enum {
+  TRAVERSE_MODE_NORMAL =       0,
+  TRAVERSE_MODE_DOUBLE =       1,
+  TRAVERSE_MODE_DOUBLE2 =      2,
+  TRAVERSE_MODE_DOUBLE_END =   3,
+  TRAVERSE_MODE_BIGINT_OR_STRING =      4,
+  TRAVERSE_MODE_BIGINT_OR_STRING_END =  5,
+  TRAVERSE_MODE_LONGINT =      6,
+  TRAVERSE_MODE_LONGINT_END =  7
+} traverse_mode_t;
 /* do not change order !!! */
 #define TRAVERSE_TYPE_SUBGOAL      0
 #define TRAVERSE_TYPE_ANSWER       1
@@ -285,8 +292,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         DepFr_init_timestamp_field(DEP_FR)
 #else
 #define find_dependency_node(SG_FR, LEADER_CP, DEP_ON_STACK)                      \
-        LEADER_CP = SgFr_gen_cp(SG_FR);                                           \
-        DEP_ON_STACK = TRUE
+        LEADER_CP = SgFr_gen_cp(SG_FR)
 #define find_leader_node(LEADER_CP, DEP_ON_STACK)                                 \
         { dep_fr_ptr chain_dep_fr = LOCAL_top_dep_fr;                             \
           while (YOUNGER_CP(DepFr_cons_cp(chain_dep_fr), LEADER_CP)) {            \
@@ -1123,7 +1129,7 @@ static inline void __unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr USES
 static inline void __rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr USES_REGS) {
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
     /* check for global or local variables */
@@ -1158,7 +1164,7 @@ static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr U
 
   TABLING_ERROR_CHECKING(restore_variables, unbind_tr < rebind_tr);
   end_tr = rebind_tr;
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (unbind_tr != end_tr) {
     /* unbind loop */
     while (unbind_tr > end_tr) {

@@ -66,6 +66,8 @@
 #define AtomBetween Yap_heap_regs->AtomBetween_
   Atom AtomHugeInt_;
 #define AtomHugeInt Yap_heap_regs->AtomHugeInt_
+  Atom AtomBigNum_;
+#define AtomBigNum Yap_heap_regs->AtomBigNum_
   Atom AtomBinaryStream_;
 #define AtomBinaryStream Yap_heap_regs->AtomBinaryStream_
   Atom AtomBraces_;
@@ -104,8 +106,12 @@
 #define AtomCodeSpace Yap_heap_regs->AtomCodeSpace_
   Atom AtomCodes_;
 #define AtomCodes Yap_heap_regs->AtomCodes_
+  Atom AtomCoInductive_;
+#define AtomCoInductive Yap_heap_regs->AtomCoInductive_
   Atom AtomComma_;
 #define AtomComma Yap_heap_regs->AtomComma_
+  Atom AtomCommentHook_;
+#define AtomCommentHook Yap_heap_regs->AtomCommentHook_
   Atom AtomCompound_;
 #define AtomCompound Yap_heap_regs->AtomCompound_
   Atom AtomConsistencyError_;
@@ -590,6 +596,8 @@
 #define AtomStreamPosition Yap_heap_regs->AtomStreamPosition_
   Atom AtomString_;
 #define AtomString Yap_heap_regs->AtomString_
+  Atom AtomSTRING_;
+#define AtomSTRING Yap_heap_regs->AtomSTRING_
   Atom AtomSwi_;
 #define AtomSwi Yap_heap_regs->AtomSwi_
   Atom AtomSyntaxError_;
@@ -608,6 +616,8 @@
 #define AtomTerms Yap_heap_regs->AtomTerms_
   Atom AtomTermExpansion_;
 #define AtomTermExpansion Yap_heap_regs->AtomTermExpansion_
+  Atom AtomText_;
+#define AtomText Yap_heap_regs->AtomText_
   Atom AtomTextStream_;
 #define AtomTextStream Yap_heap_regs->AtomTextStream_
   Atom AtomThreads_;
@@ -714,6 +724,8 @@
 #define FunctorCodes Yap_heap_regs->FunctorCodes_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
+  Functor FunctorCommentHook_;
+#define FunctorCommentHook Yap_heap_regs->FunctorCommentHook_
   Functor FunctorContext2_;
 #define FunctorContext2 Yap_heap_regs->FunctorContext2_
   Functor FunctorConsistencyError_;

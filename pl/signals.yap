@@ -35,8 +35,6 @@
 % don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
 	 '$start_creep'(MG, creep).
-'$do_signal'(sig_delay_creep, MG) :-
-	 '$start_creep'(MG, meta_creep).
 '$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
@@ -89,11 +87,9 @@
 	'$execute0'((Goal,M:G),M0).
 
 % we may be creeping outside and coming back to system mode.
-'$start_creep'([_|'$enter_system_mode'], _) :- !,
-	'$enter_system_mode'.
-'$start_creep'([Mod|G], _) :-
-	'$in_system_mode', !,
-	'$execute0'(G, Mod).
+'$start_creep'([M|G], _) :-
+	'$is_no_trace'(G, M), !,
+	'$execute0'(G, M).
 '$start_creep'([Mod|G], WhereFrom) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, WhereFrom).
@@ -197,5 +193,11 @@ read_sig :-
 	fail.
 read_sig.
 
+%
+% make thes predicates non-traceable.
 
+:- '$set_no_trace'(true, prolog).
+:- '$set_no_trace'('$call'(_,_,_,_), prolog).
+:- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
+:- '$set_no_trace'('$restore_regs'(_,_), prolog).
 

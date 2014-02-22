@@ -1327,51 +1327,6 @@ Yap_gmp_tcmp_big_big(Term t1, Term t2)
       return 1;
     } else if (pt1[1] == BIG_RATIONAL) {
       b1 = Yap_BigRatOfTerm(t1);
-    } else if (pt1[1] == BLOB_STRING) {
-      char *s1 = Yap_BlobStringOfTerm(t1);
-      if (pt2[1] == BLOB_STRING) {
-	char *s2 = Yap_BlobStringOfTerm(t2);
-	return strcmp(s1,s2);
-      } else if (pt2[1] == BLOB_WIDE_STRING) {
-	wchar_t *wcs2 = Yap_BlobWideStringOfTerm(t2), *wcs1, *tmp1;
-	int out;
-	size_t n = strlen(s1);
-	if (!(wcs1 = (wchar_t *)malloc((n+1)*sizeof(wchar_t)))) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, t1, "compare/3");	  
-	  return 0;
-	}
-	tmp1 = wcs1;
-	while (*s1) {
-	  *tmp1++ = *s1++;
-	}
-	out = wcscmp(wcs1, wcs2);
-	free(wcs1);
-	return out;
-      }
-      b1 = Yap_BigRatOfTerm(t1);
-    } else if (pt1[1] == BLOB_WIDE_STRING) {
-      wchar_t *wcs1 = Yap_BlobWideStringOfTerm(t1);
-      if (pt2[1] == BLOB_STRING) {
-	char *s2 = Yap_BlobStringOfTerm(t2);
-	wchar_t *wcs2, *tmp2;
-	int out;
-	size_t n = strlen(s2);
-	if (!(wcs2 = (wchar_t *)malloc((n+1)*sizeof(wchar_t)))) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, t2, "compare/3");	  
-	  return 0;
-	}
-	tmp2 = wcs2;
-	while (*s2) {
-	  *tmp2++ = *s2++;
-	}
-	out = wcscmp(wcs1, wcs2);
-	free(wcs2);
-	return out;
-      } else if (pt2[1] == BLOB_WIDE_STRING) {
-	wchar_t *wcs2 = Yap_BlobWideStringOfTerm(t2);
-	return wcscmp(wcs1,wcs2);
-      }
-      b1 = Yap_BigRatOfTerm(t1);
     } else {
       return pt1-pt2;
     }
@@ -1684,6 +1639,19 @@ Yap_gmp_popcount(Term t)
   } else {
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount");    
   }
+}
+
+char * 
+Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base)
+{
+  if (s) {
+    size_t size = mpz_sizeinbase(b, base);
+    if (size+2 > sz) {
+      return NULL;
+    }
+    return mpz_get_str (s, base, b);
+  }
+  return NULL;
 }
 
 char * 

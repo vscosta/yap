@@ -60,9 +60,17 @@ PROGRAMS= \
 	$(srcdir)/www_browser.pl\
 	$(srcdir)/dcg/basics.pl
 
+all:
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/dcg
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 
+
+install-examples:
+
+clean:
+
+distclean: clean
+	rm -f Makefile

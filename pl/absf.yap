@@ -221,11 +221,10 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$check_file'(F, _Type, none, F) :- !.
 '$check_file'(F0, Type, Access, F0) :-
 	access_file(F0, Access),
-	(Type == directory
-	->
+	(Type == directory ->
 	 exists_directory(F0)
 	;
-	 true
+	\+ exists_directory(F0) % if it has a type cannot be a directory.
 	).
 
 '$add_extensions'([Ext|_],File,F) :-

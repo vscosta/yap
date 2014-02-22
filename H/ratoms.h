@@ -34,6 +34,7 @@
   AtomBatched = AtomAdjust(AtomBatched);
   AtomBetween = AtomAdjust(AtomBetween);
   AtomHugeInt = AtomAdjust(AtomHugeInt);
+  AtomBigNum = AtomAdjust(AtomBigNum);
   AtomBinaryStream = AtomAdjust(AtomBinaryStream);
   AtomBraces = AtomAdjust(AtomBraces);
   AtomBreak = AtomAdjust(AtomBreak);
@@ -53,7 +54,9 @@
   AtomColomn = AtomAdjust(AtomColomn);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);
   AtomCodes = AtomAdjust(AtomCodes);
+  AtomCoInductive = AtomAdjust(AtomCoInductive);
   AtomComma = AtomAdjust(AtomComma);
+  AtomCommentHook = AtomAdjust(AtomCommentHook);
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot);
@@ -296,6 +299,7 @@
   AtomStreamPos = AtomAdjust(AtomStreamPos);
   AtomStreamPosition = AtomAdjust(AtomStreamPosition);
   AtomString = AtomAdjust(AtomString);
+  AtomSTRING = AtomAdjust(AtomSTRING);
   AtomSwi = AtomAdjust(AtomSwi);
   AtomSyntaxError = AtomAdjust(AtomSyntaxError);
   AtomSyntaxErrorHandler = AtomAdjust(AtomSyntaxErrorHandler);
@@ -305,6 +309,7 @@
   AtomTerm = AtomAdjust(AtomTerm);
   AtomTerms = AtomAdjust(AtomTerms);
   AtomTermExpansion = AtomAdjust(AtomTermExpansion);
+  AtomText = AtomAdjust(AtomText);
   AtomTextStream = AtomAdjust(AtomTextStream);
   AtomThreads = AtomAdjust(AtomThreads);
   AtomThrow = AtomAdjust(AtomThrow);
@@ -358,6 +363,7 @@
   FunctorClist = FuncAdjust(FunctorClist);
   FunctorCodes = FuncAdjust(FunctorCodes);
   FunctorComma = FuncAdjust(FunctorComma);
+  FunctorCommentHook = FuncAdjust(FunctorCommentHook);
   FunctorContext2 = FuncAdjust(FunctorContext2);
   FunctorConsistencyError = FuncAdjust(FunctorConsistencyError);
   FunctorCreep = FuncAdjust(FunctorCreep);

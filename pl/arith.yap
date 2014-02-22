@@ -38,8 +38,10 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$do_c_built_in'(G, M, OUT) :- var(G), !,
 	'$do_c_built_metacall'(G, M, OUT).
-'$do_c_built_in'(Mod:G, _, OUT) :- !,
-	'$do_c_built_metacall'(G, Mod, OUT).
+'$do_c_built_in'(Mod:G, _, OUT) :- 
+	strip_module(Mod:G, M, G1),
+	( var(G1) -> M = M2, G1 = G2 ; G1 = M2:G2), !, 
+	'$do_c_built_metacall'(G2, M2, OUT).
 '$do_c_built_in'(\+ G, _, OUT) :-
 	nonvar(G),
 	G = (A = B),
@@ -86,7 +88,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$clean_cuts'(NG0, NG),
 	'$do_c_built_in'(A,M,NA).
 '$do_c_built_in'('C'(A,B,C), _, (A=[B|C])) :- !.
-'$do_c_built_in'(trace, _M, '$do_trace') :- !.
 '$do_c_built_in'(X is Y, M, P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, P).

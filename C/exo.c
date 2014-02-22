@@ -36,8 +36,6 @@
 
 //void do_write(void) { exo_write=TRUE;}
 
-#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
-
 #define MAX_ARITY 256
 
 #define FNV32_PRIME ((UInt)16777619)
@@ -407,7 +405,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
-    bzero(base, dsz);
+    memset(base, 0, dsz);
   }
   i->size = sz+dsz+sizeof(struct index_t);
   i->key = (BITS32 *)base;
@@ -430,7 +428,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       }
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
-      bzero(base, sz);
+      memset(base, 0, sz);
       i->key = (BITS32 *)base;
       i->links = (BITS32 *)(base+i->hsize);
       i->ncollisions = i->nentries = i->ntrys = 0;
@@ -455,7 +453,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       }
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
-      bzero(base, sz);
+      memset(base, 0, sz);
       i->key = (BITS32 *)base;
       i->links = (BITS32 *)base+i->hsize;
       i->ncollisions = i->nentries = i->ntrys = 0;
@@ -562,7 +560,7 @@ Yap_NextExo(choiceptr cptr, struct index_t *it)
   return next;
 }
 
-MegaClause *
+static MegaClause *
 exodb_get_space( Term t, Term mod, Term tn )
 {
   UInt            arity;
@@ -668,7 +666,7 @@ store_exo(yamop *pc, UInt arity, Term t0)
   return TRUE;
 }
 
-void
+static void
 exoassert( void *handle, Int n, Term term )
 {                               /* '$number_of_clauses'(Predicate,M,N) */
   PredEntry       *pe;

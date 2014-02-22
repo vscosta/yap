@@ -92,8 +92,6 @@ static char     SccsId[] = "%W% %G%";
 #define ToSmall(V)	((link_entry)(Unsigned(V)>>3))
 #endif
 
-#define DEAD_REF(ref) FALSE
-
 #ifdef SFUNC
 
 #define MaxSFs		256
@@ -586,14 +584,24 @@ copy_double(CELL *st, CELL *pt)
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorDouble;
   st[1] = pt[1];
-#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
   st[2] = pt[2];
   st[3] = EndSpecials;
 #else
   st[2] = EndSpecials;
 #endif
   /* now reserve space */
-  return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
+  return st+(2+SIZEOF_DOUBLE/SIZEOF_INT_P);
+}
+
+static CELL *
+copy_string(CELL *st, CELL *pt)
+{
+  UInt sz = pt[1]+3;
+  /* first thing, store a link to the list before we move on */
+  memcpy(st,pt,sizeof(CELL)*sz);
+  /* now reserve space */
+  return st+sz;
 }
 
 #ifdef USE_GMP
@@ -637,13 +645,13 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   register visitel *visited = (visitel *)AuxSp;
   /* store this in H */
-  register CELL **to_visit = (CELL **)H;
+  register CELL **to_visit = (CELL **)HR;
   CELL **to_visit_base = to_visit;
   /* where we are going to add a new pair */
   int vars_found = 0;
 #ifdef COROUTINING
   Term ConstraintsTerm = TermNil;
-  CELL *origH = H;
+  CELL *origH = HR;
 #endif
   CELL *CodeMaxBase = CodeMax;
 
@@ -711,6 +719,17 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  ++pt0;
 	  continue;
 #endif
+	case (CELL)FunctorString:
+	  {
+	    CELL *st = CodeMax;
+
+	    CheckDBOverflow(3+ap2[1]);
+	    /* first thing, store a link to the list before we move on */
+	    *StoPoint++ = AbsAppl(st);
+	    CodeMax = copy_string(CodeMax, ap2);
+	    ++pt0;
+	    continue;
+	  }
 	case (CELL)FunctorDouble:
 	  {
 	    CELL *st = CodeMax;
@@ -900,7 +919,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  Term t[4];
 	  int sz = to_visit-to_visit_base;
 
-	  H = (CELL *)to_visit;
+	  HR = (CELL *)to_visit;
 	  /* store the constraint away for: we need a back pointer to
 	     the variable, the constraint in some cannonical form, what type
 	     of constraint, and a list pointer */
@@ -909,11 +928,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
 	  t[3] = ConstraintsTerm;
 	  ConstraintsTerm = Yap_MkApplTerm(FunctorClist, 4, t);
-	  if (H+sz >= ASP) {
+	  if (HR+sz >= ASP) {
 	    goto error2;
 	  }
-	  memcpy((void *)H, (void *)(to_visit_base), sz*sizeof(CELL *));
-	  to_visit_base = (CELL **)H;
+	  memcpy((void *)HR, (void *)(to_visit_base), sz*sizeof(CELL *));
+	  to_visit_base = (CELL **)HR;
 	  to_visit = to_visit_base+sz;
 	}
 #endif
@@ -969,7 +988,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   *vars_foundp = vars_found;
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return CodeMax;
 
@@ -988,7 +1007,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 
@@ -1006,7 +1025,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 
@@ -1024,7 +1043,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 #if THREADS
@@ -1477,6 +1496,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	switch((CELL)fun) {
 	case (CELL)FunctorDouble:
 	  ntp = copy_double(ntp0, RepAppl(Tm));
+	  break;
+	case (CELL)FunctorString:
+	  ntp = copy_string(ntp0, RepAppl(Tm));
 	  break;
 	case (CELL)FunctorDBRef:
 	  Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -2449,6 +2471,22 @@ UnifyDBNumber(DBRef DBSP, Term t)
   return Yap_unify(MkIntegerTerm(i),t);
 }
 
+Int
+Yap_unify_immediate_ref(DBRef ref USES_REGS)
+{
+  // old immediate semantics style
+  LOCK(ref->lock);
+  if (ref == NULL
+      || DEAD_REF(ref)
+      || !UnifyDBKey(ref,0,ARG1)
+      || !UnifyDBNumber(ref,ARG2)) {
+    UNLOCK(ref->lock);
+    return FALSE;
+  } else {
+    UNLOCK(ref->lock);
+    return TRUE;
+  }
+}
 
 static Term 
 GetDBTerm(DBTerm *DBSP, int src USES_REGS)
@@ -2464,7 +2502,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
   } else if (IsAtomOrIntTerm(t)) {
     return t;
   } else {
-    CELL           *HOld = H;
+    CELL           *HOld = HR;
     CELL           *HeapPtr;
     CELL           *pt;
     CELL            NOf;
@@ -2473,9 +2511,10 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
       return t;
     }
     pt = CellPtr(DBSP->Contents);
-    if (H+NOf > ASP-CalculateStackGap()/sizeof(CELL)) {
+    CalculateStackGap( PASS_REGS1 );
+    if (HR+NOf > ASP-EventFlag/sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
-	if (H+NOf > ASP)
+	if (HR+NOf > ASP)
 	  fprintf(GLOBAL_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
@@ -2486,7 +2525,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
     }
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
-    H = HeapPtr;
+    HR = HeapPtr;
     {
       link_entry *lp = (link_entry *)pt;
       linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
@@ -2494,7 +2533,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
 #ifdef COROUTINING
     if (DBSP->ag.attachments != 0L && !src)  {
       if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)) PASS_REGS)) {
-	H = HOld;
+	HR = HOld;
 	LOCAL_Error_TYPE = OUT_OF_ATTVARS_ERROR;
 	LOCAL_Error_Size = 0;
 	return (Term)0;
@@ -2925,17 +2964,16 @@ lu_nth_recorded(PredEntry *pe, Int Count USES_REGS)
   if (cl == NULL)
     return FALSE;
 #if MULTIPLE_STACKS
-  PELOCK(65,pe);
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
-  UNLOCK(pe->PELock);
 #else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
-  return Yap_unify(MkDBRefTerm((DBRef)cl),ARG3);
+  UNLOCK(pe->PELock);
+  return Yap_unify(MkDBRefTerm((DBRef)cl),ARG4);
 }
 
 
@@ -2979,175 +3017,22 @@ nth_recorded(DBProp AtProp, Int Count USES_REGS)
   }
   READ_UNLOCK(AtProp->DBRWLock);
 #endif
-  return Yap_unify(MkDBRefTerm(ref),ARG3);
+  return Yap_unify(MkDBRefTerm(ref),ARG4);
 }
 
-static Int
-p_nth_instance( USES_REGS1 )
+Int
+Yap_db_nth_recorded( PredEntry *pe, Int Count USES_REGS )
 {
   DBProp          AtProp;
-  Term            TCount;
-  Int             Count;
-  PredEntry      *pe;
-  Term t3 = Deref(ARG3);
 
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      Yap_Error(TYPE_ERROR_DBREF,t3,"nth_instance/3");
-      return FALSE;
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      if (ref->Flags & LogUpdMask) {
-	LogUpdClause *cl = (LogUpdClause *)ref;
-	PredEntry *pe;
-	LogUpdClause *ocl;
-	UInt pred_arity, icl = 0;
-	Functor pred_f;
-	Term tpred;
-	Term pred_module;
-
-	pe = cl->ClPred;
-	PELOCK(66,pe);
-	if (cl->ClFlags & ErasedMask) {
-	  UNLOCK(pe->PELock);
-	  return FALSE;
-	}
-	ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
-	pred_module = pe->ModuleOfPred;
-	if (pred_module != IDB_MODULE) {
-	  pred_f = pe->FunctorOfPred;
-	  pred_arity = pe->ArityOfPE;
-	} else {
-	  if (pe->PredFlags & NumberDBPredFlag) {
-	    pred_f = (Functor)MkIntegerTerm(pe->src.IndxId);
-	    pred_arity = 0;
-	  } else {
-	    pred_f = pe->FunctorOfPred;
-	    if (pe->PredFlags & AtomDBPredFlag) {
-	      pred_arity = 0;
-	    } else {
-	      pred_arity = ArityOfFunctor(pred_f);
-	    }
-	  }
-	}
-	do {
-	  icl++;
-	  if (cl == ocl) break;
-	  ocl = ocl->ClNext;
-	} while (ocl != NULL);
-	UNLOCK(pe->PELock);
-	if (ocl == NULL) {
-	  return FALSE;
-	}
-	if (!Yap_unify(ARG2,MkIntegerTerm(icl))) {
-	  return FALSE;
-	}
-	if (pred_arity) {
-	  tpred = Yap_MkNewApplTerm(pred_f,pred_arity);
-	} else {
-	  tpred = MkAtomTerm((Atom)pred_f);
-	}
-	if (pred_module == IDB_MODULE) {
-	  return Yap_unify(ARG1,tpred);
-	} else {
-	  Term ttpred, ts[2];
-	  ts[0] = pred_module;
-	  ts[1] = tpred;
-	  ttpred = Yap_MkApplTerm(FunctorModule,pred_arity,ts);
-	  return Yap_unify(ARG1,ttpred);
-	}
-      } else {
-	LOCK(ref->lock);
-	if (ref == NULL
-	    || DEAD_REF(ref)
-	    || !UnifyDBKey(ref,0,ARG1)
-	    || !UnifyDBNumber(ref,ARG2)) {
-	  UNLOCK(ref->lock);
-	  return FALSE;
-	} else {
-	  UNLOCK(ref->lock);
-	  return TRUE;
-	}
-      }
-    }
-  }
-  TCount = Deref(ARG2);
-  if (IsVarTerm(TCount)) {
-    Yap_Error(INSTANTIATION_ERROR, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  if (!IsIntegerTerm(TCount)) {
-    Yap_Error(TYPE_ERROR_INTEGER, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  Count = IntegerOfTerm(TCount);
-  if (Count <= 0) {
-    if (Count) 
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "nth_instance/3");
-    else
-      Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  if ((pe = find_lu_entry(Deref(ARG1))) != NULL) {
+  if (pe == NULL) {
     return lu_nth_recorded(pe,Count PASS_REGS);
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), 0, FALSE, "nth_instance/3"))) {
+    UNLOCK(pe->PELock);
     return FALSE;
   }
-  return nth_recorded(AtProp,Count PASS_REGS);
-}
-
-static Int
-p_nth_instancep( USES_REGS1 )
-{
-  DBProp          AtProp;
-  Term            TCount;
-  Int             Count;
-  Term            t3 = Deref(ARG3);
-
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      Yap_Error(TYPE_ERROR_DBREF,t3,"nth_instance/3");
-      return FALSE;
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      LOCK(ref->lock);
-      if (ref == NULL
-	  || DEAD_REF(ref)
-	  || !UnifyDBKey(ref,CodeDBBit,ARG1)
-	  || !UnifyDBNumber(ref,ARG2)) {
-	UNLOCK(ref->lock);
-	return
-	  FALSE;
-      } else {
-	UNLOCK(ref->lock);
-	return
-	  TRUE;
-      }
-    }
-  }
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), MkCode, FALSE, "nth_instance/3"))) {
-    return
-      FALSE;
-  }
-  TCount = Deref(ARG2);
-  if (IsVarTerm(TCount)) {
-    Yap_Error(INSTANTIATION_ERROR, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  if (!IsIntegerTerm(TCount)) {
-    Yap_Error(TYPE_ERROR_INTEGER, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  Count = IntegerOfTerm(TCount);
-  if (Count <= 0) {
-    if (Count) 
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "recorded_at/4");
-    else
-      Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  return nth_recorded(AtProp,Count PASS_REGS);
+  return nth_recorded(AtProp, Count PASS_REGS);
 }
 
 static Int
@@ -3184,7 +3069,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
   if (IsVarTerm(twork)) {
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(0);
-    B->cp_h = H;
+    B->cp_h = HR;
     while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
@@ -3212,7 +3097,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
   } else if (IsAtomOrIntTerm(twork)) {
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm((Int)twork);
-    B->cp_h = H;
+    B->cp_h = HR;
     READ_LOCK(AtProp->DBRWLock);
     do {
       if (((twork == ref->DBT.Entry) || IsVarTerm(ref->DBT.Entry)) &&
@@ -3229,7 +3114,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
     CELL key;
     CELL mask = EvalMasks(twork, &key);
 
-    B->cp_h = H;
+    B->cp_h = HR;
     READ_LOCK(AtProp->DBRWLock);
     do {
       while ((mask & ref->Key) != (key & ref->Mask) && !DEAD_REF(ref)) {
@@ -3244,7 +3129,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
 	  /* success */
 	  EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	  EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
-	  B->cp_h = H;
+	  B->cp_h = HR;
 	  break;
 	} else {
 	  while ((ref = NextDBRef(ref)) != NULL
@@ -3302,7 +3187,7 @@ c_recorded(int flags USES_REGS)
 {
   Term            TermDB, TRef;
   Register DBRef  ref, ref0;
-  CELL           *PreviousHeap = H;
+  CELL           *PreviousHeap = HR;
   CELL            mask, key;
   Term t1;
 
@@ -3371,7 +3256,7 @@ c_recorded(int flags USES_REGS)
 	}
       }
       LOCAL_Error_Size = 0;
-      PreviousHeap = H;
+      PreviousHeap = HR;
     }
     Yap_unify(ARG2, TermDB);
   } else if (mask == 0) {	/* ARG2 is a constant */
@@ -3387,7 +3272,7 @@ c_recorded(int flags USES_REGS)
     }
   } else
     do {		/* ARG2 is a structure */
-      H = PreviousHeap;
+      HR = PreviousHeap;
       while ((mask & ref->Key) != (key & ref->Mask)) {
 	while ((ref = NextDBRef(ref)) != NIL
 	       && DEAD_REF(ref));
@@ -3414,7 +3299,7 @@ c_recorded(int flags USES_REGS)
 	  }
 	}
 	LOCAL_Error_Size = 0;
-	PreviousHeap = H;
+	PreviousHeap = HR;
       }
       if (Yap_unify(ARG2, TermDB))
 	break;
@@ -4655,6 +4540,36 @@ static_instance(StaticClause *cl, PredEntry *ap USES_REGS)
 }
 
 static Int
+exo_instance(Int i, PredEntry *ap USES_REGS)
+{
+  if (ap->ArityOfPE == 0) {
+    return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
+  } else {
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    Functor f = ap->FunctorOfPred;
+    UInt arity = ArityOfFunctor(ap->FunctorOfPred);
+    Term t2 = Deref(ARG2);
+    CELL *ptr = (CELL *)((ADDR)mcl->ClCode+2*sizeof(struct index_t *)+i*(mcl->ClItemSize));
+    if (IsVarTerm(t2)) {
+      // fresh slate
+      t2 = Yap_MkApplTerm(f,arity,ptr);
+      Yap_unify(ARG2, t2);
+    } else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
+      return FALSE;
+    }
+    for (i=0; i<arity; i++) {
+      XREGS[i+1] = ptr[i];
+    }
+    S = ptr;
+    CP = P;
+    YENV = ASP;
+    YENV[E_CB] = (CELL) B;
+    P = mcl->ClCode;
+    return TRUE;
+  }
+}
+
+static Int
 mega_instance(yamop *code, PredEntry *ap USES_REGS)
 {
   if (ap->ArityOfPE == 0) {
@@ -4699,7 +4614,7 @@ p_instance( USES_REGS1 )
 	return mega_instance(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1) PASS_REGS);
       }
       if (FunctorOfTerm(t1) == FunctorExoClause) {
-	return Yap_unify(ARG2,ArgOfTerm(2,t1));
+	return exo_instance(Yap_ExoClauseFromTerm(t1), Yap_ExoClausePredicateFromTerm(t1) PASS_REGS);
       }
     }
     return FALSE;
@@ -4801,6 +4716,8 @@ p_instance( USES_REGS1 )
     return Yap_unify(ARG2, TermDB);
   }
 }
+
+
 
 Term
 Yap_LUInstance(LogUpdClause *cl, UInt arity)
@@ -5010,7 +4927,7 @@ cont_current_key( USES_REGS1 )
     term = AtT = MkAtomTerm(a);
   } else {
     unsigned int j;
-    CELL *p = H;
+    CELL *p = HR;
 
     for (j = 0; j < arity; j++) {
       p[j] = MkVarTerm();
@@ -5593,8 +5510,6 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
-  Yap_InitCPred("$nth_instance", 3, p_nth_instance, SyncPredFlag);
-  Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
   Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
 }

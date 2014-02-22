@@ -26,6 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include "YapHeap.h"
+#include "pl-utf8.h"
 
 #ifdef USE_GMP
 
@@ -37,8 +38,8 @@ Yap_MkBigIntTerm(MP_INT *big)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
-  CELL *ret = H;
+  MP_INT *dst = (MP_INT *)(HR+2);
+  CELL *ret = HR;
   Int bytes;
 
   if (mpz_fits_slong_p(big)) {
@@ -53,15 +54,15 @@ Yap_MkBigIntTerm(MP_INT *big)
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BIG_INT;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = BIG_INT;
 
   dst->_mp_size = big->_mp_size;
   dst->_mp_alloc = nlimbs*(CellSize/sizeof(mp_limb_t));
   memmove((void *)(dst+1), (const void *)(big->_mp_d), bytes);
-  H = (CELL *)(dst+1)+nlimbs;
-  H[0] = EndSpecials;
-  H++;
+  HR = (CELL *)(dst+1)+nlimbs;
+  HR[0] = EndSpecials;
+  HR++;
   return AbsAppl(ret);
 }
 
@@ -80,19 +81,19 @@ Yap_MkBigRatTerm(MP_RAT *big)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
+  MP_INT *dst = (MP_INT *)(HR+2);
   MP_INT *num = mpq_numref(big);
   MP_INT *den = mpq_denref(big);
   MP_RAT *rat;
-  CELL *ret = H;
+  CELL *ret = HR;
 
   if (mpz_cmp_si(den, 1) == 0)
     return Yap_MkBigIntTerm(num);
   if ((num->_mp_alloc+den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize) > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BIG_RATIONAL;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = BIG_RATIONAL;
   dst->_mp_size = 0;
   rat = (MP_RAT *)(dst+1);
   rat->_mp_num._mp_size = num->_mp_size;
@@ -101,13 +102,13 @@ Yap_MkBigRatTerm(MP_RAT *big)
   memmove((void *)(rat+1), (const void *)(num->_mp_d), nlimbs*CellSize);
   rat->_mp_den._mp_size = den->_mp_size;
   rat->_mp_den._mp_alloc = den->_mp_alloc;
-  H = (CELL *)(rat+1)+nlimbs;
+  HR = (CELL *)(rat+1)+nlimbs;
   nlimbs = (den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
-  memmove((void *)(H), (const void *)(den->_mp_d), nlimbs*CellSize);
-  H += nlimbs;
-  dst->_mp_alloc = (H-(CELL *)(dst+1));
-  H[0] = EndSpecials;
-  H++;
+  memmove((void *)(HR), (const void *)(den->_mp_d), nlimbs*CellSize);
+  HR += nlimbs;
+  dst->_mp_alloc = (HR-(CELL *)(dst+1));
+  HR[0] = EndSpecials;
+  HR++;
   return AbsAppl(ret);
 }
 
@@ -141,20 +142,20 @@ Yap_AllocExternalDataInStack(CELL tag, size_t bytes)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
-  CELL *ret = H;
+  MP_INT *dst = (MP_INT *)(HR+2);
+  CELL *ret = HR;
 
   nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = tag;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = tag;
   dst->_mp_size = 0;
   dst->_mp_alloc = nlimbs;
-  H = (CELL *)(dst+1)+nlimbs;
-  H[0] = EndSpecials;
-  H++;
+  HR = (CELL *)(dst+1)+nlimbs;
+  HR[0] = EndSpecials;
+  HR++;
   if (tag != EXTERNAL_BLOB) {
     TrailTerm(TR) = AbsPair(ret);
     TR++;
@@ -332,6 +333,82 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
 #endif
 }
 
+CELL *
+Yap_HeapStoreOpaqueTerm(Term t)
+{
+  CELL *ptr = RepAppl(t);
+  size_t sz;
+  void *new;
+
+  if (ptr[0] == (CELL)FunctorBigInt) {
+    sz = sizeof(MP_INT)+2*CellSize+
+      ((MP_INT *)(ptr+2))->_mp_alloc*sizeof(mp_limb_t);
+  } else { /* string */
+    sz = sizeof(CELL)*(2+ptr[1]);
+  }
+  new = Yap_AllocCodeSpace(sz);
+  if (!new) {
+    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "subgoal_search_loop: no space for %s", StringOfTerm(t) );
+  } else {
+    if (ptr[0] == (CELL)FunctorBigInt) {
+      MP_INT *new = (MP_INT *)(RepAppl(t)+2);
+
+      new->_mp_d = (mp_limb_t *)(new+1);
+    }
+    memmove(new, ptr, sz);
+  }
+  return new; 
+}
+
+
+size_t
+Yap_OpaqueTermToString(Term t, char *str, size_t max)
+{
+  size_t str_index = 0;
+  CELL * li = RepAppl(t);
+  if (li[0] == (CELL)FunctorString) {
+    str_index += sprintf(& str[str_index], "\"");
+    do {
+      int chr;
+      char *ptr = (char *)StringOfTerm(AbsAppl(li));
+      ptr = utf8_get_char(ptr, &chr);
+      if (chr == '\0') break;
+      str_index += sprintf(& str[str_index], "%C", chr);
+    } while (TRUE);
+    str_index += sprintf(& str[str_index], "\"");
+  } else {
+    CELL big_tag = li[1];
+
+    if (big_tag == ARRAY_INT || big_tag == ARRAY_FLOAT) {
+      str_index += sprintf(& str[str_index], "{...}");
+#ifdef USE_GMP
+    } else if (big_tag == BIG_INT) {
+      MP_INT *big = Yap_BigIntOfTerm(AbsAppl(li));
+      char *s = mpz_get_str(&str[str_index], 10, big);
+      str_index += strlen(&s[str_index]);
+    } else if (big_tag == BIG_RATIONAL) {
+      MP_RAT *big = Yap_BigRatOfTerm(AbsAppl(li));
+      char *s = mpq_get_str(&str[str_index], 10, big);
+      str_index += strlen(&s[str_index]);
+#endif
+    } 
+    /*
+      else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
+      Opaque_CallOnWrite f;
+      CELL blob_info;
+      
+      blob_info = big_tag - USER_BLOB_START;
+      if (GLOBAL_OpaqueHandlers &&
+      (f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
+      (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
+      return;
+      }
+      } */
+    str_index += sprintf(& str[str_index], "0");
+  }
+  return str_index;
+}
+
 static Int 
 p_is_bignum( USES_REGS1 )
 {
@@ -346,6 +423,17 @@ p_is_bignum( USES_REGS1 )
 #else
   return FALSE;
 #endif
+}
+
+static Int 
+p_is_string( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  return(
+	 IsNonVarTerm(t) && 
+	 IsApplTerm(t) && 
+	 FunctorOfTerm(t) == FunctorString
+	 );
 }
 
 static Int 
@@ -469,142 +557,6 @@ p_rational( USES_REGS1 )
 #endif
 }
 
-int
-Yap_IsStringTerm(Term t)
-{
-  CELL fl;
-  if (IsVarTerm(t))
-    return FALSE;
-  if (!IsApplTerm(t))
-    return FALSE;
-  if (FunctorOfTerm(t) != FunctorBigInt)
-    return FALSE;
-
-  fl = RepAppl(t)[1];
-  return fl == BLOB_STRING || fl == BLOB_WIDE_STRING;
-}
-
-int
-Yap_IsWideStringTerm(Term t)
-{
-  CELL fl;
-  if (IsVarTerm(t))
-    return FALSE;
-  if (!IsApplTerm(t))
-    return FALSE;
-  if (FunctorOfTerm(t) != FunctorBigInt)
-    return FALSE;
-
-  fl = RepAppl(t)[1];
-  return fl == BLOB_WIDE_STRING;
-}
-
-Term
-Yap_MkBlobStringTerm(const char *s, size_t len)
-{
-  CACHE_REGS
-  CELL *ret = H;
-  size_t sz;
-  MP_INT *dst = (MP_INT *)(H+2);
-  blob_string_t *sp;
-  size_t siz;
-  char *dest;
-
-  sz = strlen(s);
-  if (len > 0 && sz > len) sz = len;
-  if (len/sizeof(CELL) > (ASP-ret)-1024) {
-    return TermNil;
-  }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BLOB_STRING;
-  siz = ALIGN_YAPTYPE((len+1+sizeof(blob_string_t)),CELL);
-  dst->_mp_size = 0L;
-  dst->_mp_alloc = siz/sizeof(mp_limb_t);
-  sp = (blob_string_t *)(dst+1);
-  sp->len = sz;
-  dest = (char *)(sp+1);
-  strncpy(dest, s, sz);
-  dest[sz] = '\0';
-  H += (siz + 2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
-  H[-1] = EndSpecials;
-  return AbsAppl(ret);
-}
-
-Term
-Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
-{
-  CACHE_REGS
-  CELL *ret = H;
-  size_t sz;
-  MP_INT *dst = (MP_INT *)(H+2);
-  blob_string_t *sp = (blob_string_t *)(dst+1);
-  size_t siz, i = 0;
-
-  H[0] = (CELL)FunctorBigInt;
-  dst->_mp_size = 0L;
-  sz = wcslen(s);
-  if (len > 0 && sz > len) {
-    sz = len;
-  }
-  if ((len/sizeof(CELL)) > (ASP-ret)-1024) {
-    return TermNil;
-  }
-  while (i < sz) {
-    if (s[i++] >= 255) break;
-  }
-  if (i == sz) {
-    /* we have a standard ascii string */
-    char *target;
-    size_t i = 0;
-
-    H[1] = BLOB_STRING;
-    siz = ALIGN_YAPTYPE((sz+1+sizeof(blob_string_t)),CELL);
-    dst->_mp_alloc = siz/sizeof(mp_limb_t);
-    sp->len = sz;
-    target = (char *)(sp+1);
-    for (i = 0 ; i < sz; i++) {
-      target[i] = s[i];
-    }
-    target[sz] = '\0';
-    H += (siz+2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
-  } else {
-    wchar_t * target;
-
-    H[1] = BLOB_WIDE_STRING;
-    siz = ALIGN_YAPTYPE((sz+1)*sizeof(wchar_t)+sizeof(blob_string_t),CELL);
-    dst->_mp_alloc = siz/sizeof(mp_limb_t);
-    sp->len = sz;
-    target = (wchar_t *)(sp+1); 
-    wcsncpy(target, s, sz);
-    target[sz] = '\0';
-    H += (siz + 2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
-  }
-  H[-1] = EndSpecials;
-  return AbsAppl(ret);
-}
-
-char *
-Yap_BlobStringOfTerm(Term t)
-{
-  blob_string_t *new = (blob_string_t *)(RepAppl(t)+2+sizeof(MP_INT)/sizeof(CELL));
-  return (char *)(new+1);
-}
-
-wchar_t *
-Yap_BlobWideStringOfTerm(Term t)
-{
-  blob_string_t *new = (blob_string_t *)(RepAppl(t)+2+sizeof(MP_INT)/sizeof(CELL));
-  return (wchar_t *)(new+1);
-}
-
-char *
-Yap_BlobStringOfTermAndLength(Term t, size_t *sp)
-{
-  blob_string_t *new = (blob_string_t *)(RepAppl(t)+2+sizeof(MP_INT)/sizeof(CELL));
-  *sp = new->len;
-  return (char *)(new+1);
-}
-
 void
 Yap_InitBigNums(void)
 {
@@ -612,6 +564,7 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+  Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);
 }

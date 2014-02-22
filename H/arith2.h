@@ -75,8 +75,29 @@ mul_overflow(Int z, Int i1, Int i2)
 }
 
 #ifndef OPTIMIZE_MULTIPLI
-#define DO_MULTI() z = i1*i2;			\
-  if (i2 &&  z/i2 != i1) goto overflow
+#if __clang__ && FALSE  /* not in OSX yet */
+#define DO_MULTI() if (__builtin_smul_overflow( i1, i2, & z ) ) { goto overflow; }
+#elif  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+#define DO_MULTI() {\
+  int64_t w = (int64_t)i1*i2; \
+  if (w >= 0) {\
+    if ((w | ((int64_t)(2^31)-1)) != ((int64_t)(2^31)-1)) goto overflow; \
+  } else {\
+    if ((-w | ((int64_t)(2^31)-1)) != ((int64_t)(2^31)-1)) goto overflow; \
+  }\
+  z = w;\
+}
+#else
+#define DO_MULTI() {\
+  __int128_t w = (__int128_t)i1*i2; \
+  if (w >= 0) {\
+    if ((w | ((__int128_t)(2^63)-1)) != ((__int128_t)(2^63)-1)) goto overflow; \
+  } else {\
+    if ((-w | ((__int128_t)(2^63)-1)) != ((__int128_t)(2^63)-1)) goto overflow; \
+  }\
+  z = (Int)w;					\
+}
+#endif
 #endif
 
 inline static Term
@@ -147,62 +168,6 @@ do_sll(Int i, Int j USES_REGS) /* j > 0 */
 #endif
 }
 
-
-static inline Term
-p_plus(Term t1, Term t2 USES_REGS) {
-  switch (ETypeOfTerm(t1)) {
-  case long_int_e:
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      /* two integers */
-      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) PASS_REGS);
-    case double_e:
-      {
-	/* integer, double */
-	Float fl1 = (Float)IntegerOfTerm(t1);
-	Float fl2 = FloatOfTerm(t2);
-	RFLOAT(fl1+fl2);
-      }
-    case big_int_e:
-#ifdef USE_GMP
-      return(Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
-#endif
-    default:
-      RERROR();
-    }
-  case double_e:
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      /* float * integer */
-      RFLOAT(FloatOfTerm(t1)+IntegerOfTerm(t2));
-    case double_e:
-      RFLOAT(FloatOfTerm(t1)+FloatOfTerm(t2));
-    case big_int_e:
-#ifdef USE_GMP
-      return Yap_gmp_add_float_big(FloatOfTerm(t1),t2);
-#endif
-    default:
-      RERROR();
-    }
-  case big_int_e:
-#ifdef USE_GMP
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      return Yap_gmp_add_int_big(IntegerOfTerm(t2), t1);
-    case big_int_e:
-      /* two bignums */
-      return Yap_gmp_add_big_big(t1, t2);
-    case double_e:
-      return Yap_gmp_add_float_big(FloatOfTerm(t2),t1);
-    default:
-      RERROR();
-    }
-#endif
-  default:
-    RERROR();
-  }
-  RERROR();
-}
 
 static Term
 p_minus(Term t1, Term t2 USES_REGS) {

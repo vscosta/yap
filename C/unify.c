@@ -376,6 +376,8 @@ oc_unify_nvar_nvar:
 	  return(pt0[1] == pt1[1]);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char *)(pt1+2)) == 0);
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
 	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
@@ -395,7 +397,7 @@ oc_unify_nvar_nvar:
   /* d0 is bound and d1 is unbound */
   Bind(pt1, d0);
   /* local variables cannot be in a term */
-  if (pt1 > H && pt1 < LCL0)
+  if (pt1 > HR && pt1 < LCL0)
     return TRUE;
   if (rational_tree(d0))
     return(FALSE);
@@ -408,7 +410,7 @@ oc_unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
   Bind(pt0, d1);
   /* local variables cannot be in a term */
-  if (pt0 > H && pt0 < LCL0)
+  if (pt0 > HR && pt0 < LCL0)
     return TRUE;
   if (rational_tree(d1))
     return(FALSE);
@@ -505,6 +507,8 @@ unify_nvar_nvar:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char *)(pt1+2)) == 0);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
@@ -583,7 +587,7 @@ InitReverseLookupOpcode(void)
       }
     }
   }
-  bzero(OP_RTABLE, sz);
+  memset(OP_RTABLE, 0, sz);
   opeptr = OP_RTABLE;
   /* clear up table */
   {
@@ -870,6 +874,8 @@ unifiable_nvar_nvar:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char *)(pt1+2)) == 0);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP

@@ -72,7 +72,7 @@ static char SccsId[] = "%W% %G%";
 #ifdef BP_FREE
 /***************************************************************
 * Use bp as PREG for X86 machines		               *
-***************************************************************/
+********************************************Term*******************/
 #if defined(IN_ABSMI_C)
 register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define PREG P1REG
@@ -769,9 +769,9 @@ Macros to check the limits of stacks
 		   COUNT_CPS();					       \
                    S_YREG = (CELL *)((choiceptr)((S_YREG)-(I))-1);     \
                    /* Save Information */                        \
-		   HBREG = H;                                    \
+		   HBREG = HR;                                    \
                    B_YREG->cp_tr = TR;				 \
-                   B_YREG->cp_h  = H;				 \
+                   B_YREG->cp_h  = HR;				 \
                    B_YREG->cp_b  = B;				 \
                    store_yaam_reg_cpdepth(B_YREG);               \
                    B_YREG->cp_cp = CPREG;			 \
@@ -783,9 +783,9 @@ Macros to check the limits of stacks
                 COUNT_CPS();					 \
                  pt1 --; /* Jump to CP_BASE */		         \
                  /* Save Information */                          \
-		 HBREG = H;                                      \
+		 HBREG = HR;                                      \
                  pt1->cp_tr = TR;	                         \
-                 pt1->cp_h = H;		                         \
+                 pt1->cp_h = HR;		                         \
 		 pt1->cp_b = B;		                         \
                  store_yaam_reg_cpdepth(pt1);                    \
                  pt1->cp_cp = d0;                                \
@@ -850,7 +850,7 @@ Macros to check the limits of stacks
 #define restore_yaam_regs(AP)                                    \
                  { register CELL *x1 = B_YREG->cp_env;	         \
                    register yamop *x2;				 \
-                   H = HBREG = PROTECT_FROZEN_H(B_YREG);            \
+                   HR = HBREG = PROTECT_FROZEN_H(B_YREG);            \
 		   restore_yaam_reg_cpdepth(B_YREG);	         \
                    CPREG  = B_YREG->cp_cp;		                 \
 		   /* AP may depend on H */			 \
@@ -914,7 +914,7 @@ Macros to check the limits of stacks
 
 #define pop_yaam_regs()                                           \
                  {                                                \
-                   H = PROTECT_FROZEN_H(B_YREG);                  \
+                   HR = PROTECT_FROZEN_H(B_YREG);                  \
 		   B = B_YREG->cp_b;	                          \
                    pop_yaam_reg_cpdepth(B_YREG);                  \
 		   CPREG = B_YREG->cp_cp;		          \
@@ -999,20 +999,20 @@ Macros to check the limits of stacks
   }                                                               
 
 #define UnifyGlobalCellToCell(b, a)	                          \
-if ((a) < H) { /* two globals */				  \
+if ((a) < HR) { /* two globals */				  \
   UnifyGlobalCells(a,b);					  \
 } else {							  \
       Bind_Local((a),(CELL)(b));				  \
 }
 
 #define UnifyCells(a, b)		                          \
-if ((a) < H) { /* at least one global */			  \
-  if ((b) > H) { Bind_Local((b),(CELL)(a)); }			  \
+if ((a) < HR) { /* at least one global */			  \
+  if ((b) > HR) { Bind_Local((b),(CELL)(a)); }			  \
   else { UnifyGlobalCells(a,b); }				  \
 } else {                                                          \
   if ((b) > (a)) { Bind_Local((a),(CELL)(b)); }			  \
   else if ((a) > (b)) {						  \
-    if ((b) < H) { Bind_Local((a),(CELL)(b)); }                   \
+    if ((b) < HR) { Bind_Local((a),(CELL)(b)); }                   \
     else { Bind_Local((b),(CELL)(a)); }			          \
   }								  \
 }
@@ -1597,14 +1597,37 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
 /* l1: bind a, l2 bind b, l3 no binding */
 #define UnifyAndTrailCells(a, b)                                            \
      if((a) > (b)) {                                                        \
-       if ((a) < H) { *(a) = (CELL)(b); DO_TRAIL((a),(CELL)(b)); }	    \
-       else if ((b) <= H) { *(a) =(CELL)(b); DO_TRAIL((a),(CELL)(b));}	   \
+       if ((a) < HR) { *(a) = (CELL)(b); DO_TRAIL((a),(CELL)(b)); }	    \
+       else if ((b) <= HR) { *(a) =(CELL)(b); DO_TRAIL((a),(CELL)(b));}	   \
        else { *(b) = (CELL)(a);  DO_TRAIL((b),(CELL)(a)); }		    \
      } else if((a) < (b)){                                                  \
-       if ((b) <= H) { *(b) = (CELL)(a); DO_TRAIL((b),(CELL)(a)); }         \
-       else if ((a) <= H) { *(b) = (CELL) (a); DO_TRAIL((b),(CELL)(a));}    \
+       if ((b) <= HR) { *(b) = (CELL)(a); DO_TRAIL((b),(CELL)(a)); }         \
+       else if ((a) <= HR) { *(b) = (CELL) (a); DO_TRAIL((b),(CELL)(a));}    \
        else { *(a) = (CELL) (b);  DO_TRAIL((a),(CELL)(b));}                 \
      }
 
 
-#define CHECK_ALARM(CONT)
+#ifdef SHADOW_S
+#define PROCESS_INT( F, C ) \
+      BEGD(d0); \
+      Yap_REGS.S_ = SREG; \
+      saveregs(); \
+      d0 = F ( PASS_REGS1 );\
+      setregs(); \
+      SREG = Yap_REGS.S_; \
+      if (!d0) FAIL(); \
+      if (d0 == 2) goto C; \
+      JMPNext(); \
+      ENDD(d0);
+#else
+#define PROCESS_INT( F, C ) \
+      BEGD(d0); \
+      saveregs(); \
+      d0 = F ( PASS_REGS1 );\
+      setregs(); \
+      if (!d0) FAIL(); \
+      if (d0 == 2) goto C; \
+      JMPNext(); \
+      ENDD(d0);
+#endif
+

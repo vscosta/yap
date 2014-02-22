@@ -34,8 +34,9 @@ extern Int     Yap_GetCurrentPredArity(void);
 extern term_t Yap_fetch_module_for_format(term_t args, Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
-extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
+extern void Yap_setCurrentSourceLocation( void *rd );
 extern void   *Yap_GetStreamHandle(Atom at);
+extern void	Yap_WriteAtom(IOSTREAM *s, Atom atom);
 
 extern atom_t codeToAtom(int chrcode);
 
@@ -124,7 +125,7 @@ void PL_license(const char *license, const char *module);
 
 #define stringAtom(w)	(YAP_AtomFromSWIAtom(w)->StrOfAE)
 #define isInteger(A) (!IsVarTerm(A) && ( IsIntegerTerm((A)) || YAP_IsBigNumTerm((A)) ))
-#define isString(A) (!IsVarTerm(A) && Yap_IsStringTerm(A) )
+#define isString(A) (!IsVarTerm(A) && IsStringTerm(A) )
 #define isAtom(A) (!IsVarTerm(A) && IsAtomTerm((A)) )
 #define isList(A) (!IsVarTerm(A) && IsPairTerm((A)) )
 #define isNil(A) ((A) == TermNil)
@@ -133,7 +134,7 @@ void PL_license(const char *license, const char *module);
 #define isVar(A) IsVarTerm((A))
 #define valReal(w) FloatOfTerm((w))
 #define valFloat(w) FloatOfTerm((w))
-#define atomValue(atom) YAP_AtomFromSWIAtom(atom)
+#define atomValue(atom) AtomOfTerm(atom)
 #define atomFromTerm(term) YAP_SWIAtomFromAtom(AtomOfTerm(term))
 
 inline static char *
@@ -184,7 +185,7 @@ charCode(Term w)
 	return -1;
       }
       if (strlen(a->StrOfAE) == 1)
-	return a->StrOfAE[0];
+	return ((unsigned char *)(a->StrOfAE))[0];
       return -1;
     }
   return -1;

@@ -13,14 +13,14 @@ mk_blob(int sz USES_REGS)
 {
   MP_INT *dst;
  
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = CLAUSE_LIST;
-  dst = (MP_INT *)(H+2);
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = CLAUSE_LIST;
+  dst = (MP_INT *)(HR+2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
-  H += (1+sizeof(MP_INT)/sizeof(CELL));
-  H[sz] = EndSpecials;
-  H += sz+1;
+  HR += (1+sizeof(MP_INT)/sizeof(CELL));
+  HR[sz] = EndSpecials;
+  HR += sz+1;
 }
 
 static CELL *
@@ -29,14 +29,14 @@ extend_blob(CELL *start, int sz USES_REGS)
   UInt osize;
   MP_INT *dst;
   
-  if (H + sz > ASP)
+  if (HR + sz > ASP)
     return NULL;
   dst = (MP_INT *)(start+2);
   osize = dst->_mp_alloc;
   start += (1+sizeof(MP_INT)/sizeof(CELL));
   start[sz+osize] = EndSpecials;
   dst->_mp_alloc += sz;
-  H += sz;
+  HR += sz;
   return start+osize;
 }
 
@@ -46,9 +46,9 @@ Yap_ClauseListInit(clause_list_t in)
 {
   CACHE_REGS
   in->n = 0;
-  in->start = H;
+  in->start = HR;
   mk_blob(0 PASS_REGS);
-  in->end = H;
+  in->end = HR;
   return in;
 }
 
@@ -61,7 +61,7 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
   PredEntry *ap = (PredEntry *)pred;
 
   /*  fprintf(stderr,"cl=%p\n",clause); */
-  if (cl->end != H)
+  if (cl->end != HR)
     return FALSE;
   if (cl->n == 0) {
     void **ptr;
@@ -112,7 +112,7 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
     code_p = PREVOP(code_p,Otapl);
     code_p->opc = Yap_opcode(_retry);
   }
-  cl->end = H;
+  cl->end = HR;
   cl->n++;
   return TRUE;
 }
@@ -129,9 +129,9 @@ X_API int
 Yap_ClauseListDestroy(clause_list_t cl)
 {
   CACHE_REGS
-  if (cl->end != H)
+  if (cl->end != HR)
     return FALSE;
-  H = cl->start;
+  HR = cl->start;
   return TRUE;
 }
 
@@ -141,7 +141,7 @@ Yap_ClauseListToClause(clause_list_t cl)
 {
   CACHE_REGS
   void **ptr;
-  if (cl->end != H)
+  if (cl->end != HR)
     return NULL;
   if (cl->n != 1)
     return NULL;

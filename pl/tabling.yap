@@ -132,6 +132,9 @@ table(Pred) :-
    '$c_table'(Mod,PredFunctor,PredModeList).
 '$set_table'(Mod,PredFunctor,PredModeList) :-
    '$flags'(PredFunctor,Mod,Flags,Flags),
+   Flags /\ 0x00000040 =:= 0x00000040, !.
+'$set_table'(Mod,PredFunctor,PredModeList) :-
+   '$flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x1991F8C0 =:= 0,
    '$c_table'(Mod,PredFunctor,PredModeList), !.
 '$set_table'(Mod,PredFunctor,PredModeList) :-
@@ -247,6 +250,7 @@ tabling_mode(Pred,Options) :-
 '$transl_to_pred_flag_tabling_mode'(4,load_answers).
 '$transl_to_pred_flag_tabling_mode'(5,local_trie).
 '$transl_to_pred_flag_tabling_mode'(6,global_trie).
+'$transl_to_pred_flag_tabling_mode'(7,coinductive).
 
 
 

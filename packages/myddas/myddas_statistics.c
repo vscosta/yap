@@ -1,6 +1,6 @@
+#include "Yap.h"
 #include "myddas_structs.h"
 #include "myddas_statistics.h"
-#include "Yap.h"
 #include <stdlib.h>
 #include <sys/time.h>
 

@@ -140,12 +140,11 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   char *mname;
   Int arity;
   /*  extern int gc_calls; */
-
+  vsc_count++;
 
   // if (!worker_id) return;
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
-  vsc_count++;
   //if (vsc_count == 54) jmp_deb(1);
   //  fprintf(stderr,"B=%p ", B);
 #ifdef THREADS
@@ -159,7 +158,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     gc_ENV = (CELL *) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
-  UNLOCK(Yap_heap_regs->low_level_trace_lock);
   return;
   {
     choiceptr b_p = B;

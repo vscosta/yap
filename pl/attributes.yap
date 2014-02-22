@@ -148,7 +148,6 @@ lcall2([Goal|Goals], Mod) :-
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
 	call(Goal),
-	'$stop_creeping',
 	attributes:all_attvars(Vs),
 	% this should not be actually strictly necessary right now.
 	% but it makes it a safe bet.
@@ -271,6 +270,7 @@ call_residue(Goal,Module,Residue) :-
 
 delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
+%	term_factorized([G|Vs], [_|NVs], Gs).
 	copy_term([G|Vs], [_|NVs], Gs).
 
 project_delayed_goals(G) :-
