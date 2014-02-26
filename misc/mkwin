@@ -1,0 +1,99 @@
+
+THREADS=yes
+if test $# = 0; then
+  ABI=64
+elif test $# = 1; then
+  ABI=$1
+else
+  ABI=$1
+  THREADS=$2
+fi
+
+# HOME WIN64 configuration
+if test -e "/c/cygwin/Yap/mingw64/bin/gcc" -a $ABI = 64; then
+CUDD=yes
+GECODE=no #does not link with mingw64, VC++ trouble
+GMP=yes
+JAVA=yes
+PYTHON=no
+REAL=yes
+HOST="--host=x86_64-w64-mingw32"
+
+  GCC_PATH="/c/cygwin/Yap/mingw64"
+  # it seems python2.7 does not support mingw64
+  PYTHON_PATH="/c/Python33-64"
+  export PATH="$GCC_PATH"/bin:"$PATH"
+  GECODE_PATH="/c/Program Files/Gecode"
+  GMP=/c/cygwin/Yap/win64
+  CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw64
+  JAVA_PATH="/c/Program Files/Java/jdk1.7.0_51"
+  R_PATH="/c/Program Files/R/R-3.0.2"
+  R_ABI=x64
+  if test $THREADS = yes
+  then
+    cp "$GCC_PATH/x86_64-w64-mingw32/lib/libwinpthread-1.dll" .
+    cp libwinpthread-1.dll pthreadGC2.dll
+  fi
+fi
+
+# HOME WIN32 configuration
+if test -e "/c/cygwin/Yap/mingw64/bin/gcc" -a $ABI = 32; then
+CUDD=yes
+GECODE=no # install only allows one of 32 or 64 bits
+GMP=yes
+JAVA=yes
+PYTHON=no
+REAL=yes
+
+  GCC_PATH="/c/cygwin/Yap/mingw64"
+  PYTHON_PATH="/c/Python27"
+  export PATH="$GCC_PATH"/bin:$PATH:"$PYTHON_PATH"
+#  GECODE_PATH="/c/Program Files/Gecode"
+  GMP=/c/cygwin/Yap/win32
+  CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw32
+  JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
+  R_PATH="/c/Program Files/R/R-3.0.2"
+  R_ABI=i386
+  HOST="--enable-abi=32"
+  if test $THREADS = yes
+  then
+    cp "$GCC_PATH/x86_64-w64-mingw32/lib32/libwinpthread-1.dll" .
+    cp libwinpthread-1.dll pthreadGC2.dll
+  fi
+fi
+
+
+if test $CUDD = yes
+then
+  CUDD="$CUDD_PATH"
+  BDDLIB="--enable-bddlib"
+else
+  BDDLIB=""
+fi
+if test $GECODE = yes
+then
+  export PATH="$PATH":"$GECODE_PATH"/bin
+fi
+if test $JAVA = yes
+then
+  export PATH="$PATH":"$JAVA_PATH"/bin
+fi
+if test $PYTHON = yes
+then
+  export PATH="$PATH":"$PYTHON_PATH"
+fi
+if test $REAL = yes
+then
+  export PATH="$PATH":"$R_PATH"/bin/"$R_ABI"
+fi
+
+../yap-6.3/configure $HOST \
+	--with-R="$REAL" \
+	--with-java="$JAVA" \
+	--with-gmp="$GMP" \
+	--with-python="$PYTHON" \
+	--with-cudd="$CUDD" "$BDDLIB" \
+	--enable-gecode="$GECODE" \
+	--enable-threads="$THREADS" \
+	 --enable-debug-yap --enable-low-level-tracer
+make install
