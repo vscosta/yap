@@ -1,4 +1,4 @@
-/*  $Id: menu.c,v 1.1 2008-03-27 00:41:33 vsc Exp $
+/*  $Id$
 
     Part of SWI-Prolog
 
@@ -19,12 +19,13 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <windows.h>
 #include <tchar.h>
-#define _MAKE_DLL
+#define _MAKE_DLL 1
+#undef _export
 #include "console.h"
 #include "console_i.h"
 #include "menu.h"
@@ -83,7 +84,7 @@ lookupMenuLabel(const TCHAR *label)
   llen = _tcslen(label);
   menuids[nmenus] = rlc_malloc((llen+1)*sizeof(TCHAR));
   _tcsncpy(menuids[nmenus], label, llen+1);
-  
+
   return nmenus++ + IDM_USER;
 }
 
@@ -109,7 +110,7 @@ insertMenu(HMENU in, const TCHAR *label, const TCHAR *before)
       AppendMenu(in, MF_SEPARATOR, 0, NULL);
     else
     { UINT id = lookupMenuLabel(label);
-      
+
       AppendMenu(in, MF_STRING, id, label);
     }
   } else
@@ -199,15 +200,15 @@ rlc_add_menu_bar(HWND cwin)
 /*append_builtin(edit, IDM_CUT);*/
   append_builtin(edit, IDM_COPY);
   append_builtin(edit, IDM_PASTE);
-  
+
   append_builtin(settings, IDM_FONT);
 
   append_builtin(run,  IDM_BREAK);
 
-  AppendMenu(menu, MF_POPUP, (UINT)file,     _T("&File"));
-  AppendMenu(menu, MF_POPUP, (UINT)edit,     _T("&Edit"));
-  AppendMenu(menu, MF_POPUP, (UINT)settings, _T("&Settings"));
-  AppendMenu(menu, MF_POPUP, (UINT)run,      _T("&Run"));
+  AppendMenu(menu, MF_POPUP, (UINT_PTR)file,     _T("&File"));
+  AppendMenu(menu, MF_POPUP, (UINT_PTR)edit,     _T("&Edit"));
+  AppendMenu(menu, MF_POPUP, (UINT_PTR)settings, _T("&Settings"));
+  AppendMenu(menu, MF_POPUP, (UINT_PTR)run,      _T("&Run"));
 
   SetMenu(cwin, menu);
 }
@@ -218,13 +219,22 @@ rlc_add_menu_bar(HWND cwin)
 
 #define MEN_MAGIC 0x6c4a58e0
 
+typedef struct menu_data
+{ intptr_t magic;				/* safety */
+  const TCHAR *menu;			/* menu to operate on */
+  const TCHAR *label;			/* new label */
+  const TCHAR *before;			/* add before this one */
+  int         rc;			/* result */
+} menu_data;
+
+
 void
 rlc_menu_action(rlc_console c, menu_data *data)
 { RlcData b = rlc_get_data(c);
 
   if ( !data || !data->magic == MEN_MAGIC )
     return;
-  
+
   if ( data->menu )			/* rlc_insert_menu_item() */
   { HMENU popup;
 
@@ -255,7 +265,7 @@ rlc_menu_action(rlc_console c, menu_data *data)
       info.hSubMenu = CreatePopupMenu();
       info.dwTypeData = (TCHAR *)data->label;
       info.cch = (int)_tcslen(data->label);
-      
+
       InsertMenuItem(mb, bid, TRUE, &info);
 					/* force redraw; not automatic! */
       DrawMenuBar(hwnd);

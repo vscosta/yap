@@ -1,4 +1,4 @@
-/*  $Id: menu.h,v 1.1 2008-04-01 08:50:44 vsc Exp $
+/*  $Id$
 
     Part of SWI-Prolog
 
@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 					/* see also console.c */
@@ -35,14 +35,7 @@
 #define IDM_BREAK	14
 #define IDM_FONT	15
 
-typedef struct menu_data
-{ intptr_t magic;				/* safety */
-  const TCHAR *menu;			/* menu to operate on */
-  const TCHAR *label;			/* new label */
-  const TCHAR *before;			/* add before this one */
-  int         rc;			/* result */
-} menu_data;
-
+struct menu_data;
 
 const TCHAR *lookupMenuId(UINT id);
 void 	    rlc_add_menu_bar(HWND win);

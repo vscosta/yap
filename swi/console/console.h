@@ -1,4 +1,4 @@
-/*  $Id: console.h,v 1.1 2008-04-01 08:45:42 vsc Exp $
+/*  $Id$
 
     Part of SWI-Prolog
 
@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef _CONSOLE_H_INCLUDED
@@ -41,21 +41,21 @@
 
 #include <signal.h>
 #include <stddef.h>
-#if __GNUC__
-#include <stdint.h>
-#else
+#ifdef _MSC_VER
 #if (_MSC_VER < 1300)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
 #endif
+#else
+#include <stdint.h>
 #endif
 
 #define RLC_APPTIMER_ID	100		/* >=100: application timer */
 
 typedef struct
-{ int	 	 first;
-  int	 	 last;
-  int	 	 size;			/* size of the buffer */
+{ int		 first;
+  int		 last;
+  int		 size;			/* size of the buffer */
   TCHAR	        *buffer;		/* character buffer */
   int		 flags;			/* flags for the queue */
 } rlc_queue, *RlcQueue;
@@ -75,7 +75,7 @@ typedef struct
   int		x;			/* # pixels (0: default) */
   int		y;			/* # pixels (0: default) */
   int		savelines;		/* # lines to save (0: default) */
-  TCHAR 	face_name[32];		/* font name */
+  TCHAR		face_name[32];		/* font name */
   int		font_family;		/* family id */
   int		font_size;
   int		font_weight;
@@ -94,7 +94,7 @@ typedef void	(*RlcResizeHook)(int, int); /* Hook for window change */
 typedef void	(*RlcMenuHook)(rlc_console, const TCHAR *id); /* Hook for menu-selection */
 typedef void	(*RlcFreeDataHook)(uintptr_t data); /* release data */
 
-#if defined(_WINDOWS_) || defined(_WINDOWS_H)	/* <windows.h> is included */
+#ifdef __WINDOWS__			/* <windows.h> is included */
 					/* rlc_color(which, ...) */
 #define RLC_WINDOW	  (0)		/* window background */
 #define RLC_TEXT	  (1)		/* text color */
@@ -116,7 +116,7 @@ typedef LRESULT	(*RlcMessageHook)(HWND hwnd, UINT message,
 				  WPARAM wParam, LPARAM lParam);
 _export RlcMessageHook  rlc_message_hook(RlcMessageHook hook);
 
-#endif /*_WINDOWS_*/
+#endif /*__WINDOWS__*/
 
 _export RlcUpdateHook	rlc_update_hook(RlcUpdateHook updatehook);
 _export RlcTimerHook	rlc_timer_hook(RlcTimerHook timerhook);
@@ -182,9 +182,9 @@ _export int		rlc_set(rlc_console c, int what,
 
 typedef struct _line
 { rlc_mark	origin;			/* origin of edit */
-  size_t   	point;			/* location of the caret */
+  size_t	point;			/* location of the caret */
   size_t	size;			/* # characters in buffer */
-  size_t   	allocated;		/* # characters allocated */
+  size_t	allocated;		/* # characters allocated */
   size_t	change_start;		/* start of change */
   int		complete;		/* line is completed */
   int		reprompt;		/* repeat the prompt */
@@ -198,6 +198,8 @@ typedef struct _line
 #define COMPLETE_INIT	   0
 #define COMPLETE_ENUMERATE 1
 #define COMPLETE_CLOSE	   2
+
+struct _complete_data;
 
 typedef int (*RlcCompleteFunc)(struct _complete_data *);
 
@@ -221,5 +223,9 @@ _export int	rlc_complete_file_function(RlcCompleteData data);
 _export void	rlc_init_history(rlc_console c, int size);
 _export void	rlc_add_history(rlc_console c, const TCHAR *line);
 _export int	rlc_bind(int chr, const char *fname);
+_export int	rlc_for_history(
+		    rlc_console b,
+		    int (*handler)(void *ctx, int no, const TCHAR *line),
+		    void *ctx);
 
 #endif /* _CONSOLE_H_INCLUDED */
