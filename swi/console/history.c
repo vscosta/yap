@@ -1,4 +1,4 @@
-/*  $Id: history.c,v 1.1 2008-03-27 00:41:33 vsc Exp $
+/*  $Id$
 
     Part of SWI-Prolog
 
@@ -19,13 +19,13 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#define _MAKE_DLL 1
-#undef _export
 #include <windows.h>
 #include <tchar.h>
+#define _MAKE_DLL 1
+#undef _export
 #include "console.h"			/* public stuff */
 #include "console_i.h"			/* internal stuff */
 #include <string.h>
@@ -100,7 +100,7 @@ rlc_add_history(rlc_console c, const TCHAR *line)
     { b->history.current = -1;
       return;				/* same as last line added */
     }
-    
+
     if ( i == b->history.tail )		/* this one is lost */
       b->history.tail = next(b, b->history.tail);
     b->history.head = i;
@@ -117,6 +117,25 @@ rlc_add_history(rlc_console c, const TCHAR *line)
       b->history.lines[i][len] = '\0';
     }
   }
+}
+
+
+int
+rlc_for_history(rlc_console c,
+		int (*handler)(void *ctx, int no, const TCHAR *line),
+		void *ctx)
+{ RlcData b = rlc_get_data(c);
+  int here = b->history.head;
+  int no = 1;
+
+  for( ; here != b->history.tail; here = prev(b, here))
+  { int rc;
+
+    if ( (rc=(*handler)(ctx, no++, b->history.lines[here])) != 0 )
+      return rc;
+  }
+
+  return 0;
 }
 
 

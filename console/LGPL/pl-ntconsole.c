@@ -1,4 +1,4 @@
- /*  $Id$
+/*  $Id$
 
     Part of SWI-Prolog
 
@@ -20,7 +20,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #define WINDOWS_LEAN_AND_MEAN 1
@@ -43,6 +43,10 @@ typedef enum
   CMD_ANSI
 } astate;
 
+typedef enum
+{ HDL_CONSOLE = 0,
+  HDL_FILE
+} htype;
 
 typedef struct
 { int magic;
@@ -57,6 +61,7 @@ typedef struct
   int argstat;
   astate cmdstat;			/* State for sequence processing */
   WORD def_attr;			/* Default attributes */
+  htype handletype;                     /* Type of stream handle */
 } ansi_stream;
 
 
@@ -85,11 +90,19 @@ flush_ansi(ansi_stream *as)
   { BOOL rc;
     DWORD done;
 
-    rc = WriteConsoleW(as->hConsole,
-		       &as->buffer[written],
-		       (DWORD)(as->buffered-written),
-		       &done,
-		       NULL);
+    if (as->handletype == HDL_CONSOLE)
+    { rc = WriteConsoleW(as->hConsole,
+		         &as->buffer[written],
+		         (DWORD)(as->buffered-written),
+		         &done,
+		         NULL);
+    } else
+    { rc = WriteFile(as->hConsole,
+                     &as->buffer[written],
+                     (DWORD)(as->buffered-written),
+                     &done,
+                     NULL);
+    }
 
     if ( rc )
     { written += done;
@@ -347,7 +360,20 @@ control_ansi(void *handle, int op, void *data)
     case SIO_SETENCODING:
       return -1;			/* We cannot change the encoding! */
     case SIO_LASTERROR:
-      return 0;				/* TBD */
+    { const char *s;
+      if ( (s = WinError()) );
+      { const char **sp = data;
+	*sp = s;
+	return 0;
+      }
+      return -1;
+    }
+    case SIO_GETFILENO:
+    { int *fp = data;
+
+      *fp = (int)(intptr_t)as->saved_handle; /* is one of 0,1,2 */
+      return 0;
+    }
     default:
       return -1;
   }
@@ -402,9 +428,15 @@ error:
 static int
 wrap_console(HANDLE h, IOSTREAM *s, IOFUNCTIONS *funcs)
 { ansi_stream *as;
+  DWORD mode;
 
   as = PL_malloc(sizeof(*as));
   memset(as, 0, sizeof(*as));
+
+  if (GetConsoleMode(h, &mode))
+    as->handletype = HDL_CONSOLE;
+  else
+    as->handletype = HDL_FILE;
 
   as->hConsole     = h;
   as->pStream      = s;
@@ -413,6 +445,7 @@ wrap_console(HANDLE h, IOSTREAM *s, IOFUNCTIONS *funcs)
   s->handle    = as;
   s->encoding  = ENC_WCHAR;
   s->functions = funcs;
+  s->flags &= ~SIO_FILE;
 
   return TRUE;
 }
