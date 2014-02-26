@@ -1,11 +1,10 @@
-/*  $Id$
-
-    Part of SWI-Prolog
+/*  Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        jan@swi.psy.uva.nl
+    E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2002, University of Amsterdam
+    Copyright (C): 1985-2013, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,8 +18,17 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#define _UNICODE 1
+#define UNICODE 1
+
+#ifdef WIN64
+#include "config/win64.h"
+#else
+#include "config/win32.h"
+#endif
 
 #include <windows.h>
 #include <tchar.h>
@@ -45,19 +53,22 @@
 #define streq(s,q) (strcmp((s), (q)) == 0)
 #endif
 
+#ifndef _TINT
+typedef wint_t _TINT;
+#endif
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Main program for running SWI-Prolog from   a window. The window provides
 X11-xterm like features: scrollback for a   predefined  number of lines,
 cut/paste and the GNU readline library for command-line editing.
 
-This module combines libpl.dll and plterm.dll  with some glue to produce
+This module combines swipl.dll and plterm.dll  with some glue to produce
 the final executable swipl-win.exe.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-__declspec(dllexport) rlc_console	PL_current_console();
-static int		type_error(term_t actual, const char *expected);
-static int		domain_error(term_t actual, const char *expected);
-static HWND		create_prolog_hidden_window(rlc_console c);
+__declspec(dllexport)	rlc_console	PL_current_console(void);
+__declspec(dllexport)	int		PL_set_menu_thread(void);
+static HWND		create_prolog_hidden_window(rlc_console c, int replace);
 static int		get_chars_arg_ex(int a, term_t t, TCHAR **v);
 
 #define RLC_PROLOG_WINDOW	RLC_VALUE(0) /* GetCurrentThreadID() */
@@ -67,10 +78,10 @@ static int		get_chars_arg_ex(int a, term_t t, TCHAR **v);
 #define RLC_REGISTER		RLC_VALUE(4) /* Trap destruction */
 
 		 /*******************************
-		 *	    CONSOLE ADM		*
+		 *	  CONSOLE ADMIN		*
 		 *******************************/
 
-CRITICAL_SECTION mutex;
+static CRITICAL_SECTION mutex;
 #define LOCK()   EnterCriticalSection(&mutex)
 #define UNLOCK() LeaveCriticalSection(&mutex)
 
@@ -125,7 +136,7 @@ registerConsole(rlc_console c)
 
 
 void
-closeConsoles()
+closeConsoles(void)
 { int i;
   rlc_console *p;
 
@@ -151,11 +162,12 @@ static ssize_t
 Srlc_read(void *handle, char *buffer, size_t size)
 { rlc_console c = handle;
   size_t bytes;
+  int is_user_input = (Suser_input && Suser_input->handle == c);
+  term_t ex;
 
   PL_write_prompt(TRUE);
 
-  if ( Suser_input &&
-       Suser_input->handle == c &&
+  if ( is_user_input &&
        PL_ttymode(Suser_input) == PL_RAWTTY )
   { int chr = getkey(c);
     TCHAR *tbuf = (TCHAR*)buffer;
@@ -169,6 +181,11 @@ Srlc_read(void *handle, char *buffer, size_t size)
   } else
   { bytes = rlc_read(c, (TCHAR*)buffer, size/sizeof(TCHAR));
     bytes *= sizeof(TCHAR);
+  }
+
+  if ( is_user_input && (ex=PL_exception(0)) )
+  { Sset_exception(Suser_input, ex);
+    return -1;
   }
 
   if ( bytes == 0 || buffer[bytes-1] == '\n' )
@@ -186,6 +203,10 @@ The flushing code will remember `half'   characters  and re-send them as
 more data comes ready. This means however  that after a put_byte(X), the
 wchar_t stream is out-of-sync and produces   unreadable  output. We will
 therefore pad it with '?' characters to re-sync the stream.
+
+The downside of this is  that  Sputc()   and  Sputcode()  do not work on
+unbuffered streams and thus Serror  must   be  locked before using these
+functions.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 static ssize_t
@@ -193,18 +214,7 @@ Srlc_write(void *handle, char *buffer, size_t size)
 { rlc_console c = handle;
   ssize_t n;
 
-  if (size==1) {
-    TCHAR buf ='\0';
-    char *bufp = (char *)&buf;
-
-    if (!buffer[0]) return 1;
-    bufp[0] = buffer[0];
-    size = sizeof(TCHAR);
-    n = rlc_write(c, &buf, size/sizeof(TCHAR));
-    return (n ? 1 : 0);
-  } else {
-    n = rlc_write(c, (TCHAR*)buffer, size/sizeof(TCHAR));
-  }
+  n = rlc_write(c, (TCHAR*)buffer, size/sizeof(TCHAR));
   n *= sizeof(TCHAR);
 
   if ( n < (ssize_t)size && size-n < sizeof(TCHAR) )
@@ -285,6 +295,10 @@ rlc_bind_terminal(rlc_console c)
   Sinput->encoding  = ENC_WCHAR;
   Soutput->encoding = ENC_WCHAR;
   Serror->encoding  = ENC_WCHAR;
+
+  Sinput->flags  &= ~SIO_FILE;
+  Soutput->flags &= ~SIO_FILE;
+  Serror->flags  &= ~SIO_FILE;
 }
 
 
@@ -299,7 +313,7 @@ process_console_options(rlc_console_attr *attr, term_t options)
     int arity;
 
     if ( !PL_get_name_arity(opt, &name, &arity) )
-      return type_error(opt, "compound");
+      return PL_type_error("compound", opt);
     s = PL_atom_chars(name);
     if ( streq(s, "registry_key") && arity == 1 )
     { TCHAR *key;
@@ -309,10 +323,10 @@ process_console_options(rlc_console_attr *attr, term_t options)
 
       attr->key = key;
     } else
-      return domain_error(opt, "window_option");
+      return PL_domain_error("window_option", opt);
   }
-  if ( !PL_get_nil(tail) )
-    return type_error(tail, "list");
+  if ( !PL_get_nil_ex(tail) )
+    return FALSE;
 
   return TRUE;
 }
@@ -336,18 +350,18 @@ pl_win_open_console(term_t title, term_t input, term_t output, term_t error,
   size_t len;
 
   memset(&attr, 0, sizeof(attr));
-  if ( !PL_get_wchars(title, &len, &s, CVT_ALL|BUF_RING) )
-    return type_error(title, "text");
+  if ( !PL_get_wchars(title, &len, &s, CVT_ALL|BUF_RING|CVT_EXCEPTION) )
+    return FALSE;
   attr.title = (const TCHAR*) s;
 
   if ( !process_console_options(&attr, options) )
     return FALSE;
 
   c = rlc_create_console(&attr);
-  create_prolog_hidden_window(c);	/* for sending messages */
+  create_prolog_hidden_window(c, FALSE);	/* for sending messages */
   registerConsole(c);
 
-#define STREAM_COMMON (SIO_TEXT|	/* text-stream */ 		\
+#define STREAM_COMMON (SIO_TEXT|	/* text-stream */		\
 		       SIO_NOCLOSE|	/* do no close on abort */	\
 		       SIO_ISATTY|	/* terminal */			\
 		       SIO_NOFEOF)	/* reset on end-of-file */
@@ -394,7 +408,7 @@ pl_rl_add_history(term_t text)
 { atom_t a;
   static atom_t last = 0;
 
-  if ( PL_get_atom(text, &a) )
+  if ( PL_get_atom_ex(text, &a) )
   { if ( a != last )
     { TCHAR *s;
 
@@ -403,13 +417,41 @@ pl_rl_add_history(term_t text)
       last = a;
       PL_register_atom(last);
 
-      PL_get_wchars(text, NULL, &s, CVT_ATOM);
-
-      rlc_add_history(PL_current_console(), s);
+      if ( PL_get_wchars(text, NULL, &s, CVT_ATOM) )
+	rlc_add_history(PL_current_console(), s);
     }
 
     return TRUE;
   }
+
+  return FALSE;
+}
+
+
+static int
+add_line(void *h, int no, const TCHAR *line)
+{ term_t tail = (term_t)h;
+  term_t head = PL_new_term_ref();
+
+  if ( !PL_unify_wchars(head, PL_ATOM, (size_t)-1, line) ||
+       !PL_cons_list(tail, head, tail) )
+    return -1;
+
+  PL_reset_term_refs(head);
+
+  return 0;
+}
+
+
+static foreign_t
+pl_rl_history(term_t list)
+{ term_t tail = PL_new_term_ref();
+
+  if ( !PL_unify_nil(tail) )
+    return FALSE;
+
+  if ( rlc_for_history(PL_current_console(), add_line, (void*)tail) == 0 )
+    return PL_unify(tail, list);
 
   return FALSE;
 }
@@ -506,13 +548,26 @@ PL_current_console(void)
 }
 
 
+static rlc_console main_console;
+
+int
+PL_set_menu_thread(void)
+{ if ( main_console )
+  { create_prolog_hidden_window(main_console, TRUE);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+
 foreign_t
 pl_window_title(term_t old, term_t new)
 { TCHAR buf[256];
   TCHAR *n;
 
-  if ( !PL_get_wchars(new, NULL, &n, CVT_ALL) )
-    return type_error(new, "atom");
+  if ( !PL_get_wchars(new, NULL, &n, CVT_ALL|CVT_EXCEPTION) )
+    return FALSE;
 
   rlc_title(PL_current_console(), n, buf, sizeof(buf)/sizeof(TCHAR));
 
@@ -521,40 +576,14 @@ pl_window_title(term_t old, term_t new)
 
 
 static int
-type_error(term_t actual, const char *expected)
-{ term_t ex = PL_new_term_ref();
-
-  PL_unify_term(ex, PL_FUNCTOR_CHARS, "error", 2,
-		      PL_FUNCTOR_CHARS, "type_error", 2,
-		        PL_CHARS, expected,
-		        PL_TERM, actual,
-		      PL_VARIABLE);
-
-  return PL_raise_exception(ex);
-}
-
-static int
-domain_error(term_t actual, const char *expected)
-{ term_t ex = PL_new_term_ref();
-
-  PL_unify_term(ex, PL_FUNCTOR_CHARS, "error", 2,
-		      PL_FUNCTOR_CHARS, "domain_error", 2,
-		        PL_CHARS, expected,
-		        PL_TERM, actual,
-		      PL_VARIABLE);
-
-  return PL_raise_exception(ex);
-}
-
-static int
 get_chars_arg_ex(int a, term_t t, TCHAR **v)
 { term_t arg = PL_new_term_ref();
 
   if ( PL_get_arg(a, t, arg) &&
-       PL_get_wchars(arg, NULL, v, CVT_ALL|BUF_RING) )
+       PL_get_wchars(arg, NULL, v, CVT_ALL|BUF_RING|CVT_EXCEPTION) )
     return TRUE;
 
-  return type_error(arg, "text");
+  return FALSE;
 }
 
 
@@ -562,11 +591,11 @@ static int
 get_int_arg_ex(int a, term_t t, int *v)
 { term_t arg = PL_new_term_ref();
 
-  PL_get_arg(a, t, arg);
-  if ( PL_get_integer(arg, v) )
+  _PL_get_arg(a, t, arg);
+  if ( PL_get_integer_ex(arg, v) )
     return TRUE;
 
-  return type_error(arg, "integer");
+  return FALSE;
 }
 
 
@@ -574,11 +603,11 @@ static int
 get_bool_arg_ex(int a, term_t t, int *v)
 { term_t arg = PL_new_term_ref();
 
-  PL_get_arg(a, t, arg);
-  if ( PL_get_bool(arg, v) )
+  _PL_get_arg(a, t, arg);
+  if ( PL_get_bool_ex(arg, v) )
     return TRUE;
 
-  return type_error(arg, "boolean");
+  return FALSE;
 }
 
 
@@ -596,7 +625,7 @@ pl_window_pos(term_t options)
     int arity;
 
     if ( !PL_get_name_arity(opt, &name, &arity) )
-      return type_error(opt, "compound");
+      return PL_type_error("compound", opt);
     s = PL_atom_chars(name);
     if ( streq(s, "position") && arity == 2 )
     { if ( !get_int_arg_ex(1, opt, &x) ||
@@ -612,9 +641,9 @@ pl_window_pos(term_t options)
     { term_t t = PL_new_term_ref();
       char *v;
 
-      PL_get_arg(1, opt, t);
-      if ( !PL_get_atom_chars(t, &v) )
-	return type_error(t, "atom");
+      _PL_get_arg(1, opt, t);
+      if ( !PL_get_chars(t, &v, CVT_ATOM|CVT_EXCEPTION) )
+	return FALSE;
       if ( streq(v, "top") )
 	z = HWND_TOP;
       else if ( streq(v, "bottom") )
@@ -624,7 +653,7 @@ pl_window_pos(term_t options)
       else if ( streq(v, "notopmost") )
 	z = HWND_NOTOPMOST;
       else
-	return domain_error(t, "hwnd_insert_after");
+	return PL_domain_error("hwnd_insert_after", t);
 
       flags &= ~SWP_NOZORDER;
     } else if ( streq(s, "show") && arity == 1 )
@@ -640,10 +669,10 @@ pl_window_pos(term_t options)
     } else if ( streq(s, "activate") && arity == 0 )
     { flags &= ~SWP_NOACTIVATE;
     } else
-      return domain_error(opt, "window_option");
+      return PL_domain_error("window_option", opt);
   }
-  if ( !PL_get_nil(tail) )
-   return type_error(tail, "list");
+  if ( !PL_get_nil_ex(tail) )
+   return FALSE;
 
   rlc_window_pos(PL_current_console(), z, x, y, w, h, flags);
 
@@ -654,20 +683,20 @@ pl_window_pos(term_t options)
 static void
 call_menu(const TCHAR *name)
 { fid_t fid = PL_open_foreign_frame();
-  predicate_t pred = PL_predicate("on_menu", 1, "system");
-  module_t m = PL_new_module(PL_new_atom("system"));
+  predicate_t pred = PL_predicate("on_menu", 1, "prolog");
+  module_t m = PL_new_module(PL_new_atom("prolog"));
   term_t a0 = PL_new_term_ref();
   size_t len = _tcslen(name);
 
-  PL_unify_wchars(a0, PL_ATOM, len, name);
-  PL_call_predicate(m, PL_Q_NORMAL, pred, a0);
+  if ( PL_unify_wchars(a0, PL_ATOM, len, name) )
+    PL_call_predicate(m, PL_Q_NORMAL, pred, a0);
 
   PL_discard_foreign_frame(fid);
 }
 
 
 foreign_t
-pl_win_insert_menu_item(term_t menu, term_t label, term_t before)
+pl_win_insert_menu_item(foreign_t menu, foreign_t label, foreign_t before)
 { TCHAR *m, *l, *b;
 
   if ( !PL_get_wchars(menu, NULL, &m, CVT_ATOM) ||
@@ -685,7 +714,7 @@ pl_win_insert_menu_item(term_t menu, term_t label, term_t before)
 
 
 foreign_t
-pl_win_insert_menu(term_t label, term_t before)
+pl_win_insert_menu(foreign_t label, foreign_t before)
 { TCHAR *l, *b;
 
   if ( !PL_get_wchars(label, NULL, &l, CVT_ATOM) ||
@@ -713,8 +742,10 @@ free_interactor(void *closure)
 static void *
 run_interactor(void *closure)
 { predicate_t pred;
+  PL_thread_attr_t attr = {0};
 
-  PL_thread_attach_engine(NULL);
+  attr.flags = PL_THREAD_NO_DEBUG;
+  PL_thread_attach_engine(&attr);
   pthread_cleanup_push(free_interactor, NULL);
 
 
@@ -765,13 +796,14 @@ pl_wnd_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 static TCHAR *
-HiddenFrameClass(void)
+HiddenFrameClass()
 { static TCHAR winclassname[32];
   static WNDCLASS wndClass;
   HINSTANCE instance = rlc_hinstance();
 
   if ( !winclassname[0] )
-  { _stprintf(winclassname, _T("YAP-hidden-win%d"), instance);
+  { snwprintf(winclassname, sizeof(winclassname)/sizeof(TCHAR),
+	      _T("SWI-Prolog-hidden-win%d"), instance);
 
     wndClass.style		= 0;
     wndClass.lpfnWndProc	= (LPVOID) pl_wnd_proc;
@@ -780,7 +812,7 @@ HiddenFrameClass(void)
     wndClass.hInstance		= instance;
     wndClass.hIcon		= NULL;
     wndClass.hCursor		= NULL;
-    //    wndClass.hbrBackground	= GetStockObject(WHITE_BRUSH);
+    wndClass.hbrBackground	= GetStockObject(WHITE_BRUSH);
     wndClass.lpszMenuName	= NULL;
     wndClass.lpszClassName	= winclassname;
 
@@ -798,11 +830,15 @@ destroy_hidden_window(uintptr_t hwnd)
 
 
 static HWND
-create_prolog_hidden_window(rlc_console c)
+create_prolog_hidden_window(rlc_console c, int replace)
 { uintptr_t hwnd;
 
   if ( rlc_get(c, RLC_PROLOG_WINDOW, &hwnd) && hwnd )
-    return (HWND)hwnd;
+  { if ( replace )
+      DestroyWindow((HWND)hwnd);
+    else
+      return (HWND)hwnd;
+  }
 
   hwnd = (uintptr_t)CreateWindow(HiddenFrameClass(),
 				     _T("YAP hidden window"),
@@ -842,7 +878,7 @@ fatalSignal(int sig)
 
 
 static void
-initSignals(void)
+initSignals()
 { signal(SIGABRT, fatalSignal);
   signal(SIGFPE,  fatalSignal);
   signal(SIGILL,  fatalSignal);
@@ -888,7 +924,7 @@ menu_select(rlc_console c, const TCHAR *name)
   { uintptr_t hwnd;
 
     if ( rlc_get(c, RLC_PROLOG_WINDOW, &hwnd) )
-      PostMessage((HWND)hwnd, WM_MENU, 0, (LONG)name);
+      PostMessage((HWND)hwnd, WM_MENU, 0, (LPARAM)name);
   }
 }
 
@@ -925,7 +961,8 @@ set_window_title(rlc_console c)
   TCHAR *w64 = _T("");
 #endif
 
-  _stprintf(title, _T("YAP (%s%sversion %d.%d.%d)"),
+  snwprintf(title, sizeof(title)/sizeof(TCHAR),
+	    _T("SWI-Prolog (%s%sversion %d.%d.%d)"),
 	    w64, mt, major, minor, patch);
 
   rlc_title(c, title, NULL, 0);
@@ -954,8 +991,12 @@ install_readline(rlc_console c)
 { rlc_init_history(c, 50);
   file_completer = rlc_complete_hook(do_complete);
 
-  PL_register_foreign_in_module("system", "rl_add_history",    1, pl_rl_add_history,    0);
-  PL_register_foreign_in_module("system", "rl_read_init_file", 1, pl_rl_read_init_file, 0);
+  PL_register_foreign_in_module(
+      "system", "rl_add_history",    1, pl_rl_add_history,    0);
+  PL_register_foreign_in_module(
+      "system", "rl_read_init_file", 1, pl_rl_read_init_file, 0);
+  PL_register_foreign_in_module(
+      "system", "$rl_history",       1, pl_rl_history,        0);
 
   PL_set_prolog_flag("tty_control", PL_BOOL, TRUE);
   PL_set_prolog_flag("readline",    PL_BOOL, TRUE);
@@ -968,7 +1009,7 @@ install_readline(rlc_console c)
 
 static rlc_console main_console;
 
-static void
+static int
 closeWin(int s, void *a)
 { rlc_console c = a;
 
@@ -978,6 +1019,8 @@ closeWin(int s, void *a)
   { main_console = NULL;
     rlc_close(c);
   }
+
+  return 0;
 }
 
 #define MAX_ARGC 100
@@ -1002,11 +1045,31 @@ win32main(rlc_console c, int argc, TCHAR **argv)
 { char *av[MAX_ARGC+1];
   int i;
 
+  main_console = c;
   set_window_title(c);
   rlc_bind_terminal(c);
 
-  /* YAP has to initialize before doing anything else */
-#ifdef _YAP_NOT_INSTALLED_
+  PL_register_extensions_in_module("system", extensions);
+  install_readline(c);
+  PL_action(PL_ACTION_GUIAPP, TRUE);
+  main_console = c;
+  PL_on_halt(closeWin, c);
+
+  create_prolog_hidden_window(c, FALSE);
+  PL_set_prolog_flag("hwnd", PL_INTEGER, (intptr_t)rlc_hwnd(c));
+  rlc_interrupt_hook(interrupt);
+  rlc_menu_hook(menu_select);
+  rlc_message_hook(message_proc);
+  PL_set_prolog_flag("console_menu", PL_BOOL, TRUE);
+#ifdef O_PLMT
+  rlc_insert_menu_item(c, _T("&Run"), _T("&New thread"), NULL);
+#endif
+#if !defined(O_DEBUG) && !defined(_DEBUG)
+  initSignals();
+#endif
+  PL_register_foreign_in_module("system", "win_open_console", 5,
+				pl_win_open_console, 0);
+
   if ( argc > MAX_ARGC )
     argc = MAX_ARGC;
   for(i=0; i<argc; i++)
@@ -1023,30 +1086,7 @@ win32main(rlc_console c, int argc, TCHAR **argv)
 
   if ( !PL_initialise(argc, av) )
     PL_halt(1);
-#endif
 
-  PL_register_extensions_in_module("system", extensions);
-  install_readline(c);
-  PL_action(PL_ACTION_GUIAPP, TRUE);
-  main_console = c;
-  PL_on_halt(closeWin, c);
-
-  create_prolog_hidden_window(c);
-  PL_set_prolog_flag("hwnd", PL_INTEGER, (intptr_t)rlc_hwnd(c));
-  rlc_interrupt_hook(interrupt);
-  rlc_menu_hook(menu_select);
-  rlc_message_hook(message_proc);
-  PL_set_prolog_flag("console_menu", PL_BOOL, TRUE);
-#ifdef O_PLMT
-  rlc_insert_menu_item(c, _T("&Run"), _T("&New thread"), NULL);
-#endif
-#if !defined(O_DEBUG) && !defined(_DEBUG)
-  initSignals();
-#endif
-  PL_register_foreign_in_module("prolog", "win_open_console", 5,
-		      pl_win_open_console, 0);
-
-  rlc_bind_terminal(c);
   PL_halt(PL_toplevel() ? 0 : 1);
 
   return 0;
@@ -1058,10 +1098,10 @@ And this is the  real  application's  main   as  Windows  sees  it.  See
 console.c for further details.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-int WINAPI
-wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPWSTR lpszCmdLine, int nCmdShow)
-{ LPWSTR cmdline;
+int PASCAL
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPSTR lpszCmdLine, int nCmdShow)
+{ LPTSTR cmdline;
 
   InitializeCriticalSection(&mutex);
 
