@@ -123,7 +123,9 @@ typedef greg_t context_reg;
 #include <sys/time.h>
 #ifdef __APPLE__
 #else
+#ifdef UCONTEXT_H
 #include <ucontext.h>
+#endif
 #endif
 
 

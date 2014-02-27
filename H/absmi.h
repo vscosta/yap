@@ -91,6 +91,15 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define     TR_IN_MEM  1
 #endif /* sparc_ */
 
+#if defined(__arm__) || defined(__thumb__)
+
+#define Y_IN_MEM       1
+#define S_IN_MEM       1
+#define TR_IN_MEM      1
+#define HAVE_FEW_REGS  1
+#endif
+
+
 #ifdef __x86_64__
 #define SHADOW_P       1
 #ifdef BP_FREE

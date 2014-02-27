@@ -345,6 +345,9 @@
 /* MPI Debugging off */
 #undef HAVE_LIBMPE
 
+/* Define to 1 if you have the `mscrt' library (-lmscrt). */
+#undef HAVE_LIBMSCRT
+
 /* "Define if you have the nsl library (-lnsl)." */
 #undef HAVE_LIBNSL
 
@@ -783,6 +786,9 @@
 
 /* Define to 1 if you have the `ttyname' function. */
 #undef HAVE_TTYNAME
+
+/* Define to 1 if you have the <ucontext.h> header file. */
+#undef HAVE_UCONTEXT_H
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
