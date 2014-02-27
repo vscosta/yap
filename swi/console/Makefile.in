@@ -1,75 +1,53 @@
-#
-# default base directory for YAP installation
-# (EROOT for architecture-dependent files)
-#
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-ROOTDIR = $(prefix)
-EROOTDIR = @exec_prefix@
-#
-# where YAP should look for libraries
-#
-LIBDIR=@libdir@/Yap
-#
-#
-CC=@CC@ -municode -DUNICODE -D_UNICODE
-CPPFLAGS=@CPPFLAGS@ 
-CFLAGS= @CFLAGS@ $(DEFS) $(CPPFLAGS)  -I$(srcdir) -DRLC_VENDOR="\"YAP\""
-#
-#
-# You shouldn't need to change what follows.
-#
-INSTALL=@INSTALL@
-INSTALL_DATA=@INSTALL_DATA@
-INSTALL_PROGRAM=@INSTALL_PROGRAM@
-RANLIB=@RANLIB@
-AR=@AR@
+################################################################
+# Makefile for the SWI-Prolog console window.
+################################################################
+
 srcdir=@srcdir@
+@VPATH@ @srcdir@
 
-SOURCES= \
-	$(srcdir)/complete.c $(srcdir)/console.c \
-	$(srcdir)/edit.c $(srcdir)/history.c \
-	$(srcdir)/menu.c
-HEADERS= \
-	$(srcdir)/common.h $(srcdir)/console.h \
-	$(srcdir)/console_i.h $(srcdir)/history.h \
-	$(srcdir)/menu.h
+CC=@CC@
+LDEXE=@LDEXE@
+PLARCH=@PLARCH@
+XLIBS=@XLIBS@
+SOEXT=@SO_EXT@
 
-OBJECTS=	complete.o console.o edit.o history.o menu.o
+COFLAGS=@COFLAGS@
+CWFLAGS=@CWFLAGS@
+CIFLAGS=@CIFLAGS@
+CMFLAGS=@CMFLAGS@ -DUNICODE -D_UNICODE
+CPFLAGS=
+CFLAGS=	$(CWFLAGS) $(COFLAGS) $(CIFLAGS) $(CMFLAGS) $(CPFLAGS)
+LDFLAGS=@LDFLAGS@ $(CPFLAGS)
 
-LIBS=-lgdi32 -lcomdlg32
+PLHOME=../../..
 
-all: ../../plterm.dll
+include $(srcdir)/../../common.mk
 
-../../plterm.dll:  libplterm.a
-	$(CC) $(CFLAGS) -shared -o ../../plterm.dll \
-	-Wl,--export-all-symbols \
-	-Wl,--enable-auto-import \
-	-Wl,--whole-archive libplterm.a \
-	-Wl,--no-whole-archive $(LIBS) $(LDFLAGS)
+OBJ=	complete.o console.o edit.o history.o menu.o
+OUT=	$(PLHOME)/lib/$(PLARCH)/plterm.$(SOEXT)
+INCLDIR=$(PLHOME)/include
+HDR=	$(INCLDIR)/console.h
 
-libplterm.a: $(OBJECTS) $(SOURCES) $(HEADERS)
-	-rm -f libplterm.a
-	$(AR) rc libplterm.a $(OBJECTS)
-	$(RANLIB) libplterm.a
+all:	$(OUT) $(HDR)
 
-install:
+$(OUT):	$(OBJ)
+	$(CC) -shared $(COFLAGS) -o $@ -Wl,--out-implib,$@.a $(OBJ) $(XLIBS)
+
+$(HDR):	$(INCLDIR)
+
+$(INCLDIR):
+	mkdir -p $@
+
+$(PLHOME)/include/console.h: $(srcdir)/console.h
+	cp -f $< $@
+
+console.o: $(srcdir)/console_i.h $(srcdir)/console.h
 
 clean:
-	rm -f *.o *~ *.dll
+	rm -f *.o
+	rm -f *~
 
-complete.o: $(srcdir)/complete.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/complete.c -o complete.o
-
-console.o: $(srcdir)/console.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/console.c -o console.o
-
-history.o: $(srcdir)/history.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/history.c -o history.o
-
-menu.o: $(srcdir)/menu.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/menu.c -o menu.o
-
-edit.o: $(srcdir)/edit.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/edit.c -o edit.o
-
+distclean: clean
+	rm -f $(PLHOME)/lib/$(PLARCH)/plterm.$(SOEXT)
+	rm -f $(PLHOME)/lib/$(PLARCH)/plterm.$(SOEXT).a
+	rm -f $(INCLDIR)/console.h

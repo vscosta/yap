@@ -498,6 +498,9 @@ then
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
     # locale complaints without this.
+    if test "$threads" = yes; then
+      AC_CHECK_LIB(pthread, main)
+    fi
     AC_CHECK_LIB(mscrt,main)
     if test "$target_cpu" = x86_64; then
       YAP_TARGET=amd64
