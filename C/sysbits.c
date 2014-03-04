@@ -60,6 +60,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_GETPWNAM
 #include <pwd.h>
 #endif
+#include <ctype.h>
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -134,7 +135,36 @@ static int
 is_directory(char *FileName)
 {
 #ifdef _WIN32
-  DWORD dwAtts = GetFileAttributes(FileName);
+  char s[YAP_FILENAME_MAX+1];
+  char *s0 = FileName;
+  char *s1 = s;
+  int ch;
+
+  // win32 syntax
+  while ((ch = *s1++ = *s0++)) {
+    if (ch == '$') {
+      s1[-1] = '%';
+      ch = *s0;
+      // handle $(....)
+      if (ch == '{') {
+	s0++;
+	while ((ch = *s0++) != '}') {
+	  *s1++ = ch;
+	  if (ch == '\0') return FALSE;
+	}
+	*s1++ = '%';
+      } else {
+	while (((ch = *s1++ = *s0++) >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch == '-') || (ch >= '0' && ch <= '9') || (ch == '_'));
+	s1[-1] = '%';
+	*s1++ = ch;
+	if (ch == '\0') { s1--; s0--; }
+      }
+    } else if (ch == '/')
+      s1[-1] = '\\';
+  }
+  if (ExpandEnvironmentStrings(s, FileName, YAP_FILENAME_MAX) == 0)
+    return FALSE; 
+  DWORD dwAtts = GetFileAttributes( FileName );
   if (dwAtts == INVALID_FILE_ATTRIBUTES)
     return FALSE;
   return (dwAtts & FILE_ATTRIBUTE_DIRECTORY);
@@ -181,9 +211,9 @@ void
 Yap_InitSysPath(void) {
   CACHE_REGS
   int len;
-#if _MSC_VER || defined(__MINGW32__)
   int dir_done = FALSE;
   int commons_done = FALSE;
+#if _MSC_VER || defined(__MINGW32__)
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library")) &&
@@ -203,12 +233,43 @@ Yap_InitSysPath(void) {
     return;
 #endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
+  if (is_directory(LOCAL_FileNameBuf)) {
+    strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
+    len = strlen(LOCAL_FileNameBuf);
+    strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
+#if _MSC_VER || defined(__MINGW32__)
+    if (!dir_done && is_directory(LOCAL_FileNameBuf)) 
+#endif
+    {
+      Yap_PutValue(AtomSystemLibraryDir,
+		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+#if _MSC_VER || defined(__MINGW32__)
+      dir_done = TRUE;
+      return;
+#endif
+    }
+#if _MSC_VER || defined(__MINGW32__)
+  if (!commons_done) 
+#endif
+    {
+      LOCAL_FileNameBuf[len] = '\0';
+      strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
+      if (is_directory(LOCAL_FileNameBuf))
+	Yap_PutValue(AtomPrologCommonsDir,
+		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+#if _MSC_VER || defined(__MINGW32__)
+      commons_done = TRUE;
+#endif
+    }
+  }
+  if (dir_done && commons_done)
+    return;
+
 #if _MSC_VER || defined(__MINGW32__)
   {
-    int buflen;
+    size_t buflen;
     char *pt;
 
-    if (!is_directory(LOCAL_FileNameBuf)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
       if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
@@ -241,30 +302,24 @@ Yap_InitSysPath(void) {
       strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf)+1);
       pt[1] = '\0';
       strncat(LOCAL_FileNameBuf,"share",YAP_FILENAME_MAX);
-    }
   }
   strncat(LOCAL_FileNameBuf,"\\", YAP_FILENAME_MAX);
-#else
-  strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
-#endif
   len = strlen(LOCAL_FileNameBuf);
   strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-#if _MSC_VER || defined(__MINGW32__)
-  if (!dir_done) 
-#endif
+  if (!dir_done && is_directory(LOCAL_FileNameBuf)) 
     {
       Yap_PutValue(AtomSystemLibraryDir,
 		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
     }
-#if _MSC_VER || defined(__MINGW32__)
   if (!commons_done) 
-#endif
     {
       LOCAL_FileNameBuf[len] = '\0';
       strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-      Yap_PutValue(AtomPrologCommonsDir,
-		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+      if (is_directory(LOCAL_FileNameBuf))
+	Yap_PutValue(AtomPrologCommonsDir,
+		     MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
     }
+#endif
 }
 
 static Int
@@ -1665,10 +1720,10 @@ InteractSIGINT(int ch) {
   case '?':
   default:
     /* show an helpful message */
-    fprintf(GLOBAL_stderr, "Please press one of:\n");
-    fprintf(GLOBAL_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    fprintf(GLOBAL_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
-    fprintf(GLOBAL_stderr, "  b for break\n");
+    fprintf(stderr, "Please press one of:\n");
+    fprintf(stderr, "  a for abort\n  c for continue\n  d for debug\n");
+    fprintf(stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
+    fprintf(stderr, "  b for break\n");
     return(0);
   }
 }
@@ -1826,7 +1881,7 @@ ReceiveSignal (int s)
       break;
 #endif /* defined(SIGHUP) */
     default:
-      fprintf(GLOBAL_stderr, "\n[ Unexpected signal ]\n");
+      fprintf(stderr, "\n[ Unexpected signal ]\n");
       exit (EXIT_FAILURE);
     }
 }
@@ -1842,7 +1897,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
-    Yap_signal(YAP_ALARM_SIGNAL);
+    Yap_signal(YAP_WINTIMER_SIGNAL);
     LOCAL_PrologMode |= InterruptMode;
     return(TRUE);
   default:
@@ -2016,11 +2071,22 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
     int ch;
     char *s;
     char *res0 = source+1;
-
-    while ((ch = *res0) && is_valid_env_char (ch)) {
+    if (*res0 == '{') {
       res0++;
+      while ((ch = *res0) && is_valid_env_char (ch) && ch != '}') {
+	res0++;
+      }
+      *res0++ = '\0';      
+      if (ch == '}') {
+	// {...}
+	source++;
+	ch = *res0;
+      }
+    } else {
+      while ((ch = *res0) && is_valid_env_char (ch)) {
+	res0++;
+      }
     }
-    *res0 = '\0';
     if (!(s = (char *) getenv (source+1))) {
       return FALSE;
     }
@@ -2509,7 +2575,7 @@ DoTimerThread(LPVOID targ)
   }
   if (WaitForSingleObject(htimer, INFINITE) != WAIT_OBJECT_0)
     fprintf(stderr,"WaitForSingleObject failed (%ld)\n", GetLastError());
-  Yap_signal (YAP_ALARM_SIGNAL);
+  Yap_signal (YAP_WINTIMER_SIGNAL);
   /* now, say what is going on */
   Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
   ExitThread(1);
@@ -2545,14 +2611,11 @@ p_alarm( USES_REGS1 )
   i1 = IntegerOfTerm(t);
   i2 = IntegerOfTerm(t2);
   if (i1 == 0 && i2 == 0) {
-    LOCK(LOCAL_SignalLock);
-    if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
-      LOCAL_ActiveSignals &= ~YAP_ALARM_SIGNAL;
-      if (!LOCAL_ActiveSignals) {
-	CalculateStackGap( PASS_REGS1 );
-      }
-    }
-    UNLOCK(LOCAL_SignalLock);
+#if _WIN32
+    Yap_undo_signal( YAP_WINTIMER_SIGNAL );
+#else
+    Yap_undo_signal( YAP_ALARM_SIGNAL );
+#endif
   }    
 #if _MSC_VER || defined(__MINGW32__)
   {
@@ -2780,6 +2843,23 @@ static Int
 p_yap_home( USES_REGS1 ) {
   Term out = MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
   return(Yap_unify(out,ARG1));
+}
+
+static Int
+p_yap_paths( USES_REGS1 ) {
+  Term out1, out2, out3;
+  if (strlen(DESTDIR)) {
+    out1 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_LIBDIR));
+    out2 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_SHAREDIR));
+    out3 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_BINDIR));
+  } else {
+    out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
+    out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
+    out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
+  }
+  return(Yap_unify(out1,ARG1) &&
+	 Yap_unify(out2,ARG2) &&
+	 Yap_unify(out3,ARG3));
 }
 
 static Int
@@ -3111,7 +3191,8 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
+  Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
