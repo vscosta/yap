@@ -62,8 +62,8 @@ mydlerror(void)
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
-void
-Yap_FindExecutable(char *name)
+char *
+Yap_FindExecutable(void)
 {
   char path[1024];
   uint32_t size = sizeof(path);
@@ -93,7 +93,8 @@ mydlopen(char *path)
       /* NSLinkModule will cause the run to abort on any link error's */
       /* not very friendly but the error recovery functionality is limited */
         handle = NSLinkModule(ofile, path, TRUE);
-    } return handle;
+    }
+    return handle;
 }
 
 static void *

@@ -21,6 +21,10 @@
 
 #if LOAD_DL
 
+// use SWI-Prolog code if all else fails
+char *
+findExecutable(const char *av0, char *buffer);
+
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <string.h>
@@ -65,10 +69,9 @@ Yap_CallFunctionByName(const char *thing_string)
 char *
 Yap_FindExecutable(void)
 {
-  if (GLOBAL_argv && GLOBAL_argv[0])
-    return GLOBAL_argv[0];
 #if HAVE_GETEXECNAME
-  return getxecname();
+  // Solaris
+  return getexecname();
 #elif __APPLE__
   char path[1024];
   uint32_t size = sizeof(path);
@@ -83,8 +86,38 @@ Yap_FindExecutable(void)
       return "yap";
     return rc;
   }
+#elif defined(__linux__)
+  enum { BUFFERSIZE = 1024 };
+  char *buf = malloc(BUFFERSIZE);
+  ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf)-1);
+ 
+  if (len != -1) {
+    buf[len] = '\0';
+    return buf;
+  }
+  free( buf );
+  // follow through to standard method
+#elif defined(__FreeBSD__) ||  defined(__DragonFly__)
+  enum { BUFFERSIZE = 1024 };
+  char *buf = malloc(BUFFERSIZE);
+  ssize_t len = readlink("/proc/curproc/file", buf, sizeof(buf)-1);
+ 
+  if (len != -1) {
+    buf[len] = '\0';
+    return buf;
+  }
+  free( buf );
+  int mib[4];
+  mib[0] = CTL_KERN;
+  mib[1] = KERN_PROC;
+  mib[2] = KERN_PROC_PATHNAME;
+  mib[3] = -1; // current process
+  size_t cb = BUFFERSIZE;
+  sysctl(mib, 4, buf, &cb, NULL, 0);
+  // follow through to standard method
 #endif
-  return "yap";
+  return
+    findExecutable(GLOBAL_argv[0], buf);
 }
 
 void *

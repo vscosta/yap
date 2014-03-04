@@ -30,7 +30,13 @@
 char *
 Yap_FindExecutable(void)
 {
-  return "yap";
+  enum { BUFFERSIZE = 1024 };
+  char *buf = malloc(BUFFERSIZE);
+
+  if (!GetModuleFileName(NULL, buf, BUFFERSIZE-1))
+    return NULL;
+
+  return buf;
 }
 
 void *
