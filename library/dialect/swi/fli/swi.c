@@ -2428,7 +2428,11 @@ X_API int PL_thread_self(void)
 static int
 alertThread(int tid)
 {
+#if _WIN32
+  return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_WINTIMER_SIGNAL) == 0;
+#else
   return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_ALARM_SIGNAL) == 0;
+#endif
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
