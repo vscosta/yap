@@ -28,6 +28,7 @@ true :- true.
     '$init_system'.
 
 '$do_live' :-
+    '$init_win_graphics',
     repeat,
     '$current_module'(Module),
     ( Module==user ->
@@ -108,12 +109,23 @@ true :- true.
 	fail.
 '$init_consult' :-
 	retractall(user:library_directory(_)),
-	% make sure library_directory is open.
-	\+ clause(user:library_directory(_),_),
-	'$system_library_directories'(D),
+	'$system_library_directories'(library, D),
 	assert(user:library_directory(D)),
 	fail.
+'$init_consult' :-
+	retractall(user:commons_directory(_)),
+	'$system_library_directories'(commons, D),
+	assert(user:commons_directory(D)),
+	fail.
 '$init_consult'.
+
+'$init_win_graphics' :-
+    '$undefined'(window_title(_,_), system), !.
+'$init_win_graphics' :-
+    load_files([library(win_menu)], [silent(true)]),
+    ( win_menu:init_win_menus -> true ; true ),
+    fail.
+'$init_win_graphics'.
 
 '$init_or_threads' :-
 	'$c_yapor_workers'(W), !,

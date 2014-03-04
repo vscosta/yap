@@ -41,7 +41,12 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$check_obj_for_load_foreign_files'(V,_,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
 '$check_obj_for_load_foreign_files'(Obj,NewObj,_) :- atom(Obj), !,
-	'$process_obj_suffix'(Obj,NewObj).
+        ( atom(Obj), Obj1 = foreign(Obj) ; Obj1 = Obj ),
+	absolute_file_name(foreign(Obj),[file_type(executable),
+					 access(read),
+					 expand(true),
+					 file_errors(fail)
+					], NewObj).
 '$check_obj_for_load_foreign_files'(Obj,_,G) :-
 	'$do_error'(type_error(atom,Obj),G).
 

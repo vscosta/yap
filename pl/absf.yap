@@ -149,7 +149,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$find_in_path'(commons(D),_,_, _) :-
 	% make sure library_directory is open.
 	\+ clause(user:commons_directory(_),_),
-	'$system_commons_directories'(D),
+	'$system_library_directories'(commons, D),
 	assert(user:commons_directory(D)),
 	fail.
 '$find_in_path'(S, Opts, NewFile, Call) :-
@@ -255,16 +255,56 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	recorded('$path',Path,_),
 	atom_concat([Path,File],PFile).
 
-'$system_library_directories'(Dir) :-
+'$system_library_directories'(library, Dir) :-
 	getenv('YAPSHAREDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
-'$system_library_directories'(Dir) :-
+'$system_commons_directories'(commons, Dir) :-
 	getenv('YAPCOMMONSDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
-'$system_library_directories'(Dir) :-
-	get_value(system_library_directory,Dir).
-'$system_library_directories'(Dir) :-
-    get_value(prolog_commons_directory,Dir).
+% windows has stuff installed in the registry
+'$system_library_directories'(Library, Dir) :-
+	 '$swi_current_prolog_flag'(windows, true),
+	once( ( 
+	  '$swi_current_prolog_flag'(address_bits, 64) ->
+		( HKEY='HKEY_LOCAL_MACHINE/Software/YAP/Prolog64';
+		  HKEY='HKEY_CURRENT_USER/Software/YAP/Prolog64' )
+	      ;
+		( HKEY='HKEY_LOCAL_MACHINE/Software/YAP/Prolog';
+		  HKEY='HKEY_CURRENT_USER/Software/YAP/Prolog' )
+	      ), 
+
+	% sanity check: are we running the binary mentioned in the registry?
+        '$system_catch'(win_registry_get_value(HKEY,'bin', Bin), prolog,_,fail) ),
+	'$swi_current_prolog_flag'(executable, Bin1),
+	same_file(Bin, Bin1),
+	'$system_catch'(win_registry_get_value(HKEY, Library, Dir), prolog,_,fail).
+% not installed on registry
+'$system_library_directories'(Library, Dir) :-
+	'$yap_paths'(_DLLs, ODir1, OBinDir ),
+	'$expand_file_name'( ODir1, Dir1 ),
+	'$expand_file_name'( OBinDir, BinDir ),
+%	'$swi_current_prolog_flag'(executable, Bin1),
+%	prolog_to_os_filename( Bin2, Bin1 ),
+%	file_directory_name( Bin2, BinDir1 ),
+%	same_file( BinDir, BinDir1 ),
+	( Library == library ->
+	  atom_concat( Dir1, '/Yap' , Dir )
+	;
+	  atom_concat( Dir1, '/PrologCommons' , Dir )
+	),
+	exists_directory( Dir ), !.
+% desperation: let's check the executable directory
+'$system_library_directories'(Library, Dir) :-
+	'$swi_current_prolog_flag'(executable, Bin1),
+	prolog_to_os_filename( Bin2, Bin1 ),
+	file_directory_name( Bin2, Dir1 ),
+	( Library == library ->
+	  atom_concat( Dir1, '../share/Yap' , Dir )
+	;
+	  atom_concat( Dir1, '../share/PrologCommons' , Dir )
+	),
+	exists_directory( Dir ), !.
+
 
 
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
