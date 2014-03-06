@@ -18,6 +18,11 @@ JAVA=yes
 PYTHON=no
 REAL=yes
 HOST="--host=x86_64-w64-mingw32"
+if test $THREADS = yes; then
+  TAR=yap-x86_64-threads-6.3.4.tar.gz
+else
+  TAR=yap-x86_64-6.3.4.tar.gz
+fi
 
   GCC_PATH="/c/cygwin/Yap/mingw64"
   # it seems python2.7 does not support mingw64
@@ -94,6 +99,13 @@ fi
 	--with-python="$PYTHON" \
 	--with-cudd="$CUDD" "$BDDLIB" \
 	--enable-gecode="$GECODE" \
-	--enable-threads="$THREADS" \
+	--enable-threads="$THREADS"  --enable-pthread-locking \
 	 --enable-debug-yap --enable-low-level-tracer
 make install
+cp /z/Yap/bins/osx/*html /c/Yap64/share/docs/Yap
+cp /z/Yap/bins/osx/*pdf /c/Yap64/share/docs/Yap
+if test $ABI = 64; then
+  "/c/Program Files (x86)/NSIS/makensis" ../yap-6.3/misc/Yap64.nsi
+else
+  "/c/Program Files (x86)/NSIS/makensis" ../yap-6.3/misc/Yap.nsi
+fi
