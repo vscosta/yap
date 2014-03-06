@@ -5241,6 +5241,7 @@ then
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
+    # locale complaints without this.
     if test "$threads" = yes; then
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
@@ -5283,6 +5284,45 @@ _ACEOF
 fi
 
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lmscrt" >&5
+$as_echo_n "checking for main in -lmscrt... " >&6; }
+if ${ac_cv_lib_mscrt_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmscrt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_mscrt_main=yes
+else
+  ac_cv_lib_mscrt_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mscrt_main" >&5
+$as_echo "$ac_cv_lib_mscrt_main" >&6; }
+if test "x$ac_cv_lib_mscrt_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBMSCRT 1
+_ACEOF
+
+  LIBS="-lmscrt $LIBS"
+
+fi
+
     if test "$target_cpu" = x86_64; then
       YAP_TARGET=amd64
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lws2_32" >&5
@@ -7062,7 +7102,7 @@ $as_echo "#define MPI_AVOID_REALLOC 1" >>confdefs.h
         DYNYAPLIB=libYap."$SO"
 	SONAMEFLAG=""
         EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir) YAPLIBDIR=\$(abs_top_builddir):\$(abs_top_builddir)/library/system"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *aix*)
@@ -7667,7 +7707,7 @@ fi
 
 done
 
-for ac_header in locale.h malloc.h math.h memory.h
+for ac_header in malloc.h math.h memory.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7784,7 +7824,20 @@ fi
 
 done
 
-for ac_header in time.h unistd.h utime.h wctype.h winsock.h winsock2.h
+for ac_header in time.h ucontext.h unistd.h utime.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in wctype.h winsock.h winsock2.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9049,7 +9102,7 @@ _ACEOF
 fi
 done
 
-for ac_func in setitimer setlocale setsid setlinebuf sigaction
+for ac_func in setitimer setsid setlinebuf sigaction
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -9109,6 +9162,39 @@ _ACEOF
 fi
 done
 
+
+# android does not really have locale stuff..
+case "$host" in
+    *android*)
+      echo "no locale"
+      ;;
+      **)
+      for ac_header in locale.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "locale.h" "ac_cv_header_locale_h" "$ac_includes_default"
+if test "x$ac_cv_header_locale_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LOCALE_H 1
+_ACEOF
+
+fi
+
+done
+
+      for ac_func in localeconv setlocale
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+      ;;
+esac
 
 ac_fn_c_check_func "$LINENO" "regexec" "ac_cv_func_regexec"
 if test "x$ac_cv_func_regexec" = xyes; then :
@@ -12089,7 +12175,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12092 "configure" */
+/* #line 12178 "configure" */
 public class Test {
 }
 EOF
@@ -12265,7 +12351,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12268: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12354: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12396,7 +12482,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12399 "configure" */
+/* #line 12485 "configure" */
 public class Test {
 }
 EOF
@@ -12431,7 +12517,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12434 "configure" */
+/* [#]line 12520 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -15602,6 +15688,7 @@ ac_config_files="$ac_config_files packages/ProbLog/Makefile"
 ac_config_files="$ac_config_files swi/library/Makefile"
 
 ac_config_files="$ac_config_files swi/library/clp/Makefile"
+
 
 
 if test "$PKG_CHR" != ""; then

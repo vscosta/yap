@@ -31,7 +31,9 @@
 // SWI Options
 #define O_STRING		1
 #define O_QUASIQUOTATIONS	1
+#if HAVE_LOCALE_H
 #define O_LOCALE		1
+#endif
 //#define O_ATOMGC		1
 //#define O_CLAUSEGC		1
 #ifdef HAVE_GMP_H
@@ -195,8 +197,6 @@ typedef struct initialise_handle * InitialiseHandle;
 		/********************************
 		*       LOCALE		         *
 		*********************************/
-
-#define O_LOCALE 1
 
 #include "pl-locale.h"		/* Locale objects */
 
