@@ -102,8 +102,8 @@ fi
 	--enable-threads="$THREADS"  --enable-pthread-locking \
 	 --enable-debug-yap --enable-low-level-tracer
 make install
-cp /z/Yap/bins/osx/*html /c/Yap64/share/docs/Yap
-cp /z/Yap/bins/osx/*pdf /c/Yap64/share/docs/Yap
+cp /z/Yap/bins/osx/*html /c/Yap64/share/doc/Yap
+cp /z/Yap/bins/osx/*pdf /c/Yap64/share/doc/Yap
 if test $ABI = 64; then
   "/c/Program Files (x86)/NSIS/makensis" ../yap-6.3/misc/Yap64.nsi
 else
