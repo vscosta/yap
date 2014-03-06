@@ -428,7 +428,9 @@ static Int p_stop_low_level_trace( USES_REGS1 )
 {
   Yap_do_low_level_trace = FALSE;
   LOCAL_do_trace_primitives = TRUE;
+#if DEBUG_LOCKS
   debug_locks = TRUE;
+#endif
   return(TRUE);
 }
 

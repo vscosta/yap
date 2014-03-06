@@ -37,9 +37,14 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
+#ifndef THREADS
+#define worker_id 0
+#endif
+
 inline static void
 do_signal(int wid, yap_signals sig USES_REGS)
 {
+#if THREADS
   LOCK(REMOTE_SignalLock(wid));
   if (!REMOTE_InterruptsDisabled(wid)) {
     REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ = 
@@ -48,11 +53,37 @@ do_signal(int wid, yap_signals sig USES_REGS)
       REMOTE_ThreadHandle(wid).current_yaam_regs->EventFlag_ = 
 	Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   }
+  UInt i = REMOTE_FirstActiveSignal(wid);
+  if (REMOTE_FirstActiveSignal(wid) != REMOTE_LastActiveSignal(wid)) {
+    do {
+      if (sig == REMOTE_ActiveSignals(wid)[i]) {
+	UNLOCK(REMOTE_SignalLock(wid));
+	return;
+      }
+      i++;
+      if (i == REMOTE_MaxActiveSignals(wid))
+	i = 0;
+    } while (i != REMOTE_LastActiveSignal(wid));
+  }
+  REMOTE_ActiveSignals(wid)[i] = sig;
+  REMOTE_LastActiveSignal(wid)++;
+  if (REMOTE_LastActiveSignal(wid) == REMOTE_MaxActiveSignals(wid))
+      REMOTE_LastActiveSignal(wid) = 0;
+  UNLOCK(REMOTE_SignalLock(wid));
+#else
+  LOCK(LOCAL_SignalLock);
+  if (!LOCAL_InterruptsDisabled) {
+    Yap_regp->CreepFlag_ = 
+      Unsigned(Yap_regp->LCL0_);
+    if (sig != YAP_CREEP_SIGNAL)
+      Yap_regp->EventFlag_ = 
+	Unsigned(Yap_regp->LCL0_);
+  }
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig == LOCAL_ActiveSignals[i]) {
-	UNLOCK(REMOTE_SignalLock(wid));
+	UNLOCK(LOCAL_SignalLock);
 	return;
       }
       i++;
@@ -64,8 +95,8 @@ do_signal(int wid, yap_signals sig USES_REGS)
   LOCAL_LastActiveSignal++;
   if (LOCAL_LastActiveSignal == LOCAL_MaxActiveSignals)
       LOCAL_LastActiveSignal = 0;
-  UNLOCK(REMOTE_SignalLock(wid));
-
+  UNLOCK(LOCAL_SignalLock);
+#endif
 }
 
 inline static int
@@ -163,7 +194,9 @@ Yap_signal(yap_signals sig)
 void 
 Yap_external_signal(int wid, yap_signals sig)
 {
+#if THREADS
   REGSTORE *regcache = REMOTE_ThreadHandle(wid).current_yaam_regs;
+#endif
   do_signal(wid, sig PASS_REGS);
 }
 

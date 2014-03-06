@@ -13,7 +13,7 @@
 #
 #
 VERSION=6.3.4
-THREADS=yes
+THREADS=no
 if test $# = 0; then
   ABI=64
 elif test $# = 1; then
