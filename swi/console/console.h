@@ -26,7 +26,11 @@
 #define _CONSOLE_H_INCLUDED
 
 #ifndef RLC_VENDOR
+#ifdef __YAP_PROLOG__
+#define RLC_VENDOR _T("YAP")
+#else
 #define RLC_VENDOR TEXT("SWI")
+#endif
 #endif
 
 #define RLC_TITLE_MAX 256		/* max length of window title */

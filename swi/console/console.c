@@ -222,7 +222,7 @@ static RlcQueue	rlc_make_queue(int size);
 static int	rlc_from_queue(RlcQueue q);
 static int	rlc_is_empty_queue(RlcQueue q);
 
-extern int	main();
+extern int	main(int argc, char *argv[]);
 
 static RlcUpdateHook	_rlc_update_hook;
 static RlcTimerHook	_rlc_timer_hook;
@@ -554,7 +554,7 @@ rlc_kill_wnd_proc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 }
 
 static TCHAR *
-rlc_kill_window_class()
+rlc_kill_window_class(void)
 { static TCHAR winclassname[32];
   static WNDCLASS wndClass;
   HINSTANCE instance = _rlc_hinstance;
@@ -702,7 +702,7 @@ reg_get_str(HKEY key, const TCHAR *name, TCHAR *value, int length)
 }
 
 
-HKEY
+static HKEY
 reg_open_key(TCHAR **which, int create)
 { HKEY key = HKEY_CURRENT_USER;
   DWORD disp;
@@ -1019,7 +1019,7 @@ rlc_destroy(RlcData b)
 
 
 static int
-IsDownKey(code)
+IsDownKey(int code)
 { short mask = GetKeyState(code);
 
   return mask & 0x8000;
@@ -1449,7 +1449,7 @@ rlc_yield()
 		 *******************************/
 
 static void
-rlc_init_word_chars()
+rlc_init_word_chars(void)
 { int i;
 
   for(i=0; i<CHAR_MAX; i++)
@@ -1565,7 +1565,7 @@ rlc_set_selection(RlcData b, int sl, int sc, int el, int ec)
 }
 
 
-void
+static void
 rlc_translate_mouse(RlcData b, int x, int y, int *line, int *chr)
 { int ln = b->window_start;
   int n = b->window_size;		/* # lines */
@@ -3717,7 +3717,7 @@ free_user_data(RlcData b)
 		 *******************************/
 
 static void
-noMemory()
+noMemory(void)
 { MessageBox(NULL, _T("Not enough memory"), _T("Console"), MB_OK|MB_TASKMODAL);
 
   ExitProcess(1);

@@ -103,7 +103,7 @@ lookupMenuId(UINT id)
   return NULL;
 }
 
-int
+static int
 insertMenu(HMENU in, const TCHAR *label, const TCHAR *before)
 { if ( !before )
   { if ( !label )

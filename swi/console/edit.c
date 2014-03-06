@@ -634,7 +634,7 @@ read_line(rlc_console b)
 		 *******************************/
 
 static void
-init_dispatch_table()
+init_dispatch_table(void)
 { static int done;
 
   if ( !done )
