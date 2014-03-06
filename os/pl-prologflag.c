@@ -196,6 +196,7 @@ setPrologFlag(const char *name, int flags, ...)
       text.canonical = FALSE;
 
       f->value.a = textToAtom(&text);	/* registered: ok */
+
       PL_free_text(&text);
 
       break;
@@ -855,7 +856,9 @@ unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
   { case FT_BOOL:
       if ( f->index >= 0 )
       { unsigned int mask = (unsigned int)1 << (f->index-1);
-
+	char *s;
+	s=PL_atom_chars(key);
+	Sprintf(GLOBAL_stderr," here it is %s\n",s);
 	return PL_unify_bool_ex(val, truePrologFlag(mask) != FALSE);
       }
       /*FALLTHROUGH*/
@@ -1101,11 +1104,7 @@ initPrologFlags(void)
 #else
   setPrologFlag("dialect", FT_ATOM|FF_READONLY, "yap");
   setPrologFlag("home", FT_ATOM|FF_READONLY, YAP_ROOTDIR);
-  if (GLOBAL_argv && GLOBAL_argv[0]) {
-    Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
-    setPrologFlag("executable", FT_ATOM|FF_READONLY, LOCAL_FileNameBuf);
-  } else
-    setPrologFlag("executable", FT_ATOM|FF_READONLY, Yap_FindExecutable());
+  setPrologFlag("executable", FT_ATOM|FF_READONLY, Yap_FindExecutable());
 #endif
 #if defined(HAVE_GETPID) || defined(EMULATE_GETPID)
   setPrologFlag("pid", FT_INTEGER|FF_READONLY, getpid());
@@ -1133,7 +1132,7 @@ initPrologFlags(void)
   setPrologFlag("agc_margin",FT_INTEGER,	       GD->atoms.margin);
 #endif
 #endif
-#if defined(HAVE_DLOPEN) || defined(HAVE_SHL_LOAD) || defined(EMULATE_DLOPEN)
+#if defined(HAVE_DLOPEN) || defined(HAVE_SHL_LOAD) || defined(EMULATE_DLOPEN) || defined(HAVE_LOAD_LIBRARY)
   setPrologFlag("open_shared_object",	  FT_BOOL|FF_READONLY, TRUE, 0);
   setPrologFlag("shared_object_extension",	  FT_ATOM|FF_READONLY, SO_EXT);
   setPrologFlag("shared_object_search_path", FT_ATOM|FF_READONLY, SO_PATH);

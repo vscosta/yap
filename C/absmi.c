@@ -602,19 +602,18 @@ check_alarm_fail_int(int CONT USES_REGS)
     }
   UNLOCK(LOCAL_SignalLock);
 #endif
-  if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) { 
-    /* these should fail, INT should go up to top-level */
-    if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) { 
+  if (Yap_has_signals( YAP_INT_SIGNAL, YAP_FAIL_SIGNAL ) ) {
+    if (Yap_undo_signal( YAP_INT_SIGNAL ) ) {
       Yap_Error(PURE_ABORT, TermNil, "abort from console"); 
-    } 
-    LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL); 
-    if (!LOCAL_ActiveSignals) {
-      /* no need to look into GC */
-      CalculateStackGap( PASS_REGS1 ); 
     }
-    // fail even if there are more signals, they will have to be dealt later.
+    (void)Yap_undo_signal( YAP_FAIL_SIGNAL );
     return FALSE;
   }
+  if (!Yap_has_a_signal()) {
+    /* no need to look into GC */
+    CalculateStackGap( PASS_REGS1 ); 
+  }
+  // fail even if there are more signals, they will have to be dealt later.
   return -1;
 }
 
@@ -622,8 +621,7 @@ static int
 stack_overflow( CELL *env, yamop *cp USES_REGS )
 {
   if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap( PASS_REGS1 ) ||
-      LOCAL_ActiveSignals & YAP_STOVF_SIGNAL) {
-    LOCAL_ActiveSignals &= ~YAP_STOVF_SIGNAL;
+      Yap_undo_signal( YAP_STOVF_SIGNAL )) {
     if (!Yap_gc(((PredEntry *)(S))->ArityOfPE, env, cp)) {
 	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	return 0;
@@ -636,10 +634,9 @@ stack_overflow( CELL *env, yamop *cp USES_REGS )
 static int
 code_overflow( CELL *yenv USES_REGS )
 {
-  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
+  if (Yap_undo_signal( YAP_CDOVF_SIGNAL )) {
     CELL cut_b = LCL0-(CELL *)(S[E_CB]);
 
-    LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
@@ -709,12 +706,9 @@ interrupt_handler( USES_REGS1 )
   ARG1 = (Term) AbsPair(HR);
 
   HR += 2;
-  LOCK(LOCAL_SignalLock);
 #ifdef COROUTINING
-  if (LOCAL_ActiveSignals & YAP_WAKEUP_SIGNAL) {
+  if (Yap_undo_signal( YAP_WAKEUP_SIGNAL )) {
     CalculateStackGap( PASS_REGS1 );
-    LOCAL_ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
-    UNLOCK(LOCAL_SignalLock);
     ARG2 = Yap_ListOfWokenGoals();
     pe = WakeUpCode;
     /* no more goals to wake up */
@@ -724,7 +718,6 @@ interrupt_handler( USES_REGS1 )
     {
       CalculateStackGap( PASS_REGS1 );
       pe = CreepCode;
-      UNLOCK(LOCAL_SignalLock);
     }
   P = pe->CodeOfPred;
 #ifdef LOW_LEVEL_TRACER
@@ -797,23 +790,23 @@ interrupt_handler_either( USES_REGS1 )
 //#define DEBUG_INTERRUPTS 1
 
 #ifdef DEBUG_INTERRUPTS
-static int trace_interrupts;
+static int trace_interrupts = TRUE;
 #endif
 
 static int
 interrupt_fail( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( FALSE PASS_REGS );
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
   */
-  if (!LOCAL_ActiveSignals || 
-      (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL))) {
+  if (!Yap_has_a_signal() || 
+      Yap_has_signals( YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL  )) {
     return FALSE;
   }
   S = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
@@ -829,13 +822,13 @@ interrupt_execute( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int(  TRUE PASS_REGS )) >= 0)
     return v;
   PP  = P->u.pp.p0;
-  if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
+  if ((PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL))
     return 2;
   S = (CELL *) P->u.pp.p;
   SET_ASP(YENV, E_CB*sizeof(CELL));
@@ -850,14 +843,14 @@ interrupt_call( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0)
     return v;
-  //  printf("%lx %p %p %lx\n", LOCAL_ActiveSignals, P->u.Osbpp.p, P->u.Osbpp.p0, P->u.Osbpp.p0->ExtraPredFlags);
   PP = P->u.Osbpp.p0;
-  if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
+  if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
+      PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag) )
     return 2;
   S = (CELL *) P->u.Osbpp.p;
   SET_ASP(YENV, P->u.Osbpp.s);
@@ -872,13 +865,13 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   int v;
 
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
   PP = NULL;
-  if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
+  if (Yap_only_has_signal(YAP_CREEP_SIGNAL))
     return 2; /* keep on creeping */
   S = (CELL *) pen;
   ASP = YENV;
@@ -902,15 +895,15 @@ interrupt_deallocate( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0)
     return v;
   /* 
      don't do a creep here; also, if our instruction is followed by
      a execute_c, just wait a bit more */
-  if ( (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL) ||
+  if ( Yap_only_has_signal( YAP_CREEP_SIGNAL ) ||
 	/* keep on going if there is something else */
        (P->opc != Yap_opcode(_procceed) &&
 	P->opc != Yap_opcode(_cut_e))) {
@@ -927,7 +920,7 @@ interrupt_deallocate( USES_REGS1 )
     if (ASP > (CELL *)PROTECT_FROZEN_B(B))
       ASP = (CELL *)PROTECT_FROZEN_B(B);
     if ((v = code_overflow(YENV PASS_REGS)) >= 0) return v;
-    if (LOCAL_ActiveSignals) {
+    if (Yap_has_a_signal()) {
       if (Yap_op_from_opcode(P->opc) == _cut_e) {
 	/* followed by a cut */
 	ARG1 = MkIntegerTerm(LCL0-(CELL *)S[E_CB]);
@@ -951,12 +944,13 @@ interrupt_cut( USES_REGS1 )
 {
   int v;
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
-  if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
+  if (!Yap_has_a_signal()
+      || Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
     return 2;
   }
   /* find something to fool S */
@@ -971,12 +965,13 @@ interrupt_cut_t( USES_REGS1 )
 {
   int v;
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
-  if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
+  if (!Yap_has_a_signal()
+      || Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
     return 2;
   }
   /* find something to fool S */
@@ -991,11 +986,15 @@ interrupt_commit_y( USES_REGS1 )
 {
   int v;
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
+  if (!Yap_has_a_signal()
+      || Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
+    return 2;
+  }
   /* find something to fool S */
   S = (CELL *)PredRestoreRegs;
   XREGS[0] = YENV[P->u.yps.y];
@@ -1008,12 +1007,13 @@ interrupt_commit_x( USES_REGS1 )
 {
   int v;
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
-  if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
+  if (!Yap_has_a_signal()
+      || Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
     return 2;
   }
   PP = P->u.xps.p0;
@@ -1040,12 +1040,12 @@ interrupt_either( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
     return v;
-  if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
+  if (Yap_only_has_signal(YAP_CREEP_SIGNAL))
     return 2;
   PP = P->u.Osblp.p0;
   /* find something to fool S */
@@ -1064,12 +1064,12 @@ interrupt_dexecute( USES_REGS1 )
   int v;
 
 #ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
-	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s/%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,  \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   PP = P->u.pp.p0;
-  if ((LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) &&
-      (PP->ExtraPredFlags & NoDebugPredFlag)) {
+  if (Yap_has_signal(YAP_CREEP_SIGNAL) &&
+      (PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag))) {
     return 2;
   }
   /* set S for next instructions */
@@ -7400,7 +7400,7 @@ Yap_absmi(int inp)
       BOp(call_cpred, Osbpp);
       check_trail(TR);
       if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag)) &&
-	  !(PREG->u.Osbpp.p0->ExtraPredFlags & (NoDebugPredFlag))) {
+	  !(PREG->u.Osbpp.p0->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCCall, HR);
 	ENDCACHE_Y_AS_ENV();
@@ -8016,7 +8016,6 @@ Yap_absmi(int inp)
 	  FAIL();
 	}
 	d0 = pe->ArityOfPE;
-	UNLOCKPE(19,pe);
 	if (d0 == 0) {
 	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}

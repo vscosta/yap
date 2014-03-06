@@ -1298,21 +1298,21 @@ Yap_show_statistics(void)
 #endif
   frag  = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
 
-  fprintf(GLOBAL_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
+  Sfprintf(GLOBAL_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
 	     (unsigned long int)(Unsigned (H0) - Unsigned (Yap_HeapBase)),
 	     (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase)),
 	     (unsigned long int)(HeapUsed),
 	     frag);
-  fprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
+  Sfprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
 	     (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
 	     (unsigned long int)(sizeof(CELL)*(HR-H0)),
 	     (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
-  fprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n", 
+  Sfprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n", 
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase))),
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(LOCAL_TrailBase))));
-  fprintf(GLOBAL_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
-  fprintf(GLOBAL_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
-  fprintf(GLOBAL_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
+  Sfprintf(GLOBAL_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
+  Sfprintf(GLOBAL_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
+  Sfprintf(GLOBAL_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
 }
 
 static Int

@@ -163,6 +163,8 @@ typedef struct _PL_extension
   short		flags;			/* Or of PL_FA_... */
 } PL_extension;
 
+#define PL_THREAD_NO_DEBUG	0x01	/* Start thread in nodebug mode */
+
 typedef struct
 { unsigned long	    local_size;		/* Stack sizes */
   unsigned long	    global_size;
@@ -170,6 +172,7 @@ typedef struct
   unsigned long	    argument_size;
   char *	    alias;		/* alias name */
   int		  (*cancel)(int id);	/* cancel function */
+  intptr_t  flags;			/* PL_THREAD_* flags */
   void *	    reserved[5];	/* reserved for extensions */
 } PL_thread_attr_t;
 
@@ -598,10 +601,10 @@ extern X_API record_t PL_duplicate_record(record_t);
 extern X_API void PL_erase(record_t);
 /* only partial implementation, does not guarantee export between different architectures and versions of YAP */
 extern X_API char *PL_record_external(term_t, size_t *);
-extern X_API int PL_recorded_external(char *, term_t);
+extern X_API int PL_recorded_external(const char *, term_t);
 extern X_API int PL_erase_external(char *);
 extern X_API int PL_action(int,...);
-extern X_API void PL_on_halt(void (*)(int, void *), void *);
+extern X_API void PL_on_halt(int (*)(int, void *), void *);
 extern X_API void *PL_malloc(size_t);
 extern X_API void *PL_malloc_uncollectable(size_t s);
 extern X_API void *PL_realloc(void*,size_t);
@@ -743,6 +746,14 @@ PL_EXPORT(int)		PL_resource_error(const char *resource);
 
 
 		 /*******************************
+		 *	   PROLOG FLAGS		*
+		 *******************************/
+
+#define PL_set_feature  PL_set_prolog_flag /* compatibility */
+PL_EXPORT(int)		PL_set_prolog_flag(const char *name, int type, ...);
+
+
+		 /*******************************
 		 *	       BLOBS		*
 		 *******************************/
 
@@ -863,3 +874,8 @@ PL_EXPORT(void)         PL_YAP_InitSWIIO(struct SWI_IO *swio);
 
 #endif /* _FLI_H_INCLUDED */
 
+#ifdef _WIN32
+#if O_PLMT
+X_API int PL_w32thread_raise(DWORD id, int sig);
+#endif
+#endif

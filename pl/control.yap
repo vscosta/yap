@@ -21,6 +21,19 @@ forall(Cond, Action) :- \+((Cond, \+(Action))).
 
 ignore(Goal) :- (Goal->true;true).
 
+notrace(G) :-
+	 strip_module(G, M, G1),
+	 ( '$$save_by'(CP),
+	   '$debug_stop'( State ),
+	   '$call'(G1, CP, G, M),
+	   '$$save_by'(CP2),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NStart), fail ) ),
+	   '$debug_restart'( State )
+     ;
+	'$debug_restart'( State ),
+	fail
+    ).
+
 if(X,Y,Z) :-
 	yap_hacks:env_choice_point(CP0),
 	(
@@ -243,6 +256,32 @@ b_getval(GlobalVariable, Val) :-
 /* This is the break predicate,
 	it saves the importante data about current streams and
 	debugger state */
+
+'$debug_state'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :-
+	'$init_debugger',
+	nb_getval('$trace',Trace),
+	nb_getval('$debug_jump',Jump),
+	nb_getval('$debug_run',Run),
+	'$swi_current_prolog_flag'(debug, Debug),
+	nb_getval('$spy_gn',SPY_GN),
+	b_getval('$spy_glist',GList).
+
+
+'$debug_stop'( State ) :-
+        '$debug_state'( State ),
+	b_setval('$trace',off),
+	'$swi_set_prolog_flag'(debug, false),
+	b_setval('$spy_glist',[]),
+	'$disable_debugging'.
+
+'$debug_restart'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :- 
+	b_setval('$spy_glist',GList),
+	b_setval('$spy_gn',SPY_GN),
+	'$swi_set_prolog_flag'(debug, Debug),
+	b_setval('$debug_jump',Jump),
+	b_setval('$debug_run',Run),
+	b_setval('$trace',Trace),
+	'$enable_debugging'.
 
 break :-
 	'$init_debugger',

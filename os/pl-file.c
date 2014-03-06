@@ -5223,6 +5223,7 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(PL_predicates_from_tai);
   PL_register_extensions(PL_predicates_from_prologflag);
+  //PL_register_extensions(PL_predicates_from_system);
 #ifdef O_LOCALE
   PL_register_extensions(PL_predicates_from_locale);
 #endif

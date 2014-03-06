@@ -195,8 +195,8 @@ int
 Yap_DebugPutc(int sno, wchar_t ch)
 {
   if (GLOBAL_Option['l' - 96])
-    (void) putc(ch, GLOBAL_logfile);
-  return (putc(ch, GLOBAL_stderr));
+    (void) Sputc(ch, GLOBAL_logfile);
+  return (Sputc(ch, GLOBAL_stderr));
 }
 
 void

@@ -59,8 +59,8 @@ static void InitGlobal(void) {
 
 #endif /* THREADS */
 
-  GLOBAL_stdout = stdout;
-  GLOBAL_stderr = stderr;
+  GLOBAL_stdout = Soutput;
+  GLOBAL_stderr = Serror;
 
 
 

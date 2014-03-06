@@ -893,7 +893,7 @@ YAP_LookupAtom(char *c)
 
   while (TRUE) {
     a = Yap_LookupAtom(c);
-    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
@@ -911,7 +911,7 @@ YAP_LookupWideAtom(wchar_t *c)
 
   while (TRUE) {
     a = Yap_LookupWideAtom(c);
-    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
@@ -929,7 +929,7 @@ YAP_FullLookupAtom(char *c)
 
   while (TRUE) {
     at = Yap_FullLookupAtom(c);
-    if (at == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (at == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
@@ -2949,7 +2949,7 @@ YAP_CompileClause(Term t)
   }
   YAPLeaveCriticalSection();
 
-  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
+  if (Yap_has_signal( YAP_CDOVF_SIGNAL ) ) {
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
     }

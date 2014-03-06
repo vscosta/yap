@@ -2515,7 +2515,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
     if (HR+NOf > ASP-EventFlag/sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
 	if (HR+NOf > ASP)
-	  fprintf(GLOBAL_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
+	  fprintf(stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
 	LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
@@ -4093,7 +4093,7 @@ MyEraseClause(DynamicClause *clau USES_REGS)
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)
-      fprintf(GLOBAL_stderr, "Error: references to dynamic clause\n");
+      fprintf(stderr, "Error: references to dynamic clause\n");
 #endif
     RemoveDBEntry(ref PASS_REGS);
   }

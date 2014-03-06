@@ -623,9 +623,10 @@ ac_includes_default="\
 
 ac_subst_vars='PKG_ODBC
 PKG_LIBARCHIVE
-GECODE_EXTRALIBS
-GECODE_VERSION
 GECODE_MAJOR
+GECODE_VERSION
+GECODE_INCLUDES
+GECODE_EXTRALIBS
 PKG_GECODE
 CUDA_LDFLAGS
 CUDA_CPPFLAGS
@@ -834,6 +835,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_tabling
+enable_abi
 enable_or_parallelism
 enable_depth_limit
 enable_wam_profile
@@ -1510,6 +1512,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
  --enable-tabling           support tabling
+ --enable-abi           support tabling
  --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads
  --enable-depth-limit       support depth-bound computation
  --enable-wam-profile       support low level profiling of abstract machine
@@ -4204,6 +4207,15 @@ if test "${enable_tabling+set}" = set; then :
   enableval=$enable_tabling; tabling="$enableval"
 else
   tabling=yes
+fi
+
+# Check whether --enable-abi was given.
+if test "${enable_abi+set}" = set; then :
+  enableval=$enable_abi; yap_cv_abi="$enableval"
+         CC="$CC -m$abi"
+         CXX="$CXX -m$abi"
+else
+  yap_cv_abi=""
 fi
 
 # Check whether --enable-or-parallelism was given.
@@ -6946,6 +6958,7 @@ fi
 	          if test "$have_dl" = "yes"
 		  then
 		    SO="so"
+                    SOPATH="LD_LIBRARY_PATH"
 	            SHLIB_LD="$CC -shared -export-dynamic"
 	            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
 	            DO_SECOND_LD=""
@@ -7113,6 +7126,7 @@ else
 fi
 
           SO="so"
+          SOPATH="LD_LIBRARY_PATH"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
@@ -7127,6 +7141,7 @@ fi
 	SHLIB_CFLAGS="$CFLAGS"
 	SHLIB_CXXFLAGS="$CXXFLAGS"
 	SO="so"
+        SOPATH="LD_LIBRARY_PATH"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
@@ -7190,6 +7205,7 @@ fi
 	  fi
 	fi
 	SO="dylib"
+        SOPATH="DYLD_LIBRARY_PATH"
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
         then
@@ -7224,6 +7240,7 @@ fi
 	  SHLIB_CFLAGS="$CFLAGS"
 	  SHLIB_CXXFLAGS="$CXXFLAGS"
 	  SO="o"
+          SOPATH="LD_AOUT_LIBRARY_PATH"
         else
 	  #an elf system
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
@@ -7233,6 +7250,7 @@ fi
           SHLIB_CXX_LD="$CXX -shared -export-dynamic"
           DO_SECOND_LD=""
 	  SO="so"
+          SOPATH="LD_LIBRARY_PATH"
 	  INSTALL_DLLS="yes"
         fi
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
@@ -7252,6 +7270,7 @@ fi
         SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
 	SO="so"
+        SOPATH="LD_LIBRARY_PATH"
 	INSTALL_DLLS="yes"
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
@@ -7284,6 +7303,7 @@ fi
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
 	SO="dll"
+        SOPATH="PATH"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS="yes"
@@ -7341,6 +7361,7 @@ fi
         if test "$have_dl" = yes
 	 then
          SO="o"
+         SOPATH="LD_LIBRARY_PATH"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS="yes"
 	 if test "$GCC" = "yes"
@@ -8919,6 +8940,17 @@ ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
 if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 #define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in LoadLibrary
+do :
+  ac_fn_c_check_func "$LINENO" "LoadLibrary" "ac_cv_func_LoadLibrary"
+if test "x$ac_cv_func_LoadLibrary" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LOADLIBRARY 1
 _ACEOF
 
 fi
@@ -12057,7 +12089,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12060 "configure" */
+/* #line 12092 "configure" */
 public class Test {
 }
 EOF
@@ -12233,7 +12265,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12236: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12268: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12364,7 +12396,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12367 "configure" */
+/* #line 12399 "configure" */
 public class Test {
 }
 EOF
@@ -12399,7 +12431,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12402 "configure" */
+/* [#]line 12434 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12783,9 +12815,6 @@ while test $found = no; do
 		fi
         fi
 done
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: _JTOPDIR=\"$_JTOPDIR\"" >&5
-$as_echo "_JTOPDIR=\"$_JTOPDIR\"" >&6; }
 
 # get the likely subdirectories for system specific java includes
 case "$host_os" in
@@ -14902,28 +14931,30 @@ test -n "$PYTHON" || PYTHON=""none""
    else
      PYTHON="$yap_cv_python"
    fi
-   if test $i_am_cross_compiling = yes
+   if test "$i_am_cross_compiling" = yes
    then
      #mingw
-     PYTHON_DIR=`dirname "$PYTHON"`
+     PYTHON_DIR=`which "$PYTHON"`
+     PYTHON_DIR=`dirname "$PYTHON_DIR"`
      PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
      PYTHON_LIBS="\"$PYTHON_DLL\""
      PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
    else
-   PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[:3])"`
-   if test -d "$PYTHONHOME/libs"; then
-          PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
-     PYTHON_LIBS="-L $PYTHONHOME/libs"
-   elif test -d "$PYTHONHOME/lib"; then
-     PYTHON_LIBS="-L $PYTHONHOME/lib"
-   else
-     echo "Could not find libraries for Python"
-     PKG_PYTHON=""
-   fi
-   OLIBS=$LIBS
-   LIBS=$PYTHON_LIBS
-   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing Py_Initialize" >&5
+     PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
+     PYTHONHOME=`(cd "$PYTHONHOME" && pwd)`
+     PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[:3])"`
+     if test -d "$PYTHONHOME/libs"; then
+       #mingw
+       PYTHON_DIR="$PYTHONHOME"
+       PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+       PYTHON_LIBS="\"$PYTHON_DLL\""
+       PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
+     elif test -d "$PYTHONHOME/lib"; then
+       # unix, mac
+       PYTHON_LIBS="-L $PYTHONHOME/lib"
+       OLIBS=$LIBS
+       LIBS=$PYTHON_LIBS
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing Py_Initialize" >&5
 $as_echo_n "checking for library containing Py_Initialize... " >&6; }
 if ${ac_cv_search_Py_Initialize+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -14979,33 +15010,38 @@ if test "$ac_res" != no; then :
 
 else
   echo "Could not find libraries for Python";
-     PKG_PYTHON=""
+      				   PKG_PYTHON=""
 fi
 
-   PYTHON_LIBS=$LIBS
-   LIBS=$OLIBS
-   if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
-   elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
-   elif test -d "$PYTHONHOME/include"; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include"
-   else
-     echo "Could not find includes for Python"
-     PKG_PYTHON=""
-   fi
+       PYTHON_LIBS=$LIBS
+       LIBS=$OLIBS
+       if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+       elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
+       elif test -d "$PYTHONHOME/include"; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include"
+       else
+         echo "Could not find includes for Python"
+         PKG_PYTHON=""
+       fi
+     else
+       echo "Could not find libraries for Python"
+       PKG_PYTHON=""
+     fi
    fi
 else
     PYTHON_TARGET="dummy"
     PKG_PYTHON=""
 fi
 
-
-
-
-
-
 if test "$PKG_PYTHON" != ""; then
+
+
+
+
+
+
 ac_config_files="$ac_config_files packages/python/Makefile"
 
 fi
@@ -15160,33 +15196,19 @@ mkdir -p  packages/cuda
 
 
 
+# Check whether --enable-gecode was given.
+if test "${enable_gecode+set}" = set; then :
+  enableval=$enable_gecode; use_gecode="$enableval"
+else
+  use_gecode=no
+fi
+
+
 if test -d /usr/local/include/gecode; then
   CFLAGS="$CFLAGS -I/usr/local/include"
   SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
   GECODE_EXTRALIBS="-L/usr/local/lib"
 fi
-
-ac_fn_c_check_header_mongrel "$LINENO" "gecode/support/config.hpp" "ac_cv_header_gecode_support_config_hpp" "$ac_includes_default"
-if test "x$ac_cv_header_gecode_support_config_hpp" = xyes; then :
-  have_gecode=yes
-else
-  have_gecode=no
-fi
-
-
-
-# Check whether --enable-gecode was given.
-if test "${enable_gecode+set}" = set; then :
-  enableval=$enable_gecode; use_gecode="$enableval"
-	 if test "$use_gecode" = yes; then
-	    if test "$have_gecode" = no; then
-	       as_fn_error $? "cannot enable gecode: gecode library not found" "$LINENO" 5
-	    fi
-         fi
-else
-  use_gecode=$have_gecode
-fi
-
 
 if test "$use_gecode" = no; then
   PKG_GECODE=""
@@ -15234,7 +15256,32 @@ if test "$use_gecode" = yes; then
    if test $i_am_cross_compiling = yes
    then
      GECODE_VERSION=4.2.1
-   else
+   elif test x"$WINDOWS" = x; then
+     if test $ac_cv_sizeof_int_p = 8; then
+       GECODE_ARCH=x64
+     else
+       GECODE_ARCH=i386
+     fi
+     GECODE_PATH=`which fzn-gecode`
+     GECODE_PATH=`dirname "$GECODE_PATH"`
+     GECODE_PATH=`dirname "$GECODE_PATH"`
+     GECODE_INCLUDES="$GECODE_PATH"/include
+     GECODE_LIBDIR="\"$GECODE_PATH\""/lib
+     GECODE_BINDIR="\"$GECODE_PATH\""/bin
+     GECODE_TVERSION=`echo "$GECODE_PATH"/lib/GecodeDriver-*-d-"$GECODE_ARCH".lib | cut -d'-' -f 2-4`
+     GECODE_VERSION=`echo "$GECODE_TVERSION"|sed 's/-/\./g'`
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+     GE_SUF="-$GECODE_TVERSION-r-$GECODE_ARCH.dll"
+     GECODE_EXTRALIBS="$GECODE_BINDIR/GecodeDriver$GE_SUF \
+    		      $GECODE_BINDIR/GecodeSupport$GE_SUF \
+		      $GECODE_BINDIR/GecodeKernel$GE_SUF \
+     		      $GECODE_BINDIR/GecodeInt$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSet$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSearch$GE_SUF"
+    if test "$GECODE_MAJOR" = "4"; then
+      GECODE_EXTRALIBS="$GECODE_EXTRALIBS $GECODE_BINDIR/GecodeFloat$GE_SUF"
+    fi
+  else
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking gecode version" >&5
 $as_echo_n "checking gecode version... " >&6; }
   if test "$cross_compiling" = yes; then :
@@ -15319,18 +15366,31 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
      CXXFLAGS="$saved_CXXFLAGS"
      ;;
    esac
+
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+  if test "$GECODE_MAJOR" = "3"; then
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
+  else
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
+  fi
+
 fi
 fi
 
-GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+saved_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I \"$GECODE_INCLUDES\""
 
+ac_fn_c_check_header_mongrel "$LINENO" "gecode/support/config.hpp" "ac_cv_header_gecode_support_config_hpp" "$ac_includes_default"
+if test "x$ac_cv_header_gecode_support_config_hpp" = xyes; then :
 
-
-if test "$GECODE_MAJOR" = "3"; then
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
-else
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
 fi
+
+
+
+CPPFLAGS="$saved_CPPFLAGS"
+
+
+
 
 
 
@@ -15389,7 +15449,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define SO_PATH  "$YAPLIBDIR"
+#define SO_PATH  "$SOPATH"
 _ACEOF
 
 
@@ -15650,6 +15710,11 @@ if test "$PKG_PRISM" != ""; then
 ac_config_files="$ac_config_files packages/prism/src/c/Makefile"
 
 ac_config_files="$ac_config_files packages/prism/src/prolog/Makefile"
+
+fi
+
+if test "$PKG_WINCONSOLE" != ""; then
+ac_config_files="$ac_config_files swi/console/Makefile"
 
 fi
 
@@ -16410,6 +16475,7 @@ do
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;
+    "swi/console/Makefile") CONFIG_FILES="$CONFIG_FILES swi/console/Makefile" ;;
     "packages/yap-lbfgs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/yap-lbfgs/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

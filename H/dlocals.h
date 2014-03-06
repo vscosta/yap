@@ -99,6 +99,12 @@
 #define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
 #define LOCAL_ActiveSignals LOCAL->ActiveSignals_
 #define REMOTE_ActiveSignals(wid) REMOTE(wid)->ActiveSignals_
+#define LOCAL_MaxActiveSignals LOCAL->MaxActiveSignals_
+#define REMOTE_MaxActiveSignals(wid) REMOTE(wid)->MaxActiveSignals_
+#define LOCAL_FirstActiveSignal LOCAL->FirstActiveSignal_
+#define REMOTE_FirstActiveSignal(wid) REMOTE(wid)->FirstActiveSignal_
+#define LOCAL_LastActiveSignal LOCAL->LastActiveSignal_
+#define REMOTE_LastActiveSignal(wid) REMOTE(wid)->LastActiveSignal_
 #define LOCAL_IPredArity LOCAL->IPredArity_
 #define REMOTE_IPredArity(wid) REMOTE(wid)->IPredArity_
 #define LOCAL_ProfEnd LOCAL->ProfEnd_

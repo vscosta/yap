@@ -1,4 +1,4 @@
-; YAP install-script (from SWI-Prolog)
+; YAP install-script (based on a similar scrip from SWI-Prolog)
 
 !define TEMP1 $R0 ; Temp variable
 !define EXT    $3 ; Filename extension for Prolog sources
@@ -24,9 +24,10 @@ ComponentText "This will install YAP64 on your computer."
 DirText "This program will install YAP64 on your computer.\
          Choose a directory"
 
+Icon        c:\Yap64\share\Yap\icons\yap.ico
 LicenseData c:\Yap64\share\doc\Yap\Artistic
-LicenseText "YAP64 is governed by the Artistic License,\
-	but includes code under the GPL and LGPL."
+LicenseText "YAP64 is governed by the Artistic License and LGPL;\
+	it includes code under the GPL and LGPL."
 
 InstType "Typical (all except debug symbols)"	# 1
 InstType "Minimal (no graphics)"		# 2
@@ -46,33 +47,38 @@ Section "Base system (required)"
 
   SetOutPath $INSTDIR\bin
   File c:\Yap64\bin\yap.exe
-  File c:\Yap64\bin\*.dll
+  File c:\Yap64\bin\yap.dll
   File c:\Yap64\bin\yap-win.exe
+  File c:\Yap64\bin\*.dll
 
-  SetOutPath $INSTDIR\bin
+; first, copy library DLLs
+  SetOutPath $INSTDIR\lib\Yap
 ; SYSTEM STUFF
   File c:\Yap64\lib\Yap\*.dll
 
-  SetOutPath $INSTDIR\lib
-
-  SetOutPath $INSTDIR\lib
+  SetOutPath $INSTDIR\lib\Yap
 ; SYSTEM STUFF
   File c:\Yap64\lib\Yap\startup.yss
-
-  SetOutPath $INSTDIR\share
+  
+  SetOutPath $INSTDIR\share\Yap
 ; SYSTEM STUFF
   File /r c:\Yap64\share\Yap\*
 
-  SetOutPath $INSTDIR\doc\Yap
-;  File c:\Yap64\share\doc\Yap\yap.html
-;  File c:\Yap64\share\doc\Yap\yap.pdf
+  SetOutPath $INSTDIR\share\doc\Yap
+  File c:\Yap64\share\doc\Yap\yap.html
+  File c:\Yap64\share\doc\Yap\yap.pdf
+  File c:\Yap64\share\doc\Yap\yap.html
+;  File c:\Yap64\share\doc\Yap\yap.info
   File c:\Yap64\share\doc\Yap\Artistic
   File c:\Yap64\share\doc\Yap\README.TXT
   File c:\Yap64\share\doc\Yap\COPYING.TXT
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
-  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup.yss"
-  WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share"
+  WriteRegStr HKLM ${REGKEY} "bin" "$INSTDIR\bin\yap.exe"
+  WriteRegStr HKLM ${REGKEY} "dlls" "$INSTDIR\lib\Yap"
+  WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\Yap\startup.yss"
+  WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share\Yap"
+  WriteRegStr HKLM ${REGKEY} "commons" "$INSTDIR\share\PrologCommons"
 
   ; Write uninstaller
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP64" "DisplayName" "YAP64 (remove only)"
@@ -90,18 +96,22 @@ Section "Start Menu shortcuts"
 		 "" \
 		 "$INSTDIR\bin\yap-win.exe" \
 		 0
-  SetOutPath $INSTDIR
+  CreateShortCut "$SMPROGRAMS\${GRP}\YAP.lnk" \
+		 "$INSTDIR\bin\yap.exe" \
+		 "" \
+		 "$INSTDIR\bin\yap.exe" \
+		 0
   CreateShortCut "$SMPROGRAMS\${GRP}\Readme.lnk" \
-  		  "$INSTDIR\doc\Yap\README.TXT" "" \
-		  "$INSTDIR\doc\Yap\README.TXT" 0 \
+  		  "$INSTDIR\share\doc\Yap\README.TXT" "" \
+		  "$INSTDIR\share\doc\Yap\README.TXT" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
-  		  "$INSTDIR\doc\Yap\yap.html" "" \
-		  "$INSTDIR\doc\Yap\yap.html" 0 \
+  		  "$INSTDIR\share\doc\Yap\yap.html" "" \
+		  "$INSTDIR\share\doc\Yap\yap.html" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual PDF.lnk" \
-  		  "$INSTDIR\doc\Yap\yap.pdf" "" \
-		  "$INSTDIR\doc\Yap\yap.pdf" 0 \
+  		  "$INSTDIR\share\doc\Yap\yap.pdf" "" \
+		  "$INSTDIR\share\doc\Yap\yap.pdf" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Uninstall.lnk" \
 		 "$INSTDIR\uninstall.exe" \

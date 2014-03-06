@@ -258,6 +258,9 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$system_library_directories'(library, Dir) :-
 	getenv('YAPSHAREDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
+'$system_library_directories'(foreign, Dir) :-
+	getenv('YAPLIBDIR', Dirs),
+	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_commons_directories'(commons, Dir) :-
 	getenv('YAPCOMMONSDIR', Dirs),
 	'$split_by_sep'(0, 0, Dirs, Dir).
@@ -308,8 +311,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
-    '$swi_current_prolog_flag'(windows, true), !,
-    '$split_by_sep'(Start, Next, Dirs, ';', Dir).
+    '$swi_current_prolog_flag'(windows, true),
+    '$split_by_sep'(Start, Next, Dirs, ';', Dir), !.
 '$split_by_sep'(Start, Next, Dirs, Dir) :-
     '$split_by_sep'(Start, Next, Dirs, ':', Dir).
 

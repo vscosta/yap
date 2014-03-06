@@ -73,6 +73,23 @@ set_system_thread_id(int wid, PL_thread_info_t *info)
 #endif
 }
 
+int
+Yap_ThreadID( void )
+{
+  int new_worker_id = 0;
+  pthread_t self = pthread_self();
+  while(new_worker_id < MAX_THREADS &&
+	Yap_local[new_worker_id] &&
+	(REMOTE_ThreadHandle(new_worker_id).in_use == TRUE ||
+	 REMOTE_ThreadHandle(new_worker_id).zombie == TRUE) ) {
+    if (pthread_equal(self , REMOTE_ThreadHandle(new_worker_id).pthread_handle) ) {
+      return new_worker_id;
+    }
+    new_worker_id++;
+  }
+  return -1;
+}
+
 static int
 allocate_new_tid(void)
 {
@@ -87,6 +104,7 @@ allocate_new_tid(void)
     new_worker_id = -1;
   } else if (!Yap_local[new_worker_id]) {
     if (!Yap_InitThread(new_worker_id)) {
+      UNLOCK(GLOBAL_ThreadHandlesLock);
       return -1;
     }
     MUTEX_LOCK(&(REMOTE_ThreadHandle(new_worker_id).tlock));
@@ -451,9 +469,7 @@ p_thread_zombie_self( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
-  MUTEX_LOCK(&(LOCAL_ThreadHandle.tlock));
-  if (LOCAL_ActiveSignals &= YAP_ITI_SIGNAL) {
-    MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
+  if (Yap_has_signal( YAP_ITI_SIGNAL )) {
     return FALSE;
   }
   //  fprintf(stderr," -- %d\n", worker_id); 
@@ -752,8 +768,12 @@ p_lock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
+#if DEBUG_LOCKS
+  MUTEX_LOCK(&mut->m);
+#else
   if (MUTEX_LOCK(&mut->m) < 0)
     return FALSE;
+#endif
   mut->owners++;
   mut->tid_own = worker_id;
   return TRUE;
@@ -915,13 +935,7 @@ p_thread_signal( USES_REGS1 )
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
    return TRUE;
   }
-  LOCK(REMOTE_SignalLock(wid));
-  REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ = 
-    REMOTE_ThreadHandle(wid).current_yaam_regs->EventFlag_ = 
-    Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
-  REMOTE_ActiveSignals(wid) |= YAP_ITI_SIGNAL;
-  UNLOCK(REMOTE_SignalLock(wid));
-  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
+  Yap_external_signal( wid,  YAP_ITI_SIGNAL );
   return TRUE;
 }
 

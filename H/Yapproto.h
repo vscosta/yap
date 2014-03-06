@@ -332,8 +332,6 @@ void	Yap_InitSavePreds(void);
 /* scanner.c */
 
 /* signals.c */
-void	Yap_signal(yap_signals);
-void	Yap_undo_signal(yap_signals);
 void	Yap_InitSignalCPreds(void);
 
 /* sort.c */

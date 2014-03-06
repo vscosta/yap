@@ -122,8 +122,7 @@ true :- true.
 '$init_win_graphics' :-
     '$undefined'(window_title(_,_), system), !.
 '$init_win_graphics' :-
-    load_files([library(win_menu)], [silent(true)]),
-    ( win_menu:init_win_menus -> true ; true ),
+    load_files([library(win_menu)], [silent(true),if(not_loaded)]),
     fail.
 '$init_win_graphics'.
 

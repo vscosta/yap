@@ -23,7 +23,7 @@ SHAREDIR=$(ROOTDIR)/share
 #
 #
 CXX=@CXX@
-CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os -I "@GECODE_INCLUDES@" 
 #
 #
 # You shouldn't need to change what follows.

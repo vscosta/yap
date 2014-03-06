@@ -24,13 +24,23 @@
 #define _UNICODE 1
 #define UNICODE 1
 
+#ifdef _YAP_NOT_INSTALLED_
+#define MAX_FILE_NAME 1024
+#include "config.h"
+#include "console/LGPL/resource.h"
+#ifdef THREADSx
+#define O_PLMT 1
+#endif
+#else
 #ifdef WIN64
 #include "config/win64.h"
 #else
 #include "config/win32.h"
 #endif
+#endif
 
 #include <windows.h>
+#include <commctrl.h>
 #include <tchar.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -57,6 +67,8 @@
 typedef wint_t _TINT;
 #endif
 
+int win32main(rlc_console c, int argc, TCHAR **argv);
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Main program for running SWI-Prolog from   a window. The window provides
 X11-xterm like features: scrollback for a   predefined  number of lines,
@@ -76,6 +88,129 @@ static int		get_chars_arg_ex(int a, term_t t, TCHAR **v);
 #define RLC_PROLOG_OUTPUT	RLC_VALUE(2) /* Output stream (IOSTREAM*) */
 #define RLC_PROLOG_ERROR	RLC_VALUE(3) /* Error  stream (IOSTREAM*) */
 #define RLC_REGISTER		RLC_VALUE(4) /* Trap destruction */
+
+		 /*******************************
+		 *	  EXTRA YAP 		*
+		 *******************************/
+#if __YAP_PROLOG__
+static int
+build_filter( term_t list, size_t space, TCHAR *fil )
+{
+  term_t a = PL_new_term_ref();
+  term_t head = PL_new_term_ref();
+  int n;
+  size_t len;
+  TCHAR *s;
+
+  while (PL_is_pair( list )) {
+    if (!PL_get_list( list, head, list))
+      return FALSE;
+    for (n=1; n<=2; n++) {
+      if ( !PL_get_arg(n, head, a) )
+	return FALSE;
+      if ( !PL_get_wchars(a, &len, &s, CVT_ATOM|BUF_DISCARDABLE) )
+	return FALSE;
+      if (len >= space)
+	return FALSE;
+      space -= len+1;
+      while ((*fil++ = *s++));
+    }
+  }
+  *fil++ = '\0';
+  return TRUE;
+}
+
+
+// a another memory buffer to contain the file name
+static foreign_t
+pl_win_file_name( term_t mode, term_t list, term_t tit, term_t cwd, term_t hwnd, term_t file )
+{  
+#if 1
+  // open a file name
+  OPENFILENAME ofn ;
+
+  TCHAR *szFile = (TCHAR *)malloc(sizeof(TCHAR)*(MAX_FILE_NAME+1));
+  TCHAR *filter = (TCHAR *)malloc(sizeof(TCHAR)*(MAX_FILE_NAME+1));
+  //  TCHAR *file = (TCHAR *)malloc(sizeof(TCHAR)*(MAX_FILE_NAME+1));
+  TCHAR *title, *dir;
+  void *owner;
+  size_t len;
+
+  ZeroMemory( &ofn , sizeof( ofn));
+  ofn.lStructSize = sizeof ( ofn );
+  if (!PL_get_pointer(hwnd, &owner))
+    return FALSE;
+  ofn.hwndOwner = owner  ;
+  ofn.lpstrFile = szFile ;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = MAX_FILE_NAME;
+  if (!build_filter( list, MAX_FILE_NAME, filter ))
+    return FALSE;
+  ofn.lpstrFilter = filter;
+  ofn.nFilterIndex =1;
+  if ( !PL_get_wchars(tit, &len, &title, CVT_ATOM|BUF_RING) )
+    return FALSE;
+  ofn.lpstrTitle = title ;
+  ofn.lpstrFileTitle = NULL ;
+  ofn.nMaxFileTitle = 0 ;
+  if ( !PL_get_wchars(cwd, &len, &dir, CVT_ATOM|BUF_RING) )
+    return FALSE;
+  ofn.lpstrInitialDir=dir ;
+  ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+ 
+  GetOpenFileName( &ofn );
+  return PL_unify_wchars( file, PL_ATOM, wcslen(ofn.lpstrFile), ofn.lpstrFile);
+     
+  // Now simpley display the file name
+  // MessageBox ( NULL , ofn.lpstrFile , "File Name" , MB_OK);
+  
+ 
+#else  
+  // CoCreate the dialog object.
+  HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, 
+				NULL, 
+				CLSCTX_INPROC_SERVER, 
+				IID_PPV_ARGS(&pfd));
+
+  if (SUCCEEDED(hr))
+    {
+      DWORD dwOptions;
+      // Specify multiselect.
+      hr = pfd->GetOptions(&dwOptions);
+        
+      if (SUCCEEDED(hr))
+        {
+	  hr = pfd->SetOptions(dwOptions | FOS_ALLOWMULTISELECT);
+        }
+
+      if (SUCCEEDED(hr))
+        {
+	  // Show the Open dialog.
+	  hr = pfd->Show(NULL);
+
+	  if (SUCCEEDED(hr))
+            {
+	      // Obtain the result of the user interaction.
+	      IShellItemArray *psiaResults;
+	      hr = pfd->GetResults(&psiaResults);
+                
+	      if (SUCCEEDED(hr))
+                {
+		  //
+		  // You can add your own code here to handle the results.
+		  //
+		  psiaResults->Release();
+                }
+            }
+        }
+      pfd->Release();
+    }
+  // Now simpley display the file name
+  MessageBox ( NULL , ofn.lpstrFile , "File Name" , MB_OK);
+#endif
+  return TRUE;
+}
+#endif
 
 		 /*******************************
 		 *	  CONSOLE ADMIN		*
@@ -135,7 +270,7 @@ registerConsole(rlc_console c)
 }
 
 
-void
+static void
 closeConsoles(void)
 { int i;
   rlc_console *p;
@@ -561,7 +696,7 @@ PL_set_menu_thread(void)
 }
 
 
-foreign_t
+static foreign_t
 pl_window_title(term_t old, term_t new)
 { TCHAR buf[256];
   TCHAR *n;
@@ -611,7 +746,7 @@ get_bool_arg_ex(int a, term_t t, int *v)
 }
 
 
-foreign_t
+static foreign_t
 pl_window_pos(term_t options)
 { int x = 0, y = 0, w = 0, h = 0;
   HWND z = HWND_TOP;
@@ -695,8 +830,8 @@ call_menu(const TCHAR *name)
 }
 
 
-foreign_t
-pl_win_insert_menu_item(foreign_t menu, foreign_t label, foreign_t before)
+static foreign_t
+pl_win_insert_menu_item(term_t menu, term_t label, term_t before)
 { TCHAR *m, *l, *b;
 
   if ( !PL_get_wchars(menu, NULL, &m, CVT_ATOM) ||
@@ -713,8 +848,8 @@ pl_win_insert_menu_item(foreign_t menu, foreign_t label, foreign_t before)
 }
 
 
-foreign_t
-pl_win_insert_menu(foreign_t label, foreign_t before)
+static foreign_t
+pl_win_insert_menu(term_t label, term_t before)
 { TCHAR *l, *b;
 
   if ( !PL_get_wchars(label, NULL, &l, CVT_ATOM) ||
@@ -759,7 +894,7 @@ run_interactor(void *closure)
 
 
 static void
-create_interactor()
+create_interactor(void)
 { pthread_attr_t attr;
   pthread_t child;
 
@@ -796,24 +931,27 @@ pl_wnd_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 static TCHAR *
-HiddenFrameClass()
+HiddenFrameClass(void)
 { static TCHAR winclassname[32];
   static WNDCLASS wndClass;
   HINSTANCE instance = rlc_hinstance();
 
   if ( !winclassname[0] )
   { snwprintf(winclassname, sizeof(winclassname)/sizeof(TCHAR),
-	      _T("SWI-Prolog-hidden-win%d"), instance);
+	      _T("YAP-Prolog-hidden-win%d"), instance);
 
     wndClass.style		= 0;
     wndClass.lpfnWndProc	= (LPVOID) pl_wnd_proc;
     wndClass.cbClsExtra		= 0;
     wndClass.cbWndExtra		= 0;
     wndClass.hInstance		= instance;
-    wndClass.hIcon		= NULL;
+    wndClass.hIcon		= (HICON) LoadImage(instance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_DEFAULTCOLOR | LR_SHARED);
+    // wndClass.hIconSm       = (HICON) LoadImage(instance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON,
+    //                                    GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),
+    //                                       LR_DEFAULTCOLOR | LR_SHARED);
     wndClass.hCursor		= NULL;
     wndClass.hbrBackground	= GetStockObject(WHITE_BRUSH);
-    wndClass.lpszMenuName	= NULL;
+    wndClass.lpszMenuName	= MAKEINTRESOURCE(IDR_MAINMENU);
     wndClass.lpszClassName	= winclassname;
 
     RegisterClass(&wndClass);
@@ -878,7 +1016,7 @@ fatalSignal(int sig)
 
 
 static void
-initSignals()
+initSignals(void)
 { signal(SIGABRT, fatalSignal);
   signal(SIGFPE,  fatalSignal);
   signal(SIGILL,  fatalSignal);
@@ -962,7 +1100,7 @@ set_window_title(rlc_console c)
 #endif
 
   snwprintf(title, sizeof(title)/sizeof(TCHAR),
-	    _T("SWI-Prolog (%s%sversion %d.%d.%d)"),
+	    _T("YAP-Prolog (%s%sversion %d.%d.%d)"),
 	    w64, mt, major, minor, patch);
 
   rlc_title(c, title, NULL, 0);
@@ -977,6 +1115,9 @@ PL_extension extensions[] =
   { "$win_insert_menu_item", 3, pl_win_insert_menu_item, 0 },
   { "win_insert_menu",       2, pl_win_insert_menu,      0 },
   { "win_window_pos",        1, pl_window_pos,           0 },
+#if __YAP_PROLOG__
+  { "win_file_name",         6, pl_win_file_name,        0 },
+#endif
   { NULL,                    0, NULL,                    0 }
 };
 
@@ -1049,6 +1190,23 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   set_window_title(c);
   rlc_bind_terminal(c);
 
+  if ( argc > MAX_ARGC )
+    argc = MAX_ARGC;
+  for(i=0; i<argc; i++)
+  { char *s;
+    TCHAR *q;
+
+    av[i] = alloca(utf8_required_len(argv[i])+1);
+    for(s=av[i], q=argv[i]; *q; q++)
+    { s = utf8_put_char(s, *q);
+    }
+    *s = '\0';
+  }
+  av[i] = NULL;
+
+  if ( !PL_initialise(argc, av) )
+    PL_halt(1);
+
   PL_register_extensions_in_module("system", extensions);
   install_readline(c);
   PL_action(PL_ACTION_GUIAPP, TRUE);
@@ -1070,23 +1228,6 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   PL_register_foreign_in_module("system", "win_open_console", 5,
 				pl_win_open_console, 0);
 
-  if ( argc > MAX_ARGC )
-    argc = MAX_ARGC;
-  for(i=0; i<argc; i++)
-  { char *s;
-    TCHAR *q;
-
-    av[i] = alloca(utf8_required_len(argv[i])+1);
-    for(s=av[i], q=argv[i]; *q; q++)
-    { s = utf8_put_char(s, *q);
-    }
-    *s = '\0';
-  }
-  av[i] = NULL;
-
-  if ( !PL_initialise(argc, av) )
-    PL_halt(1);
-
   PL_halt(PL_toplevel() ? 0 : 1);
 
   return 0;
@@ -1098,15 +1239,15 @@ And this is the  real  application's  main   as  Windows  sees  it.  See
 console.c for further details.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-int PASCAL
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpszCmdLine, int nCmdShow)
+int WINAPI
+wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPWSTR lpCmdLine, int nShowCmd)
 { LPTSTR cmdline;
 
   InitializeCriticalSection(&mutex);
 
   cmdline = GetCommandLine();
 
-  return rlc_main(hInstance, hPrevInstance, cmdline, nCmdShow,
-		  win32main, LoadIcon(hInstance, _T("SWI_Icon")));
+  return rlc_main(hInstance, hPrevInstance, cmdline, nShowCmd,
+		  win32main, LoadIcon(hInstance, _T("YAP_Icon")));
 }

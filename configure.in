@@ -101,6 +101,11 @@ AC_DEFINE(ALIGN_LONGS, 1, [longs should be in addresses that are multiple of fou
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
 	tabling="$enableval", tabling=yes)
+AC_ARG_ENABLE(abi,
+	[ --enable-abi           support tabling ],
+	[yap_cv_abi="$enableval"
+         CC="$CC -m$abi"
+         CXX="$CXX -m$abi"], yap_cv_abi="")
 AC_ARG_ENABLE(or-parallelism,
 	[ --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads ],
 	orparallelism="$enableval", orparallelism=no)
@@ -794,6 +799,7 @@ fi
 	          if test "$have_dl" = "yes"
 		  then
 		    SO="so"
+                    SOPATH="LD_LIBRARY_PATH"
 	            SHLIB_LD="$CC -shared -export-dynamic"
 	            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
 	            DO_SECOND_LD=""
@@ -889,7 +895,7 @@ fi
         DYNYAPLIB=libYap."$SO"
 	SONAMEFLAG=""
         EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir) YAPLIBDIR=\$(abs_top_builddir):\$(abs_top_builddir)/library/system"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *aix*)
@@ -915,6 +921,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	   ,
 	     have_dl=no)
           SO="so"
+          SOPATH="LD_LIBRARY_PATH"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
@@ -929,6 +936,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS="$CFLAGS"
 	SHLIB_CXXFLAGS="$CXXFLAGS"
 	SO="so"
+        SOPATH="LD_LIBRARY_PATH"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
@@ -953,6 +961,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  fi
 	fi
 	SO="dylib"
+        SOPATH="DYLD_LIBRARY_PATH"
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
         then 
@@ -987,6 +996,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  SHLIB_CFLAGS="$CFLAGS"
 	  SHLIB_CXXFLAGS="$CXXFLAGS"
 	  SO="o"
+          SOPATH="LD_AOUT_LIBRARY_PATH"
         else
 	  #an elf system
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
@@ -996,6 +1006,7 @@ dnl Linux has both elf and a.out, in this case we found elf
           SHLIB_CXX_LD="$CXX -shared -export-dynamic"
           DO_SECOND_LD=""
 	  SO="so"
+          SOPATH="LD_LIBRARY_PATH"
 	  INSTALL_DLLS="yes"
         fi
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
@@ -1015,6 +1026,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
 	SO="so"
+        SOPATH="LD_LIBRARY_PATH"
 	INSTALL_DLLS="yes"
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
@@ -1047,6 +1059,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
 	SO="dll"
+        SOPATH="PATH"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS="yes"
@@ -1065,6 +1078,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         if test "$have_dl" = yes
 	 then
          SO="o"
+         SOPATH="LD_LIBRARY_PATH"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS="yes"
 	 if test "$GCC" = "yes"
@@ -1535,6 +1549,7 @@ AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize getpid)
 AC_CHECK_FUNCS(getpwnam getrlimit getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan isfinite isinf kill labs link lgamma)
+AC_CHECK_FUNCS(LoadLibrary)
 AC_CHECK_FUNCS(localeconv localtime lstat mallinfo)
 AC_CHECK_FUNCS(mbscoll)
 AC_CHECK_FUNCS(mbscasecoll)
@@ -1916,7 +1931,7 @@ AC_DEFINE_UNQUOTED( C_LDFLAGS, [ "$LDFLAGS" ], [linking flags])
 AC_DEFINE_UNQUOTED( C_LIBS, [ "$LIBS" ], [main libs for YAP])
 AC_DEFINE_UNQUOTED( C_LIBPLSO, [ "$LIBS $EXTRA_LIBS_FOR_DLLS" ], [libs for linking with DLLs])
 AC_DEFINE_UNQUOTED( SO_EXT, [ "$SO" ], [relocable objects])
-AC_DEFINE_UNQUOTED( SO_PATH, [ "$YAPLIBDIR" ], [libraries])
+AC_DEFINE_UNQUOTED( SO_PATH, [ "$SOPATH" ], [library search variable])
 AC_DEFINE_UNQUOTED( YAP_ARCH, [ "$ARCH" ], [architecture])
 AC_DEFINE_UNQUOTED( YAP_BINDIR, [ "$prefix/bin" ], [where the yap executable lives])
 AC_DEFINE_UNQUOTED( YAP_FULL_VERSION, [ "YAP $YAP_VERSION ($ARCH): $yap_timestamp" ], [YAP version string])
@@ -2091,6 +2106,10 @@ fi
 if test "$PKG_PRISM" != ""; then
 AC_CONFIG_FILES([packages/prism/src/c/Makefile])
 AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
+fi
+
+if test "$PKG_WINCONSOLE" != ""; then
+AC_CONFIG_FILES([swi/console/Makefile])
 fi
 
 AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])

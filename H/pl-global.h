@@ -222,7 +222,7 @@ typedef struct {
 #endif
     counting_mutex     *mutexes;	/* Registered mutexes */
     int			thread_max;	/* Maximum # threads */
-    PL_thread_info_t  **threads;	/* Pointers to thread-info */
+    PL_thread_info_t  *threads[MAX_THREADS];	/* Pointers to thread-info */
   } thread;
 #endif /*O_PLMT*/
 

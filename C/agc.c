@@ -481,9 +481,9 @@ atom_gc(USES_REGS1)
   GLOBAL_agc_collected = 0;
   
   if (gc_trace) {
-    fprintf(GLOBAL_stderr, "%% agc:\n");
+    fprintf(stderr, "%% agc:\n");
   } else if (gc_verbose) {
-    fprintf(GLOBAL_stderr, "%%   Start of atom garbage collection %d:\n", GLOBAL_agc_calls);
+    fprintf(stderr, "%%   Start of atom garbage collection %d:\n", GLOBAL_agc_calls);
   }
   time_start = Yap_cputime();
   /* get the number of active registers */
@@ -499,11 +499,11 @@ atom_gc(USES_REGS1)
   GLOBAL_tot_agc_recovered += GLOBAL_agc_collected;
   if (gc_verbose) {
 #ifdef _WIN32
-    fprintf(GLOBAL_stderr, "%%   Collected %I64d bytes.\n", GLOBAL_agc_collected);
+    fprintf(stderr, "%%   Collected %I64d bytes.\n", GLOBAL_agc_collected);
 #else
-    fprintf(GLOBAL_stderr, "%%   Collected %lld bytes.\n", GLOBAL_agc_collected);
+    fprintf(stderr, "%%   Collected %lld bytes.\n", GLOBAL_agc_collected);
 #endif
-    fprintf(GLOBAL_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", GLOBAL_agc_calls, (double)agc_time/1000, (double)GLOBAL_tot_agc_time/1000);
+    fprintf(stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", GLOBAL_agc_calls, (double)agc_time/1000, (double)GLOBAL_tot_agc_time/1000);
   }
 }
 

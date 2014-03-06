@@ -1,23 +1,15 @@
 dnl Gecode support
 
+AC_ARG_ENABLE(gecode,
+	[ --enable-gecode            install gecode library],
+        [use_gecode="$enableval"], use_gecode=no)
+
 dnl gecode is usually in /usr/local
 if test -d /usr/local/include/gecode; then
   CFLAGS="$CFLAGS -I/usr/local/include"
   SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
   GECODE_EXTRALIBS="-L/usr/local/lib"
 fi
-
-AC_CHECK_HEADER(gecode/support/config.hpp,
-	have_gecode=yes, have_gecode=no)
-
-AC_ARG_ENABLE(gecode,
-	[ --enable-gecode            install gecode library],
-        [use_gecode="$enableval"
-	 if test "$use_gecode" = yes; then
-	    if test "$have_gecode" = no; then
-	       AC_MSG_ERROR([cannot enable gecode: gecode library not found])
-	    fi
-         fi], use_gecode=$have_gecode)
 
 if test "$use_gecode" = no; then
   PKG_GECODE=""
@@ -44,7 +36,32 @@ if test "$use_gecode" = yes; then
    if test $i_am_cross_compiling = yes
    then
      GECODE_VERSION=4.2.1
-   else
+   elif test x"$WINDOWS" = x; then
+     if test $ac_cv_sizeof_int_p = 8; then
+       GECODE_ARCH=x64
+     else
+       GECODE_ARCH=i386
+     fi
+     GECODE_PATH=`which fzn-gecode`
+     GECODE_PATH=`dirname "$GECODE_PATH"`
+     GECODE_PATH=`dirname "$GECODE_PATH"`
+     GECODE_INCLUDES="$GECODE_PATH"/include
+     GECODE_LIBDIR="\"$GECODE_PATH\""/lib
+     GECODE_BINDIR="\"$GECODE_PATH\""/bin
+     GECODE_TVERSION=`echo "$GECODE_PATH"/lib/GecodeDriver-*-d-"$GECODE_ARCH".lib | cut -d'-' -f 2-4`
+     GECODE_VERSION=`echo "$GECODE_TVERSION"|sed 's/-/\./g'`
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+     GE_SUF="-$GECODE_TVERSION-r-$GECODE_ARCH.dll"
+     GECODE_EXTRALIBS="$GECODE_BINDIR/GecodeDriver$GE_SUF \
+    		      $GECODE_BINDIR/GecodeSupport$GE_SUF \
+		      $GECODE_BINDIR/GecodeKernel$GE_SUF \
+     		      $GECODE_BINDIR/GecodeInt$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSet$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSearch$GE_SUF"
+    if test "$GECODE_MAJOR" = "4"; then
+      GECODE_EXTRALIBS="$GECODE_EXTRALIBS $GECODE_BINDIR/GecodeFloat$GE_SUF"
+    fi
+  else
   AC_MSG_CHECKING([gecode version])
   AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include "gecode/support/config.hpp"
@@ -75,21 +92,29 @@ return 0;
      CXXFLAGS="$saved_CXXFLAGS"
      ;;
    esac
+
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+  if test "$GECODE_MAJOR" = "3"; then
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
+  else
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
+  fi
+
 fi
 fi
 
-GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+saved_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I \"$GECODE_INCLUDES\""
 
+AC_CHECK_HEADER(gecode/support/config.hpp)
+
+CPPFLAGS="$saved_CPPFLAGS"
+
+AC_SUBST(GECODE_EXTRALIBS)
+AC_SUBST(GECODE_INCLUDES)
+AC_SUBST(GECODE_VERSION)
 AC_SUBST(GECODE_MAJOR)
 
-if test "$GECODE_MAJOR" = "3"; then
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
-else
-  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
-fi
-
-AC_SUBST(GECODE_VERSION)
-AC_SUBST(GECODE_EXTRALIBS)
 
 if test "$PKG_GECODE" = "packages/gecode"; then
 AC_CONFIG_FILES([packages/gecode/Makefile])

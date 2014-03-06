@@ -2303,7 +2303,18 @@ static Int
 p_shell ( USES_REGS1 )
 {				/* '$shell'(+SystCommand)			 */
 #if _MSC_VER || defined(__MINGW32__)
-  Yap_Error(SYSTEM_ERROR,TermNil,"shell not available in this configuration");
+/** shell(+Command:text, -Status:integer) is det.
+
+Run an external command and wait for its completion.
+*/
+  char *cmd;
+  term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
+  if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
+  { int rval = System(cmd);
+
+    return rval == 0;
+  }
+
   return FALSE;
 #else
 #if HAVE_SYSTEM 
@@ -2945,7 +2956,7 @@ p_enable_interrupts( USES_REGS1 )
   LOCAL_InterruptsDisabled--;
   if (LOCAL_ActiveSignals && !LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
-    if ( LOCAL_ActiveSignals != YAP_CREEP_SIGNAL )
+    if ( !Yap_only_has_signal( YAP_CREEP_SIGNAL ) )
       EventFlag = Unsigned( LCL0 );
   }
   UNLOCK(LOCAL_SignalLock);
@@ -3188,7 +3199,7 @@ Yap_InitSysPreds(void)
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);

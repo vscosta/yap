@@ -128,7 +128,7 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
 
 #if DEBUG
   if (GLOBAL_Option[4])
-    fprintf(GLOBAL_stderr,"[LookupVar %s]", var);
+    fprintf(stderr,"[LookupVar %s]", var);
 #endif
   if (var[0] != '_' || var[1] != '\0') {
     VarEntry **op = &LOCAL_VarTable;

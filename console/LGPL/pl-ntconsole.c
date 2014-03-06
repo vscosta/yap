@@ -77,7 +77,7 @@ Message(const char *fm, ...)
 
   va_start(args, fm);
   vsprintf(buf, fm, args);
-  MessageBox(NULL, buf, "SWI-Prolog", MB_OK|MB_TASKMODAL);
+  MessageBox(NULL, buf, "YAP-Prolog", MB_OK|MB_TASKMODAL);
   va_end(args);
 }
 

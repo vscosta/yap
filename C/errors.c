@@ -166,7 +166,7 @@ legal_env (CELL *ep USES_REGS)
 static int 
 YapPutc(int sno, wchar_t ch)
 {
-  return (putc(ch, GLOBAL_stderr));
+  return (putc(ch, stderr));
 }
 
 static void
@@ -1976,7 +1976,7 @@ E);
   }
   if (serious) {
     /* disable active signals at this point */
-    LOCAL_ActiveSignals = 0;
+    LOCAL_FirstActiveSignal = LOCAL_LastActiveSignal  = 0;
     CalculateStackGap( PASS_REGS1 );
     LOCAL_PrologMode &= ~InErrorMode;
     LOCK(LOCAL_SignalLock);

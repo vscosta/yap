@@ -102,6 +102,16 @@ typedef int			Char;		/* char that can pass EOF */
 
 #define exception_term         (LD->exception.term)
 
+#ifdef Suser_input
+#undef Suser_input
+#endif
+#ifdef Suser_output
+#undef Suser_output
+#endif
+#ifdef Suser_error
+#undef Suser_error
+#endif
+
 #define Suser_input             (LD->IO.streams[0])
 #define Suser_output            (LD->IO.streams[1])
 #define Suser_error             (LD->IO.streams[2])
@@ -882,6 +892,7 @@ void PlMessage(const char *fm, ...);
 const char *WinError(void);
 word pl_win_exec(term_t cmd, term_t how);
 foreign_t pl_win_module_file(term_t module, term_t file);
+int PL_w32_wrap_ansi_console(void);
 
 #ifdef EMULATE_DLOPEN
 	/* file is in UTF-8, POSIX path */
@@ -911,6 +922,7 @@ extern const PL_extension PL_predicates_from_write[];
 extern const PL_extension PL_predicates_from_prologflag[];
 extern const PL_extension PL_predicates_from_win[];
 extern const PL_extension PL_predicates_from_locale[];
+extern const PL_extension PL_predicates_from_system[];
 
 #define enableThreads(val) FALSE
 

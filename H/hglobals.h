@@ -59,8 +59,8 @@ typedef struct global_data {
   pthread_t  master_thread_;
 #endif /* THREADS */
 
-  YP_FILE*  stdout_;
-  YP_FILE*  stderr_;
+  struct io_stream*  stdout_;
+  struct io_stream*  stderr_;
 
   char**  argv_;
   int  argc_;

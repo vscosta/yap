@@ -55,7 +55,10 @@ typedef struct worker_local {
   char*  ScannerStack_;
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
   struct DB_TERM*  BallTerm_;
-  UInt  ActiveSignals_;
+  UInt*  ActiveSignals_;
+  UInt  MaxActiveSignals_;
+  UInt  FirstActiveSignal_;
+  UInt  LastActiveSignal_;
   UInt  IPredArity_;
   yamop*  ProfEnd_;
   int  UncaughtThrow_;

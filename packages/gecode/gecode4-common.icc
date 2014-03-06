@@ -19,6 +19,16 @@
 #ifndef GECODE_COMMON
 #define GECODE_COMMON
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define __i386__ 1
+#if __x86_64__
+#define _WIN64 1
+#define _AMD64_ 1
+#endif
+#include <windows.h>
+#endif
+
+
 #include "gecode/driver.hh"
 #include "gecode/int.hh"
 #include "gecode/set.hh"

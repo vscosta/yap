@@ -68,8 +68,8 @@ pthread_t 			master_thread				void
 #endif /* THREADS */
 
 // streams 
-YP_FILE*			stdout					=stdout
-YP_FILE*			stderr					=stderr	
+struct io_stream*		stdout					=Soutput
+struct io_stream*		stderr					=Serror
 
 // access to yap initial arguments 
 char**				argv					void

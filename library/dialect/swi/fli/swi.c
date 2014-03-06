@@ -1809,7 +1809,7 @@ PL_record_external
       return NULL;
     if ((nsz = Yap_ExportTerm(t, s, len, 0))) {
       *sz = nsz;
-      return (record_t)s;
+      return (char *)s;
     } else {
       if (len < 16*1024) 
 	len = len *2;
@@ -1827,13 +1827,13 @@ PL_record_external
 
 X_API int
 PL_recorded_external
-(char *tp, term_t ts)
+(const char *tp, term_t ts)
 {
   CACHE_REGS
-  Term t = Yap_ImportTerm(tp);
+    Term t = Yap_ImportTerm((void *)tp);
   if (t == 0)
     return FALSE;
-  Yap_PutInSlot(ts,t PASS_REGS);
+  Yap_PutInSlot(ts, t PASS_REGS);
   return TRUE;
 }
 
@@ -2801,7 +2801,7 @@ X_API void (*PL_signal(int sig, void (*func)(int)))(int)
   return NULL;
 }
 
-X_API void PL_on_halt(void (*f)(int, void *), void *closure)
+X_API void PL_on_halt(int (*f)(int, void *), void *closure)
 {
   Yap_HaltRegisterHook((HaltHookFunc)f,closure);
 }

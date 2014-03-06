@@ -1,3 +1,5 @@
+#define OEM_RESOURCE
+
 #define IDI_APPICON                    101
 #define IDR_MAINMENU                   102
 #define IDR_ACCELERATOR                103

@@ -267,6 +267,36 @@ _xos_os_filenameW(const char *cname, wchar_t *osname, size_t len)
     *s++ = '\\';
   }
 
+#if __MINGW32__
+  if ( q == cname && q[0] == '/' )	/* deal with /host/share in mingw32 */
+  { 
+    UINT is_drive;
+
+    q++;
+    while (*q && *q != '/') {
+      if ( s+3 >= e )
+	{ errno = ENAMETOOLONG;
+	  return NULL;
+	}
+      *s++ = *q++;
+    }
+    s[0] = ':';
+    s[1] = '\\';
+    s[2] = '\0';
+    q++;
+    is_drive = GetDriveType( osname );
+    if ( is_drive != DRIVE_UNKNOWN &&
+	 is_drive != DRIVE_NO_ROOT_DIR ) {
+      // we actually found a drive
+      s+=2;
+    } else {
+      // restart
+      q = cname;
+      s = osname;
+    }
+  }
+#endif
+
   while( *q )				/* map / --> \, delete multiple '\' */
   { if ( *q == '/' || *q == '\\' )
     { if ( s+1 >= e )
@@ -495,7 +525,42 @@ _xos_absolute_filename(const char *local, char *absolute, size_t len)
 
 int
 _xos_same_file(const char *p1, const char *p2)
-{ if ( strcmp(p1, p2) == 0 )
+{  
+  TCHAR buf1[PATH_MAX];
+  TCHAR buf2[PATH_MAX];
+  int rc = FALSE, found = FALSE;
+  if ( !_xos_os_filenameW(p1, buf1, PATH_MAX) )
+    return FALSE;
+  if ( !_xos_os_filenameW(p2, buf2, PATH_MAX) )
+    return FALSE;
+
+  HANDLE hFile1 = CreateFile(buf1, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  HANDLE hFile2 = CreateFile(buf2, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		 
+  if (hFile1 != INVALID_HANDLE_VALUE &&
+      hFile2 != INVALID_HANDLE_VALUE) {
+    BY_HANDLE_FILE_INFORMATION f1, f2;
+    if (GetFileInformationByHandle(hFile1, &f1) &&
+	GetFileInformationByHandle(hFile2, &f2) ) {
+      rc =  
+	f1.dwVolumeSerialNumber == f2.dwVolumeSerialNumber &&
+	f1.nFileIndexLow == f2.nFileIndexLow &&
+	f1.nFileIndexLow == f2.nFileIndexLow;
+      found = TRUE;
+    }
+  }
+  if ( hFile1 != INVALID_HANDLE_VALUE )
+    CloseHandle(hFile1);
+  if ( hFile2 != INVALID_HANDLE_VALUE )
+    CloseHandle(hFile2);
+
+  if (found)
+    return rc;
+
+  // compare by string names
+  // old SWI code
+
+  if ( strcmp(p1, p2) == 0 )
   { return TRUE;
   } else
   { TCHAR osp1[PATH_MAX], osp2[PATH_MAX];

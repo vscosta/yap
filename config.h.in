@@ -393,6 +393,9 @@
 /* Define to 1 if you have the `link' function. */
 #undef HAVE_LINK
 
+/* Define to 1 if you have the `LoadLibrary' function. */
+#undef HAVE_LOADLIBRARY
+
 /* Define to 1 if you have the `localeconv' function. */
 #undef HAVE_LOCALECONV
 
@@ -934,7 +937,7 @@
 /* relocable objects */
 #undef SO_EXT
 
-/* libraries */
+/* library search variable */
 #undef SO_PATH
 
 /* Define to 1 if you have the ANSI C header files. */

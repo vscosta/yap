@@ -72,7 +72,8 @@ C_PARSER_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 ARCH=@ARCH@
 AWK=@AWK@
 CPP=@CPP@
-DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
+RC=windres
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 LIBS=@LIBS@
 DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
 LDFLAGS=@LDFLAGS@
@@ -191,6 +192,7 @@ HEADERS = \
 	H/tracer.h \
 	H/trim_trail.h \
 	H/yapio.h \
+	H/YapSignals.h \
 	H/YapText.h \
 	H/cut_c.h \
 	H/iatoms.h H/ratoms.h H/tatoms.h \
@@ -289,7 +291,9 @@ PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
 	console/LGPL/pl-ntcon.c \
 	console/LGPL/pl-ntconsole.c \
-	console/LGPL/pl-ntmain.c
+	console/LGPL/pl-ntmain.c \
+	console/LGPL/yap.rc \
+	console/LGPL/manifest.xml
 
 PL_SOURCES= \
 	pl/arith.yap \
@@ -333,6 +337,11 @@ PL_SOURCES= \
 	pl/history.pl \
 	pl/swi.yap \
 	pl/yapor.yap pl/yio.yap
+
+# need these files to construct the initial saved state.
+SWI_LIB_SOURCES= \
+	swi/library/menu.pl \
+	swi/library/predopts.pl
 
 YAPDOCS=docs/yap.tex docs/chr.tex \
 	docs/clpr.tex docs/swi.tex
@@ -402,7 +411,8 @@ OBJECTS = yap.o $(LIB_OBJECTS)
 PLCONS_OBJECTS = \
 	pl-ntcon.o \
 	pl-ntconsole.o \
-	pl-ntmain.o
+	pl-ntmain.o \
+	yapres.o
 
 all: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
 
@@ -422,7 +432,7 @@ yap.o: console/yap.c config.h
 c_interface.o: C/c_interface.c include/c_interface.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $< -o c_interface.o
 
-yap-argss.o: C/yap-args.c include/c_interface.h config.h
+yap-args.o: C/yap-args.c include/c_interface.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $< -o yap-args.o
 
 clause_list.o: C/clause_list.c include/clause_list.h config.h
@@ -441,7 +451,7 @@ udi.o: C/udi.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 sys.o: library/system/sys.c config.h
-	$(CC) -c $(CFPLAGS) -I$(srcdir)/include $<  -o $@
+	$(CC) -c $(CFPLAGS) -I$(srcdir)/include -I. $<  -o $@
 
 yap_random.o: library/random/yap_random.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $<  -o $@
@@ -462,10 +472,13 @@ pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
 
 pl-ntconsole.o: console/LGPL/pl-ntconsole.c config.h
-	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
 pl-ntmain.o: console/LGPL/pl-ntmain.c config.h
-	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
+
+yapres.o: console/LGPL/yap.rc console/LGPL/manifest.xml config.h
+	$(RC) -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I. -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os -I$(srcdir)/console/LGPL @EXTRA_INCLUDES_FOR_WIN32@ -i $< -o $@
 
 uxnt.o: os/windows/uxnt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
@@ -540,7 +553,7 @@ all: startup.yss
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p || exit 1; fi; \
 	done
 
-startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
+startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
@@ -553,7 +566,7 @@ yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd swi/console; $(MAKE))
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPILDF@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
@@ -571,7 +584,9 @@ install: @INSTALL_COMMAND@
 install_unix: startup.yss @YAPLIB@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -598,7 +613,9 @@ install_unix: startup.yss @YAPLIB@
 install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
+	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -632,10 +649,10 @@ clean_local:
 
 distclean:  distclean_docs clean_local
 	for p in $(PACKAGES); do \
-      echo " ============== DISTCLEAN " $$p; \
+          echo " ============== DISTCLEAN " $$p; \
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p distclean || exit 1; fi; \
 	done
-	rm -f yap@EXEC_SUFFIX@ startup.yss libYap.* Makefile packages/Makefile.defs packages/Dialect.defs
+	rm -f yap* startup.yss libYap.* Makefile packages/Makefile.defs packages/Dialect.defs
 
 dist:
 
@@ -693,28 +710,28 @@ install_docs:
 
 info: yap.info
 
-yap.info: $(YAPDOCS)
-	$(MAKEINFO)  docs/yap.tex
+yap.info: docs/yap.tex
+	$(MAKEINFO) $<
 
 html: yap.html
 
 yap.html: docs/yap.tex
-	$(TEXI2HTML) docs/yap.tex
+	$(TEXI2HTML) $<
 
 dvi: yap.dvi
 
-yap.dvi: $(YAPDOCS)
-	$(TEXI2DVI) docs/yap.tex
+yap.dvi: docs/yap.tex
+	$(TEXI2DVI) $<
 
 ps:	yap.ps
 
-yap.ps:  $(YAPDOCS)
-	dvips -o yap.ps docs/yap
+yap.ps:  docs/yap.tex
+	dvips -o yap.ps $<
 
 pdf: yap.pdf
 
-yap.pdf:  $(YAPDOCS)
-	$(TEXI2PDF) docs/yap.tex
+yap.pdf:  docs/yap.tex
+	$(TEXI2PDF) $<
 
 clean_docs:
 	rm -f *.aux *.ca *.cas *.cn *.cns *.cp *.cps *.cy *.cys *.dvi *.fn *.fns *.ky *.log *.sa *.sas *.sn *.sns *.sy *.sys *~ *.tp *.vr *.toc *.pg

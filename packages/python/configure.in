@@ -21,54 +21,60 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    else
      PYTHON="$yap_cv_python"
    fi
-   if test $i_am_cross_compiling = yes
+   if test "$i_am_cross_compiling" = yes 
    then
      #mingw
-     PYTHON_DIR=`dirname "$PYTHON"`
+     PYTHON_DIR=`which "$PYTHON"`
+     PYTHON_DIR=`dirname "$PYTHON_DIR"`
      PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
      PYTHON_LIBS="\"$PYTHON_DLL\""
      PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
    else
-   PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[[:3]])"`
-   if test -d "$PYTHONHOME/libs"; then
-     dnl windows
-     PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
-     PYTHON_LIBS="-L $PYTHONHOME/libs"
-   elif test -d "$PYTHONHOME/lib"; then
-     PYTHON_LIBS="-L $PYTHONHOME/lib"
-   else
-     echo "Could not find libraries for Python"
-     PKG_PYTHON=""
-   fi
-   OLIBS=$LIBS
-   LIBS=$PYTHON_LIBS
-   AC_SEARCH_LIBS(Py_Initialize, [python"$PYTHONVERSION" python"$PYTHONVERSION"m],,[echo "Could not find libraries for Python";
-     PKG_PYTHON=""],"$OLIBS")  
-   PYTHON_LIBS=$LIBS
-   LIBS=$OLIBS
-   if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
-   elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
-   elif test -d "$PYTHONHOME/include"; then
-     PYTHON_INCLUDES="-I $PYTHONHOME/include"
-   else
-     echo "Could not find includes for Python"
-     PKG_PYTHON=""
-   fi
+     PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
+     PYTHONHOME=`(cd "$PYTHONHOME" && pwd)`
+     PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[[:3]])"`
+     if test -d "$PYTHONHOME/libs"; then
+       #mingw
+       PYTHON_DIR="$PYTHONHOME"
+       PYTHON_DLL=`echo "$PYTHON_DIR"/python*.dll`
+       PYTHON_LIBS="\"$PYTHON_DLL\""
+       PYTHON_INCLUDES="-I \"$PYTHON_DIR\"/include"
+     elif test -d "$PYTHONHOME/lib"; then
+       # unix, mac
+       PYTHON_LIBS="-L $PYTHONHOME/lib"
+       OLIBS=$LIBS
+       LIBS=$PYTHON_LIBS
+       AC_SEARCH_LIBS(Py_Initialize, [python"$PYTHONVERSION" python"$PYTHONVERSION"m],,[echo "Could not find libraries for Python";
+      				   PKG_PYTHON=""],"$OLIBS")  
+       PYTHON_LIBS=$LIBS
+       LIBS=$OLIBS
+       if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+       elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
+       elif test -d "$PYTHONHOME/include"; then
+         PYTHON_INCLUDES="-I $PYTHONHOME/include"
+       else
+         echo "Could not find includes for Python"
+         PKG_PYTHON=""
+       fi
+     else
+       echo "Could not find libraries for Python"
+       PKG_PYTHON=""
+     fi
    fi
 else
     PYTHON_TARGET="dummy"
     PKG_PYTHON=""
 fi
 
+if test "$PKG_PYTHON" != ""; then
+
 AC_SUBST(PYTHON_TARGET)
 AC_SUBST(PKG_PYTHON)
 AC_SUBST(PYTHON_INCLUDES)
 AC_SUBST(PYTHON_LIBS)
 
-if test "$PKG_PYTHON" != ""; then
 AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 

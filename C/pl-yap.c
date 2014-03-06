@@ -1173,7 +1173,7 @@ PL_w32thread_raise(DWORD id, int sig)
     handling in the Win32 platform.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static int thread_highest_id = 1;
+static int thread_highest_id = 0;
 
 X_API int
 PL_w32thread_raise(DWORD id, int sig)
@@ -1182,18 +1182,20 @@ PL_w32thread_raise(DWORD id, int sig)
   if ( sig < 0 || sig > MAXSIGNAL )
     return FALSE;			/* illegal signal */
 
-  LOCK();
-  for(i = 1; i <= thread_highest_id; i++)
-  { PL_thread_info_t *info = GD->thread.threads[i];
+   LOCK();
+   for(i = 0; i <= thread_highest_id; i++)
+   { PL_thread_info_t *info = GD->thread.threads[i];
 
-    if ( info && info->w32id == id && info->thread_data )
-      { Yap_signal(sig); //raiseSignal(info->thread_data, sig);
-      if ( info->w32id )
-	PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
-      UNLOCK();
-      DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
-      return TRUE;
-    }
+     if ( info && info->w32id == id && info->thread_data )
+       { 
+	 Sfprintf(GLOBAL_stderr, "post %d %d\n\n\n",i, sig);
+	 Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
+	 if ( info->w32id )
+	  PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
+	UNLOCK();
+	DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
+	return TRUE;
+      }
   }
   UNLOCK();
 
@@ -1514,7 +1516,7 @@ PL_thread_info_t *
 SWI_thread_info(int tid, PL_thread_info_t *info)
 {
   if (info)
-    REMOTE_PL_local_data_p(tid)->thread.info = info;
+    GD->thread.threads[tid] = REMOTE_PL_local_data_p(tid)->thread.info = info;
   return REMOTE_PL_local_data_p(tid)->thread.info;
 }
 

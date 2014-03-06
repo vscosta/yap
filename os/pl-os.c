@@ -110,6 +110,25 @@ static void	initEnviron(void);
 #define DEFAULT_PATH "/bin:/usr/bin"
 #endif
 
+/** shell(+Command:text, -Status:integer) is det.
+
+Run an external command and wait for its completion.
+*/
+
+static
+PRED_IMPL("shell", 2, shell, 0)
+{ GET_LD
+  char *cmd;
+
+  if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
+  { int rval = System(cmd);
+
+    return PL_unify_integer(A2, rval);
+  }
+
+  fail;
+}
+
 		/********************************
 		*         INITIALISATION        *
 		*********************************/
@@ -2752,3 +2771,6 @@ Pause(double t)
 }
 #endif
 
+BeginPredDefs(system)
+  PRED_DEF("shell", 2, shell, 0)
+EndPredDefs

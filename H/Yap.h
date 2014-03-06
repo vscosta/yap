@@ -381,30 +381,6 @@ typedef enum
 
 typedef enum
 {
-  YAP_CREEP_SIGNAL = 0x1,	/* received a creep */
-  YAP_WAKEUP_SIGNAL = 0x2,	/* goals to wake up */
-  YAP_ALARM_SIGNAL = 0x4,	/* received an alarm */
-  YAP_HUP_SIGNAL = 0x8,		/* received SIGHUP */
-  YAP_USR1_SIGNAL = 0x10,	/* received SIGUSR1 */
-  YAP_USR2_SIGNAL = 0x20,	/* received SIGUSR2 */
-  YAP_INT_SIGNAL = 0x40,	/* received SIGINT (unused for now) */
-  YAP_ITI_SIGNAL = 0x80,	/* received inter thread signal */
-  YAP_TROVF_SIGNAL = 0x100,	/* received trail overflow */
-  YAP_CDOVF_SIGNAL = 0x200,	/* received code overflow */
-  YAP_STOVF_SIGNAL = 0x400,	/* received stack overflow */
-  YAP_TRACE_SIGNAL = 0x800,	/* received start trace */
-  YAP_DEBUG_SIGNAL = 0x1000,	/* received start debug */
-  YAP_BREAK_SIGNAL = 0x2000,	/* received break signal */
-  YAP_STACK_DUMP_SIGNAL = 0x4000,	/* received stack dump signal */
-  YAP_STATISTICS_SIGNAL = 0x8000,	/* received statistics */
-  YAP_AGC_SIGNAL = 0x20000,	/* call atom garbage collector asap */
-  YAP_PIPE_SIGNAL = 0x40000,	/* call atom garbage collector asap */
-  YAP_VTALARM_SIGNAL = 0x80000,	/* received SIGVTALARM */
-  YAP_FAIL_SIGNAL = 0x100000	/* P = FAILCODE */
-} yap_signals;
-
-typedef enum
-{
   GPROF_NO_EVENT,
   GPROF_NEW_PRED_FUNC,
   GPROF_NEW_PRED_THREAD,
@@ -749,6 +725,11 @@ extern struct worker_local Yap_local;
 #include "YapCompoundTerm.h"
 
 #include "YapHandles.h"
+
+// take care of signal handling within YAP
+
+#include "YapSignals.h"
+
 
 #endif /* YAP_H */
 

@@ -17,16 +17,20 @@
 
 #include <pthread.h>
 
+#define DEBUG_LOCKS 1
+
+#if DEBUG_LOCKS
+int Yap_ThreadID( void );
+extern int debug_locks;
+#endif
+
 #define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
 #define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
 #define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #if DEBUG_LOCKS
-#define LOCK(LOCK_VAR)         if (debug_locks) fprintf(stderr,"[%d] %s:%d: LOCK(%p)\n",  (int)pthread_self(),	\
-						__BASE_FILE__, __LINE__,&(LOCK_VAR));   \
-                                        pthread_mutex_lock(&(LOCK_VAR))
-#define UNLOCK(LOCK_VAR)       if (debug_locks) fprintf(stderr,"[%d] %s:%d: UNLOCK(%p)\n",  (int)pthread_self(),	\
-						__BASE_FILE__, __LINE__,&(LOCK_VAR));   \
-                                        pthread_mutex_unlock(&(LOCK_VAR))
+#define LOCK(LOCK_VAR)         (void)(debug_locks && fprintf(stderr,"[%d] %s:%d: LOCK(%p)\n",  Yap_ThreadID(), \
+						       __BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
+#define UNLOCK(LOCK_VAR)       (void)( debug_locks && fprintf(stderr,"[%d] %s:%d: UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR)) && pthread_mutex_unlock(&(LOCK_VAR)) )
 #else
 #define LOCK(LOCK_VAR)         pthread_mutex_lock(&(LOCK_VAR))
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))
@@ -64,13 +68,13 @@ xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
 
 #if DEBUG_LOCKS
 
-#define MUTEX_LOCK(LOCK_VAR)     if (debug_locks) fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  (int)pthread_self(),	\
-						__BASE_FILE__, __LINE__,(LOCK_VAR));   \
-                                        pthread_mutex_lock((LOCK_VAR))
-#define MUTEX_TRYLOCK(LOCK_VAR)  pthread_mutex_TRYlock((LOCK_VAR))
-#define MUTEX_UNLOCK(LOCK_VAR) if (debug_locks) fprintf(stderr,"[%d] %s:%d: UNMULOCK(%p)\n",  (int)pthread_self(),	\
-						__BASE_FILE__, __LINE__,(LOCK_VAR));   \
-                                        pthread_mutex_unlock((LOCK_VAR))
+#define MUTEX_LOCK(LOCK_VAR)     (void)( debug_locks && fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), \
+						__BASE_FILE__, __LINE__,(LOCK_VAR)) &&   \
+				   pthread_mutex_lock((LOCK_VAR)) )
+#define MUTEX_TRYLOCK(LOCK_VAR)  pthread_mutex_trylock((LOCK_VAR))
+#define MUTEX_UNLOCK(LOCK_VAR)  (void)( debug_locks && fprintf(stderr,"[%d] %s:%d: UNMULOCK(%p)\n",  Yap_ThreadID(), \
+						__BASE_FILE__, __LINE__,(LOCK_VAR)) &&   \
+				  pthread_mutex_unlock((LOCK_VAR)))
 #else
 #define MUTEX_LOCK(LOCK_VAR) pthread_mutex_lock((LOCK_VAR))
 #define MUTEX_TRYLOCK(LOCK_VAR)  pthread_mutex_trylock((LOCK_VAR))

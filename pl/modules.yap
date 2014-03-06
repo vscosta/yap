@@ -611,6 +611,7 @@ source_module(Mod) :-
 	multifile(:),
 	nospy(:),
         not(0),
+        notrace(0),
         once(0),
         phrase(2,?),
         phrase(2,?,+),

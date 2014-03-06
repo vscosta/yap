@@ -55,7 +55,10 @@ static void InitWorker(int wid) {
   REMOTE_ScannerStack(wid) = NULL;
   REMOTE_ScannerExtraBlocks(wid) = NULL;
   REMOTE_BallTerm(wid) = NULL;
-  REMOTE_ActiveSignals(wid) = 0L;
+  REMOTE_MaxActiveSignals(wid) = 64L;
+  REMOTE_FirstActiveSignal(wid) = 0L;
+  REMOTE_LastActiveSignal(wid) = 0L;
+  REMOTE_ActiveSignals(wid) = Yap_InitSignals(wid);
   REMOTE_IPredArity(wid) = 0L;
   REMOTE_ProfEnd(wid) = NULL;
   REMOTE_UncaughtThrow(wid) = FALSE;
