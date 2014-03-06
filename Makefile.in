@@ -614,7 +614,7 @@ install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
-	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
+	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
 	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons
 
 install_library: @YAPLIB@

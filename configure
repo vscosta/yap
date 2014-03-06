@@ -835,7 +835,6 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_tabling
-enable_abi
 enable_or_parallelism
 enable_depth_limit
 enable_wam_profile
@@ -1512,7 +1511,6 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
  --enable-tabling           support tabling
- --enable-abi           support tabling
  --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads
  --enable-depth-limit       support depth-bound computation
  --enable-wam-profile       support low level profiling of abstract machine
@@ -4209,15 +4207,6 @@ else
   tabling=yes
 fi
 
-# Check whether --enable-abi was given.
-if test "${enable_abi+set}" = set; then :
-  enableval=$enable_abi; yap_cv_abi="$enableval"
-         CC="$CC -m$abi"
-         CXX="$CXX -m$abi"
-else
-  yap_cv_abi=""
-fi
-
 # Check whether --enable-or-parallelism was given.
 if test "${enable_or_parallelism+set}" = set; then :
   enableval=$enable_or_parallelism; orparallelism="$enableval"
@@ -4557,9 +4546,7 @@ $as_echo "#define MinStackSpace (1024*SIZEOF_INT_P)" >>confdefs.h
 
 $as_echo "#define MinTrailSpace (256*SIZEOF_INT_P)" >>confdefs.h
 
-  $as_echo "#define MAX_WORKERS 1" >>confdefs.h
-
-if test "$orparallelism" = no
+if test "$orparallelism" = yes
 then
 
 cat >>confdefs.h <<_ACEOF
@@ -4574,6 +4561,9 @@ _ACEOF
   then
     threads="yes"
   fi
+else
+  $as_echo "#define MAX_WORKERS 1" >>confdefs.h
+
 fi
 
 
@@ -12175,7 +12165,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12178 "configure" */
+/* #line 12168 "configure" */
 public class Test {
 }
 EOF
@@ -12351,7 +12341,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12354: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12344: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12482,7 +12472,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12485 "configure" */
+/* #line 12475 "configure" */
 public class Test {
 }
 EOF
@@ -12517,7 +12507,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12520 "configure" */
+/* [#]line 12510 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

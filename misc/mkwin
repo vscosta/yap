@@ -1,4 +1,15 @@
-
+#!/bin/sh
+#
+# script for compiling and installing YAP under msys. Uses a mingw64
+# compiler and nsis to do the installing
+#
+# please check:
+#
+# http://sourceforge.net/projects/mingwbuilds/
+# http://nsis.sourceforge.net/Main_Page
+#
+#
+VERSION=6.3.4
 THREADS=yes
 if test $# = 0; then
   ABI=64
@@ -9,8 +20,21 @@ else
   THREADS=$2
 fi
 
+# debugging setup
+do_compile=true
+do_install=true
+
 # HOME WIN64 configuration
-if test -e "/c/cygwin/Yap/mingw64/bin/gcc" -a $ABI = 64; then
+
+DOCS_DIR=/z/Yap/bins/osx
+if test "$THREADS" = yes; then
+  FULL_VERSION="$VERSION"-threads
+else
+  FULL_VERSION="$VERSION"
+fi
+
+if test $ABI = 64; then
+GCC_PATH=/c/cygwin/Yap/mingw64
 CUDD=yes
 GECODE=no #does not link with mingw64, VC++ trouble
 GMP=yes
@@ -18,13 +42,7 @@ JAVA=yes
 PYTHON=no
 REAL=yes
 HOST="--host=x86_64-w64-mingw32"
-if test $THREADS = yes; then
-  TAR=yap-x86_64-threads-6.3.4.tar.gz
-else
-  TAR=yap-x86_64-6.3.4.tar.gz
-fi
 
-  GCC_PATH="/c/cygwin/Yap/mingw64"
   # it seems python2.7 does not support mingw64
   PYTHON_PATH="/c/Python33-64"
   export PATH="$GCC_PATH"/bin:"$PATH"
@@ -42,7 +60,8 @@ fi
 fi
 
 # HOME WIN32 configuration
-if test -e "/c/cygwin/Yap/mingw64/bin/gcc" -a $ABI = 32; then
+if test $ABI = 32; then
+GCC_PATH="/c/Program Files (x86)/mingw-builds/x32-4.8.1-posix-dwarf-rev5/mingw32"
 CUDD=yes
 GECODE=no # install only allows one of 32 or 64 bits
 GMP=yes
@@ -50,7 +69,6 @@ JAVA=yes
 PYTHON=no
 REAL=yes
 
-  GCC_PATH="/c/cygwin/Yap/mingw64"
   PYTHON_PATH="/c/Python27"
   export PATH="$GCC_PATH"/bin:$PATH:"$PYTHON_PATH"
 #  GECODE_PATH="/c/Program Files/Gecode"
@@ -59,10 +77,11 @@ REAL=yes
   JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
   R_PATH="/c/Program Files/R/R-3.0.2"
   R_ABI=i386
-  HOST="--enable-abi=32"
+  HOST=""
+
   if test $THREADS = yes
   then
-    cp "$GCC_PATH/x86_64-w64-mingw32/lib32/libwinpthread-1.dll" .
+      cp "$GCC_PATH/i686-w64-mingw32/lib/libwinpthread-1.dll" .
     cp libwinpthread-1.dll pthreadGC2.dll
   fi
 fi
@@ -92,6 +111,7 @@ then
   export PATH="$PATH":"$R_PATH"/bin/"$R_ABI"
 fi
 
+if test "$do_compile" = true; then
 ../yap-6.3/configure $HOST \
 	--with-R="$REAL" \
 	--with-java="$JAVA" \
@@ -102,10 +122,15 @@ fi
 	--enable-threads="$THREADS"  --enable-pthread-locking \
 	 --enable-debug-yap --enable-low-level-tracer
 make install
-cp /z/Yap/bins/osx/*html /c/Yap64/share/doc/Yap
-cp /z/Yap/bins/osx/*pdf /c/Yap64/share/doc/Yap
+fi
+if test "$do_install" = true; then
 if test $ABI = 64; then
-  "/c/Program Files (x86)/NSIS/makensis" ../yap-6.3/misc/Yap64.nsi
+  cp $DOCS_DIR/*html /c/Yap64/share/doc/Yap
+  cp $DOCS_DIR/*pdf /c/Yap64/share/doc/Yap
+  "/c/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog64 -DROOTDIR=Yap64 -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="..\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -D"WIN64=1" -NOCD ../yap-6.3/misc/Yap.nsi
 else
-  "/c/Program Files (x86)/NSIS/makensis" ../yap-6.3/misc/Yap.nsi
+  cp $DOCS_DIR/*html /c/Yap/share/doc/Yap
+  cp $DOCS_DIR/*pdf /c/Yap/share/doc/Yap
+  "/c/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog -DROOTDIR=Yap -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="..\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -NOCD ../yap-6.3/misc/Yap.nsi
+fi
 fi

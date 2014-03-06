@@ -101,11 +101,6 @@ AC_DEFINE(ALIGN_LONGS, 1, [longs should be in addresses that are multiple of fou
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
 	tabling="$enableval", tabling=yes)
-AC_ARG_ENABLE(abi,
-	[ --enable-abi           support tabling ],
-	[yap_cv_abi="$enableval"
-         CC="$CC -m$abi"
-         CXX="$CXX -m$abi"], yap_cv_abi="")
 AC_ARG_ENABLE(or-parallelism,
 	[ --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads ],
 	orparallelism="$enableval", orparallelism=no)
@@ -313,8 +308,7 @@ AC_ARG_WITH(max-threads,
   AC_DEFINE(MinHeapSpace, (2048*SIZEOF_INT_P), [at least 2M Cells for Heap])
   AC_DEFINE(MinStackSpace,(1024*SIZEOF_INT_P), [at least 1M Cells for Stack]) 
   AC_DEFINE(MinTrailSpace,(256*SIZEOF_INT_P), [at least 1/2M Cells for Trail])
-  AC_DEFINE(MAX_WORKERS,1)
-if test "$orparallelism" = no
+if test "$orparallelism" = yes
 then
   AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers,[maximum amount of or-parallelism])
   if test "$orparallelism" = copy -o "$orparallelism" = yes
@@ -325,6 +319,8 @@ then
   then
     threads="yes"
   fi
+else
+  AC_DEFINE(MAX_WORKERS,1)
 fi
 
 AC_DEFINE_UNQUOTED(DefHeapSpace,$yap_cv_heap_space, [Default Heap Space.])
