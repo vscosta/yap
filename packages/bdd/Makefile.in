@@ -64,6 +64,7 @@ install: all install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	for h in $(BDD_PROLOG); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	@WINDOWS@ $(INSTALL_PROGRAM) @CUDD_LDFLAGS@ $(DESTDIR)$(BINDIR)
 
 install-examples:
 

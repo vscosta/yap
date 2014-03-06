@@ -59,7 +59,7 @@ clean:
 	rm -f *.o problogbdd_lfi
 
 install: default
-	$(INSTALL_PROGRAM) problogbdd_lfi $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL_PROGRAM) problogbdd_lfi $(DESTDIR)$(BINDIR)
 
 install-examples:
 

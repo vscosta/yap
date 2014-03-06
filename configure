@@ -11386,10 +11386,11 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
-if test $i_am_cross_compiling = yes
+if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
      #mingw: we know where things are
-  CUDD_LDFLAGS="-L $cudd_dir/lib -lall_cudd"
+  CUDD_LDFLAGS="$cudd_dir/lib/all_cudd.dll"
+  cudd_installed="yes"
 else
 
 if test -d "$cudd_dir/util"; then
@@ -12165,7 +12166,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12168 "configure" */
+/* #line 12169 "configure" */
 public class Test {
 }
 EOF
@@ -12341,7 +12342,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12344: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12345: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12472,7 +12473,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12475 "configure" */
+/* #line 12476 "configure" */
 public class Test {
 }
 EOF
@@ -12507,7 +12508,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12510 "configure" */
+/* [#]line 12511 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

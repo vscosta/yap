@@ -6,6 +6,9 @@
 # please check:
 #
 # http://sourceforge.net/projects/mingwbuilds/
+#   PS: don't install in the default location.
+#   mingw should avoid space in its directory,
+#   it freaks winres out.
 # http://nsis.sourceforge.net/Main_Page
 #
 #
@@ -61,7 +64,7 @@ fi
 
 # HOME WIN32 configuration
 if test $ABI = 32; then
-GCC_PATH="/c/Program Files (x86)/mingw-builds/x32-4.8.1-posix-dwarf-rev5/mingw32"
+GCC_PATH="/c/cygwin/Yap/mingw32/mingw32"
 CUDD=yes
 GECODE=no # install only allows one of 32 or 64 bits
 GMP=yes

@@ -59,7 +59,7 @@ clean:
 	rm -f *.o problogbdd
 
 install: default
-	$(INSTALL_PROGRAM) problogbdd $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL_PROGRAM) problogbdd $(DESTDIR)$(BINDIR)/Yap
 
 install-examples:
 

@@ -50,10 +50,11 @@ elif test -d "$cudd_dir/lib"; then
   LIBS="$LIBS -L $cudd_dir/lib"
 fi
 
-if test $i_am_cross_compiling = yes
+if test "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
      #mingw: we know where things are
-  CUDD_LDFLAGS="-L $cudd_dir/lib -lall_cudd"
+  CUDD_LDFLAGS="$cudd_dir/lib/all_cudd.dll"
+  cudd_installed="yes"
 else
 
 if test -d "$cudd_dir/util"; then
