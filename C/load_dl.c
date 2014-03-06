@@ -74,12 +74,14 @@ Yap_FindExecutable(void)
   return getexecname();
 #elif __APPLE__
   char path[1024];
+  char *buf;
+
   uint32_t size = sizeof(path);
   if (!_NSGetExecutablePath(path, &size)) {
     size_t sz = strlen(path);
-    char *rc = malloc(sz+1);
-    strncpy(rc, path, sz);
-    return rc;
+    buf = malloc(sz+1);
+    strncpy(buf, path, sz);
+    return buf;
   } else {
     char *rc = malloc(size+1);
     if (_NSGetExecutablePath(rc, &size) == 0)
@@ -95,7 +97,6 @@ Yap_FindExecutable(void)
     buf[len] = '\0';
     return buf;
   }
-  free( buf );
   // follow through to standard method
 #elif defined(__FreeBSD__) ||  defined(__DragonFly__)
   enum { BUFFERSIZE = 1024 };
@@ -106,7 +107,6 @@ Yap_FindExecutable(void)
     buf[len] = '\0';
     return buf;
   }
-  free( buf );
   int mib[4];
   mib[0] = CTL_KERN;
   mib[1] = KERN_PROC;
