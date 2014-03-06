@@ -35,7 +35,8 @@
 	  ]).
 
 :- meta_predicate
-	win_insert_menu_item(+,+,+,:).
+        prolog:win_insert_menu_item(+,+,+,0).
+
 %:- multifile
 %	prolog:on_menu/1.
 :- dynamic

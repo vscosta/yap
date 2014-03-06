@@ -31,6 +31,7 @@ PROGRAMS= \
 	$(srcdir)/ctypes.pl \
 	$(srcdir)/date.pl \
 	$(srcdir)/debug.pl \
+	$(srcdir)/edit.pl \
 	$(srcdir)/error.pl \
 	$(srcdir)/main.pl \
 	$(srcdir)/maplist.pl \

@@ -198,8 +198,9 @@ user:url_path(yap,	      'http://www.dcc.fc.up.pt/~vsc/Yap').
 
 user:url_path(yap_download,   'http://www.dcc.fc.up.pt/~vsc/Yap/downloads.html').
 user:url_path(yap_man,        yap('documentation.html')).
+user:url_path(yap_mail,     'https://lists.sourceforge.net/lists/listinfo/yap-users').
 user:url_path(yap_bugs,     'http://sourceforge.net/tracker/?group_id=24437&atid=381483').
-user:url_path(yap_git,    'http://yap.git.sourceforge.net/git/gitweb-index.cgi').
+user:url_path(yap_git,    'http://sourceforge.net/p/yap/yap-6.3/ref/master/').
 
 
 
