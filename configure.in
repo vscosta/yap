@@ -308,7 +308,7 @@ AC_ARG_WITH(max-threads,
   AC_DEFINE(MinHeapSpace, (2048*SIZEOF_INT_P), [at least 2M Cells for Heap])
   AC_DEFINE(MinStackSpace,(1024*SIZEOF_INT_P), [at least 1M Cells for Stack]) 
   AC_DEFINE(MinTrailSpace,(256*SIZEOF_INT_P), [at least 1/2M Cells for Trail])
-if test "$orparallelism" = yes
+if test "$orparallelism" != no
 then
   AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers,[maximum amount of or-parallelism])
   if test "$orparallelism" = copy -o "$orparallelism" = yes
@@ -1108,7 +1108,12 @@ else
   YAPLIB_CFLAGS="$CFLAGS"
 fi
 
-YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1 -DTABLING=1"
+YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
+
+if test "$orparallelism"  = no
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
+fi
 
 if test "$debugyap" = "yes"
   then
@@ -1686,15 +1691,13 @@ else
       fi
     ;;
 #    a-cow)
-    **)
-      if test "$use_malloc" = "no"
-      then
-        AC_DEFINE(USE_DL_MALLOC,1,[use Doug Lea's malloc for all allocation])
-      else
-        AC_DEFINE(USE_SYSTEM_MALLOC,1,[use OS malloc for all allocation])
-      fi
-    ;;
   esac
+  if test "$use_malloc" = "no"
+  then
+    AC_DEFINE(USE_DL_MALLOC,1,[use Doug Lea's malloc for all allocation])
+  else
+    AC_DEFINE(USE_SYSTEM_MALLOC,1,[use OS malloc for all allocation])
+  fi
 fi
 AC_DEFINE(GC_NO_TAGS,1,[use Barts idea of allocating extra memory])
 

@@ -4546,7 +4546,7 @@ $as_echo "#define MinStackSpace (1024*SIZEOF_INT_P)" >>confdefs.h
 
 $as_echo "#define MinTrailSpace (256*SIZEOF_INT_P)" >>confdefs.h
 
-if test "$orparallelism" = yes
+if test "$orparallelism" != no
 then
 
 cat >>confdefs.h <<_ACEOF
@@ -7422,7 +7422,12 @@ else
   YAPLIB_CFLAGS="$CFLAGS"
 fi
 
-YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1 -DTABLING=1"
+YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
+
+if test "$orparallelism"  = no
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
+fi
 
 if test "$debugyap" = "yes"
   then
@@ -9378,19 +9383,17 @@ $as_echo "#define USE_SYSTEM_SHM 1" >>confdefs.h
       fi
     ;;
 #    a-cow)
-    **)
-      if test "$use_malloc" = "no"
-      then
+  esac
+  if test "$use_malloc" = "no"
+  then
 
 $as_echo "#define USE_DL_MALLOC 1" >>confdefs.h
 
-      else
+  else
 
 $as_echo "#define USE_SYSTEM_MALLOC 1" >>confdefs.h
 
-      fi
-    ;;
-  esac
+  fi
 fi
 
 $as_echo "#define GC_NO_TAGS 1" >>confdefs.h
@@ -12166,7 +12169,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12169 "configure" */
+/* #line 12172 "configure" */
 public class Test {
 }
 EOF
@@ -12342,7 +12345,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12345: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12348: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12473,7 +12476,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12476 "configure" */
+/* #line 12479 "configure" */
 public class Test {
 }
 EOF
@@ -12508,7 +12511,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12511 "configure" */
+/* [#]line 12514 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12892,6 +12895,9 @@ while test $found = no; do
 		fi
         fi
 done
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: _JTOPDIR=\"$_JTOPDIR\"" >&5
+$as_echo "_JTOPDIR=\"$_JTOPDIR\"" >&6; }
 
 # get the likely subdirectories for system specific java includes
 case "$host_os" in

@@ -100,12 +100,12 @@ void   Yap_InitHeap(void *);
 UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
 void   Yap_AllocHole(UInt, UInt);
 
-#if USE_MMAP && ! defined(__CYGWIN__)
+#if USE_SYSTEM_MMAP && ! defined(__CYGWIN__)
 
 #include <sys/types.h>
 #include <sys/mman.h>
 
-#elif USE_SHM
+#elif USE_SYSTEM_SHM
 
 
 
