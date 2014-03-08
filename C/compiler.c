@@ -3405,6 +3405,11 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   /* may botch while doing a different module */
   /* first, initialise cglobs->cint.CompilerBotch to handle all cases of interruptions */
   compiler_struct cglobs;
+  
+  #ifdef TABLING_INNER_CUTS
+  PInstr cglobs_cut_mark;
+  cglobs.cut_mark = &cglobs_cut_mark;
+  #endif /* TABLING_INNER_CUTS */
 
   /* make sure we know there was no error yet */
   LOCAL_ErrorMessage = NULL;

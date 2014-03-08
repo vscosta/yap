@@ -4546,6 +4546,21 @@ $as_echo "#define MinStackSpace (1024*SIZEOF_INT_P)" >>confdefs.h
 
 $as_echo "#define MinTrailSpace (256*SIZEOF_INT_P)" >>confdefs.h
 
+if test "$orparallelism" = threads
+then
+  orparallelism="yes"
+  threads="yes"
+fi
+
+if  "$orparallelism" = copy  ||  "$orparallelism" = yes -a "$threads" = no
+then
+  orparallelism="copy"
+  use_malloc="no"
+elif  "$orparallelism" != no
+then
+  tabling="no"
+fi
+
 if test "$orparallelism" != no
 then
 
@@ -4553,14 +4568,6 @@ cat >>confdefs.h <<_ACEOF
 #define MAX_WORKERS $yap_cv_max_workers
 _ACEOF
 
-  if test "$orparallelism" = copy -o "$orparallelism" = yes
-  then
-    use_malloc="no"
-  fi
-  if test "$orparallelism" = threads
-  then
-    threads="yes"
-  fi
 else
   $as_echo "#define MAX_WORKERS 1" >>confdefs.h
 
@@ -7424,7 +7431,7 @@ fi
 
 YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
 
-if test "$orparallelism"  = no
+if test "$tabling" = yes
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
@@ -7476,7 +7483,7 @@ as_fn_error $? "--or-parallelism=$orparallelism incompatible with threads
 
 See \`config.log' for more details" "$LINENO" 5; }
     ;;
-    yes|threads)
+    yes)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
   esac
@@ -7488,7 +7495,7 @@ else
     a-cow)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
     ;;
-    yes|copy)
+    copy)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
     ;;
   esac
@@ -9370,7 +9377,7 @@ $as_echo "#define USE_SYSTEM_MALLOC 1" >>confdefs.h
   fi
 else
   case "$orparallelism" in
-    sba|yes|copy)
+    sba|copy)
       if test x"$ac_cv_func_mmap" = x"yes"
       then
 
@@ -12169,7 +12176,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12172 "configure" */
+/* #line 12179 "configure" */
 public class Test {
 }
 EOF
@@ -12345,7 +12352,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12348: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12355: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12476,7 +12483,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12479 "configure" */
+/* #line 12486 "configure" */
 public class Test {
 }
 EOF
@@ -12511,7 +12518,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12514 "configure" */
+/* [#]line 12521 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

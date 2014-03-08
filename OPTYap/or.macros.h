@@ -11,6 +11,9 @@
 **                                                                     **
 ************************************************************************/
 
+#ifndef OR_MACROS_H
+#define OR_MACROS_H
+
 /* -------------------- **
 **      Prototypes      **
 ** -------------------- */
@@ -605,3 +608,5 @@ qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr solutions, int ltt) {
   }
   return solutions;
 }
+
+#endif

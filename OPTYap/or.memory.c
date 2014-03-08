@@ -162,8 +162,8 @@ void Yap_init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt 
   LOCAL_TrailBase = LOCAL_GlobalBase + GlobalLocalStackArea;
   LOCAL_LocalBase = LOCAL_TrailBase - CellSize;
   LOCAL_TrailTop = LOCAL_TrailBase + TrailStackArea;
-  HeapLim = LOCAL_GlobalBase;
   Yap_InitHeap(Yap_HeapBase);
+  HeapLim = LOCAL_GlobalBase;
   return;
 }
 

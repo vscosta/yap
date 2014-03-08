@@ -20,6 +20,9 @@
 #include <string.h>
 #endif /* HAVE_STRING_H */
 #include "opt.mavar.h"
+#ifdef YAPOR
+#include "or.macros.h"
+#endif
 
 #ifdef THREADS
 static inline void **__get_insert_thread_bucket(void **, lockvar * USES_REGS);

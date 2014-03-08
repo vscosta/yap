@@ -308,17 +308,24 @@ AC_ARG_WITH(max-threads,
   AC_DEFINE(MinHeapSpace, (2048*SIZEOF_INT_P), [at least 2M Cells for Heap])
   AC_DEFINE(MinStackSpace,(1024*SIZEOF_INT_P), [at least 1M Cells for Stack]) 
   AC_DEFINE(MinTrailSpace,(256*SIZEOF_INT_P), [at least 1/2M Cells for Trail])
+if test "$orparallelism" = threads
+then
+  orparallelism="yes"
+  threads="yes"
+fi
+
+if [ "$orparallelism" = copy ] || [ "$orparallelism" = yes -a "$threads" = no ]
+then
+  orparallelism="copy"
+  use_malloc="no"
+elif [ "$orparallelism" != no ]
+then
+  tabling="no"
+fi
+
 if test "$orparallelism" != no
 then
   AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers,[maximum amount of or-parallelism])
-  if test "$orparallelism" = copy -o "$orparallelism" = yes
-  then
-    use_malloc="no"
-  fi
-  if test "$orparallelism" = threads
-  then
-    threads="yes"
-  fi
 else
   AC_DEFINE(MAX_WORKERS,1)
 fi
@@ -1110,7 +1117,7 @@ fi
 
 YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
 
-if test "$orparallelism"  = no
+if test "$tabling" = yes
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
@@ -1160,7 +1167,7 @@ if test "$threads" = "yes"
                    [--or-parallelism=$orparallelism incompatible with threads]
       )
     ;;
-    yes|threads)
+    yes)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
   esac
@@ -1172,7 +1179,7 @@ else
     a-cow)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
     ;;
-    yes|copy)
+    copy)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
     ;;
   esac
@@ -1682,7 +1689,7 @@ then
   fi
 else
   case "$orparallelism" in
-    sba|yes|copy)
+    sba|copy)
       if test x"$ac_cv_func_mmap" = x"yes"
       then
         AC_DEFINE(USE_SYSTEM_MMAP,1,[use mmap in or-parallel allocation])
