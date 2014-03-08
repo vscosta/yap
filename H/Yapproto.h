@@ -333,6 +333,7 @@ void	Yap_InitSavePreds(void);
 
 /* signals.c */
 void	Yap_InitSignalCPreds(void);
+void   *Yap_InitSignals(int wid);
 
 /* sort.c */
 void    Yap_InitSortPreds(void);

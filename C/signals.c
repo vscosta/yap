@@ -71,7 +71,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
       REMOTE_LastActiveSignal(wid) = 0;
   UNLOCK(REMOTE_SignalLock(wid));
 #else
-  LOCK(LOCAL_SignalLock);
   if (!LOCAL_InterruptsDisabled) {
     Yap_regp->CreepFlag_ = 
       Unsigned(Yap_regp->LCL0_);
@@ -83,7 +82,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig == LOCAL_ActiveSignals[i]) {
-	UNLOCK(LOCAL_SignalLock);
 	return;
       }
       i++;
@@ -95,7 +93,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
   LOCAL_LastActiveSignal++;
   if (LOCAL_LastActiveSignal == LOCAL_MaxActiveSignals)
       LOCAL_LastActiveSignal = 0;
-  UNLOCK(LOCAL_SignalLock);
 #endif
 }
 
@@ -424,7 +421,8 @@ Yap_InitSignalCPreds(void)
 #endif
 }
 
-void Yap_InitSignals(int wid)
+void *Yap_InitSignals(int wid)
 {
-  REMOTE_ActiveSignals(wid) = (UInt *)malloc(sizeof(UInt)*REMOTE_MaxActiveSignals(wid));
+  void *ptr = (void *)malloc(sizeof(UInt)*REMOTE_MaxActiveSignals(wid));
+  return ptr;
 }
