@@ -4552,7 +4552,7 @@ then
   threads="yes"
 fi
 
-if  "$orparallelism" = copy  ||  "$orparallelism" = yes -a "$threads" = no
+if test "$orparallelism" = copy  || test "$orparallelism" = yes -a "$threads" = no
 then
   orparallelism="copy"
   use_malloc="no"
