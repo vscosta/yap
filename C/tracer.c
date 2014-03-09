@@ -391,7 +391,7 @@ toggle_low_level_trace(void)
 
 static Int p_start_low_level_trace( USES_REGS1 )
 {
-  GLOBAL_stderr = Sopen_file("LOG", "w");
+  GLOBAL_stderr = Sopen_file("TRACER_LOG", "w");
   Yap_do_low_level_trace = TRUE;
   return(TRUE);
 }
