@@ -4552,11 +4552,11 @@ then
   threads="yes"
 fi
 
-if test "$orparallelism" = copy  || test "$orparallelism" = yes -a "$threads" = no
+if test "$orparallelism" = copy || test "$orparallelism" = yes -a "$threads" = no
 then
   orparallelism="copy"
   use_malloc="no"
-elif  "$orparallelism" != no
+elif test "$orparallelism" != no
 then
   tabling="no"
 fi

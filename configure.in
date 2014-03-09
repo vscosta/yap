@@ -318,7 +318,7 @@ if test "$orparallelism" = copy || test "$orparallelism" = yes -a "$threads" = n
 then
   orparallelism="copy"
   use_malloc="no"
-elif [ "$orparallelism" != no ]
+elif test "$orparallelism" != no
 then
   tabling="no"
 fi
