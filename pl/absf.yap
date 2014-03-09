@@ -154,14 +154,12 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	fail.
 '$find_in_path'(S, Opts, NewFile, Call) :-
 	S =.. [Name,File0],
-	'$cat_file_name'(File0,File1), !,
-	'$expand_file_name'(File1, File),
+	'$cat_file_name'(File0,File), !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
 '$find_in_path'(File0,Opts,NewFile,_) :-
-	'$cat_file_name'(File0,File1), !,
-	'$expand_file_name'(File1, File),
+	'$cat_file_name'(File0,File), !,
 	'$add_path'(File,PFile),
 	'$get_abs_file'(PFile,Opts,AbsFile),
 	'$search_in_path'(AbsFile,Opts,NewFile).
@@ -186,28 +184,28 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$to_list_of_atoms'(Bs, L2, LF).
 
 '$get_abs_file'(File,opts(_,RelTo,_,_,_,Expand,_),AbsFile) :-
-	(
-	 nonvar(RelTo)
-	->
-	 ( is_absolute_file_name(File) ->
-	   ActualFile = File
-	  ;
-	   '$dir_separator'(D),
-	   atom_codes(DA,[D]),
-	   atom_concat([RelTo, DA, File], ActualFile)
-	  )
-	;
-	  ActualFile = File
-	),
 	'$swi_current_prolog_flag'(file_name_variables, OldF),
 	'$swi_set_prolog_flag'(file_name_variables, Expand),
 	(
-	 '$absolute_file_name'(ActualFile,AbsFile)
+	 '$absolute_file_name'(File,ExpFile)
 	-> 
 	'$swi_set_prolog_flag'(file_name_variables, OldF)
 	;
 	'$swi_set_prolog_flag'(file_name_variables, OldF),
 	 fail
+	),
+	(
+	 nonvar(RelTo)
+	->
+	 ( is_absolute_file_name(ExpFile) ->
+	   AbsFile = ExpFile
+	  ;
+	   '$dir_separator'(D),
+	   atom_codes(DA,[D]),
+	   atom_concat([RelTo, DA, ExpFile], AbsFile)
+	  )
+	;
+	  AbsFile = ExpFile
 	).
 	 
 
@@ -284,8 +282,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 % not installed on registry
 '$system_library_directories'(Library, Dir) :-
 	'$yap_paths'(_DLLs, ODir1, OBinDir ),
-	'$expand_file_name'( ODir1, Dir1 ),
-	'$expand_file_name'( OBinDir, BinDir ),
+	'$absolute_file_name'( ODir1, Dir1 ),
+	'$absolute_file_name'( OBinDir, BinDir ),
 %	'$swi_current_prolog_flag'(executable, Bin1),
 %	prolog_to_os_filename( Bin2, Bin1 ),
 %	file_directory_name( Bin2, BinDir1 ),
