@@ -34,7 +34,10 @@
 	    read_line_to_codes/3,	% +Fd, -Codes, ?Tail
 	    read_stream_to_codes/2,	% +Fd, -Codes
 	    read_stream_to_codes/3,	% +Fd, -Codes, ?Tail
+	    read_line_to_string/2,	% +Fd, -Codes (without trailing \n)
+	    read_stream_to_string/2,	% +Fd, -Codes, ?Tail
 	    read_file_to_codes/3,	% +File, -Codes, +Options
+	    read_file_to_string/3,	% +File, -Codes, +Options
 	    read_file_to_terms/3	% +File, -Terms, +Options
 	  ]).
 :- use_module(library(shlib)).
@@ -54,7 +57,10 @@ implementation if the shared object cannot be found.
 	read_line_to_codes/2,
 	read_line_to_codes/3,
 	read_stream_to_codes/2,
-	read_stream_to_codes/3.
+	read_stream_to_codes/3,
+	read_line_to_string/2,
+	read_stream_to_string/2,
+	read_stream_to_string/3.
 
 link_foreign :-
 	catch(load_foreign_library(foreign(readutil)), _, fail), !.
@@ -71,6 +77,17 @@ link_foreign :-
 			     read_line_to_codes/3,
 			     read_stream_to_codes/2,
 			     read_stream_to_codes/3
+			   ]),
+	assertz((read_line_to_string(Stream, Line) :-
+		pl_read_line_to_string(Stream, Line))),
+	assertz((read_line_to_string(Stream, Line, Tail) :-
+		pl_read_line_to_string(Stream, Line, Tail))),
+	assertz((read_stream_to_string(Stream, Content) :-
+	        pl_read_stream_to_string(Stream, Content))),
+	assertz((read_stream_to_string(Stream, Content, Tail) :-
+	        pl_read_stream_to_string(Stream, Content, Tail))),
+	compile_predicates([ read_line_to_string/2,
+			     read_stream_to_string/2
 			   ]).
 
 :- initialization(link_foreign, now).
@@ -85,6 +102,14 @@ link_foreign :-
 %	Read a line of input from  In   into  a list of character codes.
 %	Trailing newline and  or  return   are  deleted.  Upon  reaching
 %	end-of-file Line is unified to the atom =end_of_file=.
+
+pl_read_line_to_string(Fd, String) :-
+	get_code(Fd, C0),
+	(   C0 == -1
+	->  String = end_of_file
+	;   read_1line_to_codes(C0, Fd, Codes0)
+	),
+	string_codes( String, Codes0 ).
 
 pl_read_line_to_codes(Fd, Codes) :-
 	get_code(Fd, C0),
@@ -131,6 +156,10 @@ read_line_to_codes(C, Fd, [C|T], Tail) :-
 %
 %	Read input from Stream to a list of character codes. The version
 %	read_stream_to_codes/3 creates a difference-list.
+
+pl_read_stream_to_string(Fd, String) :-
+	pl_read_stream_to_codes(Fd, Codes, []),
+	string_codes( String, Codes ).
 
 pl_read_stream_to_codes(Fd, Codes) :-
 	pl_read_stream_to_codes(Fd, Codes, []).
