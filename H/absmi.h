@@ -1588,15 +1588,6 @@ prune(choiceptr cp USES_REGS)
     }
 }
 
-#define SET_ASP(Y,S) SET_ASP__(Y,S PASS_REGS)
-
-static inline
-void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
-  ASP = (CELL *) (((char *) yreg) + sz);
-  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-    ASP = (CELL *)PROTECT_FROZEN_B(B);
-}
-
 #if YAPOR
 #define INITIALIZE_PERMVAR(PTR, V) Bind_Local((PTR), (V))
 #else

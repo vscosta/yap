@@ -623,8 +623,8 @@ stack_overflow( CELL *env, yamop *cp USES_REGS )
   if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap( PASS_REGS1 ) ||
       Yap_undo_signal( YAP_STOVF_SIGNAL )) {
     if (!Yap_gc(((PredEntry *)(S))->ArityOfPE, env, cp)) {
-	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
-	return 0;
+      Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
+      return 0;
     }
     return 1;
   }
@@ -783,6 +783,7 @@ interrupt_handler_either( USES_REGS1 )
   /* ARG0 has an extra argument for suspended cuts */
   ARG2 = XREGS[0];
   YENV[E_CB] = (CELL) B;
+  SET_ASP(YENV, E_CB*sizeof(CELL));
   return interrupt_handler( PASS_REGS1 );
 }
 
@@ -874,9 +875,7 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL))
     return 2; /* keep on creeping */
   S = (CELL *) pen;
-  ASP = YENV;
-  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-    ASP = (CELL *)PROTECT_FROZEN_B(B);
+  SET_ASP(YENV, E_CB*sizeof(CELL));
   /* setup GB */
   YENV[E_CB] = (CELL) B;
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) return v;
@@ -914,11 +913,7 @@ interrupt_deallocate( USES_REGS1 )
     PP = PREVOP(P,p)->u.p.p;
     ASP = YENV+E_CB;
     /* cut_e */
-    if (YENV <= ASP) {
-      ASP = YENV-EnvSizeInCells;
-    }
-    if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-      ASP = (CELL *)PROTECT_FROZEN_B(B);
+    SET_ASP(YENV, E_CB*sizeof(CELL));
     if ((v = code_overflow(YENV PASS_REGS)) >= 0) return v;
     if (Yap_has_a_signal()) {
       if (Yap_op_from_opcode(P->opc) == _cut_e) {

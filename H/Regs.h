@@ -722,3 +722,12 @@ CalculateStackGap( USES_REGS1 )
   CreepFlag = EventFlag = StackGap( PASS_REGS1 );
 }
 
+#define SET_ASP(Y,S) SET_ASP__(Y,S PASS_REGS)
+
+static inline
+void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
+  ASP = (CELL *) (((char *) yreg) + sz);
+  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+    ASP = (CELL *)PROTECT_FROZEN_B(B);
+}
+

@@ -2516,9 +2516,13 @@ YAP_RunGoal(Term t)
     ENV = B->cp_env;
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
+    HR = B->cp_h;
+    TR = B->cp_tr;
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
-    ASP = ENV;
+    SET_ASP(ENV, E_CB*sizeof(CELL));
+    // make sure the slots are ok.
+    ASP = LCL0-(CurSlot+2+IntOfTerm(LCL0[-CurSlot-1]));
     LOCAL_CurSlot = CurSlot;
   }
   RECOVER_MACHINE_REGS();
