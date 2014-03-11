@@ -5041,6 +5041,7 @@ Unify @var{Names} with a list of the form @var{Name=Var}, where
 @var{Name} is the name of a non-anonymous singleton variable in the
 original term, and @code{Var} is the variable's representation in
 YAP.
+The variables occur in left-to-right traversal order.
 
 @item  syntax_errors(+@var{Val})
 @findex syntax_errors/1 (read_term/2 option)
@@ -5052,10 +5053,12 @@ for detailed information.
 Unify @var{Names} with a list of the form @var{Name=Var}, where @var{Name} is
 the name of a non-anonymous variable in the original term, and @var{Var}
 is the variable's representation in YAP.
+The variables occur in left-to-right traversal order.
 
 @item  variables(-@var{Names})
 @findex variables/1 (read_term/2 option)
 Unify @var{Names} with a list of the variables in term @var{T}.
+The variables occur in left-to-right traversal order.
 
 @end table
 
