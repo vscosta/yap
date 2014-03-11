@@ -1072,8 +1072,8 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 X_API int PL_unify_float(term_t t, double f)
 {
   CACHE_REGS
-  YAP_Term fterm = YAP_MkFloatTerm(f);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),fterm);
+  Term fterm = MkFloatTerm(f);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),fterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)

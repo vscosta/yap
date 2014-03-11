@@ -1251,6 +1251,7 @@ expandVars(const char *pattern, char *expanded, int maxlen)
 
     pattern++;
     user = takeWord(&pattern, wordbuf, sizeof(wordbuf));
+    
     LOCK();
 
     if ( user[0] == EOS )		/* ~/bla */
@@ -1325,9 +1326,22 @@ expandVars(const char *pattern, char *expanded, int maxlen)
 	break;
       case '$':
 	{ char envbuf[MAXPATHLEN];
-	  char *var = takeWord(&pattern, wordbuf, sizeof(wordbuf));
-	  char *value;
-	  int l;
+	  char *var;
+	  char *value, ch;
+	  int l, i;
+
+	  if (pattern[0] == '{') {
+	    pattern++;
+	    for (i = 0; i < sizeof(envbuf)-1; i++) {
+	      if ((ch = *pattern++) == '}')
+		break;
+	      envbuf[i] = ch;
+	    }
+	    envbuf[i] = '\0';
+	    var = envbuf;
+	  } else {
+	    var = takeWord(&pattern, wordbuf, sizeof(wordbuf));
+	  }
 
 	  if ( var[0] == EOS )
 	    goto def;

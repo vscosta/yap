@@ -72,7 +72,8 @@ C_PARSER_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 ARCH=@ARCH@
 AWK=@AWK@
 CPP=@CPP@
-RC=windres
+RC=@RC@
+RCFLAGS=@RCFLAGS@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 LIBS=@LIBS@
 DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
@@ -459,11 +460,8 @@ yap_random.o: library/random/yap_random.c config.h
 %.o: library/regex/%.c  @NO_BUILTIN_REGEXP@ library/regex/regex2.h  library/regex/engine.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -Ilibrary/regex $< -o $@
 
-swi.o: library/dialect/swi/fli/swi.c  library/dialect/swi/fli/swi.h include/SWI-Prolog.h os/SWI-Stream.h config.h
+%.o: library/dialect/swi/fli/%.c  library/dialect/swi/fli/swi.h include/SWI-Prolog.h os/SWI-Stream.h config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -Ilibrary/dialect/swi/fli  $<  -o $@
-
-blobs.o: library/dialect/swi/fli/blobs.c  library/dialect/swi/fli/swi.h  include/SWI-Prolog.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $<  -o $@
 
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
@@ -478,7 +476,7 @@ pl-ntmain.o: console/LGPL/pl-ntmain.c config.h
 	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
 
 yapres.o: console/LGPL/yap.rc console/LGPL/manifest.xml config.h
-	$(RC) -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I. -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os -I$(srcdir)/console/LGPL @EXTRA_INCLUDES_FOR_WIN32@ -i $< -o $@
+	$(RC) $(RCFLAGS) -DUNICODE -D_UNICODE -DPL_CONSOLE=1 -I. -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os -I$(srcdir)/console/LGPL @EXTRA_INCLUDES_FOR_WIN32@ -i $< -o $@
 
 uxnt.o: os/windows/uxnt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios @EXTRA_INCLUDES_FOR_WIN32@ $< -o $@
