@@ -3,29 +3,30 @@
 			README for YAP6
 
 
-This directory contains a release of the YAP 6.0.* Prolog system,
+This directory contains a release of the YAP 6.3.* Prolog system,
 originally developed at the Universidade do Porto by Luis Damas and
-Vitor Santos Costa, with contributions from the Edinburgh Prolog
+Vitor Santos Costa. YAP contains the SWI-Prolog I/O library anad a
+number of SWI-Prolog packages, originally developed by Jan Wielemaker
+and other. It includes contributions from the Edinburgh Prolog
 library, the C-Prolog manual authors, Ricardo Lopes, Ricardo Rocha,
 M. Hermenegildo, D. Cabeza, Eric Alphonse, Paulo Moura, Nuno Fonseca,
-Jan Wielemaker, Paul Singleton, Fred Dushin, Jan Wielemaker, Markus
-Triska, and many others. You should read the rest of this file for
-information on what YAP is and for instructions on how to build it.
+Jan Wielemaker, Paul Singleton, Fred Dushin, Markus Triska, and many
+others. You should read the rest of this file for information on what
+YAP is and for instructions on how to build it.
 
 YAP 6 has been built with several versions on GCC on a variety of
-Linux, MacOSX. It has been built on Windows XP and VISTA using the
-mingw toolkit and cygwin from Cygnus Solutions.
+Linux, BDS, and MacOSX configurations. It has been built on Windows7
+using the mingw toolkit and cygwin from Cygnus Solutions.
 
 The main core of the YAP distribution is distributed under a dual
 license: the Perl Artistic license 2 and the FSF's LGPL. The YAP
 distribution also contains files distributed under the LGPL
 exclusively, and under the GPL.
 
-The YAP distribution includes several packages ported to YAP, such as
-Pillow, JPL, CLP(R) and CHR. We would like to take the opportunity to
-thank the developers of these packages for their generosity in
-allowing YAP to distribute these packages. Any bugs in these packages
-are probably our fault.
+The YAP distribution includes several packages ported to YAP. We would
+like to take the opportunity to thank the developers of these packages
+for their generosity in allowing YAP to distribute these packages. Any
+bugs in these packages are probably our fault.
 
 If you have a question about this software, desire to add code, found
 a bug, want to request a feature, or wonder how to get further
@@ -71,11 +72,11 @@ with SICStus Prolog.
 YAP is now being maintained using the git source management system. A
 public repository is available at 
 
-http://gitorious.org/projects/yap-git
+http://sourceforge.net/p/yap/yap-6.3/ci/master/tree/
 
 Please use
 
-git clone git://gitorious.org/yap-git/mainline.git
+git clone git://git.code.sf.net/p/yap/yap-6.3
 
 to obtain a copy of the current YAP tree.
 
@@ -116,8 +117,7 @@ the --exec-prefix option to set the EROOTDIR macro (for
 architecture-dependent files). EROOTDIR defaults to ROOTDIR.
 
   o The main executable is placed at BINDIR, which defaults at
-$(EROOTDIR)/bin. This executable is actually a script that calls the
-Prolog engine, stored at YAPLIBDIR.
+$(EROOTDIR)/bin.
 
   o SHAREDIR is the directory where the Prolog libraries are stored.
 Its default value is $(ROOTDIR)/share. The Prolog libraries are
@@ -144,13 +144,14 @@ following options to configure:
 
 Compilation options:
 
+ o --enable-tablingt=yes allows tabled evaluation (default option)
+
  o --enable-depth-limit=yes allows depth limited evaluation, say for
 implementing iterative deepening. It is required by the ILP system
-Aleph.
+Aleph. (default option)
 
  o --enable-use-malloc=yes makes YAP use the system's C-library
- allocation routines for all memory allocation. It is not compatible
- with save and restore.
+ allocation routines for all memory allocation (default).
 
  o --enable-threads=yes enables POSIX thread support.
 
@@ -167,59 +168,52 @@ useful for normal users.
  o --enable-or-parallelism={env-copy,sba,a-cow} allows or-parallelism
 supported by one of these three forms. This is still experimental.
 
- o --enable-tabling=yes allows tabling support.
-
  o --enable-dynamic-loading compile YAP as as a shared library.
-
- o --enable-win64 compile YAP as a WIN64 application (still experimental).
 
  o --enable-cygwin compile YAP as a CYGWIN environment application, and not as stand-alone application.
 
- o --with-cudd=CUDD_PATH enable support of the CUDD library, used by
- packages such as ProbLog. Usually CUDD has to compiled from source
- (http://vlsi.colorado.edu/~fabio/CUDD/), but Fedora and MacPorts have
- cudd packages. In the case of Fedora, install cudd-dev and use
- --with-cud=/usr, in the case of MacPorts install cudd-dev and use
- --with-cud=/opt/local.
-
- o --with-gmp=GMP_PATH provide a path for GMP, in case GMP is not
+ o --with-gmp[=GMP_PATH] provide a path for GMP, in case GMP is not
  installed in the system. In a Linux machine, make sure you have
  installed the gmp-dev package. Binary versions of GMP are available
  for WIN32.
 
-Functionality options:
+ o --enable-condor compile YAP as a static program that can be run by
+ condor. condor_compile must be in the system path.
 
- o --with-java=JAVA_PATH activates the Java Interface Library JPL. In
- Linux and WIN32 you have to provide a path to the Java library, in
- OSX it is sufficient to say yes.
+Packages and Interface Libraries
 
- o --enable-condor compile YAP as a static program that can be run by condor
+ o --with-cudd[=CUDD_PATH] enables compilation of the CUDD library,
+ used by packages such as PFL/CLP(BN) and ProbLog. The source of the
+ CUDD package is availablr from:
 
- o --enable-chr install CHR (enabled by default, if CHR is available)
+  http://vlsi.colorado.edu/~fabio/CUDD
 
- o --enable-clpqr install CLPQR (enabled by default, if CLPQR is available)
+ Fedora Linux and MacPorts have cudd packages. In the case of Fedora,
+ install cudd-devel. Ask vsc@dcc.fc.up.pt for a WIN32/WIN64 port 
 
- o --enable-myddas install the MYDDAS MYSQL and/or ODBC interface
- package. YAP tries to compile this by default, if the odbc or MySql
- development files can be found.
+ o --with-java[=JAVA_PATH] enables the Java Interface Library JPL.
 
- o --with-matlab install the MATLAB interface (not default). You need
- to provide the full path of the MATLAB install.
+ o --enable-chr installs the Leuven CHR language implementation
+ (enabled by default, if package/chr exists)
 
- o --with-mpi install the MPICH based MPI interface. This is default,
+ o --enable-clpqr installs the Leuven CLPQR port, originally developed
+ for SWI-Prolog (enabled by default, if Cpackage/clpqe exists)
+
+ o --enable-myddas[=PATH] installs the MYDDAS MYSQL and/or ODBC interface
+ package (enabled by default, if ODBC and/or MySql
+ development files can be found). It also enables support for the
+ SWI-Prolog ODBC package.
+
+ o --with-matlab[=PATH] installs the MATLAB interface (not
+ default). You need to provide the full path of the MATLAB libraries.
+
+ o --with-mpi[=PATH] installs the  MPI interface. This is default,
  if the development libraries can be found.
 
- o --with-mpe install the MPE interface.
+ o --with-gecode[=PATH] installs the  GeCode Solver interface. This is default,
+ if gecode libraries can be found.
 
- o --with-lam install the MPI LAM-based interface.
+ o --with-R[=PATH] installs the Real interface to the R language.
 
-
-3.3 Porting YAP
-
-The system has been mainly tested with GCC, but we have been able to
-compile older versions of YAP under lcc in Linux, Sun's cc compiler,
-IBM's xlc, SGI's cc, HP's cc, and Microsoft's Visual C++ 6.0. Recent
-versions of YAP have also been compiled using Intel's lcc.
-
-
+ o --with-python[=PATH] installs a Python interface
 

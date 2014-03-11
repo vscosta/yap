@@ -76,7 +76,7 @@ Section "Base system (required)"
   File c:\${ROOTDIR}\share\doc\Yap\yap.pdf
 ;  File c:\${ROOTDIR}\share\doc\Yap\yap.info
   File c:\${ROOTDIR}\share\doc\Yap\Artistic
-  File c:\${ROOTDIR}\share\doc\Yap\README
+  File c:\${ROOTDIR}\share\doc\Yap\README.TXT
   File c:\${ROOTDIR}\share\doc\Yap\COPYING
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
@@ -116,8 +116,8 @@ Section "Start Menu shortcuts"
 		 "$INSTDIR\bin\yap.exe" \
 		 0
   CreateShortCut "$SMPROGRAMS\${GRP}\Readme.lnk" \
-  		  "$INSTDIR\share\doc\Yap\README" "" \
-		  "$INSTDIR\share\doc\Yap\README" 0 \
+  		  "$INSTDIR\share\doc\Yap\README.TXT" "" \
+		  "$INSTDIR\share\doc\Yap\README.TXT" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
   		  "$INSTDIR\share\doc\Yap\yap.html" "" \
@@ -318,7 +318,7 @@ FunctionEnd
 
 Function .onInstSuccess
   MessageBox MB_YESNO "Installation complete. View readme?" IDNO NoReadme
-  ExecShell "open" "$INSTDIR\share\doc\Yap\README"
+  ExecShell "open" "$INSTDIR\share\doc\Yap\README.TXT"
   NoReadme:
 FunctionEnd
 

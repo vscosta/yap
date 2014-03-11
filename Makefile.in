@@ -598,7 +598,7 @@ install_unix: startup.yss @YAPLIB@
 	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $(DESTDIR)$(LIBDIR)/$$p; \
 	done
 	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
-	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/README.TXT $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $(srcdir)/$$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $(srcdir)/$$h $(DESTDIR)$(INCLUDEDIR); done
@@ -699,7 +699,7 @@ install_docs:
 	$(MAKE) html
 	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) README.TXT $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) COPYING $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) changes4.3.html $(DESTDIR)$(DOCSDIR)
