@@ -342,8 +342,6 @@ Operator types.  NOTE: if you change OP_*, check operatorTypeToAtom()!
 #define OP_XFY	(0x60|OP_INFIX)
 #define OP_YFX	(0x70|OP_INFIX)
 
-#define CHARESCAPE		(0x0004) /* module */
-
 		 /*******************************
 		 *	       COMPARE		*
 		 *******************************/

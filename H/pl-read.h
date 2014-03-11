@@ -77,7 +77,7 @@ typedef struct read_data_t
 #define	last_token_start  (_PL_rd->token_start)
 #define	rb		  (_PL_rd->_rb)
 
-#define DO_CHARESCAPE true(_PL_rd, CHARESCAPE)
+#define DO_CHARESCAPE true(_PL_rd, M_CHARESCAPE)
 
 extern IOFUNCTIONS Sstringfunctions;
 

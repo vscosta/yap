@@ -858,7 +858,6 @@ unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
       { unsigned int mask = (unsigned int)1 << (f->index-1);
 	char *s;
 	s=PL_atom_chars(key);
-	Sprintf(GLOBAL_stderr," here it is %s\n",s);
 	return PL_unify_bool_ex(val, truePrologFlag(mask) != FALSE);
       }
       /*FALLTHROUGH*/

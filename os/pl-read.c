@@ -441,9 +441,8 @@ raw_read_quoted(int q, ReadData _PL_rd)
 
   addToBuffer(q, _PL_rd);
   while((c=getchrq()) != EOF && c != q)
-  { if ( c == '\\' && DO_CHARESCAPE )
+    { if ( c == '\\' && DO_CHARESCAPE )
     { int base;
-
       addToBuffer(c, _PL_rd);
 
       switch( (c=getchrq()) )

@@ -345,6 +345,7 @@ Yap_InitModules(void)
 {
   CACHE_REGS
   LookupModule(MkAtomTerm(AtomProlog));
+  LOCAL_SourceModule =  MkAtomTerm(AtomProlog);
   LookupModule(USER_MODULE);
   LookupModule(IDB_MODULE);
   LookupModule(ATTRIBUTES_MODULE);
