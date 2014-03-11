@@ -23,6 +23,8 @@ else
   THREADS=$2
 fi
 
+CONFIGURE=../yap-6.3/configure
+
 # debugging setup
 do_compile=true
 do_install=true
@@ -38,13 +40,15 @@ fi
 
 if test $ABI = 64; then
 GCC_PATH=/c/cygwin/Yap/mingw64
+HOST="--host=x86_64-w64-mingw32"
+# ok.
+
 CUDD=yes
 GECODE=no #does not link with mingw64, VC++ trouble
 GMP=yes
 JAVA=yes
 PYTHON=no
 REAL=yes
-HOST="--host=x86_64-w64-mingw32"
 
   # it seems python2.7 does not support mingw64
   PYTHON_PATH="/c/Python33-64"
@@ -54,7 +58,6 @@ HOST="--host=x86_64-w64-mingw32"
   CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw64
   JAVA_PATH="/c/Program Files/Java/jdk1.7.0_51"
   R_PATH="/c/Program Files/R/R-3.0.2"
-  R_ABI=x64
   if test $THREADS = yes
   then
     cp "$GCC_PATH/x86_64-w64-mingw32/lib/libwinpthread-1.dll" .
@@ -64,7 +67,8 @@ fi
 
 # HOME WIN32 configuration
 if test $ABI = 32; then
-GCC_PATH="/c/cygwin/Yap/mingw32/mingw32"
+GCC_PATH="/c/TDM-GCC-64"
+
 CUDD=yes
 GECODE=no # install only allows one of 32 or 64 bits
 GMP=yes
@@ -73,20 +77,16 @@ PYTHON=no
 REAL=yes
 
   PYTHON_PATH="/c/Python27"
-  export PATH="$GCC_PATH"/bin:$PATH:"$PYTHON_PATH"
+  export PATH="$GCC_PATH"/bin:$PATH
 #  GECODE_PATH="/c/Program Files/Gecode"
   GMP=/c/cygwin/Yap/win32
   CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw32
   JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
   R_PATH="/c/Program Files/R/R-3.0.2"
-  R_ABI=i386
-  HOST=""
+  HOST="--enable-abi=32"
 
-  if test $THREADS = yes
-  then
-      cp "$GCC_PATH/i686-w64-mingw32/lib/libwinpthread-1.dll" .
-    cp libwinpthread-1.dll pthreadGC2.dll
-  fi
+  cp $GCC_PATH/bin/libwinpthread-1.dll .
+  cp libwinpthread-1.dll pthreadGC2.dll
 fi
 
 
@@ -111,11 +111,16 @@ then
 fi
 if test $REAL = yes
 then
+  if test $ABI = 32; then
+    R_ABI=i386
+  else
+    R_ABI=x64
+  fi
   export PATH="$PATH":"$R_PATH"/bin/"$R_ABI"
 fi
 
 if test "$do_compile" = true; then
-../yap-6.3/configure $HOST \
+"$CONFIGURE" $HOST \
 	--with-R="$REAL" \
 	--with-java="$JAVA" \
 	--with-gmp="$GMP" \

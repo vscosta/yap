@@ -40,17 +40,28 @@ AC_INIT(YAP, 6.3.4, yap-users@sf.net, yap )
 
 DOC_VERSION=4.2.9
 
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_CHECK_TOOL([RC], [windres], [:])
+
+# if we are trying to use -m32 in a WIN32/mingw setup then
+# we cannot trust lpthread
+# we cannot trust RC
+AC_ARG_ENABLE(abi,
+	[ --enable-abi           support an ABI ],
+	[ CC="$CC -m$enableval"; CPP="$CPP -m$enableval"; CXX="$CXX -m$enableval"; RCFLAGS="--output-format=coff --target=pe-i386" ; pthreadlib="`pwd`/pthreadGC2.dll"; win_abi="$enableval"    ] , win_abi=no )
+
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_HEADER(YapTermConfig.h)
 
 dnl store the environment's compilation flags
 mycflags="$CFLAGS"
 
-AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_CXX
 AC_PROG_AWK
 AC_SUBST(GCC)
+AC_SUBST(RC)
+AC_SUBST(RCFLAGS)
 AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
 AC_LANG(C)
@@ -507,7 +518,11 @@ then
   then
     # locale complaints without this.
     if test "$threads" = yes; then
-      AC_CHECK_LIB(pthread, main)
+      if test $win_abi = 32; then
+        LIBS="$LIBS $pthreadlib"
+      else
+        AC_CHECK_LIB(pthread, main)
+      fi
     fi
     AC_CHECK_LIB(mscrt,main)
     if test "$target_cpu" = x86_64; then
@@ -568,6 +583,7 @@ then
     LIBS="-lcygwin"
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
+    AC_CHECK_LIB(pthread,pthread_create)
   fi
 else
   if test "$prefix" = "NONE"
@@ -603,6 +619,7 @@ else
   AC_CHECK_LIB(nss_files,main)
   AC_CHECK_LIB(nss_dns,main)
   AC_CHECK_LIB(resolv,main)
+  AC_CHECK_LIB(pthread,pthread_create)
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -632,7 +649,6 @@ fi
 
 if test "$threads" = yes
 then
-  AC_CHECK_LIB(pthread,pthread_create)
   AC_CHECK_HEADERS(pthread.h)	
   AC_CHECK_FUNCS(pthread_mutexattr_setkind_np pthread_mutexattr_settype)
   if test "$pthreadlocking" = yes
@@ -1723,11 +1739,14 @@ AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
-
-AC_CHECK_LIB(pthread, pthread_create,
-                      [CLIB_PTHREADS="-lpthread"],[CLIB_PTHREADS=""])
+# use the lib directly in mingw setups
+if test "$win_abi" = "32"; then
+  CLIB_PTHREADS="$pthreadlib"
+else
+ AC_CHECK_LIB(pthread, pthread_create,
+                    [CLIB_PTHREADS="-lpthread"],[CLIB_PTHREADS=""])
+fi
 AC_SUBST(CLIB_PTHREADS)
-
 
 AC_CHECK_TYPES(socklen_t, [], [],
 [
