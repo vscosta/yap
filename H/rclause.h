@@ -389,7 +389,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_string:
     case _unify_string:
       pc->u.ou.opcw = OpcodeAdjust(pc->u.ou.opcw);
-      pc->u.ou.u = BlobTermInCodeAdjust(pc->u.ou.u);
+      pc->u.ou.ut = BlobTermInCodeAdjust(pc->u.ou.ut);
       pc = NEXTOP(pc,ou);
       break;
       /* instructions type ox */
@@ -643,7 +643,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       /* instructions type xu */
     case _get_string:
       pc->u.xu.x = XAdjust(pc->u.xu.x);
-      pc->u.xu.u = BlobTermInCodeAdjust(pc->u.xu.u);
+      pc->u.xu.ut = BlobTermInCodeAdjust(pc->u.xu.ut);
       pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */

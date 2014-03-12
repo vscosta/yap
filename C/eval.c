@@ -104,7 +104,13 @@ Eval(Term t USES_REGS)
     return Yap_eval_atom(p->FOfEE);
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
-    if ((Atom)fun == AtomFoundVar) {
+    if (fun == FunctorString) {
+      const char *s = StringOfTerm(t);
+      if (s[1] == '\0')
+	return MkIntegerTerm(s[0]);
+      return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+			    "string in arithmetic expression");
+    } else if ((Atom)fun == AtomFoundVar) {
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
 			    "cyclic term in arithmetic expression");
     } else {

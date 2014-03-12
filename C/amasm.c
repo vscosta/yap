@@ -1149,7 +1149,7 @@ a_ustring(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blo
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.ou.opcw = emit_op(opcode_w);
-    code_p->u.ou.u = 
+    code_p->u.ou.ut = 
       AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));      
   }
   *clause_has_blobsp = TRUE;
@@ -1403,7 +1403,7 @@ a_rstring(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no,
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.xu.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xu.u = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+    code_p->u.xu.ut = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
   }
   *clause_has_blobsp = TRUE;
   GONEXT(xu);
