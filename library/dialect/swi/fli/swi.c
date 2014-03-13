@@ -2234,7 +2234,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t = Yap_AddressFromSlot(t0 PASS_REGS);
 
   /* ignore flags  and module for now */
-  qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(*qid_t));
+  qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(struct open_query_struct));
   LOCAL_execution = new;
   new->q_open=1;
   new->q_state=0;
