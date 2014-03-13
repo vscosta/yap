@@ -2,14 +2,14 @@ void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
 typedef struct open_query_struct {
-  int open;
-  int state;
-  YAP_Term *g;
-  PredEntry *pe;
-  yamop *p, *cp;
-  jmp_buf env;
-  int flags;
-  YAP_dogoalinfo h;
+  int q_open;
+  int q_state;
+  YAP_Term *q_g;
+  PredEntry *q_pe;
+  yamop *q_p, *q_cp;
+  jmp_buf q_env;
+  int q_flags;
+  YAP_dogoalinfo q_h;
 } open_query;
 
 #define addr_hash(V) (((CELL) (V)) >> 4 & (N_SWI_HASH-1))

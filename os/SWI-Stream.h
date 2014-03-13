@@ -230,9 +230,13 @@ PL_EXPORT_DATA(IOSTREAM)    S__iob[3];		/* Libs standard streams */
 #define Sgetchar()	Sgetc(Sinput)
 #define Sputchar(c)	Sputc((c), Soutput)
 
-#define S__checkpasteeof(s,c) \
-	if ( (c)==-1 && (s)->flags & (SIO_FEOF|SIO_FERR) ) \
-	  ((s)->flags |= SIO_FEOF2)
+static inline void
+S__checkpasteeof(IOSTREAM *s, int c)
+{
+  if ( (c)==-1 && (s)->flags & (SIO_FEOF|SIO_FERR) )
+    ((s)->flags |= SIO_FEOF2);
+}
+
 #define S__updatefilepos_getc(s, c) \
 	((s)->position ? S__fupdatefilepos_getc((s), (c)) \
 		       : S__fcheckpasteeof((s), (c)))

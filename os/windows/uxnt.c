@@ -21,6 +21,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#if defined(_WIN32) || defined(__MINGW32__)
+
 #define UNICODE 1
 #define _UNICODE 1
 
@@ -781,6 +783,8 @@ out:
 simple:
   retval = _waccess(buf, mode);
   goto out;
+
+  return FALSE;
 }
 
 
@@ -943,6 +947,7 @@ readdir(DIR *dp)
     if ( (de = translate_data(dp)) )
       return de;
   }
+return 	FALSE;
 }
 
 
@@ -1070,3 +1075,6 @@ _xos_setenv(const char *name, char *value, int overwrite)
 
   return -1;				/* TBD: convert error */
 }
+
+#endif
+

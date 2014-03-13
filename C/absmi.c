@@ -850,7 +850,7 @@ interrupt_call( USES_REGS1 )
     return v;
   PP = P->u.Osbpp.p0;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
-      PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag) )
+      (PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag)) )
     return 2;
   S = (CELL *) P->u.Osbpp.p;
   SET_ASP(YENV, P->u.Osbpp.s);

@@ -511,13 +511,13 @@ get_file_name(term_t n, char **namep, char *tmp, int flags)
 
       PL_put_term(av+0, n);
 
-      if ( rc && flags & PL_FILE_EXIST )
+      if ( rc && (flags & PL_FILE_EXIST) )
 	rc = add_option(options, FUNCTOR_access1, ATOM_exist);
-      if ( rc && flags & PL_FILE_READ )
+      if ( rc && (flags & PL_FILE_READ) )
 	rc = add_option(options, FUNCTOR_access1, ATOM_read);
-      if ( rc && flags & PL_FILE_WRITE )
+      if ( rc && (flags & PL_FILE_WRITE) )
 	rc = add_option(options, FUNCTOR_access1, ATOM_write);
-      if ( rc && flags & PL_FILE_EXECUTE )
+      if ( rc && (flags & PL_FILE_EXECUTE) )
 	rc = add_option(options, FUNCTOR_access1, ATOM_execute);
 
       if ( rc ) rc = PL_unify_nil(options);

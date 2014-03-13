@@ -1579,12 +1579,14 @@ readLine(IOSTREAM *in, IOSTREAM *out, char *buffer)
 	  buf--;
 	  continue;
 	}
+        /*FALLTHROUGH*/
       default:
 	if ( truePrologFlag(PLFLAG_TTY_CONTROL) )
 	  Sputcode(c, out);
 	*buf++ = c;
     }
   }
+  return FALSE; /* make eclipse happy */
 }
 
 
@@ -1898,9 +1900,9 @@ set_stream(IOSTREAM *s, term_t stream, atom_t aname, term_t a ARG_LD)
 
     clear(s, SIO_REPXML|SIO_REPPL);
 
-    if ( val == ATOM_error )
+    if ( val == ATOM_error ) {
       ;
-    else if ( val == ATOM_xml )
+    } else if ( val == ATOM_xml )
       set(s, SIO_REPXML);
     else if ( val == ATOM_prolog )
       set(s, SIO_REPPL);

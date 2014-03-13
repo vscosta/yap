@@ -95,7 +95,7 @@ extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 /* This is silly, but let's keep it like that for now */
 X_API Int
 YAP_PLArityOfSWIFunctor(functor_t f) {
-  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+  if (((CELL)(f) & 2) && ((CELL)f) < N_SWI_FUNCTORS*4+2)
     return ArityOfFunctor(SWI_Functors[(CELL)f/4]);
   if (IsAtomTerm(f))
     return 0;
@@ -1001,7 +1001,7 @@ X_API int PL_throw(term_t exception)
 {
   CACHE_REGS
   YAP_Throw(Yap_GetFromSlot(exception PASS_REGS));
-  longjmp(LOCAL_execution->env, 0);
+  longjmp(LOCAL_execution->q_env, 0);
   return 0;
 }
 
@@ -1315,6 +1315,7 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_wchars" ))
       return FALSE;
   }
+  return FALSE;
 }
 
 typedef struct {
@@ -2233,43 +2234,43 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t = Yap_AddressFromSlot(t0 PASS_REGS);
 
   /* ignore flags  and module for now */
-  open_query *new = (open_query *)Yap_AllocCodeSpace(sizeof(open_query));
+  qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(*qid_t));
   LOCAL_execution = new;
-  new->open=1;
-  new->state=0;
-  new->flags = flags;
-  new->pe = (PredEntry *)p;
-  new->g = t;
-  return LOCAL_execution;
+  new->q_open=1;
+  new->q_state=0;
+  new->q_flags = flags;
+  new->q_pe = (PredEntry *)p;
+  new->q_g = t;
+  return new;
 }
 
 X_API int PL_next_solution(qid_t qi)
 {
   CACHE_REGS
   int result;
-  if (qi->open != 1) return 0;
-  if (setjmp(LOCAL_execution->env))
+  if (qi->q_open != 1) return 0;
+  if (setjmp(LOCAL_execution->q_env))
     return 0;
   // don't forget, on success these guys must create slots
-  if (qi->state == 0) {
-    result = YAP_EnterGoal((YAP_PredEntryPtr)qi->pe, qi->g, &qi->h);
+  if (qi->q_state == 0) {
+    result = YAP_EnterGoal((YAP_PredEntryPtr)qi->q_pe, qi->q_g, &qi->q_h);
   } else {
-    LOCAL_AllowRestart = qi->open;
-    result = YAP_RetryGoal(&qi->h);
+    LOCAL_AllowRestart = qi->q_open;
+    result = YAP_RetryGoal(&qi->q_h);
   }
-  qi->state = 1;
+  qi->q_state = 1;
   if (result == 0) {
-    YAP_LeaveGoal(FALSE, &qi->h);
-    qi->open = 0;
+    YAP_LeaveGoal(FALSE, &qi->q_h);
+    qi->q_open = 0;
   }
   return result;
 }
 
 X_API void PL_cut_query(qid_t qi)
 {
-  if (qi->open != 1 || qi->state == 0) return;
-  YAP_LeaveGoal(FALSE, &qi->h);
-  qi->open = 0;
+  if (qi->q_open != 1 || qi->q_state == 0) return;
+  YAP_LeaveGoal(FALSE, &qi->q_h);
+  qi->q_open = 0;
   Yap_FreeCodeSpace( (char *)qi );
 }
 
@@ -2277,15 +2278,15 @@ X_API void PL_close_query(qid_t qi)
 {
   CACHE_REGS
 
-  if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION))) {
+  if (EX && !(qi->q_flags & (PL_Q_CATCH_EXCEPTION))) {
     EX = NULL;
   }
   /* need to implement backtracking here */
-  if (qi->open != 1 || qi->state == 0) {
+  if (qi->q_open != 1 || qi->q_state == 0) {
     return;
   }
-  YAP_LeaveGoal(FALSE, &qi->h);
-  qi->open = 0;
+  YAP_LeaveGoal(FALSE, &qi->q_h);
+  qi->q_open = 0;
   Yap_FreeCodeSpace( (char *)qi );
 }
 
@@ -2306,6 +2307,7 @@ X_API int PL_toplevel(void)
       return TRUE;
     }
   }
+  return TRUE;
 }
 
 X_API int PL_call(term_t tp, module_t m)

@@ -633,6 +633,7 @@ update_linepos(IOSTREAM *s, int c)
       break;
     case '\t':
       p->linepos |= 7;
+      /*FALLTHROUGH*/
     default:
       p->linepos++;
   }

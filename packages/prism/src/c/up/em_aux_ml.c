@@ -48,6 +48,7 @@ int check_smooth(int *smooth)
     case 1: /* p.counts = (none), with 0-valued params */
         emit_internal_error("unexpected case in check_smooth()");
         RET_ERR(ierr_unmatched_branches);
+	break;
     case 2: /* p.counts = 0 only, w/o  0-valued params */
     case 3: /* p.counts = 0 only, with 0-valued params */
         *smooth = 0;
@@ -58,6 +59,7 @@ int check_smooth(int *smooth)
     case 5: /* p.counts = + only, with 0-valued params */
         emit_error("parameters fixed to zero in MAP estimation");
         RET_ERR(err_invalid_numeric_value);
+        break;
     case 6: /* p.counts = (both), w/o  0-valued params */
     case 7: /* p.counts = (both), with 0-valued params */
         emit_error("mixture of zero and non-zero pseudo counts");
