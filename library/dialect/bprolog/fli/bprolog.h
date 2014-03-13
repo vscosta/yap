@@ -12,8 +12,8 @@ typedef YAP_Int BPLONG;
 typedef YAP_UInt BPULONG;
 typedef BPLONG *BPLONG_PTR;
 
-#define BP_TRUE TRUE
-#define BP_FALSE FALSE
+#define BP_TRUE 1
+#define BP_FALSE 0
 
 //extern TERM bp_get_call_arg(int i, int arity);
 #define bp_get_call_arg( i,  arity) YAP_A(i)
@@ -169,7 +169,7 @@ INLINE_ONLY extern inline int
 bp_mount_query_term(TERM goal)
 {
   curr_toam_status = goal;
-  return TRUE;
+  return BP_TRUE;
 }
 
 #endif /* BPROLOG_H */
