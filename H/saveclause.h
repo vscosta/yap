@@ -406,7 +406,7 @@
     case _unify_l_string:
     case _unify_string:
       CHECK(save_Opcode(stream, pc->u.ou.opcw));
-      CHECK(save_BlobTermInCode(stream, pc->u.ou.u));
+      CHECK(save_BlobTermInCode(stream, pc->u.ou.ut));
       pc = NEXTOP(pc,ou);
       break;
       /* instructions type ox */
@@ -659,7 +659,7 @@
       /* instructions type xu */
     case _get_string:
       CHECK(save_X(stream, pc->u.xu.x));
-      CHECK(save_BlobTermInCode(stream, pc->u.xu.u));
+      CHECK(save_BlobTermInCode(stream, pc->u.xu.ut));
       pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */

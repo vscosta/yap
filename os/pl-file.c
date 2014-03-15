@@ -1579,12 +1579,14 @@ readLine(IOSTREAM *in, IOSTREAM *out, char *buffer)
 	  buf--;
 	  continue;
 	}
+        /*FALLTHROUGH*/
       default:
 	if ( truePrologFlag(PLFLAG_TTY_CONTROL) )
 	  Sputcode(c, out);
 	*buf++ = c;
     }
   }
+  return FALSE; /* make eclipse happy */
 }
 
 
@@ -1898,9 +1900,9 @@ set_stream(IOSTREAM *s, term_t stream, atom_t aname, term_t a ARG_LD)
 
     clear(s, SIO_REPXML|SIO_REPPL);
 
-    if ( val == ATOM_error )
+    if ( val == ATOM_error ) {
       ;
-    else if ( val == ATOM_xml )
+    } else if ( val == ATOM_xml )
       set(s, SIO_REPXML);
     else if ( val == ATOM_prolog )
       set(s, SIO_REPPL);
@@ -2006,7 +2008,7 @@ found:
   ref = PL_blob_data(sblob, NULL, &type);
   if ( type == &stream_blob )		/* got a stream handle */
   { if ( ref->read && ref->write &&	/* stream pair */
-	 info->flags & SS_NOPAIR )
+	 (info->flags & SS_NOPAIR) )
       return PL_error("set_stream", 2, NULL, ERR_PERMISSION,
 		      aname, ATOM_stream_pair, stream);
 
@@ -3419,7 +3421,7 @@ pl_seen(void)
 
   pop_input_context();
 
-  if ( s && s->flags & SIO_NOFEOF )
+  if ( s && (s->flags & SIO_NOFEOF) )
     return TRUE;
 
   if ( s )
@@ -3521,7 +3523,7 @@ PRED_IMPL("told", 0, told, 0)
 
   popOutputContext();
 
-  if ( s && s->flags & SIO_NOFEOF )
+  if ( s && (s->flags & SIO_NOFEOF) )
     return TRUE;
 
   if ( s )
@@ -4270,6 +4272,7 @@ PRED_IMPL("stream_property", 2, stream_property,
       return FALSE;
     }
   }
+  return FALSE;
 }
 
 

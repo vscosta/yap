@@ -851,7 +851,7 @@ interrupt_call( USES_REGS1 )
     return v;
   PP = P->u.Osbpp.p0;
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
-      PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag) )
+      (PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag)) )
     return 2;
   S = (CELL *) P->u.Osbpp.p;
   SET_ASP(YENV, P->u.Osbpp.s);
@@ -4442,7 +4442,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.xu.u);
+      pt1 = RepAppl(PREG->u.xu.ut);
       PREG = NEXTOP(PREG, xu);
       if (
 	  pt1[1] != pt0[1] ||
@@ -4460,7 +4460,7 @@ Yap_absmi(int inp)
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH(xc);
       BEGD(d1);
-      d1 = PREG->u.xu.u;
+      d1 = PREG->u.xu.ut;
       PREG = NEXTOP(PREG, xu);
       Bind(pt0, d1);
       GONext();
@@ -6154,7 +6154,7 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.ou.u);
+      pt1 = RepAppl(PREG->u.ou.ut);
       PREG = NEXTOP(PREG, ou);
       if (
 	  pt1[1] != pt0[1]
@@ -6166,7 +6166,7 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, ustring_unk, ustring_nonvar);
       BEGD(d1);
-      d1 = PREG->u.ou.u;
+      d1 = PREG->u.ou.ut;
       PREG = NEXTOP(PREG, ou);
       Bind_Global(pt0, d1);
       GONext();
@@ -6194,7 +6194,7 @@ Yap_absmi(int inp)
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->u.ou.u);
+      pt1 = RepAppl(PREG->u.ou.ut);
       PREG = NEXTOP(PREG, ou);
       if (
 	  pt1[1] != pt0[1]
@@ -6206,7 +6206,7 @@ Yap_absmi(int inp)
 
       derefa_body(d0, S_SREG, ulstring_unk, ulstring_nonvar);
       BEGD(d1);
-      d1 = PREG->u.ou.u;
+      d1 = PREG->u.ou.ut;
       PREG = NEXTOP(PREG, ou);
       Bind_Global(S_SREG, d1);
       GONext();
@@ -9196,9 +9196,11 @@ Yap_absmi(int inp)
 		GONext();
 	      }
 	    }
+	    break;
 	  case (CELL)FunctorLongInt:
 	    PREG = NEXTOP(PREG, xl);
 	    GONext();
+	    break;
 	  default:
 	    PREG = PREG->u.xl.F;
 	    GONext();

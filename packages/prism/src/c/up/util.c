@@ -60,7 +60,7 @@ int get_term_depth(TERM t)
 
     XDEREF(t);
 
-    SWITCH_OP(t, l_term_depth, { return 0; }, { return 0; }, {
+    SWITCH_OP(t, l_term_depth, { return 0; }, { return (0); }, {
         if (IsNumberedVar(t)) return 0;
 
         d = 0;

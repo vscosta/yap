@@ -671,7 +671,7 @@ PRED_IMPL("normalize_space", 2, normalize_space, 0)
 		 *	       LOCALE		*
 		 *******************************/
 
-#if defined(HAVE_LOCALE_H) && defined(HAVE_SETLOCALE)
+#if O_LOCALE
 #include <locale.h>
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -843,15 +843,20 @@ static const enc_map map[] =
 IOENC
 initEncoding(void)
 { GET_LD
+#if HAVE_SETLOCALE
+    char *enc;
+#endif
 
   if ( LD )
   { if ( !LD->encoding )
-      { char *enc, *encp;
+      {
 
       if ( !init_locale() )
       { LD->encoding = ENC_ISO_LATIN_1;
+#if HAVE_SETLOCALE
       } else if ( (enc = setlocale(LC_CTYPE, NULL)) )
-      { LD->encoding = ENC_ANSI;		/* text encoding */
+      {  char *encp;
+	LD->encoding = ENC_ANSI;		/* text encoding */
 
 	if ( (encp = strchr(enc, '.')) )
 	{ const enc_map *m;
@@ -874,8 +879,8 @@ initEncoding(void)
 	    }
 	  }
 	}
-      } else
-      { LD->encoding = ENC_ISO_LATIN_1;
+#endif
+      } else { LD->encoding = ENC_ISO_LATIN_1;
       }
     }
 

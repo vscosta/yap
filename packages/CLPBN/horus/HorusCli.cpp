@@ -131,7 +131,7 @@ readQueryAndEvidence (
       }
       Horus::VarId vid = Horus::Util::stringToUnsigned (arg);
       Horus::VarNode* queryVar = fg.getVarNode (vid);
-      if (queryVar == false) {
+      if (queryVar == nullptr) {
         std::cerr << "Error: unknow variable with id " ;
         std::cerr << "`" << vid << "'."  << std::endl;
         exit (EXIT_FAILURE);
@@ -153,7 +153,7 @@ readQueryAndEvidence (
       }
       Horus::VarId vid = Horus::Util::stringToUnsigned (leftArg);
       Horus::VarNode* observedVar = fg.getVarNode (vid);
-      if (observedVar == false) {
+      if (observedVar == nullptr) {
         std::cerr << "Error: unknow variable with id " ;
         std::cerr << "`" << vid << "'."  << std::endl;
         exit (EXIT_FAILURE);

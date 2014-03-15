@@ -561,7 +561,7 @@ typedef struct yami {
     } os;
     struct {
       OPCODE              opcw;
-      Term    u;
+      Term    ut;
       CELL next;
     } ou;
     struct {
@@ -791,7 +791,7 @@ typedef struct yami {
     } xx;
     struct {
       wamreg                x;
-      Term                  u;
+      Term                  ut;
       CELL next;
     } xu;
     struct {

@@ -1201,7 +1201,7 @@ char* getFileName(const char *function) {
 DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int maxinter, char *function, int iline) {
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
-  double secs;
+  //double secs;
   DdNode *bdd;//, *temp;
   char *term, curoper;
   bdd = HIGH(manager);
@@ -1269,7 +1269,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
         } else {
           switch(curoper) {
             case '+':
-              if (inegvar ^ inegoper) ; else {
+              if (!(inegvar ^ inegoper)) {
                 bdd = HIGH(manager);
                 Cudd_Ref(bdd);
               }
@@ -1281,12 +1281,12 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
               }
               break;
             case '#':
-              if (inegvar ^ inegoper) ; else bdd = NOT(bdd);
+              if (!(inegvar ^ inegoper)) bdd = NOT(bdd);
               break;
           }
         }
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        //secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1318,7 +1318,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
         if (inegvar) bdd = BDD_Operator(manager, NOT(inter[ivar]), bdd, curoper, inegoper);
         else bdd = BDD_Operator(manager, inter[ivar], bdd, curoper, inegoper);
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        //secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1513,7 +1513,7 @@ DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap) {
 DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, int maxinter, char *function, int iline) {
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
-  double secs;
+  //double secs;
   DdNode *bdd;
   char *term, curoper;
   bdd = HIGH(manager);
@@ -1581,7 +1581,7 @@ DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, 
         } else {
           switch(curoper) {
             case '+':
-              if (inegvar ^ inegoper) ; else {
+              if (!(inegvar ^ inegoper))  {
                 bdd = HIGH(manager);
                 Cudd_Ref(bdd);
               }
@@ -1593,12 +1593,12 @@ DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, 
               }
               break;
             case '#':
-              if (inegvar ^ inegoper) ; else bdd = NOT(bdd);
+              if (!(inegvar ^ inegoper)) bdd = NOT(bdd);
               break;
           }
         }
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        //secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {
@@ -1630,7 +1630,7 @@ DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, 
         if (inegvar) bdd = BDD_Operator(manager, NOT(inter[ivar]), bdd, curoper, inegoper);
         else bdd = BDD_Operator(manager, inter[ivar], bdd, curoper, inegoper);
         endAt = clock();
-        secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
+        //secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC);
         if (_debug) fprintf(stderr, "term: %s of line: %i took: %ld\n", term, iline, endAt - startAt);
         //if ((endAt - startAt) > 10000000) Cudd_AutodynDisable(manager);
         if (bdd == NULL) {

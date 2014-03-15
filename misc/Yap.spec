@@ -54,7 +54,7 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 
 %files
 %defattr(-,root,root,-)
-%doc README*
+%doc README.TXT
 %doc INSTALL
 %doc changes-6.0.html
 %doc changes-5.1.html

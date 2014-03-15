@@ -591,6 +591,9 @@ PL_install_readline(void)
 #ifndef __WINDOWS__
   if ( !truePrologFlag(PLFLAG_TTY_CONTROL) || !isatty(0) )
     return;
+  // don't allow YAP to run readline under an Eclipse Console
+  if (getenv("EclipseVersion"))
+	return;
 #endif
 
   alevel = setAccessLevel(ACCESS_LEVEL_SYSTEM);
