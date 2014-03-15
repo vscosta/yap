@@ -72,11 +72,11 @@ do_signal(int wid, yap_signals sig USES_REGS)
   UNLOCK(REMOTE_SignalLock(wid));
 #else
   if (!LOCAL_InterruptsDisabled) {
-    Yap_regp->CreepFlag_ = 
-      Unsigned(Yap_regp->LCL0_);
+    CreepFlag = 
+      Unsigned(LCL0);
     if (sig != YAP_CREEP_SIGNAL)
-      Yap_regp->EventFlag_ = 
-	Unsigned(Yap_regp->LCL0_);
+      EventFlag = 
+	Unsigned(LCL0);
   }
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
