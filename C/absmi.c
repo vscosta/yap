@@ -9201,9 +9201,11 @@ Yap_absmi(int inp)
 		GONext();
 	      }
 	    }
+	    break;
 	  case (CELL)FunctorLongInt:
 	    PREG = NEXTOP(PREG, xl);
 	    GONext();
+	    break;
 	  default:
 	    PREG = PREG->u.xl.F;
 	    GONext();
