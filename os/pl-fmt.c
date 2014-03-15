@@ -1115,6 +1115,7 @@ formatInteger(PL_locale *locale, int div, int radix, bool smll, Number i,
   }
 }
 
+#if O_LOCALE
 
 static int
 countGroups(const char *grouping, int len)
@@ -1141,7 +1142,6 @@ countGroups(const char *grouping, int len)
   return groups;
 }
 
-
 static int
 ths_to_utf8(char *u8, const wchar_t *s, size_t len)
 { char *e = u8+len-7;
@@ -1153,7 +1153,6 @@ ths_to_utf8(char *u8, const wchar_t *s, size_t len)
   return *s == 0;
 }
 
-
 static int
 same_decimal_point(PL_locale *l1, PL_locale *l2)
 { if ( l1->decimal_point && l2->decimal_point &&
@@ -1164,7 +1163,6 @@ same_decimal_point(PL_locale *l1, PL_locale *l2)
 
   return FALSE;
 }
-
 
 static int
 utf8_dp(PL_locale *l, char *s, int *len)
@@ -1227,7 +1225,6 @@ localizeDecimalPoint(PL_locale *locale, Buffer b)
   return TRUE;
 }
 
-
 static int
 groupDigits(PL_locale *locale, Buffer b)
 { if ( locale->thousands_sep && locale->thousands_sep[0] &&
@@ -1278,6 +1275,7 @@ groupDigits(PL_locale *locale, Buffer b)
 
   return TRUE;
 }
+#endif
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1477,11 +1475,13 @@ formatFloat(PL_locale *locale, int how, int arg, Number f, Buffer out)
       return NULL;
   }
 
+#if O_LOCALE
   if ( locale )
   { if ( !localizeDecimalPoint(locale, out) ||
 	 !groupDigits(locale, out) )
       return NULL;
   }
+#endif
 
   return baseBuffer(out, char);
 }

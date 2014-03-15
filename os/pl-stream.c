@@ -57,7 +57,9 @@ locking is required.
 #endif
 
 #define PL_KERNEL 1
+#if HAVE_LOCALE_H && HAVE_SETLOCALE
 #define O_LOCALE 1
+#endif
 #include <wchar.h>
 #define NEEDS_SWINSOCK
 #include "SWI-Stream.h"
@@ -1800,8 +1802,10 @@ Sclose(IOSTREAM *s)
 
   if ( s->message )
     free(s->message);
+#if O_LOCALE
   if ( s->locale )
     releaseLocale(s->locale);
+#endif
   if ( s->references == 0 )
     unallocStream(s);
   else
