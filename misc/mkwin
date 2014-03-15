@@ -14,13 +14,43 @@
 #
 VERSION=6.3.4
 THREADS=no
-if test $# = 0; then
-  ABI=64
-elif test $# = 1; then
-  ABI=$1
+ABI=64
+
+if test $# = 1; then
+  if test $1 = threads; then
+     THREADS=yes
+  elif test $1 = no_threads; then
+     THREADS=no
+  elif test $1 = 32; then
+     ABI=32
+  elif test $1 = 64; then
+     ABI=64
+  else
+     echo "received \"$1\", should be one of threads, no_threads, 32, 64"
+  fi
 else
-  ABI=$1
-  THREADS=$2
+  if test $1 = threads; then
+     THREADS=yes
+  elif test $1 = no_threads; then
+     THREADS=no
+  elif test $1 = 32; then
+     ABI=32
+  elif test $1 = 64; then
+     ABI=64
+  else
+     echo "received 1=\"$1\", should be one of threads, no_threads, 32, 64"
+  fi
+  if test $2 = threads; then
+     THREADS=yes
+  elif test $2 = no_threads; then
+     THREADS=no
+  elif test $2 = 32; then
+     ABI=32
+  elif test $2 = 64; then
+     ABI=64
+  else
+     echo "received 1=\"$2\", should be one of threads, no_threads, 32, 64"
+  fi
 fi
 
 CONFIGURE=../yap-6.3/configure
