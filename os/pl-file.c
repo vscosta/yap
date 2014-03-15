@@ -2008,7 +2008,7 @@ found:
   ref = PL_blob_data(sblob, NULL, &type);
   if ( type == &stream_blob )		/* got a stream handle */
   { if ( ref->read && ref->write &&	/* stream pair */
-	 info->flags & SS_NOPAIR )
+	 (info->flags & SS_NOPAIR) )
       return PL_error("set_stream", 2, NULL, ERR_PERMISSION,
 		      aname, ATOM_stream_pair, stream);
 
@@ -3421,7 +3421,7 @@ pl_seen(void)
 
   pop_input_context();
 
-  if ( s && s->flags & SIO_NOFEOF )
+  if ( s && (s->flags & SIO_NOFEOF) )
     return TRUE;
 
   if ( s )
@@ -3523,7 +3523,7 @@ PRED_IMPL("told", 0, told, 0)
 
   popOutputContext();
 
-  if ( s && s->flags & SIO_NOFEOF )
+  if ( s && (s->flags & SIO_NOFEOF) )
     return TRUE;
 
   if ( s )
@@ -4272,6 +4272,7 @@ PRED_IMPL("stream_property", 2, stream_property,
       return FALSE;
     }
   }
+  return FALSE;
 }
 
 

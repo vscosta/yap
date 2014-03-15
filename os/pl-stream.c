@@ -1343,6 +1343,7 @@ ScheckBOM(IOSTREAM *s)
       return 0;				/* empty stream */
     s->bufp--;
   }
+  return 0;
 }
 
 
@@ -2648,6 +2649,7 @@ Sread_file(void *handle, char *buf, size_t size)
 
     return bytes;
   }
+  return -1;
 }
 
 
