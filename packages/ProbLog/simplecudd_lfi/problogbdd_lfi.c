@@ -761,7 +761,7 @@ double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_i
   // fprintf(stderr,"%%calcing down\n");
   
   if (calcdown_needed != 0) {
-    double retd=CalcExpectedCountsDown(MyManager,Current, query_id);
+    // double retd=CalcExpectedCountsDown(MyManager,Current, query_id);
   }
 /*   if(1 != retd){ */
 /*     fprintf(stderr,"down %e != up %e/%e\n",ret,retd,ret); */
@@ -807,7 +807,7 @@ double CalcExpectedCounts(extmanager * MyManager, DdNode *Current, char *query_i
 #define LOG_EXPECTED  0
 
 
-
+static
 void PrintNodeQueue(Queue q , extmanager MyManager){
 
     QueueIterator qiter = QueueIteratorNew(q, 1);
@@ -824,6 +824,8 @@ void PrintNodeQueue(Queue q , extmanager MyManager){
  /** also nesting in CalcExpected seems to not work (must be here nested only valid within function frame)*/
 /* will be changed at later stage */
 static extmanager * ineedtostorethatsomehow;
+
+static
 int comparator(void *av, void *bv){
     int ret = 0;
     DdNode* a = (DdNode*)av;
@@ -852,7 +854,11 @@ int comparator(void *av, void *bv){
     return ret;
 }
 
+static void
+skip_nodes_cnt(extmanager * MyManager, double (*counts)[] , int skipcnt, DdNode* l,double dprob, char *query_id);
+
 /** output information for skipped nodes **/
+static void
 skip_nodes(extmanager * MyManager, double (*counts)[] , DdNode* node, DdNode* l,double dprob, char *query_id){
   int skipcnt;
   skipcnt = Cudd_ReadPerm(MyManager->manager,GetIndex(node))+1;
@@ -866,9 +872,10 @@ skip_nodes(extmanager * MyManager, double (*counts)[] , DdNode* node, DdNode* l,
 			   Cudd_IsConstant(l)
 			   );
   }
-  return skip_nodes_cnt( MyManager, counts,  skipcnt,  l, dprob, query_id);
-
+  skip_nodes_cnt( MyManager, counts,  skipcnt,  l, dprob, query_id);
 }
+
+static void
 skip_nodes_cnt(extmanager * MyManager, double (*counts)[] , int skipcnt, DdNode* l,double dprob, char *query_id){
   if(LOG_EXPECTED) fprintf(stderr,"====================\n");
   double p;
@@ -954,7 +961,7 @@ double CalcExpectedCountsDown(extmanager * MyManager, DdNode *Current, char *que
     if(LOG_EXPECTED){PrintNodeQueue(q,*MyManager);}
     node=QueueGet(q);
     curnode = GetNodeVarNameDisp(MyManager->manager, MyManager->varmap, node);
-    int level = Cudd_ReadPerm(MyManager->manager,GetIndex(node));
+    // int level = Cudd_ReadPerm(MyManager->manager,GetIndex(node));
     if(!Cudd_IsConstant(node)){
     tvalue = MyManager->varmap.dvalue[GetIndex(node) - MyManager->varmap.varstart];
     ivalue = MyManager->varmap.ivalue[GetIndex(node) - MyManager->varmap.varstart];

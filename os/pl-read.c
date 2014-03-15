@@ -968,7 +968,7 @@ static unsigned char *
 backSkipUTF8(unsigned const char *start, unsigned const char *end, int *chr)
 { const unsigned char *s;
 
-  for(s=end-1 ; s>start && *s&0x80; s--)
+  for(s=end-1 ; s>start && ( *s&0x80 ); s--)
     ;
   utf8_get_char((char*)s, chr);
 
