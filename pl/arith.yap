@@ -167,6 +167,9 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	var(V), !.
 '$expand_expr'([T], E, V) :- !,
 	'$expand_expr'(T, E, V).
+'$expand_expr'(String, _E, V) :-
+	string( String ), !,
+	string_codes(String, [V]).
 '$expand_expr'(A, true, A) :-
 	atomic(A), !.
 '$expand_expr'(T, E, V) :-

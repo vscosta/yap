@@ -594,6 +594,12 @@ initialization(G,OPT) :-
 	  '$extend_exports'(File, Imports, OldF )
 	).
 
+%
+% reconsult at startup...
+%
+'$do_startup_reconsult'(_X) :-
+    '$init_win_graphics',
+    fail.
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
 	  '$system_catch'(load_files(X, [silent(true)]), Module, Error, '$Error'(Error))

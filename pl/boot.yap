@@ -28,11 +28,6 @@ true :- true.
     '$init_system'.
 
 '$do_live' :-
-    '$swi_current_prolog_flag'(file_name_variables, OldF),
-    '$swi_set_prolog_flag'(file_name_variables, true),
-    '$init_consult',
-    '$swi_set_prolog_flag'(file_name_variables, OldF),
-    '$init_win_graphics',
     repeat,
     '$current_module'(Module),
     ( Module==user ->
@@ -72,6 +67,11 @@ true :- true.
 %	;
 %	 true
 %	),
+    '$swi_current_prolog_flag'(file_name_variables, OldF),
+    '$swi_set_prolog_flag'(file_name_variables, true),
+    '$init_consult',
+    '$swi_set_prolog_flag'(file_name_variables, OldF),
+    '$init_win_graphics',
     '$init_globals',
     '$swi_set_prolog_flag'(fileerrors, true),
     set_value('$gc',on),
