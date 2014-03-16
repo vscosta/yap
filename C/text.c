@@ -25,6 +25,10 @@
 
 #include <string.h>
 
+#ifndef HAVE_WCSNLEN
+#define wcsnlen(S, N) wcslen(S)
+#endif
+
 static inline unsigned char *get_char(unsigned char *p, int *c) { *c = *p; return p+1; }
 
 static inline wchar_t *get_wchar(wchar_t *p, int *c) { *c = *p; return p+1; }

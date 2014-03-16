@@ -1134,7 +1134,7 @@ p_srandom ( USES_REGS1 )
   return (TRUE);
 }
 
-#if HAVE_SIGNAL
+#if HAVE_SIGNAL_H
 
 #include <signal.h>
 
@@ -1184,7 +1184,9 @@ static struct signame
 #endif
   { SIGILL,	"ill",    0},
   { SIGABRT,	"abrt",   0},
+#if HAVE_SIGFPE
   { SIGFPE,	"fpe",    PLSIG_THROW},
+#endif
 #ifdef SIGKILL
   { SIGKILL,	"kill",   0},
 #endif
@@ -1285,8 +1287,6 @@ Yap_signal_index(const char *name)
   return -1;
 }
 
-#if (defined(__svr4__) || defined(__SVR4))
-
 #if HAVE_SIGINFO_H
 #include <siginfo.h>
 #endif
@@ -1294,41 +1294,72 @@ Yap_signal_index(const char *name)
 #include <sys/ucontext.h>
 #endif
 
-static void HandleSIGSEGV(int, siginfo_t   *, ucontext_t *);
-static void HandleMatherr,  (int, siginfo_t   *, ucontext_t *);
-static void my_signal_info(int, void (*)(int, siginfo_t  *, ucontext_t *));
-static void my_signal(int, void (*)(int, siginfo_t  *, ucontext_t *));
+#if HAVE_SIGSEGV
+static void
+SearchForTrailFault(void *ptr, int sure)
+{
+
+  /* If the TRAIL is very close to the top of mmaped allocked space,
+     then we can try increasing the TR space and restarting the
+     instruction. In the worst case, the system will
+     crash again
+     */
+#if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
+  if ((ptr > (void *)LOCAL_TrailTop-1024  && 
+       TR < (tr_fr_ptr) LOCAL_TrailTop+(64*1024))) {
+    if (!Yap_growtrail(64*1024, TRUE)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
+    }
+    /* just in case, make sure the OS keeps the signal handler. */
+    /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
+  } else
+#endif /* OS_HANDLES_TR_OVERFLOW */
+    if (sure)
+      Yap_Error(FATAL_ERROR, TermNil,
+		"tried to access illegal address %p!!!!", ptr);
+    else
+      Yap_Error(FATAL_ERROR, TermNil,
+		"likely bug in YAP, segmentation violation");
+}
+
 
 /* This routine believes there is a continuous space starting from the
    HeapBase and ending on TrailTop */
 static void
-HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
+HandleSIGSEGV(int   sig,   void   *sipv, void *uap)
 {
-
-#if !USE_SYSTEM_MALLOC
+  void *ptr = TR;
+  int sure = FALSE;
+  if (LOCAL_PrologMode & ExtendStackMode) {
+    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
+  }
+#if (defined(__svr4__) || defined(__SVR4))
+  siginfo_t *sip = sipv;
   if (
       sip->si_code != SI_NOINFO &&
-      sip->si_code == SEGV_MAPERR &&
-      (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(LOCAL_TrailTop+K64)) {
-    Yap_growtrail(K64, TRUE);
-  }  else
-#endif
-    {
-      Yap_Error(FATAL_ERROR, TermNil,
-		"likely bug in YAP, segmentation violation at %p", sip->si_addr);
+      sip->si_code == SEGV_MAPERR) {
+    ptr = sip->si_addr;
+    sure = TRUE;
   }
+#elif __linux__
+  siginfo_t *sip = sipv;
+  ptr = sip->si_addr;
+  sure = TRUE;
+#endif
+  SearchForTrailFault( ptr, sure );
 }
+#endif /* SIGSEGV */
 
-
+#if HAVE_SIGFPE
 static void
-HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
+HandleMatherr(int  sig, void *sipv, void *uapv)
 {
   CACHE_REGS
   yap_error_number error_no;
 
   /* reset the registers so that we don't have trash in abstract machine */
 
+#if (defined(__svr4__) || defined(__SVR4))
   switch(sip->si_code) {
   case FPE_INTDIV:
     error_no = EVALUATION_ERROR_ZERO_DIVISOR;
@@ -1353,76 +1384,7 @@ HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
   }
   set_fpu_exceptions(0);
   Yap_Error(error_no, TermNil, "");
-}
-
-
-#if HAVE_SIGSEGV && !defined(THREADS) 
-static void
-my_signal_info(int sig, void (*handler)(int, siginfo_t  *, ucontext_t *))
-{
-  struct sigaction sigact;
-
-  sigact.sa_handler = handler;
-  sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = SA_SIGINFO;
-
-  sigaction(sig,&sigact,NULL);
-}
-#endif
-
-static void
-my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
-{
-  struct sigaction sigact;
-
-  sigact.sa_handler=handler;
-  sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = 0;
-  sigaction(sig,&sigact,NULL);
-}
-
-#elif defined(__linux__)
-
-static RETSIGTYPE HandleMatherr(int);
-#if HAVE_SIGSEGV && !defined(THREADS) 
-static RETSIGTYPE HandleSIGSEGV(int,siginfo_t *,void *);
-static void my_signal_info(int, void (*)(int,siginfo_t *,void *));
-#endif
-static void my_signal(int, void (*)(int));
-
-/******** Handling floating point errors *******************/
-
-
-/* old code, used to work with matherror(), deprecated now:
-  char err_msg[256];
-  switch (x->type)
-    {
-    case DOMAIN:
-    case SING:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s", x->name);
-      return(0);
-    case OVERFLOW:
-      Yap_Error(EVALUATION_ERROR_FLOAT_OVERFLOW, TermNil, "%s", x->name);
-      return(0);
-    case UNDERFLOW:
-      Yap_Error(EVALUATION_ERROR_FLOAT_UNDERFLOW, TermNil, "%s", x->name);
-      return(0);
-    case PLOSS:
-    case TLOSS:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s(%g) = %g", x->name,
-	       x->arg1, x->retval);
-      return(0);
-    default:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, NULL);
-      return(0);
-    }
-  */
-
-
-static RETSIGTYPE
-HandleMatherr(int sig)
-{
-  CACHE_REGS
+#elif __linux__
 #if HAVE_FETESTEXCEPT
 
   /* This should work in Linux, but it doesn't seem to. */
@@ -1443,227 +1405,54 @@ HandleMatherr(int sig)
   /* something very bad happened on the way to the forum */
   set_fpu_exceptions(FALSE);
   Yap_Error(LOCAL_matherror , TermNil, "");
+#endif
 }
 
-#if HAVE_SIGSEGV && !defined(THREADS) 
+#endif /* SIGFPE */
+
+
+#if HAVE_SIGACTION 
 static void
-my_signal_info(int sig, void (*handler)(int,siginfo_t *,void *))
+my_signal_info(int sig, void (*handler)(int, void  *, void *))
 {
   struct sigaction sigact;
 
-  sigact.sa_sigaction = handler;
+  sigact.sa_handler = (void *)handler;
   sigemptyset(&sigact.sa_mask);
-#if HAVE_SIGINFO
   sigact.sa_flags = SA_SIGINFO;
-#else
-  sigact.sa_flags = 0;
-#endif
 
   sigaction(sig,&sigact,NULL);
 }
 
 static void
-SearchForTrailFault(siginfo_t *siginfo)
-{
-  void *ptr = siginfo->si_addr;
-
-  /* If the TRAIL is very close to the top of mmaped allocked space,
-     then we can try increasing the TR space and restarting the
-     instruction. In the worst case, the system will
-     crash again
-     */
-#if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
-  if ((ptr > (void *)LOCAL_TrailTop-1024  && 
-       TR < (tr_fr_ptr) LOCAL_TrailTop+(64*1024))) {
-    if (!Yap_growtrail(64*1024, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
-    }
-    /* just in case, make sure the OS keeps the signal handler. */
-    /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
-  } else
-#endif /* OS_HANDLES_TR_OVERFLOW */
-    {
-      Yap_Error(FATAL_ERROR, TermNil,
-		"tried to access illegal address %p!!!!", ptr);
-  }
-}
-
-static RETSIGTYPE
-HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
-{
-  if (LOCAL_PrologMode & ExtendStackMode) {
-    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
-  }
-  SearchForTrailFault(siginfo);
-}
-#endif
-
-static void
-my_signal(int sig, void (*handler)(int))
+my_signal(int sig, void (*handler)(int, void *, void *))
 {
   struct sigaction sigact;
 
-  sigact.sa_handler=handler;
+  sigact.sa_handler= (void *)handler;
   sigemptyset(&sigact.sa_mask);
   sigact.sa_flags = 0;
-
-  sigaction(sig,&sigact,NULL);
-}
-
-#else /* if not (defined(__svr4__) || defined(__SVR4)) */
-
-static RETSIGTYPE HandleMatherr(int);
-static RETSIGTYPE HandleSIGSEGV(int);
-static void my_signal_info(int, void (*)(int));
-static void my_signal(int, void (*)(int));
-
-/******** Handling floating point errors *******************/
-
-
-/* old code, used to work with matherror(), deprecated now:
-  char err_msg[256];
-  switch (x->type)
-    {
-    case DOMAIN:
-    case SING:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s", x->name);
-      return(0);
-    case OVERFLOW:
-      Yap_Error(EVALUATION_ERROR_FLOAT_OVERFLOW, TermNil, "%s", x->name);
-      return(0);
-    case UNDERFLOW:
-      Yap_Error(EVALUATION_ERROR_FLOAT_UNDERFLOW, TermNil, "%s", x->name);
-      return(0);
-    case PLOSS:
-    case TLOSS:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s(%g) = %g", x->name,
-	       x->arg1, x->retval);
-      return(0);
-    default:
-      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, NULL);
-      return(0);
-    }
-  */
-
-
-#if HAVE_FENV_H
-#include <fenv.h>
-#endif
-
-static RETSIGTYPE
-HandleMatherr(int sig)
-{
-  CACHE_REGS
-#if HAVE_FETESTEXCEPT
-  /* This should work in Linux, but it doesn't seem to. */
-  
-  int raised = fetestexcept(FE_ALL_EXCEPT);
-
-  if (raised & FE_OVERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
-  } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  } else if (raised & FE_DIVBYZERO) {
-    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
-  } else if (raised & FE_UNDERFLOW) {
-    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
-  } else
-#endif
-    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
-  /* something very bad happened on the way to the forum */
-  set_fpu_exceptions(FALSE);
-  Yap_Error(LOCAL_matherror , TermNil, "");
-}
-
-static void
-SearchForTrailFault(void)
-{
-  /* If the TRAIL is very close to the top of mmaped allocked space,
-     then we can try increasing the TR space and restarting the
-     instruction. In the worst case, the system will
-     crash again
-     */
-#ifdef DEBUG
-  /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
-#endif
-#if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
-  if ((TR > (tr_fr_ptr)LOCAL_TrailTop-1024  && 
-       TR < (tr_fr_ptr)LOCAL_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
-    long trsize = K64;
-
-    while ((CELL)TR > (CELL)LOCAL_TrailTop+trsize) {
-      trsize += K64;
-    }
-    if (!Yap_growtrail(trsize, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
-    }
-    /* just in case, make sure the OS keeps the signal handler. */
-    /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
-  } else
-#endif /* OS_HANDLES_TR_OVERFLOW */
-    Yap_Error(INTERNAL_ERROR, TermNil,
-	  "likely bug in YAP, segmentation violation");
-}
-
-static RETSIGTYPE
-HandleSIGSEGV(int   sig)
-{
-  CACHE_REGS
-  if (LOCAL_PrologMode & ExtendStackMode) {
-    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
-  }
-  SearchForTrailFault();
-}
-
-#if HAVE_SIGACTION
-
-static void
-my_signal_info(int sig, void (*handler)(int))
-{
-  struct sigaction sigact;
-
-  sigact.sa_handler = handler;
-  sigemptyset(&sigact.sa_mask);
-#if HAVE_SIGINFO
-  sigact.sa_flags = SA_SIGINFO;
-#else
-  sigact.sa_flags = 0;
-#endif
-
-  sigaction(sig,&sigact,NULL);
-}
-
-static void
-my_signal(int sig, void (*handler)(int))
-{
-  struct sigaction sigact;
-
-  sigact.sa_handler=handler;
-  sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = 0;
-
   sigaction(sig,&sigact,NULL);
 }
 
 #else
 
 static void
-my_signal(int sig, void (*handler)(int))
+my_signal(int sig, void (*handler)(int, void  *, void *))
 {
-  signal(sig, handler);
+  signal(sig, (void *)handler);
 }
 
 static void
 my_signal_info(sig, handler)
 int sig;
-void (*handler)(int);
+void (*handler)(int, void  *, void *);
 {
-  if(signal(sig, handler) == SIG_ERR)
+  if(signal(sig, (void *)handler) == SIG_ERR)
     exit(1);
 }
-#endif /* __linux__ */
 
-#endif /* (defined(__svr4__) || defined(__SVR4)) */
+#endif
 
 
 static int
@@ -1757,12 +1546,8 @@ static int             snoozing = FALSE;
    We assume we are within the context of the signal handler, whatever
    that might be
 */
-static RETSIGTYPE
-#if (defined(__svr4__) || defined(__SVR4))
-HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
-#else
-HandleSIGINT (int sig)
-#endif
+static void
+HandleSIGINT (int sig, void   *x, void *y)
 {
   CACHE_REGS
     /* fprintf(stderr,"mode = %x\n",LOCAL_PrologMode); */
@@ -1785,10 +1570,6 @@ HandleSIGINT (int sig)
   /* make sure we are not waiting for the end of line */
   YP_setbuf (stdin, NULL);
 #endif
-  if (snoozing) {
-    snoozing = FALSE;
-    return;
-  }
   ProcessSIGINT();
 }
 #endif
@@ -1796,11 +1577,7 @@ HandleSIGINT (int sig)
 #if !defined(_WIN32)
 /* this routine is called if the system activated the alarm */
 static RETSIGTYPE
-#if (defined(__svr4__) || defined(__SVR4))
-HandleALRM (int s, siginfo_t   *x, ucontext_t *y)
-#else
-HandleALRM(int s)
-#endif
+HandleALRM (int s, void  *x, void *y)
 {
   my_signal (SIGALRM, HandleALRM);
   /* force the system to creep */
@@ -1814,11 +1591,7 @@ HandleALRM(int s)
 #if !defined(_WIN32)
 /* this routine is called if the system activated the alarm */
 static RETSIGTYPE
-#if (defined(__svr4__) || defined(__SVR4))
-HandleVTALRM (int s, siginfo_t   *x, ucontext_t *y)
-#else
-HandleVTALRM(int s)
-#endif
+HandleVTALRM (int s, void   *x, void *y)
 {
   my_signal (SIGVTALRM, HandleVTALRM);
   /* force the system to creep */
@@ -1836,19 +1609,17 @@ HandleVTALRM(int s)
 
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
 static RETSIGTYPE
-#if (defined(__svr4__) || defined(__SVR4))
-ReceiveSignal (int s, siginfo_t   *x, ucontext_t *y)
-#else
-ReceiveSignal (int s)
-#endif
+ReceiveSignal (int s, void *x, void *y)
 {
   switch (s)
     {
 #ifndef MPW
+#ifdef HAVE_SIGFPE
     case SIGFPE:
       set_fpu_exceptions(FALSE);
       Yap_Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
       break;
+#endif
 #endif
 #if !defined(LIGHT) && !defined(_WIN32)
       /* These signals are not handled by WIN32 and not the Macintosh */
@@ -1929,7 +1700,7 @@ InitSignals (void)
 #else
     my_signal (SIGINT, HandleSIGINT);
 #endif
-#ifndef MPW
+#ifdef HAVE_SIGFPE
     my_signal (SIGFPE, HandleMatherr);
 #endif
 #if HAVE_SIGSEGV && !defined(THREADS) 
@@ -2806,7 +2577,7 @@ set_fpu_exceptions(int flag)
 #if HAVE_FETESTEXCEPT
     feclearexcept(FE_ALL_EXCEPT);
 #endif
-#ifndef _WIN32
+#ifdef HAVE_SIGFPE
     my_signal (SIGFPE, HandleMatherr);
 #endif
   } else {
@@ -2823,7 +2594,7 @@ set_fpu_exceptions(int flag)
     int v = _FPU_IEEE;
    _FPU_SETCW(v);
 #endif    
-#ifndef _WIN32
+#ifdef HAVE_SIGFPE
     my_signal (SIGFPE, SIG_IGN);
 #endif
   }
