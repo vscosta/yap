@@ -1328,6 +1328,8 @@ SearchForTrailFault(void *ptr, int sure)
 static void
 HandleSIGSEGV(int   sig,   void   *sipv, void *uap)
 {
+  CACHE_REGS
+
   void *ptr = TR;
   int sure = FALSE;
   if (LOCAL_PrologMode & ExtendStackMode) {
@@ -1444,9 +1446,7 @@ my_signal(int sig, void (*handler)(int, void  *, void *))
 }
 
 static void
-my_signal_info(sig, handler)
-int sig;
-void (*handler)(int, void  *, void *);
+my_signal_info(int sig, void (*handler)(int, void  *, void *))
 {
   if(signal(sig, (void *)handler) == SIG_ERR)
     exit(1);
@@ -1703,17 +1703,11 @@ InitSignals (void)
 #ifdef HAVE_SIGFPE
     my_signal (SIGFPE, HandleMatherr);
 #endif
-#if HAVE_SIGSEGV && !defined(THREADS) 
+#if HAVE_SIGSEGV
     my_signal_info (SIGSEGV, HandleSIGSEGV);
 #endif
 #ifdef YAPOR_COW
     signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
-#endif
-  } else {
-#if OS_HANDLES_TR_OVERFLOW
-#if HAVE_SIGSEGV && !defined(THREADS)
-    my_signal_info (SIGSEGV, HandleSIGSEGV);
-#endif    
 #endif
   }
 }
@@ -2144,7 +2138,49 @@ Run an external command and wait for its completion.
 static Int
 p_system ( USES_REGS1 )
 {				/* '$system'(+SystCommand)	       */
-#ifdef HAVE_SYSTEM
+#if _MSC_VER || defined(__MINGW32__)
+/** shell(+Command:text, -Status:integer) is det.
+
+Run an external command and wait for its completion.
+*/
+  char *cmd;
+  term_t A1 = Yap_InitSlot(ARG1 PASS_REGS);
+  if ( PL_get_chars(A1, &cmd, CVT_ALL|REP_FN|CVT_EXCEPTION) )
+    { STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    ZeroMemory( &pi, sizeof(pi) );
+
+    // Start the child process. 
+    if( !CreateProcess( NULL,   // No module name (use command line)
+        cmd,            // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi )           // Pointer to PROCESS_INFORMATION structure
+    ) 
+    {
+      Yap_Error( SYSTEM_ERROR, ARG1,  "CreateProcess failed (%d).\n", GetLastError() );
+        return FALSE;
+    }
+    // Wait until child process exits.
+    WaitForSingleObject( pi.hProcess, INFINITE );
+
+    // Close process and thread handles. 
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+
+    return TRUE;
+  }
+
+  return FALSE;
+#elif HAVE_SYSTEM
   Term t1 = Deref (ARG1);
   char *s;
 
@@ -2971,7 +3007,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
-  Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag);
   Yap_InitCPred ("$yap_paths", 3, p_yap_paths, SafePredFlag);
