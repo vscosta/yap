@@ -340,7 +340,7 @@ foldl2_([H|T], Goal, V0, V, W0, W) :-
 foldl2(Goal, List1, List2, V0, V, W0, W) :-
 	foldl2_(List1, List2, Goal, V0, V, W0, W).
 
-foldl2_([], [], [], V, V, W, W).
+foldl2_([], [], _Goal, V, V, W, W).
 foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
 	call(Goal, H1, H2, V0, V1, W0, W1),
 	foldl2_(T1, T2, Goal, V1, V, W1, W).
@@ -348,7 +348,7 @@ foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
 foldl2(Goal, List1, List2, List3, V0, V, W0, W) :-
 	foldl2_(List1, List2, List3, Goal, V0, V, W0, W).
 
-foldl2_([], [], [], [], V, V, W, W).
+foldl2_([], [], [], _Goal, V, V, W, W).
 foldl2_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
 	call(Goal, H1, H2, H3, V0, V1, W0, W1),
 	foldl2_(T1, T2, T3, Goal, V1, V, W1, W).
