@@ -512,7 +512,9 @@ expand_goal(G, G).
 	'$should_expand'(A,HVars),
 	!,
 	( X ==0 ->
-	      '$meta_expansion0'(A,CurMod,M,HM,NA,HVars)
+	  '$values'('$c_arith',Old, false),
+	  '$meta_expansion0'(A,CurMod,M,HM,NA,HVars),
+	  '$values'('$c_arith', _False, Old)
 	  ;
 	      NA = M:A
 	),
