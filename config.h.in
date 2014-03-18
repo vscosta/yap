@@ -607,6 +607,9 @@
 /* Define to 1 if you have the `sigaction' function. */
 #undef HAVE_SIGACTION
 
+/* Unix SIGFPE */
+#undef HAVE_SIGFPE
+
 /* Define to 1 if you have the `siggetmask' function. */
 #undef HAVE_SIGGETMASK
 
@@ -825,6 +828,9 @@
 
 /* Define to 1 if you have the `wcsdup' function. */
 #undef HAVE_WCSDUP
+
+/* Define to 1 if you have the `wcsnlen' function. */
+#undef HAVE_WCSNLEN
 
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H

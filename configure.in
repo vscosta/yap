@@ -1507,6 +1507,22 @@ then
 AC_DEFINE(HAVE_SIGINFO,1, [Unix SIGINFO])
 fi
 
+dnl check for sigfpe
+AC_MSG_CHECKING(for sigfpe)
+AC_CACHE_VAL(yap_cv_sigfpe,[
+AC_TRY_COMPILE(
+	#include <signal.h>
+	#include <stdio.h>
+	,
+	printf("SIGFPE value is %d\n", SA_SIGFPE);
+	,
+	yap_cv_sigfpe=yes,yap_cv_sigfpe=no)])
+AC_MSG_RESULT($yap_cv_sigfpe)
+if test "$yap_cv_sigfpe" = yes 
+then
+AC_DEFINE(HAVE_SIGFPE,1, [Unix SIGFPE])
+fi
+
 AC_MSG_CHECKING("variable timezone in tzset")
 AC_TRY_RUN(
 [ #include <time.h>
@@ -1589,7 +1605,7 @@ AC_CHECK_FUNCS(setitimer setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket srand srandom stat)
 AC_CHECK_FUNCS(strchr strerror stricmp strlwr strncat strncpy strtod)
-AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup)
+AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup wcsnlen)
 
 # android does not really have locale stuff..
 case "$host" in
