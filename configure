@@ -9311,7 +9311,7 @@ _ACEOF
 fi
 done
 
-for ac_func in time times tmpnam usleep utime vsnprintf wcsdup
+for ac_func in time times tmpnam usleep utime vsnprintf wcsdup wcsnlen
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -13064,6 +13064,9 @@ while test $found = no; do
 		fi
         fi
 done
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: _JTOPDIR=\"$_JTOPDIR\"" >&5
+$as_echo "_JTOPDIR=\"$_JTOPDIR\"" >&6; }
 
 # get the likely subdirectories for system specific java includes
 case "$host_os" in

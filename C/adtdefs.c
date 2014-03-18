@@ -304,17 +304,26 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
 Atom
 Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
-  wchar_t *p = atom, c;
-  size_t len = 0;
   Atom at;
   int wide = FALSE;
-  while ((c = *p++)) { 
-    if (c > 255) wide = TRUE;
-    len++;
-    if (len == len0) break;
+  size_t i;
+
+  while (i < len0) { 
+    // primary support for atoms with null chars
+    wchar_t c = atom[i];
+    if (c > 255) {
+      wide = TRUE;
+      break;
+    }
+    if (c=='\0') {
+      len0 = i;
+      break;
+    }
+    i++;
   }
   if (wide) {
     wchar_t *ptr0;
+
     ptr0 = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t)*(len0+1));
     if (!ptr0)
       return NIL;
@@ -325,11 +334,12 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
     return at;
   } else {
     char *ptr0;
-    Int i;
+
     ptr0 = (char *)Yap_AllocCodeSpace((len0+1));
     if (!ptr0)
       return NIL;
-    for (i=0; i < len0; i++) ptr0[i] = atom[i];
+    for (i=0;i<len0;i++)
+      ptr0[i] = atom[i];
     ptr0[len0] = '\0';
     at = LookupAtom(ptr0);
     Yap_FreeCodeSpace(ptr0);
@@ -340,20 +350,17 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 Atom
 Yap_LookupAtomWithLength(char *atom, size_t len0)
 {				/* lookup atom in atom table            */
-  char *p = atom;
   Atom at;
+  char *ptr;
 
-  char *ptr, *ptr0;
-  size_t len = 0;
   /* not really a wide atom */
-  p = atom;
-  ptr0 = ptr = Yap_AllocCodeSpace(len0+1);
+  ptr = Yap_AllocCodeSpace(len0+1);
   if (!ptr)
     return NIL;
-  while (len++ < len0) {int ch = *ptr++ = *p++; if (ch == '\0') break;}
-  ptr[0] = '\0';
-  at = LookupAtom(ptr0);
-  Yap_FreeCodeSpace(ptr0);
+  memcpy(ptr, atom, len0);
+  ptr[len0] = '\0';
+  at = LookupAtom(ptr);
+  Yap_FreeCodeSpace(ptr);
   return at;
 }
 
