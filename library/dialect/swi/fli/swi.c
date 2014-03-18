@@ -1979,8 +1979,8 @@ PL_initialise(int myargc, char **myargv)
   GLOBAL_PL_Argc = myargc;
   GLOBAL_PL_Argv = myargv;
   GLOBAL_InitialisedFromPL = TRUE;
-  getchar();
-  return YAP_Init(&init_args) != YAP_BOOT_ERROR;
+  int rc = YAP_Init(&init_args) != YAP_BOOT_ERROR;
+  return rc;
 }
 
 X_API int
