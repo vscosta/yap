@@ -282,11 +282,11 @@ C_SOURCES= \
 	OPTYap/or.thread_engine.c \
 	OPTYap/or.scheduler.c OPTYap/or.cut.c \
 	OPTYap/tab.tries.c OPTYap/tab.completion.c \
-	# library/mpi/mpi.c library/mpi/mpe.c \
-	# library/lammpi/yap_mpi.c library/lammpi/hash.c library/lammpi/prologterms2c.c  \
 	C/cut_c.c \
 	library/dialect/swi/fli/swi.c \
-	library/dialect/swi/fli/blobs.c
+	library/dialect/swi/fli/blobs.c \
+	# library/mpi/mpi.c library/mpi/mpe.c \
+	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -633,7 +633,7 @@ TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(FULL_PATH_C_SOURCES) >> Makefile;\
+	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir)/H -I$(srcdir)/include -I$(srcdir)/os -I$(srcdir)/library/dialect/swi/fli -I. $(FULL_PATH_C_SOURCES) >> Makefile;\
 	else\
           makedepend -f - -- $(CFLAGS) -Iinclude -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
