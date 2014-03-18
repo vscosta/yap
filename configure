@@ -8892,6 +8892,43 @@ $as_echo "#define HAVE_SIGINFO 1" >>confdefs.h
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sigfpe" >&5
+$as_echo_n "checking for sigfpe... " >&6; }
+if ${yap_cv_sigfpe+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <signal.h>
+	#include <stdio.h>
+
+int
+main ()
+{
+printf("SIGFPE value is %d\n", SA_SIGFPE);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  yap_cv_sigfpe=yes
+else
+  yap_cv_sigfpe=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv_sigfpe" >&5
+$as_echo "$yap_cv_sigfpe" >&6; }
+if test "$yap_cv_sigfpe" = yes
+then
+
+$as_echo "#define HAVE_SIGFPE 1" >>confdefs.h
+
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking \"variable timezone in tzset\"" >&5
 $as_echo_n "checking \"variable timezone in tzset\"... " >&6; }
 if test "$cross_compiling" = yes; then :
@@ -12338,7 +12375,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12341 "configure" */
+/* #line 12378 "configure" */
 public class Test {
 }
 EOF
@@ -12514,7 +12551,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12517: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12554: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12645,7 +12682,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12648 "configure" */
+/* #line 12685 "configure" */
 public class Test {
 }
 EOF
@@ -12680,7 +12717,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12683 "configure" */
+/* [#]line 12720 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
