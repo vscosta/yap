@@ -802,7 +802,7 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     tmp = RepAppl(t)+1;
   }
   for (i = 0; i < arity; i++) {
-    tmp[i] = Yap_GetFromSlot(a0 PASS_REGS);
+    Yap_unify(tmp[i] , Yap_GetFromSlot(a0 PASS_REGS) );
     a0++;
   }
   Yap_PutInSlot(d,t PASS_REGS);
