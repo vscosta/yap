@@ -1,4 +1,6 @@
-\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+\input texinfo @c -*- mode: texinfo; coding: utf-8; -*-
+
+@documentencoding UTF-8
 
 @c %**start of header
 @setfilename yap.info
@@ -8,7 +10,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.3.3
+@set VERSION 6.3.4
 @set EDITION 4.2.9
 @set UPDATED Oct 2010
 
@@ -43,10 +45,10 @@
 @titlepage
 @title YAP User's Manual
 @subtitle Version @value{VERSION}
-@author V@'{@dotless{i}}tor Santos Costa,
-@author Lu@'{@dotless{i}}s Damas,
-@author Rog@'erio Reis, and
-@author R@'uben Azevedo
+@author Vitor Santos Costa,
+@author Luís Damas,
+@author Rogério Reis, and
+@author Rúben Azevedo
 @page
 @vskip 2pc
 Copyright @copyright{} 1989-2000 L. Damas, V. Santos Costa and Universidade
@@ -199,7 +201,7 @@ Subnodes of Library
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * BDDs:: Predicates to manipulate BDDs using the CUDD libraries
 * Exo Intervals:: Play with the UDI and exo-compilation
-* Gecode: Interface to the gecode constraint library
+* Gecode:: Interface to the gecode constraint library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lambda:: Ulrich Neumerkel's Lambda Library
@@ -8741,7 +8743,7 @@ Library, Extensions, Built-ins, Top
 * Cleanup:: Call With registered Cleanup Calls
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * Exo Intervals:: Play with the UDI and exo-compilation
-* Gecode: Interface to the gecode constraint library
+* Gecode:: Interface to the gecode constraint library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * LAM:: LAM MPI
@@ -9156,12 +9158,12 @@ the patient 9 had any code reported, the second looks for the first
 report of code 36211117, and the last searches for reports after this
 one. All queries run in  constant or log(n) time.
 
-@node Gecode, Heaps, Exo intervals, Library
+@node Gecode, Heaps, Exo Intervals, Library
 @section Gecode Interface
 @cindex gecode
 
 The gecode library intreface was designed and implemented by Denis
-Duchier, with recent work by V�tor Santos Costa to port it to version 4
+Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 @menu
@@ -10482,8 +10484,9 @@ matrices of integers and floats. In contrast to dynamic arrays, these
 matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack. Matrices are available
 by loading the library @code{library(matrix)}. They are multimensional
-objects of type:@itemize
- @item @t{terms}: Prolog terms
+objects of type:
+@itemize
+@item @t{terms}: Prolog terms
 @item  @t{ints}: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
@@ -10660,9 +10663,9 @@ The matrix will be initialised to zeros.
 @example
 ?- matrix_new(ints,[2,3],Matrix).
 
-Matrix = {..}
+Matrix = @{..@}
 @end example
-Notice that currently YAP will always write a matrix of numbers as @code{{..}}.
+Notice that currently YAP will always write a matrix of numbers as @code{@{..@}}.
 
 @item matrix_new(+@var{Type},+@var{Dims},+@var{List},-@var{Matrix})
 @findex matrix_new/4
@@ -11595,14 +11598,14 @@ integers then @var{NUMBER} will also be an integer, otherwise
 @syindex randseq/3
 @cnindex randseq/3
 Unify @var{Numbers} with a list of @var{LENGTH} unique random integers
-in the range @code{[1�...@var{MAX})}.
+in the range @code{[1...@var{MAX})}.
 
 @item randset(+@var{LENGTH}, +@var{MAX}, -@var{Numbers})
 @findex randset/3
 @syindex randset/3
 @cnindex randset/3
 Unify @var{Numbers} with an ordered list of @var{LENGTH} unique random
-integers in the range @code{[1�...@var{MAX})}.
+integers in the range @code{[1...@var{MAX})}.
 
 @item setrand(+@var{Key})
 @findex setrand/1
