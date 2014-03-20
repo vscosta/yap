@@ -422,7 +422,7 @@ Int     Yap_SkipList(Term *, Term **);
 /* write.c */
 void	Yap_plwrite(Term, void *, int, int, int);
 int     Yap_FormatFloat( Float f, const char *s, size_t sz );
-void    Yap_WriteAtom(IOSTREAM *s, Atom atom);
+void    Yap_WriteAtom(struct io_stream *s, Atom atom);
 
 /* yap2swi.c */
 void	Yap_swi_install(void);
