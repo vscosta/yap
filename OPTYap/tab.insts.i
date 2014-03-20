@@ -548,7 +548,9 @@
       } else {
         /* subgoal in evaluation */
         choiceptr leader_cp;
+#ifdef YAPOR
         int leader_dep_on_stack;
+#endif
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK_SG_FR(sg_fr);
         find_leader_node(leader_cp, leader_dep_on_stack);
@@ -696,7 +698,9 @@
       } else {
         /* subgoal in evaluation */
         choiceptr leader_cp;
+#ifdef YAPOR
         int leader_dep_on_stack;
+#endif
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK_SG_FR(sg_fr);
         find_leader_node(leader_cp, leader_dep_on_stack);
@@ -856,7 +860,9 @@
       } else {
         /* subgoal in evaluation */
         choiceptr leader_cp;
+#ifdef YAPOR
         int leader_dep_on_stack;
+#endif
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK_SG_FR(sg_fr);
         find_leader_node(leader_cp, leader_dep_on_stack);
