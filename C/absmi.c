@@ -7967,25 +7967,6 @@ Yap_absmi(int inp)
 	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
-	UNLOCKPE(17,pe);
-#ifdef DEBUG_LOCK
-	{ PredEntry *ap = pe;
-		  if (ap->ArityOfPE) {
-		    if (   ap->ModuleOfPred != IDB_MODULE)
-		  	  printf("L9 %s\n", AtomName(NameOfFunctor(ap->FunctorOfPred)));
-		    else
-		      {
-			if (ap->PredFlags & NumberDBPredFlag) {
-		  	  printf("L9 %ld\n", ap->src.IndxId);
-			} else if (ap->PredFlags & AtomDBPredFlag) {
-			  printf("L9 %s\n", AtomName((Atom)(ap->FunctorOfPred)));
-			} else {
-		  	  printf("L9 %s\n", AtomName(NameOfFunctor(ap->FunctorOfPred)));
-			}
-		      }
-		  }
-      }
-#endif
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
@@ -8002,14 +7983,20 @@ Yap_absmi(int inp)
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
 	/* avoid trouble with undefined dynamic procedures */
+	/* I assume they were not locked beforehand */
+#if defined(YAPOR) || defined(THREADS)
+	if (!PP)
+	  PELOCK(19,pe);
+#endif
 	if ((pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) ||
 	    (UndefCode->OpcodeOfPred == UNDEF_OPCODE)) {
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
-#endif
 	  UNLOCKPE(19,pe);
+#endif
 	  FAIL();
 	}
+	UNLOCKPE(19,pe);
 	d0 = pe->ArityOfPE;
 	if (d0 == 0) {
 	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
