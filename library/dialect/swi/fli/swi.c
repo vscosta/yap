@@ -1001,7 +1001,8 @@ X_API int PL_throw(term_t exception)
 {
   CACHE_REGS
   YAP_Throw(Yap_GetFromSlot(exception PASS_REGS));
-  longjmp(LOCAL_execution->q_env, 0);
+  if (LOCAL_execution)
+    longjmp(LOCAL_execution->q_env, 0);
   return 0;
 }
 
@@ -2235,6 +2236,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 
   /* ignore flags  and module for now */
   qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(struct open_query_struct));
+  new->oq = LOCAL_execution;
   LOCAL_execution = new;
   new->q_open=1;
   new->q_state=0;
@@ -2268,9 +2270,12 @@ X_API int PL_next_solution(qid_t qi)
 
 X_API void PL_cut_query(qid_t qi)
 {
+  CACHE_REGS
+
   if (qi->q_open != 1 || qi->q_state == 0) return;
   YAP_LeaveGoal(FALSE, &qi->q_h);
   qi->q_open = 0;
+  LOCAL_execution = qi->oq;
   Yap_FreeCodeSpace( (char *)qi );
 }
 
@@ -2287,6 +2292,7 @@ X_API void PL_close_query(qid_t qi)
   }
   YAP_LeaveGoal(FALSE, &qi->q_h);
   qi->q_open = 0;
+  LOCAL_execution = qi->oq;
   Yap_FreeCodeSpace( (char *)qi );
 }
 
@@ -2611,9 +2617,9 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     nwid = ((struct worker_local *)engine)->ThreadHandle_.id;
   }
 
-  pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(nwid).tlock));
   if (REMOTE_ThreadHandle(nwid).ref_count) {
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(nwid).tlock));
     if (cwid != nwid) {
       return PL_ENGINE_INUSE;
     }

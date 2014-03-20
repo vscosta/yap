@@ -10,6 +10,7 @@ typedef struct open_query_struct {
   jmp_buf q_env;
   int q_flags;
   YAP_dogoalinfo q_h;
+  struct open_query_struct *oq;
 } open_query;
 
 #define addr_hash(V) (((CELL) (V)) >> 4 & (N_SWI_HASH-1))
