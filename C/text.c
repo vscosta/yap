@@ -26,10 +26,11 @@
 #include <string.h>
 
 #ifndef HAVE_WCSNLEN
-inline static min(size_t i, size_t j) {
-  i < j ? return i : return j;
+inline static size_t
+min_size(size_t i, size_t j) {
+  return ( i < j ?  i :  j );
 }
-#define wcsnlen(S, N) min(N, wcslen(S))
+#define wcsnlen(S, N) min_size(N, wcslen(S))
 #endif
 
 static inline unsigned char *get_char(unsigned char *p, int *c) { *c = *p; return p+1; }
