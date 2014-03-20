@@ -17,7 +17,7 @@
 
 #include <pthread.h>
 
-#define DEBUG_LOCKS 1
+//#define DEBUG_LOCKS 1
 
 #if DEBUG_LOCKS
 int Yap_ThreadID( void );

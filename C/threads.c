@@ -34,7 +34,7 @@ static char     SccsId[] = "%W% %G%";
 
 #if DEBUG_LOCKS
 
-int debug_locks;
+int debug_locks = TRUE;
 
 static Int p_debug_locks( USES_REGS1 ) { debug_locks = 1; return TRUE; }
 
