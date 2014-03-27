@@ -1,0 +1,214 @@
+@c -*- mode: texinfo; coding: utf-8; -*-
+
+@node Run, Syntax, Install, Top
+@chapter Running YAP
+
+@menu
+* Running YAP Interactively:: Interacting with YAP
+* Running Prolog Files:: Running Prolog files as scripts
+@end menu
+
+@cindex booting
+We next describe how to invoke YAP in Unix systems.
+
+@node Running YAP Interactively, ,Running Prolog Files,Run
+@section Running YAP Interactively
+
+Most often you will want to use YAP in interactive mode. Assuming that
+YAP is in the user's search path, the top-level can be invoked under
+Unix with the following command:
+
+@example
+yap [-s n] [-h n] [-a n] [-c IP_HOST port ] [filename]
+@end example
+
+@noindent
+All the arguments and flags are optional and have the following meaning:
+@table @code
+@item -?
+print a short error message.
+@item -s@var{Size}
+allocate @var{Size} KBytes for local and global stacks. The user may
+ specify @t{M} bytes.
+@item -h@var{Size}
+allocate @var{Size} KBytes for heap and auxiliary stacks
+@item -t@var{Size}
+allocate @var{Size} KBytes for the trail stack
+@item -L@var{Size} 
+SWI-compatible option to allocate @var{Size} K bytes for local and global stacks, the local stack
+ cannot be expanded. To avoid confusion with the load option, @var{Size}
+ must immediately follow the letter @code{L}.
+@item -G@var{Size}
+SWI-compatible option to allocate @var{Size} K bytes for local and global stacks; the global
+stack cannot be expanded
+@item -T@var{Size}
+SWI-compatible option to allocate @var{Size} K bytes for the trail stack; the trail cannot be expanded.
+@item -l @var{YAP_FILE}
+compile the Prolog file @var{YAP_FILE} before entering the top-level.
+@item -L @var{YAP_FILE}
+compile the Prolog file @var{YAP_FILE} and then halt. This option is
+useful for implementing scripts.
+@item -g @var{Goal}
+run the goal @var{Goal} before top-level. The goal is converted from
+an atom to a Prolog term.
+@item -z @var{Goal}
+run the goal @var{Goal} as top-level. The goal is converted from
+an atom to a Prolog term.
+@item -b @var{BOOT_FILE}
+boot code is in Prolog file @var{BOOT_FILE}. The filename must define
+the predicate @code{'$live'/0}.
+@item -c @t{IP_HOST} @t{port}
+connect standard streams to host @t{IP_HOST} at port @t{port}
+@item filename
+restore state saved in the given file
+@item -f
+do not consult initial files
+@item -q
+do not print informational messages
+@item --
+separator for arguments to Prolog code. These arguments are visible
+through the @code{unix/1} built-in predicate.
+@end table
+
+Note that YAP will output an error message on the following conditions:
+
+@itemize @bullet
+@item
+a file name was given but the file does not exist or is not a saved
+YAP state;
+@item 
+the necessary amount of memory could not be allocated;
+@item
+the allocated memory is not enough to restore the state.
+@end itemize
+
+When restoring a saved state, YAP will allocate the
+same amount of memory as that in use when the state was saved, unless a
+different amount is specified by flags in the command line. By default,
+YAP restores the file @file{startup.yss} from the current directory or from
+the YAP library.
+@cindex environment variables
+
+@findex YAPBINDIR
+@itemize @bullet
+@item
+YAP usually boots from a saved state. The saved state will use the default
+installation directory to search for the YAP binary unless you define
+the environment variable YAPBINDIR.
+
+@findex YAPLIBDIR
+@item
+YAP always tries to find saved states from the current directory
+first. If it cannot it will use the environment variable YAPLIBDIR, if
+defined, or search the default library directory.
+
+@findex YAPSHAREDIR
+@item
+YAP will try to find library files from the YAPSHAREDIR/library
+directory.
+@end itemize
+
+@node Running Prolog Files, Running YAP Interactively, , Run
+@section Running Prolog Files
+
+YAP can also be used to run Prolog files as scripts, at least in
+Unix-like environments. A simple example is shown next (do not forget
+that the shell comments are very important):
+
+@example
+@cartouche
+#!/usr/local/bin/yap -L --
+#
+# Hello World script file using YAP
+#
+# put a dot because of syntax errors .
+
+:- write('Hello World'), nl.
+
+@end cartouche
+@end example
+
+The @code{#!}  characters specify that the script should call the binary
+file YAP. Notice that many systems will require the complete path to the
+YAP binary. The @code{-L} flag indicates that YAP should consult the
+current file when booting and then halt. The remaining arguments are
+then passed to YAP. Note that YAP will skip the first lines if they
+start with @code{#} (the comment sign for Unix's shell). YAP will
+consult the file and execute any commands.
+
+A slightly more sophisticated example is:
+
+@example
+@cartouche
+#!/usr/bin/yap -L --
+#
+# Hello World script file using YAP
+# .
+
+:- initialization(main).
+
+main :- write('Hello World'), nl.
+
+@end cartouche
+@end example
+
+The @code{initialization} directive tells YAP to execute the goal main
+after consulting the file. Source code is thus compiled and @code{main}
+executed at the end. The @code{.} is useful while debugging the script
+as a Prolog program: it guarantees that the syntax error will not
+propagate to the Prolog code.
+
+Notice that the @code{--} is required so that the shell passes the extra
+arguments to YAP.  As an example, consider the following script
+@code{dump_args}:
+
+@example
+@cartouche
+#!/usr/bin/yap -L --
+#.
+
+main( [] ).
+main( [H|T] ) :-
+        write( H ), nl,
+        main( T ).
+
+:- unix( argv(AllArgs) ), main( AllArgs ).
+
+@end cartouche
+@end example
+
+If you this run this script with the arguments:
+@example
+./dump_args -s 10000
+@end example
+@noindent
+the script will start an YAP process with stack size @code{10MB}, and
+the list of arguments to the process will be empty.
+
+Often one wants to run the script as any other program, and for this it
+is convenient to ignore arguments to YAP. This is possible by using
+@code{L --} as in the next version of @code{dump_args}:
+
+@example
+@cartouche
+#!/usr/bin/yap -L --
+
+main( [] ).
+main( [H|T] ) :-
+        write( H ), nl,
+        main( T ).
+
+:- unix( argv(AllArgs) ), main( AllArgs ).
+
+@end cartouche
+@end example
+
+The @code{--} indicates the next arguments are not for YAP. Instead,
+they must be sent directly to the @code{argv} built-in. Hence, running
+@example
+./dump_args test
+@end example
+@noindent
+will write @code{test} on the standard output.
+
+

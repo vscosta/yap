@@ -1,0 +1,389 @@
+@c -*- mode: texinfo; coding: utf-8; -*-
+
+@node Install, Run, Intro, Top
+@chapter Installing YAP
+@cindex installation
+
+
+@menu
+* Configuration Options:: Tuning the Functionality of YAP Machine
+* Machine Options:: Tuning YAP for a Particular Machine and Compiler
+@end menu
+
+To compile YAP it should be sufficient to:
+
+@enumerate 
+@item @command{autoconf}. Recent versions of YAP try to follow GNU
+conventions on where to place software.
+
+@itemize @bullet
+@item The main executable is placed at @var{$BINDIR}. This executable is
+actually a script that calls the Prolog engine, stored at @var{$LIBDIR}.
+
+@item @var{$LIBDIR} is the directory where libraries are stored. YAPLIBDIR is a
+subdirectory that contains the Prolog engine and a Prolog library.
+
+@item @var{$INCLUDEDIR} is used if you want to use YAP as a library.
+
+@item @var{$INFODIR} is where to store @code{info} files. Usually
+@file{/usr/local/info}, @file{/usr/info}, or @file{/usr/share/info}.
+@end itemize
+
+@item @command{make}.
+
+@item If the compilation succeeds, try @command{./yap}.
+
+@item If you feel satisfied with the result, do @command{make install}.
+
+@item @command{make install-info} will create the info files in the
+standard info directory.
+
+@item @command{make html} will create documentation in html format in the
+predefined directory.
+
+@end enumerate
+In most systems you will need to be superuser in order to do @command{make
+install} and @command{make info} on the standard directories.
+
+@node Configuration Options, Machine Options, ,Install
+@section Tuning the Functionality of YAP 
+@cindex syntax
+
+Compiling YAP with the standard options give you a plain vanilla
+Prolog. You can tune YAP to include extra functionality by calling
+@command{configure} with the appropriate options:
+
+@itemize @bullet
+ @item @command{--enable-rational-trees=yes} gives you support for infinite
+rational trees.
+
+ @item @command{--enable-coroutining=yes} gives you support for coroutining,
+including freezing of goals, attributed variables, and
+constraints. This will also enable support for infinite rational
+trees.
+
+ @item @command{--enable-depth-limit=yes} allows depth limited evaluation, say for
+implementing iterative deepening.
+
+ @item @command{--enable-low-level-tracer=yes} allows support for tracing all calls,
+retries, and backtracks in the system. This can help in debugging your
+application, but results in performance loss.
+
+ @item @command{--enable-wam-profile=yes} allows profiling of abstract machine
+instructions. This is useful when developing YAP, should not be so
+useful for normal users.
+
+ @item @command{--enable-condor=yes} allows using the Condor system that
+support High Throughput Computing (HTC) on large collections of
+distributively owned computing resources.
+
+ @item @command{--enable-tabling=yes} allows tabling support. This option
+is still experimental.
+
+ @item @command{--enable-parallelism=@{env-copy,sba,a-cow@}} allows
+or-parallelism supported by one of these three forms. This option is
+still highly experimental.
+
+ @item @command{--with-max-workers} allows definition of the maximum 
+number of parallel processes (its value can be consulted at runtime 
+using the flag @command{max_workers}).
+
+ @item @command{--with-gmp[=DIR]} give a path to where one can find the
+@code{GMP} library if not installed in the default path.
+
+ @item @command{--enable-threads} allows using of the multi-threading 
+predicates provided by YAP. Depending on the operating system, the 
+option @command{--enable-pthread-locking} may also need to be used.
+
+ @item @command{--with-max-threads} allows definition of the maximum 
+number of threads (the default value is 1024; its value can be consulted 
+at runtime using the flag @code{max_threads}).
+
+@end itemize
+
+Next section discusses machine dependent details.
+
+@node Machine Options, , Configuration Options,Install
+@section Tuning YAP for a Particular Machine and Compiler
+@cindex machine optimizations
+
+The default options should give you best performance under
+@command{GCC}. Although the system is tuned for this compiler
+we have been able to compile versions of YAP under lcc in Linux,
+Sun's cc compiler, IBM's xlc, SGI's cc, and Microsoft's Visual C++
+6.0.
+
+@menu
+* Tuning for GCC:: Using the GNUCC compiler
+* Compiling Under Visual C++:: Using Microsoft's Visual C++ environment
+* Tuning for SGI cc:: Compiling Under SGI's @command{cc}
+@end menu
+
+
+@node Tuning for GCC, Compiling Under Visual C++, , Machine Options
+@section Tuning YAP for @command{GCC}.
+
+YAP has been developed to take advantage of @command{GCC} (but not to
+depend on it). The major advantage of @command{GCC} is threaded code and
+explicit register reservation.
+
+YAP is set by default to compile with the best compilation flags we
+know. Even so, a few specific options reduce portability.  The option 
+@itemize @bullet
+ @item @command{--enable-max-performance=yes} will try to support the best
+available flags for a specific architectural model. Currently, the option
+assumes a recent version of @command{GCC}.
+ @item @command{--enable-debug-yap} compiles YAP so that it can be debugged
+by tools such as @command{dbx} or @command{gdb}.
+@end itemize
+
+Here follow a few hints:
+
+On x86 machines the flags:
+
+@example
+YAP_EXTRAS= ... -DBP_FREE=1
+@end example
+
+tells us to use the @code{%bp} register (frame-pointer) as the emulator's
+program counter. This seems to be stable and is now default.
+
+On  Sparc/Solaris2 use:
+
+@example
+YAP_EXTRAS= ...   -mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1
+@end example
+
+and YAP will get two extra registers! This trick does not work on
+SunOS 4 machines.
+
+Note that versions of GCC can be tweaked to recognize different
+processors within the same instruction set, e.g. 486, Pentium, and
+PentiumPro for the x86; or Ultrasparc, and Supersparc for
+Sparc. Unfortunately, some of these tweaks do may make YAP run slower or
+not at all in other machines with the same instruction set, so they
+cannot be made default.
+
+Last, the best options also depends on the version of GCC you are using, and
+it is a good idea to consult the GCC manual under the menus "Invoking
+GCC"/"Submodel Options". Specifically, you should check
+@command{-march=XXX} for recent versions of GCC/EGCS. In the case of
+@command{GCC2.7} and other recent versions of @command{GCC} you can check:
+
+@itemize @bullet
+
+@item 486:
+In order to take advantage of 486 specific optimizations in GCC 2.7.*:
+
+@example
+YAP_EXTRAS= ... -m486 -DBP_FREE=1
+@end example
+
+@item Pentium:
+@example
+YAP_EXTRAS= ... -m486 -malign-loops=2 -malign-jumps=2 \
+                      -malign-functions=2
+@end example
+
+@item PentiumPro and other recent Intel and AMD machines:
+PentiumPros are known not to require alignment. Check your version of
+@command{GCC} for the best @command{-march} option.
+
+@item Super and UltraSparcs:
+@example
+YAP_EXTRAS= ... -msupersparc
+@end example
+
+@item MIPS: if have a recent machine and you need a 64 bit wide address
+space you can use the abi 64 bits or eabi option, as in:
+@example
+CC="gcc -mabi=64" ./configure --...
+@end example
+Be careful. At least for some versions of @command{GCC}, compiling with
+@command{-g} seems to result in broken code.
+
+@item WIN32: GCC is distributed in the MINGW32 and CYGWIN packages.
+
+The Mingw32 environment is available from the URL:
+
+@url{http://www.mingw.org}
+
+You will need to install the @command{msys} and @command{mingw}
+packages. You should be able to do configure, make and make install.
+
+If you use mingw32 you may want to search the contributed packages for
+the @command{gmp} multi-precision arithmetic library. If you do setup YAP
+with @code{gmp} note that @file{libgmp.dll} must be in the path,
+otherwise YAP will not be able to execute.
+
+CygWin environment is available from the URL:
+
+@url{http://www.cygwin.com}
+
+@noindent
+and mirrors. We suggest using recent versions of the cygwin shell. The
+compilation steps under the cygwin shell are as follows:
+
+@example
+mkdir cyg
+$YAPSRC/configure --enable-coroutining \\
+                  --enable-depth-limit \\
+                  --enable-max-performance
+make
+make install
+@end example
+
+By default, YAP will use the @command{-mno-cygwin} option to
+disable the use of the cygwin dll and to enable the mingw32 subsystem
+instead. YAP thus will not need the cygwin dll. It instead accesses
+the system's @file{CRTDLL.DLL} @code{C} run time library supplied with
+Win32 platforms through the mingw32 interface. Note that some older
+WIN95 systems may not have @file{CRTDLL.DLL}, in this case it should
+be sufficient to import the file from a newer WIN95 or WIN98 machine.
+
+You should check the default installation path which is set to
+@file{/YAP} in the standard Makefile. This string will usually
+be expanded into @file{c:\YAP} by Windows.
+
+The cygwin environment does not provide @t{gmp} on the MINGW
+subsystem. You can fetch a dll for the @t{gmp} library from
+@url{http://www.sf.net/projects/mingwrep}.
+
+It is also possible to configure YAP to be a part of the cygwin
+environment. In this case you should use:
+@example
+mkdir cyg
+$YAPSRC/configure --enable-max-performance \\
+                  --enable-cygwin=yes
+make
+make install
+@end example
+YAP will then compile using the cygwin library and will be installed
+in cygwin's @file{/usr/local}. You can use YAP from a cygwin console,
+or as a standalone application as long as it can find
+@file{cygwin1.dll} in its path. Note that you may use to use
+@command{--enable-depth-limit} for Aleph compatibility, and that you may
+want to be sure that GMP is installed.
+
+@end itemize
+
+@node Compiling Under Visual C++, Tuning for SGI cc, Tuning for GCC, Machine Options
+@subsection  Compiling Under Visual C++
+
+YAP compiles cleanly under Microsoft's Visual C++ release 6.0. We next
+give a step-by-step tutorial on how to compile YAP manually using this
+environment.
+
+First, it is a good idea to build YAP as a DLL:
+
+@enumerate
+
+@item create a project named yapdll using File.New. The project will be a
+DLL project, initially empty.
+
+Notice that either the project is named yapdll or you must replace the
+preprocessors variable @var{$YAPDLL_EXPORTS} to match your project names
+in the files @file{YAPInterface.h} and @code{c_interface.c}.
+
+@item add all .c files in the @file{$YAPSRC/C} directory and in the
+@file{$YAPSRC\OPTYAP} directory to the Project's @code{Source Files} (use
+FileView).
+
+@item add all .h files in the @var{$YAPSRC/H} directory,
+@var{$YAPSRC\include} directory and in the @var{$YAPSRC\OPTYAP}
+subdirectory to the Project's @code{Header Files}.
+
+@item Ideally, you should now use @code{m4} to generate extra  .h from .m4 files and use
+@code{configure} to create a @code{config.h}. Or, you can be lazy, and
+fetch these files from @var{$YAPSRC\VC\include}.
+
+@item You may want to go to @code{Build.Set Active Configuration} and
+set @code{Project Type} to @code{Release}
+
+@item To use YAP's own include directories you have to set the Project
+option  @code{Project.Project Settings.C/C++.Preprocessor.Additional
+Include Directories} to include the directories @var{$YAPSRC\H},
+@var{$YAPSRC\VC\include}, @var{$YAPSRC\OPTYAP} and
+@var{$YAPSRC\include}.  The syntax is:
+
+@example
+$YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYAP, $YAPSRC\include
+@end example
+
+@item  Build: the system should generate an @file{yapdll.dll} and an @file{yapdll.lib}.
+
+@item Copy the file @file{yapdll.dll} to your path. The file
+@file{yapdll.lib} should also be copied to a location where the linker can find it.
+@end enumerate
+
+Now you are ready to create a console interface for YAP:
+@enumerate
+@item create a second project  say @code{wyap} with @code{File.New}. The project will be a
+WIN32 console project, initially empty.
+
+@item add @var{$YAPSRC\console\yap.c} to the @code{Source Files}.
+
+@item add @var{$YAPSRC\VC\include\config.h} and the files in @var{$YAPSRC\include} to
+the @code{Header Files}.
+
+@item You may want to go to @code{Build.Set Active Configuration} and set
+@code{Project Type} to @code{Release}.
+
+@item you will eventually need to bootstrap the system by booting from
+@code{boot.yap}, so write:
+
+@example
+        -b $YAPSRC\pl\boot.yap
+@end example
+
+        in @code{Project.Project Settings.Debug.Program Arguments}.
+
+@item You need the sockets and yap libraries. Add
+
+@example
+ws2_32.lib yapdll.lib
+@end example
+
+to @code{Project.Project Settings.Link.Object/Library Modules}
+
+You may also need to set the @code{Link Path} so that VC++ will find @code{yapdll.lib}.
+
+@item set @code{Project.Project Settings.C/C++.Preprocessor.Additional Include Directories} to include the 
+@var{$YAPSRC/VC/include} and
+@var{$YAPSRC/include}.
+
+The syntax is:
+
+@example
+$YAPSRC\VC\include, $YAPSRC\include
+@end example
+
+@item Build the system.
+
+@item Use @code{Build.Start Debug} to boot the system, and then create the saved state with
+
+@example
+['$YAPSRC\\pl\\init'].
+qsave_program('startup.yss').
+^Z
+@end example
+
+That's it, you've got YAP and the saved state!
+@end enumerate
+
+The $YAPSRC\VC directory has the make files to build YAP4.3.17 under VC++ 6.0.
+
+@node Tuning for SGI cc, , Compiling Under Visual C++ ,Machine Options
+@subsection  Compiling Under SGI's cc
+
+YAP should compile under the Silicon Graphic's @code{cc} compiler,
+although we advise using the GNUCC compiler, if available.
+
+@table @code
+@item 64 bit
+Support for 64 bits should work by using (under Bourne shell syntax):
+@example
+CC="cc -64" $YAP_SRC_PATH/configure --...
+@end example
+@end table
+
