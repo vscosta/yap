@@ -195,7 +195,7 @@ int
 Yap_DebugPutc(int sno, wchar_t ch)
 {
   if (GLOBAL_Option['l' - 96])
-    (void) Sputc(ch, GLOBAL_logfile);
+    (void) putc(ch, GLOBAL_logfile);
   return (Sputc(ch, GLOBAL_stderr));
 }
 
@@ -355,6 +355,8 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	char s[2];
 	s[1] = '\0';
 	s[0] = (char)info;
+	if (s[0] == 'l') 
+	  s[0] = '(';
 	ts[0] = MkAtomTerm(Yap_LookupAtom(s));
       }
     }
