@@ -311,7 +311,6 @@ p_first_signal( USES_REGS1 )
   yap_signals sig;
 
   LOCK(LOCAL_SignalLock);
-  MUTEX_LOCK(&(LOCAL_ThreadHandle.tlock));
   /* always do wakeups first, because you don't want to keep the
      non-backtrackable variable bad */
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
@@ -385,7 +384,6 @@ p_first_signal( USES_REGS1 )
     break;
 #endif
   default:
-    MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
     UNLOCK(LOCAL_SignalLock);
     return FALSE;
   }
@@ -398,11 +396,19 @@ p_continue_signals( USES_REGS1 )
 {
   yap_signals sig;
   /* hack to force the signal anew */
+  LOCK(LOCAL_SignalLock);
+  if (LOCAL_InterruptsDisabled) {
+    return TRUE;
+  }
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     sig = LOCAL_ActiveSignals[LOCAL_FirstActiveSignal];
-    Yap_signal(sig);
+    CreepFlag = 
+      Unsigned(LCL0);
+    if (sig != YAP_CREEP_SIGNAL)
+      EventFlag = 
+	Unsigned(LCL0);
   }
-  MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
