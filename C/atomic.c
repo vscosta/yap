@@ -736,6 +736,7 @@ p_get_string_code3( USES_REGS1 )
 	  return FALSE;
 	}
       } else {
+	indx -= 1;
 	ns = utf8_skip(s,indx);
 	if (ns == NULL) {
 	  return FALSE;
@@ -1239,17 +1240,17 @@ build_new_atomic(int mask, wchar_t *wp, char *p, size_t min, size_t len USES_REG
       return MkAtomTerm(nat);
   } else {
     char *src = p;
-    int i, chr;
     Term t = init_tstring( PASS_REGS1  );
-    for (i = 0; i < min; i++) src = utf8_get_char(src, &chr);
-    char *cp = src, *buf, *lim = cp+strlen(cp);
+    src = (char *)utf8_skip(src, min);
+    char *cp = src, *buf;
 
     LOCAL_TERM_ERROR( 4*(len+1) );
     buf = buf_from_tstring(HR);
-    while (cp < lim) {
+    while (len) {
       int chr;
       cp = utf8_get_char(cp, &chr);
       buf = utf8_put_char(buf, chr);
+      len--;
     }
     *buf++ = '\0';
     
@@ -1300,15 +1301,10 @@ check_sub_atom_at(int min, Atom at, Atom nat)
 }
 
 static int
-check_sub_string_at(int min, Term at, Term nat)
+check_sub_string_at(int min, const char *p1, const char *p2, size_t len2)
 {
-  const char *p1, *p2;
-  int c1;
-
-  p1 = utf8_skip(StringOfTerm(at), min);
-  p2 = StringOfTerm(nat);
-  while ( (c1 = *p1++) == *p2++ && c1);
-  return c1 == 0;
+  p1 = utf8_skip(p1, min);
+  return utf8_strncmp( p1, p2, len2 ) == 0;
 }
 
 static int
@@ -1462,9 +1458,12 @@ cont_sub_atomic( USES_REGS1 )
 	}
       }
     } else {
+      const char *p = StringOfTerm( Deref(ARG1) ), *p1 = p;
+      const char *p5 = StringOfTerm( Deref(ARG5) );
+
       while (!found) {
-	p = (char *)utf8_skip(p, min);
-        if (utf8_strncmp(p, StringOfTerm(nat), len) == 0) {
+	p = utf8_skip(p1, min);
+        if (utf8_strncmp(p, p5, len) == 0) {
           Yap_unify(ARG2, MkIntegerTerm(min));
           Yap_unify(ARG3, MkIntegerTerm(len));
           Yap_unify(ARG4, MkIntegerTerm(after));
@@ -1665,7 +1664,7 @@ init_sub_atomic( int sub_atom USES_REGS )
       if (sub_atom)
 	out = check_sub_atom_at(min, at, AtomOfTerm(nat));
       else
-	out = check_sub_string_at(min, tat1, tout);
+	out = check_sub_string_at(min, p, StringOfTerm( nat ), len);
     } else if ((mask & (SUB_ATOM_HAS_AFTER|SUB_ATOM_HAS_VAL)) ==
 	       (SUB_ATOM_HAS_AFTER|SUB_ATOM_HAS_VAL)) {
       if (sub_atom)
