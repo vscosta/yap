@@ -270,11 +270,6 @@ true :- true.
  '$repeat'.
  '$repeat' :- '$repeat'.
 
-'$start_corouts' :-
-	recorded('$corout','$corout'(Name,_,_),R),
-	Name \= main,
-	finish_corout(R),
-	fail.
 '$start_corouts' :- 
 	eraseall('$corout'),
 	eraseall('$result'),
@@ -547,7 +542,7 @@ true :- true.
 
 '$out_neg_answer' :-
 	 ( '$undefined'(print_message(_,_),prolog) -> 
-	    '$present_answer'(user_error,'false.~n', [])
+	    '$present_answer'(user_error,'false.~n')
 	 ;
 	    print_message(help,false)
 	 ),
@@ -1046,6 +1041,7 @@ bootstrap(F) :-
 	),
 	'$loop'(Stream,consult),
 	working_directory(_, OldD),
+	'$current_module'(_, prolog),
 	'$end_consult',
 	(
 	  '$swi_current_prolog_flag'(verbose_load, silent)
@@ -1100,6 +1096,29 @@ bootstrap(F) :-
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).
+
+system_module(M, SysExps, Decls) :-
+	'$current_module'(prolog, M), !,
+	'$export_preds'(SysExps, prolog),
+	'$export_preds'(Decls, M).
+
+'$export_preds'([], _).
+'$export_preds'([N/A|Decls], M) :-
+    functor(S, N, A),
+    '$sys_export'(S, M),
+    '$export_preds'(Decls, M).
+
+
+import_system_module(M, SysExps) :-
+	'$current_module'(M0, _M),
+	'$import_system'(SysExps, M0, M).
+
+'$import_system'([], _, _).
+'$import_system'([N/A|Decls], M0, M) :-
+    functor(S, N, A),
+    '$assert_static'((G :- M0:G), M, last, _, assert_static((M:G :- M0:G))),
+    '$import_system'(Decls, M0, M).
+
 
 /* General purpose predicates				*/
 
@@ -1162,7 +1181,7 @@ expand_term(Term,Expanded) :-
 %
 '$expand_array_accesses_in_term'(Expanded0,ExpandedF) :-
 	'$array_refs_compiled',
-	'$c_arrays'(Expanded0,ExpandedF), !.
+	'$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
 

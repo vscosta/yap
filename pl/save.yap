@@ -16,7 +16,7 @@
  *************************************************************************/
 
 %%% Saving and restoring a computation
-
+/*
 save(A) :- save(A,_).
 
 save(A,_) :- var(A), !,
@@ -81,3 +81,4 @@ restore(A) :- var(A), !,
 restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 
+*/

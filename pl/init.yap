@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+'prolog_booting'.
+
 % This is yap's init file
 % should be consulted first step after booting
 
@@ -67,13 +69,17 @@ otherwise.
 :- bootstrap('errors.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
+:- bootstrap('preddecls.yap').
+:- bootstrap('atoms.yap').
+:- bootstrap('os.yap').
 :- bootstrap('absf.yap').
 
 :- [	 'utils.yap',
 	 'control.yap',
 	 'arith.yap',
 	 'directives.yap',
-	 'flags.yap'].
+	 'flags.yap'
+   ].
 
 :- compile_expressions.
 
@@ -156,14 +162,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :-	'$swi_set_prolog_flag'(generate_debug_info,true).
 
 
-:- multifile user:library_directory/1.
-
-:- dynamic user:library_directory/1.
-
-:- multifile user:commons_directory/1.
-
-:- dynamic user:commons_directory/1.
-
 :- recorda('$dialect',yap,_).
 
 %
@@ -200,24 +198,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic system:goal_expansion/2.
 
-:- multifile user:prolog_file_type/2.
-
-:- dynamic user:prolog_file_type/2.
-
-user:prolog_file_type(yap, prolog).
-user:prolog_file_type(pl, prolog).
-user:prolog_file_type(prolog, prolog).
-user:prolog_file_type(A, prolog) :-
-	current_prolog_flag(associate, A),
-	A \== prolog,
-	A \==pl,
-	A \== yap.
-%user:prolog_file_type(qlf, prolog).
-%user:prolog_file_type(qlf, qlf).
-user:prolog_file_type(A, executable) :-
-	current_prolog_flag(shared_object_extension, A).
-
-
 :- multifile goal_expansion/2.
 
 :- dynamic goal_expansion/2.
@@ -229,10 +209,6 @@ user:prolog_file_type(A, executable) :-
 :- multifile system:term_expansion/2.
 
 :- dynamic system:term_expansion/2.
-
-:- multifile file_search_path/2.
-
-:- dynamic file_search_path/2.
 
 :- multifile swi:swi_predicate_table/4.
 
@@ -248,27 +224,9 @@ user:prolog_file_type(A, executable) :-
 
 :- dynamic user:exception/3.
 
-file_search_path(library, Dir) :-
-	library_directory(Dir).
-file_search_path(commons, Dir) :-
-	commons_directory(Dir).
-file_search_path(swi, Home) :-
-	current_prolog_flag(home, Home).
-file_search_path(yap, Home) :-
-        current_prolog_flag(home, Home).
-file_search_path(system, Dir) :-
-	prolog_flag(host_type, Dir).
-file_search_path(foreign, yap('lib/Yap')).
-file_search_path(path, C) :-
-    (   getenv('PATH', A),
-	(   current_prolog_flag(windows, true)
-	->  atomic_list_concat(B, ;, A)
-	;   atomic_list_concat(B, :, A)
-	),
-	lists:member(C, B)
-    ).
-
 :- yap_flag(user:unknown,error). 
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
+
+
 

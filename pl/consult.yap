@@ -194,7 +194,7 @@ load_files(Files,Opts) :-
 	    Val == false -> true ;
 	    '$do_error'(domain_error(unimplemented_option,must_be_module(Val)),Call) ).
 '$process_lf_opt'(stream, Val, Call) :-
-	( current_stream(Val) -> true ;
+	( current_stream(_,_,Val) -> true ;
 	    '$do_error'(type_error(stream,Val),Call) ).
 '$process_lf_opt'(register, Val, Call) :-
 	( Val == false -> true ;
@@ -303,12 +303,21 @@ exo_files(Fs) :-
 db_files(Fs) :-
 	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
 
-use_module(F) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true)], use_module(F)).
+%
+% stub to prevent modules defined within the prolog module.
+%
+module(Mod, Decls) :-
+	'$current_module'(prolog, Mod), !,
+	'$export_preds'(Decls).
 
-use_module(F,Is) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
+'$export_preds'([]).
+'$export_preds'([N/A|Decls]) :-
+    functor(S, N, A),
+    '$sys_export'(S, prolog),
+    '$export_preds'(Decls).
 
+
+% prevent modules within the kernel module...
 use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
@@ -650,7 +659,7 @@ prolog_load_context(source, F0) :-
 	'$input_context'(Context),
 	'$top_file'(Context, F0, F) */.
 prolog_load_context(stream, Stream) :- 
-	'$nb_setval'('$consulting_file', _, fail),
+	'$nb_getval'('$consulting_file', _, fail),
 	'$current_loop_stream'(Stream).
 % return this term for SWI compatibility.
 prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :- 
@@ -696,35 +705,6 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
-
-
-path(Path) :- findall(X,'$in_path'(X),Path).
-
-'$in_path'(X) :- recorded('$path',Path,_),
-		atom_codes(Path,S),
-		( S = ""  -> X = '.' ;
-		  atom_codes(X,S) ).
-
-add_to_path(New) :- add_to_path(New,last).
-
-add_to_path(New,Pos) :-
-	atom(New), !,
-	'$check_path'(New,Str),
-	atom_codes(Path,Str),
-	'$add_to_path'(Path,Pos).
-
-'$add_to_path'(New,_) :- recorded('$path',New,R), erase(R), fail.
-'$add_to_path'(New,last) :- !, recordz('$path',New,_).
-'$add_to_path'(New,first) :- recorda('$path',New,_).
-
-remove_from_path(New) :- '$check_path'(New,Path),
-			recorded('$path',Path,R), erase(R).
-
-'$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
-'$check_path'([],[]).
-'$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
-'$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
-'$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
 
 % add_multifile_predicate when we start consult
 '$add_multifile'(Name,Arity,Module) :-

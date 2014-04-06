@@ -63,7 +63,7 @@
 	fail.
 '$do_signal'(sig_stack_dump, [M|G]) :-
 	'$continue_signals',
-	'$stack_dump',
+	'$hacks':'$stack_dump',
 	'$execute0'(G,M).
 % Unix signals
 '$do_signal'(sig_alarm, G) :-

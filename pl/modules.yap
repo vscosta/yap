@@ -16,6 +16,20 @@
 *************************************************************************/
 % module handling
 
+:- '$purge_clauses'(module(_,_), prolog).
+:- '$purge_clauses'('$module'(_,_), prolog).
+:- '$purge_clauses'(use_module(_), prolog).
+:- '$purge_clauses'(use_module(_,_), prolog).
+%
+% start using default definition of module.
+%
+
+use_module(F) :-
+	'$load_files'(F, [if(not_loaded),must_be_module(true)], use_module(F)).
+
+use_module(F,Is) :-
+	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
+
 '$module'(_,N,P) :-
 	'$module_dec'(N,P).
 

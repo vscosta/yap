@@ -29,12 +29,6 @@
     the GNU General Public License.
 */
 
-:- module('$history',
-	  [ %read_history/6,
-	    '$clean_history'/0,
-	    '$save_history'/1
-	  ]).
-
 %%  read_history(+History, +Help, +DontStore, +Prompt, -Term, -Bindings)
 %
 %   Give a prompt using Prompt. The sequence '%w' is substituted with the
@@ -49,7 +43,7 @@
 %   call Goal and pretend it has not seen anything.  This hook is used
 %   by the GNU-Emacs interface to for communication between GNU-EMACS
 %   and SWI-Prolog.
-prolog:read_history(History, Help, DontStore, Prompt, Term, Bindings) :-
+read_history(History, Help, DontStore, Prompt, Term, Bindings) :-
 	repeat,
 	    prompt_history(Prompt),
 	    catch('$raw_read'(user_input, Raw), E,

@@ -657,7 +657,7 @@ debugging :-
 	fail.
 '$action'(0'A,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'A),
-	'$stack_dump',
+	'$hacks':'$stack_dump',
 	fail.
 '$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
 	'$skipeol'(0'c),

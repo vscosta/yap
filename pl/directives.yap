@@ -86,6 +86,7 @@
         '$set_encoding'(Enc).
 '$exec_directive'(include(F), Status, _, _, _) :-
 	'$include'(F, Status).
+% don't declare modules into Prolog Module
 '$exec_directive'(module(N,P), Status, _, _, _) :-
 	'$module'(Status,N,P).
 '$exec_directive'(module(N,P,Op), Status, _, _, _) :-
@@ -120,13 +121,13 @@
 '$exec_directive'(consult(Fs), _, M, _, _) :-
 	'$load_files'(M:Fs, [consult(consult)], consult(Fs)).
 '$exec_directive'(use_module(F), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded),must_be_module(true)],use_module(F)).
+	use_module(M:F).
 '$exec_directive'(reexport(F), _, M, _, _) :-
 	'$load_files'(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)], reexport(F)).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
 	'$load_files'(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)], reexport(F, Spec)).
-'$exec_directive'(use_module(F,Is), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded),imports(Is),must_be_module(true)],use_module(F,Is)).
+'$exec_directive'(use_module(F, Is), _, M, _, _) :-
+	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
 	'$use_module'(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-

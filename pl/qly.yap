@@ -238,8 +238,15 @@ writeln(M:B),
 	retractall(user:library_directory(_)),
 	% make sure library_directory is open.
 	\+ clause(user:library_directory(_),_),
-	'$system_library_directories'(D),
+	'$system_library_directories'(library,D),
 	assert(user:library_directory(D)),
+	fail.
+'$init_path_extensions' :-
+	retractall(user:library_directory(_)),
+	% make sure library_directory is open.
+	\+ clause(user:library_directory(_),_),
+	'$system_library_directories'(commons,D),
+	assert(user:commons_directory(D)),
 	fail.
 '$init_path_extensions'.
  

@@ -20,9 +20,10 @@
 	  [system_message/4,
 	   prefix/6,
 	   prefix/5,
-	   file_location/3]).
+	   file_location/3,
+	   message/3]).
 
-:- multifile prolog:message/3.
+:- multifile message/3.
 
 :- multifile user:generate_message_hook/3.
 
@@ -35,7 +36,6 @@ file_position(user_input,LN) -->
 	[ 'at line ~d in user_input,' - [LN] ].
 file_position(FileName,LN) -->
 	[ 'at line ~d in ~a,' - [LN,FileName] ].
-
 
 translate_message(Term) -->
 	generate_message(Term), !.

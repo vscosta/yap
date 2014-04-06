@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+/*
+:- module( '$arithmetic' , [ expand_exprs/2,
+			     compile_expressions/0,
+	                     do_not_compile_expressions/0,
+			     '$c_built_in'/3,
+			     succ/3,
+			     plus/3] ).
+
+*/
+
 % the default mode is on
 
 expand_exprs(Old,New) :-
@@ -32,96 +42,96 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, OUT) :-
 	get_value('$c_arith',true), !,
-	'$do_c_built_in'(IN, M, OUT).
+	do_c_built_in(IN, M, OUT).
 '$c_built_in'(IN, _, IN).
 
 
-'$do_c_built_in'(G, M, OUT) :- var(G), !,
-	'$do_c_built_metacall'(G, M, OUT).
-'$do_c_built_in'(Mod:G, _, OUT) :- 
+do_c_built_in(G, M, OUT) :- var(G), !,
+	do_c_built_metacall(G, M, OUT).
+do_c_built_in(Mod:G, _, OUT) :- 
 	strip_module(Mod:G, M, G1),
 	( var(G1) -> M = M2, G1 = G2 ; G1 = M2:G2), !, 
-	'$do_c_built_metacall'(G2, M2, OUT).
-'$do_c_built_in'(\+ G, _, OUT) :-
+	do_c_built_metacall(G2, M2, OUT).
+do_c_built_in(\+ G, _, OUT) :-
 	nonvar(G),
 	G = (A = B),
 	!,
 	OUT = (A \= B).
-'$do_c_built_in'(call(G), _, OUT) :-
+do_c_built_in(call(G), _, OUT) :-
 	nonvar(G),
 	G = (Mod:G1), !,
-	'$do_c_built_metacall'(G1, Mod, OUT).
-'$do_c_built_in'(call(G), Mod, OUT) :-
+	do_c_built_metacall(G1, Mod, OUT).
+do_c_built_in(call(G), Mod, OUT) :-
 	var(G), !,
-	'$do_c_built_metacall'(G, Mod, OUT).
-'$do_c_built_in'(depth_bound_call(G,D), M, OUT) :- !,
-	'$do_c_built_in'(G, M, NG),
+	do_c_built_metacall(G, Mod, OUT).
+do_c_built_in(depth_bound_call(G,D), M, OUT) :- !,
+	do_c_built_in(G, M, NG),
 	% make sure we don't have something like (A,B) -> $depth_next(D), A, B.
 	( '$composed_built_in'(NG) ->
 	    OUT = depth_bound_call(NG,D)
 	;
 	    OUT = ('$set_depth_limit_for_next_call'(D),NG)
 	).
-'$do_c_built_in'(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
-	'$do_c_built_in'(G,M,NG0),
+do_c_built_in(once(G), M, (yap_hacks:current_choice_point(CP),NG,'$$cut_by'(CP))) :- !,
+	do_c_built_in(G,M,NG0),
 	'$clean_cuts'(NG0, NG).
-'$do_c_built_in'(forall(Cond,Action), M, \+((NCond, \+(NAction)))) :- !,
-	'$do_c_built_in'(Cond,M,ICond),
-	'$do_c_built_in'(Action,M,IAction),
+do_c_built_in(forall(Cond,Action), M, \+((NCond, \+(NAction)))) :- !,
+	do_c_built_in(Cond,M,ICond),
+	do_c_built_in(Action,M,IAction),
 	'$clean_cuts'(ICond, NCond),
 	'$clean_cuts'(IAction, NAction).
-'$do_c_built_in'(ignore(Goal), M, (NGoal -> true ; true)) :- !,
-	'$do_c_built_in'(Goal,M,IGoal),
+do_c_built_in(ignore(Goal), M, (NGoal -> true ; true)) :- !,
+	do_c_built_in(Goal,M,IGoal),
 	'$clean_cuts'(IGoal, NGoal).
-'$do_c_built_in'(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
-	'$do_c_built_in'(G,M,NG0),
+do_c_built_in(if(G,A,B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
+	do_c_built_in(G,M,NG0),
 	'$clean_cuts'(NG0, NG),
-	'$do_c_built_in'(A,M,NA),
-	'$do_c_built_in'(B,M,NB).
-'$do_c_built_in'((G*->A;B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
-	'$do_c_built_in'(G,M,NG0),
+	do_c_built_in(A,M,NA),
+	do_c_built_in(B,M,NB).
+do_c_built_in((G*->A;B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
+	do_c_built_in(G,M,NG0),
 	'$clean_cuts'(NG0, NG),
-	'$do_c_built_in'(A,M,NA),
-	'$do_c_built_in'(B,M,NB).
-'$do_c_built_in'((G*->A), M, (NG,NA)) :- !,
-	'$do_c_built_in'(G,M,NG0),
+	do_c_built_in(A,M,NA),
+	do_c_built_in(B,M,NB).
+do_c_built_in((G*->A), M, (NG,NA)) :- !,
+	do_c_built_in(G,M,NG0),
 	'$clean_cuts'(NG0, NG),
-	'$do_c_built_in'(A,M,NA).
-'$do_c_built_in'('C'(A,B,C), _, (A=[B|C])) :- !.
-'$do_c_built_in'(X is Y, M, P) :-
+	do_c_built_in(A,M,NA).
+do_c_built_in('C'(A,B,C), _, (A=[B|C])) :- !.
+do_c_built_in(X is Y, M, P) :-
         primitive(X), !,
-	'$do_c_built_in'(X =:= Y, M, P).
-'$do_c_built_in'(X is Y, M, (P,A=X)) :-
+	do_c_built_in(X =:= Y, M, P).
+do_c_built_in(X is Y, M, (P,A=X)) :-
 	nonvar(X), !,
-	'$do_c_built_in'(A is Y, M, P).
-'$do_c_built_in'(X is Y, _, P) :-
+	do_c_built_in(A is Y, M, P).
+do_c_built_in(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
 		number(Y) ->
 		P = ( X = Y); % This case reduces to an unification
-		'$expand_expr'(Y, P0, X0),
+		expand_expr(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
 	).
-'$do_c_built_in'(Comp0, _, R) :-		% now, do it for comparisons
+do_c_built_in(Comp0, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),
-	'$expand_expr'(E, P, U),
-	'$expand_expr'(F, Q, V),
+	expand_expr(E, P, U),
+	expand_expr(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-'$do_c_built_in'(P, _, P).
+do_c_built_in(P, _, P).
 
-'$do_c_built_metacall'(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
+do_c_built_metacall(G1, Mod, '$execute_wo_mod'(G1,Mod)) :- 
 	var(Mod), !.
-'$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,Mod)) :- 
+do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :- 
 	var(G1), atom(Mod), !.
-'$do_c_built_metacall'(Mod:G1, _, OUT) :-  !,
-	'$do_c_built_metacall'(G1, Mod, OUT).
-'$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
+do_c_built_metacall(Mod:G1, _, OUT) :-  !,
+	do_c_built_metacall(G1, Mod, OUT).
+do_c_built_metacall(G1, Mod, '$execute_in_mod'(G1,Mod)) :-
 	atom(Mod), !.
-'$do_c_built_metacall'(G1, Mod, call(Mod:G1)).
+do_c_built_metacall(G1, Mod, call(Mod:G1)).
 
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.
@@ -163,34 +173,34 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 % first argument is the expression not expanded,
 % second argument the expanded expression
 % third argument unifies with the result from the expression
-'$expand_expr'(V, true, V) :-
+expand_expr(V, true, V) :-
 	var(V), !.
-'$expand_expr'([T], E, V) :- !,
-	'$expand_expr'(T, E, V).
-'$expand_expr'(String, _E, V) :-
+expand_expr([T], E, V) :- !,
+	expand_expr(T, E, V).
+expand_expr(String, _E, V) :-
 	string( String ), !,
 	string_codes(String, [V]).
-'$expand_expr'(A, true, A) :-
+expand_expr(A, true, A) :-
 	atomic(A), !.
-'$expand_expr'(T, E, V) :-
+expand_expr(T, E, V) :-
 	T =.. [O, A], !,
-	'$expand_expr'(A, Q, X),
-	'$expand_expr'(O, X, V, Q, E).
-'$expand_expr'(T, E, V) :-
+	expand_expr(A, Q, X),
+	expand_expr(O, X, V, Q, E).
+expand_expr(T, E, V) :-
 	T =.. [O, A, B], !,
-	'$expand_expr'(A, Q, X),
-	'$expand_expr'(B, R, Y),
-	'$expand_expr'(O, X, Y, V, Q, S),
+	expand_expr(A, Q, X),
+	expand_expr(B, R, Y),
+	expand_expr(O, X, Y, V, Q, S),
 	'$do_and'(R, S, E).
 
 % expanding an expression of the form:
 %	O is Op(X),
 %	after having expanded into Q
 %	and giving as result P (the last argument)
-'$expand_expr'(Op, X, O, Q, Q) :-
+expand_expr(Op, X, O, Q, Q) :-
 	number(X), !,
 	is( O, Op, X).
-'$expand_expr'(Op, X, O, Q, P) :-
+expand_expr(Op, X, O, Q, P) :-
 	'$unary_op_as_integer'(Op,IOp),
 	'$do_and'(Q, is( O, IOp, X), P).
 
@@ -201,58 +211,58 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 %	included is some optimization for:
 %		incrementing and decrementing,
 %		the elementar arithmetic operations [+,-,*,//]
-'$expand_expr'(Op, X, Y, O, Q, Q) :-
+expand_expr(Op, X, Y, O, Q, Q) :-
 	number(X), number(Y), !,
 	is( O, Op, X, Y).
-'$expand_expr'(+, X, Y, O, Q, P) :- !,
+expand_expr(+, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$plus'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(-, X, Y, O, Q, P) :-
+expand_expr(-, X, Y, O, Q, P) :-
 	var(X), number(Y),
 	Z is -Y, !,
-	'$expand_expr'(+, Z, X, O, Q, P).
-'$expand_expr'(-, X, Y, O, Q, P) :- !,
+	expand_expr(+, Z, X, O, Q, P).
+expand_expr(-, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$minus'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(*, X, Y, O, Q, P) :- !,
+expand_expr(*, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$times'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(//, X, Y, O, Q, P) :-
+expand_expr(//, X, Y, O, Q, P) :-
 	nonvar(Y), Y == 0, !,
 	'$binary_op_as_integer'(//,IOp),
 	'$do_and'(Q, is(O,IOp,X,Y), P).
-'$expand_expr'(//, X, Y, O, Q, P) :- !,
+expand_expr(//, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$div'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(/\, X, Y, O, Q, P) :- !,
+expand_expr(/\, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$and'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(\/, X, Y, O, Q, P) :- !,
+expand_expr(\/, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$or'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(<<, X, Y, O, Q, P) :-
+expand_expr(<<, X, Y, O, Q, P) :-
 	var(X), number(Y), Y < 0,
 	Z is -Y, !,
-	'$expand_expr'(>>, X, Z, O, Q, P).
-'$expand_expr'(<<, X, Y, O, Q, P) :- !,
+	expand_expr(>>, X, Z, O, Q, P).
+expand_expr(<<, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$sll'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(>>, X, Y, O, Q, P) :-
+expand_expr(>>, X, Y, O, Q, P) :-
 	var(X), number(Y), Y < 0,
 	Z is -Y, !,
-	'$expand_expr'(<<, X, Z, O, Q, P).
-'$expand_expr'(>>, X, Y, O, Q, P) :- !,
+	expand_expr(<<, X, Z, O, Q, P).
+expand_expr(>>, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_non_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$slr'(X1,Y1,O), F),
 	'$do_and'(Q, F, P).
-'$expand_expr'(Op, X, Y, O, Q, P) :-
+expand_expr(Op, X, Y, O, Q, P) :-
 	'$binary_op_as_integer'(Op,IOp),
 	'$do_and'(Q, is(O,IOp,X,Y), P).
 

@@ -311,31 +311,6 @@ clause(V,Q,R) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q,R)).
 
-% just create a choice-point
-% the 6th argument marks the time-stamp.
-'$do_log_upd_clause'(_,_,_,_,_,_).
-'$do_log_upd_clause'(A,B,C,D,E,_) :-
-	'$continue_log_update_clause'(A,B,C,D,E).
-'$do_log_upd_clause'(_,_,_,_,_,_).
-
-
-'$do_log_upd_clause_erase'(_,_,_,_,_,_).
-'$do_log_upd_clause_erase'(A,B,C,D,E,_) :-
-	'$continue_log_update_clause_erase'(A,B,C,D,E).
-'$do_log_upd_clause_erase'(_,_,_,_,_,_).
-
-'$do_log_upd_clause0'(_,_,_,_,_,_).
-'$do_log_upd_clause0'(A,B,C,D,_,_) :-
-	'$continue_log_update_clause'(A,B,C,D).
-'$do_log_upd_clause0'(_,_,_,_,_,_).
-
-
-'$do_static_clause'(_,_,_,_,_).
-'$do_static_clause'(A,B,C,D,E) :-
-	'$continue_static_clause'(A,B,C,D,E).
-'$do_static_clause'(_,_,_,_,_).
-
-
 '$init_preds' :- 
 	once('$handle_throw'(_,_,_)),
 	fail.
@@ -662,61 +637,6 @@ abolish(X) :-
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
-
-%
-% can only do as goal in YAP mode.
-%
-dynamic(X) :- '$access_yap_flags'(8, 0), !,
-        '$current_module'(M),
-	'$dynamic'(X, M).
-dynamic(X) :-
-	'$do_error'(context_error(dynamic(X),declaration),query).
-
-'$dynamic'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,dynamic(M:X)).
-'$dynamic'(Mod:Spec,_) :- !,
-	'$dynamic'(Spec,Mod).
-'$dynamic'([], _) :- !.
-'$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
-'$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(X,M) :-
-	'$dynamic2'(X,M).
-
-'$dynamic2'(X, Mod) :- '$log_upd'(Stat), Stat\=0, !,
-	'$logical_updatable'(X, Mod).
-'$dynamic2'(A//N1, Mod) :-
-	integer(N1),
-	N is N1+2,
-	'$dynamic2'(A/N, Mod).
-'$dynamic2'(A/N, Mod) :-
-	integer(N), atom(A), !,
-	functor(T,A,N), '$flags'(T,Mod,F,F),
-	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
-	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF), '$mk_d'(T,Mod);
-	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);                     % dynamic
-	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
-	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
-	).
-'$dynamic2'(X,Mod) :- 
-	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
-
-
-'$logical_updatable'(A//N,Mod) :- integer(N), !,
-	N1 is N+2,
-	'$logical_updatable'(A/N1,Mod).
-'$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
-	functor(T,A,N), '$flags'(T,Mod,F,F),
-	(
-	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    F /\ 0x08000000 =:= 0x08000000 -> '$mk_d'(T,Mod) ;      % LU
-	    F /\ 0x00002000 =:= 0x00002000 -> '$mk_d'(T,Mod);      % dynamic
-	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF), '$mk_d'(T,Mod);
-	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
-	).
-'$logical_updatable'(X,Mod) :- 
-	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
-
 
 dynamic_predicate(P,Sem) :-
 	'$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
