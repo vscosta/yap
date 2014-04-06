@@ -164,7 +164,6 @@ do_execute(Term t, Term mod USES_REGS)
 	Yap_undo_signal( YAP_CREEP_SIGNAL ) ) {
       CalculateStackGap( PASS_REGS1 );
     }
-    UNLOCK(LOCAL_SignalLock);
     return CallMetaCall(ARG1, mod PASS_REGS);
   } else if (Yap_has_a_signal()  &&
 	     !LOCAL_InterruptsDisabled &&

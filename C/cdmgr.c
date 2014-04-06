@@ -2242,10 +2242,14 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   PELOCK(20,p);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
-      (p->ModuleOfPred == PROLOG_MODULE && 
-       mod != TermProlog && mod) ) {
-    /* printf("p=%p p->PredFlags=%lx p->cs.p_code.NOfClauses=%ld\n", p, p->PredFlags, p->cs.p_code.NOfClauses) */
+  if (((p->ExtraPredFlags & SysExportPredFlag) == (UInt)0) &&
+      (
+       (pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
+       (p->ModuleOfPred == PROLOG_MODULE && 
+	mod != TermProlog && mod)
+       )
+      ) {
+    printf("p=%p p->PredFlags=%lx %lx p->cs.p_code.NOfClauses=%ld\n", p, p->PredFlags,SysExportPredFlag  , p->cs.p_code.NOfClauses); 
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     UNLOCKPE(30,p);
     return TermNil;
@@ -2719,6 +2723,35 @@ p_purge_clauses( USES_REGS1 )
   }
   return TRUE;
 }
+
+
+static Int 
+p_sys_export( USES_REGS1 )
+{				/* '$set_spy'(+Fun,+M)	 */
+  PredEntry      *pred;
+  Term            t, mod;
+
+  t = Deref(ARG1);
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
+    return (FALSE);
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
+  } else {
+    return (FALSE);
+  }
+  PELOCK(100,pred);  
+  pred->ExtraPredFlags |= SysExportPredFlag;
+  UNLOCKPE(100,pred);
+  return TRUE;
+}
+
 
 /******************************************************************
   
@@ -5630,7 +5663,6 @@ p_cpc_info( USES_REGS1 )
   PredEntry *pe;
   yamop *ipc = (yamop *)IntegerOfTerm(Deref(ARG1));
 
-  printf("ipc = %p %p\n", ipc, PREVOP(ipc,Osbpp));
   pe = PREVOP(ipc,Osbpp)->u.Osbpp.p0;
   return UnifyPredInfo(pe, 2 PASS_REGS) &&
     Yap_unify(ARG5,MkIntegerTerm(ClauseId(ipc,pe)));
@@ -6453,6 +6485,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
+  Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag);

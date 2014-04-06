@@ -640,7 +640,7 @@ IsValProperty (int flags)
 #if SIZEOF_INT_P==4
 #define EXTRA_FLAG_BASE 0
 #else
-#define EXTRA_FLAG_BASE 32
+#define EXTRA_FLAG_BASE 33
 #endif
 
 /*	    predicate property entry structure				*/
@@ -655,6 +655,7 @@ don;t forget to also add in qly.h
 */
 typedef enum
 {
+  SysExportPredFlag = ((UInt)0x00000008 << EXTRA_FLAG_BASE),		/* reuse export list to prolog module. */
   NoDebugPredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
   NoTracePredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
   QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */

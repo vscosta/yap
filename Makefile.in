@@ -300,6 +300,7 @@ PL_SOURCES= \
 	pl/arith.yap \
 	pl/arrays.yap \
 	pl/attributes.yap \
+	pl/atoms.yap \
 	pl/boot.yap \
 	pl/callcount.yap\
 	pl/checker.yap pl/chtypes.yap \
@@ -322,7 +323,10 @@ PL_SOURCES= \
 	pl/lists.yap \
 	pl/messages.yap \
 	pl/load_foreign.yap \
-	pl/modules.yap pl/preds.yap \
+	pl/modules.yap \
+	pl/os.yap \
+	pl/preddecls.yap \
+	pl/preds.yap \
 	pl/profile.yap \
 	pl/protect.yap \
 	pl/qly.yap \
