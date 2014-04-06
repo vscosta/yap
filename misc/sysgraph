@@ -1,0 +1,364 @@
+
+:- style_check(all).
+
+:- use_module(library(readutil)).
+:- use_module(library(lineutils)).
+:- use_module(library(lists)).
+:- use_module(library(maplist)).
+
+:- initialization(main).
+
+:- yap_flag( double_quotes, string ).
+
+:- dynamic edge/4, node/4.
+
+
+main :-
+      % from libraries outside the current directories
+      assert( node( attributes, woken_att_do/4, 'library/atts.yap', prolog ) ),
+     fail.
+main :-
+     c_preds('C'),
+     c_preds('OPTYap'),
+     c_preds('os'),
+     c_preds('library/dialeect/swi/fli'),
+     c_preds(operating_system_support:'library/system'),
+     c_preds(random:'library/random'),
+     c_preds(regexp:'library/regex'),
+     pl_preds(pl),
+     undefs,
+     doubles,
+     pl_exports(pl).
+
+c_preds(M:Dir) :-
+    Root = '.',
+    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    c_file( File , M ),
+    fail.
+c_preds(Dir) :-
+    atom( Dir ),
+    Root = '.',
+    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    c_file( File , prolog ),
+    fail.
+c_preds(_).
+
+c_file(F, Mod) :-
+%    writeln(F),
+    nb_setval( current_module, Mod ),
+    open(F, read, S),
+    repeat,
+    read_line_to_string( S, String ),
+    ( String == end_of_file
+      ->
+	  !,
+	  close(S)
+      ;
+      split_string(String, ",; ()\t\"\'", Fields),
+%writeln(Fields),
+      line_count(S, Lines),
+      c_line(Fields , Mod, F:Lines),
+      fail
+    ).
+
+c_line(["}"], Mod, _) :- !,
+     nb_setval( current_module, Mod ).
+c_line(Line, _Mod, _) :- 
+     append( _, [ "CurrentModule", "=", M|_], Line),
+     mod(M, _Mod, Mod),
+     nb_setval( current_module, Mod ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "Yap_InitCPred", NS, AS|_], Line), !,
+     atom_string( N, NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod  ),
+     assert( node( Mod, N/A, F, c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "Yap_InitAsmPred", NS, AS|_], Line), !,
+     atom_string( N, NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod  ),
+     assert( node( Mod, N/A, F, c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "Yap_InitCmpPred", NS, AS|_], Line), !,
+     atom_string( N, NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod  ),
+     assert( node( Mod, N/A, F, c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "Yap_InitCPredBack", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, back_c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "YAP_UserCPredicate", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, user_c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "PRED_DEF", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, user_c) ).
+/*
+c_line(Line, _Mod, F) :- 
+     append( _, [ "PRED_IMPL", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, user_c) ).
+*/
+c_line(Line, _Mod, F) :- 
+     append( _, [ "PRED", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, user_c) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "FRG", NS, AS|_], Line), !,
+     atom_string(N,NS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, user_c) ).
+
+
+mod("ATTRIBUTES_MODULE", _, attributes ).
+mod("HACKS_MODULE", _, '$hacks' ).
+mod("USER_MODULE", _, user ).
+mod("DBLOAD_MODULE", _, '$db_load' ).
+mod("GLOBALS_MODULE", _, globals ).
+mod("ARG_MODULE", _, globals  ).
+mod("PROLOG_MODULE", _ , prolog ).
+mod("RANGE_MODULE", _, range ).
+mod("SWI_MODULE", _, swi ).
+mod("OPERATING_SYSTEM_MODULE", _, "operating_system_support"  ).
+mod("TERMS_MODULE", _, terms ).
+mod("SYSTEM_MODULE", _, system ).
+mod("IDB_MODULE", _, idb ).
+mod("CHARSIO_MODULE", _, charsio ).
+mod("cm", M, M ).
+mod("OldCurrentModule", M, M ).
+
+
+pl_preds(Dir) :-
+    atom( Dir ),
+    Root = '.',
+    Suffix = '.yap',
+    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    pl_file( File , prolog, Suffix ),
+    fail.
+pl_preds(Dir) :-
+    atom( Dir ),
+    Root = '.',
+    Suffix = '.pl',
+    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    pl_file( File , prolog, Suffix ),
+    fail.
+pl_preds(_).
+
+pl_file(F, _Mod, Suffix) :-
+%    writeln(F),
+    file_base_name(F, Base),
+    atom_concat(Mod, Suffix, Base),
+    nb_setval( current_module, Mod ),
+    open(F, read, S),
+    repeat,
+    read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ),
+    ( T == end_of_file
+      ->
+	  !,
+	  close(S)
+      ;
+%      warn_singletons(Vars, Pos),
+      nb_getval( current_module, M ),
+      line_count( S, Lines ),
+      build_graph( T, F:Lines, M ),
+      fail
+    ).
+
+build_graph( M:T, F, _ ) :- !,
+    build_graph( T, F, M ).
+build_graph( (M:H :- B), F, _ ) :- !,
+    build_graph( (H :- B), F, M ).
+build_graph( (H :- B), F, M ) :- !,
+    functor(H, N, A),
+    add_node( M:N/A, F),
+    add_deps( B, M, M:N/A, F, 0).
+build_graph( (H --> B), F, M ) :- !,
+    functor(H, N, A1),
+    A is A1+2,
+    add_node( M:N/A, F),
+    add_deps( B, M, M:N/A, F, 2).
+build_graph( (:- dynamic Bs), F, M ) :-
+    add_nodes( Bs, F, M).
+build_graph( (:- multifile Bs), F, M ) :-
+    add_nodes( Bs, F, M).
+build_graph( (:- thread_local Bs), F, M ) :-
+    add_nodes( Bs, F, M).
+build_graph( (:- _B), _F, _M ) :- !.
+build_graph( (?- _B), _F, _M ) :- !.
+build_graph( H, F, M ) :-
+    functor(H, N, A),
+    add_node( M:N/A, F).
+
+add_nodes( (A,B), F, M) :- !,
+    add_nodes( A, F, M),
+    add_nodes( B, F, M).
+add_nodes( M:A, F, _M) :- !,
+    add_nodes( A, F, M).
+add_nodes( B, F, M) :- !,
+    add_node( M:B, F).
+
+
+add_node( N, F, M ) :-
+    always_strip_module(M:N, M, N1 ),
+    functor(N1, Na, Ar),
+    add_node(M:Na/Ar, F).
+
+add_node( M:N/A, F) :- node( M, N/A, F, _ ), !.
+add_node( M:N/A, F) :- assert( node( M,  N/A, F, prolog ) ).
+
+add_deps(V, _M, _P, _F, _) :- var(V), !.
+add_deps((A,B), M, P, F, L) :- !,
+    add_deps(A, M, P, F, L),
+    add_deps(B, M, P, F, L).
+add_deps((A;B), M, P, F, L) :- !,
+    add_deps(A, M, P, F, L),
+    add_deps(B, M, P, F, L).
+add_deps((A->B), M, P, F, L) :- !,
+    add_deps(A, M, P, F, L),
+    add_deps(B, M, P, F, L).
+add_deps(once(A), M, P, F, L) :- !,
+    add_deps(A, M, P, F, L).
+add_deps({A}, M, P, F, 2) :- !,
+    add_deps(A, M, P, F, 0).
+add_deps([_|_], _M, _P, _F, 2) :- !.
+add_deps(A, M0, P, F, L) :- !,
+    always_strip_module(M0:A, M, A1),
+    functor(A1, N, Ar0),
+    Ar1 is Ar0+L,
+    P = _:Na/Ar,
+    put_deps(M, Na/Ar, N/Ar1, F, L).
+
+put_deps(M, PN, P, F, _L) :-
+    edge(M, PN, P, F), !.
+put_deps(M, PN, P, F, _L) :-
+    assert(edge(M,PN, P, F) ).
+
+doubles :-
+    node(M, P, _F, _),
+    node(M1, P, _F1, _),
+    M @< M1,
+    format('~w vs ~w~n', [M:P,M1:P]),
+    fail.
+doubles.
+
+undefs :-
+    edge(_M,_,P,F),
+    \+ node(_, P, _, _),
+    format('UNDEFINED procedure call ~q at ~w~n',[P, F]),
+    fail.
+undefs.
+
+pl_exports(M:Dir) :-
+    Root = '.',
+    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    pl_export( File , M ),
+    fail.
+pl_exports(Dir) :-
+    atom( Dir ),
+    Root = '.',
+    atom_concat([Root,'/',Dir,'/','*.yap'], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    pl_export( File , prolog ),
+    fail.
+pl_exports(_).
+
+pl_export(F, _Mod) :-
+%    writeln(F),
+    file_base_name(F, Base),
+    atom_concat(Mod, '.yap', Base),
+    nb_setval( current_module, Mod ),
+    ( setof(P, pub(Mod, P), Es) -> true ; Es = [] ),
+    ( setof(P, priv(Mod, P), Ps) -> true ; Ps = [] ),
+    format(':- system_module( ~q, ',[Mod]),
+    out_list(Es),
+    format(', '),
+    out_list(Ps),
+    format(').~n~n', []),
+    fail.
+
+pl_import(F, _Mod) :-
+%    writeln(F),
+    file_base_name(F, Base),
+    atom_concat(Mod, '.yap', Base),
+    nb_setval( current_module, Mod ),
+    ( setof(P, pub(Mod, P), Es) -> true ; Es = [] ),
+    ( setof(P, priv(Mod, P), Ps) -> true ; Ps = [] ),
+    format(':- system_module( ~q, ',[Mod]),
+    out_list(Es),
+    format(', '),
+    out_list(Ps),
+    format(').~n~n', []),
+    fail.
+
+out_list([]) :-
+    format('[]', []).
+out_list([El]) :-
+    format('[~q]', [El]).
+out_list([E1,E2|Es]) :-
+    format('[~q', [E1]),
+    maplist(out_el, [E2|Es]),
+    format(']', []).
+
+out_el( El ) :- 
+    format(',~n        ~q',[El]).
+
+pub(M, P) :-
+    node(M, P, _, _),
+    P = N/_A,
+    \+ sub_atom(N,0,1,_,'$').
+
+priv(M, P) :-
+    node(M, P, _, _),
+    P = N/_A,
+    sub_atom(N,0,1,_,'$'),
+    edge(M1, P, _P0, _), M1 \= M.
+
+% utilities
+    
+split_string( S , Cs, N) :-
+    string_codes(S, S1),
+    string_codes(Cs, NCs),
+    split(S1, NCs, Ncs0),
+    maplist(remove_escapes, Ncs0, Ncs),
+    maplist(string_codes, N, Ncs).
+
+remove_escapes([0'\\ ,A|Cs], [A|NCs]) :- !,
+    remove_escapes(Cs, NCs).
+remove_escapes([A|Cs], [A|NCs]) :-
+    remove_escapes(Cs, NCs).
+remove_escapes( [], [] ).
+
+always_strip_module(V, M, V1) :- var(V), !,
+		V = M:call(V1).
+always_strip_module(M0:A, M0, call(A)) :- var(A), !.
+always_strip_module(_:M0:A, M1, B) :- !,
+	always_strip_module(M0:A, M1, B).
+always_strip_module(M0:A, M0, call(A)) :- var(A),!.
+always_strip_module(M0:A, M0, A).
+
