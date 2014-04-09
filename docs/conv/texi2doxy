@@ -544,6 +544,8 @@ simplify( [0'e,0'E|L]) --> "!", !,
 	  simplify(L).
 simplify( [0'g,0'G|L]) --> ">", !,
 	  simplify(L).
+simplify( [0'h,0'Y|L]) --> "-", !,
+	  simplify(L).
 simplify( [0'm,0'M|L]) --> ";", !,
 	  simplify(L).
 simplify( [0'q,0'Q|L]) --> "=", !,
@@ -657,7 +659,16 @@ run( L) --> "@code{", !,
 	run(R).
 run( [C|L]) --> "@", escaped(C), !,
 	run( L ).
+run( [0'.,0'.,0'.|L]) --> "@dots", !,
+	run( L ).
+run( [0'\t|L]) --> "@tab", !,
+	run( L ).
 run( L) --> "@samp{", !, %'
+	argument(AL, 0'{, 0'}),
+	{  run(AL1, AL),
+	   format(codes(L, R), '`~s`' , [AL1] )  }, %'
+	run(R).
+run( L) --> "@option{", !, %'
 	argument(AL, 0'{, 0'}),
 	{  run(AL1, AL),
 	   format(codes(L, R), '`~s`' , [AL1] )  }, %'
@@ -682,6 +693,10 @@ run( L) --> "@value{", !,
 run( L) --> "@pxref{", !,
 	argument(AL, 0'{, 0'}),
 	{  format(codes(L, R), '`~s`', [AL] )  }, %'
+	run(R).
+run( L) --> "@ref{", !,
+	argument(AL, 0'{, 0'}),
+	{  format(codes(L, R), '[~s](@ref ~s)', [AL,AL] )  }, %'
 	run(R).
 run( L) --> "@strong{", !,
 	argument(AL, 0'{, 0'}),

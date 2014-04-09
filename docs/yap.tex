@@ -670,7 +670,7 @@ The original author of this code was Richard O'Keefe. Jan Wielemaker
 
 
 @node Apply, Association Lists, Aggregate, Library
-@sectionbui   Apply Macros
+@section   Apply Macros
 @cindex apply
 
 This library provides a SWI-compatible set of utilities for applying a
@@ -1955,9 +1955,9 @@ The following routines are available once included with the
 elements of @var{ListIn}.
 
 @item maplist(:@var{Pred}, ?@var{ListIn})
-@findex maplist/3
-@snindex maplist/3
-@cnindex maplist/3
+@findex maplist/2
+@snindex maplist/2
+@cnindex maplist/2
       Creates @var{ListOut} by applying the predicate @var{Pred} to all
 elements of @var{ListIn}.
 
@@ -1991,9 +1991,9 @@ elements of @var{ListIn}.
       Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
 
 @item selectlist(:@var{Pred}, +@var{ListIn}, +@var{ListInAux}, ?@var{ListOut})
-@findex selectlist/3
-@snindex selectlist/3
-@cnindex selectlist/3
+@findex selectlist/4
+@snindex selectlist/4
+@cnindex selectlist/4
       Creates @var{ListOut} of all list elements of @var{ListIn} that
       pass the given test @var{Pred} using +@var{ListInAux} as an
       auxiliary element.
@@ -10582,12 +10582,12 @@ are implemented in YAP. They can easily be detected using the
 Last, by default YAP enables character escapes in strings. You can
 disable the special interpretation for the escape character by using:
 @example
-@code{:- yap_flag(character_escapes,off).}
+:- yap_flag(character_escapes,off).
 @end example
 @noindent
 or by using:
 @example
-@code{:- yap_flag(language,cprolog).}
+:- yap_flag(language,cprolog).
 @end example
 
 @node Fully C-Prolog Compatible, Not Strictly C-Prolog Compatible, Major Differences with C-Prolog, C-Prolog

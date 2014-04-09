@@ -154,13 +154,13 @@ numbers in hexadecimal base.
 Example:
 the following tokens all denote the same integer
 @example
-@code{10  2'1010  3'101  8'12  16'a  36'a  0xa  0o12}
+10  2'1010  3'101  8'12  16'a  36'a  0xa  0o12
 @end example
 
 Numbers of the form @code{0'a} are used to represent character
 constants. So, the following tokens denote the same integer:
 @example
-@code{0'd  100}
+0'd  100
 @end example
 
 YAP (version @value{VERSION}) supports integers that can fit
@@ -188,7 +188,7 @@ one of '+' or '-'.
 
 Examples:
 @example
-@code{10.0   10e3   10e-3   3.1415e+3}
+10.0   10e3   10e-3   3.1415e+3
 @end example
 
 Floating-point numbers are represented as a double in the target
@@ -218,7 +218,7 @@ and escape characters.
 
 Examples:
 @example
-@code{""   "a string"   "a double-quote:""" }
+""   "a string"   "a double-quote:""" 
 @end example
 
 The first string is an empty string, the last string shows the use of
@@ -237,7 +237,7 @@ either as an octal or hexadecimal number.
 The next examples demonstrates the use of escape sequences in YAP:
 
 @example
-@code{"\x0c\" "\01\" "\f" "\\" }
+"\x0c\" "\01\" "\f" "\\" 
 @end example
 
 The first three examples return a list including only character 12 (form
@@ -246,7 +246,7 @@ feed). The last example escapes the escape character.
 Escape sequences were not available in C-Prolog and in original
 versions of YAP up to 4.2.0. Escape sequences can be disable by using:
 @example
-@code{:- yap_flag(character_escapes,false).}
+:- yap_flag(character_escapes,false).
 @end example
 
 
@@ -283,7 +283,7 @@ follow the same rules.
 
 Examples:
 @example
-@code{a   a12x   '$a'   !   =>  '1 2'}
+a   a12x   '$a'   !   =>  '1 2'
 @end example
 
 Version @code{4.2.0} of YAP removed the previous limit of 256

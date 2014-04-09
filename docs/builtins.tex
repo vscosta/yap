@@ -2,8 +2,6 @@
 
 @node Built-ins, Library, Modules, Top
 
-@chapter Built-In Predicates
-
 @menu
 
 Built-ins, Debugging, Syntax, Top
@@ -2528,9 +2526,9 @@ Displays term @var{T} on the current output stream. All Prolog terms are
 written in standard parenthesized prefix notation.
 
 @item write_canonical(+@var{T}) [ISO]
-@findex display/1
-@syindex display/1
-@cnindex display/1
+@findex write_canonical/1
+@syindex write_canonical/1
+@cnindex write_canonical/1
 Displays term @var{T} on the current output stream. Atoms are quoted
 when necessary, and operators are ignored, that is, the term is written
 in standard parenthesized prefix notation.
@@ -3700,10 +3698,10 @@ true if the predicate is dynamic
 @findex static/0 (predicate_property flag)
 true if the predicate is static
 @item meta_predicate(@var{M})
-@findex meta_predicate/1 (predicate_property flag)
+@findex meta_predicate_flag/1 (predicate_property flag)
 true if the predicate has a meta_predicate declaration @var{M}.
 @item multifile
-@findex multifile/1 (predicate_property flag)
+@findex multifile_flag/1 (predicate_property flag)
 true if the predicate was declared to be multifile
 @item imported_from(@var{Mod})
 @findex imported_from/1 (predicate_property flag)
@@ -3720,7 +3718,7 @@ public.
 true if the predicate is tabled; note that only static predicates can
 be tabled in YAP.
 @item source (predicate_property flag)
-@findex source/0 (predicate_property flag)
+@findex source_flag/0 (predicate_property flag)
 true if source for the predicate is available.
 @item number_of_clauses(@var{ClauseCount})
 @findex number_of_clauses/1 (predicate_property flag)
@@ -3737,7 +3735,7 @@ Given predicate @var{P}, @var{NCls} is the number of clauses for
 indices to those clauses (in bytes).
 
 @item predicate_erased_statistics(@var{P},@var{NCls},@var{Sz},@var{IndexSz}) 
-@findex predicate_statistics/4
+@findex predicate_erased_statistics/4
 
 Given predicate @var{P}, @var{NCls} is the number of erased clauses for
 @var{P} that could not be discarded yet, @var{Sz} is the amount of space
@@ -3850,9 +3848,9 @@ If a term equal to @var{T} up to variable renaming is stored under key
 @var{K} and unify @var{R} with its reference.
 
 @item recordzifnot(+@var{K},@var{T},-@var{R})
-@findex recorda/3
-@snindex recorda/3
-@cnindex recorda/3
+@findex recordzifnot/3
+@snindex recordzifnot/3
+@cnindex recordzifnot/3
 If a term equal to @var{T} up to variable renaming is stored under key
 @var{K} fail. Otherwise, make term @var{T} the first record under key
 @var{K} and unify @var{R} with its reference.
@@ -4975,9 +4973,9 @@ for the @var{Calls} counter, next the @var{Retries} counter, and last
 the @var{CallsAndRetries} counter.
 
 @item call_count_reset
-@findex call_count_data/0
-@snindex call_count_data/0
-@cnindex call_count_data/0
+@findex call_count_reset/0
+@snindex call_count_reset/0
+@cnindex call_count_reset/0
 Reset call count counters. All timers are also reset.
 
 @item call_count(?@var{CallsMax}, ?@var{RetriesMax}, ?@var{CallsAndRetriesMax})
@@ -5149,9 +5147,9 @@ This built-in will silently fail if the there is no static array with
 that name.
 
 @item mmapped_array(+@var{Name}, +@var{Size}, +@var{Type}, +@var{File})
-@findex static_array/3
-@snindex static_array/3
-@cnindex static_array/3
+@findex mmapped_array/3
+@snindex mmapped_array/3
+@cnindex mmapped_array/3
 Similar to @code{static_array/3}, but the array is memory mapped to file
 @var{File}. This means that the array is initialized from the file, and
 that any changes to the array will also be stored in the file. 
