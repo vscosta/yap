@@ -15,6 +15,32 @@
 * comments:	fast save/restore					 *
 *									 *
 *************************************************************************/
+:- system_module( '$_qly', [qload_module/1,
+        qsave_file/1,
+        qsave_module/1,
+        qsave_program/1,
+        qsave_program/2,
+        restore/1,
+        save_program/1,
+        save_program/2], ['$init_state'/0]).
+
+:- use_system_module( '$_absf', ['$system_library_directories'/2]).
+
+:- use_system_module( '$_boot', ['$system_catch'/4]).
+
+:- use_system_module( '$_consult', ['$do_startup_reconsult'/1]).
+
+:- use_system_module( '$_control', ['$run_atom_goal'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_preds', ['$init_preds'/0]).
+
+:- use_system_module( '$_protect', ['$protect'/0]).
+
+:- use_system_module( '$_threads', ['$reinit_thread0'/0]).
+
+:- use_system_module( '$_yio', ['$extend_file_search_path'/1]).
 
 save_program(File) :-
 	qsave_program(File).

@@ -15,6 +15,8 @@
  *									 *
  *************************************************************************/
 
+:- system_module( '$_save', [], []).
+
 %%% Saving and restoring a computation
 /*
 save(A) :- save(A,_).

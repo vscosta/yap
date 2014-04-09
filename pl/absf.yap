@@ -15,13 +15,19 @@
 *									 *
 *************************************************************************/
 
-:- module( absolute_file_name, [ absolute_file_name/2,
-			absolute_file_name/3,
-			'$full_filename'/3,
-			'$system_library_directories'/2,
-			path/1,
-			add_to_path/1,
-			remove_from_path/1] ).
+:- system_module( '$_absf', [absolute_file_name/2,
+        absolute_file_name/3,
+        add_to_path/1,
+        add_to_path/2,
+        path/1,
+        remove_from_path/1], ['$full_filename'/3,
+        '$system_library_directories'/2]).
+
+:- use_system_module( '$_boot', ['$system_catch'/4]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_lists', [member/2]).
 
 /**
  *
@@ -38,9 +44,6 @@
   environment variables and registry information to search for files.
   
  */
-
-:- use_module( library(lists) , [member/2] ).
-			
 
 /**
   @predicate  absolute_file_name(+<var>Name</var>:atom,+<var>Options</var>:list) is nondet

@@ -14,7 +14,49 @@
 * comments:	module support						 *
 *									 *
 *************************************************************************/
-% module handling
+
+:- system_module( '$_modules', [abolish_module/1,
+        add_import_module/3,
+        current_module/1,
+        current_module/2,
+        delete_import_module/2,
+        expand_goal/2,
+        export/1,
+        export_list/2,
+        export_resource/1,
+        import_module/2,
+        ls_imports/0,
+        module/1,
+        module_property/2,
+        set_base_module/1,
+        source_module/1,
+        use_module/1,
+        use_module/2], ['$add_to_imports'/3,
+        '$clean_cuts'/2,
+        '$convert_for_export'/7,
+        '$do_import'/3,
+        '$extend_exports'/3,
+        '$get_undefined_pred'/4,
+        '$imported_pred'/4,
+        '$meta_expansion'/6,
+        '$meta_predicate'/2,
+        '$meta_predicate'/4,
+        '$module'/3,
+        '$module'/4,
+        '$module_expansion'/5,
+        '$module_transparent'/2,
+        '$module_transparent'/4]).
+
+:- use_system_module( '$_arith', ['$c_built_in'/3]).
+
+:- use_system_module( '$_consult', ['$lf_opt'/3,
+        '$load_files'/3]).
+
+:- use_system_module( '$_debug', ['$skipeol'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_eval', ['$full_clause_optimisation'/4]).
 
 :- '$purge_clauses'(module(_,_), prolog).
 :- '$purge_clauses'('$module'(_,_), prolog).

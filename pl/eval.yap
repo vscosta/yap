@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
+
+:- use_system_module( terms, [new_variables_in_term/3,
+        variables_within_term/3]).
+
+
 %, portray_clause((H:-BF))
 '$full_clause_optimisation'(H, M, B0, BF) :-
 	'$localise_vars_opt'(H, M, B0, BF), !.

@@ -15,6 +15,56 @@
 *                                                                        *
 *************************************************************************/
 
+:- system_module( '$_threads', [current_mutex/3,
+        current_thread/2,
+        message_queue_create/1,
+        message_queue_create/2,
+        message_queue_destroy/1,
+        message_queue_property/2,
+        mutex_create/1,
+        mutex_create/2,
+        mutex_destroy/1,
+        mutex_lock/1,
+        mutex_property/2,
+        mutex_trylock/1,
+        mutex_unlock/1,
+        mutex_unlock_all/0,
+        thread_at_exit/1,
+        thread_cancel/1,
+        thread_create/1,
+        thread_create/2,
+        thread_create/3,
+        thread_default/1,
+        thread_defaults/1,
+        thread_detach/1,
+        thread_exit/1,
+        thread_get_message/1,
+        thread_get_message/2,
+        thread_join/2,
+        (thread_local)/1,
+        thread_peek_message/1,
+        thread_peek_message/2,
+        thread_property/1,
+        thread_property/2,
+        thread_self/1,
+        thread_send_message/1,
+        thread_send_message/2,
+        thread_set_default/1,
+        thread_set_defaults/1,
+        thread_signal/2,
+        thread_sleep/1,
+        threads/0,
+        (volatile)/1,
+        with_mutex/2], ['$reinit_thread0'/0,
+        '$thread_gfetch'/1,
+        '$thread_local'/2]).
+
+:- use_system_module( '$_boot', ['$check_callable'/2,
+        '$run_at_thread_start'/0,
+        '$system_catch'/4]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 :- meta_predicate
 	thread_initialization(0),
 	thread_at_exit(0),

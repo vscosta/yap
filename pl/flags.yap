@@ -15,6 +15,29 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_flags', [create_prolog_flag/3,
+        current_prolog_flag/2,
+        no_source/0,
+        prolog_flag/2,
+        prolog_flag/3,
+        set_prolog_flag/2,
+        source/0,
+        source_mode/2,
+        yap_flag/2,
+        yap_flag/3], []).
+
+:- use_system_module( '$_boot', ['$prompt_alternatives_on'/1]).
+
+:- use_system_module( '$_checker', ['$syntax_check_discontiguous'/2,
+        '$syntax_check_multiple'/2,
+        '$syntax_check_single_var'/2]).
+
+:- use_system_module( '$_control', ['$set_toplevel_hook'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_yio', ['$default_expand'/1,
+        '$set_default_expand'/1]).
 
 yap_flag(V,Out) :-
 	'$user_defined_flag'(V,_,_,_),

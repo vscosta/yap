@@ -15,6 +15,44 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_yio', [at_end_of_line/0,
+        at_end_of_line/1,
+        consult_depth/1,
+        current_char_conversion/2,
+        current_line_number/1,
+        current_line_number/2,
+        current_stream/3,
+        display/1,
+        display/2,
+        exists/1,
+        fileerrors/0,
+        format/1,
+        nofileerrors/0,
+        open_pipe_streams/2,
+        prolog_file_name/2,
+        read/1,
+        read/2,
+        sformat/3,
+        socket/2,
+        socket/4,
+        socket_connect/3,
+        stream_position/2,
+        stream_position/3,
+        stream_position_data/3,
+        ttyget/1,
+        ttyget0/1,
+        ttynl/0,
+        ttyput/1,
+        ttyskip/1,
+        write_depth/2,
+        writeln/1], ['$default_expand'/1,
+        '$extend_file_search_path'/1,
+        '$set_default_expand'/1]).
+
+:- use_system_module( '$_boot', ['$system_catch'/4]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 /* stream predicates							*/
 
 /* check whether a list of options is valid */

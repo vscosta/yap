@@ -15,12 +15,6 @@
 *									 *
 *************************************************************************/
 
-:- module( '$arrays',
-	  [array/2,
-	   '$c_arrays'/2,
-	   static_array_properties/3] ).
-	   
-
 % 
 % These are the array built-in predicates. They will only work if
 % YAP_ARRAYS is defined in Yap.h.m4.

@@ -15,6 +15,13 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_profile', [profile_data/3,
+        profile_reset/0,
+        showprofres/0,
+        showprofres/1], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 
 % hook predicate, taken from SWI-Prolog, for converting possibly explicitly-
 % qualified callable terms into an atom that can be used as a label for

@@ -15,6 +15,37 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
+        '$exec_directives'/5]).
+
+:- use_system_module( '$_boot', ['$command'/4,
+        '$system_catch'/4]).
+
+:- use_system_module( '$_consult', ['$elif'/2,
+        '$else'/1,
+        '$endif'/1,
+        '$if'/2,
+        '$include'/2,
+        '$initialization'/1,
+        '$initialization'/2,
+        '$load_files'/3,
+        '$require'/2,
+        '$set_encoding'/1,
+        '$use_module'/3]).
+
+:- use_system_module( '$_modules', ['$meta_predicate'/2,
+        '$module'/3,
+        '$module'/4,
+        '$module_transparent'/2]).
+
+:- use_system_module( '$_preddecls', ['$discontiguous'/2,
+        '$dynamic'/2]).
+
+:- use_system_module( '$_preds', ['$noprofile'/2,
+        '$public'/2]).
+
+:- use_system_module( '$_threads', ['$thread_local'/2]).
+
 '$all_directives'(_:G1) :- !,
 	'$all_directives'(G1).
 '$all_directives'((G1,G2)) :- !,

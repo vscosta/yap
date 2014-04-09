@@ -18,6 +18,13 @@
 :- module('$db_load',
 	  []).
 
+:- use_system_module( '$_boot', ['$$compile'/4]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( attributes, [get_module_atts/2,
+        put_module_atts/2]).
+
 :- dynamic dbloading/6, dbprocess/2.
 
 dbload_from_stream(R, M0, Type) :-

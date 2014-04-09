@@ -4,6 +4,7 @@
 	   source_exports/2
 	  ]).
 
+:- use_system_module( '$_errors', ['$do_error'/2]).
 
 prolog:'$expects_dialect'(yap) :- !,
 	eraseall('$dialect'),

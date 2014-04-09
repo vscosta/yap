@@ -14,6 +14,12 @@
 * comments:	statistics on Prolog status				 *
 *									 *
 *************************************************************************/
+:- system_module( '$_statistics', [key_statistics/3,
+        statistics/0,
+        statistics/2,
+        time/1], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
 
 %%% User interface for statistics
 

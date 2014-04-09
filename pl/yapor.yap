@@ -1,3 +1,19 @@
+:- system_module( '$_utils', [callable/1,
+        current_op/3,
+        nb_current/2,
+        nth_instance/3,
+        nth_instance/4,
+        op/3,
+        prolog/0,
+        recordaifnot/3,
+        recordzifnot/3,
+        simple/1,
+        subsumes_term/2], ['$getval_exception'/3]).
+
+:- use_system_module( '$_boot', ['$live'/0]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                     %%
 %%                   The YapTab/YapOr/OPTYap systems                   %%

@@ -19,6 +19,7 @@
 	       getenv/2,
 	       setenv/2
 	 ] ).
+:- use_system_module( '$_errors', ['$do_error'/2]).
 
 /**
  * @short YAP core Operating system interface.
@@ -75,11 +76,13 @@ unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
 	'$do_error'(instantiation_error,unix(shell(V))).
 unix(shell(A)) :- atom(A), !, '$shell'(A).
+unix(shell(A)) :- string(A), !, '$shell'(A).
 unix(shell(V)) :-
 	'$do_error'(type_error(atomic,V),unix(shell(V))).
 unix(system(V)) :- var(V), !,
 	'$do_error'(instantiation_error,unix(system(V))).
 unix(system(A)) :- atom(A), !, system(A).
+unix(system(A)) :- string(A), !, system(A).
 unix(system(V)) :-
 	'$do_error'(type_error(atom,V),unix(system(V))).
 unix(shell) :- sh.

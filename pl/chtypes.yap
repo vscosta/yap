@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_chtypes', [], []).
+
 /*
   
 In addition, there is the library library(ctype) providing compatibility to some other Prolog systems. The predicates of this library are defined in terms of code_type/2.

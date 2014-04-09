@@ -62,6 +62,14 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_checker', [no_style_check/1,
+        style_check/1], ['$check_term'/5,
+        '$init_style_check'/1,
+        '$sv_warning'/2,
+        '$syntax_check_discontiguous'/2,
+        '$syntax_check_multiple'/2,
+        '$syntax_check_single_var'/2]).
+
 %
 % A Small style checker for YAP
 

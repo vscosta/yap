@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_preddecls', [(discontiguous)/1,
+        (dynamic)/1,
+        (multifile)/1], ['$check_multifile_pred'/3,
+        '$discontiguous'/2,
+        '$dynamic'/2]).
+
+:- use_system_module( '$_consult', ['$add_multifile'/3]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 %
 % can only do as goal in YAP mode.
 %

@@ -15,6 +15,17 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_setof', [(^)/2,
+        all/3,
+        bagof/3,
+        findall/3,
+        findall/4,
+        setof/3], []).
+
+:- use_system_module( '$_boot', ['$catch'/3]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 %   The "existential quantifier" symbol is only significant to bagof
 %   and setof, which it stops binding the quantified variable.
 %   op(200, xfy, ^) is defined during bootstrap.

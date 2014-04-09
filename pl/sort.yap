@@ -14,6 +14,18 @@
 * comments:	sorting in Prolog					 *
 *									 *
 *************************************************************************/
+:- system_module( '$_sort', [keysort/2,
+        length/2,
+        msort/2,
+        predmerge/4,
+        predmerge/7,
+        predsort/3,
+        predsort/5,
+        sort/2,
+        sort2/4], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 
 /*  The three sorting routines are all variations of merge-sort, done by
     bisecting the list, sorting the nearly equal halves, and merging the

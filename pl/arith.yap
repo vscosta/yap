@@ -15,17 +15,23 @@
 *									 *
 *************************************************************************/
 
-/*
-:- module( '$arithmetic' , [ expand_exprs/2,
-			     compile_expressions/0,
-	                     do_not_compile_expressions/0,
-			     '$c_built_in'/3,
-			     succ/3,
-			     plus/3] ).
-
-*/
-
 % the default mode is on
+
+:- system_module( '$_arith', [compile_expressions/0,
+        expand_exprs/2,
+        plus/3,
+        succ/2], ['$c_built_in'/3]).
+
+:- private( [do_c_built_in/3,
+	     do_c_built_metacall/3,
+	     expand_expr/3,
+	     expand_expr/5,
+	     expand_expr/6] ).
+		   
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_modules', ['$clean_cuts'/2]).
 
 expand_exprs(Old,New) :-
 	(get_value('$c_arith',true) ->

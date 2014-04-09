@@ -4,7 +4,7 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
 **************************************************************************
 *									 *
@@ -14,6 +14,112 @@
 * comments:	boot file for Prolog					 *
 *									 *
 *************************************************************************/
+
+system_module(_init, _SysExps, _Decls) :- !.
+system_module(M, SysExps, Decls) :-
+	'$current_module'(prolog, M),
+	'$compile'( ('$system_module'(M) :- true), 0, assert_static('$system_module'(M)), M ),
+	'$export_preds'(SysExps, prolog),
+	'$export_preds'(Decls, M).
+
+'$export_preds'([], _).
+'$export_preds'([N/A|Decls], M) :-
+    functor(S, N, A),
+    '$sys_export'(S, M),
+    '$export_preds'(Decls, M).
+
+use_system_module(_init, _SysExps) :- !.
+use_system_module(M, SysExps) :-
+	'$current_module'(M0, M0),
+	'$import_system'(SysExps, M0, M).
+
+'$import_system'([], _, _).
+'$import_system'([N/A|Decls], M0, M) :-
+    functor(S, N, A),
+    '$compile'( (G :- M0:G) ,0, assert_static((M:G :- M0:G)), M ),
+    '$import_system'(Decls, M0, M).
+
+private(_).
+
+%
+% boootstrap predicates.
+%
+:- system_module( '$_boot', [(*->)/2,
+        (',')/2,
+        (->)/2,
+        (;)/2,
+        (\+)/1,
+        bootstrap/1,
+        call/1,
+        catch/3,
+        catch_ball/2,
+        expand_term/2,
+        import_system_module/2,
+        incore/1,
+        (not)/1,
+        repeat/0,
+        throw/1,
+        true/0,
+        ('|')/2], ['$$compile'/4,
+        '$call'/4,
+        '$catch'/3,
+        '$check_callable'/2,
+        '$check_head_and_body'/4,
+        '$check_if_reconsulted'/2,
+        '$clear_reconsulting'/0,
+        '$command'/4,
+        '$cut_by'/1,
+        '$disable_debugging'/0,
+        '$do_live'/0,
+        '$enable_debugging'/0,
+        '$find_goal_definition'/4,
+        '$handle_throw'/3,
+        '$head_and_body'/3,
+        '$inform_as_reconsulted'/2,
+        '$init_system'/0,
+        '$init_win_graphics'/0,
+        '$live'/0,
+        '$loop'/2,
+        '$meta_call'/2,
+        '$prompt_alternatives_on'/1,
+        '$run_at_thread_start'/0,
+        '$system_catch'/4,
+        '$undefp'/1,
+		   '$version'/0]).
+
+:- use_system_module( '$_absf', ['$system_library_directories'/2]).
+
+:- use_system_module( '$_checker', ['$check_term'/5,
+        '$sv_warning'/2]).
+
+:- use_system_module( '$_consult', ['$csult'/2]).
+
+:- use_system_module( '$_control', ['$run_atom_goal'/1]).
+
+:- use_system_module( '$_directives', ['$all_directives'/1,
+        '$exec_directives'/5]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_grammar', ['$translate_rule'/2]).
+
+:- use_system_module( '$_modules', ['$get_undefined_pred'/4,
+        '$meta_expansion'/6,
+        '$module_expansion'/5]).
+
+:- use_system_module( '$_preddecls', ['$dynamic'/2]).
+
+:- use_system_module( '$_preds', ['$assert_static'/5,
+        '$assertz_dynamic'/4,
+        '$init_preds'/0,
+        '$unknown_error'/1,
+        '$unknown_warning'/1]).
+
+:- use_system_module( '$_qly', ['$init_state'/0]).
+
+:- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
+        '$iso_check_goal'/2]).
+
 
 %
 %
@@ -1096,28 +1202,6 @@ bootstrap(F) :-
 
 '$abort_loop'(Stream) :-
 	'$do_error'(permission_error(input,closed_stream,Stream), loop).
-
-system_module(M, SysExps, Decls) :-
-	'$current_module'(prolog, M), !,
-	'$export_preds'(SysExps, prolog),
-	'$export_preds'(Decls, M).
-
-'$export_preds'([], _).
-'$export_preds'([N/A|Decls], M) :-
-    functor(S, N, A),
-    '$sys_export'(S, M),
-    '$export_preds'(Decls, M).
-
-
-import_system_module(M, SysExps) :-
-	'$current_module'(M0, _M),
-	'$import_system'(SysExps, M0, M).
-
-'$import_system'([], _, _).
-'$import_system'([N/A|Decls], M0, M) :-
-    functor(S, N, A),
-    '$assert_static'((G :- M0:G), M, last, _, assert_static((M:G :- M0:G))),
-    '$import_system'(Decls, M0, M).
 
 
 /* General purpose predicates				*/

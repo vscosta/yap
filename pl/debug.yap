@@ -15,6 +15,30 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_debug', [debug/0,
+        debugging/0,
+        leash/1,
+        nodebug/0,
+        (nospy)/1,
+        nospyall/0,
+        notrace/0,
+        (spy)/1,
+        trace/0], ['$do_spy'/4,
+        '$init_debugger'/0,
+        '$skipeol'/1]).
+
+:- use_system_module( '$_boot', ['$find_goal_definition'/4,
+        '$system_catch'/4]).
+
+:- use_system_module( '$_errors', ['$Error'/1,
+        '$do_error'/2]).
+
+:- use_system_module( '$_init', ['$system_module'/1]).
+
+:- use_system_module( '$_modules', ['$meta_expansion'/6]).
+
+:- use_system_module( '$_preds', ['$clause'/4]).
+
 /*-----------------------------------------------------------------------------
 
 			Debugging / creating spy points

@@ -194,6 +194,15 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_errors', [message_to_string/2,
+        print_message/2], ['$Error'/1,
+        '$do_error'/2]).
+
+:- use_system_module( '$messages', [file_location/2,
+        generate_message/3,
+        translate_message/3]).
+
+
 '$do_error'(Type,Message) :-
 	'$current_stack'(local_sp(_,CP,Envs,CPs)),
 	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).

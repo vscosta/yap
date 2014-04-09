@@ -19,6 +19,26 @@
 			  delayed_goals/4
 			  ]).
 
+:- use_system_module( '$_boot', ['$undefp'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$coroutining', [attr_unify_hook/2]).
+
+:- use_system_module( attributes, [all_attvars/1,
+        attributed_module/3,
+        bind_attvar/1,
+        del_all_atts/1,
+        del_all_module_atts/2,
+        get_all_swi_atts/2,
+        get_module_atts/2,
+        modules_with_attributes/1,
+        put_att_term/2,
+        put_module_atts/2,
+        unbind_attvar/1,
+        woken_att_do/4]).
+
+
 :- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
 
 prolog:get_attr(Var, Mod, Att) :-

@@ -1,3 +1,21 @@
+:- system_module( '$_tabling', [abolish_table/1,
+        global_trie_statistics/0,
+        is_tabled/1,
+        show_all_local_tables/0,
+        show_all_tables/0,
+        show_global_trie/0,
+        show_table/1,
+        show_table/2,
+        show_tabled_predicates/0,
+        (table)/1,
+        table_statistics/1,
+        table_statistics/2,
+        tabling_mode/2,
+        tabling_statistics/0,
+        tabling_statistics/2], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                     %%
 %%                   The YapTab/YapOr/OPTYap systems                   %%

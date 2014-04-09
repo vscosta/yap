@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_depth_bound', [depth_bound_call/2], []).
+
 %depth_bound_call(A,D) :-
 %write(depth_bound_call(A,D)), nl, fail.
 depth_bound_call(A,D) :-

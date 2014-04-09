@@ -15,6 +15,59 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_control', [at_halt/1,
+        b_getval/2,
+        break/0,
+        call/2,
+        call/3,
+        call/4,
+        call/5,
+        call/6,
+        call/7,
+        call/8,
+        call/9,
+        call/10,
+        call/11,
+        call/12,
+        call_cleanup/2,
+        call_cleanup/3,
+        forall/2,
+        garbage_collect/0,
+        garbage_collect_atoms/0,
+        gc/0,
+        grow_heap/1,
+        grow_stack/1,
+        halt/0,
+        halt/1,
+        if/3,
+        ignore/1,
+        nb_getval/2,
+        nogc/0,
+        notrace/1,
+        once/1,
+        prolog_current_frame/1,
+        prolog_initialization/1,
+        setup_call_catcher_cleanup/4,
+        setup_call_cleanup/3,
+        version/0,
+        version/1], ['$run_atom_goal'/1,
+        '$set_toplevel_hook'/1]).
+
+:- use_system_module( '$_boot', ['$call'/4,
+        '$disable_debugging'/0,
+        '$do_live'/0,
+        '$enable_debugging'/0,
+        '$system_catch'/4,
+        '$version'/0]).
+
+:- use_system_module( '$_debug', ['$init_debugger'/0]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_utils', ['$getval_exception'/3]).
+
+:- use_system_module( '$coroutining', [freeze_goal/2]).
+
 once(G) :- '$execute'(G), !.
 
 forall(Cond, Action) :- \+((Cond, \+(Action))).

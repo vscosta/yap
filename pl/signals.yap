@@ -15,6 +15,18 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_signals', [alarm/3,
+        on_exception/3,
+        on_signal/3,
+        raise_exception/1,
+        read_sig/0], []).
+
+:- use_system_module( '$_boot', ['$meta_call'/2]).
+
+:- use_system_module( '$_debug', ['$do_spy'/4]).
+
+:- use_system_module( '$_threads', ['$thread_gfetch'/1]).
+
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
 '$creep'(G) :-

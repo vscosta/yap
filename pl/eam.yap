@@ -16,6 +16,9 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_eam', [eamconsult/1,
+        eamtrans/2], []).
+
 eamtrans(A,A):- var(A),!.
 eamtrans((A,B),(C,D)):- !, eamtrans(A,C),eamtrans(B,D).
 eamtrans((X is Y) ,(skip_while_var(Vars), X is Y  )):- !, '$variables_in_term'(Y,[],Vars).

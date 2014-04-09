@@ -15,6 +15,68 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_preds', [abolish/1,
+        abolish/2,
+        assert/1,
+        assert/2,
+        assert_static/1,
+        asserta/1,
+        asserta/2,
+        asserta_static/1,
+        assertz/1,
+        assertz/2,
+        assertz_static/1,
+        clause/2,
+        clause/3,
+        clause_property/2,
+        compile_predicates/1,
+        current_key/2,
+        current_predicate/1,
+        current_predicate/2,
+        dynamic_predicate/2,
+        hide_predicate/1,
+        nth_clause/3,
+        predicate_erased_statistics/4,
+        predicate_property/2,
+        predicate_statistics/4,
+        retract/1,
+        retract/2,
+        retractall/1,
+        stash_predicate/1,
+        system_predicate/1,
+        system_predicate/2,
+        unknown/2], ['$assert_static'/5,
+        '$assertz_dynamic'/4,
+        '$clause'/4,
+        '$current_predicate_no_modules'/3,
+        '$init_preds'/0,
+        '$noprofile'/2,
+        '$public'/2,
+        '$unknown_error'/1,
+        '$unknown_warning'/1]).
+
+:- use_system_module( '$_boot', ['$check_head_and_body'/4,
+        '$check_if_reconsulted'/2,
+        '$handle_throw'/3,
+        '$head_and_body'/3,
+        '$inform_as_reconsulted'/2]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_init', ['$do_log_upd_clause'/6,
+        '$do_log_upd_clause0'/6,
+        '$do_log_upd_clause_erase'/6,
+        '$do_static_clause'/5]).
+
+:- use_system_module( '$_modules', ['$imported_pred'/4,
+        '$meta_predicate'/4,
+        '$module_expansion'/5]).
+
+:- use_system_module( '$_preddecls', ['$check_multifile_pred'/3,
+        '$dynamic'/2]).
+
+:- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1]).
+
 % The next predicates are applicable only
 % to dynamic code
 

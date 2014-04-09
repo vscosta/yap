@@ -23,6 +23,8 @@
 	   file_location/3,
 	   message/3]).
 
+:- use_system_module( user, [generate_message_hook/3]).
+
 :- multifile message/3.
 
 :- multifile user:generate_message_hook/3.

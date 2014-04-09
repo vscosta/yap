@@ -2086,21 +2086,28 @@ Run an external command and wait for its completion.
   char *shell;
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
+  const char *cmd;
 
   shell = (char *) getenv ("SHELL");
   if (!strcmp (shell, "/bin/sh"))
     bourne = TRUE;
   if (shell == NIL)
     bourne = TRUE;
+  if (IsAtomTerm(t1))
+    cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  else if (IsStringTerm(t1))
+    cmd = StringOfTerm(t1);
+  else
+    return FALSE;
   /* Yap_CloseStreams(TRUE); */
   if (bourne)
-    return system(RepAtom(AtomOfTerm(t1))->StrOfAE) == 0;
+    return system( cmd ) == 0;
   else {
     int status = -1;
     int child = fork ();
 
     if (child == 0) {			/* let the children go */
-      if (!execl (shell, shell, "-c", RepAtom(AtomOfTerm(t1))->StrOfAE , NULL)) {
+      if (!execl (shell, shell, "-c", cmd , NULL)) {
 	exit(-1);
       }
       exit(TRUE);
@@ -2182,13 +2189,15 @@ Run an external command and wait for its completion.
   return FALSE;
 #elif HAVE_SYSTEM
   Term t1 = Deref (ARG1);
-  char *s;
+  const char *s;
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR,t1,"argument to system/1 unbound");
     return FALSE;
   } else if (IsAtomTerm(t1)) {
     s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  } else if (IsStringTerm(t1)) {
+    s = StringOfTerm(t1);
   } else {
     if (!Yap_GetName (LOCAL_FileNameBuf, YAP_FILENAME_MAX, t1)) {
       Yap_Error(TYPE_ERROR_ATOM,t1,"argument to system/1");

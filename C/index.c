@@ -4589,7 +4589,8 @@ remove_dirty_clauses_from_index(yamop *header)
   curp->opc = startopc;
   if (curp->opc == endop)
     return;
-  if (!header->u.Illss.e)
+  // don't try to follow the chain if there is no chain.
+  if (header->u.Illss.e <= 1)
     return;
   previouscurp = curp;
   curp = curp->u.OtaLl.n;

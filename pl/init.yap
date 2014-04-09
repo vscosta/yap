@@ -15,6 +15,27 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_init', [!/0,
+        (:-)/1,
+        (?-)/1,
+        []/0,
+        extensions_to_present_answer/1,
+        fail/0,
+        false/0,
+        goal_expansion/2,
+        goal_expansion/3,
+        otherwise/0,
+        prolog_booting/0,
+        term_expansion/2,
+        version/2,
+	'$do_log_upd_clause'/6,
+        '$do_log_upd_clause0'/6,
+        '$do_log_upd_clause_erase'/6,
+        '$do_static_clause'/5,
+        '$system_module'/1], []).
+
+:- use_system_module( '$_boot', ['$cut_by'/1]).
+
 'prolog_booting'.
 
 % This is yap's init file
@@ -145,12 +166,6 @@ version(yap,[6,3]).
 :- use_module('../swi/library/menu.pl').
 
 
-'$system_module'('$attributes').
-'$system_module'('$coroutining').
-'$system_module'('$hacks').
-'$system_module'('$history').
-'$system_module'('$messages').
-'$system_module'('$predopts').
 '$system_module'('$swi').
 '$system_module'('$win_menu').
 

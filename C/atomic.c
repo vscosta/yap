@@ -808,6 +808,53 @@ p_atom_concat2( USES_REGS1 )
   cut_fail();
 }
 
+static Int 
+p_string_concat2( USES_REGS1 )
+{
+  Term t1;
+  Term *tailp;
+  Int n;
+ restart_aux:
+  t1 = Deref(ARG1);
+  n = Yap_SkipList(&t1, &tailp);
+  if (*tailp != TermNil) {
+    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+  } else {
+    seq_tv_t *inpv = (seq_tv_t *)malloc(n*sizeof(seq_tv_t)), out;
+    int i = 0;
+    
+    if (!inpv) {
+      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      free(inpv);
+      goto error;
+    }
+
+    while (t1 != TermNil) {
+      inpv[i].type = YAP_STRING_STRING;
+      inpv[i].val.t = HeadOfTerm(t1);
+      i++;
+      t1 = TailOfTerm(t1);
+    }
+    out.type = YAP_STRING_STRING;
+    if (!Yap_Concat_Text(n, inpv, &out PASS_REGS)) {
+      free(inpv);
+      goto error;
+    }
+    free(inpv);
+    if (out.val.t) return Yap_unify(ARG2, out.val.t);
+  }
+ error:
+  /* Error handling */
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_code/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
+  }
+  cut_fail();
+}
+
 
 static Int 
 p_atomic_concat2( USES_REGS1 )
@@ -1929,6 +1976,7 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("atom_number", 2, p_atom_number, 0);
   Yap_InitCPred("string_number", 2, p_string_number, 0);
   Yap_InitCPred("$atom_concat", 2, p_atom_concat2, 0);
+  Yap_InitCPred("$string_concat", 2, p_string_concat2, 0);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat2, 0);
   Yap_InitCPred("atomic_concat", 3, p_atomic_concat3, 0);
   Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);

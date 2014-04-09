@@ -8,15 +8,19 @@
  *									 *
  *************************************************************************/
 
+:- system_module( '$_atoms', [
+			      atom_concat/2,
+			      string_concat/2,
+        atomic_list_concat/2,
+        atomic_list_concat/3,
+        current_atom/1], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 /**
  * @short: Atom, and Atomic manipulation predicates in YAP
  *
-*/									 *
-
-:- module( '$atoms', [ atom_concat/2,
-		       atomic_list_concat/2,
-		       atomic_list_concat/3,
-		       current_atom/1 ] ).
+*/									 
 
 atom_concat(Xs,At) :-
 	( var(At) ->
@@ -121,4 +125,43 @@ current_atom(A) :-				% generate
 	'$current_atom'(A).
 current_atom(A) :-				% generate
 	'$current_wide_atom'(A).
+
+string_concat(Xs,At) :-
+	( var(At) ->
+	   '$string_concat'(Xs, At )
+        ;
+	 '$string_concat_constraints'(Xs, 0, At, Unbound),
+	 '$process_string_holes'(Unbound)
+        ).
+
+% the constraints are of the form hole: HoleString, Begin, String, End
+'$string_concat_constraints'([At], 0, At, []) :- !.
+'$string_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
+% just slice first string
+'$string_concat_constraints'([At0|Xs], 0, At, Unbound) :-
+	string(At0), !,
+	sub_string(At, 0, Sz, L, At0 ),
+	sub_string(At, _, L, 0, Atr ), %remainder
+	'$string_concat_constraints'(Xs, 0, Atr, Unbound).
+% first hole: Follow says whether we have two holes in a row, At1 will be our string
+'$string_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
+	 '$string_concat_constraints'(Xs, mid(Next,At1), At, Unbound).
+% end of a run
+'$string_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
+	string(At0), !,
+	sub_string(At, Next, Sz, L, At0),
+	sub_string(At, 0, Next, Next, At1),
+	sub_string(At, _, L, 0, Atr), %remainder
+	'$string_concat_constraints'(Xs, 0, Atr, Unbound).
+'$string_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
+	 '$string_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
+
+'$process_string_holes'([]).
+'$process_string_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,
+	sub_string(At1, Next, _, 0, At0),
+	 '$process_string_holes'(Unbound).
+'$process_string_holes'([hole(At0, Next, At1, Follow)|Unbound]) :-
+	sub_string(At1, Next, Sz, _Left, At0),
+	Follow is Next+Sz,
+	 '$process_string_holes'(Unbound).
 

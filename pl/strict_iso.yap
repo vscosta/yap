@@ -1,3 +1,8 @@
+:- system_module( '$_strict_iso', [], ['$check_iso_strict_clause'/1,
+        '$iso_check_goal'/2]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 '$iso_check_goal'(V,G) :-
 	var(V), !,
 	'$do_error'(instantiation_error,call(G)).

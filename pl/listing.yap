@@ -15,6 +15,16 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_listing', [listing/0,
+        listing/1,
+        portray_clause/1,
+        portray_clause/2], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_preds', ['$clause'/4,
+        '$current_predicate_no_modules'/3]).
+
 /* listing : Listing clauses in the database
 
 */

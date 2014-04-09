@@ -15,6 +15,22 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_grammar', [!/2,
+        (',')/4,
+        (->)/4,
+        ('.')/4,
+        (;)/4,
+        'C'/3,
+        []/2,
+        []/4,
+        (\+)/3,
+        phrase/2,
+        phrase/3,
+        {}/3,
+        ('|')/4], ['$translate_rule'/2]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
 
@@ -55,6 +71,9 @@
 '$t_hlist'(V, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
 '$t_hlist'([], _, _, true, _).
+'$t_hlist'(String, S0, SR, SF, G0) :- string(String), !,
+	string_codes( String, X ),
+	'$t_hlist'( X, S0, SR, SF, G0).
 '$t_hlist'([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
 '$t_hlist'([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
 	'$t_hlist'(List, S0, S1, G0, Goal).
@@ -75,6 +94,9 @@
 '$t_body'(!, _, _, S, S, !) :- !.
 '$t_body'([], to_fill, last, S, S1, S1=S) :- !.
 '$t_body'([], _, _, S, S, true) :- !.
+'$t_body'(X, FilledIn, Last, S, SR, OS) :- string(X), !,
+	string_codes( X, Codes),
+	'$t_body'(Codes, FilledIn, Last, S, SR, OS).
 '$t_body'([X], filled_in, _, S, SR, 'C'(S,X,SR)) :- !.
 '$t_body'([X|R], filled_in, Last, S, SR, ('C'(S,X,SR1),RB)) :- !,
 	'$t_body'(R, filled_in, Last, SR1, SR, RB).

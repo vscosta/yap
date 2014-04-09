@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_protect', [], ['$protect'/0]).
+
 % This protects all code from further changes
 % and also makes it impossible from some predicates to be seen
 '$protect' :-

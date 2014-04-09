@@ -15,6 +15,13 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_callcount', [call_count/3,
+        call_count_data/3,
+        call_count_reset/0], []).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+
 call_count_data(Calls, Retries, Both) :-
 	'$call_count_info'(Calls, Retries, Both).
 

@@ -15,6 +15,14 @@
 *									 *
 *************************************************************************/
 
+:- system_module( '$_load_foreign', [load_foreign_files/3,
+        open_shared_object/2,
+        open_shared_object/3], ['$import_foreign'/3]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_modules', ['$do_import'/3]).
+
 load_foreign_files(_Objs,_Libs,_Entry) :-
     prolog_load_context(file, F),
     prolog_load_context(module, M),

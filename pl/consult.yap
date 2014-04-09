@@ -14,6 +14,57 @@
 * comments:	Consulting Files in YAP					 *
 *									 *
 *************************************************************************/
+:- system_module( '$_consult', [compile/1,
+        consult/1,
+        db_files/1,
+        ensure_loaded/1,
+        exists_source/1,
+        exo_files/1,
+        (initialization)/2,
+        load_files/2,
+        make/0,
+        make_library_index/1,
+        module/2,
+        prolog_load_context/2,
+        reconsult/1,
+        source_file/1,
+        source_file/2,
+        source_file_property/2,
+        use_module/3], ['$add_multifile'/3,
+        '$csult'/2,
+        '$do_startup_reconsult'/1,
+        '$elif'/2,
+        '$else'/1,
+        '$endif'/1,
+        '$if'/2,
+        '$include'/2,
+        '$initialization'/1,
+        '$initialization'/2,
+        '$lf_opt'/3,
+        '$load_files'/3,
+        '$require'/2,
+        '$set_encoding'/1,
+        '$use_module'/3]).
+
+:- use_system_module( '$_absf', ['$full_filename'/3]).
+
+:- use_system_module( '$_boot', ['$clear_reconsulting'/0,
+        '$init_system'/0,
+        '$init_win_graphics'/0,
+        '$loop'/2,
+        '$system_catch'/4]).
+
+:- use_system_module( '$_checker', ['$init_style_check'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$_load_foreign', ['$import_foreign'/3]).
+
+:- use_system_module( '$_modules', ['$add_to_imports'/3,
+        '$convert_for_export'/7,
+        '$extend_exports'/3]).
+
+:- use_system_module( '$_preds', ['$current_predicate_no_modules'/3]).
 
 %
 % SWI options

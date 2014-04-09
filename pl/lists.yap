@@ -1,4 +1,6 @@
 
+:- system_module( '$_lists', [], []).
+
 :- '$set_yap_flags'(11,1). % source.
 
 %   memberchk(+Element, +Set)
@@ -25,4 +27,16 @@ lists:append([H|T], L, [H|R]) :-
 
 
 :- '$set_yap_flags'(11,0). % :- no_source.
+
+%   lists:delete(List, Elem, Residue)
+%   is true when List is a list, in which Elem may or may not occur, and
+%   Residue is a copy of List with all elements identical to Elem lists:deleted.
+
+lists:delete([], _, []).
+lists:delete([Head|List], Elem, Residue) :-
+	Head == Elem, !,
+	lists:delete(List, Elem, Residue).
+lists:delete([Head|List], Elem, [Head|Residue]) :-
+	lists:delete(List, Elem, Residue).
+
 
