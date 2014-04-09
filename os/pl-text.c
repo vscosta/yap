@@ -784,6 +784,40 @@ PL_mb_text(PL_chars_t *text, int flags)
 
         break;
       }
+      case ENC_UTF8:
+      { const  char *s = (const  char*)text->text.t;
+	const  char *e = &s[text->length];
+
+	if ( target == ENC_ISO_LATIN_1 )
+	{ for( ; s<e; )
+	    { int ch;
+	      s = _PL__utf8_get_char(s, &ch);
+	      if (ch > 0xff) {
+		unfindBuffer(BUF_RING);
+		norep = *s;
+		goto rep_error;
+	      }
+	      addBuffer(b, ch, char);
+	  }
+	  addBuffer(b, 0, char);
+
+	} else
+	  { mbstate_t mbs;
+
+	    memset(&mbs, 0, sizeof(mbs));
+	    for( ; s<e; )
+	      { int ch;
+		s = _PL__utf8_get_char(s, &ch);
+		if ( !wctobuffer(ch, &mbs, b) )
+		  { unfindBuffer(BUF_RING);
+		    norep = ch;
+		    goto rep_error;
+		  }
+	      }
+	    wctobuffer(0, &mbs, b);
+	  }
+	break;
+      }
       case ENC_WCHAR:
       { if ( target == ENC_ISO_LATIN_1 )
 	{ return PL_demote_text(text);

@@ -32,7 +32,7 @@ Built-ins, Debugging, Syntax, Top
 @end menu
 
 @node Control, Undefined Procedures, , Top
-@section Control Predicates
+@chapter Control Predicates
 
 
 This chapter describes the predicates for controlling the execution of
@@ -93,13 +93,13 @@ Succeeds once.
 @findex fail/0
 @syindex fail/0
 @cyindex fail/0
-Fails always.
+Always fails.
 
 @item false [ISO]
 @findex false/0
 @syindex false/0
 @cnindex false/0
-The same as fail
+The same as fail.
 
 @item ! [ISO]
 @findex !/0
@@ -698,7 +698,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 @end table
 
 @node Testing Terms, Predicates on Atoms, Messages, Top
-@section Predicates on terms
+@chapter Predicates on terms
 
 @table @code
 
@@ -1457,6 +1457,7 @@ conversion of integers to floating point numbers may raise an overflow
 exception. In all other cases, arguments are converted to the same type
 using the order integer to rational number to floating point number.
 
+@subsection Arithmetic Expressions
 
 Arithmetic expressions in YAP may use the following operators or
 @i{evaluable predicates}:
@@ -1762,6 +1763,8 @@ A "random" floating point number between 0 and 1.
 
 @end table
 
+@subsection Arithmetic Primitives
+
 The primitive YAP predicates involving arithmetic expressions are:
 
 @table @code
@@ -1846,6 +1849,7 @@ will generate an exception. If no error handler is available, execution
 will be thrown back to the top-level.
 @end itemize
 
+@subsection Counting
 
 The following predicates provide counting:
 
@@ -1909,7 +1913,7 @@ The following predicates provide counting:
 @end table
 
 @node I/O, Database, Arithmetic, Top
-@section I/O Predicates
+@chapter I/O Predicates
 
 Some of the I/O predicates described below will in certain conditions
 provide error messages and abort only if the file_errors flag is set.
@@ -1931,7 +1935,7 @@ Subnodes of Input/Output
 @end menu
 
 @node Streams and Files, C-Prolog File Handling, , I/O
-@subsection Handling Streams and Files
+@section Handling Streams and Files
 
 @table @code
 
@@ -2354,8 +2358,8 @@ Given the packaged stream position term @var{StreamPosition}, unify
 @end table
 
 @node C-Prolog File Handling, I/O of Terms, Streams and Files, I/O
-@subsection Handling Streams and Files
-
+@section C-Prolog File Handling
+         
 @table @code
 
 @item tell(+@var{S})
@@ -2422,7 +2426,7 @@ Closes the current input stream (see 6.7.).
 @end table
 
 @node I/O of Terms, I/O of Characters, C-Prolog File Handling, I/O
-@subsection Handling Input/Output of Terms
+@section Handling Input/Output of Terms
 
 @table @code
 
@@ -2770,11 +2774,8 @@ The next example shows how to align columns and padding. We first show
 left-alignment:
 
 @example
-
-@code{
    ?- format("~n*Hello~16+*~n",[]).
 *Hello          *
-}
 @end example
 
 Note that we reserve 16 characters for the column.
@@ -2783,10 +2784,8 @@ The following example shows how to do right-alignment:
 
 
 @example
-@code{
    ?- format("*~tHello~16+*~n",[]).
 *          Hello*
-}
 
 @end example
 
@@ -2796,10 +2795,8 @@ The @code{~t} escape sequence forces filling before @code{Hello}.
 We next show how to do centering:
 
 @example
-@code{
    ?- format("*~tHello~t~16+*~n",[]).
 *     Hello     *
-}
 @end example
 
 
@@ -2865,7 +2862,7 @@ X = [104, 101, 108, 108, 111]
 @end table
 
 @node I/O of Characters, I/O for Streams, I/O of Terms, I/O
-@subsection Handling Input/Output of Characters
+@section Handling Input/Output of Characters
 
 @table @code
 
@@ -2994,7 +2991,7 @@ Outputs a new line to the current output stream.
 @end table
 
 @node I/O for Streams, C-Prolog to Terminal, I/O of Characters, I/O
-@subsection Input/Output Predicates applied to Streams
+@section Input/Output Predicates applied to Streams
 
 @table @code
 
@@ -3025,13 +3022,6 @@ stream.
 @cnindex write_canonical/2
 Displays term @var{T} on the stream @var{S}. Atoms are quoted when
 necessary, and operators are ignored.
-
-@item write_canonical(+@var{T}) [ISO]
-@findex write_canonical/1
-@syindex write_canonical/1
-@cnindex write_canonical/1
-Displays term @var{T}. Atoms are quoted when necessary, and operators
-are ignored.
 
 @item write_term(+@var{S}, +@var{T}, +@var{Opts}) [ISO]
 @findex write_term/3
@@ -3167,7 +3157,7 @@ Outputs a new line to stream @var{S}.
 @end table
 
 @node C-Prolog to Terminal, I/O Control, I/O for Streams, I/O
-@subsection Compatible C-Prolog predicates for Terminal I/O
+@section Compatible C-Prolog predicates for Terminal I/O
 
 @table @code
 
@@ -3211,7 +3201,7 @@ Outputs a new line to stream @code{user_output}.
 @end table
 
 @node I/O Control, Sockets, C-Prolog to Terminal, I/O
-@subsection Controlling Input/Output
+@section Controlling Input/Output
 
 @table @code
 
@@ -3248,7 +3238,7 @@ interactive control from a pipe or a socket.
 @end table
 
 @node Sockets, , I/O Control, I/O
-@subsection Using Sockets From YAP
+@section Using Sockets From YAP
 
 YAP includes a SICStus Prolog compatible socket interface. In YAP-6.3
 this uses the @c{clib} package to emulate the old low level interface that
@@ -3345,11 +3335,6 @@ integer @var{LENGTH} gives the queue limit for incoming connections,
 and should be limited to @code{5} for portable applications. The socket
 must be of type @code{SOCK_STREAM} or @code{SOCK_SEQPACKET}.
 
-@item socket_accept(+@var{SOCKET}, -@var{STREAM})
-@findex socket_accept/2
-@syindex socket_accept/2
-@cnindex socket_accept/2
-
 @item socket_accept(+@var{SOCKET}, -@var{CLIENT}, -@var{STREAM})
 @findex socket_accept/3
 @syindex socket_accept/3
@@ -3412,7 +3397,7 @@ address in number and dots notation.
 @end table
 
 @node Database, Sets, I/O, Top
-@section Using the Clausal Data Base
+@chapter Using the Clausal Data Base
 
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
@@ -3496,7 +3481,7 @@ Subnodes of Database
 @end table
 
 @node Modifying the Database, Looking at the Database, , Database
-@subsection Modification of the Data Base
+@section Modification of the Data Base
 
 These predicates can be used either for static or for dynamic
 predicates:
@@ -3639,7 +3624,7 @@ Retract all the clauses whose head matches the goal @var{G}. Goal
 @end table
 
 @node Looking at the Database, Database References, Modifying the Database, Database
-@subsection Looking at the Data Base
+@section Looking at the Data Base
 
 @table @code
 
@@ -3734,7 +3719,7 @@ public.
 @findex tabled/0 (predicate_property flag)
 true if the predicate is tabled; note that only static predicates can
 be tabled in YAP.
-@item source
+@item source (predicate_property flag)
 @findex source/0 (predicate_property flag)
 true if source for the predicate is available.
 @item number_of_clauses(@var{ClauseCount})
@@ -3762,7 +3747,7 @@ of space required to store indices to those clauses (in bytes).
 @end table
 
 @node Database References, Internal Database, Looking at the Database, Database
-@subsection Using Data Base References
+@section Using Data Base References
 
 Data Base references are a fast way of accessing terms. The predicates
 @code{erase/1} and @code{instance/1} also apply to these references and may
@@ -3812,6 +3797,7 @@ database reference is @var{R}. The predicate must be dynamic.
 
 @node Internal Database, BlackBoard, Database References, Database
 @section Internal Data Base
+
 Some programs need global information for, e.g. counting or collecting 
 data obtained by backtracking. As a rule, to keep this information, the
 internal data base should be used instead of asserting and retracting
@@ -3870,6 +3856,9 @@ If a term equal to @var{T} up to variable renaming is stored under key
 If a term equal to @var{T} up to variable renaming is stored under key
 @var{K} fail. Otherwise, make term @var{T} the first record under key
 @var{K} and unify @var{R} with its reference.
+
+This predicate is YAP specific.
+
 
 @item recorded(+@var{K},@var{T},@var{R})
 @findex recorded/3
@@ -3988,26 +3977,6 @@ counter.
                 set_value(counter, Value1).
 @end example
 @noindent
-This predicate is YAP specific.
-
-@item recordzifnot(+@var{K},@var{T},-@var{R})
-@findex recordzifnot/3
-@snindex recordzifnot/3
-@cnindex recordzifnot/3
-If a variant of @var{T} is stored under key @var{K} fail. Otherwise, make
-term @var{T} the last record under key @var{K} and unify @var{R} with its
-reference.
-
-This predicate is YAP specific.
-
-@item recordaifnot(+@var{K},@var{T},-@var{R})
-@findex recordaifnot/3
-@snindex recordaifnot/3
-@cnindex recordaifnot/3
-If a variant of @var{T} is stored under key @var{K} fail. Otherwise, make
-term @var{T} the first record under key @var{K} and unify @var{R} with its
-reference.
-
 This predicate is YAP specific.
 
 @end table
@@ -4237,7 +4206,7 @@ no
 @end table
 
 @node Grammars, OS, Sets, Top
-@section Grammar Rules
+@chapter Grammar Rules
 
 Grammar rules in Prolog are both a convenient way to express definite
 clause grammars and  an extension of the well known context-free grammars.
@@ -4353,7 +4322,7 @@ This predicate is used by the grammar rules compiler and is defined as
 @end table
 
 @node OS, Term Modification, Grammars, Top
-@section Access to Operating System Functionality
+@chapter Access to Operating System Functionality
 
 The following built-in predicates allow access to underlying
 Operating System functionality: 
@@ -4582,7 +4551,7 @@ order of dispatch.
 @end table
 
 @node Term Modification, Global Variables, OS, Top
-@section Term Modification
+@chapter Term Modification
 
 @cindex updating terms
 It is sometimes useful to change the value of instantiated
@@ -4612,12 +4581,6 @@ Set the value of the @var{I}th argument of term @var{S} to term @var{T}.
 @cnindex create_mutable/2
 Create new mutable variable @var{M} with initial value @var{D}.
 
-@item get_mutable(?@var{D},+@var{M})
-@findex get_mutable/2
-@syindex get_mutable/2
-@cnindex get_mutable/2
-Unify the current value of mutable term @var{M} with term @var{D}.
-
 @item is_mutable(?@var{D})
 @findex is_mutable/1
 @syindex is_mutable/1
@@ -4638,7 +4601,7 @@ Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
 @node Global Variables, Profiling, Term Modification, Top
-@section Global Variables
+@chapter Global Variables
 
 @cindex global variables
 
@@ -4844,7 +4807,7 @@ compound terms.
 
 
 @node Profiling, Call Counting, Global Variables, Top
-@section Profiling Prolog Programs
+@chapter Profiling Prolog Programs
 
 @cindex profiling
 
@@ -4860,7 +4823,7 @@ The YAP profiling sub-system is currently under
 development. Functionality for this sub-system will increase with newer
 implementation.
 
-@subsection The Count Profiler
+@section The Count Profiler
 
 @strong{Notes:}
 
@@ -4928,7 +4891,8 @@ Reset all profiling information.
 
 @end table
 
-@subsection Tick Profiler
+@section Tick Profiler
+
 The tick profiler works by interrupting the Prolog code every so often
 and checking at each point the code was. The profiler must be able to
 retrace the state of the abstract machine at every moment. The major
@@ -4977,7 +4941,7 @@ Show profiling info for the top-most @var{N} predicates.
 The @code{showprofres/0} and @code{showprofres/1} predicates call a user-defined multifile hook predicate, @code{user:prolog_predicate_name/2}, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
 
 @node Call Counting, Arrays, Profiling, Top
-@section Counting Calls
+@chapter Counting Calls
 
 @cindex Counting Calls
 Predicates compiled with YAP's flag @code{call_counting} set to
@@ -5053,7 +5017,7 @@ exception when @code{l/0} performs more than 10000 reductions.
 
 
 @node Arrays, Preds, Call Counting , Top
-@section Arrays
+@chapter Arrays
 
 The YAP system includes experimental support for arrays. The
 support is enabled with the option @code{YAP_ARRAYS}.
@@ -5262,7 +5226,7 @@ terms.
 @end table
 
 @node Preds, Misc, Arrays, Top
-@section Predicate Information
+@chapter Predicate Information
 
 Built-ins that return information on the current predicates and modules:
 
@@ -5286,7 +5250,7 @@ Succeeds if @var{M} are current modules associated to the file @var{F}.
 @end table
 
 @node Misc, , Preds, Top
-@section Miscellaneous
+@chapter Miscellaneous
 
 @table @code
 
@@ -6107,7 +6071,7 @@ filed are ignored.
 @*
 Current source module.
 
-@item source
+@item source (prolog_load_context/2 option)
 @findex file (prolog_load_context/2 option)
 @*
 Full name for the file currently being read in, which may be consulted,

@@ -57,21 +57,12 @@ append(ListOfLists, List) :-
 	append_(ListOfLists, List).
 
 append_([], []).
-append_([L|Ls], As) :-
-	append(L, Ws, As),
-	append_(Ls, Ws).
-
-
-%   delete(List, Elem, Residue)
-%   is true when List is a list, in which Elem may or may not occur, and
-%   Residue is a copy of List with all elements identical to Elem deleted.
-
-delete([], _, []).
-delete([Head|List], Elem, Residue) :-
-	Head == Elem, !,
-	delete(List, Elem, Residue).
-delete([Head|List], Elem, [Head|Residue]) :-
-	delete(List, Elem, Residue).
+append_([L], L).
+append_([L1,L2], L) :-
+	append(L1,L2,L).
+append_([L1,L2|[L3|LL]], L) :-
+	append(L1,L2,LI),
+	append_([LI|[L3|LL]],L).
 
 
 %   last(List, Last)

@@ -47,11 +47,11 @@
 @subtitle Version @value{VERSION}
 @author Vitor Santos Costa,
 @author Luís Damas,
-@author Rogério Reis, and
+@author Rogério Reis
 @author Rúben Azevedo
 @page
 @vskip 2pc
-Copyright @copyright{} 1989-2000 L. Damas, V. Santos Costa and Universidade
+@copyright{} 1989-2014 L. Damas, V. Santos Costa and Universidade
 do Porto.
 
 Permission is granted to make and distribute verbatim copies of
@@ -405,12 +405,13 @@ On-line documentation is available for YAP at:
 Recent versions of YAP, including both source and selected binaries,
 can be found from this same URL.
 
-This manual was written by V@'{@dotless{i}}tor Santos Costa,
-Lu@'{@dotless{i}}s Damas, Rog@'erio Reis, and R@'uben Azevedo. The
+This manual was written by Vítor Santos Costa,
+Luís Damas, Rogério Reis, and Rúben Azevedo. The
 manual is largely based on the DECsystem-10 Prolog User's Manual by
 D.L. Bowen, L. Byrd, F. C. N. Pereira, L. M. Pereira, and
 D. H. D. Warren. We have also used comments from the Edinburgh Prolog
-library written by R. O'Keefe. We would also like to gratefully
+library written by R. O'Keefe and from the SWI-Prolog manual written by
+Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
 We are happy to include in YAP several excellent packages developed
@@ -669,7 +670,7 @@ The original author of this code was Richard O'Keefe. Jan Wielemaker
 
 
 @node Apply, Association Lists, Aggregate, Library
-@section Apply Macros
+@sectionbui   Apply Macros
 @cindex apply
 
 This library provides a SWI-compatible set of utilities for applying a
@@ -1151,6 +1152,7 @@ and lookup values of variables in each solution:
 
 @node Gecode and ClP(FD), The Gecode Interface, , Gecode
 @subsection Programming Finite Domain Constraints in YAP/Gecode
+
 The gecode/clp(fd) interface is designed to use the GECODE functionality
 in a more CLP like style. It requires
 @example
@@ -1714,17 +1716,10 @@ available by loading the library @code{library(lineutils)}.
 
 Search for a character @var{Char} in the list of codes @var{Line}.
 
-@item search_for(+@var{Char},+@var{Line})
-@findex search_for/2
-@snindex search_for/2
-@cnindex search_for/2
-
-Search for a character @var{Char} in the list of codes @var{Line}.
-
 @item search_for(+@var{Char},+@var{Line},-@var{RestOfine})
-@findex search_for/2
-@snindex search_for/2
-@cnindex search_for/2
+@findex search_for/3
+@snindex search_for/3
+@cnindex search_for/3
 
 Search for a character @var{Char} in the list of codes @var{Line},
 @var{RestOfLine} has the line to the right.
@@ -1809,13 +1804,6 @@ the character code @var{Separator}.
 
 Copy a line from @var{StreamInput} to @var{StreamOutput}.
 
-@item copy_line(+@var{StreamInput},+@var{StreamOutput})
-@findex copy_line/2
-@snindex copy_line/2
-@cnindex copy_line/2
-
-Copy a line from @var{StreamInput} to @var{StreamOutput}.
-
 @item process(+@var{StreamInp}, +@var{Goal})
 @findex process/2
 @snindex process/2
@@ -1889,16 +1877,14 @@ the Prolog engine instead.
       Creates  @var{TermOut1}  and @var{TermOut2} by applying the predicate @var{Pred} to all
       arguments of @var{TermIn}
 
-@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1},
-      ?@var{TermOut2}, ?@var{TermOut3})
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1}, ?@var{TermOut2}, ?@var{TermOut3})
 @findex mapargs/5
 @snindex mapargs/5
 @cnindex mapargs/5
       Creates  @var{TermOut1}, @var{TermOut2} and  @var{TermOut3} by applying the predicate @var{Pred} to all
       arguments of @var{TermIn}
 
-@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1},
-      ?@var{TermOut2}, ?@var{TermOut3}, ?@var{TermOut4})
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1}, ?@var{TermOut2}, ?@var{TermOut3}, ?@var{TermOut4})
 @findex mapargs/6
 @snindex mapargs/6
 @cnindex mapargs/6
@@ -1912,7 +1898,7 @@ the Prolog engine instead.
 @cnindex foldargs/4
   Calls the predicate @var{Pred} on all arguments of @var{Term} and
 collects a  result in @var{Accumulator}
-
+         
 @item foldargs(+@var{Pred}, +@var{Term}, +@var{Term1}, ?@var{AccIn}, ?@var{AccOut})
 @findex foldargs/5
 @snindex foldargs/5
@@ -2077,8 +2063,7 @@ applying the predicate @var{Pred} to all list elements on which
       Calls @var{Pred} on all elements of @var{List}, @var{List1}  and @var{List2}  and collects a result in
 @var{X} and @var{Y}.
 
-@item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0},
-?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z})
+@item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z})
 
 @findex foldl3/6
 @snindex foldl3/6
@@ -2086,8 +2071,7 @@ applying the predicate @var{Pred} to all list elements on which
       Calls @var{Pred} on all elements of @code{List} and collects a
 result in @var{X}, @var{Y} and @var{Z}.
 
-@item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0},
-?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z}, ?@var{W0}, ?@var{W})
+@item foldl4(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z}, ?@var{W0}, ?@var{W})
 
 @findex foldl4/8
 @snindex foldl4/8
@@ -2354,7 +2338,7 @@ all elements of a matrix or list
 @item -/2 
 subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
 all elements of a matrix or list
-@item */2 
+@item * /2 
 multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
 all elements of a matrix or list
 @item log/1 
@@ -2367,9 +2351,9 @@ natural exponentiation of a number, matrix or list
 @findex foreach/2
 @snindex foreach/2
 @cnindex foreach/2
-Deterministic iterator. The ranges are given by @var{Sequence} that is either @code{@var{I} in
-@var{M}..@var{N}}, or of the form @code{[@var{I},@var{J}] ins
-@var{M}..@var{N}}, or a list of the above conditions. 
+Deterministic iterator. The ranges are given by @var{Sequence} that is
+either @code{@var{I} in @var{M}..@var{N}}, or of the form 
+@code{[@var{I},@var{J}] ins @var{M}..@var{N}}, or a list of the above conditions. 
 
 Variables in the goal are assumed to be global, ie, share a single value
 in the execution. The exceptions are the iteration indices. Moreover, if
@@ -2854,16 +2838,6 @@ variable with name @var{Array}. Corresponds to the MATLAB command
 @cnindex matlab_zeros/3
 MATLAB will create an array of zeros of size @var{SizeX} and
 @var{SizeY}, and if @var{Array} is bound to an atom, store the array
-in the matlab variable with name @var{Array}.  Corresponds to the
-MATLAB command @code{zeros}.
-
-
-@item matlab_zeros(+@var{SizeX}, +@var{SizeY}, +@var{SizeZ}, ?@var{Array})
-@findex matlab_zeros/4
-@snindex matlab_zeros/4
-@cnindex matlab_zeros/4
-MATLAB will create an array of zeros of size @var{SizeX}, @var{SizeY},
-and @var{SizeZ}. If @var{Array} is bound to an atom, store the array
 in the matlab variable with name @var{Array}.  Corresponds to the
 MATLAB command @code{zeros}.
 
@@ -8595,10 +8569,6 @@ The possible forms for @var{P} are the same as in @code{spy P}.
 @cnindex nospyall/0
 Removes all existing spy-points.
 
-@item notrace
-@findex notrace/0 
-Switches off the debugger and stops tracing.
-
 @item leash(+@var{M})
 @findex leash/1
 @syindex leash/1
@@ -10054,7 +10024,7 @@ static int start_n100(void);
 static int continue_n100(void);
 
 typedef struct @{
-    YAP_Term next_solution;  /* the next solution */
+    YAP_Term next_solution; 
    @} n100_data_type;
 
 n100_data_type *n100_data;

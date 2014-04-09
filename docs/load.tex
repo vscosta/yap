@@ -20,7 +20,7 @@ Loading Programs
 
 @table @code
 
-@item consult(@var{+F})
+@item consult(+@var{F})
 @findex consult/1
 @snindex consult/1
 @cyindex consult/1
@@ -31,7 +31,7 @@ In YAP @code{consult/1} does not remove previous clauses for
 the procedures defined in @var{F}. Moreover, note that all code in YAP
 is compiled.
 
-@item reconsult(@var{+F})
+@item reconsult(+@var{F})
 @findex reconsult/1
 @snindex reconsult/1
 @cyindex reconsult/1
@@ -39,13 +39,13 @@ Updates the program replacing the
 previous definitions for the predicates defined in @var{F}.
 
 
-@item [@var{+F}]
+@item [+@var{F}]
 @findex nil/1
 @saindex []/1
 @cyindex []/1
 The same as @code{consult(F)}.
 
-@item [-@var{+F}]
+@item [-+@var{F}]
 @findex dash_nil/1
 @saindex [-]/1
 @cyindex [-]/1
@@ -60,14 +60,14 @@ Example:
 will consult @code{file1} @code{file4} and reconsult @code{file2} and
 @code{file3}.
 
-@item compile(@var{+F})
+@item compile(+@var{F})
 @findex compile/1
 @syindex compile/1
 @cnindex compile/1
 @noindent
 In YAP, the same as @code{reconsult/1}.
 
-@item load_files(@var{+Files}, @var{+Options})
+@item load_files(+@var{Files}, +@var{Options})
 @findex load_files/2
 @syindex load_files/2
 @cnindex load_files/2
@@ -138,7 +138,7 @@ supported encodings.
     is @code{exo}, these are facts with atoms and integers that need a very compact representation.
 @end table
 
-@item ensure_loaded(@var{+F}) [ISO]
+@item ensure_loaded(+@var{F}) [ISO]
 @findex ensure_loaded/1
 @syindex compile/1
 @cnindex compile/1
@@ -153,14 +153,14 @@ if they have not been loaded before, does nothing otherwise.
 
 @var{F} must be a list containing the names of the files to load.
 
-@item load_db(@var{+Files})
+@item load_db(+@var{Files})
 @findex load_db/1
 @syindex load_db/1
 @cnindex load_db/1
 @noindent
 Load a database of facts with equal structure.
 
-@item exo_files(@var{+Files})
+@item exo_files(+@var{Files})
 @findex exo_files/1
 @syindex exo_files/1
 @cnindex exo_files/1
@@ -185,7 +185,7 @@ read in a very compact way database tables.
     If `my_program' is started it will first reconsult all source files
     that have changed since the compilation. 
 
-@item include(@var{+F}) [ISO]
+@item include(+@var{F}) [ISO]
 @findex include/1 (directive)
 @snindex compile/1 (directive)
 @cnindex compile/1 (directive)
@@ -439,15 +439,6 @@ file_search_path(system,A) :-
 Thus, @code{[library(A)]} will search for a file using
 @code{library_directory/1} to obtain the prefix.
 
-@item library_directory(+@var{D})
-@findex library_directory/1
-@snindex library_directory/1
-@cnindex library_directory/1
-Succeeds when @var{D} is a current library directory name. Library
-directories are the places where files specified in the form
-@code{library(@var{File})} are searched by the predicates
-@code{consult/1}, @code{reconsult/1}, @code{use_module/1} or
-@code{ensure_loaded/1}.
 
 @item prolog_file_name(+@var{Name},-@var{FullPath})
 @findex prolog_file_name/2
@@ -995,8 +986,8 @@ may be a predicate indicator or of the form ``@var{PI} @code{as}
 to be exported under name @var{NewName}.
 @item @code{except}(@var{List}) 
 In this case, all predicates not in @var{List} are exported. Moreover,
-if ``@var{PI} @code{as} @var{NewName}'' is found, the predicate with
-indicator @var{PI} is to be exported under name @var{NewName}@ as
+if @code{@var{PI} @code{as} @var{NewName}} is found, the predicate with
+indicator @var{PI} is to be exported under name @var{NewName} as
 before.
 @end itemize
 @end table
