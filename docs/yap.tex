@@ -1321,7 +1321,7 @@ First Argument is the least element of a list.
 @item max(@var{X}, @var{Vs})
 First Argument is the greatest element of a list.
 
-@item lex_order(@var{Vs)})
+@item lex_order(@var{Vs})
 All elements must be ordered.
 
 @end table
@@ -2348,9 +2348,9 @@ natural exponentiation of a number, matrix or list
 @end table
 
 @item foreach(@var{Sequence}, @var{Goal})
-@findex foreach/2
-@snindex foreach/2
-@cnindex foreach/2
+@findex foreach_matrix/2
+@snindex foreach_matrix/2
+@cnindex foreach_matrix/2
 Deterministic iterator. The ranges are given by @var{Sequence} that is
 either @code{@var{I} in @var{M}..@var{N}}, or of the form 
 @code{[@var{I},@var{J}] ins @var{M}..@var{N}}, or a list of the above conditions. 
@@ -2600,9 +2600,9 @@ Matrix elements with same  first index.
 and @var{Matrix2}. Currently, only addition (@code{+}) is supported.
 
 @item matrix_op_to_all(+@var{Matrix1},+@var{Op},+@var{Operand},-@var{Result})
-@findex matrix_op/4
-@snindex matrix_op/4
-@cnindex matrix_op/4
+@findex matrix_op_to_all/4
+@snindex matrix_op_to_all/4
+@cnindex matrix_op_to_all/4
 
 @var{Result} is the result of applying @var{Op} to all elements of
 @var{Matrix1}, with @var{Operand} as the second argument. Currently,
@@ -3842,7 +3842,8 @@ The file mylib.pl can be loaded as a normal Prolog file and provides the predica
 @findex use_foreign_library/2
 @snindex use_foreign_library/2
 @cnindex use_foreign_library/2
-    Load and install a foreign library as load_foreign_library/1,2 and
+    Load and install a foreign library as @code{load_foreign_library/1}
+    and @code{load_foreign_library/2} and
     register the installation using @code{initialization/2} with the option
     now. This is similar to using:
 
@@ -5993,14 +5994,7 @@ Subnodes of SWI-Prolog
 @node Extensions,Debugging,SWI-Prolog Global Variables,Top 
 @chapter Extensions to Prolog
 
-YAP includes several extensions that are not enabled by
-default, but that can be used to extend the functionality of the
-system. These options can be set at compilation time by enabling the
-related compilation flag, as explained in the @code{Makefile}
-
 @menu
-Extensions to Traditional Prolog
-
 * Rational Trees:: Working with Rational Trees
 * Co-routining:: Changing the Execution of Goals
 * Attributed Variables:: Using attributed Variables
@@ -6013,6 +6007,9 @@ Extensions to Traditional Prolog
 * Low Level Profiling:: Profiling Abstract Machine Instructions
 * Low Level Tracing:: Tracing at Abstract Machine Level
 @end menu
+
+YAP includes a number of extensions over the original Prolog
+language. Next, we discuss support to the most important ones.
 
 @node Rational Trees, Co-routining, , Extensions
 @section Rational Trees
@@ -6468,7 +6465,7 @@ name. Attribute names are defined with the following declaration:
 @findex attribute/1 (declaration)
 
 @example
-:- attribute @var{AttributeSpec}, ..., @var{AttributeSpec}.
+:- attribute AttributeSpec, ..., AttributeSpec.
 @end example
 
 @noindent
@@ -8827,15 +8824,13 @@ loop(Env) :-
 
 @end itemize
 
-@section Deterministic Programs
+@c @section Deterministic Programs
 
-@section Non-Deterministic Programs
+@c @section Non-Deterministic Programs
 
-@section Data-Base Operations
+@c @section Data-Base Operations
 
 @section Indexing
-
-@section Profiling
 
 The indexation mechanism restricts the set of clauses to be tried in a
 procedure by using information about the status of the instantiated
@@ -8991,7 +8986,7 @@ C-code described below.
 
 @example
 @cartouche
-#include "YAP/YAPInterface.h"
+#include "YAP/YapInterface.h"
 
 static int my_process_id(void) 
 @{
@@ -9089,7 +9084,7 @@ The role of the procedure @code{init_my_predicates} is to make known to
 YAP, by calling @code{YAP_UserCPredicate}, the predicates being
 defined in the file.  This is in fact why, in the example above,
 @code{init_my_predicates} was passed as the third argument to
-@code{load_foreign_files}.
+@code{load_foreign_files/3}.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
 
@@ -9139,26 +9134,35 @@ follows
 
 @findex YAP_IsVarTerm (C-Interface function)
 The primitive
-@example
-     YAP_Bool YAP_IsVarTerm(YAP_Term @var{t})
-@end example
+@table @code
+@item     YAP_Bool YAP_IsVarTerm(YAP_Term @var{t})
 @noindent
 @findex YAP_IsNonVarTerm (C-Interface function)
 returns true iff its argument is an uninstantiated variable. Conversely the
 primitive
-@example
-      YAP_Bool YAP_NonVarTerm(YAP_Term @var{t})
-@end example
-@noindent
+ @item     YAP_Bool YAP_NonVarTerm(YAP_Term @var{t})
 returns true iff its argument is not a variable.
+@end table 
+@noindent 
 
 
 The user can create a new uninstantiated variable using the primitive
-@example
-      YAP_Term  YAP_MkVarTerm()
-@end example
+@table @code
+ @item     YAP_Term  YAP_MkVarTerm()
+@end table
 
 
+The following primitives can be used to discriminate among the different types
+of non-variable terms:
+@table @code
+@item      YAP_Bool YAP_IsIntTerm(YAP_Term @var{t})
+@item      YAP_Bool YAP_IsFloatTerm(YAP_Term @var{t})
+@item      YAP_Bool YAP_IsDbRefTerm(YAP_Term @var{t})
+@item      YAP_Bool YAP_IsAtomTerm(YAP_Term @var{t})
+@item      YAP_Bool YAP_IsPairTerm(YAP_Term @var{t})
+@item     YAP_Bool YAP_IsApplTerm(YAP_Term @var{t})
+@item      YAP_Bool YAP_IsCompoundTerm(YAP_Term @var{t})
+@end table
 @findex YAP_IsIntTerm (C-Interface function)
 @findex YAP_IsFloatTerm (C-Interface function)
 @findex YAP_IsDBRefTerm (C-Interface function)
@@ -9166,22 +9170,11 @@ The user can create a new uninstantiated variable using the primitive
 @findex YAP_IsPairTerm (C-Interface function)
 @findex YAP_IsApplTerm (C-Interface function)
 @findex YAP_IsCompoundTerm (C-Interface function)
-The following primitives can be used to discriminate among the different types
-of non-variable terms:
-@example
-      YAP_Bool YAP_IsIntTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsFloatTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsDbRefTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsAtomTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsPairTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsApplTerm(YAP_Term @var{t})
-      YAP_Bool YAP_IsCompoundTerm(YAP_Term @var{t})
-@end example
 
 The next primitive gives the type of a Prolog term:
-@example
-      YAP_tag_t YAP_TagOfTerm(YAP_Term @var{t})
-@end example
+@table @code
+@item      YAP_tag_t YAP_TagOfTerm(YAP_Term @var{t})
+@end table
 The set of possible values is an enumerated type, with the following values:
 @table @i
 @item  @code{YAP_TAG_ATT}: an attributed variable
@@ -9207,10 +9200,10 @@ terms. All the above primitives ensure that their result is
 @findex YAP_IntOfTerm (C-Interface function)
 The following primitives are provided for creating an integer term from an
 integer and to access the value of an integer term.
-@example
-      YAP_Term YAP_MkIntTerm(YAP_Int  @var{i})
-      YAP_Int  YAP_IntOfTerm(YAP_Term @var{t})
-@end example
+@table @code
+@item      YAP_Term YAP_MkIntTerm(YAP_Int  @var{i})
+ @item     YAP_Int  YAP_IntOfTerm(YAP_Term @var{t})
+@end table
 @noindent
 where @code{YAP_Int} is a typedef for the C integer type appropriate for
 the machine or compiler in question (normally a long integer). The size
@@ -9221,10 +9214,10 @@ on 64 bit machines.
 @findex YAP_MkFloatTerm (C-Interface function)
 @findex YAP_FloatOfTerm (C-Interface function)
 The two following primitives play a similar role for floating-point terms
-@example
-      YAP_Term YAP_MkFloatTerm(YAP_flt @var{double})
-      YAP_flt  YAP_FloatOfTerm(YAP_Term @var{t})
-@end example
+@table @code
+@item      YAP_Term YAP_MkFloatTerm(YAP_flt @var{double})
+ @item     YAP_flt  YAP_FloatOfTerm(YAP_Term @var{t})
+@end table
 @noindent
 where @code{flt} is a typedef for the appropriate C floating point type,
 nowadays a @code{double}
@@ -9235,11 +9228,11 @@ nowadays a @code{double}
 The following primitives are provided for verifying whether a term is
 a big int, creating a term from a big integer and to access the value
 of a big int from a term.
-@example
-      YAP_Bool YAP_IsBigNumTerm(YAP_Term @var{t})
-      YAP_Term YAP_MkBigNumTerm(void  *@var{b})
-      void *YAP_BigNumOfTerm(YAP_Term @var{t}, void *@var{b})
-@end example
+@table @code
+@item      YAP_Bool YAP_IsBigNumTerm(YAP_Term @var{t})
+@item      YAP_Term YAP_MkBigNumTerm(void  *@var{b})
+@item      void *YAP_BigNumOfTerm(YAP_Term @var{t}, void *@var{b})
+@end table
 @noindent
 YAP must support bignum for the configuration you are using (check the
 YAP configuration and setup). For now, YAP only supports the GNU GMP
@@ -9272,21 +9265,21 @@ references.
 A special typedef @code{YAP_Atom} is provided to describe Prolog
 @i{atoms} (symbolic constants). The two following primitives can be used
 to manipulate atom terms
-@example
-      YAP_Term YAP_MkAtomTerm(YAP_Atom at)
-      YAP_Atom YAP_AtomOfTerm(YAP_Term @var{t})
-@end example
+@table @code
+ @item     YAP_Term YAP_MkAtomTerm(YAP_Atom at)
+ @item     YAP_Atom YAP_AtomOfTerm(YAP_Term @var{t})
+@end table
 @noindent
 @findex YAP_LookupAtom (C-Interface function)
 @findex YAP_FullLookupAtom (C-Interface function)
 @findex YAP_AtomName (C-Interface function)
 The following primitives are available for associating atoms with their
 names 
-@example
-      YAP_Atom  YAP_LookupAtom(char * @var{s})
-      YAP_Atom  YAP_FullLookupAtom(char * @var{s})
-      char     *YAP_AtomName(YAP_Atom @var{t})
-@end example
+@table @code
+ @item     YAP_Atom  YAP_LookupAtom(char * @var{s})
+ @item     YAP_Atom  YAP_FullLookupAtom(char * @var{s})
+ @item     char     *YAP_AtomName(YAP_Atom @var{t})
+@end table
 The function @code{YAP_LookupAtom} looks up an atom in the standard hash
 table. The function @code{YAP_FullLookupAtom} will also search if the
 atom had been "hidden": this is useful for system maintenance from C
@@ -9299,26 +9292,26 @@ for the atom.
 @findex YAP_WideAtomName (C-Interface function)
 The following primitives handle constructing atoms from strings with
 wide characters, and vice-versa:
-@example
-      YAP_Atom  YAP_LookupWideAtom(wchar_t * @var{s})
-      wchar_t  *YAP_WideAtomName(YAP_Atom @var{t})
-@end example
+@table @code
+  @item    YAP_Atom  YAP_LookupWideAtom(wchar_t * @var{s})
+   @item   wchar_t  *YAP_WideAtomName(YAP_Atom @var{t})
+@end table
 
 @noindent
 @findex YAP_IsIsWideAtom (C-Interface function)
 The following primitive tells whether an atom needs wide atoms in its
 representation:
-@example
-      int  YAP_IsWideAtom(YAP_Atom @var{t})
-@end example
+@table @code
+@item      int  YAP_IsWideAtom(YAP_Atom @var{t})
+@end table
 
 @noindent
 @findex YAP_AtomNameLength (C-Interface function)
 The following primitive can be used to obtain the size of an atom in a
 representation-independent way: 
-@example
-      int      YAP_AtomNameLength(YAP_Atom @var{t})
-@end example
+@table @code
+ @item     int      YAP_AtomNameLength(YAP_Atom @var{t})
+@end table
 
 @findex YAP_AtomGetHold  (C-Interface function)
 @findex YAP_AtomReleaseHold  (C-Interface function)
@@ -9328,12 +9321,12 @@ garbage collector. They allow the user to guarantee that an atom is not
 to be garbage collected (this is important if the atom is hold
 externally to the Prolog engine, allow it to be collected, and call a
 hook on garbage collection:
-@example
-      int  YAP_AtomGetHold(YAP_Atom @var{at})
-      int  YAP_AtomReleaseHold(YAP_Atom @var{at})
-      int  YAP_AGCRegisterHook(YAP_AGC_hook @var{f})
-      YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
-@end example
+@table @code
+  @item    int  YAP_AtomGetHold(YAP_Atom @var{at})
+@item      int  YAP_AtomReleaseHold(YAP_Atom @var{at})
+ @item     int  YAP_AGCRegisterHook(YAP_AGC_hook @var{f})
+ @item     YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
+@end table
 
 @findex YAP_MkPairTerm (C-Interface function)
 @findex YAP_MkNewPairTerm (C-Interface function)
@@ -9344,13 +9337,13 @@ A @i{pair} is a Prolog term which consists of a tuple of two Prolog
 terms designated as the @i{head} and the @i{tail} of the term. Pairs are
 most often used to build @emph{lists}. The following primitives can be
 used to manipulate pairs:
-@example
-      YAP_Term  YAP_MkPairTerm(YAP_Term @var{Head}, YAP_Term @var{Tail})
-      YAP_Term  YAP_MkNewPairTerm(void)
-      YAP_Term  YAP_HeadOfTerm(YAP_Term @var{t})
-      YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
-      YAP_Term  YAP_MkListFromTerms(YAP_Term *@var{pt}, YAP_Int *@var{sz})
-@end example
+@table @code
+ @item     YAP_Term  YAP_MkPairTerm(YAP_Term @var{Head}, YAP_Term @var{Tail})
+ @item     YAP_Term  YAP_MkNewPairTerm(void)
+  @item    YAP_Term  YAP_HeadOfTerm(YAP_Term @var{t})
+ @item     YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
+  @item    YAP_Term  YAP_MkListFromTerms(YAP_Term *@var{pt}, YAP_Int *@var{sz})
+@end table
 One can construct a new pair from two terms, or one can just build a
 pair whose head and tail are new unbound variables. Finally, one can
 fetch the head or the tail.
@@ -9371,13 +9364,13 @@ length equal to the @i{arity} of the functor. A functor, described in C by
 the typedef @code{Functor}, consists of an atom and of an integer.
 The following primitives were designed to manipulate compound terms and 
 functors
-@example
-      YAP_Term     YAP_MkApplTerm(YAP_Functor @var{f}, unsigned long int @var{n}, YAP_Term[] @var{args})
-      YAP_Term     YAP_MkNewApplTerm(YAP_Functor @var{f}, int @var{n})
-      YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term @var{ts})
-      YAP_Term    *YAP_ArgsOfTerm(YAP_Term @var{ts})
-      YAP_Functor  YAP_FunctorOfTerm(YAP_Term @var{ts})
-@end example
+@table @code
+@item      YAP_Term     YAP_MkApplTerm(YAP_Functor @var{f}, unsigned long int @var{n}, YAP_Term[] @var{args})
+@item      YAP_Term     YAP_MkNewApplTerm(YAP_Functor @var{f}, int @var{n})
+@item      YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term @var{ts})
+ @item     YAP_Term    *YAP_ArgsOfTerm(YAP_Term @var{ts})
+ @item     YAP_Functor  YAP_FunctorOfTerm(YAP_Term @var{ts})
+@end table
 @noindent
 The @code{YAP_MkApplTerm} function constructs a new term, with functor
 @var{f} (of arity @var{n}), and using an array @var{args} of @var{n}
@@ -9399,20 +9392,20 @@ then allow one to construct functors, and to obtain their name and arity.
 @findex YAP_MkFunctor (C-Interface function)
 @findex YAP_NameOfFunctor (C-Interface function)
 @findex YAP_ArityOfFunctor (C-Interface function)
-@example
-      YAP_Functor  YAP_MkFunctor(YAP_Atom @var{a},unsigned long int @var{arity})
-      YAP_Atom     YAP_NameOfFunctor(YAP_Functor @var{f})
-      YAP_Int      YAP_ArityOfFunctor(YAP_Functor @var{f})
-@end example
+@table @code
+ @item     YAP_Functor  YAP_MkFunctor(YAP_Atom @var{a},unsigned long int @var{arity})
+ @item     YAP_Atom     YAP_NameOfFunctor(YAP_Functor @var{f})
+  @item    YAP_Int      YAP_ArityOfFunctor(YAP_Functor @var{f})
+@end table
 @noindent
 
 Note that the functor is essentially a pair formed by an atom, and
 arity.
 
 Constructing terms in the stack may lead to overflow. The routine
-@example
-      int          YAP_RequiresExtraStack(size_t @var{min})
-@end example
+@table @code
+ @item     int          YAP_RequiresExtraStack(size_t @var{min})
+@end table
 verifies whether you have at least @var{min} cells free in the stack,
 and it returns true if it has to ensure enough memory by calling the
 garbage collector and or stack shifter. The routine returns false if no
@@ -9430,9 +9423,9 @@ code. Slots can also be used if there is small state.
 @findex YAP_Unify (C-Interface function)
 YAP provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
-@example
-      Int      YAP_Unify(YAP_Term @var{a}, YAP_Term @var{b})
-@end example
+@table @code
+ @item     Int      YAP_Unify(YAP_Term @var{a}, YAP_Term @var{b})
+@end table
 @noindent
 The routine attempts to unify the terms @var{a} and
 @var{b} returning @code{TRUE} if the unification succeeds and @code{FALSE}
@@ -9444,9 +9437,9 @@ otherwise.
 @findex YAP_StringToBuffer (C-Interface function)
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
-@example
-      int YAP_StringToBuffer(YAP_Term @var{String}, char *@var{buf}, unsigned int @var{bufsize})
-@end example
+@table @code
+ @item     int YAP_StringToBuffer(YAP_Term @var{String}, char *@var{buf}, unsigned int @var{bufsize})
+@end table
 @noindent
 The routine copies the list of character codes @var{String} to a
 previously allocated buffer @var{buf}. The string including a
@@ -9471,16 +9464,16 @@ is, to copy a from a buffer to a list of character codes, to a
 difference list,  or to a list of
 character atoms. The routines work either on strings of characters or
 strings of wide characters:
-@example
-      YAP_Term YAP_BufferToString(char *@var{buf})
-      YAP_Term YAP_NBufferToString(char *@var{buf}, size_t @var{len})
-      YAP_Term YAP_WideBufferToString(wchar_t *@var{buf})
-      YAP_Term YAP_NWideBufferToString(wchar_t *@var{buf}, size_t @var{len})
-      YAP_Term YAP_BufferToAtomList(char *@var{buf})
-      YAP_Term YAP_NBufferToAtomList(char *@var{buf}, size_t @var{len})
-      YAP_Term YAP_WideBufferToAtomList(wchar_t *@var{buf})
-      YAP_Term YAP_NWideBufferToAtomList(wchar_t *@var{buf}, size_t @var{len})
-@end example
+@table @code
+@item      YAP_Term YAP_BufferToString(char *@var{buf})
+ @item     YAP_Term YAP_NBufferToString(char *@var{buf}, size_t @var{len})
+@item      YAP_Term YAP_WideBufferToString(wchar_t *@var{buf})
+@item      YAP_Term YAP_NWideBufferToString(wchar_t *@var{buf}, size_t @var{len})
+@item      YAP_Term YAP_BufferToAtomList(char *@var{buf})
+@item      YAP_Term YAP_NBufferToAtomList(char *@var{buf}, size_t @var{len})
+@item      YAP_Term YAP_WideBufferToAtomList(wchar_t *@var{buf})
+@item      YAP_Term YAP_NWideBufferToAtomList(wchar_t *@var{buf}, size_t @var{len})
+@end table
 @noindent
 Users are advised to use the @var{N} version of the routines. Otherwise,
 the user-provided string must include a terminating null character.
@@ -9488,9 +9481,9 @@ the user-provided string must include a terminating null character.
 @findex YAP_ReadBuffer (C-Interface function)
 The C-interface function calls the parser on a sequence of characters
 stored at @var{buf} and returns the resulting term.
-@example
-      YAP_Term YAP_ReadBuffer(char *@var{buf},YAP_Term *@var{error})
-@end example
+@table @code
+ @item     YAP_Term YAP_ReadBuffer(char *@var{buf},YAP_Term *@var{error})
+@end table
 @noindent
 The user-provided string must include a terminating null
 character. Syntax errors will cause returning @code{FALSE} and binding
@@ -9499,10 +9492,10 @@ character. Syntax errors will cause returning @code{FALSE} and binding
 @findex YAP_IntsToList (C-Interface function)
 @findex YAP_FloatsToList (C-Interface function)
 These C-interface functions are useful when converting chunks of data to Prolog:
-@example
-      YAP_Term YAP_FloatsToList(double *@var{buf},size_t @var{sz})
-      YAP_Term YAP_IntsToList(YAP_Int *@var{buf},size_t @var{sz})
-@end example
+@table @code
+@item      YAP_Term YAP_FloatsToList(double *@var{buf},size_t @var{sz})
+@item      YAP_Term YAP_IntsToList(YAP_Int *@var{buf},size_t @var{sz})
+@end table
 @noindent
 Notice that they are unsafe, and may call the garbage collector. They
 return 0 on error.
@@ -9510,10 +9503,10 @@ return 0 on error.
 @findex YAP_ListToInts (C-Interface function)
 @findex YAP_ToListFloats (C-Interface function)
 These C-interface functions are useful when converting Prolog lists to arrays:
-@example
-      YAP_Int YAP_IntsToList(YAP_Term t, YAP_Int *@var{buf},size_t @var{sz})
-      YAP_Int YAP_FloatsToList(YAP_Term t, double *@var{buf},size_t @var{sz})
-@end example
+@table @code
+@item      YAP_Int YAP_IntsToList(YAP_Term t, YAP_Int *@var{buf},size_t @var{sz})
+@item      YAP_Int YAP_FloatsToList(YAP_Term t, double *@var{buf},size_t @var{sz})
+@end table
 @noindent
 They return the number of integers scanned, up to a maximum of @t{sz},
 and @t{-1} on error.
@@ -9523,9 +9516,9 @@ and @t{-1} on error.
 
 @findex YAP_AllocSpaceFromYAP (C-Interface function)
 The next routine can be used to ask space from the Prolog data-base:
-@example
-      void      *YAP_AllocSpaceFromYAP(int @var{size})
-@end example
+@table @code
+ @item     void      *YAP_AllocSpaceFromYAP(int @var{size})
+@end table
 @noindent
 The routine returns a pointer to a buffer allocated from the code area,
 or @code{NULL} if sufficient space was not available.
@@ -9533,9 +9526,9 @@ or @code{NULL} if sufficient space was not available.
 @findex YAP_FreeSpaceFromYAP (C-Interface function)
 The space allocated with @code{YAP_AllocSpaceFromYAP} can be released
 back to YAP by using:
-@example
-      void      YAP_FreeSpaceFromYAP(void *@var{buf})
-@end example
+@table @code
+ @item     void      YAP_FreeSpaceFromYAP(void *@var{buf})
+@end table
 @noindent
 The routine releases a buffer allocated from the code area. The system
 may crash if @code{buf} is not a valid pointer to a buffer in the code
@@ -9548,9 +9541,9 @@ area.
 The C-Interface also provides the C-application with a measure of
 control over the YAP Input/Output system. The first routine allows one
 to find a file number given a current stream:
-@example
-      int      YAP_StreamToFileNo(YAP_Term @var{stream})
-@end example
+@table @code
+ @item     int      YAP_StreamToFileNo(YAP_Term @var{stream})
+@end table
 @noindent
 This function gives the file descriptor for a currently available
 stream. Note that null streams and in memory streams do not have
@@ -9561,9 +9554,9 @@ stale.
 
 @findex YAP_CloseAllOpenStreams (C-Interface function)
 A second routine that is sometimes useful is:
-@example
-      void      YAP_CloseAllOpenStreams(void)
-@end example
+@table @code
+@item      void      YAP_CloseAllOpenStreams(void)
+@end table
 @noindent
 This routine closes the YAP Input/Output system except for the first
 three streams, that are always associated with the three standard Unix
@@ -9571,9 +9564,9 @@ streams. It is most useful if you are doing @code{fork()}.
 
 @findex YAP_FlushAllStreams (C-Interface function)
 Last, one may sometimes need to flush all streams:
-@example
-      void      YAP_CloseAllOpenStreams(void)
-@end example
+@table @code
+ @item     void      YAP_CloseAllOpenStreams(void)
+@end table
 @noindent
 It is also useful before you do a @code{fork()}, or otherwise you may
 have trouble with unflushed output.
@@ -9582,9 +9575,9 @@ have trouble with unflushed output.
 The next routine allows a currently open file to become a stream. The
 routine receives as arguments a file descriptor, the true file name as a
 string, an atom with the user name, and a set of flags:
-@example
-      void      YAP_OpenStream(void *@var{FD}, char *@var{name}, YAP_Term @var{t}, int @var{flags})
-@end example
+@table @code
+  @item    void      YAP_OpenStream(void *@var{FD}, char *@var{name}, YAP_Term @var{t}, int @var{flags})
+@end table
 @noindent
 The available flags are @code{YAP_INPUT_STREAM},
 @code{YAP_OUTPUT_STREAM}, @code{YAP_APPEND_STREAM},
@@ -9603,18 +9596,18 @@ functions that are useful.
 
 @findex YAP_Record (C-Interface function)
 The first provides a way to insert a term into the data-base
-@example
-      void      *YAP_Record(YAP_Term @var{t})
-@end example
+@table @code
+@item      void      *YAP_Record(YAP_Term @var{t})
+@end table
 @noindent
 This function returns a pointer to a copy of the term in the database
 (or to @t{NULL} if the operation fails.
 
 @findex YAP_Recorded (C-Interface function)
 The next functions provides a way to recover the term from the data-base:
-@example
-      YAP_Term      YAP_Recorded(void *@var{handle})
-@end example
+@table @code
+ @item     YAP_Term      YAP_Recorded(void *@var{handle})
+@end table
 @noindent
 Notice that the semantics are the same as for @code{recorded/3}: this
 function creates a new copy of the term in the stack, with fresh
@@ -9622,9 +9615,9 @@ variables. The function returns @t{0L} if it cannot create a new term.
 
 @findex YAP_Erase (C-Interface function)
 Last, the next function allows one to recover space:
-@example
-      int      YAP_Erase(void *@var{handle})
-@end example
+@table @code
+  @item    int      YAP_Erase(void *@var{handle})
+@end table
 @noindent
 Notice that any accesses using @var{handle} after this operation may
 lead to a crash.
@@ -9634,47 +9627,47 @@ The following functions are often required to compare terms.
 @findex YAP_ExactlyEqual (C-Interface function)
 Succeed if two terms are actually the same term, as in
 @code{==/2}:
-@example
-      int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
-@end example
+@table @code
+@item      int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
+@end table
 @noindent
 
 The next function succeeds if two terms are variant terms, and returns
 0 otherwise, as
 @code{=@=/2}:
-@example
-      int      YAP_Variant(YAP_Term t1, YAP_Term t2)
-@end example
+@table @code
+ @item     int      YAP_Variant(YAP_Term t1, YAP_Term t2)
+@end table
 @noindent
 
 The next functions deal with numbering variables in terms:
-@example
-      int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)
-      YAP_Term YAP_UnNumberVars(YAP_Term t)
-      int      YAP_IsNumberedVariable(YAP_Term t)
-@end example
+@table @code
+ @item     int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)
+ @item     YAP_Term YAP_UnNumberVars(YAP_Term t)
+ @item     int      YAP_IsNumberedVariable(YAP_Term t)
+@end table
 @noindent
 
 The next one returns the length of a well-formed list @var{t}, or
 @code{-1} otherwise:
-@example
-      Int      YAP_ListLength(YAP_Term t)
-@end example
+@table @code
+@item      Int      YAP_ListLength(YAP_Term t)
+@end table
 @noindent
 
 
 Last, this function succeeds if two terms are unifiable:
 @code{=@=/2}:
-@example
-      int      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
-@end example
+@table @code
+ @item     int      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
+@end table
 @noindent
 
 The second function computes a hash function for a term, as in
 @code{term_hash/4}.
-@example
-     YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables));
-@end example
+@table @code
+ @item    YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables));
+@end table
 @noindent
 The first three arguments follow @code{term_has/4}. The last argument
 indicates what to do if we find a variable: if @code{0} fail, otherwise
@@ -9688,18 +9681,18 @@ There are several ways to call Prolog code from C-code. By default, the
 @code{YAP_RunGoal()} should be used for this task. It assumes the engine
 has been initialised before:
 
-@example
-  YAP_Int YAP_RunGoal(YAP_Term Goal)
-@end example
+@table @code
+@item  YAP_Int YAP_RunGoal(YAP_Term Goal)
+@end table
 Execute query @var{Goal} and return 1 if the query succeeds, and 0
 otherwise. The predicate returns 0 if failure, otherwise it will return
 an @var{YAP_Term}. 
 
 Quite often, one wants to run a query once. In this case you should use
 @var{Goal}:
-@example
-  YAP_Int YAP_RunGoalOnce(YAP_Term Goal)
-@end example
+@table @code
+ @item YAP_Int YAP_RunGoalOnce(YAP_Term Goal)
+@end table
 The  @code{YAP_RunGoal()} function makes sure to recover stack space at
 the end of execution.
 
@@ -9867,9 +9860,9 @@ runall(YAP_Term g)
 YAP allows calling a @strong{new} Prolog interpreter from @code{C}. One
 way is to first construct a goal @code{G}, and then it is sufficient to
 perform:
-@example
-      YAP_Bool      YAP_CallProlog(YAP_Term @var{G})
-@end example
+@table @code
+ @item     YAP_Bool      YAP_CallProlog(YAP_Term @var{G})
+@end table
 @noindent
 the result will be @code{FALSE}, if the goal failed, or @code{TRUE}, if
 the goal succeeded. In this case, the variables in @var{G} will store
@@ -9885,21 +9878,21 @@ have moved the terms
 
 YAP allows one to create a new module from C-code. To create the new
 code it is sufficient to call:
-@example
-      YAP_Module      YAP_CreateModule(YAP_Atom @var{ModuleName})
-@end example
+@table @code
+  @item    YAP_Module      YAP_CreateModule(YAP_Atom @var{ModuleName})
+@end table
 @noindent
 Notice that the new module does not have any predicates associated and
 that it is not the current module. To find the current module, you can call:
-@example
-      YAP_Module      YAP_CurrentModule()
-@end example
+@table @code
+  @item    YAP_Module      YAP_CurrentModule()
+@end table
 
 Given a module, you may want to obtain the corresponding name. This is
 possible by using:
-@example
-      YAP_Term      YAP_ModuleName(YAP_Module mod)
-@end example
+@table @code
+ @item     YAP_Term      YAP_ModuleName(YAP_Module mod)
+@end table
 @noindent
 Notice that this function returns a term, and not an atom. You can
 @code{YAP_AtomOfTerm} to extract the corresponding Prolog atom.
@@ -9974,9 +9967,9 @@ The first kind of predicates should be implemented as a C function with
 no arguments which should return zero if the predicate fails and a
 non-zero value otherwise. The predicate should be declared to
 YAP, in the initialization routine, with a call to
-@example
-      void YAP_UserCPredicate(char *@var{name}, YAP_Bool *@var{fn}(), unsigned long int @var{arity});
-@end example
+@table @code
+ @item     void YAP_UserCPredicate(char *@var{name}, YAP_Bool *@var{fn}(), unsigned long int @var{arity});
+@end table
 @noindent
 where @var{name} is the name of the predicate, @var{fn} is the C function
 implementing the predicate and @var{arity} is its arity.
@@ -10169,9 +10162,9 @@ in this case no code is executed at cut time.
 @section Loading Object Files
 
 The primitive predicate
-@example
-      load_foreign_files(@var{Files},@var{Libs},@var{InitRoutine})
-@end example
+@table @code
+@item     load_foreign_files(@var{Files},@var{Libs},@var{InitRoutine})
+@end table
 @noindent
 should be used, from inside YAP, to load object files produced by the C
 compiler. The argument @var{ObjectFiles} should be a list of atoms
@@ -10196,7 +10189,7 @@ YAP also supports the SWI-Prolog interface to loading foreign code:
     library in MS-Windows). This file is attached to the current process
     and @var{Handle} is unified with a handle to the library. Equivalent to
     @code{open_shared_object(File, [], Handle)}. See also
-    load_foreign_library/[1,2].
+    @code{load_foreign_library/1} and @code{load_foreign_library/2}.
 
     On errors, an exception @code{shared_object}(@var{Action},
     @var{Message}) is raised. @var{Message} is the return value from
@@ -10236,18 +10229,18 @@ YAP also supports the SWI-Prolog interface to loading foreign code:
 @section Saving and Restoring
 
 @comment The primitive predicates @code{save} and @code{restore} will save and restore
-@comment object code loaded with @code{load_foreign_files}. However, the values of
+@comment object code loaded with @code{load_foreign_files/3}. However, the values of
 @comment any non-static data created by the C files loaded will not be saved nor
 @comment restored.
 
 YAP4 currently does not support @code{save} and @code{restore} for object code
-loaded with @code{load_foreign_files}. We plan to support save and restore
+loaded with @code{load_foreign_files/3}. We plan to support save and restore
 in future releases of YAP.
 
 @node YAP4 Notes, , Save&Rest, C-Interface
 @section Changes to the C-Interface in YAP4
 
-YAP4 includes several changes over the previous @code{load_foreign_files}
+YAP4 includes several changes over the previous @code{load_foreign_files/3}
 interface. These changes were required to support the new binary code
 formats, such as ELF used in Solaris2 and Linux.
 @itemize @bullet
@@ -10719,12 +10712,14 @@ to @code{yap} (the default):
 @item The @code{consult/1} predicate in YAP follows C-Prolog
 semantics. That is, it adds clauses to the data base, even for
 preexisting procedures. This is different from @code{consult/1} in
-SICStus Prolog.
+SICStus Prolog or SWI-Prolog.
 
-@cindex update semantics
-@item By default, the data-base in YAP follows "immediate update
-semantics", instead of "logical update semantics", as Quintus Prolog or
-SICStus Prolog do. The difference is depicted in the next example:
+@cindex logical update semantics
+@item 
+By default, the data-base in YAP follows "logical update semantics", as
+Quintus Prolog or SICStus Prolog do.  Previous versions followed
+"immediate update semantics". The difference is depicted in the next
+example:
 
 @example
 :- dynamic a/1.

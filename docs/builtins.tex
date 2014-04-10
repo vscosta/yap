@@ -206,9 +206,9 @@ Note that @code{(->)/2} does not affect the scope of cuts in its
 arguments.
 
 @item  +@var{Condition} *-> +@var{Action} ; +@var{Else}
-@findex ->*/2
-@snindex ->*/2
-@cnindex ->*/2
+@findex *->/2
+@snindex *->/2
+@cnindex *->/2
 This construct implements the so-called @emph{soft-cut}. The control is
     defined as follows: If @var{Condition} succeeds at least once, the
     semantics is the same as (@var{Condition}, @var{Action}). If
@@ -3259,8 +3259,8 @@ whereas @var{PROTOCOL} must be an integer.
 The new socket object is
 accessible through a descriptor bound to the variable @var{SOCKET}.
 
-The current implementation of YAP only accepts one socket
-domain: @code{'AF_INET'}. @c and @code{'AF_UNIX'}. 
+The current implementation of YAP  accepts socket
+domains @code{'AF_INET'} and @code{'AF_UNIX'}. 
 Socket types depend on the
 underlying operating system, but at least the following types are
 supported: @code{'SOCK_STREAM'} and @code{'SOCK_DGRAM'} (untested in 6.3).
@@ -4212,7 +4212,7 @@ clause grammars and  an extension of the well known context-free grammars.
 A grammar rule is of the form:
 
 @example
-@i{ head --> body }
+head --> body
 @end example
 @noindent
 where both @i{head} and @i{body} are sequences of one or more items
@@ -4271,8 +4271,7 @@ preprocess all terms read when consulting a file. If it succeeds:
 If @var{X} is of the form @code{:- G} or @code{?- G}, it is processed as
 a directive.
 @item
-If @var{X} is of the form @code{'$source_location'(<File>,
-<Line>):<Clause>} it is processed as if from @code{File} and line @code{Line}.
+If @var{X} is of the form @code{'$source_location'(@var{File},@var{Line}):@var{Clause}} it is processed as if from @code{File} and line @code{Line}.
 
 @item
 If @var{X} is a list, all terms of the list are asserted or processed
@@ -4979,9 +4978,9 @@ the @var{CallsAndRetries} counter.
 Reset call count counters. All timers are also reset.
 
 @item call_count(?@var{CallsMax}, ?@var{RetriesMax}, ?@var{CallsAndRetriesMax})
-@findex call_count_data/3
-@snindex call_count_data/3
-@cnindex call_count_data/3
+@findex call_count/3
+@snindex call_count/3
+@cnindex call_count/3
 Set call count counter as timers. YAP will generate an exception
 if one of the instantiated call counters decreases to 0. YAP will ignore
 unbound arguments:
@@ -5581,12 +5580,12 @@ source mode is disabled.
 for which YAP was compiled and Operating System information. 
 
 @item  index
-@findex index (yap_flag/2 option)
+@findex index_yap_flag/2
 @* If @code{on} allow indexing (default), if @code{off} disable it, if
 @code{single} allow on first argument only.
 
 @item  index_sub_term_search_depth
-@findex index (yap_flag/2 option)
+@findex index_sub_term_yap_flag/2
 @*
 Maximum bound on searching sub-terms for indexing, if @code{0} (default) no bound.
 
@@ -5644,7 +5643,7 @@ and on whether YAP uses the @code{GMP} multi-precision library. If
 @code{bounded} is false, requests for @code{min_integer} will fail.
 
 @item min_tagged_integer 
-@findex max_tagged_integer (yap_flag/2 option)
+@findex min_tagged_integer (yap_flag/2 option)
 @*
 Read-only flag telling the minimum integer we can store as a single
 word. Depends on machine and Operating System
@@ -5695,7 +5694,7 @@ SWI-Compatible option, determines prompting for alternatives in the Prolog tople
 
 
 @item redefine_warnings
-@findex discontiguous_warnings (yap_flag/2 option)
+@findex redefine_warnings (yap_flag/2 option)
 @*
 If @var{Value} is unbound, tell whether warnings for procedures defined
 in several different files are @code{on} or
@@ -5908,13 +5907,7 @@ YAP is booted with the @code{-q} or @code{-L} flag.
 consulting files. If @code{false} disable printing these messages. It
 is @code{normal} by default except if YAP is booted with the @code{-L}
 flag.
-
-@item  verbose_load
-@findex verbose_load (yap_flag/2 option)
-@* If @code{true} allow printing of informational messages when
-consulting files. If @code{false} disable printing these messages. It
-is @code{normal} by default except if YAP is booted with the @code{-L}
-flag.
+.
 
 @item version
 @findex version (yap_flag/2 option)
@@ -6053,35 +6046,35 @@ following keys are available:
 @table @code
 
 @item directory
-@findex directory (prolog_load_context/2 option)
+@findex directory_prolog_load_context/2 option
 @* 
 Full name for the directory where YAP is currently consulting the
 file.
 
 @item file
-@findex file (prolog_load_context/2 option)
+@findex file_prolog_load_context/2 option
 @*
 Full name for the file currently being consulted. Notice that included
 filed are ignored.
 
 @item module
-@findex module (prolog_load_context/2 option)
+@findex module_prolog_load_context/2 option
 @*
 Current source module.
 
 @item source (prolog_load_context/2 option)
-@findex file (prolog_load_context/2 option)
+@findex file_prolog_load_context/2 option
 @*
 Full name for the file currently being read in, which may be consulted,
 reconsulted, or included.
 
 @item stream
-@findex file (prolog_load_context/2 option)
+@findex stream_prolog_load_context/2 option
 @*
 Stream currently being read in.
 
 @item term_position
-@findex file (prolog_load_context/2 option)
+@findex term_position_prolog_load_context/2 option
 @*
 Stream position at the stream currently being read in. For SWI
 compatibility, it is a term of the form

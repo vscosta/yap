@@ -31,11 +31,8 @@
 
 /**
  *
- *
- * @mainpage Index YAP Main Page
- *
- * These are a few Prolog Built-ins
- *
+ * @defgroup AbsoluteFileName File Name Resolution
+ * 
  * @subsection sub:AbsFileName File Name Resolution in Prolog
 
   Support for file name resolution through absolute_file_name/3 and
@@ -46,7 +43,7 @@
  */
 
 /**
-  @predicate  absolute_file_name(+<var>Name</var>:atom,+<var>Options</var>:list) is nondet
+  @brief  absolute_file_name(+<var>Name</var>:atom,+<var>Options</var>:list) is nondet
 
   Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
@@ -62,8 +59,8 @@ absolute_file_name(File0,File) :-
 
 
 /**
-  @predicate  absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
-  @predicate  absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
+  @brief  absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
+  @brief  absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
 
   <var>Option</var> is a list of options to guide the conversion:
 
@@ -458,7 +455,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$add_file_to_dir'(P0,A,Atoms,NFile) :-
 	atom_concat([P0,A,Atoms],NFile).
 
-/**    @predicate  path(-Directories:list) is det [DEPRECATED]
+/**    @brief  path(-Directories:list) is det [DEPRECATED]
 
  YAP specific procedure that returns a list of user-defined directories 
  in the library search-path.
@@ -470,7 +467,7 @@ path(Path) :- findall(X,'$in_path'(X),Path).
 		( S = ""  -> X = '.' ;
 		  atom_codes(X,S) ).
 
-/**    @predicate  add_to_path(+Directory:atom) is det [DEPRECATED]
+/**    @brief  add_to_path(+Directory:atom) is det [DEPRECATED]
 
 */
 add_to_path(New) :- add_to_path(New,last).
@@ -485,7 +482,7 @@ add_to_path(New,Pos) :-
 '$add_to_path'(New,last) :- !, recordz('$path',New,_).
 '$add_to_path'(New,first) :- recorda('$path',New,_).
 
-/**    @predicate  remove_from_path(+Directory:atom) is det [DEPRECATED]
+/**    @brief  remove_from_path(+Directory:atom) is det [DEPRECATED]
 
 */
 remove_from_path(New) :- '$check_path'(New,Path),
@@ -497,7 +494,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
 
-/**    @predicate  user:library_directory(Directory:atom)
+/**    @brief  user:library_directory(Directory:atom)
 
 */
 
@@ -505,7 +502,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 :- dynamic user:library_directory/1.
 
-/**    @predicate  user:commons_directory(Directory:atom)
+/**    @brief  user:commons_directory(Directory:atom)
 
 */
 
@@ -513,7 +510,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 :- dynamic user:commons_directory/1.
 
-/**    @predicate  user:prolog_file_type(Suffix:atom, Handler:atom)
+/**    @brief  user:prolog_file_type(Suffix:atom, Handler:atom)
 
 */
 
@@ -534,7 +531,7 @@ user:prolog_file_type(A, prolog) :-
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 
-/**    @predicate  user:file_search_path(+Type:atom, -Directory:atom)
+/**    @brief  user:file_search_path(+Type:atom, -Directory:atom)
 
 */
 

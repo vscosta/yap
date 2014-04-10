@@ -10,7 +10,7 @@
 
 :- initialization(main).
 
-:- dynamic val/2, item/2.
+:- dynamic val/2, item/2, last_node/2.
 
 get_arg( Inp, Out ) :-
 	unix( argv( [Inp, Out] ) ), !.
@@ -332,7 +332,7 @@ process("@chapter", _Line, Rest, NewLine, _Pos ) :- !,
 	jmp_blanks( Rest, Firs ),
 	run( Title, Firs ),
 	nb_setval( level, 1 ),
-	from_word(Title, Id, _),
+	title_from_words(Firs, Id, _Pos),
 	format(string(NewLine), '@page ~s ~s', [Id,Title]).
 %	( format( string(NewLine), '~s', [Title] ) ; NewLine = "======" ).
 process("@cindex", _Line, _Rest,  no , _Pos) :- !.
@@ -365,7 +365,13 @@ process("@itemize", _Line, Rest, NewLine  , _Pos) :- !,
 	list( "@itemize", First, NewLine).
 process("@menu", _Line, _Rest, "" , _Pos) :- !,
 	push(skip, "menu" ).
-process("@node", Line, _Rest, NewLine, _Pos ) :- !,
+process("@node", Line, Rest, NewLine, Pos ) :- !,
+	jmp_blanks( Rest, First ),
+        string_codes( First, S ),
+	argument(AL, 0', , 0', , S, _), 
+	string_codes(SF, AL),
+	retractall(last_node(_,_)),
+	assert( last_node( SF, Pos ) ),
 	gen_blank( Line, NewLine ).
 process("@page", _Line, _Rest, "", _Pos ) :- !.
 process("@contents", _Line, _Rest, "" , _Pos) :- !.
@@ -375,12 +381,12 @@ process("@saindex", _Line, Rest, NewLine, _Pos ) :- !,
 	get_second( Rest, NewLine ).
 process("@snindex", _Line, _Rest, "", _Pos ) :- !.
 process("@syindex", _Line, _Rest, "" , _Pos) :- !.
-process("@section", _Line, Rest, NewLine, _Pos ) :- !,
+process("@section", _Line, Rest, NewLine, Pos ) :- !,
 	jmp_blanks( Rest, Title ),
 	run( NewTitle, Title ),
 	nb_setval( level, 2 ),
 %	format(string(NewLine), '# ~s #', [NewTitle]).
-	from_word(NewTitle, Id, _),
+	title_from_words(NewTitle, Id, Pos),
 	format(string(NewLine), '@section ~s ~s', [Id,NewTitle]).
 %	format(string(NewLine), '# ~s #', [NewTitle]).
 process("@appendix", _Line, Rest, NewLine, _Pos ) :- !,
@@ -391,7 +397,7 @@ process("@subsection", _Line, Rest, NewLine, _Pos ) :- !,
 	jmp_blanks( Rest, Title ),
 	run( NewTitle, Title ),
 	nb_setval( level, 3 ),
-	from_word(NewTitle, Id, _),
+	title_from_words(NewTitle, Id, _Pos),
 	format(string(NewLine), '@subsection ~s ~s', [Id,NewTitle]).
 %	format(string(NewLine), '## ~s ##', [NewTitle]).
 process("@unnumberedsubsubsec", _Line, Rest, NewLine, _Pos ) :- !,
@@ -401,7 +407,7 @@ process("@subsubsection", _Line, Rest, NewLine, _Pos ) :- !,
  	nb_setval( level, 4 ),
 	jmp_blanks( Rest, Title ),
 	run( NewTitle, Title ),
-	from_word(NewTitle, Id, _),
+	title_from_words(NewTitle, Id, _Pos),
 	format(string(NewLine), '@subsubsection ~s ~s', [Id,NewTitle]).
 %	format(string(NewLine), '### ~s ###', [NewTitle]).
 process("@set", _Line, Rest, NewLine , _Pos) :- !,
@@ -426,7 +432,13 @@ process("@setfilename", Line, _Rest, NewLine, _Pos ) :- !,
 process("@settitle", _Line, Rest, NewLine , _Pos) :- !,
 	jmp_blanks( Rest, Title ),
 	( format(string(NewLine), '~s                         {#mainpage}', [Title]) ; NewLine = "=================="; NewLine = "" ;
-	  NewLine = "[TOC]" ).
+	  NewLine = "";
+	  NewLine = "[TOC]";
+	  NewLine = "";
+NewLine = "@secreflist" ;
+	  NewLine = "";
+NewLine = "@endsecreflist" 
+).
 process("@subtitle", _Line, _Rest, "", _Pos ) :- !.
 process("@include", _Line, _Rest, "", _Pos ) :- !.
 process("@table", _Line, Rest, NewLine , _Pos) :- !,
@@ -510,7 +522,15 @@ jmp_blanks(SpacesNewFile, NewString) :-
 	  NonBlank is NonBlank1 - 1,
 	  sub_string(SpacesNewFile, NonBlank, _, 0, NewString), !.
 
-from_word( Line, Id, _) :-
+title_from_words(_Title, Id, F:Pos) :-
+	last_node( Lab, F:Pos1),
+	Pos1 < Pos,
+	Pos < Pos1+3, !,
+	from_word( Lab, Id ).
+title_from_words(Title, Id, _Pos) :-
+	from_word( Title, Id ).
+
+from_word( Line, Id ) :-
 	 jmp_blanks( Line, Line2 ),
 	 string_codes( Line2, C0 ),
 	 simplify( C1, C0, []), 
@@ -540,7 +560,9 @@ simplify( [0'd,0'O|L]) --> ".", !,
 	  simplify(L).
 simplify( [0'd,0'Q|L]) --> "\"", !,
 	  simplify(L).
-simplify( [0'e,0'E|L]) --> "!", !,
+simplify( [0'e,0'E|L]) --> "&", !,
+	  simplify(L).
+simplify( [0'e,0'X|L]) --> "!", !,
 	  simplify(L).
 simplify( [0'g,0'G|L]) --> ">", !,
 	  simplify(L).
@@ -550,7 +572,9 @@ simplify( [0'm,0'M|L]) --> ";", !,
 	  simplify(L).
 simplify( [0'q,0'Q|L]) --> "=", !,
 	  simplify(L).
-simplify( [0's,0'L|L]) --> "/", !,
+simplify( [0'q,0'U|L]) --> "?", !,
+	  simplify(L).
+simplify( [0'_|L]) --> "/", !,
 	  simplify(L).
 simplify( [0's,0'S|L]) --> "<", !,
 	  simplify(L).
@@ -570,7 +594,7 @@ simplify( [C|L]) --> [C], { C >= "0", C =< "9"}, !,
 	  simplify(L).
 simplify( [C|L]) --> [C], { C >= "a", C =< "z"}, !,
 	  simplify(L).
-simplify( [CN|L]) --> [C], { C >= "A", C =< "Z"}, !, {CN is C+"a"-"A"},
+simplify( [C|L]) --> [C], { C >= "A", C =< "Z"}, !, % {CN is C+"a"-"A"},
 	  simplify(L).
 simplify( L) --> [_], !,
 	  simplify(L).
@@ -678,6 +702,11 @@ run( L) --> "@env{", !, %'
 	{  run(AL1, AL),
 	   format(codes(L, R), '`~s`' , [AL1] )  }, %'
 	run(R).
+run( L) --> "@key{", !, %'
+	argument(AL, 0'{, 0'}),
+	{  run(AL1, AL),
+	   format(codes(L, R), '`~s`' , [AL1] )  }, %'
+	run(R).
 run( L) --> "@command{", !, %'
 	argument(AL, 0'{, 0'}),
 	{  run(AL1, AL),
@@ -692,7 +721,7 @@ run( L) --> "@value{", !,
 	run(R).
 run( L) --> "@pxref{", !,
 	argument(AL, 0'{, 0'}),
-	{  format(codes(L, R), '`~s`', [AL] )  }, %'
+	{  format(codes(L, R), '`see ~s`', [AL] )  }, %'
 	run(R).
 run( L) --> "@ref{", !,
 	argument(AL, 0'{, 0'}),
@@ -786,14 +815,15 @@ argument(L, _C0, _C, L, []) :-
 	format(user_error, 'Line ~w :-~n argument ~c~s~c does not close in same line.~n', [Line, _C0, L, _C]).
 
 argument0([], 0, _, C ) --> [C], !.
-argument0([C0|L], I0, C0, C ) --> [C0], !,
-	{ I is I0+1 },
-	argument0( L, I, C0, C).
 %:- start_low_level_trace.
 argument0([C|L], I0, C0, C ) --> [C], !,
 	{ I0 > 0, I is I0-1 },
 	argument0( L, I, C0, C).
 %:- stop_low_level_trace.
+argument0([C0|L], I0, C0, C ) --> [C0], !,
+	{ I is I0+1 },
+	argument0( L, I, C0, C).
+
 % follow escaped characters.
 argument0([0'@,Escaped|L], I, C0, C) -->
 	[0'@],
@@ -820,7 +850,7 @@ md_escaped(0'>). %'
 md_escaped(0'*). %'
 
 cvt_slash( F0, Key  ) :-
-	   from_word( F0, Key, _ ).
+	   from_word( F0, Key ).
 
 :- dynamic i/1.
 
@@ -837,3 +867,5 @@ title(3, subsection).
 title(4, subsubsection).
 title(5, paragraph).
 title(6, paragraph).
+
+%:- spy title_from_words.

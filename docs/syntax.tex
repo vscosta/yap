@@ -467,16 +467,17 @@ Prolog escape sequences while other streams generate an I/O exception.
 
 @cindex BOM
 @cindex Byte Order Mark
-From @ref{Stream Encoding}, you may have got the impression text-files are
-complicated. This section deals with a related topic, making live often
-easier for the user, but providing another worry to the programmer.
-@strong{BOM} or @emph{Byte Order Marker} is a technique for
-identifying Unicode text-files as well as the encoding they use. Such
-files start with the Unicode character @code{0xFEFF}, a non-breaking,
-zero-width space character. This is a pretty unique sequence that is not
-likely to be the start of a non-Unicode file and uniquely distinguishes
-the various Unicode file formats. As it is a zero-width blank, it even
-doesn't produce any output. This solves all problems, or ...
+From @ref{Stream Encoding}, you may have got the impression that
+text-files are complicated. This section deals with a related topic,
+making live often easier for the user, but providing another worry to
+the programmer.  @strong{BOM} or @emph{Byte Order Marker} is a technique
+for identifying Unicode text-files as well as the encoding they
+use. Such files start with the Unicode character @code{0xFEFF}, a
+non-breaking, zero-width space character. This is a pretty unique
+sequence that is not likely to be the start of a non-Unicode file and
+uniquely distinguishes the various Unicode file formats. As it is a
+zero-width blank, it even doesn't produce any output. This solves all
+problems, or ...
 
 Some formats start of as US-ASCII and may contain some encoding mark to
 switch to UTF-8, such as the @code{encoding="UTF-8"} in an XML header.
