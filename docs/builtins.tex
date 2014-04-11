@@ -5317,9 +5317,7 @@ garbage collection and stack shifts time included.
 
 @item dynamic_code
 @findex dynamic_code (statistics/2 option)
-@code{[@var{Clause Size},@var{Index Size},@var{Tree Index
-Size},@var{Choice Point Instructions
-Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
+@code{[@var{Clause Size},@var{Index Size},@var{Tree Index Size},@var{Choice Point Instructions Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
 @*
 Size of static code in YAP in bytes: @var{Clause Size}, the number of
 bytes allocated for clauses, plus
@@ -5332,8 +5330,7 @@ tables such as hash tables that select according to value,  @var{Index Switch Si
 
 @item garbage_collection
 @findex garbage_collection (statistics/2 option)
-@code{[@var{Number of GCs},@var{Total Global Recovered},@var{Total Time
-Spent}]}
+@code{[@var{Number of GCs},@var{Total Global Recovered},@var{Total Time Spent}]}
 @*
 Number of garbage collections, amount of space recovered in kbytes, and
 total time spent doing garbage collection in milliseconds. More detailed
@@ -5378,8 +5375,7 @@ garbage collection and stack shifting.
 
 @item stack_shifts
 @findex stack_shifts (statistics/2 option)
-@code{[@var{Number of Heap Shifts},@var{Number of Stack
-Shifts},@var{Number of Trail Shifts}]}
+@code{[@var{Number of Heap Shifts},@var{Number of Stack Shifts},@var{Number of Trail Shifts}]}
 @*
 Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
@@ -5387,8 +5383,7 @@ available using @code{yap_flag(gc_trace,verbose)}.
 
 @item static_code
 @findex static_code (statistics/2 option)
-@code{[@var{Clause Size},@var{Index Size},@var{Tree Index
-Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
+@code{[@var{Clause Size},@var{Index Size},@var{Tree Index Size},@var{Expansion Nodes Size},@var{Index Switch Size}]}
 @*
 Size of static code in YAP in bytes: @var{Clause Size}, the number of
 bytes allocated for clauses, plus
