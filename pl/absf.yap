@@ -4,18 +4,27 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		consult.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	Consulting Files in YAP					 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
 *									 *
 *************************************************************************/
 
-:- system_module( '$_absf', [absolute_file_name/2,
+/** 
+  @file absf.yap
+
+  @defgroup abs_file_name File Name Resolution
+
+  Support for file name resolution through absolute_file_name/3 and
+  friends. These utility built-ins describe a list of directories that
+  are used by load_files/2 to search. They include pre-compiled paths
+  plus user-defined directories, directories based on environment
+  variables and registry information to search for files.
+
+  @{
+  
+ */
+
+
+:- system_module( absolute_file_name, [absolute_file_name/2,
         absolute_file_name/3,
         add_to_path/1,
         add_to_path/2,
@@ -30,20 +39,89 @@
 :- use_system_module( '$_lists', [member/2]).
 
 /**
- *
- * @defgroup AbsoluteFileName File Name Resolution
- * 
- * @subsection sub:AbsFileName File Name Resolution in Prolog
+  absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
+  absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
 
-  Support for file name resolution through absolute_file_name/3 and
-  friends. These utility built-ins are used by load_files/2 to search
-  in the library directories. They use pre-compiled paths plus
-  environment variables and registry information to search for files.
+   _Options_ is a list of options to guide the conversion:
+
+  -  extensions(+ _ListOfExtensions_)
+
+     List of file-extensions to try.  Default is `''`.  For each
+     extension, absolute_file_name/3 will first add the extension and then
+     verify the conditions imposed by the other options.  If the condition
+     fails, the next extension of the list is tried.  Extensions may be
+     specified both with dot, as `.ext`, or without, as plain `ext`.
+
+  -  relative_to(+ _FileOrDir_ )
   
- */
+     Resolve the path relative to the given directory or directory the
+     holding the given file.  Without this option, paths are resolved
+     relative to the working directory (see working_directory/2) or,
+     if  _Spec_  is atomic and absolute_file_name/3 is executed
+     in a directive, it uses the current source-file as reference.
+
+  -  access(+ _Mode_ )
+
+     Imposes the condition access_file( _File_ ,  _Mode_ ).   _Mode_  is one of `read`, `write`, `append`, `exist` or
+     `none` (default).
+  
+     See also access_file/2.
+
+  -  file_type(+ _Type_ )
+
+     Defines suffixes matching one of several pre-specified type of files. Default mapping is as follows:
+
+       1.  `txt` implies `[ '' ]`,
+  
+       2.  `prolog` implies `['.yap', '.pl', '.prolog', '']`,
+  
+       3.  `executable`  implies `['.so', ',dylib', '.dll']` depending on the Operating system,
+  
+       4.  `qlf` implies `['.qlf', '']`,
+  
+       5.  `directory` implies `['']`,
+  
+       6.  The file-type `source` is an alias for `prolog` designed to support compatibility with SICStus Prolog. See also prolog_file_type/2.
+
+     Notice that this predicate only
+     returns non-directories, unless the option `file_type(directory)` is
+     specified, or unless `access(none)`.
+
+  -  file_errors(`fail`/`error`)
+
+     If `error` (default), throw and `existence_error` exception
+     if the file cannot be found.  If `fail`, stay silent.
+
+  -  solutions(`first`/`all`)
+
+     If `first` (default), the search cannot backtrack. leaves no choice-point.
+     Otherwise a choice-point will be left and backtracking may yield
+     more solutions.
+
+  -  expand(`true`/`false`)
+
+     If `true` (default is `false`) and  _Spec_  is atomic,
+     call expand_file_name/2 followed by member/2 on  _Spec_  before
+     proceeding.  This is originally a SWI-Prolog extension.
+
+Compatibility considerations to common argument-order in ISO as well
+as SICStus absolute_file_name/3 forced us to be flexible here.
+If the last argument is a list and the second not, the arguments are
+swapped, making the call
+~~~~~~~~~~~prolog
+  absolute_file_name(+ _Spec_ , - _Path_ ,+ _Options_ )
+~~~~~~~~~~~
+  valid as well.
+*/
+
+absolute_file_name(File,TrueFileName,Opts) :- ( var(TrueFileName) ->
+	true ; atom(TrueFileName), TrueFileName \= [] ), !,
+	absolute_file_name(File,Opts,TrueFileName).
+	absolute_file_name(File,Opts,TrueFileName) :-
+	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
 
 /**
-  @brief  absolute_file_name(+<var>Name</var>:atom,+<var>Options</var>:list) is nondet
+  absolute_file_name(+Name:atom,+Path:atom) is nondet
 
   Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
@@ -58,79 +136,7 @@ absolute_file_name(File0,File) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
 
-/**
-  @brief  absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
-  @brief  absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
 
-  <var>Option</var> is a list of options to guide the conversion:
-
-  -  extensions(+<var>ListOfExtensions</var>)
-
-     List of file-extensions to try.  Default is `''`.  For each
-     extension, absolute_file_name/3 will first add the extension and then
-     verify the conditions imposed by the other options.  If the condition
-     fails, the next extension of the list is tried.  Extensions may be
-     specified both as `.ext` or plain `ext`.
-
-  -  relative_to(+<var>FileOrDir</var>)
-  
-     Resolve the path relative to the given directory or directory the
-     holding the given file.  Without this option, paths are resolved
-     relative to the working directory (see [working_directory/2](@ref working_directory/2)) or,
-     if <var>Spec</var> is atomic and `absolute_file_name/[2,3]` is executed
-     in a directive, it uses the current source-file as reference.
-
-  -  access(+<var>Mode</var>)
-
-     Imposes the condition access_file(<var>File</var>, <var>Mode</var>).  <var>Mode</var> is one of `read`, `write`, `append`, `exist` or
-     `none` (default).
-  
-     See also `access_file/2`.
-
-  -  file_type(+<var>Type</var>)
-
-     Defines extensions. Current mapping: `txt` implies `['']`,
-     `prolog` implies `['.yap', '.pl', '.prolog', '']`, `executable` 
-     implies `['.so', '']`, `qlf` implies `['.qlf', '']` and
-     `directory` implies `['']`.  The file-type `source`
-     is an alias for `prolog` for compatibility to SICStus Prolog.
-     See also `prolog_file_type/2`.
-
-     Notice also that this predicate only
-     returns non-directories, unless the option `file_type(directory)` is
-     specified, or unless `access(none)`.
-
-  -  file_errors(`fail`/`error`)
-
-     If `error` (default), throw and `existence_error` exception
-     if the file cannot be found.  If `fail`, stay silent.
-
-  -  solutions(`first`/`all`)
-
-     If `first` (default), the predicates leaves no choice-point.
-     Otherwise a choice-point will be left and backtracking may yield
-     more solutions.
-
-  -  expand(`true`/`false`)
-
-     If `true` (default is `false`) and <var>Spec</var> is atomic,
-     call [expand_file_name/2](@ref expand_file_name2) followed by [member/2](@ref member2) on <var>Spec</var> before
-     proceeding.  This is originally a SWI-Prolog extension.
-
-Compatibility considerations to common argument-order in ISO as well
-as SICStus absolute_file_name/3 forced us to be flexible here.
-If the last argument is a list and the 2nd not, the arguments are
-swapped, making the call `absolute_file_name`(+<var>Spec</var>, -<var>Path</var>,
-+<var>Options</var>) valid as well.
-*/
-
-absolute_file_name(File,TrueFileName,Opts) :-
-	( var(TrueFileName) -> true ; atom(TrueFileName), TrueFileName \= [] ),
-	!,
-	absolute_file_name(File,Opts,TrueFileName).
-absolute_file_name(File,Opts,TrueFileName) :-
-	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
-	
 '$absolute_file_name'(File, _Opts, _TrueFileName, G) :- var(File), !,
 	'$do_error'(instantiation_error, G).
 '$absolute_file_name'(File,Opts,TrueFileName, G) :-
@@ -219,7 +225,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$do_error'(domain_error(file_errors,T),G).
 '$check_fn_errors'(T,G) :- !,
 	'$do_error'(type_error(atom,T),G).
-	
+
 '$check_fn_solutions'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
 '$check_fn_solutions'(first,_) :- !.
@@ -455,7 +461,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$add_file_to_dir'(P0,A,Atoms,NFile) :-
 	atom_concat([P0,A,Atoms],NFile).
 
-/**    @brief  path(-Directories:list) is det [DEPRECATED]
+/**
+  path(-Directories:list) is det,deprecated
 
  YAP specific procedure that returns a list of user-defined directories 
  in the library search-path.
@@ -467,11 +474,18 @@ path(Path) :- findall(X,'$in_path'(X),Path).
 		( S = ""  -> X = '.' ;
 		  atom_codes(X,S) ).
 
-/**    @brief  add_to_path(+Directory:atom) is det [DEPRECATED]
+/**
+  add_to_path(+Directory:atom) is det,deprecated
 
+  YAP-specific predicate to include directory in library search path.
 */
 add_to_path(New) :- add_to_path(New,last).
 
+/**
+  add_to_path(+Directory:atom, +Position:atom) is det,deprecated
+
+  YAP-specific predicate to include directory in front or back of  library search path.
+*/
 add_to_path(New,Pos) :-
 	atom(New), !,
 	'$check_path'(New,Str),
@@ -482,7 +496,7 @@ add_to_path(New,Pos) :-
 '$add_to_path'(New,last) :- !, recordz('$path',New,_).
 '$add_to_path'(New,first) :- recorda('$path',New,_).
 
-/**    @brief  remove_from_path(+Directory:atom) is det [DEPRECATED]
+/**    remove_from_path(+Directory:atom) is det,deprecated 
 
 */
 remove_from_path(New) :- '$check_path'(New,Path),
@@ -494,7 +508,15 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
 
-/**    @brief  user:library_directory(Directory:atom)
+/**
+  user:library_directory(?Directory:atom) is nondet, dynamic
+
+  Dynamic, multi-file predicate that succeeds when _Directory_ is a
+  current library directory name. Asserted in the user module.
+
+  Library directories are the places where files specified in the form
+  `library( _File_)` are searched by the predicates consult/1,
+  reconsult/1, use_module/1, ensure_loaded/1, and load_files/2.
 
 */
 
@@ -502,7 +524,8 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 :- dynamic user:library_directory/1.
 
-/**    @brief  user:commons_directory(Directory:atom)
+/**
+  user:commons_directory(?Directory:atom) is nondet, dynamic
 
 */
 
@@ -510,7 +533,8 @@ remove_from_path(New) :- '$check_path'(New,Path),
 
 :- dynamic user:commons_directory/1.
 
-/**    @brief  user:prolog_file_type(Suffix:atom, Handler:atom)
+/**
+  user:prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
 
 */
 
@@ -531,7 +555,25 @@ user:prolog_file_type(A, prolog) :-
 user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 
-/**    @brief  user:file_search_path(+Type:atom, -Directory:atom)
+/**
+  user:file_search_path(+Name:atom, -Directory:atom) is nondet
+
+  Allows writing file names as compound terms. The  _Name_ and
+  _DIRECTORY_ must be atoms. The predicate may generate multiple
+  solutions. The predicate is originally defined as follows:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+file_search_path(library,A) :-
+   library_directory(A).
+file_search_path(system,A) :-
+   prolog_flag(host_type,A).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Thus, `compile(library(A))` will search for a file using
+  library_directory/1 to obtain the prefix,
+  whereas 'compile(system(A))` would look at the `host_type` flag.
+
+@}
 
 */
 

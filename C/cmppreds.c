@@ -14,6 +14,10 @@
 * comments:	comparing two prolog terms				 *
 *									 *
 *************************************************************************/
+///    @file cmppreds.c
+
+
+
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -647,6 +651,17 @@ a_cmp(Term t1, Term t2 USES_REGS)
   }
 }
 
+/**
+
+   @defgroup arithmetic_cmps Arithmetic Comparison Predicates
+   @ingroup arithmetic
+
+   Comparison of Numeric Expressions. Both arguments must be valid ground expressions at time of call.
+
+   @{
+*/
+
+
 Int
 Yap_acmp(Term t1, Term t2 USES_REGS)
 {
@@ -667,6 +682,15 @@ p_acomp( USES_REGS1 )
   return out;
 }
 
+/**
+   @class arith_eq_2
+   @brief  =:=/2: Equality of arithmetic expressions
+
+   <b>+ _X_ =:= + _Y_ [ISO]</b><p> @anchor ar_eq_2
+
+
+   The value of the expression  _X_ is less than the value of expression _Y_.
+ */
 static Int 
 a_eq(Term t1, Term t2)
 {
@@ -701,6 +725,15 @@ a_eq(Term t1, Term t2)
   return out == 0;
 }
 
+/**
+   @class arith_dif_2
+   @brief  =\\=/2: Difference of arithmetic expressions
+
+   <b>+ _X_ =\\= + _Y_ [ISO]</b><p> @anchor ar_dif_2
+
+
+   The value of the expression  _X_ is different from the value of expression _Y_.
+ */
 static Int 
 a_dif(Term t1, Term t2)
 {
@@ -710,6 +743,16 @@ a_dif(Term t1, Term t2)
   return out != 0;
 }
 
+/**
+   @class arith_gt_2
+   @brief \>/2: Greater than arithmetic expressions
+
+  <b>+ _X_ \> + _Y_ [ISO]</b><p> @anchor qQlg_2
+
+
+  The value of the expression  _X_ is less than or equal to the value
+  of expression  _Y_.
+*/
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
@@ -719,6 +762,16 @@ a_gt(Term t1, Term t2)
   return out > 0;
 }
 
+/**
+   @class arith_ge_2
+   @brief  \>=/2: Greater than or equal to arithmetic expressions
+
+   <b>+ _X_ \>= + _Y_ [ISO]</b><p> @anchor gGqQ_2
+
+
+   The value of the expression  _X_ is greater than or equal to the
+   value of expression  _Y_.
+*/
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
@@ -728,6 +781,16 @@ a_ge(Term t1, Term t2)
   return out >= 0;
 }
 
+/**
+   @class arith_lt_2
+   @brief \</2: Lesser than arithmetic expressions
+
+   <b>+ _X_ \< + _Y_ [ISO]</b><p> @anchor sS_2
+
+
+   The value of the expression  _X_ is less than the value of expression
+   _Y_.
+*/
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
@@ -737,6 +800,17 @@ a_lt(Term t1, Term t2)
   return out < 0;
 }
 
+/**
+ *
+ @class arith_le_2
+ @brief =\</2: Lesser than or equal to arithmetic expressions
+
+ <b>+ _X_ =\< + _Y_ [ISO]</b><p> @anchor qQsS_2
+
+
+ The value of the expression  _X_ is less than or equal to the value
+ of expression  _Y_.
+*/
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
@@ -746,6 +820,7 @@ a_le(Term t1, Term t2)
   return out <= 0;
 }
 
+/// @}
 
 static Int 
 a_noteq(Term t1, Term t2)

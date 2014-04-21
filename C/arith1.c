@@ -18,10 +18,212 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-/*
- * This file implements unary arithmetic operations in YAP
- *
- */
+/**
+   @file arith1.c
+   
+   @addtogroup arithmetic_operators
+   
+  - <b>exp( _X_) [ISO]</b><p> @anchor exp_1
+
+    Natural exponential.
+
+  - <b>log( _X_) [ISO]</b><p> @anchor log_1
+
+    Natural logarithm.
+
+  - <b>log10( _X_)</b><p> @anchor log10_1
+
+    Decimal logarithm.
+
+  - <b>sqrt( _X_) [ISO]</b><p> @anchor sqrt_1
+
+    Square root.
+
+  - <b>sin( _X_) [ISO]</b><p> @anchor sin_1
+
+    Sine.
+
+  - <b>cos( _X_) [ISO]</b><p> @anchor cos_1
+
+    Cosine.
+
+  - <b>tan( _X_) [ISO]</b><p> @anchor tan_1
+
+    Tangent.
+
+  - <b>asin( _X_) [ISO]</b><p> @anchor asin_1
+
+    Arc sine.
+
+  - <b>acos( _X_) [ISO]</b><p> @anchor acos_1
+
+    Arc cosine.
+
+  - <b>atan( _X_) [ISO]</b><p> @anchor atan_1
+
+    Arc tangent.
+
+  - <b>sinh( _X_)</b><p> @anchor sinh_1
+
+    Hyperbolic sine.
+
+  - <b>cosh( _X_)</b><p> @anchor cosh_1
+
+    Hyperbolic cosine.
+
+  - <b>tanh( _X_)</b><p> @anchor tanh_1
+
+    Hyperbolic tangent.
+
+  - <b>asinh( _X_)</b><p> @anchor asinh_1
+
+    Hyperbolic arc sine.
+
+  - <b>acosh( _X_)</b><p> @anchor acosh_1
+
+    Hyperbolic arc cosine.
+
+  - <b>atanh( _X_)</b><p> @anchor atanh_1
+
+    Hyperbolic arc tangent.
+
+  - <b>lgamma( _X_)</b><p> @anchor lgamma_1
+
+    Logarithm of gamma function.
+
+  - <b>erf( _X_)</b><p> @anchor erf_1
+
+    Gaussian error function.
+
+  - <b>erfc( _X_)</b><p> @anchor erfc_1
+
+    Complementary gaussian error function.
+
+  - <b>random( _X_) [ISO]</b><p> @anchor random_1_op
+
+    An integer random number between 0 and  _X_.
+
+    In `iso` language mode the argument must be a floating
+    point-number, the result is an integer and it the float is equidistant
+    it is rounded up, that is, to the least integer greater than  _X_.
+
+  - <b>integer( _X_)</b><p> @anchor integer_1_op
+
+    If  _X_ evaluates to a float, the integer between the value of  _X_ and 0 closest to the value of  _X_, else if  _X_ evaluates to an 
+    integer, the value of  _X_.
+
+  - <b>float( _X_) [ISO]</b><p> @anchor float_1_op
+
+    If  _X_ evaluates to an integer, the corresponding float, else the float itself.
+
+  - <b>float_fractional_part( _X_) [ISO]</b><p> @anchor float_fractional_part_1
+
+    The fractional part of the floating point number  _X_, or `0.0` if  _X_ is an integer. In the `iso` language mode,  _X_ must be an integer.
+
+  - <b>float_integer_part( _X_) [ISO]</b><p> @anchor float_integer_part_1
+
+    The float giving the integer part of the floating point number  _X_, or  _X_ if  _X_ is an integer. In the `iso` language mode,  _X_ must be an integer.
+
+  - <b>abs( _X_) [ISO]</b><p> @anchor abs_1
+
+    The absolute value of  _X_.
+
+  - <b>ceiling( _X_) [ISO]</b><p> @anchor ceiling_1
+
+    The integer that is the smallest integral value not smaller than  _X_.
+
+    In `iso` language mode the argument must be a floating point-number and the result is an integer.
+
+  - <b>floor( _X_) [ISO]</b><p> @anchor floor_1
+
+    The integer that is the greatest integral value not greater than  _X_.
+
+    In `iso` language mode the argument must be a floating
+    point-number and the result is an integer.
+
+  - <b>round( _X_) [ISO]</b><p> @anchor round_1
+
+    The nearest integral value to  _X_. If  _X_ is equidistant to two integers, it will be rounded to the closest even integral value.
+
+    In `iso` language mode the argument must be a floating point-number, the result is an integer and it the float is equidistant it is rounded up, that is, to the least integer greater than  _X_.
+
+  - <b>sign( _X_) [ISO]</b><p> @anchor sign_1
+
+    Return 1 if the  _X_ evaluates to a positive integer, 0 it if evaluates to 0, and -1 if it evaluates to a negative integer. If  _X_
+    evaluates to a floating-point number return 1.0 for a positive  _X_, 0.0 for 0.0, and -1.0 otherwise.
+
+  - <b>truncate( _X_) [ISO]</b><p> @anchor truncate_1
+
+    The integral value between  _X_ and 0 closest to _X_.
+
+  - <b>rational( _X_)</b><p> @anchor rational_1_op
+
+    Convert the expression  _X_ to a rational number or integer. The function returns the input on integers and rational numbers. For
+    floating point numbers, the returned rational number exactly represents
+    the float. As floats cannot exactly represent all decimal numbers the
+    results may be surprising. In the examples below, doubles can represent
+    `0.25` and the result is as expected, in contrast to the result of
+    `rational(0.1)`. The function `rationalize/1` gives a more
+    intuitive result.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+?- A is rational(0.25).
+
+A is 1 rdiv 4
+?- A is rational(0.1).
+A = 3602879701896397 rdiv 36028797018963968
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - <b>rationalize( _X_)</b><p> @anchor rationalize_1
+
+    Convert the expression _X_ to a rational number or integer. The function is
+    similar to [rational/1](@ref rational_1), but the result is only accurate within the
+    rounding error of floating point numbers, generally producing a much
+    smaller denominator. 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+?- A is rationalize(0.25).
+
+A = 1 rdiv 4
+?- A is rationalize(0.1).
+
+A = 1 rdiv 10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - <b>\\  _X_ [ISO]</b><p>
+
+    Integer bitwise negation.
+
+  - <b>msb( _X_)</b><p> @anchor msb_1
+
+    The most significant bit of the non-negative integer  _X_.
+
+  - <b>lsb( _X_)</b><p> @anchor lsb_1
+
+    The least significant bit of the non-negative integer  _X_.
+
+  - <b>popcount( _X_)</b><p> @anchor popcount_1
+
+    The number of bits set to `1` in the binary representation of the non-negative integer  _X_.
+
+  - <b>[ _X_]</b><p>
+
+    Evaluates to  _X_ for expression  _X_. Useful because character
+strings in Prolog are lists of character codes.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+X is Y*10+C-"0"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+is the same as
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+X is Y*10+C-[48].
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+which would be evaluated as:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+X is Y*10+C-48.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
 
 #include "Yap.h"
 #include "Yatom.h"
@@ -694,6 +896,7 @@ eval1(Int fi, Term t USES_REGS) {
       RERROR();
     }
   }
+  /// end of switch
   RERROR();
 }
 

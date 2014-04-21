@@ -28,6 +28,8 @@
 @c Index for predicates sort of (almost) in SICStus Prolog
 @defindex sa
 
+@alias pl_example=example 
+@alias c_example=example 
 
 @setchapternewpage odd
 @c @smallbook
@@ -79,6 +81,55 @@ Machine), with several optimizations for better performance. YAP follows
 the Edinburgh tradition, and is largely compatible with DEC-10 Prolog,
 Quintus Prolog, and especially with C-Prolog.
 
+
+@ifplaintext
+ 
+<ul>
+<li>@subpage Install discusses how to download, compile and install 
+      YAP for your platform.
+</li>
+<li> @subpage Syntax describes the syntax of YAP.
+</li>
+<li>@subpage Run describes how to invoke YAP
+</li>
+<li>@subpage Syntax describe the syntax of YAP.
+</li>
+
+<li>@subpage Loading_Programs presents the main predicates and
+directives available to load files and to control the Prolog
+environment.
+
+<ul><li>@subpage abs_file_name explains how to find a file full path.
+</li>
+</ul>
+        
+</li> Built-Ins
+<ul>@subpage page_arithmetic describes how arithmetic works in YAP.
+
+<li>@subpage Control describes the predicates for controlling the execution of Prolog programs.
+</li>
+
+<li>@subpage Testing_Terms describes the main predicates on terms
+</li>
+
+<li>@subpage  Input_Output goes into Input/Ouput.
+</li>
+
+<li>@subpage Database discusses the clausal data-base
+</li>
+</ul>
+</li>
+<li>@subpage Grammars presents Grammar rules in Prolog
+     that are both a  convenient way to express definite clause grammars 
+     and  an extension
+     of the well known context-free grammars.
+</li>
+
+<li>@subpage OS discusses access to Operating System functionality
+</li>
+@end ifplaintext
+
+
 This file contains extracts of the SWI-Prolog manual, as written by Jan
 Wielemaker. Our thanks to the author for his kind permission in allowing
 us to include his text in this document.
@@ -124,7 +175,7 @@ Built In Predicates
 * Predicates on Characters:: Manipulating Characters
 * Comparing Terms:: Comparison of Terms
 * Arithmetic:: Arithmetic in YAP
-* I/O:: Input/Output with YAP
+* Input/Output:: Input/Output with YAP
 * Database:: Modifying Prolog's Database
 * Sets:: Finding All Possible Solutions
 * Grammars:: Grammar Rules
@@ -180,11 +231,11 @@ Subnodes of Modules
 Subnodes of Input/Output
 * Streams and Files:: Handling Streams and Files
 * C-Prolog File Handling:: C-Prolog Compatible File Handling
-* I/O of Terms:: Input/Output of terms
-* I/O of Characters:: Input/Output of Characters
-* I/O for Streams:: Input/Output using Streams
-* C-Prolog to Terminal:: C-Prolog compatible Character I/O to terminal
-* I/O Control:: Controlling your Input/Output
+* Input/Output of Terms:: Input/Output of terms
+* Input/Output of Characters:: Input/Output of Characters
+* Input/Output for Streams:: Input/Output using Streams
+* C-Prolog to Terminal:: C-Prolog compatible Character Input/Output to terminal
+* Input/Output Control:: Controlling your Input/Output
 * Sockets:: Using Sockets from YAP
 
 Subnodes of Database
@@ -222,7 +273,7 @@ Subnodes of Library
 * RegExp:: Regular Expression Manipulation
 * shlib:: SWI Prolog shlib library
 * Splay Trees:: Splay Trees
-* String I/O:: Writing To and Reading From Strings
+* String Input/Output:: Writing To and Reading From Strings
 * System:: System Utilities
 * Terms:: Utilities on Terms
 * Cleanup:: Call With registered Cleanup Calls
@@ -343,9 +394,8 @@ Tables
 
 @end ifnottex
 
-
 @node Intro, Install, , Top
-@unnumbered Introduction
+@section Introduction
 
 This document provides User information on version @value{VERSION} of
 YAP (@emph{Yet Another Prolog}). The YAP Prolog System is a
@@ -356,7 +406,7 @@ Porto. YAP provides several important features:
  @item Speed: YAP is widely considered one of the fastest available
 Prolog systems.
 
- @item Functionality: it supports stream I/O, sockets, modules,
+ @item Functionality: it supports stream Input/Output, sockets, modules,
 exceptions, Prolog debugger, C-interface, dynamic code, internal
 database, DCGs, saved states, co-routining, arrays, threads.
 
@@ -503,7 +553,7 @@ Library, Extensions, Built-ins, Top
 * RegExp:: Regular Expression Manipulation
 * shlib:: SWI Prolog shlib library
 * Splay Trees:: Splay Trees
-* String I/O:: Writing To and Reading From Strings
+* String Input/Output:: Writing To and Reading From Strings
 * System:: System Utilities
 * Terms:: Utilities on Terms
 * Timeout:: Call With Timeout
@@ -532,10 +582,10 @@ aggregation operations are counting, computing the sum, minimum,
 maximum, a bag of solutions and a set of solutions. We first give a
 simple example, computing the country with the smallest area:
 
-@example
+@pl_example
 smallest_country(Name, Area) :-
         aggregate(min(A, N), country(N, A), min(Area, Name)).
-@end example
+@end pl_example
 
 There are four aggregation predicates, distinguished on two properties.
 
@@ -557,9 +607,9 @@ There are four aggregation predicates, distinguished on two properties.
     all countries we do not want to lose results because two countries
     have the same population. Therefore we use:
 
-@example
+@pl_example
         aggregate(sum(P), Name, country(Name, P), Total)
-@end example
+@end pl_example
 
 @end table
 
@@ -636,12 +686,12 @@ The predicates are:
     any variables that are not shared with Generator.
 
     Here is an example:
-@example
+@pl_example
     ?- foreach(between(1,4,X), dif(X,Y)), Y = 5.
     Y = 5
     ?- foreach(between(1,4,X), dif(X,Y)), Y = 3.
     No
-@end example
+@end pl_example
 
     Notice that @var{Goal} is copied repeatedly, which may cause
     problems if attributed variables are involved.
@@ -877,19 +927,19 @@ integers.
 
 The package is activated by @code{udi} declarations that state what is
 the argument of interest:
-@example
+@pl_example
 :- udi(diagnoses(exo_interval,?,?)).
 
 :- load_files(db, [consult(exo)]).
-@end example
+@end pl_example
 It is designed to optimise the following type of queries:
-@example
+@pl_example
 ?- max(X, diagnoses(X, 9, Y), X).
 
 ?- min(X, diagnoses(X, 9, 36211117), X).
 
 ?- X #< Y, min(X, diagnoses(X, 9, 36211117), X ), diagnoses(Y, 9, _).
-@end example
+@end pl_example
 The first argument gives the time, the second the patient, and the
 third the condition code. The first query should find the last time
 the patient 9 had any code reported, the second looks for the first
@@ -913,18 +963,18 @@ of gecode and to have an higher level interface,
 @subsection The Gecode Interface
 
 This text is due to Denys Duchier. The gecode interface requires
-@example
+@pl_example
 :- use_module(library(gecode)).
-@end example
+@end pl_example
 Several example programs are available with the distribution.
 
 @table @code
 @item CREATING A SPACE
 
 A space is gecodes data representation for a store of constraints:
-@example
+@pl_example
     Space := space
-@end example
+@end pl_example
 
 
 @item CREATING VARIABLES
@@ -933,27 +983,27 @@ Unlike in Gecode, variable objects are not bound to a specific Space.  Each one
 actually contains an index with which it is possible to access a Space-bound
 Gecode variable.  Variables can be created using the following expressions:
 
-@example
+@pl_example
    IVar := intvar(Space,SPEC...)
    BVar := boolvar(Space)
    SVar := setvar(Space,SPEC...)
-@end example
+@end pl_example
 
 where SPEC... is the same as in Gecode.  For creating lists of variables use
 the following variants:
 
-@example
+@pl_example
    IVars := intvars(Space,N,SPEC...)
    BVars := boolvars(Space,N,SPEC...)
    SVars := setvars(Space,N,SPEC...)
-@end example
+@end pl_example
 
 where N is the number of variables to create (just like for XXXVarArray in
 Gecode).  Sometimes an IntSet is necessary:
 
-@example
+@pl_example
    ISet := intset([SPEC...])
-@end example
+@end pl_example
 
 where each SPEC is either an integer or a pair (I,J) of integers.  An IntSet
 describes a set of ints by providing either intervals, or integers (which stand
@@ -961,10 +1011,10 @@ for an interval of themselves).  It might be tempting to simply represent an
 IntSet as a list of specs, but this would be ambiguous with IntArgs which,
 here, are represented as lists of ints.
 
-@example
+@pl_example
    Space += keep(Var)
    Space += keep(Vars)
-@end example
+@end pl_example
 
 Variables can be marked as "kept".  In this case, only such variables will be
 explicitly copied during search.  This could bring substantial benefits in
@@ -980,16 +1030,16 @@ Gecode.  Wherever a XXXArgs or YYYSharedArray is expected, simply use a list.
 At present, there is no support for minimodel-like constraint posting.
 Constraints and branchings are added to a space using:
 
-@example
+@pl_example
     Space += CONSTRAINT
     Space += BRANCHING
-@end example
+@end pl_example
 
 For example:
 
-@example
+@pl_example
     Space += rel(X,'IRT_EQ',Y)
-@end example
+@end pl_example
 
 
 arrays of variables are represented by lists of variables, and constants are
@@ -998,17 +1048,17 @@ represented by atoms with the same name as the Gecode constant
 
 @item SEARCHING FOR SOLUTIONS
 
-@example
+@pl_example
     SolSpace := search(Space)
-@end example
+@end pl_example
 
 
 This is a backtrackable predicate that enumerates all solution spaces
 (SolSpace).  It may also take options:
 
-@example
+@pl_example
     SolSpace := search(Space,Options)
-@end example
+@end pl_example
 
 
 Options is a list whose elements maybe:
@@ -1034,7 +1084,7 @@ solutions.  Below are methods for looking up information about variables.  Each
 of these methods can either take a variable as argument, or a list of
 variables, and returns resp. either a value, or a list of values:
 
-@example
+@pl_example
     Val := assigned(Space,X)
 
     Val := min(Space,X)
@@ -1061,7 +1111,7 @@ variables, and returns resp. either a value, or a list of values:
     Val := glb_values(Space,V)
     Val := lub_values(Space,V)
     Val := unknown_values(Space,V)
- @end example
+ @end pl_example
 
 @item DISJUNCTORS
 
@@ -1069,9 +1119,9 @@ variables, and returns resp. either a value, or a list of values:
 Disjunctors provide support for disjunctions of clauses, where each clause is a
 conjunction of constraints:
 
-@example
+@pl_example
     C1 or C2 or ... or Cn
-@end example
+@end pl_example
 
 
 Each clause is executed "speculatively": this means it does not affect the main
@@ -1083,70 +1133,70 @@ Example:
 Consider the problem where either X=Y=0 or X=Y+(1 or 2) for variable X and Y
 that take values in 0..3.
 
-@example
+@pl_example
     Space := space,
     [X,Y] := intvars(Space,2,0,3),
-@end example
+@end pl_example
 
 First, we must create a disjunctor as a manager for our 2 clauses:
 
-@example
+@pl_example
     Disj := disjunctor(Space),
-@end example
+@end pl_example
 
 We can now create our first clause:
 
-@example
+@pl_example
     C1 := clause(Disj),
-@end example
+@end pl_example
 
 
 This clause wants to constrain X and Y to 0.  However, since it must be
 executed "speculatively", it must operate on new variables X1 and Y1 that
 shadow X and Y:
 
-@example
+@pl_example
     [X1,Y1] := intvars(C1,2,0,3),
     C1 += forward([X,Y],[X1,Y1]),
-@end example
+@end pl_example
 
 The forward(...) stipulation indicates which global variable is shadowed by
 which clause-local variable.  Now we can post the speculative clause-local
 constraints for X=Y=0:
 
-@example
+@pl_example
     C1 += rel(X1,'IRT_EQ',0),
     C1 += rel(Y1,'IRT_EQ',0),
-@end example
+@end pl_example
 
 We now create the second clause which uses X2 and Y2 to shadow X and Y:
 
-@example
+@pl_example
     C2 := clause(Disj),
     [X2,Y2] := intvars(C2,2,0,3),
     C2 += forward([X,Y],[X2,Y2]),
-@end example
+@end pl_example
 
 However, this clause also needs a clause-local variable Z2 taking values 1 or
 2 in order to post the clause-local constraint X2=Y2+Z2:
 
-@example
+@pl_example
     Z2 := intvar(C2,1,2),
     C2 += linear([-1,1,1],[X2,Y2,Z2],'IRT_EQ',0),
-@end example
+@end pl_example
 
 Finally, we can branch and search:
 
-@example
+@pl_example
     Space += branch([X,Y],'INT_VAR_SIZE_MIN','INT_VAL_MIN'),
     SolSpace := search(Space),
-@end example
+@end pl_example
 
 and lookup values of variables in each solution:
 
-@example
+@pl_example
     [X_,Y_] := val(SolSpace,[X,Y]).
-@end example
+@end pl_example
 
 @end table
 
@@ -1155,9 +1205,9 @@ and lookup values of variables in each solution:
 
 The gecode/clp(fd) interface is designed to use the GECODE functionality
 in a more CLP like style. It requires
-@example
+@pl_example
 :- use_module(library(gecode/clpfd)).
-@end example
+@end pl_example
 Several example programs are available with the distribution.
 
 Integer variables are declared as:
@@ -1196,17 +1246,17 @@ implication (=>), equivalence (<=>), and xor. The @t{sum} constraint allows  a t
 @code{where} conditional, in Zinc style. 
 
 The send more money equation may be written as:
-@example
+@pl_example
           1000*S + 100*E + 10*N + D +
           1000*M + 100*O + 10*R + E #=
 10000*M + 1000*O + 100*N + 10*E + Y,
-@end example
+@end pl_example
 
 This example uses @code{where} to select from
 column @var{I} the elements that have value under @var{M}:
-@example
+@pl_example
 OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
-@end example
+@end pl_example
 
 The @t{count} constraint counts the number of elements that match a
 certain constant or variable (integer sets are not available).
@@ -1220,7 +1270,7 @@ case, tests if all the sums between a list of constants and a list of
 variables are different.
 
 This is a formulation of the queens problem that uses both versions of @code{all_different}:
-@example
+@pl_example
 queens(N, Queens) :-
     length(Queens, N),
     Queens ins 1..N,
@@ -1236,15 +1286,15 @@ inc(_, I0, I0, I) :-
 
 dec(_, I0, I0, I) :-
     I is I0-1.
-@end example
+@end pl_example
 
 
 The next example uses @code{all_different/1} and the functionality of the matrix package to verify that all squares in
 sudoku have a different value:
-@example
+@pl_example
     foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
-@end example
+@end pl_example
 
 @item scalar_product(+@var{Cs}, +@var{Vs}, +@var{Rel}, ?@var{V}    )
 
@@ -1274,10 +1324,10 @@ reified implication
 
 As an example. consider finding out the people who wanted to sit
 next to a friend and that are are actually sitting together:
-@example
+@pl_example
 preference_satisfied(X-Y, B) :-
     abs(X - Y) #= 1 #<==> B.
-@end example
+@end pl_example
 Note that not all constraints may be reifiable.
 
 @item element(@var{X}, @var{Vs}    )
@@ -1296,11 +1346,11 @@ first to the last argument emitting the middle argument, and a final
 state.
 
 The swedish-drinkers protocol is represented as follows:
-@example
+@pl_example
     A = [X,Y,Z],
     dfa( 0, [t(0,0,0),t(0,1,1),t(1,0,0),t(-1,0,0)], [0], C),
     in_dfa( A, C ),
-@end example
+@end pl_example
 This code will enumeratae the valid tuples of three emissions.
 
 @item extensional constraints
@@ -1308,10 +1358,10 @@ Constraints can also be represented as lists of tuples.
 
 The previous example
 would be written as:
-@example
+@pl_example
     extensional_constraint([[0,0,0],[0,1,0],[1,0,0]], C),
     in_relation( A, C ),
-@end example
+@end pl_example
 
 @item minimum(@var{X}, @var{Vs})
 @item min(@var{X}, @var{Vs})
@@ -1486,13 +1536,13 @@ identical to @var{Element} deleted.
 Flatten a list of lists @var{List} into a single list
 @var{FlattenedList}.
 
-@example
+@pl_example
 ?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
 
 L = [1,2,3,4,5,6,7,8] ? ;
 
 no
-@end example
+@end pl_example
 
 @item last(+@var{List},?@var{Last})
 @findex last/2
@@ -1565,8 +1615,7 @@ Unifies @var{Elem} with the Nth element of @var{List}, counting from 1,
 and @var{Rest} with the other elements.  It can be used to select the
 Nth element of @var{List} (yielding @var{Elem} and @var{Rest}), or to
 insert @var{Elem} before the Nth (counting from 1) element of
-@var{Rest}, when it yields @var{List}, e.g. @code{nth(3, List, c,
-[a,b,d,e])} unifies List with @code{[a,b,c,d,e]}.  @code{nth/4}
+@var{Rest}, when it yields @var{List}, e.g. @code{nth(3, List, c, [a,b,d,e])} unifies List with @code{[a,b,c,d,e]}.  @code{nth/4}
 can be used to insert @var{Elem} after the Nth element of @var{Rest}.
 
 @item nth(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
@@ -1620,11 +1669,11 @@ stay in the same order).
 @cnindex selectchk/3
 Semi-deterministic selection from a list. Steadfast: defines as
 
-@example
+@pl_example
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
-@end example
+@end pl_example
 
  
 @item sublist(?@var{Sublist}, ?@var{List})
@@ -1750,13 +1799,13 @@ the remainder of the line.
 Unify @var{Words} with a set of strings obtained from @var{Line} by
 using the character codes in @var{Separators} as separators. As an
 example, consider:
-@example
+@pl_example
 ?- split("Hello * I am free"," *",S).
 
 S = ["Hello","I","am","free"] ?
 
 no
-@end example
+@end pl_example
 
 @item split(+@var{Line},-@var{Split})
 @findex split/2
@@ -1775,11 +1824,11 @@ Unify @var{Words} with a set of strings obtained from @var{Line} by
 using the character codes in @var{Separators} as separators for
 fields. If two separators occur in a row, the field is considered
 empty. As an example, consider:
-@example
+@pl_example
 ?- fields("Hello  I am  free"," *",S).
 
 S = ["Hello","","I","am","","free"] ?
-@end example
+@end pl_example
 
 @item fields(+@var{Line},-@var{Split})
 @findex fields/2
@@ -2086,12 +2135,12 @@ result in @var{X}, @var{Y}, @var{Z} and @var{W}.
          Left scan of  list.  The  scanl   family  of  higher  order list
     operations is defined by:
 
-@example
+@pl_example
       scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
         P(X11, ..., Xm1, V0, V1),
         ...
             P(X1n, ..., Xmn, Vn-1, Vn).
-@end example
+@end pl_example
 
 
 @item scanl(:@var{Pred}, +@var{List1}, +@var{List2}, ?@var{V0}, ?@var{Vs})
@@ -2168,7 +2217,7 @@ of @code{<}, @code{=} or @code{>}. @code{Pred} must be deterministic.
 
 Examples:
 
-@example
+@pl_example
 %given
 plus(X,Y,Z) :- Z is X + Y.
 plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
@@ -2194,7 +2243,7 @@ checknodes(\==(T), p(X,p(Y,X),Z)).
 sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
 % another one
 maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
-@end example
+@end pl_example
 
 @node matrix, MATLAB, MapList, Library
 @section Matrix Library
@@ -2359,9 +2408,9 @@ Variables in the goal are assumed to be global, ie, share a single value
 in the execution. The exceptions are the iteration indices. Moreover, if
 the goal is of the form @code{@var{Locals}^@var{G}} all variables
 occurring in @var{Locals} are marked as local. As an example:
-@example
+@pl_example
 foreach([I,J] ins 1..N, A^(A <==M[I,J], N[I] <== N[I] + A*A) )
-@end example
+@end pl_example
 the variables @var{I}, @var{J} and @var{A} are duplicated for every
 call (local), whereas the matrices @var{M} and @var{N} are shared
 throughout the execution (global).
@@ -2794,16 +2843,16 @@ Read or set MATLAB @var{MatVar}(@var{X},@var{Y}) from/to @var{Val}. Use
 @code{C} notation for matrix access (ie, starting from 0).
 
 @item matlab_item1(+@var{MatVar}, +@var{X}, ?@var{Val})
-@findex matlab_item/3
-@snindex matlab_item/3
-@cnindex matlab_item/3
+@findex matlab_item1/3
+@snindex matlab_item1/3
+@cnindex matlab_item1/3
 Read or set MATLAB @var{MatVar}(@var{X}) from/to @var{Val}. Use
 MATLAB notation for matrix access (ie, starting from 1).
 
 @item matlab_item1(+@var{MatVar}, +@var{X}, +@var{Y}, ?@var{Val})
-@findex matlab_item/4
-@snindex matlab_item/4
-@cnindex matlab_item/4
+@findex matlab_item1/4
+@snindex matlab_item1/4
+@cnindex matlab_item1/4
 Read or set MATLAB @var{MatVar}(@var{X},@var{Y}) from/to @var{Val}. Use
 MATLAB notation for matrix access (ie, starting from 1).
 
@@ -3375,9 +3424,9 @@ read_header_data(_, Stream, Tail) :-
 @end example
 
 @item read_stream_to_codes(+@var{Stream}, -@var{Codes})
-@findex read_stream_to_codes/3
-@snindex read_stream_to_codes/3
-@cnindex read_stream_to_codes/3
+@findex read_stream_to_codes/2
+@snindex read_stream_to_codes/2
+@cnindex read_stream_to_codes/2
 Read all input until end-of-file and unify the result to @var{Codes}.
 
 @item read_stream_to_codes(+@var{Stream}, -@var{Codes}, ?@var{Tail})
@@ -3614,12 +3663,6 @@ associated with @var{Val}.
 @var{Previous} is the previous element after @var{Key} in @var{T}, and is
 associated with @var{Val}.
 
-@item list_to_rbtree(+@var{L}, -@var{T})
-@findex list_to_rbtree/2
-@snindex list_to_rbtree/2
-@cnindex list_to_rbtree/2
-@var{T} is the red-black tree corresponding to the mapping in list @var{L}.
-
 @item ord_list_to_rbtree(+@var{L}, -@var{T})
 @findex list_to_rbtree/2
 @snindex list_to_rbtree/2
@@ -3771,7 +3814,7 @@ One of the files provides a global function @code{install_mylib()} that
 initialises the module using calls to @code{PL_register_foreign()}. Here is a
 simple example file @code{mylib.c}, which creates a Windows MessageBox:
 
-@example
+@c_example
 #include <windows.h>
 #include <SWI-Prolog.h>
 
@@ -3792,7 +3835,7 @@ install_t
 install_mylib()
 @{ PL_register_foreign("say_hello", 1, pl_say_hello, 0);
 @}
-@end example
+@end c_example
 
 Now write a file mylib.pl:
 
@@ -3888,7 +3931,7 @@ loaded shared libraries.
 @c @code{qsave_program/2}).
 @end table
 
-@node Splay Trees, String I/O, shlib, Library
+@node Splay Trees, String Input/Output, shlib, Library
 @section Splay Trees
 @cindex splay trees
 
@@ -3956,12 +3999,12 @@ greater than @var{Key}. This operations destroys @var{Tree}.
 
 @end table
 
-@node String I/O, System, Splay Trees, Library
+@node String Input/Output, System, Splay Trees, Library
 @section Reading From and Writing To Strings
-@cindex string I/O
+@cindex string Input/Output
 
 From Version 4.3.2 onwards YAP implements SICStus Prolog compatible
-String I/O. The library allows users to read from and write to a memory
+String Input/Output. The library allows users to read from and write to a memory
 buffer as if it was a file. The memory buffer is built from or converted
 to a string of character codes by the routines in library. Therefore, if
 one wants to read from a string the string must be fully instantiated
@@ -4127,7 +4170,7 @@ importing these built-ins.
 YAP does not currently support opening a @code{charsio} stream in
 @code{append} mode, or seeking in such a stream.
 
-@node System, Terms, String I/O, Library
+@node System, Terms, String Input/Output, Library
 @section Calling The Operating System from YAP
 @cindex Operating System Utilities
 
@@ -4179,8 +4222,7 @@ X = 991081786 ? ;
 @syindex delete_file/1
 @cnindex delete_file/1
 The @code{delete_file/1} procedure removes file @var{File}. If
-@var{File} is a directory, remove the directory @emph{and all its
-subdirectories}.
+@var{File} is a directory, remove the directory @emph{and all its subdirectories}.
 
 @example
    ?- delete_file(x).
@@ -4271,9 +4313,9 @@ Create file @var{OldFile} to @var{NewFile}. This predicate uses the
 
 
 @item environ(?@var{EnvVar},+@var{EnvValue})
-@findex  environ/2
-@syindex environ/2
-@cnindex environ/2
+@findex  sys_environ/2
+@syindex sys_environ/2
+@cnindex sys_environ/2
 Unify environment variable @var{EnvVar} with its value @var{EnvValue},
 if there is one. This predicate is backtrackable in Unix systems, but
 not currently in Win32 configurations.
@@ -4380,11 +4422,11 @@ command.
 The following example demonstrates the use of @code{popen/3} to process
 the output of a command, as @code{exec/3} would do:
 
-@example
+@pl_example
    ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
 
 X = 'C:\\cygwin\\home\\administrator' ?
-@end example
+@end pl_example
 
 
 The WIN32 implementation of @code{popen/3} relies on @code{exec/3}.
@@ -4409,9 +4451,9 @@ the shell given by the environment variable @code{SHELL} with the option
 @code{SHELL} is undefined, in this case with the option @code{" /c "}.
 
 @item shell(+@var{Command},-@var{Status})
-@findex  shell/1
-@syindex shell/1
-@cnindex shell/1
+@findex  shell/2
+@syindex shell/2
+@cnindex shell/2
 Execute command @var{Command} under a new shell and unify @var{Status}
 with the exit for the command. YAP will be in background until the
 command completes. In Unix environments YAP uses the shell given by the
@@ -4696,9 +4738,9 @@ Declares the predicate @var{P}=@t{[module:]name/arity} as a fragile
 predicate, module is optional, default is the current
 typein_module. Whenever such a fragile predicate is used in a query
 it will be called through call_cleanup/1.
-@example
+@pl_example
 :- fragile foo/1,bar:baz/2.
-@end example
+@end pl_example
 
 @item call_cleanup(:@var{Goal})
 @findex call_cleanup/1
@@ -4738,7 +4780,7 @@ required to execute @var{Goal}, close file-descriptors, etc. The example
 below provides a non-deterministic search for a term in a file, closing
 the stream as needed.
 
-@example
+@pl_example
 term_in_file(Term, File) :-
     setup_call_cleanup(open(File, read, In),
                term_in_stream(Term, In),
@@ -4751,7 +4793,7 @@ term_in_stream(Term, In) :-
     ->  !, fail
     ;   T = Term
     ).
-@end example
+@end pl_example
 
 Note that it is impossible to implement this predicate in Prolog other than
 by reading all terms into a list, close the file and call @code{member/2}.
@@ -4932,20 +4974,20 @@ Given a graph with a set of vertices @var{Vertices} and a set of edges
 s-representation. Note that the vertices without edges will appear in
 @var{Vertices} but not in @var{Edges}. Moreover, it is sufficient for a
 vertex to appear in @var{Edges}.
-@example
+@pl_example
 ?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
 
-@end example
+@end pl_example
 In this case all edges are defined implicitly. The next example shows
 three unconnected edges:
-@example 
+@pl_example 
 ?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
 
-@end example
+@end pl_example
 
 @item vertices(+@var{Graph}, -@var{Vertices})
 @findex  vertices/2
@@ -4953,11 +4995,11 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ?
 @cnindex vertices/2
 Unify @var{Vertices} with all vertices appearing in graph
 @var{Graph}. In the next example:
-@example
+@pl_example
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
-@end example
+@end pl_example
 
 @item edges(+@var{Graph}, -@var{Edges})
 @findex  edges/2
@@ -4965,11 +5007,11 @@ L = [1,2,3,4,5]
 @cnindex edges/2
 Unify @var{Edges} with all edges appearing in graph
 @var{Graph}. In the next example:
-@example
+@pl_example
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
-@end example
+@end pl_example
 
 @item add_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  add_vertices/3
@@ -4977,7 +5019,7 @@ L = [1,2,3,4,5]
 @cnindex add_vertices/3
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 vertices @var{Vertices} to the graph @var{Graph}. In the next example:
-@example
+@pl_example
 ?- add_vertices([1-[3,5],2-[4],3-[],4-[5],
                  5-[],6-[],7-[],8-[]],
                 [0,2,9,10,11],
@@ -4985,7 +5027,7 @@ vertices @var{Vertices} to the graph @var{Graph}. In the next example:
 
 NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
       6-[],7-[],8-[],9-[],10-[],11-[]]
-@end example
+@end pl_example
 
 @item del_vertices(+@var{Graph}, +@var{Vertices}, -@var{NewGraph})
 @findex  del_vertices/3
@@ -4994,12 +5036,12 @@ NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
 Unify @var{NewGraph} with a new graph obtained by deleting the list of
 vertices @var{Vertices} and all the edges that start from or go to a
 vertex in @var{Vertices} to the graph @var{Graph}. In the next example:
-@example
+@pl_example
 ?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
                  4-[5],5-[],6-[],7-[2,6],8-[]],NL).
 
 NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
-@end example
+@end pl_example
 
 @item add_edges(+@var{Graph}, +@var{Edges}, -@var{NewGraph})
 @findex  add_edges/3
@@ -5007,12 +5049,12 @@ NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
 @cnindex add_edges/3
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 edges @var{Edges} to the graph @var{Graph}. In the next example:
-@example
+@pl_example
 ?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
               7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
 
 NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
-@end example
+@end pl_example
 
 @item del_edges(+@var{Graph}, +@var{Edges}, -@var{NewGraph})
 @findex  del_edges/3
@@ -5021,13 +5063,13 @@ NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
 Unify @var{NewGraph} with a new graph obtained by removing the list of
 edges @var{Edges} from the graph @var{Graph}. Notice that no vertices
 are deleted. In the next example:
-@example
+@pl_example
 ?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
               6-[],7-[],8-[]],
              [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
 
 NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
-@end example
+@end pl_example
 
 @item transpose(+@var{Graph}, -@var{NewGraph})
 @findex  transpose/3
@@ -5036,12 +5078,12 @@ NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
 Unify @var{NewGraph} with a new graph obtained from @var{Graph} by
 replacing all edges of the form @var{V1-V2} by edges of the form
 @var{V2-V1}. The cost is @code{O(|V|^2)}. In the next example:
-@example
+@pl_example
 ?- transpose([1-[3,5],2-[4],3-[],
               4-[5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1-[],2-[],3-[1],4-[2],5-[1,4],6-[],7-[],8-[]]
-@end example
+@end pl_example
 Notice that an undirected graph is its own transpose.
 
 @item neighbors(+@var{Vertex}, +@var{Graph}, -@var{Vertices})
@@ -5051,13 +5093,13 @@ Notice that an undirected graph is its own transpose.
 Unify @var{Vertices} with the list of neighbors of vertex @var{Vertex}
 in @var{Graph}. If the vertice is not in the graph fail. In the next
 example:
-@example
+@pl_example
 ?- neighbors(4,[1-[3,5],2-[4],3-[],
                 4-[1,2,7,5],5-[],6-[],7-[],8-[]],
              NL).
 
 NL = [1,2,7,5]
-@end example
+@end pl_example
 
 @item neighbours(+@var{Vertex}, +@var{Graph}, -@var{Vertices})
 @findex  neighbours/3
@@ -5065,12 +5107,12 @@ NL = [1,2,7,5]
 @cnindex neighbours/3
 Unify @var{Vertices} with the list of neighbours of vertex @var{Vertex}
 in @var{Graph}. In the next example:
-@example
+@pl_example
 ?- neighbours(4,[1-[3,5],2-[4],3-[],
                  4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1,2,7,5]
-@end example
+@end pl_example
 
 @item complement(+@var{Graph}, -@var{NewGraph})
 @findex  complement/2
@@ -5078,14 +5120,14 @@ NL = [1,2,7,5]
 @cnindex complement/2
 Unify @var{NewGraph} with the graph complementary to @var{Graph}.
  In the next example:
-@example
+@pl_example
 ?- complement([1-[3,5],2-[4],3-[],
                4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
       4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],
       7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
-@end example
+@end pl_example
 
 @item compose(+@var{LeftGraph}, +@var{RightGraph}, -@var{NewGraph})
 @findex  compose/3
@@ -5093,11 +5135,11 @@ NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
 @cnindex compose/3
 Compose the graphs @var{LeftGraph} and @var{RightGraph} to form @var{NewGraph}.
  In the next example:
-@example
+@pl_example
 ?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
 
 L = [1-[4],2-[1,2,4],3-[]]
-@end example
+@end pl_example
 
 @item top_sort(+@var{Graph}, -@var{Sort})
 @findex  top_sort/2
@@ -5106,11 +5148,11 @@ L = [1-[4],2-[1,2,4],3-[]]
 Generate the set of nodes @var{Sort} as a topological sorting of graph
 @var{Graph}, if one is possible.
  In the next example we show how topological sorting works for a linear graph:
-@example
+@pl_example
 ?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
 
 L = [_138,_219,_139]
-@end example
+@end pl_example
 
 @item top_sort(+@var{Graph}, -@var{Sort0}, -@var{Sort})
 @findex  top_sort/3
@@ -5126,11 +5168,11 @@ sorting of graph @var{Graph}, if one is possible.
 Generate the graph @var{Closure} as the transitive closure of graph
 @var{Graph}.
  In the next example:
-@example
+@pl_example
 ?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
 
 L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
-@end example
+@end pl_example
 
 @item reachable(+@var{Node}, +@var{Graph}, -@var{Vertices})
 @findex  reachable/3
@@ -5138,11 +5180,11 @@ L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
 @cnindex reachable/3
 Unify @var{Vertices} with the set of all vertices in graph
 @var{Graph} that are reachable from @var{Node}. In the next example:
-@example
+@pl_example
 ?- reachable(1,[1-[3,5],2-[4],3-[],4-[5],5-[]],V).
 
 V = [1,3,5]
-@end example
+@end pl_example
 
 @end table
 
@@ -5364,16 +5406,16 @@ The path @var{Path} is a path starting at vertex @var{Vertex} in graph
 @var{Graph}.
 
 @item dgraph_path(+@var{Vertex}, +@var{Vertex1}, +@var{Graph}, ?@var{Path})
-@findex  dgraph_path/3
-@snindex dgraph_path/3
-@cnindex dgraph_path/3
+@findex  dgraph_path/4
+@snindex dgraph_path/4
+@cnindex dgraph_path/4
 The path @var{Path} is a path starting at vertex @var{Vertex} in graph
 @var{Graph} and ending at path @var{Vertex2}.
 
 @item dgraph_reachable(+@var{Vertex}, +@var{Graph}, ?@var{Edges})
-@findex  dgraph_path/3
-@snindex dgraph_path/3
-@cnindex dgraph_path/3
+@findex  dgraph_reachable/3
+@snindex dgraph_reachable/3
+@cnindex dgraph_reachable/3
 The path @var{Path} is a path starting at vertex @var{Vertex} in graph
 @var{Graph}.
 
@@ -5504,9 +5546,9 @@ Give general overview of data-base usage in the system.
 List memory usage for every static predicate.
 
 @item db_static(+@var{Threshold})
-@findex db_static/0
-@snindex db_static/0
-@cnindex db_static/0
+@findex db_static/1
+@snindex db_static/1
+@cnindex db_static/1
 List memory usage for every static predicate. Predicate must use more
 than @var{Threshold} bytes.
 
@@ -5517,9 +5559,9 @@ than @var{Threshold} bytes.
 List memory usage for every dynamic predicate.
 
 @item db_dynamic(+@var{Threshold})
-@findex db_dynamic/0
-@snindex db_dynamic/0
-@cnindex db_dynamic/0
+@findex db_dynamic/1
+@snindex db_dynamic/1
+@cnindex db_dynamic/1
 List memory usage for every dynamic predicate. Predicate must use more
 than @var{Threshold} bytes.
 
@@ -5536,11 +5578,11 @@ lambda expressions to simplify higher order programming based on @code{call/N}.
 Lambda expressions are represented by ordinary Prolog terms.  There are
 two kinds of lambda expressions:
 
-@example
+@pl_example
     Free+\X1^X2^ ..^XN^Goal
 
          \X1^X2^ ..^XN^Goal
-@end example
+@end pl_example
 
 The second is a shorthand for@code{ t+\X1^X2^..^XN^Goal}, where @code{Xi} are the parameters.
 
@@ -5556,20 +5598,20 @@ currently not checked. Violations may lead to unexpected bindings.
 
 In the following example the parentheses around @code{X>3} are necessary.
 
-@example
+@pl_example
 ?- use_module(library(lambda)).
 ?- use_module(library(apply)).
 
 ?- maplist(\X^(X>3),[4,5,9]).
 true.
-@end example
+@end pl_example
 
 In the following @var{X} is a variable that is shared by both instances
 of the lambda expression. The second query illustrates the cooperation
 of continuations and lambdas. The lambda expression is in this case a
 continuation expecting a further argument.
 
-@example
+@pl_example
 ?- Xs = [A,B], maplist(X+\Y^dif(X,Y), Xs).
 Xs = [A, B],
 dif(X, A),
@@ -5580,25 +5622,25 @@ Xs = [A, B],
 dif(X, A),
 dif(X, B).
 
-@end example
+@end pl_example
 
 The following queries are all equivalent. To see this, use
 the fact @code{f(x,y)}.
 
-@example
+@pl_example
 ?- call(f,A1,A2).
 ?- call(\X^f(X),A1,A2).
-?- call(\X^Y^f(X,Y), A1,A2).
+?- call(\X^Y^f(X,Y), A1,A2).                                                                                                            
 ?- call(\X^(X+\Y^f(X,Y)), A1,A2).
 ?- call(call(f, A1),A2).
 ?- call(f(A1),A2).
 ?- f(A1,A2).
 A1 = x,
 A2 = y.
-@end example
+@end pl_example
 
 Further discussions
-at @url{http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord}.
+at Ulrich Neumerker's page in @url{http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord}.
 
 
 @node LAM, BDDs, Lambda, Library
@@ -5761,9 +5803,9 @@ Broadcasts the message @var{Data} with tag @var{Tag} from the process with rank 
 to all other processes.
 
 @item mpi_ibcast(+@var{Root}, +@var{Data}, +@var{Tag})
-@findex mpi_bcast/3
-@snindex mpi_bcast/3
-@cnindex mpi_bcast/3
+@findex mpi_ibcast/3
+@snindex mpi_ibcast/3
+@cnindex mpi_ibcast/3
 
 Non-blocking operation. Broadcasts the message @var{Data} with tag @var{Tag}
 from the process with rank @var{Root} to all other processes.
@@ -5861,8 +5903,7 @@ logical or
 @item bdd_tree(+@var{BDDHandle}, @var{Term})
 @findex bdd_tree/2
 Convert the BDD or ADD represented by @var{BDDHandle} to a Prolog term
-of the form @code{bdd(@var{Dir}, @var{Nodes}, @var{Vars})} or @code{
-mtbdd(@var{Nodes}, @var{Vars})}, respectively. The arguments are:
+of the form @code{bdd(@var{Dir}, @var{Nodes}, @var{Vars})} or @code{mtbdd(@var{Nodes}, @var{Vars})}, respectively. The arguments are:
 @itemize
 @item
  @var{Dir} direction of the BDD, usually 1
@@ -5971,9 +6012,9 @@ The result will be a file in dot format.
 You can make a pdf at the shell by asking @code{dot -Tpdf filename > output.pdf}.
 
 @item make_diagram(+inputfilename, +ouputfilename, +predicate, +depth, +extension)
-@findex make_diagram/2
-@snindex make_diagram/2
-@cnindex make_diagram/2
+@findex make_diagram/5
+@snindex make_diagram/5
+@cnindex make_diagram/5
 
 The same as @code{make_diagram/2} but you can define how many of the imported/exporeted predicates will be shown with predicate, and how deep the crawler is allowed to go with depth. The extension is used if the file use module directives do not include a file extension.
 
@@ -6159,7 +6200,7 @@ no
 @end table
 
 @node Attributed Variables, CLPR, Co-routining, Extensions
-@chapter Attributed Variables
+@section Attributed Variables
 @cindex attributed variables
 
 @menu
@@ -6242,6 +6283,7 @@ attribute_goals(X) -->
 
 Before explaining the code we give some example queries:
 
+@texinfo
 @multitable @columnfractions .70 .30
             @item @code{?- domain(X, [a,b]), X = c}
 @tab @code{fail}
@@ -6250,6 +6292,8 @@ Before explaining the code we give some example queries:
     @item @code{domain(X, [a,b,c]), domain(X, [a,c]).}
      @tab @code{domain(X, [a,c]).}
     @end multitable
+@end texinfo
+
 
 The predicate @code{domain/2} fetches (first clause) or assigns
 (second clause) the variable a @emph{domain}, a set of values it can
@@ -6268,15 +6312,6 @@ remaining attributes to user-readable goals that, when executed, reinstate
 these attributes.
 
 @table @code
-
-@item attvar(?@var{Term})
-@findex attvar/1
-@snindex attvar/1
-@cnindex attvar/1
-
-Succeeds if @code{Term} is an attributed variable. Note that @code{var/1} also
-succeeds on attributed variables.  Attributed variables are created with
-@code{put_attr/3}.
 
 @item put_attr(+@var{Var},+@var{Module},+@var{Value})
 @findex put_attr/3
@@ -6555,7 +6590,7 @@ It is up to the user to define which actions may be performed by
 unified with @var{Value}. If @t{verify_attributes/3} fails, the
 unification will fail.
 
-Notice that the @t{verify_attributes/3} may be called even if @var{Var}
+Notice that the @t{verify_attributes/3} may be called even if @var{Var}<
 has no attributes in module @t{Module}. In this case the routine should
 simply succeed with @var{Goals} unified with the empty list.
 
@@ -6582,14 +6617,6 @@ Prolog top-level to display attributes:
 @cnindex attribute_goal/2
 User-defined procedure, called to convert the attributes in @var{Var} to
 a @var{Goal}. Should fail when no interpretation is available.
-
-@item @var{Module}:project_attributes(@var{-QueryVars}, @var{+AttrVars})
-@findex project_attributes/2
-@syindex project_attributes/2
-@cnindex project_attributes/2
-User-defined procedure, called to project the attributes in the query,
-@var{AttrVars}, given that the set of variables in the query is
-@var{QueryVars}.
 
 @end table
 
@@ -6820,7 +6847,7 @@ attributes from other known solvers/modules via the module prefix in
 @include chr.tex
 
 @node Logtalk, MYDDAS, CHR, Extensions
-@chapter Logtalk
+@section Logtalk
 @cindex Logtalk
 
 The Logtalk object-oriented extension is available after running its 
@@ -6830,7 +6857,7 @@ program group in the Start Menu on Windows systems. For more information
 please see the URL @url{http://logtalk.org/}.
 
 @node MYDDAS, Threads, Logtalk, Extensions
-@chapter MYDDAS
+@section MYDDAS
 @cindex MYDDAS
 
 The MYDDAS database project was developed within a FCT project aiming at
@@ -7582,7 +7609,7 @@ You can see the available SQL Modes at the MySQL homepage at
 @url{http://www.mysql.org}.
 
 @node Threads, Parallelism, MYDDAS, Extensions
-@chapter Threads
+@section Threads
 
 YAP implements a SWI-Prolog compatible multithreading
 library. Like in SWI-Prolog, Prolog threads have their own stacks and
@@ -8257,7 +8284,7 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
 
 
 @node Parallelism, Tabling, Threads, Extensions
-@chapter Parallelism
+@section Parallelism
 
 @cindex parallelism
 @cindex or-parallelism
@@ -8296,7 +8323,7 @@ We expect that some of these restrictions will be removed in future
 releases.
 
 @node Tabling, Low Level Tracing, Parallelism , Extensions
-@chapter Tabling
+@section Tabling
 @cindex tabling
 
 @strong{YAPTab} is the tabling engine that extends YAP's execution
@@ -8449,7 +8476,7 @@ Prints statistics on space used by all tables.
 
 
 @node Low Level Tracing, Low Level Profiling, Tabling, Extensions
-@chapter Tracing at Low Level
+@section Tracing at Low Level
 
 It is possible to follow the flow at abstract machine level if
 YAP is compiled with the flag @code{LOW_LEVEL_TRACER}. Note
@@ -8468,16 +8495,16 @@ deactivate low level tracing:
 Begin display of messages at procedure entry and retry.
 
 @item stop_low_level_trace
-@findex start_low_level_trace/0
-@snindex start_low_level_trace/0
-@cnindex start_low_level_trace/0
+@findex stop_low_level_trace/0
+@snindex stop_low_level_trace/0
+@cnindex stop_low_level_trace/0
 Stop display of messages at procedure entry and retry.
 @end table
 
 Note that this compile-time option will slow down execution.
 
 @node Low Level Profiling, , Low Level Tracing, Extensions
-@chapter Profiling the Abstract Machine
+@section Profiling the Abstract Machine
 
 Implementors may be interested in detecting on which abstract machine
 instructions are executed by a program. The @code{ANALYST} flag can give
@@ -8509,7 +8536,7 @@ label @var{A}. The label must be an atom.
 @end table
 
 @node Debugging,Efficiency,Extensions,Top 
-@chapter Debugging
+@section Debugging
 
 @menu
 * Deb Preds:: Debugging Predicates
@@ -8792,10 +8819,10 @@ shows the active goal using display/1
 @item <Depth - debugger write depth
 sets the maximum write depth, both for composite terms and lists, that
 will be used by the debugger. For more
-information about @code{write_depth/2} (@pxref{I/O Control}).
+information about @code{write_depth/2} (@pxref{Input/Output Control}).
 @item < - full term
 resets to the default of ten the debugger's maximum write depth. For
-more information about @code{write_depth/2} (@pxref{I/O Control}).
+more information about @code{write_depth/2} (@pxref{Input/Output Control}).
 @item A - alternatives
  show the list of backtrack points in the current execution. 
 @item g [@var{N}] 
@@ -8984,7 +9011,7 @@ when @var{Id} unifies with the number of the process under which YAP is running.
 In this case we will create a @code{my_process.c} file containing the
 C-code described below.
 
-@example
+@c_example
 @cartouche
 #include "YAP/YapInterface.h"
 
@@ -9000,7 +9027,7 @@ void init_my_predicates()
      YAP_UserCPredicate("my_process_id",my_process_id,1);
 @}
 @end cartouche
-@end example
+@end c_example
 
 The commands to compile the above file depend on the operating
 system. Under Linux (i386 and Alpha) you should use:
@@ -9780,7 +9807,7 @@ will be undone. In both cases, any slots allocated since the goal was
 created will become invalid.
 
 @item  @code{YAP_Bool} YAP_GoalHasException(@code{YAP_Term *tp})
-@findex YAP_RestartGoal (C-Interface function)
+@findex YAP_GoalHasException (C-Interface function)
 Check if the last goal generated an exception, and if so copy it to the
 space pointed to by @var{tp}
 
@@ -9798,7 +9825,7 @@ and when there is no interest in processing exception. The
 @findex YAP_FunctorToPred (C-Interface function)
 Return the predicate whose main functor is @var{f}.
 
-@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
+@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at}
 @findex YAP_AtomToPred (C-Interface function)
 Return the arity 0 predicate whose name is @var{at}.
 
@@ -9806,10 +9833,6 @@ Return the arity 0 predicate whose name is @var{at}.
 YAP_FunctorToPredInModule(@code{YAP_Functor} @var{f}, @code{YAP_Module} @var{m}),
 @findex YAP_FunctorToPredInModule (C-Interface function)
 Return the predicate in module @var{m} whose main functor is @var{f}.
-
-@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
-@findex YAP_AtomToPred (C-Interface function)
-Return the arity 0 predicate whose name is @var{at}.
 
 @item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at}, @code{YAP_Module} @var{m}),
 @findex YAP_AtomToPredInModule (C-Interface function)
@@ -10014,9 +10037,6 @@ predicate and @var{arity} is the predicate's arity.
 
 @item   void YAP_PRESERVE_DATA(@var{ptr}, @var{type});
 @findex YAP_PRESERVE_DATA (C-Interface function)
-
-@item   void YAP_PRESERVED_DATA(@var{ptr}, @var{type});
-@findex YAP_PRESERVED_DATA (C-Interface function)
 
 @item   void YAP_PRESERVED_DATA(@var{ptr}, @var{type});
 @findex YAP_PRESERVED_DATA (C-Interface function)
@@ -10308,7 +10328,7 @@ arguments to the backtrackable procedure.
 @end itemize
 
 @node YAPLibrary, Compatibility, C-Interface, Top
-@chapter Using YAP as a Library
+@section Using YAP as a Library
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -10534,7 +10554,7 @@ space for your program.
 
 @item The initial library includes the complete YAP system. In
 the future we plan to split this library into several smaller libraries
-(e.g. if you do not want to perform I/O).
+(e.g. if you do not want to perform Input/Output).
 
 @item You can generate your own saved states. Look at  the
 @code{boot.yap} and @code{init.yap} files.
@@ -10847,12 +10867,6 @@ Calling @code{set_prolog_flag(to_chars_mode,iso)} will switch
 YAP to use the ISO definition for
 @code{atom_chars/2} and @code{number_chars/2}.
 
-@item By default, YAP fails on undefined predicates. To follow the ISO
-Prolog standard use:
-@example
-:- set_prolog_flag(unknown,error).
-@end example
-
 @item By default, YAP allows executable goals in directives. In ISO mode
 most directives can only be called from top level (the exceptions are
 @code{set_prolog_flag/2} and @code{op/3}).
@@ -10881,7 +10895,7 @@ Please inform the authors on other incompatibilities that may still
 exist.
 
 @node Operators, Predicate Index, Compatibility, Top
-@appendix Summary of YAP Predefined Operators
+@section Summary of YAP Predefined Operators
 
 
  The Prolog syntax caters for operators of three main kinds:

@@ -34,7 +34,6 @@ scan_file( Inp ) :-
 	repeat,
 	line_count( S, Lines ),
 	read_line_to_string(S, Line0),
-%( Lines = 416 %string(Line0),sub_string( Line0,_,_,_, "\secref{unicodesyntax}") -> trace ; true ),
 	assert_static( source( Inp, Lines, Line0 ) ),
 	( Line0 == end_of_file ->
 	  !,
@@ -131,7 +130,9 @@ out( _S ) :-
 	nb_setval( min, 0 ),
 	fail.
 out( S ) :-
-	line( F, Pos, Line),
+	line( F, Pos, Line0),
+%( Pos = 5770  -> trace ; true ),
+	jmp_blanks( Line0, Line),
 	b_setval( line, F:Pos:Line ),
 	process( Line , NewLine, F:Pos),
 	offset( N ),
@@ -141,8 +142,8 @@ out( S ) :-
 	;
 	  NewLine == ""
 	->
-%	  nb_getval( old_line, OldLine ),
-%	  OldLine \= "",	  
+	  nb_getval( old_line, OldLine ),
+	  OldLine \= "",	  
 	  format(string(SN), '~n', [])
 	;
 	  NewLine == force
@@ -185,6 +186,9 @@ singleton_line(L) :- string_concat("@itemize",_R,L), !.
 singleton_line(L) :- string_concat("@enumerate",_R,L), !.
 singleton_line(L) :- string_concat("@table",_R,L), !.
 singleton_line(L) :- string_concat("@example",_R,L), !, assert( singletons ).
+singleton_line(L) :- string_concat("@ifplaintext",_R,L), !, assert( singletons ).
+singleton_line(L) :- string_concat("@pl_example",_R,L), !, assert( singletons ).
+singleton_line(L) :- string_concat("@c_example",_R,L), !, assert( singletons ).
 singleton_line(L) :- string_concat("@simpleexample",_R,L), !, assert( singletons ).
 singleton_line(L) :- string_concat("@end",R,L), !,
 	( sub_string(R, _, _, _, "example") -> retract( singletons ) ; true ).
@@ -200,16 +204,20 @@ process( Line , S, F:Pos ) :-
 	(
 	 first_word(Line, "@end", Rest)
 	->
-	 first_word(Rest, Env1, _Rest2),
 	 (
-	  ( Env1 == "example" ; Env1 == "smallexample" )
+	  first_word(Rest, Env1, _Rest2),
+	  sub_string( Env1, _, _, 0, "example" )
 	 ->
 	  ( S = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" ;
 	    pop( skip, verbatim ), fail
 	  )
-% fail in other ends
-%	 ;
-%	  Env1 = "cartouche"
+	 ;
+	  first_word(Rest, Env1, _Rest2),
+	  sub_string( Env1, _, _, 0, "plaintext" )
+	 ->
+	  ( S = "" ;
+	    pop( skip, verbatim ), fail
+	  )
 	 )
 	;
 	 first_word(Line, "@cartouche", Rest)
@@ -224,8 +232,12 @@ process( Line , "", _Pos ) :-
 	first_word(Line, Word, Rest),
 	Word == "@end",
 	first_word(Rest, Word2, _Rest),
-	W2 = Word2,
-	pop( skip, W2 ).
+	( W2 = Word2
+	->
+	  pop( skip, W2 )
+	;
+	  true
+	).
 % command: flush and continue
 process( Command , NewLine , Pos) :-
 	do_buffer(Command, NewLine, Pos ).
@@ -254,36 +266,49 @@ command( Line, Word, Rest ) :-
 	clause( process( Word, _, _, _, _ ), _),
 	!.
 
+process("@item", _Line, _Rest, NewLine , _FilePos) :- 
+	speek( list, it(_Env, _Item, _Pos, Numb)),
+	Numb > 1,
+	NewLine = "</li>".
 process("@item", Line, Rest, NewLine , FilePos) :- 
 	pop( list, it(Env, Item, Pos, Numb)), !,
 	NNumb is Numb+1,
 	run( Text, Rest ),
-	jmp_blanks( Rest, First ),
-	item_type(Item, Numb, Marker ),
+	jmp_blanks( Text, First ),
+	Pos1 is Pos,
+%	item_type(Item, Numb, Marker ),
+	Marker = "",
 	(
-	    Env = "table",
+	    Env = "@table",
 	     atom_string( A, Line ),
 	     pred( _Pred, Key, A, FilePos )
 	     ->
 		 push( list, it(Env, Item, Pos, NNumb) ),
 		 (
 		     % sendout the comand
-		     format(string(NewLine), '~t~s ~*|~s @anchor ~a', [Marker, Pos, First,  Key]),
+		     format(string(NewLine), '~t~s ~*+<li>~s @anchor ~a', [Marker, Pos1, First,  Key]),
 		     push( indent, done )	
 			 ;
 			 NewLine = force
 		     )
 		 ;
-		 format(string(NewLine), '~t~s ~*|~s', [ Marker, Pos, First]),
+		 format(string(NewLine), '~t~s ~*+<li>~s', [ Marker, Pos, First]),
 		push( list, it(Env, Item, Pos, NNumb) ),
 		push( indent, done )	
-	).
+	). %,	writeln(+FilePos:Line), listing(stack).	
+process("@end", _Line, _Rest, "</li>" , _Pos) :-
+	once( speek(list,it(_Env,_,_LL,_)) ).
 process("@end", _Line, Rest, NewLine , _Pos) :-
 	speek(list,it(Env,_,_LL,_)),
+	( Env = "@enumerate" ->		
+	  NewLine = "</ol>"
+	;
+	  NewLine = "</ul>"
+	),
 	sub_string( Env, 1, _, 0, Env1 ),
 	sub_string( Rest, _, _, _, Env1), !, % check
-	pop( list, it(Env, _, _, _) ),
-	NewLine = "".
+%	writeln(_Pos:_Line), listing(stack),
+	pop( list, it(Env, _, _, _) ).
 process("@end", Line, _Rest, NewLine , _Pos) :-
 	sub_string(Line, _, _, 0, "ifnottex"), !, % check
 	NewLine = "\\endhtmlonly".
@@ -304,7 +329,11 @@ process("@end", Line, _Rest, NewLine , _Pos) :-
 process("@author", _Line, Rest, NewLine , _Pos) :- !,
 	jmp_blanks( Rest, Firs ),
 	format( string( NewLine), '\\author ~s', [ Firs ] ).
-process("@*", _Line, _Rest, ¨¨  , _Pos) :- !.
+process("@*", _Line, _Rest, ""  , _Pos).
+process("@*", _Line, Rest, Line  , _Pos) :-
+	!,
+	jmp_blanks( Rest, Firs ),
+	run( Line, Firs ).
 process("@c", _Line, Rest, NewLine , _Pos) :- !,
 	gen_comment( Rest, NewLine ).
 process("@comment", _Line, Rest, NewLine , _Pos) :- !,
@@ -320,7 +349,8 @@ process("@chapter", _Line, Rest, NewLine, _Pos ) :- !,
 	run( Title, Firs ),
 	nb_setval( level, 1 ),
 	title_from_words(Firs, Id, _Pos),
-	format(string(NewLine), '@section ~s ~s', [Id,Title]).
+	title( '@chapter', _, TitleDox ),
+	format(string(NewLine), '~a ~s ~s', [TitleDox, Id,Title]).
 %	( format( string(NewLine), '~s', [Title] ) ; NewLine = "======" ).
 process("@cindex", _Line, _Rest,  no , _Pos) :- !.
 process("@caindex", _Line, _Rest, no, _Pos ) :- !.
@@ -329,6 +359,9 @@ process("@defindex", Line, _Rest, NewLine , _Pos) :- !,
 process("@direntry", Line, _Rest, NewLine, _Pos ) :- !,
        gen_comment( Line, NewLine ),
        push(skip, "direntry" ).
+process("@texinfo", Line, _Rest, NewLine, _Pos ) :- !,
+       gen_comment( Line, NewLine ),
+       push(skip, "texinfo" ).
 process("@documentencoding", _Line, _Rest, "" , _Pos) :- !.
 	% jmp_blanks( Rest, NewString ),
 	% format( string( NewLine), '<meta charset="~s">', [ NewString ] ).
@@ -340,7 +373,16 @@ process("@enumerate", _Line, _Rest, NewLine , _Pos) :-
 process("@example", _Line, _Rest, "" , _Pos).
 process("@example", _Line, _Rest, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" , _Pos) :- !,
 	push( skip, verbatim).
+process("@ifplaintext", _Line, _Rest, "" , _Pos) :- !,
+	push( skip, verbatim).
+process("@pl_example", _Line, _Rest, "" , _Pos).
+process("@pl_example", _Line, _Rest, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}" , _Pos) :- !,
+	push( skip, verbatim).
+process("@c_example", _Line, _Rest, "" , _Pos).
+process("@c_example", _Line, _Rest, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}" , _Pos) :- !,
+	push( skip, verbatim).
 process("@format", _Line, _Rest, "", _Pos ) :- !.
+process("@alias", _Line, _Rest, "", _Pos ) :- !.
 process("@dircategory", _Line, _Rest, "", _Pos ) :- !.
 process("@smallexample", _Line, _Rest, "" , _Pos).
 process("@smallexample", _Line, _Rest, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" , _Pos) :- !,
@@ -373,8 +415,9 @@ process("@section", _Line, Rest, NewLine, Pos ) :- !,
 	run( NewTitle, Title ),
 	nb_setval( level, 2 ),
 %	format(string(NewLine), '# ~s #', [NewTitle]).
+	title( '@section', _, TitleDox ),
 	title_from_words(NewTitle, Id, Pos),
-	format(string(NewLine), '@subsection ~s ~s', [Id,NewTitle]).
+	format(string(NewLine), '~a ~s ~s', [TitleDox,Id,NewTitle]).
 %	format(string(NewLine), '# ~s #', [NewTitle]).
 process("@appendix", _Line, Rest, NewLine, _Pos ) :- !,
 	jmp_blanks( Rest, Title ),
@@ -384,8 +427,9 @@ process("@subsection", _Line, Rest, NewLine, _Pos ) :- !,
 	jmp_blanks( Rest, Title ),
 	run( NewTitle, Title ),
 	nb_setval( level, 3 ),
+	title( '@subsection', _, TitleDox ),
 	title_from_words(NewTitle, Id, _Pos),
-	format(string(NewLine), '@subsubsection ~s ~s', [Id,NewTitle]).
+	format(string(NewLine), '~a ~s ~s', [TitleDox,Id,NewTitle]).
 %	format(string(NewLine), '## ~s ##', [NewTitle]).
 process("@unnumberedsubsubsec", _Line, Rest, NewLine, _Pos ) :- !,
  	nb_setval( level, 4 ),
@@ -394,8 +438,9 @@ process("@subsubsection", _Line, Rest, NewLine, _Pos ) :- !,
  	nb_setval( level, 4 ),
 	jmp_blanks( Rest, Title ),
 	run( NewTitle, Title ),
+	title( '@subsubsection', _, TitleDox ),
 	title_from_words(NewTitle, Id, _Pos),
-	format(string(NewLine), '@paragraph ~s ~s', [Id,NewTitle]).
+	format(string(NewLine), '~a ~s', [TitleDox,Id,NewTitle]).
 %	format(string(NewLine), '### ~s ###', [NewTitle]).
 process("@set", _Line, Rest, NewLine , _Pos) :- !,
 	first_word( Rest, V, SecC),
@@ -416,16 +461,7 @@ process("@setchapternewpage", Line, _Rest, NewLine, _Pos ) :- !,
 	gen_comment( Line, NewLine ).
 process("@setfilename", Line, _Rest, NewLine, _Pos ) :- !,
 	gen_comment( Line, NewLine ).
-process("@settitle", _Line, Rest, NewLine , _Pos) :- !,
-	jmp_blanks( Rest, Title ),
-	( format(string(NewLine), '~s                         {#mainpage}', [Title]) ; NewLine = "=================="; NewLine = "" ;
-	  NewLine = "";
-	  NewLine = "[TOC]";
-	  NewLine = "";
-NewLine = "@secreflist" ;
-	  NewLine = "";
-NewLine = "@endsecreflist" 
-).
+process("@settitle", _Line, _Rest, "" , _Pos) :- !.
 process("@subtitle", _Line, _Rest, "", _Pos ) :- !.
 process("@include", _Line, _Rest, "", _Pos ) :- !.
 process("@table", _Line, Rest, NewLine , _Pos) :- !,
@@ -461,21 +497,25 @@ get_second( Rest, Title ) :-
 % clear the buffer first.
 %
 list( Env, Line, New, _Pos) :-
-    writeln(_Pos),
 	first_word( Line, V, Rest),
 	jmp_blanks( Rest, End ),
 	( 
-	  speek( list, it(_, _,Pos, _) ) ->
-	   Pos1 is Pos + 6
+	  speek( list, it(_, _, _Pos, _) ) ->
+	   Pos1 is 0 % Pos + 4
 	;
-	  Pos1 = 6
+	  Pos1 = 0 %4
 	),
 	push( list, it( Env, V, Pos1, 1 ) ),
 	% b_getval( pos, _Pos ),
 	% writeln(add:_Pos:Env:Pos1:End),
 	% listing(stack),
 	run( New, End).
-	    
+list( Env, _Line, NewLine, _Pos) :-
+	( Env = "@enumerate" ->		
+	  NewLine = "<ol>"
+	;
+	  NewLine = "<ul>"
+	).	    
 
 item_type("@bullet", _, "-" ).
 item_type("@code", _, "-" ).
@@ -521,9 +561,11 @@ from_word( Line, Id ) :-
 	 simplify( C1, C0, []), 
 	 string_codes( Id, C1 ).
 
-simplify( [0'_|L]) --> " ", !,
+simplify( [0'_|L]) --> " ", !, %'
 	  simplify(L).
-simplify( [0'a,0'A|L]) --> "@", !,
+simplify( [0's,0'T|L]) --> "*", !, %'
+	  simplify(L).
+simplify( [0'a,0'A|L]) --> "@", !, 
 	  simplify(L).
 simplify( [0'b,0'A|L]) --> "'", !,
 	  simplify(L).
@@ -637,7 +679,7 @@ pop(Type, Val) :-
 	stack(T, V), !,
 	T = Type,
 	V = Val,
-	retract(stack(T,V)).
+	once( retract(stack(T,V)) ).
 
 push(Type, Val) :-
 	asserta(stack(Type,Val)).
@@ -706,11 +748,17 @@ run( L) --> "@value{", !,
 	run(R).
 run( L) --> "@pxref{", !,
 	argument(AL, 0'{, 0'}),
-	{  format(codes(L, R), '`see ~s`', [AL] )  }, %'
+	{
+	 string_codes(S, AL),
+	 from_word(S, Id),
+	 format(codes(L, R), ' (see [~s](@ref ~s))', [AL,Id] )  }, %' %
 	run(R).
 run( L) --> "@ref{", !,
 	argument(AL, 0'{, 0'}),
-	{  format(codes(L, R), '[~s](@ref ~s)', [AL,AL] )  }, %'
+	{  
+	 string_codes(S, AL),
+	 from_word(S, Id),
+	 format(codes(L, R), '[~s](@ref ~s)', [AL,Id] )  }, %'
 	run(R).
 run( L) --> "@strong{", !,
 	argument(AL, 0'{, 0'}),
@@ -808,11 +856,9 @@ argument(L, _C0, _C, L, []) :-
 	format(user_error, 'Line ~w :-~n argument ~c~s~c does not close in same line.~n', [Line, _C0, L, _C]).
 
 argument0([], 0, _, C ) --> [C], !.
-%:- start_low_level_trace.
 argument0([C|L], I0, C0, C ) --> [C], !,
 	{ I0 > 0, I is I0-1 },
 	argument0( L, I, C0, C).
-%:- stop_low_level_trace.
 argument0([C0|L], I0, C0, C ) --> [C0], !,
 	{ I is I0+1 },
 	argument0( L, I, C0, C).
@@ -854,11 +900,18 @@ id(X) :-
 	X1 is X+100,
 	assert(i(X1)).
 
-title(1, page).
-title(2, section).
-title(3, subsection).
-title(4, subsubsection).
-title(5, paragraph).
-title(6, paragraph).
+title(TexTitle, Level, DoxTitle) :-
+	title( Level, TexTitle),
+%	Level1 is Level + 1,
+	title( Level, DoxTitle ), !.
+
+title(1, '@page' ).
+title(1, '@chapter' ).
+title(2, '@section' ).
+title(3, '@subsection' ).
+title(4, '@subsubsection' ).
+title(5, '@paragraph' ).
+title(6, '@paragraph' ).
 
 %:- spy title_from_words.
+
