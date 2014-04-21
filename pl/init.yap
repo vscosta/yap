@@ -114,7 +114,7 @@ otherwise.
 	 'ground.yap',
 	 'listing.yap',
 	 'preds.yap',
-         'arithpreds,yap',
+         'arithpreds.yap',
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
