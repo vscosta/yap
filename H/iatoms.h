@@ -50,6 +50,7 @@
   AtomCharsio = Yap_LookupAtom("charsio");
   AtomCharacter = Yap_LookupAtom("character");
   AtomCharacterCode = Yap_LookupAtom("character_code");
+  AtomCharset = Yap_LookupAtom("charset");
   AtomCleanCall = Yap_FullLookupAtom("$clean_call");
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");
@@ -81,6 +82,7 @@
   AtomDefault = Yap_LookupAtom("default");
   AtomDevNull = Yap_LookupAtom("/dev/null");
   AtomDiff = Yap_LookupAtom("\\=");
+  AtomDiscontiguous = Yap_LookupAtom("discontiguous");
   AtomDollar = Yap_FullLookupAtom("$");
   AtomDoLogUpdClause = Yap_FullLookupAtom("$do_log_upd_clause");
   AtomDoLogUpdClause0 = Yap_FullLookupAtom("$do_log_upd_clause0");
@@ -183,6 +185,7 @@
   AtomModify = Yap_LookupAtom("modify");
   AtomMost = Yap_LookupAtom("most");
   AtomMultiFile = Yap_FullLookupAtom("$mf");
+  AtomMultiple = Yap_FullLookupAtom("multiple");
   AtomMutable = Yap_LookupAtom("mutable");
   AtomMutableVariable = Yap_FullLookupAtom("$mutable_variable");
   AtomMyddasDB = Yap_FullLookupAtom("$myddas_db");
@@ -195,6 +198,7 @@
   AtomNb = Yap_LookupAtom("nb");
   AtomNbTerm = Yap_LookupAtom("nb_term");
   AtomNew = Yap_LookupAtom("new");
+  AtomNoEffect = Yap_LookupAtom("no_effect");
   AtomNoMemory = Yap_LookupAtom("no_memory");
   AtomNone = Yap_LookupAtom("none");
   AtomNonEmptyList = Yap_LookupAtom("non_empty_list");
@@ -282,6 +286,7 @@
   AtomSigUsr2 = Yap_LookupAtom("sig_usr2");
   AtomSigVTAlarm = Yap_LookupAtom("sig_vtalarm");
   AtomSigWakeUp = Yap_LookupAtom("sig_wake_up");
+  AtomSingleton = Yap_LookupAtom("singleton");
   AtomSlash = Yap_LookupAtom("/");
   AtomSocket = Yap_LookupAtom("socket");
   AtomSourceSink = Yap_LookupAtom("source_sink");
@@ -335,6 +340,7 @@
   AtomUserOut = Yap_LookupAtom("user_output");
   AtomVBar = Yap_LookupAtom("|");
   AtomVar = Yap_FullLookupAtom("$VAR");
+  AtomVarBranches = Yap_LookupAtom("var_branches");
   AtomHiddenVar = Yap_FullLookupAtom("$V");
   AtomVariable = Yap_LookupAtom("variable");
   AtomVersionNumber = Yap_FullLookupAtom("$version_name");

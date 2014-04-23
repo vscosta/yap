@@ -15,6 +15,85 @@
 *									 *
 *************************************************************************/
 
+/**
+
+    @defgroup arithmetic Arithmetic in YAP 
+
+    @tableofcontents
+
+    YAP supports several different numeric types:
+<ul>
+ <li><b>Tagged integers</b><p>
+
+ YAP supports integers of word size: 32 bits on 32-bit machines, and
+ 64-bits on 64-bit machines.The engine transprently tags smaller
+ integers are tagged so that they fit in a single word. These are the
+ so called <em>tagged integers</em>.
+
+ <li><b>Large integers</b><p>
+ Larger integers that still fit in a cell
+ are represented in the Prolog goal stack. The difference between
+ these integers and tagged integers should be transparent to the programmer.
+
+</li>
+<li><b>Multiple Precision Integers</b><p>
+
+When YAP is built using the GNU multiple precision arithmetic library
+(GMP), integer arithmetic is unbounded, which means that the size of
+integers is only limited by available memory. The type of integer
+support can be detected using the Prolog flags bounded, min_integer
+and max_integer. As the use of GMP is default, most of the following
+descriptions assume unbounded integer arithmetic.
+
+</li> <li><b>Rational numbers (Q)</b><p> Rational numbers are
+quotients of two integers. Rational arithmetic is provided if GMP is
+used. Rational numbers that are returned from is/2 are canonical,
+which means the denominator _M_ is positive and that the numerator _N_
+and _M_ have no common divisors. Rational numbers are introduced in
+the computation using the [rational/1][@ref rational_1],
+[rationalize/1][@ref rationalize_1] or the [rdiv/2][@ref rdiv_2]
+(rational division) function.
+
+</li>
+ <li><b>Floating point numbers</b><p>
+
+Floating point numbers are represented using the C-type double. On
+most today platforms these are 64-bit IEEE-754 floating point
+numbers. YAP now includes the built-in predicates [isinf/1][@ref isinf_1] and to [isnan/1][@ref isnan_1] tests.
+</li>
+</ul>
+
+Arithmetic functions that require integer arguments accept, in addition
+to integers, rational numbers with denominator `1' and floating point
+numbers that can be accurately converted to integers. If the required
+argument is a float the argument is converted to float. Note that
+conversion of integers to floating point numbers may raise an overflow
+exception. In all other cases, arguments are converted to the same type
+using the order integer to rational number to floating point number.
+
+Evaluation generates the following _Call_
+exceptions:
+
+   @exception "error(instantiation_error, Call )" if not ground
+
+   @exception "type_error(evaluable( V ), Call)" if not evaluable term
+   @exception "type_error(integer( V ), Call)" if must be integer
+   @exception "type_error(float( V ), Call)" if must be float
+
+   @exception "domain_error(out_of_range( V ), Call)" if argument invalid
+   @exception "domain_error(not_less_than_zero( V ), Call)" if argument must be positive or zero
+
+   @exception "evaluation_error(undefined( V ), Call)" result is not defined (nan)
+   @exception "evaluation_error(overflow( V ), Call)" result is arithmetic overflow
+   
+@secreflist
+@refitem is_2
+@refitem isnan_1
+@endsecreflist
+
+
+ **/
+
 #include <stdlib.h>
 
 /* C library used to implement floating point functions */

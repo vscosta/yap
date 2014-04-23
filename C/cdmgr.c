@@ -1998,7 +1998,6 @@ static void  expand_consult( void )
   LOCAL_ConsultLow = new_cl;
 }
 
-/* p was already locked */
 static int 
 not_was_reconsulted(PredEntry *p, Term t, int mode)
 {
@@ -6457,7 +6456,6 @@ p_nth_instance( USES_REGS1 )
   return TRUE;    
 
 }
-
 
 void 
 Yap_InitCdMgr(void)

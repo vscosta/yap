@@ -18,10 +18,111 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-/*
- * This file implements unary arithmetic operations in YAP
- *
- */
+/**
+
+   @file arith2.c
+
+   @addtogroup arithmetic_operators
+
+These are the binary numeric operators currently supported by YAP.
+
+  - <b> _X_+ _Y_ [ISO]</b><p>
+
+    Sum.
+
+  - <b> _X_- _Y_ [ISO]</b><p>
+
+    Difference.
+
+  - <b> _X_\* _Y_ [ISO]</b><p>
+
+    Product.
+
+  - <b> _X_/ _Y_ [ISO]</b><p>
+
+    Quotient.
+
+  - <b> _X_// _Y_ [ISO]</b><p>
+
+    Integer quotient.
+
+  - <b> _X_ mod  _Y_ [ISO]</b><p> @anchor mod_2
+
+    Integer module operator, always positive.
+
+  - <b> _X_ rem  _Y_ [ISO]</b><p> @anchor rem_2
+
+    Integer remainder, similar to `mod` but always has the same sign as `X`.
+
+  - <b>  _X_ div  _Y_ [ISO]</b><p> @anchor div_2
+
+    Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
+
+  - <b> max( _X_, _Y_) [ISO]</b><p> @anchor max_2
+
+    The greater value of  _X_ and  _Y_.
+
+  - <b> min( _X_, _Y_) [ISO]</b><p> @anchor min_2
+
+    The lesser value of  _X_ and  _Y_.
+
+  - <b> _X_ ^  _Y_ [ISO]</b><p>
+
+     _X_ raised to the power of  _Y_, (from the C-Prolog syntax).
+
+  - <b> exp( _X_, _Y_)</b><p> @anchor exp_2
+
+     _X_ raised to the power of  _Y_, (from the Quintus Prolog syntax).
+
+  - <b> _X_ \*\*  _Y_ [ISO]</b><p>
+
+     _X_ raised to the power of  _Y_  (from ISO).
+
+  - <b> _X_ /\\  _Y_ [ISO]</b><p>
+
+    Integer bitwise conjunction.
+
+  - <b> _X_ \\/  _Y_ [ISO]</b><p>
+
+    Integer bitwise disjunction.
+
+  - <b> _X_ #  _Y_</b><p>
+
+    Integer bitwise exclusive disjunction.
+
+  - <b> _X_ \>\<  _Y_</b><p>
+
+    Integer bitwise exclusive disjunction.
+
+  - <b> xor( _X_ ,  _Y_) [ISO]</b><p> @anchor xor_2
+
+    Integer bitwise exclusive disjunction.
+
+  - <b> _X_ \<\<  _Y_</b><p>
+
+    Integer bitwise left logical shift of  _X_ by  _Y_ places.
+
+  - <b> _X_ \>\>  _Y_ [ISO]</b><p>
+
+    Integer bitwise right logical shift of  _X_ by  _Y_ places.
+
+  - <b> gcd( _X_, _Y_)</b><p> @anchor gcd_2
+
+    The greatest common divisor of the two integers  _X_ and  _Y_.
+
+  - <b> atan( _X_, _Y_)</b><p> @anchor atan_2
+
+    Four-quadrant arc tangent. Also available as `atan2/2`.
+
+  - <b> atan2( _X_, _Y_) [ISO]</b><p> @anchor atan2_2
+
+    Four-quadrant arc tangent.
+
+  - <b>  _X_ rdiv  _Y_ [ISO]</b><p> @anchor rdiv_2
+
+    Rational division.
+
+*/
 
 #include "Yap.h"
 #include "Yatom.h"

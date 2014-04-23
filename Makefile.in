@@ -298,6 +298,7 @@ PLCONS_SOURCES = \
 
 PL_SOURCES= \
 	pl/arith.yap \
+	pl/arithpreds.yap \
 	pl/arrays.yap \
 	pl/attributes.yap \
 	pl/atoms.yap \

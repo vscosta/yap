@@ -126,6 +126,21 @@ reportReadError(ReadData rd)
 }
 
 
+/* static int */
+/* reportSingletons(ReadData rd, singletons, Atom amod, Atom aname, UInt arity) */
+/* {  */
+/*   printMessage(ATOM_warning, PL_FUNCTOR_CHARS,  */
+/* 	       "singletons", 2, */
+/* 	       PL_TERM, singletons,  */
+/* 	       PL_TERM, mod, */
+/* 	       PL_FUNCTOR_divide2, */
+/* 	       PL_ATOM, name, */
+/* 	       PL_INT, arity); */
+
+/*   return FALSE; */
+/* } */
+
+
 		/********************************
 		*           RAW READING         *
 		*********************************/
@@ -945,15 +960,14 @@ callCommentHook(term_t comments, term_t tpos, term_t term)
     PL_put_term(av+2, term);
 
     if ( (qid = PL_open_query(NULL, PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION,
-			      (predicate_t)PredCommentHook, av)) )
+                              (predicate_t)PredCommentHook, av)) )
     { term_t ex;
 
       if ( !PL_next_solution(qid) && (ex=PL_exception(qid)) )
-	printMessage(ATOM_error, PL_TERM, ex);
+        printMessage(ATOM_error, PL_TERM, ex);
 
       PL_close_query(qid);
     }
-
     PL_discard_foreign_frame(fid);
   }
 }
@@ -1075,6 +1089,126 @@ unify_read_term_position(term_t tpos ARG_LD)
   }
 }
 
+/** read_clause(+Stream:stream, -Clause:clause, +Options:list)
+    
+Options:
+        * variable_names(-Names)
+        * process_comment(+Boolean)
+        * comments(-List)
+        * syntax_errors(+Atom)
+        * term_position(-Position)
+        * subterm_positions(-Layout)
+*/
+
+static const opt_spec read_clause_options[] =
+{ { ATOM_variable_names,    OPT_TERM },
+  { ATOM_term_position,     OPT_TERM },
+  { ATOM_subterm_positions, OPT_TERM },
+  { ATOM_process_comment,   OPT_BOOL },
+  { ATOM_comments,          OPT_TERM },
+  { ATOM_syntax_errors,     OPT_ATOM },
+  { NULL_ATOM,              0 }
+};
+
+
+static int
+read_clause(IOSTREAM *s, term_t term, term_t options ARG_LD)
+{ read_data rd;
+  int rval;
+  fid_t fid;
+  term_t tpos = 0;
+  term_t comments = 0;
+  term_t opt_comments = 0;
+  int process_comment;
+  atom_t syntax_errors = ATOM_dec10;
+
+  {
+    OPCODE ophook = PredCommentHook->OpcodeOfPred;
+    if (ophook == UNDEF_OPCODE || ophook == FAIL_OPCODE)
+      process_comment = FALSE;
+    else 
+      process_comment = TRUE;
+  }
+  if ( !(fid=PL_open_foreign_frame()) )
+    return FALSE;
+
+retry:
+  init_read_data(&rd, s PASS_LD);
+
+  if ( options &&
+       !scan_options(options, 0, ATOM_read_option, read_clause_options,
+                     &rd.varnames,
+                     &tpos,
+                     &rd.subtpos,
+                     &process_comment,
+                     &opt_comments,
+                     &syntax_errors) )
+  { PL_close_foreign_frame(fid);
+    return FALSE;
+  }
+
+  if ( opt_comments )
+  { comments = PL_new_term_ref();
+  } else if ( process_comment )
+  { if ( !tpos )
+      tpos = PL_new_term_ref();
+    comments = PL_new_term_ref();
+  }
+
+  REGS_FROM_LD
+  rd.module = Yap_GetModuleEntry( LOCAL_SourceModule );
+  if ( comments )
+    rd.comments = PL_copy_term_ref(comments);
+  rd.on_error = syntax_errors;
+  rd.singles = rd.styleCheck & SINGLETON_CHECK ? 1 : 0;
+  if ( (rval=read_term(term, &rd PASS_LD)) &&
+       (!tpos || (rval=unify_read_term_position(tpos PASS_LD))) )
+    {
+      if (rd.singles) {
+	// warning, singletons([X=_A],f(X,Y,Z), pos).
+	printMessage(ATOM_warning, 
+		     PL_FUNCTOR_CHARS, "singletons", 3,
+		     PL_TERM, rd.singles, 
+		     PL_TERM, term,
+		     PL_TERM, tpos );
+      }
+      if ( rd.comments &&
+         (rval = PL_unify_nil(rd.comments)) )
+	{ if ( opt_comments )
+	    rval = PL_unify(opt_comments, comments);
+	  else if ( !PL_get_nil(comments) )
+	    callCommentHook(comments, tpos, term);
+	} else
+	{ if ( rd.has_exception && reportReadError(&rd) )
+	    { PL_rewind_foreign_frame(fid);
+	      free_read_data(&rd);
+	      goto retry;
+	    }
+	}
+    }
+  free_read_data(&rd);
+
+  return rval;
+}
+
+
+static
+PRED_IMPL("read_clause", 3, read_clause, 0)
+{ PRED_LD
+  int rc;
+  IOSTREAM *s;
+
+  if ( !getTextInputStream(A1, &s) )
+    return FALSE;
+  rc = read_clause(s, A2, A3 PASS_LD);
+  if ( Sferror(s) )
+    return streamStatus(s);
+  else
+    PL_release_stream(s);
+
+  return rc;
+}
+
 
 word
 pl_raw_read(term_t term)
@@ -1174,8 +1308,9 @@ retry:
   { if ( !setDoubleQuotes(dq, &rd.flags) )
       return FALSE;
   }
-  if ( rd.singles && PL_get_atom(rd.singles, &w) && w == ATOM_warning )
-    rd.singles = TRUE;
+  if ( rd.singles && PL_get_atom(rd.singles, &w) && w == ATOM_warning)
+    rd.singles = 1;
+
   if ( comments )
     rd.comments = PL_copy_term_ref(comments);
 
@@ -1355,6 +1490,7 @@ PL_chars_to_term(const char *s, term_t t)
 BeginPredDefs(read)
   PRED_DEF("read_term",		  3, read_term,		  PL_FA_ISO)
   PRED_DEF("read_term",		  2, read_term,		  PL_FA_ISO)
+  PRED_DEF("read_clause",         3, read_clause,         0)
   PRED_DEF("atom_to_term", 3, atom_to_term, 0)
   PRED_DEF("term_to_atom", 2, term_to_atom, 0)
 #ifdef O_QUASIQUOTATIONS

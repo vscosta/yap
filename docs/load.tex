@@ -198,6 +198,15 @@ files specified by @var{F} into the file being currently consulted.
 @end table
 
 @node Setting the Compiler, Conditional Compilation, Compiling, Loading Programs
+
+@section Looking for Files 
+
+@ifplaintext
+@ref abs_file_name
+@end ifplaintext
+
+
+
 @section Changing the Compiler's Behavior
 
 This section presents a set of built-ins predicates designed to set the 
@@ -304,6 +313,8 @@ Puts YAP in state @var{N} (@code{on} or @code{off}) and unify
 @code{do_not_compile_expressions}. This predicate was kept to maintain
 compatibility with C-Prolog.
 
+@texinfo
+
 @item path(-@var{D})
 @findex path/1
 @snindex path/1
@@ -332,6 +343,8 @@ YAP, specified by @var{N}.  @var{N} must be either of
 @snindex remove_from_path/1
 @cnindex remove_from_path/1
 Remove @var{D} from YAP's directory search path.
+
+@end texinfo
 
 @item style_check(+@var{X})
 @findex style_check/1
@@ -414,6 +427,8 @@ Similar to @code{initialization/1}, but allows for specifying when
     restoring a state (not implemented yet). 
 @end table
 
+@texinfo
+
 @item library_directory(+@var{D})
 @findex library_directory/1
 @snindex library_directory/1
@@ -428,7 +443,7 @@ directories are the places where files specified in the form
 @findex file_search_path/2
 @syindex file_search_path/2
 @cnindex file_search_path/2
-Allows writing file names as compound terms. The @var{NAME} and
+ Allows writing file names as compound terms. The @var{NAME} and
  @var{DIRECTORY} must be atoms. The predicate may generate multiple
 solutions. The predicate is originally defined as follows:
 
@@ -449,6 +464,8 @@ Thus, @code{[library(A)]} will search for a file using
 @cnindex prolog_file_name/2
 Unify @var{FullPath} with the absolute path YAP would use to consult
 file @var{Name}.
+
+@end texinfo
 
 @item prolog_to_os_filename(+@var{PrologPath},-@var{OsPath})
 @findex prolog_to_os_filename/2

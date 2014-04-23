@@ -7,17 +7,17 @@ default in YAP. This support is loaded with the
 @table @code
 
 @item append(?@var{List1},?@var{List2},?@var{List3})
-@findex append/3
-@snindex append/3
-@cnindex append/3
+@findex swi_append/3
+@snindex swi_append/3
+@cnindex swi_append/3
 Succeeds when @var{List3} unifies with the concatenation of @var{List1}
 and @var{List2}. The predicate can be used with any instantiation
 pattern (even three variables).
 
 @item between(+@var{Low},+@var{High},?@var{Value})
-@findex between/3
-@snindex between/3
-@cnindex between/3
+@findex swi_between/3
+@snindex swi_between/3
+@cnindex swi_between/3
 
 @var{Low} and @var{High} are integers, @var{High} less or equal than
 @var{Low}. If @var{Value} is an integer, @var{Low} less or equal than
@@ -67,9 +67,9 @@ L = [gnu, gnat]
 @end example
 
 @item nth1(+@var{Index},?@var{List},?@var{Elem})
-@findex nth1/3
-@snindex nth1/3
-@cnindex nth1/3
+@findex swi_nth1/3
+@snindex swi_nth1/3
+@cnindex swi_nth1/3
 Succeeds when the @var{Index}-th element of @var{List} unifies with
 @var{Elem}. Counting starts at 1.
 
@@ -79,18 +79,18 @@ passed to @code{shell/[0-2]} and can be requested using @code{getenv/2}.
 They also influence @code{expand_file_name/2}.
 
 @item setenv(+@var{Name},+@var{Value})
-@findex setenv/2
-@snindex setenv/2
-@cnindex setenv/2
+@findex swi_setenv/2
+@snindex swi_setenv/2
+@cnindex swi_setenv/2
 Set environment variable.  @var{Name} and @var{Value} should be
 instantiated to atoms or integers.  The environment variable will be
 passed to @code{shell/[0-2]} and can be requested using @code{getenv/2}.
 They also influence @code{expand_file_name/2}.
 
 @item term_to_atom(?@var{Term},?@var{Atom})
-@findex term_to_atom/2
-@snindex term_to_atom/2
-@cnindex term_to_atom/2
+@findex swi_term_to_atom/2
+@snindex swi_term_to_atom/2
+@cnindex swi_term_to_atom/2
 Succeeds if @var{Atom} describes a term that unifies with @var{Term}. When
 @var{Atom} is instantiated @var{Atom} is converted and then unified with
 @var{Term}.  If @var{Atom} has no valid syntax, a @code{syntax_error}
@@ -98,9 +98,9 @@ exception is raised. Otherwise @var{Term} is ``written'' on @var{Atom}
 using @code{write/1}.
 
 @item working_directory(-@var{Old},+@var{New})
-@findex working_directory/2
-@snindex working_directory/2
-@cnindex working_directory/2
+@findex swi_working_directory/2
+@snindex swi_working_directory/2
+@cnindex swi_working_directory/2
 
 Unify @var{Old} with an absolute path to the current working directory
 and change working directory to @var{New}.  Use the pattern
@@ -136,26 +136,26 @@ we will phrase this as ``@var{Predicate} is applied on ...''
 @table @code
 
 @item maplist(+@var{Pred},+@var{List})
-@findex maplist/2
-@snindex maplist/2
-@cnindex maplist/2
+@findex swi_maplist/2
+@snindex swi_maplist/2
+@cnindex swi_maplist/2
 @var{Pred} is applied successively on each element of @var{List} until
 the end of the list or @var{Pred} fails. In the latter case 
 @code{maplist/2} fails.
 
 @item maplist(+@var{Pred},+@var{List1},+@var{List2})
-@findex maplist/3
-@snindex maplist/3
-@cnindex maplist/3
+@findex swi_maplist/3
+@snindex swi_maplist/3
+@cnindex swi_maplist/3
 Apply @var{Pred} on all successive pairs of elements from
 @var{List1} and
 @var{List2}. Fails if @var{Pred} can not be applied to a
 pair. See the example above.
 
 @item maplist(+@var{Pred},+@var{List1},+@var{List2},+@var{List4})
-@findex maplist/4
-@snindex maplist/4
-@cnindex maplist/4
+@findex swi_maplist/4
+@snindex swi_maplist/4
+@cnindex swi_maplist/4
 Apply @var{Pred} on all successive triples of elements from @var{List1},
 @var{List2} and @var{List3}. Fails if @var{Pred} can not be applied to a
 triple. See the example above.
@@ -174,9 +174,10 @@ triple. See the example above.
 
 @table @code
 @item forall(+@var{Cond},+@var{Action})
-@findex forall/2
-@snindex forall/2
-@cnindex forall/2
+@findex swi_forall/2
+@snindex swi_forall/2
+@snindex swi_forall/2
+@cnindex swi_forall/2
 
 For all alternative bindings of @var{Cond} @var{Action} can be proven.
 The next example verifies that all arithmetic statements in the list
@@ -233,9 +234,9 @@ threads that are created @emph{after} the registration.
 
 @table @code
 @item b_setval(+@var{Name},+@var{Value})
-@findex b_setval/2
-@snindex b_setval/2
-@cnindex b_setval/2
+@findex swi_b_setval/2
+@snindex swi_b_setval/2
+@cnindex swi_b_setval/2
 Associate the term @var{Value} with the atom @var{Name} or replaces
 the currently associated value with @var{Value}.  If @var{Name} does
 not refer to an existing global variable a variable with initial value
@@ -243,31 +244,28 @@ not refer to an existing global variable a variable with initial value
 assignment is reversed.
 
 @item b_getval(+@var{Name},-@var{Value})
-@findex b_getval/2
-@snindex b_getval/2
-@cnindex b_getval/2
+@findex swi_b_getval/2
+@snindex swi_b_getval/2
+@cnindex swi_b_getval/2
 Get the value associated with the global variable @var{Name} and unify
 it with @var{Value}. Note that this unification may further instantiate
 the value of the global variable. If this is undesirable the normal
 precautions (double negation or @code{copy_term/2}) must be taken. The
 @code{b_getval/2} predicate generates errors if @var{Name} is not an atom or
 the requested variable does not exist.
-@end table
-
-@table @code
 
 @item nb_setval(+@var{Name},+@var{Value})
-@findex nb_setval/2
-@snindex nb_setval/2
-@cnindex nb_setval/2
+@findex swi_nb_setval/2
+@snindex swi_nb_setval/2
+@cnindex swi_nb_setval/2
 Associates a copy of @var{Value} created with @code{duplicate_term/2}
 with the atom @var{Name}.  Note that this can be used to set an
 initial value other than @code{[]} prior to backtrackable assignment.
 
 @item nb_getval(+@var{Name},-@var{Value})
-@findex nb_getval/2
-@snindex nb_getval/2
-@cnindex nb_getval/2
+@findex swi_nb_getval/2
+@snindex swi_nb_getval/2
+@cnindex swi_nb_getval/2
 The @code{nb_getval/2} predicate is a synonym for b_getval/2, introduced for
 compatibility and symmetry.  As most scenarios will use a particular
 global variable either using non-backtrackable or backtrackable
@@ -297,9 +295,9 @@ variable is used non-backtrackable.
 @c \end{code}
 
 @item nb_current(?@var{Name},?@var{Value})
-@findex nb_current/2
-@snindex nb_current/2
-@cnindex nb_current/2
+@findex swi_nb_current/2
+@snindex swi_nb_current/2
+@cnindex swi_nb_current/2
 Enumerate all defined variables with their value. The order of
 enumeration is undefined.
 

@@ -553,6 +553,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       } else {
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	rd->varnames = 0;
+	rd->singles = 0;
 	return Yap_unify_constant( Yap_GetFromSlot( t0 PASS_REGS), MkAtomTerm (AtomEof));
       }
     }
@@ -636,7 +637,6 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       return FALSE;
   }
 
-
   if (rd->variables) {
     while (TRUE) {
       CELL *old_H = HR;
@@ -680,8 +680,15 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->singles PASS_REGS)))
-      return FALSE;
+    if (rd->singles == 1) {
+      if (IsPairTerm(v))
+	rd->singles = Yap_InitSlot( v PASS_REGS);
+      else
+	rd->singles = FALSE;
+    } else if (rd->singles) {
+      if (!Yap_unify( rd->singles, Yap_GetFromSlot( v PASS_REGS )))
+	  return FALSE;
+    }
   }
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
   return TRUE;
@@ -871,6 +878,65 @@ p_float_format( USES_REGS1 )
   return TRUE;
 }
 
+
+static Int 
+p_style_checker( USES_REGS1 )
+{
+  Term t = Deref( ARG1 );
+  LD_FROM_REGS
+
+  if (IsVarTerm(t)) {
+    Term t = TermNil;
+    if ( debugstatus.styleCheck & LONGATOM_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomAtom), t );
+    }
+    if ( debugstatus.styleCheck & SINGLETON_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomSingleton), t );
+    }
+    if ( debugstatus.styleCheck & MULTITON_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomVarBranches), t );
+    }
+    if ( debugstatus.styleCheck & DISCONTIGUOUS_STYLE) {
+      t = MkPairTerm( MkAtomTerm(AtomDiscontiguous), t );
+    }
+    if ( debugstatus.styleCheck & NOEFFECT_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomNoEffect), t );
+    }
+    if ( debugstatus.styleCheck & CHARSET_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomCharset), t );
+    }
+    if ( debugstatus.styleCheck & MULTIPLE_CHECK) {
+      t = MkPairTerm( MkAtomTerm(AtomMultiple), t );
+    }
+  } else {
+    while (IsPairTerm(t)) {
+      Term h = HeadOfTerm( t );
+      t = TailOfTerm( t );
+
+      if (IsAtomTerm(h)) {
+	Atom at = AtomOfTerm( h );
+	if (at == AtomAtom) debugstatus.styleCheck |= LONGATOM_CHECK;
+	else if (at == AtomSingleton) debugstatus.styleCheck |= SINGLETON_CHECK;
+	else if (at == AtomVarBranches) debugstatus.styleCheck |= MULTITON_CHECK;
+	else if (at == AtomDiscontiguous) debugstatus.styleCheck |= DISCONTIGUOUS_STYLE;
+	else if (at == AtomNoEffect) debugstatus.styleCheck |= NOEFFECT_CHECK;
+	else if (at == AtomCharset) debugstatus.styleCheck |= CHARSET_CHECK;
+	else if (at == AtomMultiple) debugstatus.styleCheck |= MULTIPLE_CHECK;
+      } else {
+	Atom at = AtomOfTerm( ArgOfTerm( 1, h ) );
+	if (at == AtomAtom) debugstatus.styleCheck |= LONGATOM_CHECK;
+	else if (at == AtomSingleton) debugstatus.styleCheck &= ~SINGLETON_CHECK;
+	else if (at == AtomVarBranches) debugstatus.styleCheck &= ~MULTITON_CHECK;
+	else if (at == AtomDiscontiguous) debugstatus.styleCheck &= ~DISCONTIGUOUS_STYLE;
+	else if (at == AtomNoEffect) debugstatus.styleCheck &= ~NOEFFECT_CHECK;
+	else if (at == AtomMultiple) debugstatus.styleCheck &= ~MULTIPLE_CHECK;
+      }
+    }
+  }
+  return TRUE;
+}
+
+
 void
 Yap_InitBackIO (void)
 {
@@ -915,5 +981,5 @@ Yap_InitIOPreds(void)
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);
-
+  Yap_InitCPred ("$style_checker", 1, p_style_checker, SyncPredFlag);
 }

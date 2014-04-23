@@ -2,6 +2,8 @@
 
 @node Built-ins, Library, Modules, Top
 
+@chapter  Built-In Predicates Library
+
 @menu
 
 Built-ins, Debugging, Syntax, Top
@@ -13,7 +15,7 @@ Built-ins, Debugging, Syntax, Top
 * Predicates on Characters:: Manipulating Characters
 * Comparing Terms:: Comparison of Terms
 * Arithmetic:: Arithmetic in YAP
-* I/O:: Input/Output with YAP
+* Input/Output:: Input/Output with YAP
 * Database:: Modifying Prolog's Database
 * Sets:: Finding All Possible Solutions
 * Grammars:: Grammar Rules
@@ -30,7 +32,7 @@ Built-ins, Debugging, Syntax, Top
 @end menu
 
 @node Control, Undefined Procedures, , Top
-@chapter Control Predicates
+@section Control Predicates
 
 
 This chapter describes the predicates for controlling the execution of
@@ -696,7 +698,7 @@ Translates a message-term into a string object. Primarily intended for SWI-Prolo
 @end table
 
 @node Testing Terms, Predicates on Atoms, Messages, Top
-@chapter Predicates on terms
+@section Predicates on terms
 
 @table @code
 
@@ -1194,8 +1196,7 @@ the call.
 
 @item    digit(@var{Weight})
         @var{Char} is a digit with value
-        @var{Weight}. I.e. @code{char_type(X, digit(6))} yields @code{X =
-        '6'}. Useful for parsing numbers.
+        @var{Weight}. I.e. @code{char_type(X, digit(6))} yields @code{X =  '6'}. Useful for parsing numbers.
 
 @item    xdigit(@var{Weight})
         @var{Char} is a hexa-decimal digit with value @var{Weight}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
@@ -1412,9 +1413,21 @@ of length @var{S}.
 
 @end table
 
-@node Arithmetic, I/O, Comparing Terms, Top
+@node Arithmetic, Input/Output, Comparing Terms, Top
 @section Arithmetic
 
+@ifplaintext 
+@copydoc arithmetic 
+
+See @ref arithmetic_preds for the predicates that implement arithment
+
+See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
+
+See @ref arithmetic_operators for how to call arithmetic operations in YAP 
+
+@end ifplaintext 
+
+@texinfo
 YAP now supports several different numeric types:
 
 @table @code
@@ -1440,7 +1453,8 @@ YAP now supports several different numeric types:
       numbers that are returned from is/2 are canonical, which means M
       is positive and N and M have no common divisors. Rational numbers
       are introduced in the computation using the rational/1,
-      rationalize/1 or the rdiv/2 (rational division) function. 
+      rationalize/1 or the 
+rdiv/2 (rational division) function. 
 
 @item float
       Floating point numbers are represented using the C-type double. On most today platforms these are 64-bit IEEE floating point numbers.
@@ -1491,8 +1505,7 @@ Integer remainder, similar to @code{mod} but always has the same sign
 @code{X}.
 
 @item @var{X} div @var{Y} [ISO]
-Integer division, as if defined by @code{(@var{X} - @var{X} mod @var{Y})
-// @var{Y}}.
+Integer division, as if defined by @code{(@var{X} - @var{X} mod @var{Y})// @var{Y}}.
 
 @item exp(@var{X}) [ISO]
 Natural exponential.
@@ -1767,6 +1780,7 @@ The primitive YAP predicates involving arithmetic expressions are:
 
 @table @code
 
+@itemize
 @item @var{X} is +@var{Y} [2]
 @findex is/2
 @syindex is/2
@@ -1780,6 +1794,7 @@ X is 2+3*4
 @end example
 @noindent
 succeeds with @code{X = 14}.
+@end itemize
 
 @item +@var{X} < +@var{Y} [ISO]
 @findex </2
@@ -1852,7 +1867,6 @@ will be thrown back to the top-level.
 The following predicates provide counting:
 
 @table @code
-
 @item between(+@var{Low}, +@var{High}, ?@var{Value})
 @findex between/3
 @syindex between/3
@@ -1907,13 +1921,16 @@ The following predicates provide counting:
 @cnindex isinf/1
  True if floating point expression @var{Float} evaluates to infinity.
 
-
 @end table
 
-@node I/O, Database, Arithmetic, Top
-@chapter I/O Predicates
+@end texinfo
 
-Some of the I/O predicates described below will in certain conditions
+
+
+@node Input/Output, Database, Arithmetic, Top
+@section Input/Output Predicates
+
+Some of the Input/Output predicates described below will in certain conditions
 provide error messages and abort only if the file_errors flag is set.
 If this flag is cleared the same predicates will just fail. Details on
 setting and clearing this flag are given under 7.7.
@@ -1923,16 +1940,16 @@ setting and clearing this flag are given under 7.7.
 Subnodes of Input/Output
 * Streams and Files:: Handling Streams and Files
 * C-Prolog File Handling:: C-Prolog Compatible File Handling
-* I/O of Terms:: Input/Output of terms
-* I/O of Characters:: Input/Output of Characters
-* I/O for Streams:: Input/Output using Streams
-* C-Prolog to Terminal:: C-Prolog compatible Character I/O to terminal
-* I/O Control:: Controlling your Input/Output
+* Input/Output of Terms:: Input/Output of terms
+* Input/Output of Characters:: Input/Output of Characters
+* Input/Output for Streams:: Input/Output using Streams
+* C-Prolog to Terminal:: C-Prolog compatible Character Input/Output to terminal
+* Input/Output Control:: Controlling your Input/Output
 * Sockets:: Using Sockets from YAP
 
 @end menu
 
-@node Streams and Files, C-Prolog File Handling, , I/O
+@node Streams and Files, C-Prolog File Handling, , Input/Output
 @section Handling Streams and Files
 
 @table @code
@@ -2002,7 +2019,7 @@ wide character and encoding issues.
 @item representation_errors(+@var{Mode})
 Change the behaviour when writing characters to the stream that cannot
 be represented by the encoding.  The behaviour is one of @code{error}
-(throw and I/O error exception), @code{prolog} (write @code{\u...\}
+(throw and Input/Output error exception), @code{prolog} (write @code{\u...\}
 escape code or @code{xml} (write @code{&#...;} XML character entity).
 The initial mode is @code{prolog} for the user streams and
 @code{error} for all other streams. See also @ref{Encoding}.
@@ -2047,6 +2064,12 @@ YAP currently ignores these options.
 Unify the last modification time of @var{File} with
 @var{Time}. @var{Time} is a floating point number expressing the seconds
 elapsed since Jan 1, 1970.
+
+@item access_file(+@var{F},+@var{M})
+@findex access_file/2
+Is the file accessible?
+
+@texinfo
 
 @item absolute_file_name(+@var{Name},+@var{Options}, -@var{FullPath}) absolute_file_name(+@var{Name}, -@var{FullPath},+@var{Options})
 @findex absolute_file_name/3
@@ -2111,6 +2134,7 @@ If the last argument is a list and the 2nd not, the arguments are
 swapped, making the call @code{absolute_file_name}(+@var{Spec}, -@var{Path},
 +@var{Options}) valid as well.
 
+
 @item absolute_file_name(+@var{Name},-@var{FullPath})
 @findex absolute_file_name/2
 @syindex absolute_file_name/2
@@ -2118,6 +2142,8 @@ swapped, making the call @code{absolute_file_name}(+@var{Spec}, -@var{Path},
 Give the path a full path @var{FullPath} YAP would use to consult a file
 named @var{Name}.  Unify @var{FullPath} with @code{user} if the file
 name is @code{user}.
+
+@end texinfo
 
 @item file_base_name(+@var{Name},-@var{FileName})
 @findex file_base_name/2
@@ -2223,7 +2249,7 @@ past-end-of-stream.
 @cnindex at_end_of_stream/1
 Succeed if the stream @var{S} has stream position end-of-stream or
 past-end-of-stream. Note that @var{S} must be a readable stream.
-
+                                                         
 @item set_stream_position(+@var{S}, +@var{POS}) [ISO]
 @findex set_stream_position/2
 @syindex set_stream_position/2
@@ -2297,7 +2323,7 @@ overview of wide character and encoding issues in YAP.
 @item representation_errors(+@var{Mode})
 Behaviour when writing characters to the stream that cannot be
 represented by the encoding.  The behaviour is one of @code{error}
-(throw and I/O error exception), @code{prolog} (write @code{\u...\}
+(throw and Input/Output error exception), @code{prolog} (write @code{\u...\}
 escape code or @code{xml} (write @code{&#...;} XML character entity).
 The initial mode is @code{prolog} for the user streams and
 @code{error} for all other streams. See also @ref{Encoding} and
@@ -2355,7 +2381,7 @@ Given the packaged stream position term @var{StreamPosition}, unify
 
 @end table
 
-@node C-Prolog File Handling, I/O of Terms, Streams and Files, I/O
+@node C-Prolog File Handling, Input/Output of Terms, Streams and Files, Input/Output
 @section C-Prolog File Handling
          
 @table @code
@@ -2423,7 +2449,8 @@ Closes the current input stream (see 6.7.).
 
 @end table
 
-@node I/O of Terms, I/O of Characters, C-Prolog File Handling, I/O
+
+@node Input/Output of Terms, Input/Output of Characters, C-Prolog File Handling, Input/Output
 @section Handling Input/Output of Terms
 
 @table @code
@@ -2859,7 +2886,7 @@ X = [104, 101, 108, 108, 111]
 
 @end table
 
-@node I/O of Characters, I/O for Streams, I/O of Terms, I/O
+@node Input/Output of Characters, Input/Output for Streams, Input/Output of Terms, Input/Output
 @section Handling Input/Output of Characters
 
 @table @code
@@ -2988,7 +3015,7 @@ Outputs a new line to the current output stream.
 
 @end table
 
-@node I/O for Streams, C-Prolog to Terminal, I/O of Characters, I/O
+@node Input/Output for Streams, C-Prolog to Terminal, Input/Output of Characters, Input/Output
 @section Input/Output Predicates applied to Streams
 
 @table @code
@@ -3154,8 +3181,8 @@ Outputs a new line to stream @var{S}.
 
 @end table
 
-@node C-Prolog to Terminal, I/O Control, I/O for Streams, I/O
-@section Compatible C-Prolog predicates for Terminal I/O
+@node C-Prolog to Terminal, Input/Output Control, Input/Output for Streams, Input/Output
+@section Compatible C-Prolog predicates for Terminal Input/Output
 
 @table @code
 
@@ -3198,7 +3225,7 @@ Outputs a new line to stream @code{user_output}.
 
 @end table
 
-@node I/O Control, Sockets, C-Prolog to Terminal, I/O
+@node Input/Output Control, Sockets, C-Prolog to Terminal, Input/Output
 @section Controlling Input/Output
 
 @table @code
@@ -3223,7 +3250,7 @@ opened or closed.
 @syindex fileerrors/0
 @cyindex fileerrors/0
 Switches on the file_errors flag so that in certain error conditions
-I/O predicates will produce an appropriated message and abort.
+Input/Output predicates will produce an appropriated message and abort.
 
 @item always_prompt_user
 @findex always_prompt_user/0
@@ -3235,15 +3262,15 @@ interactive control from a pipe or a socket.
 
 @end table
 
-@node Sockets, , I/O Control, I/O
+@node Sockets, , Input/Output Control, Input/Output
 @section Using Sockets From YAP
 
 YAP includes a SICStus Prolog compatible socket interface. In YAP-6.3
-this uses the @c{clib} package to emulate the old low level interface that
+this uses the @code{clib} package to emulate the old low level interface that
 provides direct access to the major socket system calls. These calls
 can be used both to open a new connection in the network or connect to
 a networked server. Socket connections are described as read/write
-streams, and standard I/O built-ins can be used to write on or read
+streams, and standard Input/Output built-ins can be used to write on or read
 from sockets. The following calls are available:
 
 @table @code
@@ -3394,8 +3421,8 @@ address in number and dots notation.
 
 @end table
 
-@node Database, Sets, I/O, Top
-@chapter Using the Clausal Data Base
+@node Database, Sets, Input/Output, Top
+@section Using the Clausal Data Base
 
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
@@ -4204,7 +4231,7 @@ no
 @end table
 
 @node Grammars, OS, Sets, Top
-@chapter Grammar Rules
+@section Grammar Rules
 
 Grammar rules in Prolog are both a convenient way to express definite
 clause grammars and  an extension of the well known context-free grammars.
@@ -4319,7 +4346,7 @@ This predicate is used by the grammar rules compiler and is defined as
 @end table
 
 @node OS, Term Modification, Grammars, Top
-@chapter Access to Operating System Functionality
+@section Access to Operating System Functionality
 
 The following built-in predicates allow access to underlying
 Operating System functionality: 
@@ -4548,7 +4575,7 @@ order of dispatch.
 @end table
 
 @node Term Modification, Global Variables, OS, Top
-@chapter Term Modification
+@section Term Modification
 
 @cindex updating terms
 It is sometimes useful to change the value of instantiated
@@ -4598,7 +4625,7 @@ Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
 @node Global Variables, Profiling, Term Modification, Top
-@chapter Global Variables
+@section Global Variables
 
 @cindex global variables
 
@@ -4804,7 +4831,7 @@ compound terms.
 
 
 @node Profiling, Call Counting, Global Variables, Top
-@chapter Profiling Prolog Programs
+@section Profiling Prolog Programs
 
 @cindex profiling
 
@@ -4938,7 +4965,7 @@ Show profiling info for the top-most @var{N} predicates.
 The @code{showprofres/0} and @code{showprofres/1} predicates call a user-defined multifile hook predicate, @code{user:prolog_predicate_name/2}, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
 
 @node Call Counting, Arrays, Profiling, Top
-@chapter Counting Calls
+@section Counting Calls
 
 @cindex Counting Calls
 Predicates compiled with YAP's flag @code{call_counting} set to
@@ -5014,7 +5041,7 @@ exception when @code{l/0} performs more than 10000 reductions.
 
 
 @node Arrays, Preds, Call Counting , Top
-@chapter Arrays
+@section Arrays
 
 The YAP system includes experimental support for arrays. The
 support is enabled with the option @code{YAP_ARRAYS}.
@@ -5223,7 +5250,7 @@ terms.
 @end table
 
 @node Preds, Misc, Arrays, Top
-@chapter Predicate Information
+@section Predicate Information
 
 Built-ins that return information on the current predicates and modules:
 
@@ -5247,7 +5274,7 @@ Succeeds if @var{M} are current modules associated to the file @var{F}.
 @end table
 
 @node Misc, , Preds, Top
-@chapter Miscellaneous
+@section Miscellaneous
 
 @table @code
 
@@ -5322,9 +5349,8 @@ garbage collection and stack shifts time included.
 Size of static code in YAP in bytes: @var{Clause Size}, the number of
 bytes allocated for clauses, plus
 @var{Index Size}, the number of bytes spent in the indexing code. The
-indexing code is divided into main tree, @var{Tree Index
-Size}, tables that implement choice-point manipulation, @var{Choice Point Instructions
-Size}, tables that cache clauses for future expansion of the index
+indexing code is divided into main tree, @var{Tree Index Size}, 
+tables that implement choice-point manipulation, @var{Choice xsPoint Instructions Size}, tables that cache clauses for future expansion of the index
 tree, @var{Expansion Nodes Size}, and 
 tables such as hash tables that select according to value,  @var{Index Switch Size}.
 
@@ -5388,8 +5414,7 @@ available using @code{yap_flag(gc_trace,verbose)}.
 Size of static code in YAP in bytes: @var{Clause Size}, the number of
 bytes allocated for clauses, plus
 @var{Index Size}, the number of bytes spent in the indexing code. The
-indexing code is divided into a main tree, @var{Tree Index
-Size}, table that cache clauses for future expansion of the index
+indexing code is divided into a main tree, @var{Tree Index Size}, table that cache clauses for future expansion of the index
 tree, @var{Expansion Nodes Size}, and and 
 tables such as hash tables that select according to value,  @var{Index Switch Size}.
 
@@ -5902,7 +5927,6 @@ YAP is booted with the @code{-q} or @code{-L} flag.
 consulting files. If @code{false} disable printing these messages. It
 is @code{normal} by default except if YAP is booted with the @code{-L}
 flag.
-.
 
 @item version
 @findex version (yap_flag/2 option)
@@ -6058,7 +6082,7 @@ filed are ignored.
 Current source module.
 
 @item source (prolog_load_context/2 option)
-@findex file_prolog_load_context/2 option
+@findex source_prolog_load_context/2 option
 @*
 Full name for the file currently being read in, which may be consulted,
 reconsulted, or included.
