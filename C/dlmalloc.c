@@ -210,7 +210,9 @@ yapsbrk(long size)
       /* small allocations, we can wait */
       HeapTop += size;
       UNLOCK(HeapTopLock);
+      LOCK(LOCAL_SignalLock);
       Yap_signal(YAP_CDOVF_SIGNAL);
+      UNLOCK(LOCAL_SignalLock);
     } else {
      if (size > GLOBAL_SizeOfOverflow)
 	GLOBAL_SizeOfOverflow = size;

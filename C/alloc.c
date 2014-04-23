@@ -714,7 +714,9 @@ AllocHeap(unsigned long int size)
 	HeapUsed += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 	UNLOCK(HeapUsedLock);
 	UNLOCK(HeapTopLock);
+	LOCK(LOCAL_SignalLock);
 	Yap_signal(YAP_CDOVF_SIGNAL);
+	UNLOCK(LOCAL_SignalLock);
       } else {
 	if (size > GLOBAL_SizeOfOverflow)
 	  GLOBAL_SizeOfOverflow = size*sizeof(CELL) + sizeof(YAP_SEG_SIZE);

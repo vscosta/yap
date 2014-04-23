@@ -266,6 +266,19 @@ COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
 COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 
+#define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
+
+#define SIG_EXCEPTION	  (SIG_PROLOG_OFFSET+0)
+#ifdef O_ATOMGC
+#define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
+#endif
+#define SIG_GC		  (SIG_PROLOG_OFFSET+2)
+#ifdef O_PLMT
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
+#endif
+#define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
+#define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
+
 extern int raiseSignal(PL_local_data_t *ld, int sig);
 
 #ifdef YATOM_H

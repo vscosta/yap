@@ -20,17 +20,20 @@
 //#define DEBUG_LOCKS 1
 
 #if DEBUG_LOCKS
+#include <stdio.h>
+
 int Yap_ThreadID( void );
 extern int debug_locks;
+extern FILE *debugf;
 #endif
 
 #define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
 #define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
 #define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #if DEBUG_LOCKS
-#define LOCK(LOCK_VAR)         (void)(debug_locks && fprintf(stderr,"[%d] %s:%d: LOCK(%p)\n",  Yap_ThreadID(), \
-						       __BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
-#define UNLOCK(LOCK_VAR)       (void)( debug_locks && fprintf(stderr,"[%d] %s:%d: UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR)) && pthread_mutex_unlock(&(LOCK_VAR)) )
+#define LOCK(LOCK_VAR)         (void)(fprintf(debugf,"[%d] %s:%d: LOCK(%p)\n",  Yap_ThreadID(), \
+					      __BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_lock(&(LOCK_VAR)) )
+#define UNLOCK(LOCK_VAR)       (void)(fprintf(debugf, "[%d] %s:%d: UNLOCK(%p)\n",  Yap_ThreadID(),__BASE_FILE__, __LINE__,&(LOCK_VAR))  && pthread_mutex_unlock(&(LOCK_VAR)) )
 #else
 #define LOCK(LOCK_VAR)         pthread_mutex_lock(&(LOCK_VAR))
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))

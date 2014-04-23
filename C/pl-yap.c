@@ -1182,23 +1182,26 @@ PL_w32thread_raise(DWORD id, int sig)
   if ( sig < 0 || sig > MAXSIGNAL )
     return FALSE;			/* illegal signal */
 
-   LOCK();
-   for(i = 0; i <= thread_highest_id; i++)
-   { PL_thread_info_t *info = GD->thread.threads[i];
-
-     if ( info && info->w32id == id && info->thread_data )
-       { 
-	 Sfprintf(GLOBAL_stderr, "post %d %d\n\n\n",i, sig);
-	 Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
-	 if ( info->w32id )
-	  PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
-	UNLOCK();
-	DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
-	return TRUE;
-      }
-  }
+  LOCK();
+  LOCK(LOCAL_SignalLock);
+  for(i = 0; i <= thread_highest_id; i++)
+    { PL_thread_info_t *info = GD->thread.threads[i];
+      
+      if ( info && info->w32id == id && info->thread_data )
+	{ 
+	  Sfprintf(GLOBAL_stderr, "post %d %d\n\n\n",i, sig);
+	  Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
+	  if ( info->w32id )
+	    PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
+	  UNLOCK(LOCAL_SignalLock);
+	  UNLOCK();
+	  DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
+	  return TRUE;
+	}
+    }
+  UNLOCK(LOCAL_SignalLock);
   UNLOCK();
-
+  
   return FALSE;				/* can't find thread */
 }
 
@@ -1212,19 +1215,6 @@ PL_w32thread_raise(DWORD id, int sig)
 #endif
 #endif /*__WINDOWS__*/
 
-
-X_API int
-PL_raise(int sig)
-{
-  if (sig < SIG_PROLOG_OFFSET) {
-    Yap_signal(YAP_INT_SIGNAL);
-    return 1;
-  } else if (sig == SIG_PLABORT) {
-    YAP_signal(0x40); /* YAP_INT_SIGNAL */
-    return 1;
-  }
-  return 0;
-}
 
 extern size_t PL_utf8_strlen(const char *s, size_t len);
 
@@ -1372,19 +1362,6 @@ sysError(const char *fm, ...)
   va_end(args);
 
   PL_fail;
-}
-
-int
-raiseSignal(PL_local_data_t *ld, int sig)
-{
-#if THREADS
- if (sig == SIG_THREAD_SIGNAL) {
-     Yap_signal(YAP_ITI_SIGNAL);
-     return TRUE;    
-  }
-#endif
-  fprintf(stderr, "Unsupported signal %d\n", sig);
-  return FALSE;
 }
 
 Int

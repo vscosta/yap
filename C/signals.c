@@ -45,7 +45,6 @@ inline static void
 do_signal(int wid, yap_signals sig USES_REGS)
 {
 #if THREADS
-  LOCK(REMOTE_SignalLock(wid));
   if (!REMOTE_InterruptsDisabled(wid)) {
     REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ = 
       Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
@@ -57,7 +56,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
   if (REMOTE_FirstActiveSignal(wid) != REMOTE_LastActiveSignal(wid)) {
     do {
       if (sig == REMOTE_ActiveSignals(wid)[i]) {
-	UNLOCK(REMOTE_SignalLock(wid));
 	return;
       }
       i++;
@@ -69,7 +67,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
   REMOTE_LastActiveSignal(wid)++;
   if (REMOTE_LastActiveSignal(wid) == REMOTE_MaxActiveSignals(wid))
       REMOTE_LastActiveSignal(wid) = 0;
-  UNLOCK(REMOTE_SignalLock(wid));
 #else
   if (!LOCAL_InterruptsDisabled) {
     CreepFlag = 
@@ -99,7 +96,6 @@ do_signal(int wid, yap_signals sig USES_REGS)
 inline static int
 undo_signal(yap_signals sig USES_REGS)
 {
-  LOCK(LOCAL_SignalLock);
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
@@ -111,7 +107,6 @@ undo_signal(yap_signals sig USES_REGS)
     } while (i != LOCAL_LastActiveSignal);
   }
   if (i == LOCAL_LastActiveSignal) {
-    UNLOCK(LOCAL_SignalLock);
     return FALSE;
   }
   while ((i+1) % LOCAL_MaxActiveSignals != LOCAL_LastActiveSignal) {
@@ -125,7 +120,6 @@ undo_signal(yap_signals sig USES_REGS)
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     CalculateStackGap( PASS_REGS1 );
   }
-  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
@@ -138,7 +132,9 @@ p_creep( USES_REGS1 )
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
+  LOCK(LOCAL_SignalLock);
   do_signal(worker_id, YAP_CREEP_SIGNAL PASS_REGS);
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
@@ -151,30 +147,32 @@ p_creep_fail( USES_REGS1 )
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
+  LOCK(LOCAL_SignalLock);
   do_signal(worker_id, YAP_CREEP_SIGNAL PASS_REGS);
+  UNLOCK(LOCAL_SignalLock);
   return FALSE;
 }
 
 static Int 
 p_stop_creeping( USES_REGS1 )
 {
+  LOCK(LOCAL_SignalLock);
   undo_signal( YAP_CREEP_SIGNAL PASS_REGS );
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
 static Int
 p_creep_allowed( USES_REGS1 )
 {
+  LOCK(LOCAL_SignalLock);
   if (PP != NULL) {
     undo_signal(YAP_CREEP_SIGNAL PASS_REGS);
-    LOCK(LOCAL_SignalLock);
     if (!LOCAL_InterruptsDisabled) {
       if (LOCAL_FirstActiveSignal == LOCAL_LastActiveSignal)
 	CalculateStackGap( PASS_REGS1 );
-      UNLOCK(LOCAL_SignalLock);
-    } else {
-      UNLOCK(LOCAL_SignalLock);
     }
+    UNLOCK(LOCAL_SignalLock);
     return TRUE;
   }
   UNLOCK(LOCAL_SignalLock);
@@ -206,12 +204,10 @@ Yap_undo_signal__(yap_signals sig USES_REGS)
 int 
 Yap_has_signal__(yap_signals sig USES_REGS)
 {
-  LOCK(LOCAL_SignalLock);
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig == LOCAL_ActiveSignals[i]) {
-	UNLOCK(LOCAL_SignalLock);
 	return TRUE;
       }
       i++;
@@ -219,20 +215,18 @@ Yap_has_signal__(yap_signals sig USES_REGS)
 	i = 0;
     } while (i != LOCAL_LastActiveSignal);
   }
-  UNLOCK(LOCAL_SignalLock);
   return FALSE;
 }
 
+// the caller holds the lock.
 int 
 Yap_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 {
-  LOCK(LOCAL_SignalLock);
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig1 == LOCAL_ActiveSignals[i] ||
 	  sig2 == LOCAL_ActiveSignals[i]) {
-	UNLOCK(LOCAL_SignalLock);
 	return TRUE;
       }
       i++;
@@ -240,7 +234,6 @@ Yap_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 	i = 0;
     } while (i != LOCAL_LastActiveSignal);
   }
-  UNLOCK(LOCAL_SignalLock);
   return FALSE;
 }
 
@@ -248,12 +241,10 @@ Yap_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 int 
 Yap_only_has_signal__(yap_signals sig  USES_REGS)
 {
-  LOCK(LOCAL_SignalLock);
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig != LOCAL_ActiveSignals[i]) {
-	UNLOCK(LOCAL_SignalLock);
 	return FALSE;
       }
       i++;
@@ -261,23 +252,19 @@ Yap_only_has_signal__(yap_signals sig  USES_REGS)
 	i = 0;
     } while (i != LOCAL_LastActiveSignal);
   } else {
-    UNLOCK(LOCAL_SignalLock);
     return FALSE;
   }
-  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
 int 
 Yap_only_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 {
-  LOCK(LOCAL_SignalLock);
   UInt i = LOCAL_FirstActiveSignal;
   if (LOCAL_FirstActiveSignal != LOCAL_LastActiveSignal) {
     do {
       if (sig1 != LOCAL_ActiveSignals[i] &&
 	  sig2 != LOCAL_ActiveSignals[i]) {
-	UNLOCK(LOCAL_SignalLock);
 	return FALSE;
       }
       i++;
@@ -285,10 +272,8 @@ Yap_only_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 	i = 0;
     } while (i != LOCAL_LastActiveSignal);
   } else {
-    UNLOCK(LOCAL_SignalLock);
     return FALSE;
   }
-  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 

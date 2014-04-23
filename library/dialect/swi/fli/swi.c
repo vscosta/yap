@@ -2994,6 +2994,41 @@ FILE *Yap_FileDescriptorFromStream(Term t)
   return NULL;
 }
 
+X_API int
+PL_raise(int sig)
+{
+  CACHE_REGS
+  LOCK(LOCAL_SignalLock);
+  if (sig < SIG_PROLOG_OFFSET) {
+    Yap_signal(YAP_INT_SIGNAL);
+    UNLOCK(LOCAL_SignalLock);
+    return 1;
+  } else if (sig == SIG_PLABORT) {
+    Yap_signal(0x40); /* YAP_INT_SIGNAL */
+    LOCK(LOCAL_SignalLock);
+    return 1;
+  }
+  UNLOCK(LOCAL_SignalLock);
+  return 0;
+}
+
+int
+raiseSignal(PL_local_data_t *ld, int sig)
+{
+#if THREADS
+  CACHE_REGS
+  if (sig == SIG_THREAD_SIGNAL) {
+    LOCK(LOCAL_SignalLock);
+    Yap_signal(YAP_ITI_SIGNAL);
+    UNLOCK(LOCAL_SignalLock);
+    return TRUE;    
+  }
+#endif
+  fprintf(stderr, "Unsupported signal %d\n", sig);
+  return FALSE;
+}
+
+
 #if THREADS
 void Yap_LockStream(IOSTREAM *s)
 {

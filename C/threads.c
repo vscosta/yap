@@ -1038,9 +1038,12 @@ Yap_InitFirstWorkerThreadHandle(void)
   LOCAL_ThreadHandle.ref_count = 1;
 }
 
+FILE *debugf;
 
 void Yap_InitThreadPreds(void)
 {
+
+  
   Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$max_threads", 1, p_max_threads, 0);

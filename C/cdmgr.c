@@ -4866,14 +4866,14 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	ARG7 = tr;
 	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_growglobal(NULL)) {
+	  if (!Yap_locked_growglobal(NULL)) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
+	  if (!Yap_locked_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;

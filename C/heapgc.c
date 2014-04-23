@@ -4250,7 +4250,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     CalculateStackGap( PASS_REGS1 );
     if (gc_margin < 2*EventFlag)
       gc_margin = 2*EventFlag;
-    return Yap_growstack(gc_margin);
+    return Yap_locked_growstack(gc_margin);
 #endif
   }
   /*
@@ -4277,6 +4277,17 @@ int
 Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
+  int rc;
+  LOCK(LOCAL_SignalLock);
+  rc = Yap_locked_gc(predarity, current_env, nextop);
+  UNLOCK(LOCAL_SignalLock);
+  return rc;
+}
+
+int 
+Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
+{
+  CACHE_REGS
   int res;
 #if YAPOR_COPY
   fprintf(stderr, "\n\n***** Trying to call the garbage collector in YAPOR/copying ****\n\n\n");
@@ -4292,6 +4303,25 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 
 int 
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
+{
+  CACHE_REGS
+  int res;
+  UInt min;
+
+  LOCK(LOCAL_SignalLock);
+  CalculateStackGap( PASS_REGS1 );
+  min = EventFlag*sizeof(CELL);
+  LOCAL_PrologMode |= GCMode;
+  if (gc_lim < min)
+    gc_lim = min;
+  res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
+  LeaveGCMode( PASS_REGS1 );
+  UNLOCK(LOCAL_SignalLock);
+  return res;
+}
+
+int 
+Yap_locked_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
   int res;

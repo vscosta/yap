@@ -131,6 +131,8 @@ exec_top_level(int BootMode, YAP_init_args *iap)
   YAP_Exit(EXIT_SUCCESS);
 }
 
+FILE *debugf;
+
 #ifdef LIGHT
 int
 _main (int argc, char **argv)
@@ -143,7 +145,13 @@ main (int argc, char **argv)
   YAP_init_args init_args;
   int i;
 
-
+#if DEBUG_LOCKS
+  char buf[1024];
+  sprintf(buf, "/tmp/yap%d", getpid());
+  debugf= fopen(buf, "w");
+  if (!debugf) fprintf(stderr,"ERROR %s\n", strerror(errno));
+  setvbuf( debugf,NULL, _IOLBF, 1024);
+#endif
   BootMode = init_standard_system(argc, argv, &init_args);
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");

@@ -129,10 +129,8 @@ SetHeapRegs(int copying_threads USES_REGS)
     ASP = PtoLocAdjust(ASP);
   if (H0)
     H0 = PtoGloAdjust(H0);
-  LOCK(LOCAL_SignalLock);
   if (LCL0)
     LCL0 = PtoLocAdjust(LCL0);
-  UNLOCK(LOCAL_SignalLock);
   if (HR)
     HR = PtoGloAdjust(HR);
   if (Yap_REGS.CUT_C_TOP)
@@ -819,9 +817,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   }
   /* CreepFlag is set to force heap expansion */
   if ( Yap_only_has_signal( YAP_CDOVF_SIGNAL) ) {
-    LOCK(LOCAL_SignalLock);
     CalculateStackGap( PASS_REGS1 );
-    UNLOCK(LOCAL_SignalLock);
   }
   ASP -= 256;
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
@@ -1417,7 +1413,7 @@ growatomtable( USES_REGS1 )
 
 
 int
-Yap_growheap(int fix_code, size_t in_size, void *cip)
+Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
 {
   CACHE_REGS
   int res;
@@ -1460,6 +1456,17 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
 }
 
 int
+Yap_growheap(int fix_code, size_t in_size, void *cip)
+{
+  CACHE_REGS
+  int rc;
+  LOCK(LOCAL_SignalLock);
+  rc = Yap_locked_growheap(fix_code, in_size, cip);
+  UNLOCK(LOCAL_SignalLock);
+  return rc;
+}
+
+int
 Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   CACHE_REGS
@@ -1471,7 +1478,7 @@ Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 }
 
 int
-Yap_growglobal(CELL **ptr)
+Yap_locked_growglobal(CELL **ptr)
 {
   CACHE_REGS
   unsigned long sz = sizeof(CELL) * K16;
@@ -1495,6 +1502,16 @@ Yap_growglobal(CELL **ptr)
   return TRUE;
 }
 
+int
+Yap_growglobal(CELL **ptr)
+{
+  CACHE_REGS
+    int rc;
+  LOCK(LOCAL_SignalLock);
+  rc = Yap_locked_growglobal(ptr);
+  UNLOCK(LOCAL_SignalLock);
+  return rc;
+}
 
 UInt
 Yap_InsertInGlobal(CELL *where, UInt howmuch)
@@ -1510,7 +1527,7 @@ Yap_InsertInGlobal(CELL *where, UInt howmuch)
 
 
 int
-Yap_growstack(size_t size)
+Yap_locked_growstack(size_t size)
 {
   CACHE_REGS
   int res;
@@ -1518,6 +1535,20 @@ Yap_growstack(size_t size)
   LOCAL_PrologMode |= GrowStackMode;
   res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
+  return res;
+}
+
+int
+Yap_growstack(size_t size)
+{
+  CACHE_REGS
+  int res;
+
+  LOCAL_PrologMode |= GrowStackMode;
+  LOCK(LOCAL_SignalLock);
+  res=growstack(size PASS_REGS);
+  LeaveGrowMode(GrowStackMode);
+  UNLOCK(LOCAL_SignalLock);
   return res;
 }
 
@@ -1780,6 +1811,18 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 /* Used by do_goal() when we're short of stack space */
 int
 Yap_growtrail(long size, int contiguous_only)
+{ 
+  int rc;
+  CACHE_REGS
+  LOCK(LOCAL_SignalLock);
+  rc = do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
+  UNLOCK(LOCAL_SignalLock);
+  return rc;
+}
+
+/* Used by do_goal() when we're short of stack space */
+int
+Yap_locked_growtrail(long size, int contiguous_only)
 { 
   CACHE_REGS
     return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);

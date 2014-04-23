@@ -583,8 +583,10 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     /* make sure failure will be seen at next port */
+    LOCK(LOCAL_SignalLock);
     if (LOCAL_PrologMode & AsyncIntMode)
       Yap_signal(YAP_FAIL_SIGNAL);
+    UNLOCK(LOCAL_SignalLock);
     P = FAILCODE;
   } else {
     if (IsVarTerm(where)) {

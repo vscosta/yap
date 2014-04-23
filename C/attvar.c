@@ -46,8 +46,10 @@ AddToQueue(attvar_record *attv USES_REGS)
 
   Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(ng, WGs));
   if ((Term)WGs == TermNil) {
+    LOCK(LOCAL_SignalLock);
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
+    UNLOCK(LOCAL_SignalLock);
   }
   return(RepAppl(ng)+2);
 }
@@ -61,10 +63,12 @@ AddFailToQueue( USES_REGS1 )
   WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
 
   Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(MkAtomTerm(AtomFail), WGs));
+  LOCK(LOCAL_SignalLock);
   if ((Term)WGs == TermNil) {
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
   }
+  UNLOCK(LOCAL_SignalLock);
 }
 
 static attvar_record *

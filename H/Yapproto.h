@@ -213,6 +213,10 @@ int     Yap_growheap(int, size_t, void *);
 int     Yap_growstack( size_t );
 int     Yap_growtrail(long, int);
 int     Yap_growglobal(CELL **);
+int     Yap_locked_growheap(int, size_t, void *);
+int     Yap_locked_growstack( size_t );
+int     Yap_locked_growtrail(long, int);
+int     Yap_locked_growglobal(CELL **);
 CELL  **Yap_shift_visit(CELL **, CELL ***, CELL ***);
 #ifdef THREADS
 void   Yap_CopyThreadStacks(int, int, int);
@@ -223,7 +227,9 @@ Int  Yap_total_gc_time(void);
 void Yap_init_gc(void);
 int  Yap_is_gc_verbose(void);
 int  Yap_gc(Int, CELL *, yamop *);
+int  Yap_locked_gc(Int, CELL *, yamop *);
 int  Yap_gcl(UInt, Int, CELL *, yamop *);
+int  Yap_locked_gcl(UInt, Int, CELL *, yamop *);
 
 /* init.c */
 #ifdef DEBUG

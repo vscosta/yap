@@ -205,9 +205,12 @@ LookupAtom(char *atom)
   HashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
+  CACHE_REGS
+  LOCK(LOCAL_SignalLock);
   if (NOfAtoms > 2*AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
+  UNLOCK(LOCAL_SignalLock);
   return na;
 }
 
@@ -272,9 +275,12 @@ LookupWideAtom(wchar_t *atom)
   WideHashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(WideHashChain[hash].AERWLock);
+  CACHE_REGS
+  LOCK(LOCAL_SignalLock);
   if (NOfWideAtoms > 2*WideAtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
+  UNLOCK(LOCAL_SignalLock);
   return na;
 }
 
@@ -306,7 +312,7 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
   int wide = FALSE;
-  size_t i;
+  size_t i = 0;
 
   while (i < len0) { 
     // primary support for atoms with null chars
