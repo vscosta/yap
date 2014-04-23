@@ -258,6 +258,22 @@ typedef struct initialise_handle * InitialiseHandle;
 extern unsigned int
 getUnknownModule(module_t m);
 
+/* keep in sync with style_name/1 in boot/prims.pl */
+
+#define LONGATOM_CHECK      0x0001      /* read/1: error on intptr_t atoms */
+#define SINGLETON_CHECK     0x0002      /* read/1: check singleton vars */
+#define MULTITON_CHECK      0x0004      /* read/1: check multiton vars */
+#define DISCONTIGUOUS_STYLE 0x0008      /* warn on discontiguous predicates */
+#define DYNAMIC_STYLE       0x0010      /* warn on assert/retract active */
+#define CHARSET_CHECK       0x0020      /* warn on unquoted characters */
+#define SEMSINGLETON_CHECK  0x0040      /* Semantic singleton checking */
+#define NOEFFECT_CHECK      0x0080      /* Check for meaningless statements */
+#define VARBRANCH_CHECK     0x0100      /* warn on unbalanced variables */
+#define MULTIPLE_CHECK      0x0100      /* warn on multiple file definitions for a predicate */
+#define MAXNEWLINES         5           /* maximum # of newlines in atom */
+
+#define debugstatus            (LD->_debugstatus)
+
 #define truePrologFlag(flag)      true(&LD->prolog_flag.mask, flag)
 #define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
 #define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)

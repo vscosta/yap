@@ -127,8 +127,6 @@ typedef int			Char;		/* char that can pass EOF */
 #define source_char_no          (LD->read_source.position.charno)
 #define source_byte_no          (LD->read_source.position.byteno)
 
-#define debugstatus            (LD->_debugstatus)
-
 #if SIZE_DOUBLE==SIZEOF_INT_P
 #define WORDS_PER_DOUBLE 1
 #else
@@ -319,10 +317,6 @@ typedef struct
   word culprit;				/* for CVT_nocode/CVT_nochar */
 } CVT_result;
 
-#define MAXNEWLINES	    5		/* maximum # of newlines in atom */
-
-#define LONGATOM_CHECK	    0x01	/* read/1: error on intptr_t atoms */
-
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Operator types.  NOTE: if you change OP_*, check operatorTypeToAtom()!
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -466,6 +460,7 @@ it mean anything?
 extern int fileerrors;
 
 extern int ttymode;
+
 
 #define CHARESCAPE_FEATURE	  0x00001 /* handle \ in atoms */
 #define GC_FEATURE		  0x00002 /* do GC */

@@ -50,6 +50,7 @@
   AtomCharsio = AtomAdjust(AtomCharsio);
   AtomCharacter = AtomAdjust(AtomCharacter);
   AtomCharacterCode = AtomAdjust(AtomCharacterCode);
+  AtomCharset = AtomAdjust(AtomCharset);
   AtomCleanCall = AtomAdjust(AtomCleanCall);
   AtomColomn = AtomAdjust(AtomColomn);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);
@@ -81,6 +82,7 @@
   AtomDefault = AtomAdjust(AtomDefault);
   AtomDevNull = AtomAdjust(AtomDevNull);
   AtomDiff = AtomAdjust(AtomDiff);
+  AtomDiscontiguous = AtomAdjust(AtomDiscontiguous);
   AtomDollar = AtomAdjust(AtomDollar);
   AtomDoLogUpdClause = AtomAdjust(AtomDoLogUpdClause);
   AtomDoLogUpdClause0 = AtomAdjust(AtomDoLogUpdClause0);
@@ -183,6 +185,7 @@
   AtomModify = AtomAdjust(AtomModify);
   AtomMost = AtomAdjust(AtomMost);
   AtomMultiFile = AtomAdjust(AtomMultiFile);
+  AtomMultiple = AtomAdjust(AtomMultiple);
   AtomMutable = AtomAdjust(AtomMutable);
   AtomMutableVariable = AtomAdjust(AtomMutableVariable);
   AtomMyddasDB = AtomAdjust(AtomMyddasDB);
@@ -195,6 +198,7 @@
   AtomNb = AtomAdjust(AtomNb);
   AtomNbTerm = AtomAdjust(AtomNbTerm);
   AtomNew = AtomAdjust(AtomNew);
+  AtomNoEffect = AtomAdjust(AtomNoEffect);
   AtomNoMemory = AtomAdjust(AtomNoMemory);
   AtomNone = AtomAdjust(AtomNone);
   AtomNonEmptyList = AtomAdjust(AtomNonEmptyList);
@@ -282,6 +286,7 @@
   AtomSigUsr2 = AtomAdjust(AtomSigUsr2);
   AtomSigVTAlarm = AtomAdjust(AtomSigVTAlarm);
   AtomSigWakeUp = AtomAdjust(AtomSigWakeUp);
+  AtomSingleton = AtomAdjust(AtomSingleton);
   AtomSlash = AtomAdjust(AtomSlash);
   AtomSocket = AtomAdjust(AtomSocket);
   AtomSourceSink = AtomAdjust(AtomSourceSink);
@@ -335,6 +340,7 @@
   AtomUserOut = AtomAdjust(AtomUserOut);
   AtomVBar = AtomAdjust(AtomVBar);
   AtomVar = AtomAdjust(AtomVar);
+  AtomVarBranches = AtomAdjust(AtomVarBranches);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber);

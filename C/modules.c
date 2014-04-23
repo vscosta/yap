@@ -120,8 +120,9 @@ LookupModule(Term a )
   ModEntry *me;
 
   /* prolog module */
-  if (a == 0)
+  if (a == 0) {
     return GetModuleEntry(AtomProlog);
+  }
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);
   return me;

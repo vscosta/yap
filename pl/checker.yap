@@ -62,7 +62,7 @@
 *									 *
 *************************************************************************/
 
-:- system_module( '$_checker', [no_style_check/1,
+:- system_module( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
         '$init_style_check'/1,
         '$sv_warning'/2,
@@ -76,40 +76,84 @@
 :- op(1150, fx, multifile).
 
 style_check(V) :- var(V), !, fail.
-style_check(all) :-
-	'$syntax_check_single_var'(_,on),
-	'$syntax_check_discontiguous'(_,on),
-	'$syntax_check_multiple'(_,on).
-style_check(single_var) :-
-	'$syntax_check_single_var'(_,on).
-style_check(singleton) :-
-	style_check(single_var).
-style_check(-single_var) :-
-	no_style_check(single_var).
-style_check(-singleton) :-
-	no_style_check(single_var).
-style_check(discontiguous) :-
-	'$syntax_check_discontiguous'(_,on).
-style_check(-discontiguous) :-
-	no_style_check(discontiguous).
-style_check(multiple) :-
-	'$syntax_check_multiple'(_,on).
-style_check(-multiple) :-
-	no_style_check(multiple).
-style_check([]).
-style_check([H|T]) :- style_check(H), style_check(T).
+style_check(V) :-
+	style_check_(V), !.
+style_check(V) :-
+	\+atom(V), \+ list(V), V \= + _, V \= + _, !,
+	'$do_error'( type_error('+|-|?(Flag)', V), style_check(V) ).
+style_check(V) :-
+	\+atom(V), \+ list(V), V \= + _, V \= + _, !,
+	'$do_error'( domain_error(style_name(Flag), V), style_check(V) ).
+	
+
+style_check_(all) :-
+	'$style_checker'( [ singleton, discontiguous, multiple ] ).
+style_check_(single_var) :-
+	'$style_checker'( [ singleton ] ).
+style_check_(singleton) :-
+	'$style_checker'( [ singleton ] ).
+style_check_(+single_var) :-
+	'$style_checker'( [ singleton ] ).
+style_check_(+singleton) :-
+	'$style_checker'( [ singleton ] ).
+style_check_(-single_var) :-
+	'$style_checker'( [ -singleton ] ).
+style_check_(-singleton) :-
+	'$style_checker'( [ -singleton ] ).
+style_check_(discontiguous) :-
+	'$style_checker'( [ discontiguous ] ).
+style_check_(+discontiguous) :-
+	'$style_checker'( [ discontiguous ] ).
+style_check_(-discontiguous) :-
+	'$style_checker'( [ -discontiguous ] ).
+style_check_(multiple) :-
+	'$style_checker'( [  multiple ] ).
+style_check_(+multiple) :-
+	'$style_checker'( [  multiple ] ).
+style_check_(-multiple) :-
+	'$style_checker'( [  -multiple ] ).
+style_check_(no_effect) :-
+	'$style_checker'( [  no_effect ] ).
+style_check_(+no_effect) :-
+	'$style_checker'( [  no_effect ] ).
+style_check_(-no_effect) :-
+	'$style_checker'( [  -no_effect ] ).
+style_check_(var_branches) :-
+	'$style_checker'( [  var_branches ] ).
+style_check_(+var_branches) :-
+	'$style_checker'( [  var_branches ] ).
+style_check_(-var_branches) :-
+	'$style_checker'( [  -var_branches ] ).
+style_check_(atom) :-
+	'$style_checker'( [  atom ] ).
+style_check_(+atom) :-
+	'$style_checker'( [  atom ] ).
+style_check_(-atom) :-
+	'$style_checker'( [  -atom ] ).
+style_check_(charset) :-
+	'$style_checker'( [  charset ] ).
+style_check_(+charset) :-
+	'$style_checker'( [  charset ] ).
+style_check_(-charset) :-
+	'$style_checker'( [  -charset ] ).
+style_check_('?'(Info) ) :-
+	'$style_checker  '( [ L ] ),
+	lists:member( Style,  [ singleton, discontiguous, multiple ] ),
+	( lists:member(Style, L ) -> Info = +Style ; Info = -Style ).
+style_check_([]).
+style_check_([H|T]) :- style_check(H), style_check(T).
 
 no_style_check(V) :- var(V), !, fail.
 no_style_check(all) :-
-	'$syntax_check_single_var'(_,off),
-	'$syntax_check_discontiguous'(_,off),
-	'$syntax_check_multiple'(_,off).
-no_style_check(single_var) :-
-	'$syntax_check_single_var'(_,off).
-no_style_check(discontiguous) :-
-	'$syntax_check_discontiguous'(_,off).
-no_style_check(multiple) :-
-	'$syntax_check_multiple'(_,off).
+	'$style_checker'( [ -singleton, -discontiguous, -multiple ] ).
+no_style_check(-single_var) :-
+	'$style_checker'( [ -singleton ] ).
+no_style_check(-singleton) :-
+	'$style_checker'( [ -singleton ] ).
+no_style_check(-discontiguous) :-
+	'$stylechecker'( [ -discontiguous ] ).
+no_style_check(-multiple) :-
+	'$style_checker'( [  -multiple ] ).
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
@@ -182,21 +226,6 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	recorda('$predicate_defs','$predicate_defs'(F,A,NM,File),_),
 	fail.
 '$check_term'(_,_,_,_,_).
-
-'$sv_warning'([], _) :- !.
-'$sv_warning'(SVs,  T) :-
-	strip_module(T, M, T1),
-	'$pred_arity'( T1, Name, Arity ),
-	print_message(warning,singletons(SVs,(M:Name/Arity))).
-
-'$pred_arity'(V,M,M,V,call,1) :- var(V), !.
-'$pred_arity'((H:-_),Name,Arity) :- !,
-	functor(H,Name,Arity).
-'$pred_arity'((H-->_),Name,Arity) :- !,
-	functor(HL,Name,1),
-	Arity is A1+2.
-'$pred_arity'(H,Name,Arity) :-
-	functor(H,Name,Arity).
 
 % check if a predicate is discontiguous.
 '$handle_discontiguous'(F,A,M) :-

@@ -155,11 +155,13 @@ system_message(no_match(P)) -->
 	[ 'No matching predicate for ~w.' - [P] ].
 system_message(leash([A|B])) -->
 	[ 'Leashing set to ~w.' - [[A|B]] ].
-system_message(singletons([SV=_],P)) -->
-	[ 'Singleton variable ~s in ~q.' - [SV,P] ].
-system_message(singletons(SVs,P)) -->
-	[  'Singleton variables ~s in ~q.' - [SVsL, P] ],
-	{ svs(SVs,SVsL,[]) }.
+system_message(singletons(SVs,P,W)) -->
+	[  'Singleton variable~*c ~s in ~q, starting at line ~d' - [NVs, 0's, SVsL, I, L] ], % '
+	{ svs(SVs,SVsL,[]),
+	  ( SVs = [_] -> NVs = 0 ; NVs = 1 ),
+	  clause_to_indicator(P, I),
+	  stream_position_data( line_count, W, L)
+	}.
 system_message(trace_command(-1)) -->
 	[ 'EOF is not a valid debugger command.'  ].
 system_message(trace_command(C)) -->
@@ -580,4 +582,17 @@ prefix(informational, '~*|% '-[LC],     user_error) -->
 prefix(debug(_),      '% ',	   user_error).
 prefix(information,   '% ',	   user_error).
 
+
+clause_to_indicator(T, M:Name/Arity) :-
+	strip_module(T, M, T1),
+	pred_arity( T1, Name, Arity ).
+
+pred_arity(V,M,M,V,call,1) :- var(V), !.
+pred_arity((H:-_),Name,Arity) :- !,
+	functor(H,Name,Arity).
+pred_arity((H-->_),Name,Arity) :- !,
+	functor(HL,Name,1),
+	Arity is A1+2.
+pred_arity(H,Name,Arity) :-
+	functor(H,Name,Arity).
 
