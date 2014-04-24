@@ -19,6 +19,7 @@
   AtomArrayOverflow = AtomAdjust(AtomArrayOverflow);
   AtomArrayType = AtomAdjust(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow);
+  AtomDoubleArrow = AtomAdjust(AtomDoubleArrow);
   AtomAssert = AtomAdjust(AtomAssert);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets);
@@ -356,6 +357,8 @@
   FunctorArg = FuncAdjust(FunctorArg);
   FunctorArrayEntry = FuncAdjust(FunctorArrayEntry);
   FunctorArrow = FuncAdjust(FunctorArrow);
+  FunctorDoubleArrow = FuncAdjust(FunctorDoubleArrow);
+  FunctorAssert1 = FuncAdjust(FunctorAssert1);
   FunctorAssert = FuncAdjust(FunctorAssert);
   FunctorAtFoundOne = FuncAdjust(FunctorAtFoundOne);
   FunctorAtom = FuncAdjust(FunctorAtom);

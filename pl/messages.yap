@@ -162,6 +162,16 @@ system_message(singletons(SVs,P,W)) -->
 	  clause_to_indicator(P, I),
 	  stream_position_data( line_count, W, L)
 	}.
+system_message(multiple(P,W,F)) -->
+	[  'Redefinition: clause at line ~d redefines ~w from file ~a' - [L, I, F] ], % '
+	{ clause_to_indicator(P, I),
+	  stream_position_data( line_count, W, L)
+	}.
+system_message(discontiguous(P,W)) -->
+	[  'Discontiguous clause for ~w at line ~d' - [I, L] ], % '
+	{ clause_to_indicator(P, I),
+	  stream_position_data( line_count, W, L)
+	}.
 system_message(trace_command(-1)) -->
 	[ 'EOF is not a valid debugger command.'  ].
 system_message(trace_command(C)) -->

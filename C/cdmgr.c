@@ -2064,6 +2064,79 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
   }
 }
 
+PredEntry * Yap_PredFromClause( Term t USES_REGS )
+{
+  Term cmod = LOCAL_SourceModule;
+  UInt extra_arity = 0;
+
+  if (IsVarTerm( t )) return NULL;
+  while (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorModule) {
+      // module
+      cmod = ArgOfTerm( 1, t );
+      if (!IsAtomTerm(cmod))
+	return NULL;
+      t = ArgOfTerm( 2, t );
+    } else if ( f == FunctorAssert ) {
+      t = ArgOfTerm(1, t);
+    } else if ( f == FunctorDoubleArrow ) {
+      extra_arity = 2;
+      t = ArgOfTerm(1, t);
+    } else if ( f == FunctorQuery ||
+		f == FunctorAssert1) {
+      // directives
+      return NULL;
+    } else {
+      if (extra_arity) {
+	f = Yap_MkFunctor(NameOfFunctor(f), ArityOfFunctor(f)+2);
+      }
+      return RepPredProp(Yap_GetPredPropByFunc(f, cmod));
+    }
+  }
+  if (IsAtomTerm( t )) {
+    if (extra_arity) {
+      Functor f = Yap_MkFunctor(AtomOfTerm(t), 2);
+      return RepPredProp(Yap_GetPredPropByFunc(f, cmod));
+    }
+    return
+      RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), cmod));
+  }
+  // ints, lists
+  return NULL;
+}
+
+int
+Yap_discontiguous( PredEntry *ap USES_REGS )
+{
+  register consult_obj  *fp;
+
+  if (ap->ExtraPredFlags & DiscontiguousPredFlag)
+    return FALSE;
+  if (!LOCAL_ConsultSp) {
+    return FALSE;
+  }
+  if (ap == LOCAL_LastAssertedPred)
+    return FALSE;
+  if (ap->cs.p_code.NOfClauses) {
+    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
+      if (fp->p == AbsPredProp(ap))
+	return TRUE;
+  }
+  return FALSE;
+}
+
+int
+Yap_multiple( PredEntry *ap USES_REGS )
+{
+  if (ap->PredFlags & MultiFileFlag)
+    return FALSE;
+  if (ap == LOCAL_LastAssertedPred)
+    return FALSE;
+  return 
+    ap->cs.p_code.NOfClauses > 0 &&
+    Yap_ConsultingFile( PASS_REGS1 ) != ap->src.OwnerFile;
+}
 
 static int
 is_fact(Term t)
@@ -3032,6 +3105,57 @@ p_is_multifile( USES_REGS1 )
     return FALSE;
   PELOCK(27,pe);
   out = (pe->PredFlags & MultiFileFlag);
+  UNLOCKPE(44,pe);
+  return(out);
+}
+
+static Int 
+p_new_discontiguous( USES_REGS1 )
+{				/* '$new_discontiguous'(+N,+Ar,+Mod)  */
+  Atom            at;
+  int             arity;
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            mod = Deref(ARG3);
+
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsAtomTerm(t))
+    at = AtomOfTerm(t);
+  else
+    return (FALSE);
+  t = Deref(ARG2);
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsIntTerm(t))
+    arity = IntOfTerm(t);
+  else
+    return FALSE;
+  if (arity == 0) 
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  else 
+    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
+  PELOCK(26,pe);
+  pe->ExtraPredFlags |= DiscontiguousPredFlag;
+  /* mutifile-predicates are weird, they do not seat really on the default module */
+  if (pe->ModuleOfPred == PROLOG_MODULE)
+    pe->ModuleOfPred = TermProlog;
+  UNLOCKPE(43,pe);
+  return (TRUE);
+}
+
+
+static Int 
+p_is_discontiguous( USES_REGS1 )
+{				/* '$is_multifile'(+S,+Mod)	 */
+  PredEntry      *pe;
+  Int		  out;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "discontiguous");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(27,pe);
+  out = (pe->ExtraPredFlags & DiscontiguousPredFlag);
   UNLOCKPE(44,pe);
   return(out);
 }
@@ -6493,6 +6617,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$new_discontiguous", 3, p_new_discontiguous, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$is_discontiguous", 2, p_is_discontiguous, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$set_no_trace", 2, p_set_no_trace, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag);

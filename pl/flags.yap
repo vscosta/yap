@@ -318,7 +318,13 @@ yap_flag(language,X) :-
 
 yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
-	'$syntax_check_discontiguous'(on,_).
+	style_check(?(Disc)),
+	( Disc = +discontiguous,
+	  `X = on
+	;
+	  Disc = -discontiguous,
+	  `X = off
+	), !.
 yap_flag(discontiguous_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X == on -> 
@@ -331,7 +337,13 @@ yap_flag(discontiguous_warnings,X) :-
 
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
-	'$syntax_check_multiple'(X,X).
+	style_check(?(Disc)),
+	( Disc = +multiple,
+	  `X = on
+	;
+	  Disc = -multiple,
+	  `X = off
+	), !.
 yap_flag(redefine_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X == on -> 
@@ -368,7 +380,13 @@ yap_flag(open_expands_filename,Expand) :-
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
-	'$syntax_check_single_var'(X,X).
+	style_check(?(Disc)),
+	( Disc = +singletons,
+	  `X = on
+	;
+	  Disc = -singletons,
+	  `X = off
+	), !.
 yap_flag(single_var_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X == on ->
@@ -612,10 +630,7 @@ yap_flag(max_threads,X) :-
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(1),
-	'$syntax_check_mode'(_,on),
-	'$syntax_check_single_var'(_,on),
-	'$syntax_check_discontiguous'(_,on),
-	'$syntax_check_multiple'(_,on),
+	style_check(all),
 	fileerrors,
 	'$transl_to_on_off'(X1,on),
 	% CHAR_CONVERSION

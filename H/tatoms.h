@@ -36,6 +36,8 @@
 #define AtomArrayType Yap_heap_regs->AtomArrayType_
   Atom AtomArrow_;
 #define AtomArrow Yap_heap_regs->AtomArrow_
+  Atom AtomDoubleArrow_;
+#define AtomDoubleArrow Yap_heap_regs->AtomDoubleArrow_
   Atom AtomAssert_;
 #define AtomAssert Yap_heap_regs->AtomAssert_
   Atom AtomEmptyBrackets_;
@@ -710,6 +712,10 @@
 #define FunctorArrayEntry Yap_heap_regs->FunctorArrayEntry_
   Functor FunctorArrow_;
 #define FunctorArrow Yap_heap_regs->FunctorArrow_
+  Functor FunctorDoubleArrow_;
+#define FunctorDoubleArrow Yap_heap_regs->FunctorDoubleArrow_
+  Functor FunctorAssert1_;
+#define FunctorAssert1 Yap_heap_regs->FunctorAssert1_
   Functor FunctorAssert_;
 #define FunctorAssert Yap_heap_regs->FunctorAssert_
   Functor FunctorAtFoundOne_;

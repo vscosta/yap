@@ -19,6 +19,7 @@
   AtomArrayOverflow = Yap_LookupAtom("array_overflow");
   AtomArrayType = Yap_LookupAtom("array_type");
   AtomArrow = Yap_LookupAtom("->");
+  AtomDoubleArrow = Yap_LookupAtom("-->");
   AtomAssert = Yap_LookupAtom(":-");
   AtomEmptyBrackets = Yap_LookupAtom("()");
   AtomEmptySquareBrackets = Yap_LookupAtom("[]");
@@ -356,6 +357,8 @@
   FunctorArg = Yap_MkFunctor(AtomArg,3);
   FunctorArrayEntry = Yap_MkFunctor(AtomArrayAccess,3);
   FunctorArrow = Yap_MkFunctor(AtomArrow,2);
+  FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
+  FunctorAssert1 = Yap_MkFunctor(AtomAssert,1);
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);
   FunctorAtom = Yap_MkFunctor(AtomAtom,1);

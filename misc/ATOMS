@@ -24,6 +24,7 @@ A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
 A	ArrayType		N	"array_type"
 A	Arrow			N	"->"
+A	DoubleArrow		N	"-->"
 A	Assert			N	":-"
 A	EmptyBrackets		N	"()"
 A	EmptySquareBrackets	N	"[]"
@@ -361,6 +362,8 @@ F	AltNot			AltNot		1
 F	Arg			Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
+F	DoubleArrow		DoubleArrow	2
+F	Assert1			Assert		1
 F	Assert			Assert		2
 F	AtFoundOne		FoundVar	2
 F	Atom			Atom		1

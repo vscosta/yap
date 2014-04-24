@@ -269,7 +269,7 @@ getUnknownModule(module_t m);
 #define SEMSINGLETON_CHECK  0x0040      /* Semantic singleton checking */
 #define NOEFFECT_CHECK      0x0080      /* Check for meaningless statements */
 #define VARBRANCH_CHECK     0x0100      /* warn on unbalanced variables */
-#define MULTIPLE_CHECK      0x0100      /* warn on multiple file definitions for a predicate */
+#define MULTIPLE_CHECK      0x0200      /* warn on multiple file definitions for a predicate */
 #define MAXNEWLINES         5           /* maximum # of newlines in atom */
 
 #define debugstatus            (LD->_debugstatus)

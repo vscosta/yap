@@ -1164,6 +1164,8 @@ retry:
   if ( (rval=read_term(term, &rd PASS_LD)) &&
        (!tpos || (rval=unify_read_term_position(tpos PASS_LD))) )
     {
+      PredEntry *ap;
+
       if (rd.singles) {
 	// warning, singletons([X=_A],f(X,Y,Z), pos).
 	printMessage(ATOM_warning, 
@@ -1171,6 +1173,22 @@ retry:
 		     PL_TERM, rd.singles, 
 		     PL_TERM, term,
 		     PL_TERM, tpos );
+      }
+      ap = Yap_PredFromClause( Yap_GetFromSlot(term PASS_REGS)  PASS_REGS);
+      if (rd.styleCheck & (DISCONTIGUOUS_STYLE|MULTIPLE_CHECK) && ap != NULL ) {
+	if ( rd.styleCheck & (DISCONTIGUOUS_STYLE) && Yap_discontiguous( ap  PASS_REGS) ) {
+	    printMessage(ATOM_warning, 
+			 PL_FUNCTOR_CHARS, "discontiguous", 2,
+			 PL_TERM, term,
+			 PL_TERM, tpos );
+	  }
+	  if (  rd.styleCheck & (MULTIPLE_CHECK) &&  Yap_multiple( ap  PASS_REGS) ) {
+	    printMessage(ATOM_warning, 
+			 PL_FUNCTOR_CHARS, "multiple", 3,
+			 PL_TERM, term,
+			 PL_TERM, tpos,
+			 PL_ATOM, YAP_SWIAtomFromAtom(ap->src.OwnerFile) );
+	  }
       }
       if ( rd.comments &&
          (rval = PL_unify_nil(rd.comments)) )

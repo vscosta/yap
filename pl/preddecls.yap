@@ -17,7 +17,8 @@
 
 :- system_module( '$_preddecls', [(discontiguous)/1,
         (dynamic)/1,
-        (multifile)/1], ['$check_multifile_pred'/3,
+        (multifile)/1,
+        (discontiguous)/1], ['$check_multifile_pred'/3,
         '$discontiguous'/2,
         '$dynamic'/2]).
 
@@ -126,11 +127,7 @@ discontiguous(F) :-
 	A is A1+2,
 	'$discontiguous'(N/A, M).
 '$discontiguous'(N/A, M) :- !,
-	( recordzifnot('$discontiguous_defs','$df'(N,A,M),_) ->
-	    true
-	;
-	    true
-	).
+	'$new_discontiguous'(N,A,M).
 '$discontiguous'(P,M) :-
 	'$do_error'(type_error(predicate_indicator,P),M:discontiguous(P)).
 
