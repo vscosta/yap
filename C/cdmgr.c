@@ -2020,7 +2020,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   }
   if (fp != LOCAL_ConsultBase) {
     return FALSE;
-  } else if (!mode) { // consulting again a predicate in the original file.
+  } else if (mode) { // consulting again a predicate in the original file.
     if ((p->cs.p_code.NOfClauses && 
 	 p->src.OwnerFile == Yap_ConsultingFile( PASS_REGS1 ) &&
 	 p->src.OwnerFile != AtomNil &&
