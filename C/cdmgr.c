@@ -2024,10 +2024,15 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     if ((p->cs.p_code.NOfClauses && 
 	 p->src.OwnerFile == Yap_ConsultingFile( PASS_REGS1 ) &&
 	 p->src.OwnerFile != AtomNil &&
+	 !(p->PredFlags & MultiFileFlag) &&
 	 p->src.OwnerFile != AtomUserIn) ) {
+      //if (p->ArityOfPE)
+      //	printf("+ %s %s %d\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE, p->cs.p_code.NOfClauses);
       retract_all(p, static_in_use(p,TRUE));
       return TRUE;
     }
+    // else  if (p->ArityOfPE && p->cs.p_code.NOfClauses)
+    //	printf("- %s %s\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE);
   }
   if (mode) {
     if (LOCAL_ConsultSp == LOCAL_ConsultLow+1) {
