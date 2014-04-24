@@ -8,7 +8,7 @@
  *									 *
  *************************************************************************/
 
-:- module( '$os', [ 
+:- system_module( '$os', [ 
 	       cd/0,
 	       cd/1,
 	       getcwd/1,
@@ -18,7 +18,7 @@
 	       putenv/2,
 	       getenv/2,
 	       setenv/2
-	 ] ).
+	 ], [] ).
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /**
