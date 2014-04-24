@@ -5452,8 +5452,14 @@ p_install_thread_local( USES_REGS1 )
     return FALSE;
   }
   PELOCK(69,pe);
+  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
+    // second declaration, just ignore
+    UNLOCK(pe->PELock);
+    return TRUE;
+  }
   if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryPredFlag) ||
       pe->cs.p_code.NOfClauses) {
+    UNLOCK(pe->PELock);
     return FALSE;
   }
 #if THREADS
