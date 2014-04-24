@@ -401,7 +401,7 @@ use_module(M,F,Is) :-
 	'$reset_if'(OldIfLevel),
 	% take care with [a:f], a is the ContextModule
 	'$current_module'(SourceModule, ContextModule),
-	'$lf_opt'(consult, TOpts, Reconsult),
+	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(Stream, UserFile, SourceModule, ParentF, Line, Reconsult, File, Dir, Opts),
@@ -413,7 +413,7 @@ use_module(M,F,Is) :-
 	'$comp_mode'(OldCompMode, CompMode),
 	( get_value('$syntaxcheckflag',on) -> '$init_style_check'(File) ; true ),
 	recorda('$initialisation','$',_),
-	( Reconsult = reconsult ->
+	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
 	    '$start_consult'(Reconsult,File,LC),
 	    '$remove_multifile_clauses'(File),
@@ -421,6 +421,7 @@ use_module(M,F,Is) :-
 	    EndMsg = reconsulted
 	    ;
 	    '$start_consult'(Reconsult,File,LC),
+	    ( File \= user_input, File \= [] -> '$remove_multifile_clauses'(File) ; true ),
 	    StartMsg = consulting,
 	    EndMsg = consulted
 	),
@@ -931,9 +932,10 @@ make_library_index(_Directory).
 
 '$file_name'(Stream,F) :-
 	stream_property(Stream, file_name(F)), !.
-'$file_name'(user_input,user_input).
-'$file_name'(user_output,user_ouput).
-'$file_name'(user_error,user_error).
+'$file_name'(user_input,user_input) :- !.
+'$file_name'(user_output,user_ouput) :- !.
+'$file_name'(user_error,user_error) :- !.
+'$file_name'(_,[]).
 
 
 '$fetch_stream_alias'(OldStream,Alias) :-

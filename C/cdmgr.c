@@ -2018,8 +2018,17 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   } else {
     fp = LOCAL_ConsultBase;
   }
-  if (fp != LOCAL_ConsultBase)
+  if (fp != LOCAL_ConsultBase) {
     return FALSE;
+  } else if (!mode) { // consulting again a predicate in the original file.
+    if ((p->cs.p_code.NOfClauses && 
+	 p->src.OwnerFile == Yap_ConsultingFile( PASS_REGS1 ) &&
+	 p->src.OwnerFile != AtomNil &&
+	 p->src.OwnerFile != AtomUserIn) ) {
+      retract_all(p, static_in_use(p,TRUE));
+      return TRUE;
+    }
+  }
   if (mode) {
     if (LOCAL_ConsultSp == LOCAL_ConsultLow+1) {
       expand_consult();
@@ -2339,7 +2348,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
   goal_expansion_support(p, tf);
-  if (mode == consult)
+  if (mode == consult) 
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
   if (LOCAL_ErrorMessage && LOCAL_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {

@@ -915,7 +915,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->ExtraPredFlags = 0L;
 #endif
   p->src.OwnerFile = ap->src.OwnerFile;
-  p->OpcodeOfPred = UNDEF_OPCODE;
+  p->OpcodeOfPred = FAIL_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   p->ModuleOfPred = ap->ModuleOfPred;
