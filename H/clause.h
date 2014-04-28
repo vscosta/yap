@@ -435,10 +435,8 @@ LogUpdClause   *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term        Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
-void         Yap_udi_init(void);
 int          Yap_new_udi_clause(PredEntry *, yamop *, Term);
 yamop       *Yap_udi_search(PredEntry *);
-void         Yap_udi_abolish(PredEntry *p);
 
 #ifdef DEBUG
 void    Yap_bug_location(yamop *);

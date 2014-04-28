@@ -110,11 +110,13 @@ CELL  *Yap_HeapStoreOpaqueTerm(Term t);
 size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
 
 /* c_interface.c */
+#ifndef YAP_CPP_INTERFACE
 Int    YAP_Execute(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteFirst(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteNext(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteOnCut(struct pred_entry *, CPredicate, struct cut_c_str *);
 Int    YAP_RunGoalOnce(Term);
+#endif
 
 /* cdmgr.c */
 Term	Yap_all_calls(void);

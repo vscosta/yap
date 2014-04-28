@@ -83,8 +83,9 @@ typedef int pthread_t;
 
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
+#ifndef YAP_CPP_INTERFACE
 typedef int bool;
-
+#endif
 
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
 
@@ -209,10 +210,12 @@ typedef struct initialise_handle * InitialiseHandle;
 
 // THIS HAS TO BE ABSTRACTED
 
+#ifndef YAP_CPP_INTERFACE
 #define true(s, a)		((s)->flags & (a))
 #define false(s, a)		(!true((s), (a)))
 #define set(s, a)		((s)->flags |= (a))
 #define clear(s, a)		((s)->flags &= ~(a))
+#endif
 
 #define P_QUASI_QUOTATION_SYNTAX	(0x00000004) /* <![Type[Quasi Quote]]> */
 #define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
@@ -278,8 +281,10 @@ getUnknownModule(module_t m);
 #define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
 #define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
 
+#ifndef YAP_CPP_INTERFACE
 COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
+#endif
 COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 
 #define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
