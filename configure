@@ -633,12 +633,9 @@ CUDA_CPPFLAGS
 CUDA_SHLIB_LD
 PKG_CUDA
 NVCC
-SHLIB_SUFFIX
-CPLINT_SHLIB_LD
-CPLINT_LDFLAGS
-CPLINT_CFLAGS
-CPLINT_LIBS
-PKG_CPLINT
+PKG_SWIG
+SWIG_TARGET
+SWIG
 PYTHON_LIBS
 PYTHON_INCLUDES
 PKG_PYTHON
@@ -654,7 +651,7 @@ LTLIBOBJS
 LIBOBJS
 RAPTOR_CPPFLAGS
 RAPTOR_LDFLAGS
-PKG_RAPTOR
+ENABLE_RAPTOR
 LTX_PL
 _ACJNI_JAVAC
 JAVADOC
@@ -883,7 +880,7 @@ with_matlab
 with_mpi
 with_mpe
 with_python
-enable_cplint
+with_swig
 with_cuda
 enable_gecode
 '
@@ -1540,7 +1537,6 @@ Optional Features:
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
  --enable-bddlib           dynamic bdd library
- --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
  --enable-gecode            install gecode library
 
 Optional Packages:
@@ -1566,6 +1562,7 @@ Optional Packages:
  --with-mpi=DIR           use LAM/MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
  --with-python=DIR              interface to R language
+ --with-swig=DIR              swig interface generator
  --enable-cuda           use minisat interface
 
 Some influential environment variables:
@@ -12375,7 +12372,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12378 "configure" */
+/* #line 12375 "configure" */
 public class Test {
 }
 EOF
@@ -12551,7 +12548,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12554: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12551: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12682,7 +12679,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12685 "configure" */
+/* #line 12682 "configure" */
 public class Test {
 }
 EOF
@@ -12717,7 +12714,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12720 "configure" */
+/* [#]line 12717 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -13429,9 +13426,9 @@ fi
 
 if test "$yap_cv_raptor" = no
 then
-  PKG_RAPTOR=""
+  ENABLE_RAPTOR="@# "
 else
-  PKG_RAPTOR="packages/raptor"
+  ENABLE_RAPTOR=""
 fi
 
 if test "$yap_cv_raptor" != no; then
@@ -13539,7 +13536,7 @@ RAPTOR_LDFLAGS="$LIBS"
 
 if test "$raptor_available" = no
 then
-  PKG_RAPTOR=""
+  ENABLE_RAPTOR="@# "
   cat << EOF
 ##################################################################
 # ERROR: Could not find raptor library. Either I don't have the
@@ -13547,7 +13544,7 @@ then
 ##################################################################
 EOF
 else
-  PKG_RAPTOR="packages/raptor"
+  ENABLE_RAPTOR=""
 fi
 
 
@@ -15338,53 +15335,39 @@ fi
 
 
 
-# Check whether --enable-cplint was given.
-if test "${enable_cplint+set}" = set; then :
-  enableval=$enable_cplint; yap_cv_cplint=$enableval
-else
-  yap_cv_cplint=no
-fi
-
-
-
-if test ! "$yap_cv_cplint" = "no"
-  then
-	if test ! "$yap_cv_cplint" = "yes"
-	then
-		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
-		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
-		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
-	fi
-	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
-	then
-		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
-		SHLIB_SUFFIX="dll"
+# Check whether --with-swig was given.
+if test "${with_swig+set}" = set; then :
+  withval=$with_swig; if test "$withval" = yes; then
+            SWIG=swig
+	    yap_cv_swig=yes
+	elif test "$withval" = no; then
+	    yap_cv_swig=no
 	else
-		CPLINT_SHLIB_LD=$SHLIB_LD
-		SHLIB_SUFFIX="so"
+	    SWIG=$withval
+	    yap_cv_swig=yes
 	fi
-	PKG_CPLINT="packages/cplint packages/cplint/splipcase packages/cplint/approx/simplecuddLPADs"
-
-
-
-
-
-
 else
-	PKG_CPLINT=""
+  yap_cv_swig=no
 fi
 
-mkdir -p  packages/cplint
-mkdir -p  packages/cplint/approx
-mkdir -p  packages/cplint/approx/simplecuddLPADs
 
-ac_config_files="$ac_config_files packages/cplint/Makefile"
+if test "$yap_cv_swig" = "no"; then
+    SWIG_TARGET="dummy"
+    PKG_SWIG=""
+elif test -e "$srcdir"/packages/swig/Makefile.in ; then
+    SWIG_TARGET="all"
+    PKG_SWIG="swig"
+fi
 
-ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefile"
-
-ac_config_files="$ac_config_files packages/cplint/slipcase/Makefile"
+if test "$PKG_SWIG" != ""; then
 
 
+
+
+
+ac_config_files="$ac_config_files packages/swig/Makefile packages/swig/setup.py"
+
+fi
 
 
 
@@ -16717,9 +16700,8 @@ do
     "packages/raptor/Makefile") CONFIG_FILES="$CONFIG_FILES packages/raptor/Makefile" ;;
     "library/matlab/Makefile") CONFIG_FILES="$CONFIG_FILES library/matlab/Makefile" ;;
     "packages/python/Makefile") CONFIG_FILES="$CONFIG_FILES packages/python/Makefile" ;;
-    "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
-    "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
-    "packages/cplint/slipcase/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/slipcase/Makefile" ;;
+    "packages/swig/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swig/Makefile" ;;
+    "packages/swig/setup.py") CONFIG_FILES="$CONFIG_FILES packages/swig/setup.py" ;;
     "packages/cuda/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cuda/Makefile" ;;
     "packages/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES packages/gecode/Makefile" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;

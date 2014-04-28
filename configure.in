@@ -1962,7 +1962,7 @@ m4_include([library/lammpi/configure.in])
 
 m4_include([packages/python/configure.in])
 
-m4_include([packages/cplint/configure.in])
+m4_include([packages/swig/configure.in])
 
 m4_include([packages/cuda/configure.in])
 

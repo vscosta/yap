@@ -1,0 +1,63 @@
+PACKAGE=swig
+DOC=swig
+PKGCFLAGS=
+SWIG=@SWIG@
+JAVAC=@JAVAC@
+JAR=@JAR@
+include ../Makefile.defs
+
+PROGRAMS= \
+
+SWIG_FILES= \
+	$(srcdir)/yap.i \
+	$(srcdir)/yap.c \
+	$(srcdir)/yap.cpp \
+	$(srcdir)/yap.hh
+
+all: python java R
+
+python: $(SWIG_FILES) python/_yap.so python/yap.py
+
+python/_yap.so: python/yap.o python/yap_wrap.o
+	$(LD) $(LDSOFLAGS) -o python/_yap.so python/yap.o python/yap_wrap.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap
+
+python/yap_wrap.c: $(srcdir)/yap.i
+	$(SWIG)  -python  -outdir python -o python/yap_wrap.c -I$(srcdir)/../../include  -I$(srcdir) -Wall $(srcdir)/yap.i
+
+python/yap_wrap.o:  python/yap_wrap.c
+	$(CC) $(CFLAGS) -c python/yap_wrap.c @PYTHON_INCLUDES@ -o python/yap_wrap.o
+
+python/yap.o:  $(srcdir)/yap.c
+	$(CC) $(CFLAGS) -c $< -o python/yap.o
+
+java: java/libyap.@SO@ java/yap.java
+	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
+
+java/libyap.@SO@: java/yap.o java/yap_wrap.o
+	$(LD) $(LDSOFLAGS)  -L ../.. -lYap -o java/libyap.@SO@ java/yap.o java/yap_wrap.o $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap
+
+java/yap_wrap.c: $(srcdir)/yap.i
+	$(SWIG)  -java  -outdir java -o java/yap_wrap.c -I$(srcdir)/../../include -I$(srcdir)/../../include -I$(srcdir) -Wall $(srcdir)/yap.i
+
+java/yap_wrap.o:  java/yap_wrap.c
+	$(CC) $(CFLAGS) -c java/yap_wrap.c @JPLCFLAGS@ -o java/yap_wrap.o
+
+java/yap.o:  $(srcdir)/yap.c
+	$(CC) $(CFLAGS) -c $< -o java/yap.o
+
+R:
+
+
+yap.i: $(srcdir)/../../include/YapInterface.h
+
+install: 
+
+
+clean:
+	rm -f */*
+
+distclean: clean
+	rm -f *def Makefile
+
+
+##########

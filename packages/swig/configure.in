@@ -1,0 +1,35 @@
+AC_ARG_WITH(swig,
+	[ --with-swig[=DIR]              swig interface generator],
+	if test "$withval" = yes; then
+            SWIG=swig
+	    yap_cv_swig=yes
+	elif test "$withval" = no; then
+	    yap_cv_swig=no
+	else
+	    SWIG=$withval
+	    yap_cv_swig=yes
+	fi,
+	[yap_cv_swig=no])
+
+if test "$yap_cv_swig" = "no"; then
+    SWIG_TARGET="dummy"
+    PKG_SWIG=""
+elif test -e "$srcdir"/packages/swig/Makefile.in ; then
+    SWIG_TARGET="all"
+    PKG_SWIG="swig"
+fi
+
+if test "$PKG_SWIG" != ""; then
+
+mkdir -p packages/swig/python
+mkdir -p packages/swig/R
+mkdir -p packages/swig/java
+mkdir -p packages/swig/android
+
+AC_SUBST(SWIG)
+AC_SUBST(SWIG_TARGET)
+AC_SUBST(PKG_SWIG)
+
+AC_CONFIG_FILES([  packages/swig/Makefile ])
+fi
+
