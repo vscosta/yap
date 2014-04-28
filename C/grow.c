@@ -1825,7 +1825,7 @@ int
 Yap_locked_growtrail(long size, int contiguous_only)
 { 
   CACHE_REGS
-    return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
+  return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
 }
 
 int

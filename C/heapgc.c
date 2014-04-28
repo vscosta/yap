@@ -3992,7 +3992,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 #if !USE_SYSTEM_MALLOC
   if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
-    if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
+    if (!Yap_locked_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return -1;
     }
@@ -4014,7 +4014,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   
     *--ASP = (CELL)current_env;
     if (
-	!Yap_growtrail(sz, FALSE)
+	!Yap_locked_growtrail(sz, FALSE)
 	) {
       Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"out of %lB during gc", sz);
       return -1;
