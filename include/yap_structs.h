@@ -134,7 +134,7 @@ typedef enum {
 #define YAP_CONSULT_MODE           0
 #define YAP_RECONSULT_MODE         1
 
-typedef struct {
+typedef struct yap_boot_params {
   /* if NON-NULL, path where we can find the saved state */
   char *SavedState;
   /* if NON-0, minimal size for Heap or Code Area */
@@ -217,6 +217,7 @@ typedef struct {
   char *ErrorCause;
 } YAP_init_args;
 
+Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] );
 
 /* from thread.h */
 typedef struct {

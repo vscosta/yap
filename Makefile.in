@@ -63,7 +63,7 @@ MPI_CC=@MPI_CC@
 CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CFLAGS=  @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
-CXXFLAGS=  @CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
+CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -Iinclude
 C_PARSER_FLAGS= @YAPLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 #
@@ -399,7 +399,7 @@ LIBTAI_OBJECTS = \
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
 	load_none.o load_aout.o load_aix.o load_dll.o load_shl.o \
-	c_interface.o clause_list.o yapi.o
+	c_interface.o clause_list.o
 
 OR_OBJECTS = \
 	or.memory.o opt.init.o opt.preds.o   \
@@ -415,7 +415,7 @@ STATIC_OBJECTS = \
 
 LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)
 
-OBJECTS = yap.o $(LIB_OBJECTS)
+OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
 PLCONS_OBJECTS = \
 	pl-ntcon.o \
@@ -459,7 +459,7 @@ udi.o: C/udi.c config.h
 %.o: BEAM/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-yapi.o: CXX/yapi.cpp config.h
+yapi.o: CXX/yapi.cpp CXX/yapi.hh config.h
 	$(CXX) -c $(CXXFLAGS)  $< -o $@
 
 sys.o: library/system/sys.c config.h
@@ -583,7 +583,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
-@DYNYAPLIB@: $(LIB_OBJECTS)
+@DYNYAPLIB@: $(LIB_OBJECTS) yapi.o
 	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
