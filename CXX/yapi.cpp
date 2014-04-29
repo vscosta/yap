@@ -139,6 +139,14 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   t = Yap_MkNewApplTerm( f.f, arity);
 }
 
+YAPTerm  YAPApplTerm::getArg(unsigned int arg) {
+  return YAPTerm( ArgOfTerm(arg, t) );
+}
+
+YAPFunctor  YAPApplTerm::getFunctor() {
+  return YAPFunctor( FunctorOfTerm(t) );
+}
+
 YAPPairTerm::YAPPairTerm(YAPTerm th, YAPTerm tl) : YAPTerm() {
   CACHE_REGS 
   t = MkPairTerm( th.t, tl.t);
@@ -304,43 +312,42 @@ char *YAPAtom::name(void) {
 }
 
 
-YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]): YAPPredicate(f, mod)
+void
+YAPQuery::initQuery( Term *t )
 {
   CACHE_REGS
 
-  /* ignore flags  and module for now */
-    this->oq = (YAPQuery *)LOCAL_execution;
-  LOCAL_execution = (struct open_query_struct *)this;
-  this->q_open=1;
-  this->q_state=0;
-  this->q_flags = 0;
-  this->q_g = (Term *)t;
-}
-
-YAPQuery::YAPQuery(YAPFunctor f, YAPTerm t[]): YAPPredicate(f)
-{
-  CACHE_REGS
-
-  /* ignore flags  and module for now */
   this->oq = (YAPQuery *)LOCAL_execution;
   LOCAL_execution = (struct open_query_struct *)this;
   this->q_open=1;
   this->q_state=0;
   this->q_flags = 0;
-  this->q_g = (Term *)t;
+  this->q_g = t;
+}
+
+
+YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]): YAPPredicate(f, mod)
+{
+  /* ignore flags  for now */
+  initQuery( (Term *)t );
+}
+
+YAPQuery::YAPQuery(YAPFunctor f, YAPTerm t[]): YAPPredicate(f)
+{
+   /* ignore flags for now */
+  initQuery( (Term *)t );
 }
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm t[]): YAPPredicate(p.ap)
 {
-  CACHE_REGS
+  initQuery( (Term *)t );
+}
 
-  /* ignore flags  and module for now */
-    this->oq = (YAPQuery *)LOCAL_execution;
-  LOCAL_execution = (struct open_query_struct *)this;
-  this->q_open=1;
-  this->q_state=0;
-  this->q_flags = 0;
-  this->q_g = (Term *)t;
+YAPQuery::YAPQuery(char *s): YAPPredicate(s, &this->q_g)
+{
+  Term *t = this->q_g;
+
+  initQuery( t );
 }
 
 
@@ -400,3 +407,8 @@ int YAPPredicate::call(YAPTerm t[])
   q.close();
   return ret;
 }
+
+YAP::YAP(YAPParams const& params)
+{ YAP_Init( (YAP_init_args *)&params.init_args ); }
+
+

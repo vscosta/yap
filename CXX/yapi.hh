@@ -65,8 +65,6 @@ protected:
 public:
   YAPTerm() {} // do nothing constructor
   YAPTerm(int i) { CACHE_REGS t = MkIntegerTerm( i ); }
-  YAPTerm(int64_t i) { CACHE_REGS t = MkIntegerTerm( i ); }
-  YAPTerm(long int i)  { CACHE_REGS t = MkIntegerTerm( i ); }
   YAPTerm(void *ptr)  { CACHE_REGS t = MkIntegerTerm( (Int)ptr ); }
   YAPTerm(Term tn) { t = tn; }
   YAPTerm(char *s) { Term tp ; t = YAP_ReadBuffer(s,&tp); }
@@ -155,6 +153,7 @@ public:
   YAPFunctor( char * s, unsigned int arity) { f = Yap_MkFunctor( Yap_LookupAtom( s ), arity ); }
   YAPFunctor( wchar_t * s, unsigned int arity) { f = Yap_MkFunctor( Yap_LookupWideAtom( s ), arity ); }
   YAPFunctor( YAPAtom at, unsigned int arity) { f = Yap_MkFunctor( at.a, arity ); }
+  YAPFunctor( Functor ff) { f = ff; }
 
   Atom name(void) {
     return NameOfFunctor( f );
@@ -191,6 +190,24 @@ public:
 class YAPPredicate {
   friend class YAPQuery;
   PredEntry *ap;
+  // trick to communicate t[] back to yapquery
+  YAPPredicate(char *s, Term **th) {   
+   CACHE_REGS
+     Term t, tp, m = CurrentModule ;
+   t = YAP_ReadBuffer(s,&tp);
+   t = Yap_StripModule(t, &m);
+   if (IsVarTerm(t) || IsNumTerm(t))
+     ap = NULL;
+   if (IsAtomTerm(t)) {
+     ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
+     *th = NULL;
+   } else if (IsApplTerm(t)) {
+     ap = RepPredProp(PredPropByFunc(FunctorOfTerm(t), m));
+     *th = RepAppl(t)+1;
+   } else {
+     ap = NULL;
+   }
+  }
 public:
   YAPPredicate(PredEntry *pe) {   
     ap = pe;
@@ -200,11 +217,9 @@ public:
    ap = RepPredProp(PredPropByFunc(f.f,CurrentModule));
   }
   YAPPredicate(YAPFunctor f, YAPTerm mod) {   
-   CACHE_REGS
    ap = RepPredProp(PredPropByFunc(f.f,mod.t));
   }
   YAPPredicate(YAPAtom at, YAPTerm mod) {   
-   CACHE_REGS
    ap = RepPredProp(PredPropByAtom(at.a,mod.t));
   }
   YAPPredicate(YAPAtom at) {   
@@ -212,7 +227,6 @@ public:
    ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
   }
   YAPPredicate(YAPAtom at, unsigned int arity, YAPTerm mod) {   
-    CACHE_REGS
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
       ap = RepPredProp(PredPropByFunc(f,mod.t));
@@ -229,7 +243,19 @@ public:
       ap = RepPredProp(PredPropByAtom(at.a,CurrentModule));
     }
   }
-
+  YAPPredicate(char *s) {   
+   CACHE_REGS
+     Term t, tp, m = CurrentModule ;
+   t = YAP_ReadBuffer(s,&tp);
+   t = Yap_StripModule(t, &m);
+   if (IsVarTerm(t) || IsNumTerm(t))
+     ap = NULL;
+   if (IsAtomTerm(t)) {
+     ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
+   } else {
+     ap = RepPredProp(PredPropByFunc(FunctorOfTerm(t), m));
+   }
+  }
   int call(YAPTerm ts[]);
 };
  
@@ -244,14 +270,79 @@ class YAPQuery: private YAPPredicate {
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
+  void initQuery( Term *t );
 public:
   /// full constructor, is given a functor, module, and an array of terms that must hav at least 
   /// the same arity as the functor.
   YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]);
   YAPQuery(YAPFunctor f, YAPTerm t[]);
   YAPQuery(YAPPredicate p, YAPTerm t[]);
-  YAPQuery(YAPTerm t[]);
+  YAPQuery(char *s);
+  //  YAPQuery(YAPTerm t);
   int next();
   void cut();
   void close();
 };
+
+class YAPParams;
+
+class YAP {
+public:
+  YAP(YAPParams const& params);
+};
+
+class YAPParams {
+  friend YAP;
+  YAP_init_args init_args;
+public:
+  YAPParams();
+  // sets all the default values for each data member
+  YAPParams& savedState( char * f);
+  YAPParams& stackSize(size_t sz);
+  YAPParams& trailSize(size_t sz);
+  YAPParams& maxStackSize(size_t sz);
+  YAPParams& maxTrailSize(size_t sz);
+  YAPParams& libDir(char *p);
+  YAPParams& bootFile(char *f);
+  YAPParams& goal(char *g);
+  YAPParams& topLevel(char *g);
+  YAPParams& script(bool v);
+  YAPParams& fastBoot(bool v);
+};
+
+inline YAPParams::YAPParams()
+{ Yap_InitDefaults( &init_args, NULL ); }
+
+inline YAPParams& YAPParams::savedState( char * f)
+{ init_args.SavedState = f; return *this; }
+
+inline YAPParams& YAPParams::stackSize(size_t sz)
+{ init_args.StackSize = sz; return *this; }
+
+inline YAPParams& YAPParams::trailSize(size_t sz)
+{ init_args.TrailSize = sz; return *this; }
+
+inline YAPParams& YAPParams::maxStackSize(size_t sz)
+{ init_args.MaxStackSize = sz; return *this; }
+
+inline YAPParams& YAPParams::maxTrailSize(size_t sz)
+{ init_args.MaxTrailSize = sz; return *this; }
+
+inline YAPParams& YAPParams::libDir(char *p)
+{ init_args.YapLibDir = p; return *this; }
+
+inline YAPParams& YAPParams::bootFile(char *f)
+{ init_args.YapPrologBootFile = f; return *this; }
+
+inline YAPParams& YAPParams::goal(char *g)
+{ init_args.YapPrologGoal = g; return *this; }
+
+inline YAPParams& YAPParams::topLevel(char *g)
+{ init_args.YapPrologTopLevelGoal = g; return *this; }
+
+inline YAPParams& YAPParams::script(bool v)
+{ init_args.HaltAfterConsult = v; return *this; }
+
+inline YAPParams& YAPParams::fastBoot(bool v)
+{ init_args.FastBoot = v; return *this; }
+
