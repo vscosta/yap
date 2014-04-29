@@ -3302,48 +3302,55 @@ YAP_Init(YAP_init_args *yap_init)
   return YAP_BOOT_FROM_PROLOG;
 }
 
+Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] )
+{
+  init_args->SavedState = saved_state;
+  init_args->AttsSize = 0;
+  init_args->HeapSize = 0;
+  init_args->StackSize = 0;
+  init_args->TrailSize = 0;
+  init_args->MaxAttsSize = 0;
+  init_args->MaxHeapSize = 0;
+  init_args->MaxStackSize = 0;
+  init_args->MaxGlobalSize = 0;
+  init_args->MaxTrailSize = 0;
+  init_args->YapLibDir = NULL;
+  init_args->YapPrologBootFile = NULL;
+  init_args->YapPrologInitFile = NULL;
+  init_args->YapPrologRCFile = NULL;
+  init_args->YapPrologGoal = NULL;
+  init_args->YapPrologTopLevelGoal = NULL;
+  init_args->YapPrologAddPath = NULL;
+  init_args->HaltAfterConsult = FALSE;
+  init_args->FastBoot = FALSE;
+  init_args->NumberWorkers = 1;
+  init_args->SchedulerLoop = 10;
+  init_args->DelayedReleaseLoad = 3;
+  init_args->PrologShouldHandleInterrupts = FALSE;
+  init_args->ExecutionMode = INTERPRETED;
+  init_args->Argc = 1;
+  {
+    size_t l1 = 2*sizeof(char *);
+    if (!(init_args->Argv = (char **)malloc(l1)))
+      return YAP_BOOT_ERROR;
+    init_args->Argv[0] = Yap_FindExecutable ();
+    init_args->Argv[1] = NULL;
+  }
+  init_args->ErrorNo = 0;
+  init_args->ErrorCause = NULL;
+  init_args->QuietMode = FALSE;
+  return 0;
+}
+
+
 X_API Int
 YAP_FastInit(char saved_state[])
 {
   YAP_init_args init_args;
   Int out;
 
-  init_args.SavedState = saved_state;
-  init_args.AttsSize = 0;
-  init_args.HeapSize = 0;
-  init_args.StackSize = 0;
-  init_args.TrailSize = 0;
-  init_args.MaxAttsSize = 0;
-  init_args.MaxHeapSize = 0;
-  init_args.MaxStackSize = 0;
-  init_args.MaxGlobalSize = 0;
-  init_args.MaxTrailSize = 0;
-  init_args.YapLibDir = NULL;
-  init_args.YapPrologBootFile = NULL;
-  init_args.YapPrologInitFile = NULL;
-  init_args.YapPrologRCFile = NULL;
-  init_args.YapPrologGoal = NULL;
-  init_args.YapPrologTopLevelGoal = NULL;
-  init_args.YapPrologAddPath = NULL;
-  init_args.HaltAfterConsult = FALSE;
-  init_args.FastBoot = FALSE;
-  init_args.NumberWorkers = 1;
-  init_args.SchedulerLoop = 10;
-  init_args.DelayedReleaseLoad = 3;
-  init_args.PrologShouldHandleInterrupts = FALSE;
-  init_args.ExecutionMode = INTERPRETED;
-  init_args.Argc = 1;
-  {
-    size_t l1 = 2*sizeof(char *);
-    if (!(init_args.Argv = (char **)malloc(l1)))
-      return YAP_BOOT_ERROR;
-    init_args.Argv[0] = Yap_FindExecutable ();
-    init_args.Argv[1] = NULL;
-  }
-  init_args.ErrorNo = 0;
-  init_args.ErrorCause = NULL;
-  init_args.QuietMode = FALSE;
-  out = YAP_Init(&init_args);
+  if (( out = Yap_InitDefaults( &init_args, saved_state ) ) != YAP_BOOT_ERROR)
+    out = YAP_Init(&init_args);
   if (out == YAP_BOOT_ERROR) {
     Yap_Error(init_args.ErrorNo,TermNil,init_args.ErrorCause);
   }

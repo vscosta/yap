@@ -47,6 +47,7 @@ PROGRAMS= \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/lambda.pl \
 	$(srcdir)/lineutils.yap \
+	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
