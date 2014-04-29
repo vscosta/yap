@@ -5,45 +5,40 @@ SWIG=@SWIG@
 JAVAC=@JAVAC@
 JAR=@JAR@
 include ../Makefile.defs
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
+YAP_EXTRAS=@YAP_EXTRAS@
+CPPFLAGS=@CPPFLAGS@  -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
+CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
 PROGRAMS= \
 
 SWIG_FILES= \
-	$(srcdir)/yap.i \
-	$(srcdir)/yap.c \
-	$(srcdir)/yap.cpp \
-	$(srcdir)/yap.hh
+	$(srcdir)/yap.i
 
 all: python java R
 
 python: $(SWIG_FILES) python/_yap.so python/yap.py
 
-python/_yap.so: python/yap.o python/yap_wrap.o
-	$(LD) $(LDSOFLAGS) -o python/_yap.so python/yap.o python/yap_wrap.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap
+python/_yap.so: python/yap_wrap.o
+	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
 
 python/yap_wrap.c: $(srcdir)/yap.i
-	$(SWIG)  -python  -outdir python -o python/yap_wrap.c -I$(srcdir)/../../include  -I$(srcdir) -Wall $(srcdir)/yap.i
+	$(SWIG) -c++ -python  -outdir python -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
 
 python/yap_wrap.o:  python/yap_wrap.c
-	$(CC) $(CFLAGS) -c python/yap_wrap.c @PYTHON_INCLUDES@ -o python/yap_wrap.o
-
-python/yap.o:  $(srcdir)/yap.c
-	$(CC) $(CFLAGS) -c $< -o python/yap.o
+	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
 java: java/libyap.@SO@ java/yap.java
 	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
 
-java/libyap.@SO@: java/yap.o java/yap_wrap.o
-	$(LD) $(LDSOFLAGS)  -L ../.. -lYap -o java/libyap.@SO@ java/yap.o java/yap_wrap.o $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap
+java/libyap.@SO@: java/yap_wrap.o
+	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o java/libyap.@SO@ ../../yapi.o  java/yap_wrap.o $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
 java/yap_wrap.c: $(srcdir)/yap.i
-	$(SWIG)  -java  -outdir java -o java/yap_wrap.c -I$(srcdir)/../../include -I$(srcdir)/../../include -I$(srcdir) -Wall $(srcdir)/yap.i
+	$(SWIG) -c++ -java  -outdir java -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
 
 java/yap_wrap.o:  java/yap_wrap.c
-	$(CC) $(CFLAGS) -c java/yap_wrap.c @JPLCFLAGS@ -o java/yap_wrap.o
-
-java/yap.o:  $(srcdir)/yap.c
-	$(CC) $(CFLAGS) -c $< -o java/yap.o
+	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
 
 R:
 

@@ -4,11 +4,9 @@
  %{
  /* Put header files here or function declarations like below */
  
-#include "YapInterface.h"
+#include "yapi.hh"
 
  %}
-
-extern int prove_string(char *s);
-
-%include "YapInterface.h"
+ 
+%include "yapi.hh"
 
