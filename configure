@@ -15361,11 +15361,16 @@ fi
 
 if test "$PKG_SWIG" != ""; then
 
+mkdir -p packages/swig/python
+mkdir -p packages/swig/R
+mkdir -p packages/swig/java
+mkdir -p packages/swig/android
 
 
 
 
-ac_config_files="$ac_config_files packages/swig/Makefile packages/swig/setup.py"
+
+ac_config_files="$ac_config_files packages/swig/Makefile"
 
 fi
 
@@ -16701,7 +16706,6 @@ do
     "library/matlab/Makefile") CONFIG_FILES="$CONFIG_FILES library/matlab/Makefile" ;;
     "packages/python/Makefile") CONFIG_FILES="$CONFIG_FILES packages/python/Makefile" ;;
     "packages/swig/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swig/Makefile" ;;
-    "packages/swig/setup.py") CONFIG_FILES="$CONFIG_FILES packages/swig/setup.py" ;;
     "packages/cuda/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cuda/Makefile" ;;
     "packages/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES packages/gecode/Makefile" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
