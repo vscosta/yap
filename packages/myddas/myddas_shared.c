@@ -736,10 +736,14 @@ init_myddas(void)
   }
 #endif
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
+#define stringify(X) _stringify(X)
+#define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
   Yap_PutValue(AtomMyddasVersionName,
-	       MkAtomTerm(Yap_LookupAtom(MYDDAS_VERSION)));
+	       MkAtomTerm(Yap_LookupAtom(stringify(MYDDAS_VERSION))));
   Yap_HaltRegisterHook((HaltHookFunc)Yap_MYDDAS_delete_all_myddas_structs,NULL);
+#undef stringify
+#undef _stringify
   Yap_MYDDAS_delete_all_myddas_structs();
 #endif
 }
