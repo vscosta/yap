@@ -651,7 +651,7 @@ LTLIBOBJS
 LIBOBJS
 RAPTOR_CPPFLAGS
 RAPTOR_LDFLAGS
-ENABLE_RAPTOR
+PKG_RAPTOR
 LTX_PL
 _ACJNI_JAVAC
 JAVADOC
@@ -13426,9 +13426,9 @@ fi
 
 if test "$yap_cv_raptor" = no
 then
-  ENABLE_RAPTOR="@# "
+  PKG_RAPTOR=""
 else
-  ENABLE_RAPTOR=""
+  PKG_RAPTOR="packages/raptor"
 fi
 
 if test "$yap_cv_raptor" != no; then
@@ -13536,7 +13536,7 @@ RAPTOR_LDFLAGS="$LIBS"
 
 if test "$raptor_available" = no
 then
-  ENABLE_RAPTOR="@# "
+  PKG_RAPTOR=""
   cat << EOF
 ##################################################################
 # ERROR: Could not find raptor library. Either I don't have the
@@ -13544,7 +13544,7 @@ then
 ##################################################################
 EOF
 else
-  ENABLE_RAPTOR=""
+  PKG_RAPTOR="packages/raptor"
 fi
 
 
