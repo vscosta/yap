@@ -9,6 +9,27 @@
 
 */
 
+/**
+ *
+ *   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface.
+ *
+ *
+ *    @tableofcontents
+ *
+ * A reimplementation of Jan Wielemaker's SWI-Prolog C-language interface, it supports
+ * most of the functionality in the original implementation. It allows for:
+ *
+ *   - Term Construction, Access, and Unification
+ *   - Manipulation of Atoms, Strings, Lists of Codes and Lists of Atoms
+ *   - Query evaluation
+ *   - Thread and Prolog engine management
+ *   - Data-Base Access
+ *
+ * In this interface, all Prolog data known by C is referenced through term references (term_t), hence
+ * Prolog has all the information necessary to perform its memory management without special precautions
+ *  from the C programmer.
+ */
+
 #define PL_KERNEL 1
 
 //=== includes ===============================================================
@@ -32,6 +53,10 @@
 #endif
 #if HAVE_SIGNAL_H
 #include	<signal.h>
+#endif
+
+#if !HAVE_SNPRINTF
+#define snprintf(X,Y,Z,A) sprintf(X,Z,A)
 #endif
 
 #define PL_KERNEL 1
@@ -127,16 +152,25 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
   CurrentModule = cm;
 } 
 
-/* SWI: void PL_agc_hook(void) */
+/** @defgroup swi-ATOMS Atom Construction
+ *  @ingroup swi-c-interface
+ *  @{
+ *  */
 
+
+/* SWI: void PL_agc_hook(void) */
+/** @brief Atom garbage collection hook
+ *
+ */
 X_API PL_agc_hook_t
 PL_agc_hook(PL_agc_hook_t entry)
 {
   return (PL_agc_hook_t)YAP_AGCRegisterHook((YAP_agc_hook)entry);
 }
 
-/* SWI: char* PL_atom_chars(atom_t atom)
-   YAP: char* AtomName(Atom) */
+/** @brief extract the text representation from atom
+ *
+ */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
   Atom at = SWIAtomToAtom(a);
@@ -145,8 +179,9 @@ X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
   return RepAtom(at)->StrOfAE;
 }
 
-/* SWI: char* PL_atom_chars(atom_t atom)
-   YAP: char* AtomName(Atom) */
+/** @brief extract the text representation from atom, including its length
+ *
+ */
 X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
 {
   char *s = RepAtom(SWIAtomToAtom(a))->StrOfAE;
@@ -154,15 +189,25 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
   return s;
 }
 
-/* SWI: term_t PL_copy_term_ref(term_t from)
-   YAP: NO EQUIVALENT */
-/* SAM TO DO */
+/** @}
+ *
+ * @defgroup swi-term_references Term References
+ *  @ingroup swi-c-interface
+ *  @{
+ *  */
+
+/** @brief duplicate a term reference
+ *
+ */
 X_API term_t PL_copy_term_ref(term_t from)
 {
   CACHE_REGS
   return Yap_InitSlot(Yap_GetFromSlot(from PASS_REGS) PASS_REGS);
 }
 
+/** @brief create a new term reference
+ *
+ */
 X_API term_t PL_new_term_ref(void)
 {
   
@@ -171,6 +216,10 @@ X_API term_t PL_new_term_ref(void)
   return to;
 }
 
+/** @brief create several new term references
+ *
+ * @par n is the number of references
+ */
 X_API term_t PL_new_term_refs(int n)
 {
   CACHE_REGS
@@ -178,6 +227,9 @@ X_API term_t PL_new_term_refs(int n)
   return to;
 }
 
+/** @brief dispose of all term references created since after
+ *
+ */
 X_API void PL_reset_term_refs(term_t after)
 {
   CACHE_REGS
@@ -185,10 +237,50 @@ X_API void PL_reset_term_refs(term_t after)
   Yap_RecoverSlots(after-new PASS_REGS);
 }
 
-/* begin PL_get_* functions =============================*/
+/** @}
+ *  @defgroup swi-term_manipulation Term Manipulation
+ *  @ingroup swi-c-interface
+ *  */
 
-/* SWI: int PL_get_arg(int index, term_t t, term_t a)
-   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
+/**
+ *  @defgroup swi-get-operations Reading Terms
+ *  @ingroup swi-term_manipulation
+ *  @{
+ *  */
+
+/** @brief *name is assigned the name and *arity the arity if term ts, or the operaton fails.
+ *
+ */
+X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if (IsAtomTerm(t)) {
+    *name = AtomToSWIAtom(AtomOfTerm(t));
+    *arity = 0;
+    return 1;
+  }
+  if (YAP_IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      return 0;
+    }
+    *name = AtomToSWIAtom(NameOfFunctor(f));
+    *arity = ArityOfFunctor(f);
+    return 1;
+  }
+  if (YAP_IsPairTerm(t)) {
+    *name = AtomToSWIAtom(AtomDot);
+    *arity = 2;
+    return 1;
+  }
+  return 0;
+}
+
+
+/** @brief a is assigned the argument index from term  ts
+ *
+ */
 X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
@@ -211,8 +303,9 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   return 1;
 }
 
-/* SWI: int PL_get_arg(int index, term_t t, term_t a)
-   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
+/** @brief *ap is assigned the name and *ip the arity from term  ts
+ *
+ */
 X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
 {
   CACHE_REGS
@@ -237,6 +330,158 @@ X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip)
   }
 }
 
+
+   
+/** @brief *a is assigned the atom in term  ts, or the operation fails
+ *
+ */
+X_API int PL_get_atom(term_t ts, atom_t *a)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !IsAtomTerm(t))
+    return 0;
+  *a = AtomToSWIAtom(AtomOfTerm(t));
+  return 1;
+}
+
+/** @brief *i is assigned the int in term  ts, or the operation fails
+ *
+ */
+/* SWI: int PL_get_integer(term_t t, int *i)
+   YAP: long int  YAP_IntOfTerm(Term) */
+X_API int PL_get_integer(term_t ts, int *i)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if (IsVarTerm(t) || !IsIntegerTerm(t) )
+    return 0;
+  *i = (int)IntegerOfTerm(t);
+  return 1;
+}
+
+/** @brief *i is assigned the boolean atom `true` or `false` in term  ts, or the operation fails
+ *
+ */
+X_API int PL_get_long(term_t ts, long *i)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if (!YAP_IsIntTerm(t) ) {
+    if (YAP_IsFloatTerm(t)) {
+      double dbl = YAP_FloatOfTerm(t);
+      if (dbl - (long)dbl == 0.0) {
+	*i = (long)dbl;
+	return 1;
+      }
+    }
+    return 0;
+  }
+  *i = YAP_IntOfTerm(t);
+  return 1;
+}
+
+/* SWI: int PL_get_bool(term_t t, int *i)
+   YAP: long int  YAP_AtomOfTerm(Term) */
+X_API int PL_get_bool(term_t ts, int *i)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  Atom at;
+
+  if (!IsAtomTerm(t) )
+    return 0;
+  at = AtomOfTerm(t);
+  if (at == AtomTrue) {
+    *i = TRUE;
+    return 1;
+  }
+  if (at == AtomFalse) {
+    *i = FALSE;
+    return 1;
+  }
+  return 0;
+}
+
+/** @brief *a is assigned the int64 in term  ts, or the operation fails
+ *
+ */
+X_API int PL_get_int64(term_t ts, int64_t *i)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if (!YAP_IsIntTerm(t) ) {
+    if (YAP_IsFloatTerm(t)) {
+      double dbl = YAP_FloatOfTerm(t);
+      if (dbl - (int64_t)dbl == 0.0) {
+    	  *i = (int64_t)dbl;
+    	  return	 1;
+      }
+#if SIZEOF_INT_P==4 && !USE_GMP
+      {
+      	union {
+      		double d;
+      		int64_t i;
+      	} udbi_;
+      	udbi_.d = YAP_FloatOfTerm(t);
+      	*i = udbi_.i;
+      	return 1;
+      }
+#endif
+      return 0;
+    }
+#if USE_GMP
+    else if (YAP_IsBigNumTerm(t)) {
+      MP_INT g;
+      char s[64];
+      YAP_BigNumOfTerm(t, (void *)&g);
+      if (mpz_sizeinbase(&g,2) > 64) {
+	    return 0;
+      }
+      mpz_get_str (s, 10, &g);
+#ifdef _WIN32
+      sscanf(s, "%I64d", (long long int *)i);
+#else
+      sscanf(s, "%lld", (long long int *)i);
+#endif
+      return 1;
+    }
+#endif
+    return 0;
+  }
+  *i = YAP_IntOfTerm(t);
+  return 1;
+}
+
+/** @brief *a is assigned the intptr_t in term  ts, or the operation fails
+ *
+ */
+X_API int PL_get_intptr(term_t ts, intptr_t *a)
+{
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !IsIntegerTerm(t) )
+    return 0;
+  *a = (intptr_t)(IntegerOfTerm(t));
+  return 1;
+}
+
+/** @brief *a is assigned the uintptr_t in term  ts, or the operation fails
+ *
+ */
+X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
+{
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !IsIntegerTerm(t) )
+    return 0;
+  *a = (uintptr_t)(IntegerOfTerm(t));
+  return 1;
+}
+
+/** @brief a is assigned the argument index from term  ts
+ *
+ */
 X_API int _PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
@@ -256,47 +501,11 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a)
   Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
-   
 
-   
-/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
-   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
-X_API int PL_get_atom(term_t ts, atom_t *a)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( !IsAtomTerm(t))
-    return 0;
-  *a = AtomToSWIAtom(AtomOfTerm(t));
-  return 1;
-}
 
-/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
-   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
-X_API int PL_get_intptr(term_t ts, intptr_t *a)
-{
-  CACHE_REGS
-  Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( !IsIntegerTerm(t) )
-    return 0;
-  *a = (intptr_t)(IntegerOfTerm(t));
-  return 1;
-}
-
-/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
-   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
-X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
-{
-  CACHE_REGS
-  Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( !IsIntegerTerm(t) )
-    return 0;
-  *a = (uintptr_t)(IntegerOfTerm(t));
-  return 1;
-}
-
-/* SWI: int PL_get_atom_chars(term_t t, char **s)
-   YAP: char* AtomName(Atom) */
+/** @brief *a is assigned the string representation of the atom in term  ts, or the operation fails
+ *
+ */
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
   CACHE_REGS
@@ -307,8 +516,9 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
   return 1;
 }
 
-/* SWI: int PL_get_atom_chars(term_t t, char **s)
-   YAP: char* AtomName(Atom) */
+/** @brief *a is assigned the string representation of the atom in term  ts, and *len its size, or the operation fails
+ *
+ */
 X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check type */
 {
   CACHE_REGS
@@ -320,38 +530,38 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check typ
   return 1;
 }
 
-/*
-  int PL_get_chars(term_t +t, char **s, unsigned flags) Convert the
-  argument term t to a 0-terminated C-string. flags is a bitwise
-  disjunction from two groups of constants. The first specifies which
-  term-types should converted and the second how the argument is
-  stored. Below is a specification of these constants. BUF_RING
-  implies, if the data is not static (as from an atom), the data is
-  copied to the next buffer from a ring of sixteen (16) buffers. This is a
-  convenient way of converting multiple arguments passed to a foreign
-  predicate to C-strings. If BUF_MALLOC is used, the data must be
-  freed using free() when not needed any longer.
+/** PL_get_chars converts a term t to a string.
+ *
+ * From the SWI manual:
+ *
+ * int PL_get_chars(term_t +t, char **s, unsigned flags) Convert the
+ * argument term t to a 0-terminated C-string. flags is a bitwise
+ * disjunction from two groups of constants. The first specifies which
+ * term-types should converted and the second how the argument is
+ * stored. Below is a specification of these constants. BUF_RING
+ * implies, if the data is not static (as from an atom), the data is
+ * copied to the next buffer from a ring of sixteen (16) buffers. This is a
+ * convenient way of converting multiple arguments passed to a foreign
+ * predicate to C-strings. If BUF_MALLOC is used, the data must be
+ * freed using free() when not needed any longer.
 
-    CVT_ATOM Convert if term is an atom
-    CVT_STRING Convert if term is a string
-    CVT_LIST Convert if term is a list of integers between 1 and 255
-    CVT_INTEGER Convert if term is an integer (using %d)
-    CVT_FLOAT Convert if term is a float (using %f)
-    CVT_NUMBER Convert if term is a integer or float
-    CVT_ATOMIC Convert if term is atomic
-    CVT_VARIABLE Convert variable to print-name
-    CVT_ALL Convert if term is any of the above, except for variables
-    BUF_DISCARDABLE Data must copied immediately
-    BUF_RING Data is stored in a ring of buffers
-    BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
+   - CVT_ATOM Convert if term is an atom
+   - CVT_STRING Convert if term is a string
+   - CVT_LIST Convert if term is a list of integers between 1 and 255
+   - CVT_INTEGER Convert if term is an integer (using %d)
+   - CVT_FLOAT Convert if term is a float (using %f)
+   - CVT_NUMBER Convert if term is a integer or float
+   - CVT_ATOMIC Convert if term is atomic
+   - CVT_VARIABLE Convert variable to print-name
+   - CVT_ALL Convert if term is any of the above, except for variables
+   - BUF_DISCARDABLE Data must copied immediately
+   - BUF_RING Data is stored in a ring of buffers
+   - BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
 */
 
-#if !HAVE_SNPRINTF
-#define snprintf(X,Y,Z,A) sprintf(X,Z,A)
-#endif
-
-/* SWI: int PL_get_functor(term_t t, functor_t *f)
-   YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
+/** @brief *f is assigned the functor of term  ts, or the operation fails
+ *
+ */
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
   CACHE_REGS
@@ -364,10 +574,11 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
   return 1;
 }
 
-/* SWI: int PL_get_float(term_t t, double *f)
-   YAP: double YAP_FloatOfTerm(Term) */
+/** @brief *f is assigned the floating  point number of term  ts, or the operation fails
+ *
+ */
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
-{	
+{
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( IsFloatTerm(t)) {
@@ -384,6 +595,9 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
   return 1;
 }
 
+/** @brief *s is assigned the string representation of the string in term  ts, and *len its size, or the operation fails
+ *
+ */
 X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
 {
   CACHE_REGS
@@ -396,7 +610,26 @@ X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
   return TRUE;
 }
 
+/** @brief h is assigned the head of the pair term  ts, and tl its tail, or the operation fails
+ *
+ */
 
+X_API int PL_get_list(term_t ts, term_t h, term_t tl)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if (IsVarTerm(t) || !IsPairTerm(t) ) {
+    return 0;
+  }
+  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(tl,TailOfTerm(t) PASS_REGS);
+  return 1;
+}
+
+
+/** @brief h is assigned the head of the pair term  ts, or the operation fails
+ *
+ */
 X_API int PL_get_head(term_t ts, term_t h)
 {
   CACHE_REGS
@@ -408,102 +641,28 @@ X_API int PL_get_head(term_t ts, term_t h)
   return 1;
 }
 
+/** @brief *s is assigned the string representation of the term  ts, and *len its size, or the operation fails
+ *
+ */
 X_API int PL_get_string(term_t t, char **s, size_t *len)
 {
   return PL_get_string_chars(t, s, len);
 }
 
-/* SWI: int PL_get_integer(term_t t, int *i)
-   YAP: long int  YAP_IntOfTerm(Term) */
-X_API int PL_get_integer(term_t ts, int *i)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (IsVarTerm(t) || !IsIntegerTerm(t) )
-    return 0;
-  *i = (int)IntegerOfTerm(t);
-  return 1;
-}
+/**
+ *  @}
+ *  */
 
-/* SWI: int PL_get_bool(term_t t, int *i)
-   YAP: long int  YAP_AtomOfTerm(Term) */
-X_API int PL_get_bool(term_t ts, int *i)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  Atom at;
-
-  if (!IsAtomTerm(t) )
-    return 0;
-  at = AtomOfTerm(t);
-  if (at == AtomTrue) {
-    *i = TRUE;
-    return 1;    
-  }
-  if (at == AtomFalse) {
-    *i = FALSE;
-    return 1;    
-  }
-  return 0;
-}
-
-X_API int PL_get_long(term_t ts, long *i)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!YAP_IsIntTerm(t) ) {
-    if (YAP_IsFloatTerm(t)) {
-      double dbl = YAP_FloatOfTerm(t);
-      if (dbl - (long)dbl == 0.0) {
-	*i = (long)dbl;
-	return 1;
-      }
-    }
-    return 0;
-  }
-  *i = YAP_IntOfTerm(t);
-  return 1;
-}
+/**
+ *  @defgroup swi-unify-operations Unifying Terms
+ *  @ingroup swi-term_manipulation
+ *  @{
+ *  */
 
 
-X_API int PL_get_int64(term_t ts, int64_t *i)
-{
-#if SIZE_OF_INT_P==8
-  return PL_get_long(ts, (long *)i);
-#else
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!YAP_IsIntTerm(t) ) {
-    if (YAP_IsFloatTerm(t)) {
-      double dbl = YAP_FloatOfTerm(t);
-      if (dbl - (int64_t)dbl == 0.0) {
-	*i = (int64_t)dbl;
-	return 1;
-      }
-#if USE_GMP
-    } else if (YAP_IsBigNumTerm(t)) {
-      MP_INT g;
-      char s[64];
-      YAP_BigNumOfTerm(t, (void *)&g);
-      if (mpz_sizeinbase(&g,2) > 64) {
-	return 0;
-      }
-      mpz_get_str (s, 10, &g);
-#ifdef _WIN32
-      sscanf(s, "%I64d", (long long int *)i);
-#else
-      sscanf(s, "%lld", (long long int *)i);
-#endif
-      return 1;
-#endif
-    }
-    return 0;
-  }
-  *i = YAP_IntOfTerm(t);
-  return 1;
-#endif
-}
-
+/** @brief t unifies with the true/false value in a.
+ *
+ */
 X_API int PL_unify_bool(term_t t, int a)
 {
   CACHE_REGS
@@ -550,18 +709,6 @@ X_API int PL_unify_mpq(term_t t, mpq_t mpq)
 
 #endif
 
-X_API int PL_get_list(term_t ts, term_t h, term_t tl)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (IsVarTerm(t) || !IsPairTerm(t) ) {
-    return 0;
-  }
-  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
-  Yap_PutInSlot(tl,TailOfTerm(t) PASS_REGS);
-  return 1;
-}
-
 /* SWI: int PL_get_module(term_t t, module_t *m) */
 X_API int PL_get_module(term_t ts, module_t *m)
 {
@@ -583,34 +730,6 @@ X_API module_t PL_new_module(atom_t swiat)
   t = Yap_Module(MkAtomTerm(at));
   WRITE_UNLOCK(RepAtom(at)->ARWLock);    
   return Yap_GetModuleEntry(t);
-}
-
-/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
-   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
-X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (IsAtomTerm(t)) {
-    *name = AtomToSWIAtom(AtomOfTerm(t));
-    *arity = 0;
-    return 1;
-  }
-  if (YAP_IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    if (IsExtensionFunctor(f)) {
-      return 0;
-    }
-    *name = AtomToSWIAtom(NameOfFunctor(f));
-    *arity = ArityOfFunctor(f);
-    return 1;
-  }
-  if (YAP_IsPairTerm(t)) {
-    *name = AtomToSWIAtom(AtomDot);
-    *arity = 2;
-    return 1;
-  }
-  return 0;
 }
 
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
@@ -913,7 +1032,18 @@ X_API int PL_put_int64(term_t t, int64_t n)
   Yap_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop) PASS_REGS);
   return TRUE;
 #else
-  return FALSE;
+	// use a double, but will mess up writing.
+    Int x = n;
+    if (x == n)
+    	return PL_put_integer(t, x);
+    else {
+    	union {
+    		int64_t i;
+    		double d;
+    	} udi_;
+    	udi_.i = n;
+    	return PL_put_float(t, udi_.d);
+    }
 #endif
 }
 
@@ -1134,8 +1264,15 @@ X_API int PL_unify_int64(term_t t, int64_t n)
 #else
   if ((long)n == n)
     return PL_unify_integer(t, n);
-  fprintf(stderr,"Error in PL_unify_int64: please install GMP\n");
-  return FALSE;
+	// use a double, but will mess up writing.
+  else {
+  	union {
+  		int64_t i;
+  		double d;
+  	} udi_;
+  	udi_.i = n;
+  	return PL_unify_float(t, udi_.d);
+  }
 #endif
 
 }
@@ -1492,8 +1629,21 @@ int PL_unify_termv(term_t l, va_list ap)
 	  *pt++ = YAP_MkBigNumTerm((void *)&rop);
 	}
 #else
-	fprintf(stderr, "PL_unify_term: PL_int64 not supported\n");
-	exit(1);
+	{
+		int64_t i = (Int)va_arg(ap, int64_t);
+		intptr_t x = i;
+		if (x == i)
+			*pt++ = MkIntegerTerm( x );
+		else {
+			// use a double, but will mess up writing.
+			union {
+				int64_t i;
+				double d;
+	  	    } udi_;
+	  	    udi_.i = i;
+	  	    *pt++ = MkFloatTerm(udi_.d);
+		}
+	}
 #endif
 	break;
       case PL_FUNCTOR:
@@ -2406,13 +2556,15 @@ X_API  int PL_is_inf(term_t st)
 {
   CACHE_REGS
   Term t = Deref(Yap_GetFromSlot(st PASS_REGS));
-  Float fl;
   if (IsVarTerm(t)) return FALSE;
   if (!IsFloatTerm(t)) return FALSE;
-  fl = FloatOfTerm(t);
 #if HAVE_ISINF
+  Float fl;
+ fl = FloatOfTerm(t);
   return isinf(fl);
 #elif HAVE_FPCLASS
+  Float fl;
+  fl = FloatOfTerm(t);
   return (fpclass(fl) == FP_NINF || fpclass(fl) == FP_PINF);
 #else
   return FALSE;
