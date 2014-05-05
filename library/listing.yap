@@ -1,3 +1,20 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		listing.yap						 *
+* Last rev:								 *
+* mods:									 *
+* comments:	listing a prolog program				 *
+*									 *
+*************************************************************************/
+
 /* 
 
  emulates listing.pl, but just the interface for now.
