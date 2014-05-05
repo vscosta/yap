@@ -59,6 +59,7 @@ YAPSTARTUP=startup.yss
 # for c_interface.c
 #
 CC=@CC@
+CXX=@CXX@
 MPI_CC=@MPI_CC@
 CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/include  -I$(srcdir)/os -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/CXX
 EXECUTABLE_CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)

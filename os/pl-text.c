@@ -717,12 +717,21 @@ represented.
 
 static int
 wctobuffer(wchar_t c, mbstate_t *mbs, Buffer buf)
-{ char b[PL_MB_LEN_MAX];
+{
+#if __ANDROID__
+  // wcrtomb & friends seems broken in android, just copy
+  if ( c < 256 ) {
+	  addBuffer(buf, c, 	char);
+	  return TRUE;
+  } else {
+	  return FALSE;
+  }
+#else
+  char b[PL_MB_LEN_MAX];
   size_t n;
 
   if ( (n=wcrtomb(b, c, mbs)) != (size_t)-1 )
   { size_t i;
-
     for(i=0; i<n; i++)
       addBuffer(buf, b[i], char);
 
@@ -730,6 +739,7 @@ wctobuffer(wchar_t c, mbstate_t *mbs, Buffer buf)
   }
 
   return FALSE;				/* cannot represent */
+#endif
 }
 
 

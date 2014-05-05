@@ -373,21 +373,21 @@ Yap_unify_constant(register Term a, register Term cons)
 	return(FALSE);
       if (IsExtensionFunctor(f)) {
 	switch((CELL)f) {
-	case (CELL)FunctorDBRef:
+	case db_ref_e:
 	  return(a == cons);
-	case (CELL)FunctorLongInt:
+	case long_int_e:
 	  {
 	    CELL d0 = RepAppl(a)[1];
 	    CELL d1 = RepAppl(cons)[1];
 	    return d0 == d1;
 	  }
-	case (CELL)FunctorDouble:
+	case double_e:
 	  {
 	    Float d0 = FloatOfTerm(a);
 	    Float d1 = FloatOfTerm(cons);
 	    return d0 == d1;
 	  }
-	case (CELL)FunctorBigInt:
+	case big_int_e:
 #ifdef USE_GMP
 	  return (Yap_gmp_tcmp_big_big(a, cons) == 0);
 #endif /* USE_GMP */

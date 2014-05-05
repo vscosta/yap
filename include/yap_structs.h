@@ -217,7 +217,9 @@ typedef struct yap_boot_params {
   char *ErrorCause;
 } YAP_init_args;
 
+#ifdef YAP_H
 Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] );
+#endif
 
 /* from thread.h */
 typedef struct {

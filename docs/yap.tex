@@ -8804,8 +8804,7 @@ show the debugger commands.
 @item ! Query
 execute a query. YAP will not show the result of the query.
 @item b - break
-break active execution and launch a break level. This is  the same as @code{!
-break}.
+break active execution and launch a break level. This is  the same as @code{!break}.
 @item + - spy this goal
 start spying the active goal. The same as @code{! spy  G} where @var{G}
 is the active goal.
@@ -8997,10 +8996,22 @@ type_of_verb(rest,passive).
 @node C-Interface,YAPLibrary,Efficiency,Top
 @chapter C Language interface to YAP
 
-YAP provides the user with the necessary facilities for writing
-predicates in a language other than Prolog. Since, under Unix systems,
-most language implementations are link-able to C, we will describe here
-only the YAP interface to the C language.
+YAP provides the user with three facilities for writing
+predicates in a language other than Prolog. Under Unix systems,
+most language implementations were linkable to @code{C}, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
+This gives portability with a number of SWI-Prolog packages. Last, a new C++ based interface is 
+being designed to work with the swig (@url(www.swig.org}) interface compiler.
+
+@ifplaintext
+<ul>
+<li> The original YAP C-interface exports the YAP engine.
+</li>
+<li>The @subpage swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
+</li>
+<li>The @subpage yap-cplus-interface is desiged to interface with Object-Oriented systems.
+</li>
+</ul>
+@end ifplaintext
 
 Before describing in full detail how to interface to C code, we will examine 
 a brief example.
@@ -10110,8 +10121,8 @@ such references.
 
 If the argument of the predicate is a variable, the routine initializes the 
 structure to be preserved across backtracking with the information
-required to provide the next solution, and exits by calling @code{
-continue_n100} to provide that solution.
+required to provide the next solution, and exits by calling
+@code{continue_n100} to provide that solution.
 
 If the argument was not a variable, the routine then checks if it was an
 integer, and if so, if its value is positive and less than 100. In that
@@ -10785,8 +10796,9 @@ succeed. On backtracking, the system will retry
 generating integers for ever. Immediate semantics were used in C-Prolog.
 
 With logical update semantics, any additions or deletions of clauses
-for a goal @emph{will not affect previous activations of the
-goal}. In the example, the call to @code{assertz/1} will not see the
+for a goal 
+@emph{will not affect previous activations of the goal}. In the example,
+the call to @code{assertz/1} will not see the 
 update performed by the @code{assertz/1}, and the query will have a
 single solution.
 
@@ -10858,9 +10870,10 @@ database, and not "logical update semantics", as per the standard,
 Calling @code{set_prolog_flag(update_semantics,logical)} will switch
 YAP to use logical update semantics.
 
-@item By default, YAP implements the @code{atom_chars/2}
-(@pxref{Testing Terms}), and @code{number_chars/2}, (@pxref{Testing
-Terms}), built-ins as per the original Quintus Prolog definition, and
+@item By default, YAP implements the 
+@code{atom_chars/2}(@pxref{Testing Terms}), and 
+@code{number_chars/2}, (@pxref{Testing Terms}), 
+built-ins as per the original Quintus Prolog definition, and
 not as per the ISO definition.
 
 Calling @code{set_prolog_flag(to_chars_mode,iso)} will switch
