@@ -24,7 +24,23 @@ static char     SccsId[] = "%W% %G%";
    @defgroup arithmetic_operators Arithmetic Functions
    @ingroup arithmetic
 
-  YAP implements several arithmetic functions.  Arithmetic expressions
+   YAP implements several arithmetic functions, they are defined as
+   fields in three enumerations, such that there is one enumeration
+   per each different arity:  
+
+    - #arith0_op defines constants and arity 0 arithmetic functions
+
+      @copydoc #arith0_op
+
+    - #arith1_op defines single argument arithmetic functions
+
+      @copydoc #arith1_op
+
+    - #arith2_op defines binary arithmetic functions
+
+      @copydoc #arith2_op
+
+  Arithmetic expressions
   in YAP may use the following operators:
 
    - <b>pi [ISO]</b><p> @anchor pi_0

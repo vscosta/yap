@@ -127,10 +127,39 @@ exceptions:
 #define PLMAXINT Int_MAX
 #define PLMININT Int_MIN
 
+/**
+ * @addtogroup arithmetic_operators
+ * @enum arith0_op constant operators 
+ * @brief specifies the available unary arithmetic operators
+*/
 typedef enum {
+  /** pi [ISO]
+
+     An approximation to the value of <em>pi</em>, that is, the ratio of a circle's circumference to its diameter.
+   * 
+   */
   op_pi,
+  /** e
+
+     Euler's number, the base of the natural logarithms.
+   * 
+   */
   op_e,
+  /** epsilon
+
+     The difference between the float `1.0` and the next largest floating point number.
+   * 
+   */
   op_epsilon,
+  /** inf
+
+     Infinity according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode. Also note that
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ?- +inf =:= -inf.
+   * false.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   */
   op_inf,
   op_nan,
   op_random,
@@ -144,10 +173,44 @@ typedef enum {
   op_stackfree
 } arith0_op;
 
+/**
+ * @addtogroup arithmetic_operators
+ * @enum arith1_op unary operators 
+ * @brief specifies the available unary arithmetic operators
+ */
 typedef enum {
+  /** \+ _X_: the value of _X_.
+   * 
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  X =:= +X.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
   op_uplus,
+  /**  \- _X_: the complement of _X_.
+   * 
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  0-X =:= -X.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
+   */
   op_uminus,
+  /** \\ _X_, The bitwise negation of _X_.
+   * 
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  \X /\ X =:= =:= 0.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   *
+   * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
+   */
   op_unot,
+  /** \\ _X_, The bitwise negation of _X_.
+   * 
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  \X /\ X =:= =:= 0.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   *
+   * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
+   */
   op_exp,
   op_log,
   op_log10,
@@ -185,6 +248,11 @@ typedef enum {
   op_random1
 } arith1_op;
 
+/**
+ * @addtogroup arithmetic_operators
+ * @enum arith2_op binary operators 
+ * @brief specifies the available unary arithmetic operators
+ */
 typedef enum {
   op_plus,
   op_minus,
