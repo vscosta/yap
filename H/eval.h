@@ -141,7 +141,7 @@ typedef enum {
   op_pi,
   /** e
 
-     Euler's number, the base of the natural logarithms.
+     Euler's number, the base of the natural logarithms (approximately 2.718281828).
    * 
    */
   op_e,
@@ -196,22 +196,55 @@ typedef enum {
   /** \\ _X_, The bitwise negation of _X_.
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-   *  \X /\ X =:= =:= 0.
+   *  \X /\ X =:= 0.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
-   * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
+   * Note that the number of bits of an integer is at least the size in bits of a Prolog term cell.
    */
   op_unot,
-  /** \\ _X_, The bitwise negation of _X_.
-   * 
+  /** exp( _X_ ) [ISO]
+   *
+   * Natural exponential.
+   *
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-   *  \X /\ X =:= =:= 0.
+   *   ?- _X = 2.3, exp(_X) =:= e ** _X.
+   *   true.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
-   * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
+   * 	Notice that comparing whether two floating-point numbers are equal may lead to incorrect results.
    */
   op_exp,
+  /** log( _X_ ) [ISO]
+	*
+    * Natural logarithm.
+    *
+    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+    *    ?- _X = 2.3, log(exp(_X)) =:= exp(log(_X)).
+    *    true.
+    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    *
+    * 	Notice that comparing whether two floating-point numbers are equal may lead to incorrect results.
+    */
   op_log,
+  /** log10( _X_ ) [ISO]
+	*
+    * Decimal logarithm.
+    *
+    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0 == ~3g~n',[Delta]), fail.
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 0
+    *   0 == 2.22e-16
+    *   0 == 0
+    *   false.
+    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
   op_log10,
   op_sqrt,
   op_sin,
