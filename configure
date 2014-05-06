@@ -675,6 +675,12 @@ REAL_INCLUDES
 ZLIBS
 ZLIB_PLTARGETS
 ZLIB_TARGETS
+PKG_CPLINT
+SHLIB_SUFFIX
+CPLINT_SHLIB_LD
+CPLINT_LDFLAGS
+CPLINT_CFLAGS
+CPLINT_LIBS
 CUDD_CPPFLAGS
 CUDD_LDFLAGS
 PKG_BDDLIB
@@ -874,6 +880,7 @@ with_time
 with_odbc
 with_cudd
 enable_bddlib
+enable_cplint
 with_junit
 with_raptor
 with_matlab
@@ -1537,6 +1544,7 @@ Optional Features:
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
  --enable-bddlib           dynamic bdd library
+ --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
  --enable-gecode            install gecode library
 
 Optional Packages:
@@ -11942,6 +11950,58 @@ fi
 
 
 
+# Check whether --enable-cplint was given.
+if test "${enable_cplint+set}" = set; then :
+  enableval=$enable_cplint; yap_cv_cplint=$enableval
+else
+  yap_cv_cplint=no
+fi
+
+
+
+if test ! "$yap_cv_cplint" = "no"
+  then
+	if test ! "$yap_cv_cplint" = "yes"
+	then
+		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
+	fi
+	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
+	then
+		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
+		SHLIB_SUFFIX="dll"
+	else
+		CPLINT_SHLIB_LD=$SHLIB_LD
+		SHLIB_SUFFIX="so"
+	fi
+	PKG_CPLINT="packages/cplint packages/cplint/splipcase packages/cplint/approx/simplecuddLPADs"
+
+
+
+
+
+else
+	PKG_CPLINT=""
+fi
+
+
+
+mkdir -p  packages/cplint
+mkdir -p  packages/cplint/approx
+mkdir -p  packages/cplint/approx/simplecuddLPADs
+
+ac_config_files="$ac_config_files packages/cplint/Makefile"
+
+ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefile"
+
+ac_config_files="$ac_config_files packages/cplint/slipcase/Makefile"
+
+
+
+
+
+
 if test "$PKG_ZLIB" != ""
 then
 
@@ -12372,7 +12432,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12375 "configure" */
+/* #line 12435 "configure" */
 public class Test {
 }
 EOF
@@ -12548,7 +12608,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12551: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12611: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12679,7 +12739,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12682 "configure" */
+/* #line 12742 "configure" */
 public class Test {
 }
 EOF
@@ -12714,7 +12774,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12717 "configure" */
+/* [#]line 12777 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -14260,6 +14320,9 @@ do
     "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
+    "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
+    "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
+    "packages/cplint/slipcase/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/slipcase/Makefile" ;;
     "exe") CONFIG_COMMANDS="$CONFIG_COMMANDS exe" ;;
     "packages/raptor/raptor_config.h") CONFIG_HEADERS="$CONFIG_HEADERS packages/raptor/raptor_config.h" ;;
     "packages/raptor/Makefile") CONFIG_FILES="$CONFIG_FILES packages/raptor/Makefile" ;;
@@ -15484,7 +15547,7 @@ fi
 
 if test -d /usr/local/include/gecode; then
   CFLAGS="$CFLAGS -I/usr/local/include"
-  SHLIB_CXX_FLAGS="$SHLIB_CXX_FLAGS -I/usr/local/include"
+  SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
   GECODE_EXTRALIBS="-L/usr/local/lib"
 fi
 
@@ -16701,6 +16764,9 @@ do
     "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
+    "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
+    "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
+    "packages/cplint/slipcase/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/slipcase/Makefile" ;;
     "exe") CONFIG_COMMANDS="$CONFIG_COMMANDS exe" ;;
     "packages/raptor/raptor_config.h") CONFIG_HEADERS="$CONFIG_HEADERS packages/raptor/raptor_config.h" ;;
     "packages/raptor/Makefile") CONFIG_FILES="$CONFIG_FILES packages/raptor/Makefile" ;;
