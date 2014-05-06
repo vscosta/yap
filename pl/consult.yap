@@ -251,6 +251,9 @@ load_files(Files,Opts) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,register(Val)),Call) ).
+'$process_lf_opt'('$context_module', Val, Call) :-
+	( atom(File) -> true ;  '$do_error'(type_error(atom,File),Call) ).
+
 
 '$lf_default_opts'(I, LastOpt, _TOpts) :- I > LastOpt, !.
 '$lf_default_opts'(I, LastOpt, TOpts) :-
@@ -372,12 +375,20 @@ module(Mod, Decls) :-
 use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
+'$use_module'(M,F,Is) :-  
+    var(Is), !,
+    '$use_module'(M,F,all).
 '$use_module'(M,F,Is) :- nonvar(M), !,
-	recorded('$module','$module'(F1,M,_,_),_),
-	'$load_files'(F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
-	( F1 = F -> true ; true ).
+	(
+	    recorded('$module','$module'(F1,M,_,_),_)
+	->
+	    '$load_files'(F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+	),
+        strip_module(F, _, F0),
+        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F0, [file_type(prolog)] ) ).
 '$use_module'(M,F,Is) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)).
+        strip_module(F, M0, F0),
+	'$load_files'(F0, [if(not_loaded),'$context_module'(M0),must_be_module(true),imports(Is)], use_module(M,F,Is)).
 
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,

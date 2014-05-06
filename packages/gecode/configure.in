@@ -7,7 +7,7 @@ AC_ARG_ENABLE(gecode,
 dnl gecode is usually in /usr/local
 if test -d /usr/local/include/gecode; then
   CFLAGS="$CFLAGS -I/usr/local/include"
-  SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
+  SHLIB_CXX_FLAGS="$SHLIB_CXX_FLAGS -I/usr/local/include"
   GECODE_EXTRALIBS="-L/usr/local/lib"
 fi
 

@@ -28,7 +28,6 @@ if test ! "$yap_cv_cplint" = "no"
 		SHLIB_SUFFIX="so"
 	fi
 	PKG_CPLINT="packages/cplint packages/cplint/splipcase packages/cplint/approx/simplecuddLPADs"
-	AC_SUBST(PKG_CPLINT)
 	AC_SUBST(CPLINT_LIBS)
 	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
@@ -37,6 +36,8 @@ if test ! "$yap_cv_cplint" = "no"
 else
 	PKG_CPLINT=""
 fi
+
+AC_SUBST(PKG_CPLINT)
 
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx

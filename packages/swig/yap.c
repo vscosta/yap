@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "YAPInterface.h"
+#include "YapInterface.h"
 
 static void init_yap( void );
 int yap_prove_string(char *s);

@@ -1146,8 +1146,15 @@ X_API int PL_unify_int64__LD(term_t t, int64_t n ARG_LD)
 #else
   if ((long)n == n)
     return PL_unify_integer(t, n);
-  fprintf(stderr,"Error in PL_unify_int64: please install GMP\n");
-  return FALSE;
+	// use a double, but will mess up writing.
+else {
+	union {
+		int64_t i;
+		double d;
+	} udi_;
+	udi_.i = n;
+	return PL_unify_float(t, udi_.d);
+}
 #endif
 
 }
