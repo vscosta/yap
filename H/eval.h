@@ -192,7 +192,6 @@ typedef enum {
    *  0-X =:= -X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
-   */
   op_uminus,
   /** \\ _X_, The bitwise negation of _X_.
    * 
