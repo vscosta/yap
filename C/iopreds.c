@@ -913,7 +913,10 @@ p_style_checker( USES_REGS1 )
       Term h = HeadOfTerm( t );
       t = TailOfTerm( t );
 
-      if (IsAtomTerm(h)) {
+      if (IsVarTerm(h)) {
+	Yap_Error(INSTANTIATION_ERROR, t, "style_check/1");
+	return (FALSE);    
+      } if (IsAtomTerm(h)) {
 	Atom at = AtomOfTerm( h );
 	if (at == AtomAtom) debugstatus.styleCheck |= LONGATOM_CHECK;
 	else if (at == AtomSingleton) debugstatus.styleCheck |= SINGLETON_CHECK;
