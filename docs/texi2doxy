@@ -281,12 +281,12 @@ process("@item", Line, Rest, NewLine , FilePos) :-
 	(
 	    Env = "@table",
 	     atom_string( A, Line ),
-	     pred( _Pred, Key, A, FilePos )
+	     pred( _Pred, _Key, A, FilePos )
 	     ->
 		 push( list, it(Env, Item, Pos, NNumb) ),
 		 (
 		     % sendout the comand
-		     format(string(NewLine), '~t~s ~*+<li>~s @anchor ~a', [Marker, Pos1, First,  Key]),
+		     format(string(NewLine), '~t~s ~*+<li>~s @anchor ~a', [Marker, Pos1, First,  _Key]),
 		     push( indent, done )	
 			 ;
 			 NewLine = force
@@ -601,8 +601,8 @@ simplify( [0'q,0'Q|L]) --> "=", !,
 	  simplify(L).
 simplify( [0'q,0'U|L]) --> "?", !,
 	  simplify(L).
-simplify( [0'_|L]) --> "/", !,
-	  simplify(L).
+simplify( [] ) --> "/", !.
+%	  simplify(L).
 simplify( [0's,0'S|L]) --> "<", !,
 	  simplify(L).
 simplify( [0'u,0'U|L]) --> "\v", !,

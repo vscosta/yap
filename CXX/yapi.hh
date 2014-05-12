@@ -367,7 +367,9 @@ class YAPParams;
  */
 class YAPEngine {
 public:
-	YAPEngine(YAPParams const& params);
+  YAPEngine(YAPParams const& params);
+  query( char *s ) { return new Query( s ); }
+  atom( char *s ) { return new Query( s ); }
 };
 
 /**

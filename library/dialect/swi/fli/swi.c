@@ -11,23 +11,9 @@
 
 /**
  *
- *   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface.
+ *   @daddtogroup swi-c-interface
  *
- *
- *    @tableofcontents
- *
- * A reimplementation of Jan Wielemaker's SWI-Prolog C-language interface, it supports
- * most of the functionality in the original implementation. It allows for:
- *
- *   - Term Construction, Access, and Unification
- *   - Manipulation of Atoms, Strings, Lists of Codes and Lists of Atoms
- *   - Query evaluation
- *   - Thread and Prolog engine management
- *   - Data-Base Access
- *
- * In this interface, all Prolog data known by C is referenced through term references (term_t), hence
- * Prolog has all the information necessary to perform its memory management without special precautions
- *  from the C programmer.
+ * @{
  */
 
 #define PL_KERNEL 1
@@ -3266,4 +3252,8 @@ int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
   return 1;
 }
 #endif
+
+/**
+ * @{
+ */
 

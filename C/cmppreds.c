@@ -683,6 +683,7 @@ p_acomp( USES_REGS1 )
 }
 
 /**
+  @[
    @class arith_eq_2
    @brief  =:=/2: Equality of arithmetic expressions
 
@@ -726,6 +727,8 @@ a_eq(Term t1, Term t2)
 }
 
 /**
+   @}
+
    @class arith_dif_2
    @brief  =\\=/2: Difference of arithmetic expressions
 

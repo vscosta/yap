@@ -1,3 +1,27 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2014	 *
+*									 *
+*************************************************************************/
+
+/** 
+  @file swi.h
+
+  @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
+
+  Support for file name resolution through absolute_file_name/3 and
+  friends. These utility built-ins describe a list of directories that
+  are used by load_files/2 to search. They include pre-compiled paths
+  plus user-defined directories, directories based on environment
+  variables and registry information to search for files.
+
+  @{
+  
+ */
 void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
