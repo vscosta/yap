@@ -1,50 +1,34 @@
-:- system_module( '$_utils', [callable/1,
-        current_op/3,
-        nb_current/2,
-        nth_instance/3,
-        nth_instance/4,
-        op/3,
-        prolog/0,
-        recordaifnot/3,
-        recordzifnot/3,
-        simple/1,
-        subsumes_term/2], ['$getval_exception'/3]).
+/** 
+  @file yapor.yap
 
-:- use_system_module( '$_boot', ['$live'/0]).
+  @defgroup yapor Or-parallelism in YAP
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+  Support for or-parallelism through parallel_findall/3 and
+  friends.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                     %%
-%%                   The YapTab/YapOr/OPTYap systems                   %%
-%%                                                                     %%
-%% YapTab extends the Yap Prolog engine to support sequential tabling  %%
-%% YapOr extends the Yap Prolog engine to support or-parallelism       %%
-%% OPTYap extends the Yap Prolog engine to support or-parallel tabling %%
-%%                                                                     %%
-%%                                                                     %%
-%%      Yap Prolog was developed at University of Porto, Portugal      %%
-%%                                                                     %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  @{
+  
+ */
 
-:- meta_predicate 
-   parallel(0),
-   parallel_findall(?,0,?),
-   parallel_findfirst(?,0,?),
-   parallel_once(0).
+:- system_module( yapor, [], []).
 
+/** or_statistics(Key, List) is det
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                           or_statistics/0                           %%
-%%                          opt_statistics/0                           %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-or_statistics :-
+   Report the main statistics on parallel execution, where _Key_ must take one of these values:
+   
+      - total_memory: a list wwhere the first element is _BytesInUse_ and the
+      second is _BytesAllocated_.
+      
+      - or_frames
+      - query_goal_solution_frames
+      - query_goal_answer_frames
+      
+*/
+or_statistics(_,_) :-
    current_output(Stream),
    or_statistics(Stream).
 
-opt_statistics :-
+opt_statistics(_) :-
    current_output(Stream),
    opt_statistics(Stream).
 
