@@ -140,9 +140,7 @@ typedef enum {
    */
   op_pi,
   /** e
-
      Euler's number, the base of the natural logarithms.
-   * 
    */
   op_e,
   /** epsilon
@@ -179,39 +177,44 @@ typedef enum {
  * @brief specifies the available unary arithmetic operators
  */
 typedef enum {
-  /** \+ _X_: the value of _X_.
+  /** \+ _X_: the value of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  X =:= +X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uplus,
-  /**  \- _X_: the complement of _X_.
+  /**  \- _X_: the complement of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  0-X =:= -X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
-   */
   op_uminus,
-  /** \\ _X_, The bitwise negation of _X_.
+  /** \\ _X_, The bitwise negation of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-   *  \X /\ X =:= =:= 0.
+   *  \X /\ X =:= 0.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
    * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
    */
   op_unot,
-  /** \\ _X_, The bitwise negation of _X_.
+  /** exp( _X_ ), natural exponentiation of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-   *  \X /\ X =:= =:= 0.
+   *  X = 0.0, abs(1.0 - exp( _X_ )) < 0.0001
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
-   * Note that the number of bits of an integer is at least the size in bitsof a Prolog term cell.
    */
   op_exp,
+  /** log( _X_ ), natural logarithm of _X_ .
+   *
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  X = 1.0, abs( log( exp( _X_ )) -1.0) < 0.0001
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   *
+   */
   op_log,
   op_log10,
   op_sqrt,
