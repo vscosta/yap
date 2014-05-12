@@ -30,7 +30,7 @@ dnl YAPLIB_LD= construct libYap.DLL
 dnl SHLIB_LD= dll ld (C)
 dnl SHLIB_CXX_LD= dll ld (C++)
 dnl SHLIB_CFLAGS= cflags to use when constructing a DLL
-dnl SHLIB_CXX_CFLAGS= c++flags to use when constructing a DLL
+dnl SHLIB_CXXCFLAGS= c++flags to use when constructing a DLL
 dnl YAPLIB_CFLAGS=flags to construct libYap
 dnl EXTRA_LIBS_FOR_DLLS= libs that are required when lding a so
 dnl EXTRA_LIBS_FOR_SWIDLLS= libs that are required when lding a SWI so
@@ -1893,6 +1893,8 @@ fi
 
 
 m4_include([packages/bdd/configure.in])
+
+m4_include([packages/cplint/configure.in])
 
 dnl zlib
 
