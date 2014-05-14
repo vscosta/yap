@@ -241,7 +241,7 @@ public:
 	}
 	~YAPTermHandle(void) {
 		CACHE_REGS
-		Yap_RecoverSlots(1 PASS_REGS);
+		Yap_RecoverSlots(1, handle PASS_REGS);
 	}
 
 	YAPTerm get() {
