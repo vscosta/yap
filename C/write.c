@@ -729,7 +729,7 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
 
   if (wglb->Keep_terms) {
     ptr = (CELL*)Yap_GetPtrFromSlot(rwt->u_sd.s.ptr PASS_REGS);
-    Yap_RecoverSlots(2 PASS_REGS);
+    Yap_RecoverSlots(2, rwt->u_sd.s.ptr PASS_REGS);
   } else {
     ptr = rwt->u_sd.d.ptr;
   }
@@ -915,7 +915,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       sl = Yap_InitSlot(t PASS_REGS);      
       Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       t = Yap_GetFromSlot(sl PASS_REGS);
-      Yap_RecoverSlots(1 PASS_REGS);
+      Yap_RecoverSlots(1, sl PASS_REGS);
       if (old_EX != NULL) EX = old_EX;
       if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
@@ -999,7 +999,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       sl = Yap_InitSlot(t PASS_REGS);      
       Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs),0, 1);
       t = Yap_GetFromSlot(sl PASS_REGS);
-      Yap_RecoverSlots(1 PASS_REGS);
+      Yap_RecoverSlots(1, sl PASS_REGS);
       if (old_EX) EX = old_EX;
       if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX)
 	return;
