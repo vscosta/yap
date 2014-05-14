@@ -191,11 +191,7 @@ BEAM_is(void)
 #endif
 
 /**
-   @class is_2
-   @anchor is_2
-   @brief evaluation of arithmetic expressions
-
-   <b>? _X_:number is + _Y_:ground is det</b>
+   @pred is( X:number, + Y:ground) is det
 
    This predicate succeeds iff the result of evaluating the expression
    _Y_ unifies with  _X_. This is the predicate normally used to
@@ -228,11 +224,7 @@ p_is( USES_REGS1 )
 }
 
 /**
-   @class isnan_1
-   @anchor isnan_1
-   @brief True if _X_ is not a number
-
-   <b> isnan(? _X_:float) is det</b>
+ @pred isnan(? X:float) is det
 
    Interface to the IEE754 `isnan` test.
 */
@@ -266,11 +258,7 @@ p_isnan( USES_REGS1 )
 }
 
 /**
-   @class isinf_1
-   @anchor isinf_1
-   @brief True if _X_ is infinity
-
-   <b> isnan(? _X_:float) is det</b>
+   @pred isinf(? X:float) is det</b>
 
    Interface to the IEE754 `isinf` test.
 */
@@ -305,11 +293,7 @@ p_isinf( USES_REGS1 )
 }
 
 /**
-   @class logsum_3
-   @anchor logsum_3
-   @brief sum of two logarithms
-
-   <b> logsum(+ _Log1_, + _Log2_, - _Out_ ) is det </b>
+   @pred logsum(+ Log1:float, + Log2:float, - Out:float ) is det
 
 True if  _Log1_ is the logarithm of the positive number  _A1_,
  _Log2_ is the logarithm of the positive number  _A2_, and
@@ -413,6 +397,22 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   return 0L;
 }
 
+/**
+
+   @{
+ 
+  @pred between(+ Low:int, + High:int, ? Value:int) is nondet
+
+   _Low_ and  _High_ are integers,  _High_ \>= _Low_. If
+   _Value_ is an integer,  _Low_ =\< _Value_
+   =\< _High_. When  _Value_ is a variable it is successively
+   bound to all integers between  _Low_ and  _High_. If
+   _High_ is inf or infinite between/3 is true iff
+   _Value_ \>=  _Low_, a feature that is particularly interesting
+   for generating integers from a certain value.
+
+*/
+
 static Int cont_between( USES_REGS1 )
 {
   Term t1 = EXTRA_CBACK_ARG(3,1);
@@ -446,25 +446,6 @@ static Int cont_between( USES_REGS1 )
     return TRUE;
   }
 }
-
-/**
-   @class between_3
-   @anchor between_3
-   @brief sequence of numbers
-
-   between(+ _Low_:int, + _High_:int, ? _Value_:int) is nondet
-
-   _Low_ and  _High_ are integers,  _High_ \>= _Low_. If
-   _Value_ is an integer,  _Low_ =\< _Value_
-   =\< _High_. When  _Value_ is a variable it is successively
-   bound to all integers between  _Low_ and  _High_. If
-   _High_ is inf or infinite [between/3](@ref between_3) is true iff
-   _Value_ \>=  _Low_, a feature that is particularly interesting
-   for generating integers from a certain value.
-
-   @}
-
-*/
 
 static Int
 init_between( USES_REGS1 )
@@ -561,6 +542,12 @@ init_between( USES_REGS1 )
   return cont_between( PASS_REGS1 );
 }
 
+/**
+ *
+ * @}
+ * 
+ * @}
+*/
 void
 Yap_InitEval(void)
 {

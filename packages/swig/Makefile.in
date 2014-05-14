@@ -28,16 +28,16 @@ python/yap_wrap.c: $(srcdir)/yap.i
 python/yap_wrap.o:  python/yap_wrap.c
 	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
-java: java/libyap.@SO@ java/yap.java
+java: jni/libyap.@SO@ java/yap.java
 	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
 
-java/libyap.@SO@: jni/yap_wrap.o
-	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o java/libyap.@SO@ ../../yapi.o  java/yap_wrap.o $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
+jni/libyap.@SO@: jni/yap_wrap.o
+	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
 jni/yap_wrap.c: $(srcdir)/yap.i
-	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir src/pt/up/fc/dcc/yap -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
+	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
 
-java/yap_wrap.o:  java/yap_wrap.c
+jni/yap_wrap.o:  jni/yap_wrap.c
 	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
 
 R:

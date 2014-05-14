@@ -6830,6 +6830,7 @@ attributes from other known solvers/modules via the module prefix in
 * CLPR Non-linear Constraints::               
 @end menu
 
+
 @include clpr.tex
 
 @node CHR, Logtalk, CLPR, Top
@@ -6856,7 +6857,7 @@ systems or by using the @code{Logtalk - YAP} shortcut in the Logtalk
 program group in the Start Menu on Windows systems. For more information 
 please see the URL @url{http://logtalk.org/}.
 
-@node MYDDAS, Threads, Logtalk, Extensions
+@node MYDDAS, Real, Logtalk, Extensions
 @section MYDDAS
 @cindex MYDDAS
 
@@ -7608,8 +7609,18 @@ action, report an error, we could use the following SQL mode.
 You can see the available SQL Modes at the MySQL homepage at
 @url{http://www.mysql.org}.
 
-@node Threads, Parallelism, MYDDAS, Extensions
-@section Threads
+@node Real, Threads, MYDDAS, Extensions
+
+@chapter Real::   Talking to the R language 
+
+@ifplaintext
+
+@copydoc real
+
+@end ifplaintext
+
+@node Threads, Parallelism, Real, Extensions
+@chapter Threads
 
 YAP implements a SWI-Prolog compatible multithreading
 library. Like in SWI-Prolog, Prolog threads have their own stacks and
@@ -9006,9 +9017,9 @@ being designed to work with the swig (@url(www.swig.org}) interface compiler.
 <ul>
 <li> The original YAP C-interface exports the YAP engine.
 </li>
-<li>The @subpage swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
+<li>The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 </li>
-<li>The @subpage yap-cplus-interface is desiged to interface with Object-Oriented systems.
+<li>The @ref  yap-cplus-interface is desiged to interface with Object-Oriented systems.
 </li>
 </ul>
 @end ifplaintext

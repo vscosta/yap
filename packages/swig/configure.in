@@ -16,7 +16,7 @@ if test "$yap_cv_swig" = "no"; then
     PKG_SWIG=""
 elif test -e "$srcdir"/packages/swig/Makefile.in ; then
     SWIG_TARGET="all"
-    PKG_SWIG="swig"
+    PKG_SWIG="packages/swig"
 fi
 
 if test "$PKG_SWIG" != ""; then

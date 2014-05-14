@@ -137,7 +137,6 @@ style_check_(+charset) :-
 style_check_(-charset) :-
 	'$style_checker'( [  -charset ] ).
 style_check_('?'(Info) ) :-
-	'$style_checker  '( [ L ] ),
 	lists:member( Style,  [ singleton, discontiguous, multiple ] ),
 	( lists:member(Style, L ) -> Info = +Style ; Info = -Style ).
 style_check_([]).

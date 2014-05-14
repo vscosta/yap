@@ -320,10 +320,10 @@ yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
 	style_check(?(Disc)),
 	( Disc = +discontiguous,
-	  `X = on
+	  X = on
 	;
 	  Disc = -discontiguous,
-	  `X = off
+	  X = off
 	), !.
 yap_flag(discontiguous_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
@@ -339,10 +339,10 @@ yap_flag(redefine_warnings,X) :-
 	var(X), !,
 	style_check(?(Disc)),
 	( Disc = +multiple,
-	  `X = on
+	  X = on
 	;
 	  Disc = -multiple,
-	  `X = off
+	  X = off
 	), !.
 yap_flag(redefine_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
@@ -382,10 +382,10 @@ yap_flag(single_var_warnings,X) :-
 	var(X), !,
 	style_check(?(Disc)),
 	( Disc = +singletons,
-	  `X = on
+	  X = on
 	;
 	  Disc = -singletons,
-	  `X = off
+	  X = off
 	), !.
 yap_flag(single_var_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,

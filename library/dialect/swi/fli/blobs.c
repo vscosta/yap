@@ -14,6 +14,14 @@
 *									 *
 *									 *
 *************************************************************************/
+/**
+ *
+ *   @file blobs.c
+ *
+ *   @addtogroup swi-c-interface
+ *
+ * @{
+ */
 
 #include	<Yap.h>
 #include	<Yatom.h>
@@ -248,3 +256,7 @@ Yap_install_blobs(void)
 {
 
 }
+
+/**
+ * @}
+ */

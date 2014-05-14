@@ -328,16 +328,6 @@ Var_Ref(Ventry *ve, int is_y_var)
 #define no_ref(X) (((Ventry *) (X))->NoOfVE == 1)
 
 inline static yamop *
-fill_small(CELL w, yamop *code_p, int pass_no)
-{
-  SMALLUNSGN *ptr = ((SMALLUNSGN *) (code_p));
-
-  if (pass_no)
-    *ptr = (SMALLUNSGN) w;
-  return (yamop *) (++ptr);
-}
-
-inline static yamop *
 fill_a(CELL a, yamop *code_p, int pass_no)
 {
   CELL *ptr = ((CELL *) (code_p));
@@ -585,78 +575,6 @@ a_v(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct P
       code_p->u.x.x = emit_xreg(var_offset);
     }
     GONEXT(x);
-  }
-  return code_p;
-}
-
-inline static yamop *
-a_fi(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab, struct intermediates *cip)
-{
-  Ventry *ve = (Ventry *) cpc->rnd1;
-  OPREG var_offset;
-  int is_y_var = (ve->KindOfVE == PermVar);
-
-  var_offset = Var_Ref(ve, is_y_var);
-  if (is_y_var) {
-    if (pass_no) {
-      code_p->opc = emit_op(opcodey);
-      code_p->u.syl.y = emit_yreg(var_offset);
-      code_p->u.syl.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab]);
-      code_p->u.syl.s = cpc->rnd2;
-    }
-    GONEXT(syl);
-  }
-  else {
-    if (pass_no) {
-      code_p->opc = emit_op(opcodex);
-      code_p->u.sxl.x = emit_xreg(var_offset);
-      code_p->u.sxl.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab]);
-      code_p->u.sxl.s = cpc->rnd2;
-    }
-    GONEXT(sxl);
-  }
-  return code_p;
-}
-
-inline static yamop *
-a_fil(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct PSEUDO *cpc, UInt lab1, UInt lab2, struct intermediates *cip)
-{
-  Ventry *ve = (Ventry *) cpc->rnd1;
-  OPREG var_offset;
-  int is_y_var = (ve->KindOfVE == PermVar);
-
-  var_offset = Var_Ref(ve, is_y_var);
-  if (is_y_var) {
-    if (pass_no) {
-      code_p->opc = emit_op(opcodey);
-      code_p->u.syll.s = cpc->rnd2;
-      code_p->u.syll.y = emit_yreg(var_offset);
-      if (lab1)
-	code_p->u.syll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
-      else
-	code_p->u.syll.T = emit_a(Unsigned(NEXTOP(code_p,syll)));	
-      if (lab2)
-	code_p->u.syll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
-      else
-	code_p->u.syll.F = FAILCODE;
-    }
-    GONEXT(syll);
-  }
-  else {
-    if (pass_no) {
-      code_p->opc = emit_op(opcodex);
-      code_p->u.sxll.s = cpc->rnd2;
-      code_p->u.sxll.x = emit_xreg(var_offset);
-      if (lab1)
-	code_p->u.sxll.T = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab1]);
-      else
-	code_p->u.sxll.T = emit_a(Unsigned(NEXTOP(code_p,sxll)));	
-      if (lab2)
-	code_p->u.sxll.F = emit_a(Unsigned(cip->code_addr) + cip->label_offset[lab2]);
-      else
-	code_p->u.sxll.F = FAILCODE;
-    }
-    GONEXT(sxll);
   }
   return code_p;
 }
@@ -1421,18 +1339,6 @@ a_dbt(op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, st
   }
   *clause_has_dbtermp = TRUE;
   GONEXT(xD);
-  return code_p;
-}
-
-inline static yamop *
-a_rli(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
-  }
-  GONEXT(xc);
   return code_p;
 }
 

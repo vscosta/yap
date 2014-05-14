@@ -376,19 +376,28 @@ use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
 '$use_module'(M,F,Is) :-  
-    var(Is), !,
-    '$use_module'(M,F,all).
-'$use_module'(M,F,Is) :- nonvar(M), !,
+	var(Is), !,
+	'$use_module'(M,F,all).
+'$use_module'(M,F,Is) :-
+	nonvar(F), !,
+        strip_module(F, M0, F0),
+	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
+	( var(M) -> true
+	;
+	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+	  recorded('$module','$module'(F1,M,_,_),_)
+	).
+'$use_module'(M,F,Is) :-
+	nonvar(M), !,
+	strip_module(F, M0, F0),
 	(
 	    recorded('$module','$module'(F1,M,_,_),_)
 	->
-	    '$load_files'(F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
 	),
-        strip_module(F, _, F0),
-        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F0, [file_type(prolog)] ) ).
+        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
 '$use_module'(M,F,Is) :-
-        strip_module(F, M0, F0),
-	'$load_files'(F0, [if(not_loaded),'$context_module'(M0),must_be_module(true),imports(Is)], use_module(M,F,Is)).
+	'$do_error'(instantiation_error,use_module(M,F,Is)).
 
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
