@@ -13,6 +13,8 @@
 * version:      $Id: Regs.h,v 1.42 2008-08-12 01:27:22 vsc Exp $	 *
 *************************************************************************/
 
+#ifndef REGS_H
+#define REGS_H 1
 
 /*********  abstract machine registers **********************************/
 #ifdef YAP_H
@@ -731,3 +733,4 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
     ASP = (CELL *)PROTECT_FROZEN_B(B);
 }
 
+#endif

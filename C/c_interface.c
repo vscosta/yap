@@ -494,16 +494,81 @@ X_API void    YAP_SetOutputMessage(void);
 X_API int     YAP_StreamToFileNo(Term);
 X_API void    YAP_CloseAllOpenStreams(void);
 X_API void    YAP_FlushAllStreams(void);
+
+/**
+@group slotInterface Term Handles or Slots
+@{
+
+Term handles correspond to SWI-Prolog's term_t datatype: they are a safe representation
+of terms. Slots are safe houses in the stack, the garbage collector and the stack
+shifter know about them and make sure they have correct values. In this
+case, we use a slot to preserve  _t_ during the execution of
+YAP_RunGoal). When the execution of  _t_ is over we read the
+(possibly changed) value of  _t_ back from the slot  _sl_ and tell
+YAP that the slot  _sl_ is not needed and can be given back to the
+system.
+
+ YAP supports storing and manipulating term_t like slots or handles, but in the C
+the programmer needs to take care as most operations still require unwrapping the term
+inside.
+
+For implementation details and more information, please check term_t_slots in the implementation section.
+
+*/
+/// @brief report the current position of the slots, assuming that they occupy the top of the stack.
+///
+///
 X_API Int     YAP_CurrentSlot(void);
-X_API Int     YAP_NewSlots(int);
-X_API Int     YAP_InitSlot(Term);
-X_API Term    YAP_GetFromSlot(Int);
-X_API Term   *YAP_AddressFromSlot(Int);
-X_API Term   *YAP_AddressOfTermInSlot(Int);
-X_API void    YAP_PutInSlot(Int, Term);
-X_API int     YAP_RecoverSlots(int);
-X_API Int     YAP_ArgsToSlots(int);
-X_API void    YAP_SlotsToArgs(int, Int);
+
+/// @brief allocate n empty new slots
+///
+/// Return a handle to the system's default slot.
+X_API Int     YAP_NewSlots(int NumberOfSlots);
+
+/// @brief allocate n empty new slots
+///
+/// Allocate  _NumberOfSlots_ from the stack and return an handle to the
+/// last one. The other handle can be obtained by decrementing the handle.
+X_API Int     YAP_InitSlot(YAP_Term t);
+
+/// @brief read from a slot.
+///
+///
+X_API YAP_Term    YAP_GetFromSlot(YAP_Int slot);
+
+/// @brief get the memory address of a slot
+///
+/// Return the address of slot  _slot_: please use with care.
+X_API YAP_Term   *YAP_AddressFromSlot(YAP_Int);
+
+/// @brief get the memory address of the term actually stored in a slot
+///
+///
+X_API YAP_Term   *YAP_AddressOfTermInSlot(YAP_Int);
+
+/// @brief store  term in a slot
+///
+///
+X_API void    YAP_PutInSlot(YAP_Int slot, YAP_Term t);
+
+/// @brief Succeeds if it recovers the space allocated for $n$ contiguous slots starting at topSlot.
+///
+/// Set the contents of slot  _slot_ to  _t_.
+X_API int     YAP_RecoverSlots(int, YAP_Int topSlot);
+
+/// @brief copies the first new n YAAM registers to slots
+///
+/// Store the current first   _HowMany_ arguments in new slots.
+X_API YAP_Int     YAP_ArgsToSlots(int HowMany);
+
+/// @brief copies n slots such that sl is copied to the last abstract ,achine register.
+///
+/// Set the first  _HowMany_ arguments to the  _HowMany_ slots
+// starting at  _slot_.
+X_API void    YAP_SlotsToArgs(int HowMany, YAP_Int slot);
+
+/// @}
+
 X_API void    YAP_Throw(Term);
 X_API void    YAP_AsyncThrow(Term);
 X_API void    YAP_Halt(int);
@@ -995,7 +1060,7 @@ YAP_MkPairTerm(Term t1, Term t2)
     BACKUP_H();
     t1 =  Yap_GetFromSlot(sl1 PASS_REGS);
     t2 =  Yap_GetFromSlot(sl2 PASS_REGS);
-    Yap_RecoverSlots(2 PASS_REGS);
+    Yap_RecoverSlots(2, sl2 PASS_REGS);
   }
   t = MkPairTerm(t1, t2);
   RECOVER_H();
@@ -1019,7 +1084,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
     }
     BACKUP_H();
     ta =  (CELL *)Yap_GetFromSlot(sl1 PASS_REGS);
-    Yap_RecoverSlots(1 PASS_REGS);
+    Yap_RecoverSlots(1, sl1 PASS_REGS);
   }
   h = HR;
   t = AbsPair(h);
@@ -1330,10 +1395,10 @@ YAP_InitSlot(Term t)
 }
 
 X_API int
-YAP_RecoverSlots(int n)
+YAP_RecoverSlots(int n, Int sl)
 {
   CACHE_REGS
-  return Yap_RecoverSlots(n PASS_REGS);
+  return Yap_RecoverSlots(n, sl PASS_REGS);
 }
 
 X_API Term

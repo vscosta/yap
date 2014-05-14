@@ -234,7 +234,7 @@ X_API void PL_reset_term_refs(term_t after)
 {
   CACHE_REGS
   term_t new = Yap_NewSlots(1 PASS_REGS);
-  Yap_RecoverSlots(after-new PASS_REGS);
+  Yap_RecoverSlots(after-new, new PASS_REGS);
 }
 
 /** @}
