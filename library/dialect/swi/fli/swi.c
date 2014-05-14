@@ -5,13 +5,15 @@
  * Email:  steve.moyle@comlab.ox.ac.uk
  * Date:   21 January 2002
 
- * Copyright (c) 2002 Steve Moyle.  All rights reserved.
+ * Copyright (c) 2002-2014 Vitor Santos Costa from an original version by Steve Moyle.  All rights reserved.
 
 */
 
 /**
  *
- *   @daddtogroup swi-c-interface
+ *   @file swi.c
+ *
+ *   @addtogroup swi-c-interface
  *
  * @{
  */
@@ -3254,6 +3256,7 @@ int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
 #endif
 
 /**
- * @{
+ * @}
+ * @}
  */
 

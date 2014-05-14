@@ -13,11 +13,21 @@
 
   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
 
-  Support for file name resolution through absolute_file_name/3 and
-  friends. These utility built-ins describe a list of directories that
-  are used by load_files/2 to search. They include pre-compiled paths
-  plus user-defined directories, directories based on environment
-  variables and registry information to search for files.
+ *
+ *    @tableofcontents
+ *
+ * A reimplementation of Jan Wielemaker's SWI-Prolog C-language interface, it supports
+ * most of the functionality in the original implementation. It allows for:
+ *
+ *   - Term Construction, Access, and Unification
+ *   - Manipulation of Atoms, Strings, Lists of Codes and Lists of Atoms
+ *   - Query evaluation
+ *   - Thread and Prolog engine management
+ *   - Data-Base Access
+ *
+ * In this interface, all Prolog data known by C is referenced through term references (term_t), hence
+ * Prolog has all the information necessary to perform its memory management without special precautions
+ *  from the C programmer.
 
   @{
   
@@ -85,3 +95,7 @@ FunctorToSWIFunctor(Functor at)
 }
 
 #define isDefinedProcedure(pred) TRUE // TBD
+
+/**
+  @}
+*/

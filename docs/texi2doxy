@@ -10,7 +10,7 @@
 
 :- initialization(main).
 
-:- dynamic val/2, item/2, last_node/2, indent/1.
+:- dynamic val/2, item/2, last_node/2, indent/1, pred/4.
 
 get_arg( Inp, Out ) :-
 	unix( argv( [Inp, Out] ) ), !.
@@ -69,7 +69,8 @@ scan_file( Inp ) :-
 	  item( Item0 , ItLines ),
 	  atom_string(A2, Item0),
 	  cvt_slash( Pred, Key ),
-	  assert_static( pred( A1, Key, A2, Inp:ItLines ) ),
+	  \+ pred(_, Key, _, _ ),
+	  assert( pred( A1, Key, A2, Inp:ItLines ) ),
 	  fail
 	;
 	  % look for predicates
@@ -601,8 +602,8 @@ simplify( [0'q,0'Q|L]) --> "=", !,
 	  simplify(L).
 simplify( [0'q,0'U|L]) --> "?", !,
 	  simplify(L).
-simplify( [] ) --> "/", !.
-%	  simplify(L).
+simplify( [] ) --> "/",
+	  number, !.
 simplify( [0's,0'S|L]) --> "<", !,
 	  simplify(L).
 simplify( [0'u,0'U|L]) --> "\v", !,
@@ -626,6 +627,11 @@ simplify( [C|L]) --> [C], { C >= "A", C =< "Z"}, !, % {CN is C+"a"-"A"},
 simplify( L) --> [_], !,
 	  simplify(L).
 simplify( []) --> [].
+
+number --> [].
+number --> [C],
+	{ C >= "0" , C =< "9" },
+	number.
 
 
 first_word(Line, Word, Rest) :-
