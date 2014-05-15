@@ -146,7 +146,7 @@ Yap_RecoverSlots(int n, Int topSlot USES_REGS)
   if (ASP+1 != LCL0+topSlot)
 	return FALSE;
   ASP += n;
-  ASP[old_slots+(n-old_slots+1)] = ASP[0] = MkIntTerm(old_slots-n);
+  ASP[old_slots+(n-1)] = ASP[0] = MkIntTerm(old_slots-n);
   return TRUE;
 }
 
