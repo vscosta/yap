@@ -179,21 +179,21 @@ typedef enum {
  * @brief specifies the available unary arithmetic operators
  */
 typedef enum {
-  /** \+ _X_: the value of _X_.
+  /** \+ _X_: the value of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  X =:= +X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uplus,
-  /**  \- _X_: the complement of _X_.
+  /**  \- _X_: the complement of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  0-X =:= -X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uminus,
-  /** \\ _X_, The bitwise negation of _X_.
+  /** \\ _X_, The bitwise negation of _X_ .
    * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
    *  \X /\ X =:= 0.
@@ -202,29 +202,21 @@ typedef enum {
    * Note that the number of bits of an integer is at least the size in bits of a Prolog term cell.
    */
   op_unot,
-  /** exp( _X_ ) [ISO]
-   *
-   * Natural exponential.
-   *
+  /** exp( _X_ ), natural exponentiation of _X_ .
+   * 
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-   *   ?- _X = 2.3, exp(_X) =:= e ** _X.
-   *   true.
+   *  X = 0.0, abs(1.0 - exp( _X_ )) < 0.0001
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
-   * 	Notice that comparing whether two floating-point numbers are equal may lead to incorrect results.
    */
   op_exp,
-  /** log( _X_ ) [ISO]
-	*
-    * Natural logarithm.
-    *
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-    *    ?- _X = 2.3, log(exp(_X)) =:= exp(log(_X)).
-    *    true.
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    *
-    * 	Notice that comparing whether two floating-point numbers are equal may lead to incorrect results.
-    */
+  /** log( _X_ ), natural logarithm of _X_ .
+   *
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  X = 1.0, abs( log( exp( _X_ )) -1.0) < 0.0001
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   *
+   */
   op_log,
   /** log10( _X_ ) [ISO]
 	*
