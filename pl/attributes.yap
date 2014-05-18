@@ -99,6 +99,8 @@ do_continuation('$cut_by'(X), _) :- !,
 do_continuation('$restore_regs'(X), _) :- !,
 	'$restore_regs'(X).
 do_continuation('$restore_regs'(X,Y), _) :- !,
+%	yap_flag(gc_trace,verbose),
+%	garbage_collect,
 	'$restore_regs'(X,Y).
 do_continuation(Continuation, Module1) :-
 	execute_continuation(Continuation,Module1).
