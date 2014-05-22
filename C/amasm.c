@@ -3685,7 +3685,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case count_retry_op:
       code_p = a_pl(_count_retry, (PredEntry *)(cip->cpc->rnd1), code_p, pass_no);
       break;
-    case fetch_args_for_bccall:
+    case fetch_args_for_bccall_op:
       if (cip->cpc->nextInst->op != bccall_op) {
 	Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "compiling binary test", (int) cip->cpc->op);
 	save_machine_regs();
