@@ -109,7 +109,7 @@ Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
 }
 
 inline static Atom
-SearchInInvisible(char *atom)
+SearchInInvisible(const char *atom)
 {
   AtomEntry *chain;
 
@@ -141,7 +141,7 @@ SearchAtom(unsigned char *p, Atom a) {
 }
 
 static inline Atom
-SearchWideAtom(wchar_t *p, Atom a) {
+SearchWideAtom(const wchar_t *p, Atom a) {
   AtomEntry *ae;
 
   /* search atom in chain */
@@ -156,7 +156,7 @@ SearchWideAtom(wchar_t *p, Atom a) {
 }
 
 static Atom
-LookupAtom(char *atom)
+LookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   UInt hash;
   unsigned char *p;
@@ -216,7 +216,7 @@ LookupAtom(char *atom)
 
 
 static Atom
-LookupWideAtom(wchar_t *atom)
+LookupWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
   CELL hash;
   wchar_t *p;
@@ -226,7 +226,7 @@ LookupWideAtom(wchar_t *atom)
   WideAtomEntry *wae;
 
   /* compute hash */
-  p = atom;
+  p = (wchar_t *)atom;
   hash = WideHashFunction(p) % WideAtomHashTableSize;
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(WideHashChain[hash].AERWLock);
@@ -285,9 +285,9 @@ LookupWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtom(wchar_t *atom)
+Yap_LookupMaybeWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
-  wchar_t *p = atom, c;
+  wchar_t *p = (wchar_t *)atom, c;
   size_t len = 0;
   char *ptr, *ptr0;
   Atom at;
@@ -297,7 +297,7 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
     len++;
   }
   /* not really a wide atom */
-  p = atom;
+  p = (wchar_t *)atom;
   ptr0 = ptr = Yap_AllocCodeSpace(len+1);
   if (!ptr)
     return NIL;
@@ -308,7 +308,7 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
+Yap_LookupMaybeWideAtomWithLength(const wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
   int wide = FALSE;
@@ -354,7 +354,7 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtomWithLength(char *atom, size_t len0)
+Yap_LookupAtomWithLength(const char *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
   char *ptr;
@@ -371,19 +371,19 @@ Yap_LookupAtomWithLength(char *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtom(char *atom)
+Yap_LookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   return LookupAtom(atom);
 }
 
 Atom
-Yap_LookupWideAtom(wchar_t *atom)
+Yap_LookupWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
   return LookupWideAtom(atom);
 }
 
 Atom
-Yap_FullLookupAtom(char *atom)
+Yap_FullLookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   Atom t;
 
@@ -394,7 +394,7 @@ Yap_FullLookupAtom(char *atom)
 }
 
 void
-Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
+Yap_LookupAtomWithAddress(const char *atom, AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
   register unsigned char *p;
