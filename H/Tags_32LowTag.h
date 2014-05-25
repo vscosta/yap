@@ -14,7 +14,7 @@
 * version:      $Id: Tags_32LowTag.h,v 1.4 2008-01-30 10:35:43 vsc Exp $	 *
 *************************************************************************/
 
-#if FALSE /* not in use */
+#if SIZEOF_INT_P==4 && USE_LOW32_TAGS
 
 #define TAG_LOW_BITS_32 1
 
@@ -199,6 +199,5 @@ IntOfTerm (Term t)
   return (Int) (((Int) (t << 1)) >> (SHIFT_LOW_TAG + SHIFT_HIGH_TAG + 1));
 }
 
-#endif /* currently not in use */
-
+#endif
 

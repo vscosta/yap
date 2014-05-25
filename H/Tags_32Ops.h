@@ -49,7 +49,7 @@ are now 1 in compound terms and structures.
 
 */
 
-#if SIZEOF_INT_P==4
+#if SIZEOF_INT_P==4 && !defined(USE_LOW32_TAGS)
 
 #define TAGS_FAST_OPS 1
 
