@@ -140,7 +140,7 @@
 #endif
 #endif
 
-void PROTO(init_sys, (void));
+void init_sys(void);
 
 #if defined(__MINGW32__) || _MSC_VER
 static YAP_Term
@@ -494,7 +494,12 @@ p_mktemp(void)
 static int
 p_tmpnam(void)
 {
-#if HAVE_TMPNAM
+#if HAVE_MKTEMP
+  char *s;
+  if (!(s = mktemp("/tmp/YAP_tmpXXXXXXXX")))
+    return FALSE;
+  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#elif HAVE_TMPNAM
   char buf[L_tmpnam], *s;
   if (!(s = tmpnam(buf)))
     return FALSE;
