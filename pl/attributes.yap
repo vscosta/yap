@@ -84,7 +84,7 @@ cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
 %	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
 %'), fail.
 prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
-	writeln( [Module1|Continuation]:LG),
+%	writeln( [Module1|Continuation]:LG),
 	execute_woken_system_goals(LG),
 	do_continuation(Continuation, Module1).
 
