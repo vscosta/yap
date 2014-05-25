@@ -3244,7 +3244,7 @@ is_matrix(void)
   return TRUE;
 }
 
-void PROTO(init_matrix, (void));
+void init_matrix( void );
 
 void
 init_matrix(void)

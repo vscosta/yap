@@ -32,7 +32,7 @@
 /* for the sake of NULL */
 #include <stdio.h>
 
-void PROTO(init_regexp, (void));
+void init_regexp( void );
 
 static int check_regexp(void) 
 {
