@@ -105,7 +105,7 @@ load_files(Files,Opts) :-
 '$lf_option'('$location', 19, _).
 '$lf_option'(dialect, 20, yap).
 '$lf_option'(format, 21, source).
-'$lf_option'(redefine_module, 22, ask).
+'$lf_option'(redefine_module, 22, false).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
@@ -1018,7 +1018,7 @@ source_file_property( File0, Prop) :-
 	'$source_file_property'( File, Prop).
 
 '$source_file_property'( OldF, includes(F, Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M,, _ include, _File, OldF, _Line, _), _),
+	recorded('$lf_loaded','$lf_loaded'( F, _M, _ include, _File, OldF, _Line, _), _),
 	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, included_in(OldF, Line)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).

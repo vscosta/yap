@@ -232,6 +232,9 @@
 '$process_error'(error(thread_cancel(Id), G),top) :- !.
 '$process_error'(error(thread_cancel(Id), G), _) :- !,
 	throw(error(thread_cancel(Id), G)).
+'$process_error'(error(permission_error(module,redefined,A),B), Level) :-
+	Level \= top, !,
+	throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
 	print_message(error,error(Msg, Where)).

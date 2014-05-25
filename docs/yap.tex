@@ -9761,6 +9761,15 @@ this is possible, @var{Goal} will become invalid after executing
   YAP_RecoverSlots(1);
   if (out == 0) return FALSE;
 @end example
+
+@ifplaintext
+
+@copydoc real
+
+@end ifplaintext
+
+@texinfo
+
 Slots are safe houses in the stack, the garbage collector and the stack
 shifter know about them and make sure they have correct values. In this
 case, we use a slot to preserve @var{t} during the execution of
@@ -9807,6 +9816,8 @@ Set the first @var{HowMany} arguments to the @var{HowMany} slots
 starting at @var{slot}.
 @end table
 
+@end texinfo
+
 The following functions complement @var{YAP_RunGoal}:
 @table @code
 @item  @code{int} YAP_RestartGoal(@code{void})
@@ -9815,7 +9826,7 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 @code{YAP_RunGoal} will become invalid.
 
-@item  @code{int} YAP_Reset(@code{void})
+@Item  @code{int} YAP_Reset(@code{void})
 @findex YAP_Reset (C-Interface function)
 Reset execution environment (similar to the @code{abort/0}
 built-in). This is useful when you want to start a new query before
