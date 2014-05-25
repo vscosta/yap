@@ -21,6 +21,8 @@
 * version:      $Id: Tags_64bits.h,v 1.3 2008-05-15 13:41:46 vsc Exp $	 *
 *************************************************************************/
 
+#if SIZEOF_INT_P==8
+
 #define TAG_64BITS 1
 
 /*    Version for 64 bit addresses machines,
@@ -192,3 +194,7 @@ IntOfTerm (Term t)
 {
   return (Int) ((Int) (Unsigned (t) << 3) >> 6);
 }
+
+#endif /* 64 Bits */
+
+

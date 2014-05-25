@@ -66,9 +66,10 @@
 #define YAP_PROTECTED_MASK 0x00000000L
 
 #include "inline-only.h"
-INLINE_ONLY inline EXTERN int IsVarTerm (Term);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int IsVarTerm (Term);
+
+INLINE_ONLY int
 IsVarTerm (Term t)
 {
   return (int) (Signed (t) >= 0);
@@ -76,9 +77,9 @@ IsVarTerm (Term t)
 
 
 
-INLINE_ONLY inline EXTERN int IsNonVarTerm (Term);
+INLINE_ONLY int IsNonVarTerm (Term);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsNonVarTerm (Term t)
 {
   return (int) (Signed (t) < 0);
@@ -86,9 +87,9 @@ IsNonVarTerm (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Term *RepPair (Term);
+INLINE_ONLY Term *RepPair (Term);
 
-INLINE_ONLY inline EXTERN Term *
+INLINE_ONLY Term *
 RepPair (Term t)
 {
   return (Term *) (NonTagPart (t));
@@ -96,9 +97,9 @@ RepPair (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Term AbsPair (Term *);
+INLINE_ONLY Term AbsPair (Term *);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 AbsPair (Term * p)
 {
   return (Term) (TAGGEDA (PairTag, (p)));
@@ -106,9 +107,9 @@ AbsPair (Term * p)
 
 
 
-INLINE_ONLY inline EXTERN Int IsPairTerm (Term);
+INLINE_ONLY Int IsPairTerm (Term);
 
-INLINE_ONLY inline EXTERN Int
+INLINE_ONLY Int
 IsPairTerm (Term t)
 {
   return (Int) (BitOn (PairBit, (t)));
@@ -116,9 +117,9 @@ IsPairTerm (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Term *RepAppl (Term);
+INLINE_ONLY Term *RepAppl (Term);
 
-INLINE_ONLY inline EXTERN Term *
+INLINE_ONLY Term *
 RepAppl (Term t)
 {
   return (Term *) (NonTagPart (t));
@@ -126,9 +127,9 @@ RepAppl (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Term AbsAppl (Term *);
+INLINE_ONLY Term AbsAppl (Term *);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 AbsAppl (Term * p)
 {
   return (Term) (TAGGEDA (ApplTag, (p)));
@@ -136,9 +137,9 @@ AbsAppl (Term * p)
 
 
 
-INLINE_ONLY inline EXTERN Int IsApplTerm (Term);
+INLINE_ONLY Int IsApplTerm (Term);
 
-INLINE_ONLY inline EXTERN Int
+INLINE_ONLY Int
 IsApplTerm (Term t)
 {
   return (Int) (BitOn (ApplBit, (t)));
@@ -146,9 +147,9 @@ IsApplTerm (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Int IsAtomOrIntTerm (Term);
+INLINE_ONLY Int IsAtomOrIntTerm (Term);
 
-INLINE_ONLY inline EXTERN Int
+INLINE_ONLY Int
 IsAtomOrIntTerm (Term t)
 {
   return (Int) (!(Unsigned (t) & CompBits));
@@ -157,9 +158,9 @@ IsAtomOrIntTerm (Term t)
 
 
 
-INLINE_ONLY inline EXTERN Term AdjustPtr (Term t, Term off);
+INLINE_ONLY Term AdjustPtr (Term t, Term off);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 AdjustPtr (Term t, Term off)
 {
   return (Term) ((t) + off);
@@ -167,9 +168,9 @@ AdjustPtr (Term t, Term off)
 
 
 
-INLINE_ONLY inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+INLINE_ONLY Term AdjustIDBPtr (Term t, Term off);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 AdjustIDBPtr (Term t, Term off)
 {
   return (Term) ((t) + off);

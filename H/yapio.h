@@ -273,7 +273,7 @@ int     Yap_GetFreeStreamDForReading(void);
 
 Term	Yap_WStringToList(wchar_t *);
 Term	Yap_WStringToListOfAtoms(wchar_t *);
-Atom	Yap_LookupWideAtom( wchar_t * );
+Atom	Yap_LookupWideAtom( const wchar_t * );
 
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02

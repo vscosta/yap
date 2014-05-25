@@ -14,6 +14,8 @@
 * version:      $Id: Tags_32LowTag.h,v 1.4 2008-01-30 10:35:43 vsc Exp $	 *
 *************************************************************************/
 
+#if FALSE /* not in use */
+
 #define TAG_LOW_BITS_32 1
 
      /*    Version for 32 bit addresses machines,
@@ -196,3 +198,7 @@ IntOfTerm (Term t)
 {
   return (Int) (((Int) (t << 1)) >> (SHIFT_LOW_TAG + SHIFT_HIGH_TAG + 1));
 }
+
+#endif /* currently not in use */
+
+
