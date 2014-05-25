@@ -516,7 +516,7 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
    point or because we have goals to wake up. This routine saves the current
    live temporary registers into a structure pointed to by register ARG1.
    The registers are then recovered by a nasty builtin
-   called 
+   called
 */
 static Term
 push_live_regs(yamop *pco)
@@ -525,14 +525,23 @@ push_live_regs(yamop *pco)
   CELL *lab = (CELL *)(pco->u.l.l);
   CELL max = lab[0];
   CELL curr = lab[1];
+  Term tp = MkIntegerTerm((Int)pco);
+  Term tcp = MkIntegerTerm((Int)CP);
+  Term tenv = MkIntegerTerm((Int)(LCL0-ENV));
+  Term tyenv = MkIntegerTerm((Int)(LCL0-YENV));
   CELL *start = HR;
   Int tot = 0;
 
-  if (max) {
-    CELL i;
+  HR++;
+  *HR++ = tp;
+  *HR++ = tcp;
+  *HR++ = tenv;
+  *HR++ = tyenv;
+  tot += 4;
+  {
+	  CELL i;
 
     lab += 2;
-    HR++;
     for (i=0; i <= max; i++) {
       if (i == 8*CellSize) {
 	curr = lab[0];
@@ -570,8 +579,6 @@ push_live_regs(yamop *pco)
     }
     start[0] = (CELL)Yap_MkFunctor(AtomTrue, tot);
     return(AbsAppl(start));
-  } else {
-    return(TermNil);
   }
 }
 #endif
@@ -588,12 +595,12 @@ char *Yap_op_names[_std_top + 1] =
 #endif
 
 static int
-check_alarm_fail_int(int CONT USES_REGS) 
+check_alarm_fail_int(int CONT USES_REGS)
 {
 #if  defined(_MSC_VER) || defined(__MINGW32__)
-  /* I need this for Windows and any system where SIGINT    
+  /* I need this for Windows and any system where SIGINT
      is not proceesed by same thread as absmi */
-  if (LOCAL_PrologMode & (AbortMode|InterruptMode)) 
+  if (LOCAL_PrologMode & (AbortMode|InterruptMode))
     {
       CalculateStackGap( PASS_REGS1 );
       return CONT;
@@ -601,25 +608,26 @@ check_alarm_fail_int(int CONT USES_REGS)
 #endif
   if (Yap_has_signals( YAP_INT_SIGNAL, YAP_FAIL_SIGNAL ) ) {
     if (Yap_undo_signal( YAP_INT_SIGNAL ) ) {
-      Yap_Error(PURE_ABORT, TermNil, "abort from console"); 
+      Yap_Error(PURE_ABORT, TermNil, "abort from console");
     }
     (void)Yap_undo_signal( YAP_FAIL_SIGNAL );
     return FALSE;
   }
   if (!Yap_has_a_signal()) {
     /* no need to look into GC */
-    CalculateStackGap( PASS_REGS1 ); 
+    CalculateStackGap( PASS_REGS1 );
   }
   // fail even if there are more signals, they will have to be dealt later.
   return -1;
 }
 
 static int
-stack_overflow( CELL *env, yamop *cp USES_REGS )
+stack_overflow( PredEntry *pe, CELL *env, yamop *cp USES_REGS )
 {
   if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap( PASS_REGS1 ) ||
       Yap_undo_signal( YAP_STOVF_SIGNAL )) {
-    if (!Yap_locked_gc(((PredEntry *)(S))->ArityOfPE, env, cp)) {
+    S = (CELL *)pe;
+    if (!Yap_locked_gc(pe->ArityOfPE, env, cp)) {
       Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       return 0;
     }
@@ -632,7 +640,7 @@ static int
 code_overflow( CELL *yenv USES_REGS )
 {
   if (Yap_undo_signal( YAP_CDOVF_SIGNAL )) {
-    CELL cut_b = LCL0-(CELL *)(S[E_CB]);
+    CELL cut_b = LCL0-(CELL *)(yenv[E_CB]);
 
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
@@ -640,8 +648,8 @@ code_overflow( CELL *yenv USES_REGS )
       return 0;
     }
     CACHE_A1();
-    if (S == ASP) {
-      S[E_CB] = (CELL)(LCL0-cut_b);
+    if (yenv == ASP) {
+      yenv[E_CB] = (CELL)(LCL0-cut_b);
     }
     return 1;
   }
@@ -649,10 +657,9 @@ code_overflow( CELL *yenv USES_REGS )
 }
 
 static int
-interrupt_handler( USES_REGS1 )
+interrupt_handler( PredEntry *pe USES_REGS )
 {
-  PredEntry *pe = (PredEntry *)S;
-  
+
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
@@ -710,7 +717,7 @@ interrupt_handler( USES_REGS1 )
     pe = WakeUpCode;
     /* no more goals to wake up */
     Yap_UpdateTimedVar(LOCAL_WokenGoals,TermNil);
-  } else	
+  } else
 #endif
     {
       CalculateStackGap( PASS_REGS1 );
@@ -727,15 +734,110 @@ interrupt_handler( USES_REGS1 )
   return TRUE;
 }
 
+// interrupt handling code that sets up the case when we do not have
+// a guaranteed environment.
 static int
-interrupt_handlerc( USES_REGS1 )
+safe_interrupt_handler( PredEntry *pe USES_REGS )
+{
+  CELL *npt = HR;
+
+  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
+  /* tell whether we can creep or not, this is hard because we will
+     lose the info RSN
+  */
+  BEGD(d0);
+  S = (CELL *)pe;
+  d0 = pe->ArityOfPE;
+  if (d0 == 0) {
+    HR[1] = MkAtomTerm((Atom) pe->FunctorOfPred);
+  }
+  else {
+    HR[d0 + 2] = AbsAppl(HR);
+    HR += d0+1+2;
+    *npt++ = (CELL) pe->FunctorOfPred;
+    BEGP(pt1);
+    pt1 = XREGS + 1;
+    for (; d0 > 0; --d0) {
+      BEGD(d1);
+      d1 = *pt1;
+    loop:
+      if (!IsVarTerm(d1)) {
+	/* just copy it to the heap */
+	pt1++;
+	*npt++ = d1;
+      } else {
+	if (VarOfTerm(d1) < H0 || VarOfTerm(d1) > HR) {
+	  d1 = Deref(d1);
+	  if (VarOfTerm(d1) < H0 || VarOfTerm(d1) > HR) {
+	    Term v = MkVarTerm();
+	    Bind( VarOfTerm(d1),v );
+	  } else {
+	    goto loop;
+	  }
+	} else {
+	  *npt++ = d1;
+	}
+      }
+      ENDD(d1);
+    }
+    ENDP(pt1);
+  }
+  ENDD(d0);
+  npt[0] = Yap_Module_Name(pe);
+  ARG1 = AbsPair(npt);
+
+  HR += 2;
+#ifdef COROUTINING
+  if (Yap_undo_signal( YAP_WAKEUP_SIGNAL )) {
+    CalculateStackGap( PASS_REGS1 );
+    ARG2 = Yap_ListOfWokenGoals();
+    pe = WakeUpCode;
+    /* no more goals to wake up */
+    Yap_UpdateTimedVar(LOCAL_WokenGoals,TermNil);
+  } else
+#endif
+    {
+      CalculateStackGap( PASS_REGS1 );
+      pe = CreepCode;
+    }
+  UNLOCK(LOCAL_SignalLock);
+  // allocate an fill out an environment
+  YENV = ASP;
+  CACHE_Y_AS_ENV(YREG);
+  ENV_YREG[E_CP] = (CELL) CP;
+  ENV_YREG[E_E] = (CELL) ENV;
+#ifdef DEPTH_LIMIT
+  ENV_YREG[E_DEPTH] = DEPTH;
+#endif	/* DEPTH_LIMIT */
+  ENV = ENV_YREG;
+  ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CP));
+  WRITEBACK_Y_AS_ENV();
+  ENDCACHE_Y_AS_ENV();
+  CP = P;
+  P = pe->CodeOfPred;
+#ifdef DEPTH_LIMIT
+  if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+    if (pe->ModuleOfPred) {
+      if (DEPTH == MkIntTerm(0))
+		return FALSE;
+      else DEPTH = RESET_DEPTH();
+    }
+  } else if (pe->ModuleOfPred) {
+    DEPTH -= MkIntConstant(2);
+  }
+#endif	/* DEPTH_LIMIT */
+  return TRUE;
+}
+
+static int
+interrupt_handlerc( PredEntry *pe USES_REGS )
 {
   /* do creep in call                                     */
   ENV = YENV;
   CP = NEXTOP(P, Osbpp);
   YENV = (CELL *) (((char *) YENV) + P->u.Osbpp.s);
 #ifdef FROZEN_STACKS
-  { 
+  {
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
     if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
@@ -753,18 +855,20 @@ interrupt_handlerc( USES_REGS1 )
 #endif /* FROZEN_STACKS */
   /* setup GB */
   YENV[E_CB] = (CELL) B;
-  return interrupt_handler( PASS_REGS1 );
+  return interrupt_handler( pe PASS_REGS );
 }
 
 static int
-interrupt_handler_either( USES_REGS1 )
+interrupt_handler_either( Term t_cut, PredEntry *pe USES_REGS )
 {
-  ENV = YENV;
-  CP = NEXTOP(P, Osbpp);
-  YENV = (CELL *) (((char *) YENV) + P->u.Osbpp.s);
+	int rc;
+
+    ARG1 = push_live_regs(NEXTOP(P, Osbpp));
 #ifdef FROZEN_STACKS
-  { 
+  {
     choiceptr top_b = PROTECT_FROZEN_B(B);
+    // protect registers before we mess about.
+    // recompute YENV and get ASP
 #ifdef YAPOR_SBA
     if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
 #else
@@ -776,17 +880,18 @@ interrupt_handler_either( USES_REGS1 )
   if (YENV > (CELL *) B)
     YENV = (CELL *) B;
 #endif /* FROZEN_STACKS */
-  /* setup GB */
-  ARG1 = push_live_regs(CP);
-  /* ARG0 has an extra argument for suspended cuts */
-  ARG2 = XREGS[0];
-  YENV[E_CB] = (CELL) B;
-  SET_ASP(YENV, E_CB*sizeof(CELL));
-  return interrupt_handler( PASS_REGS1 );
+  P = NEXTOP(P, Osbpp);
+  // should we cut? If t_cut == INT(0) no
+  ARG2 = t_cut;
+  // ASP
+ SET_ASP(YENV, E_CB*sizeof(CELL));
+ // do the work.
+  rc = safe_interrupt_handler( pe PASS_REGS );
+  return rc;
 }
 
-/* totrace interrupt calls */
-//#define DEBUG_INTERRUPTS 1
+/* to trace interrupt calls */
+// #define DEBUG_INTERRUPTS 1
 
 #ifdef DEBUG_INTERRUPTS
 static int trace_interrupts = TRUE;
@@ -799,34 +904,33 @@ interrupt_fail( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  LOCK(LOCAL_SignalLock);			
+  LOCK(LOCAL_SignalLock);
   check_alarm_fail_int( FALSE PASS_REGS );
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
   */
-  if (!Yap_has_a_signal() || 
+  if (!Yap_has_a_signal() ||
       Yap_has_signals( YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL  )) {
-    UNLOCK(LOCAL_SignalLock);			
+    UNLOCK(LOCAL_SignalLock);
     return FALSE;
   }
-  S = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
   /* make sure we have the correct environment for continuation */
   ENV = B->cp_env;
   YENV  = (CELL *)B;
-  return interrupt_handler( PASS_REGS1 );
+  return interrupt_handler( RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)) PASS_REGS );
 }
 
 static int
 interrupt_execute( USES_REGS1 )
 {
   int v;
-  
+
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  LOCK(LOCAL_SignalLock);			
+  LOCK(LOCAL_SignalLock);
   if ((v = check_alarm_fail_int(  TRUE PASS_REGS )) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
@@ -836,24 +940,23 @@ interrupt_execute( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return 2;
   }
-  S = (CELL *) P->u.pp.p;
   SET_ASP(YENV, E_CB*sizeof(CELL));
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  if ((v = stack_overflow(ENV, CP PASS_REGS )) >= 0) {
+  if ((v = stack_overflow(P->u.pp.p, ENV, CP PASS_REGS )) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  return interrupt_handler( PASS_REGS1 );
+  return interrupt_handler( P->u.pp.p PASS_REGS );
 }
 
 static int
 interrupt_call( USES_REGS1 )
 {
   int v;
-  
+
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
@@ -869,17 +972,16 @@ interrupt_call( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return 2;
   }
-  S = (CELL *) P->u.Osbpp.p;
   SET_ASP(YENV, P->u.Osbpp.s);
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  if ((v = stack_overflow(YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( P->u.Osbpp.p, YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  return interrupt_handlerc( PASS_REGS1 );
+  return interrupt_handlerc( P->u.Osbpp.p PASS_REGS );
 }
 
 static int
@@ -901,7 +1003,6 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
     UNLOCK(LOCAL_SignalLock);
     return 2; /* keep on creeping */
   }
-  S = (CELL *) pen;
   SET_ASP(YENV, E_CB*sizeof(CELL));
   /* setup GB */
   YENV[E_CB] = (CELL) B;
@@ -909,23 +1010,23 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  if ((v = stack_overflow(ENV, NEXTOP(P, Osbmp) PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( pen, ENV, NEXTOP(P, Osbmp) PASS_REGS )) >= 0) {
         UNLOCK(LOCAL_SignalLock);
 	return v;
   }
   CP = NEXTOP(P, Osbmp);
-  return interrupt_handler( PASS_REGS1 );
+  return interrupt_handler( pen PASS_REGS );
 }
 
       /* don't forget I cannot creep at deallocate (where to?) */
       /* also, this is unusual in that I have already done deallocate,
 	 so I don't need to redo it.
-       */ 
+       */
 static int
 interrupt_deallocate( USES_REGS1 )
 {
   int v;
-  
+
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
@@ -935,7 +1036,7 @@ interrupt_deallocate( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  /* 
+  /*
      don't do a creep here; also, if our instruction is followed by
      a execute_c, just wait a bit more */
   if ( Yap_only_has_signal( YAP_CREEP_SIGNAL ) ||
@@ -953,17 +1054,19 @@ interrupt_deallocate( USES_REGS1 )
     SET_ASP(YENV, E_CB*sizeof(CELL));
     if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
       UNLOCK(LOCAL_SignalLock);
-      return v; 
+      return v;
     }
     if (Yap_has_a_signal()) {
+        PredEntry *pe;
+
       if (Yap_op_from_opcode(P->opc) == _cut_e) {
-	/* followed by a cut */
-	ARG1 = MkIntegerTerm(LCL0-(CELL *)S[E_CB]);
-	S = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
+	       /* followed by a cut */
+	        ARG1 = MkIntegerTerm(LCL0-(CELL *)S[E_CB]);
+	         pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
       } else {
-	S = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	       pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
       }
-      return interrupt_handler( PASS_REGS1 );
+      return interrupt_handler( pe PASS_REGS );
     }
     if (!Yap_locked_gc(0, ENV, CP)) {
       Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
@@ -978,6 +1081,7 @@ interrupt_deallocate( USES_REGS1 )
 static int
 interrupt_cut( USES_REGS1 )
 {
+  Term t_cut = MkIntegerTerm(LCL0-(CELL *)YENV[E_CB]);
   int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
@@ -993,15 +1097,14 @@ interrupt_cut( USES_REGS1 )
     return 2;
   }
   /* find something to fool S */
-  S = (CELL *)PredRestoreRegs;
-  XREGS[0] = MkIntegerTerm(LCL0-(CELL *)YENV[E_CB]);
   P = NEXTOP(P,s);
-  return interrupt_handler_either( PASS_REGS1 );
+  return interrupt_handler_either( t_cut, PredRestoreRegs PASS_REGS );
 }
 
 static int
 interrupt_cut_t( USES_REGS1 )
 {
+  Term t_cut = MkIntegerTerm(LCL0-(CELL *)YENV[E_CB]);
   int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
@@ -1018,17 +1121,41 @@ interrupt_cut_t( USES_REGS1 )
     return 2;
   }
   /* find something to fool S */
-  XREGS[0] = MkIntegerTerm(LCL0-(CELL *)S[E_CB]);
-  S = (CELL *)PredRestoreRegs;
   P = NEXTOP(P,s);
-  return interrupt_handler_either( PASS_REGS1 );
+  return interrupt_handler_either( t_cut, PredRestoreRegs PASS_REGS );
+}
+
+static int
+interrupt_cut_e( USES_REGS1 )
+{
+  Term t_cut = MkIntegerTerm(LCL0-(CELL *)S[E_CB]);
+  int v;
+#ifdef DEBUG_INTERRUPTS
+  if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
+	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
+#endif
+  LOCK(LOCAL_SignalLock);
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0) {
+    UNLOCK(LOCAL_SignalLock);
+    return v;
+  }
+  if (!Yap_has_a_signal()
+      || Yap_only_has_signals(YAP_CDOVF_SIGNAL , YAP_CREEP_SIGNAL )) {
+    UNLOCK(LOCAL_SignalLock);
+    return 2;
+  }
+  /* find something to fool S */
+  P = NEXTOP(P,s);
+  return interrupt_handler_either( t_cut, PredRestoreRegs PASS_REGS );
 }
 
 static int
 interrupt_commit_y( USES_REGS1 )
 {
   int v;
-#ifdef DEBUG_INTERRUPTS
+  Term t_cut = YENV[P->u.yps.y];
+
+  #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
@@ -1043,17 +1170,17 @@ interrupt_commit_y( USES_REGS1 )
     return 2;
   }
   /* find something to fool S */
-  S = (CELL *)PredRestoreRegs;
-  XREGS[0] = YENV[P->u.yps.y];
   P = NEXTOP(P,yps);
-  return interrupt_handler_either( PASS_REGS1 );
+  return interrupt_handler_either( t_cut, PredRestoreRegs PASS_REGS );
 }
 
 static int
 interrupt_commit_x( USES_REGS1 )
 {
   int v;
-#ifdef DEBUG_INTERRUPTS
+  Term t_cut = XREG(P->u.xps.x);
+
+  #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
@@ -1069,7 +1196,6 @@ interrupt_commit_x( USES_REGS1 )
   }
   PP = P->u.xps.p0;
   /* find something to fool S */
-  S = (CELL *)PredRestoreRegs;
   if (P->opc == Yap_opcode(_fcall)) {
     /* fill it up */
     CACHE_Y_AS_ENV(YREG);
@@ -1080,16 +1206,15 @@ interrupt_commit_x( USES_REGS1 )
 #endif	/* DEPTH_LIMIT */
     ENDCACHE_Y_AS_ENV();
   }
-  XREGS[0] = XREG(P->u.xps.x);
   P = NEXTOP(P,xps);
-  return interrupt_handler_either( PASS_REGS1 );
+  return interrupt_handler_either( t_cut, PredRestoreRegs PASS_REGS );
 }
 
 static int
 interrupt_either( USES_REGS1 )
 {
   int v;
-  
+
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
@@ -1105,7 +1230,6 @@ interrupt_either( USES_REGS1 )
   }
   PP = P->u.Osblp.p0;
   /* find something to fool S */
-  S = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0));
   SET_ASP(YENV, P->u.Osbpp.s);
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -1113,23 +1237,25 @@ interrupt_either( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  if ((v = stack_overflow(YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
+  if ((v = stack_overflow(RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)), YENV, NEXTOP(P, Osbpp) PASS_REGS )) >= 0) {
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  return interrupt_handler_either( PASS_REGS1 );
+  return interrupt_handler_either( MkIntTerm(0), RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0)) PASS_REGS );
 }
 
 static int
 interrupt_dexecute( USES_REGS1 )
 {
   int v;
+  PredEntry *pe;
 
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s/%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,  \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
   PP = P->u.pp.p0;
+  pe = P->u.pp.p;
   LOCK(LOCAL_SignalLock);
   if (Yap_has_signal(YAP_CREEP_SIGNAL) &&
       (PP->ExtraPredFlags & (NoDebugPredFlag|HiddenPredFlag))) {
@@ -1137,7 +1263,6 @@ interrupt_dexecute( USES_REGS1 )
     return 2;
   }
   /* set S for next instructions */
-  S = (CELL *) P->u.pp.p;
   ASP = YENV+E_CB;
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -1145,7 +1270,7 @@ interrupt_dexecute( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return v;
   }
-  if ((v = stack_overflow((CELL *)YENV[E_E], (yamop *)YENV[E_CP] PASS_REGS )) >= 0) {
+  if ((v = stack_overflow( P->u.pp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP] PASS_REGS )) >= 0) {
       UNLOCK(LOCAL_SignalLock);
       return v;
   }
@@ -1156,7 +1281,7 @@ interrupt_dexecute( USES_REGS1 )
   YENV[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
-  { 
+  {
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
     if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
@@ -1177,10 +1302,10 @@ interrupt_dexecute( USES_REGS1 )
   YENV[E_CB] = (CELL) B;
 
   /* and now CREEP */
-  return interrupt_handler( PASS_REGS1 );
+  return interrupt_handler( pe PASS_REGS );
 }
 
-Int 
+Int
 Yap_absmi(int inp)
 {
   CACHE_REGS
@@ -1195,8 +1320,8 @@ Yap_absmi(int inp)
   register CELL *pt0, *pt1;
 
 #endif /* LONG_LIVED_REGISTERS */
-  
-#ifdef SHADOW_P 
+
+#ifdef SHADOW_P
   register yamop *PREG = P;
 #endif /* SHADOW_P */
 
@@ -1296,7 +1421,7 @@ Yap_absmi(int inp)
 
   /* the registers are all set up, let's swap */
 #ifdef THREADS
-  pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);  
+  pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);
   LOCAL_ThreadHandle.current_yaam_regs = &absmi_regs;
   regcache = &absmi_regs;
   LOCAL_PL_local_data_p->reg_cache = regcache;
@@ -1325,7 +1450,7 @@ Yap_absmi(int inp)
   CACHE_A1();
 
  reset_absmi:
-  
+
   SP = SP0;
 
 #if USE_THREADED_CODE
@@ -1407,7 +1532,7 @@ Yap_absmi(int inp)
       SET_ASP(YREG, E_CB*sizeof(CELL));
       /* make sure ASP is initialised */
       saveregs();
-      
+
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
 #endif
@@ -1523,7 +1648,7 @@ Yap_absmi(int inp)
 #endif
 	PREG = pt;
       }
-      JMPNext();      
+      JMPNext();
       ENDBOp();
 
       /* check if enough space between trail and codespace */
@@ -1535,7 +1660,7 @@ Yap_absmi(int inp)
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
-      { 
+      {
 	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
 	S_YREG[-1] = (CELL)LINK_TO_ADDRESS(i,i->links[EXO_ADDRESS_TO_OFFSET(i, SREG)]);
       }
@@ -1596,7 +1721,7 @@ Yap_absmi(int inp)
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
-      { 
+      {
 	S_YREG[-1] = (CELL)SREG; /* the udi code did S = (CELL*)judyp; */
       }
       S_YREG--;
@@ -1628,7 +1753,7 @@ Yap_absmi(int inp)
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
-      { 
+      {
 	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
 	SREG = i->cls;
 	S_YREG[-2] = (CELL)(SREG+i->arity);
@@ -1946,7 +2071,7 @@ Yap_absmi(int inp)
       {
 	UInt timestamp;
 	CACHE_Y(B);
-      
+
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
 	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next instruction */
@@ -2004,7 +2129,7 @@ Yap_absmi(int inp)
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  if (PREG != FAILCODE) {
 	    /* I am the last one using this clause, hence I don't need a lock
-	       to dispose of it 
+	       to dispose of it
 	    */
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
@@ -2030,7 +2155,7 @@ Yap_absmi(int inp)
 	  cl->ClFlags &= ~InUseMask;
 	  --B->cp_tr;
 #if FROZEN_STACKS
-	  if (B->cp_tr > TR_FZ) 
+	  if (B->cp_tr > TR_FZ)
 #endif
 	    {
 	      TR = B->cp_tr;
@@ -2100,14 +2225,14 @@ Yap_absmi(int inp)
 	Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
 	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
@@ -2125,7 +2250,7 @@ Yap_absmi(int inp)
 	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	ENV = B->cp_env;
@@ -2133,7 +2258,7 @@ Yap_absmi(int inp)
 	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
@@ -2162,14 +2287,14 @@ Yap_absmi(int inp)
 	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
 	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
@@ -2206,14 +2331,14 @@ Yap_absmi(int inp)
 	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
 	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
       UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
@@ -2226,7 +2351,7 @@ Yap_absmi(int inp)
       {
 	UInt timestamp;
 	CACHE_Y(B);
-      
+
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
 	if (!VALID_TIMESTAMP(timestamp, PREG->u.OtaLl.d)) {
 	  /* jump to next instruction */
@@ -2241,14 +2366,14 @@ Yap_absmi(int inp)
 	  Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	  setregs();
 	  JMPNext();
-	} 
+	}
 	LOCAL_PredEntriesCounter--;
 	if (LOCAL_PredEntriesCounter == 0) {
 	  saveregs();
 	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	  setregs();
 	  JMPNext();
-	} 
+	}
 	LOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
 	PREG->u.OtaLl.d->ClPred->StatisticsForPred.NOfRetries++;
 	UNLOCK(PREG->u.OtaLl.d->ClPred->StatisticsForPred.lock);
@@ -2286,14 +2411,14 @@ Yap_absmi(int inp)
 	    Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
-	  } 
+	  }
 	  LOCAL_PredEntriesCounter--;
 	  if (LOCAL_PredEntriesCounter == 0) {
 	    saveregs();
 	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
-	  } 
+	  }
 	  LOCK(ap->StatisticsForPred.lock);
 	  ap->StatisticsForPred.NOfRetries++;
 	  UNLOCK(ap->StatisticsForPred.lock);
@@ -2312,7 +2437,7 @@ Yap_absmi(int inp)
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  if (PREG != FAILCODE) {
 	    /* I am the last one using this clause, hence I don't need a lock
-	       to dispose of it 
+	       to dispose of it
 	    */
 	    if (lcl->ClRefCount == 1) {
 	      /* make sure the clause isn't destroyed */
@@ -2338,7 +2463,7 @@ Yap_absmi(int inp)
 	  cl->ClFlags &= ~InUseMask;
 	  --B->cp_tr;
 #if FROZEN_STACKS
-	  if (B->cp_tr > TR_FZ) 
+	  if (B->cp_tr > TR_FZ)
 #endif
 	    {
 	      TR = B->cp_tr;
@@ -2411,7 +2536,7 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
- 
+
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
       Op(unlock_lu, e);
@@ -2422,11 +2547,11 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, e);
       GONext();
       ENDOp();
- 
+
 
       /* enter logical pred               */
       BOp(alloc_for_logical_pred, L);
-      check_trail(TR); 
+      check_trail(TR);
       /* say that an environment is using this clause */
       /* we have our own copy for the clause */
 #if MULTIPLE_STACKS
@@ -2589,9 +2714,9 @@ Yap_absmi(int inp)
       /* ensure_space                   */
       BOp(ensure_space, Osbpa);
       {
-	Int sz =  PREG->u.Osbpa.i; 
+	Int sz =  PREG->u.Osbpa.i;
 	UInt arity = PREG->u.Osbpa.p->ArityOfPE;
-	
+
 	if (Unsigned(HR) + sz > Unsigned(YREG)-StackGap( PASS_REGS1 )) {
 	  YENV[E_CP] = (CELL) CPREG;
 	  YENV[E_E] = (CELL) ENV;
@@ -2695,14 +2820,14 @@ Yap_absmi(int inp)
 	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
 	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
-      } 
+      }
       /* enter a retry dynamic */
       ENDBOp();
 
@@ -2758,7 +2883,7 @@ Yap_absmi(int inp)
       BOp(trust_fail, e);
       {
 	while (POP_CHOICE_POINT(B->cp_b))
-	  { 
+	  {
 	    POP_EXECUTE();
 	  }
       }
@@ -2788,7 +2913,7 @@ Yap_absmi(int inp)
       if (PP) {
 	UNLOCK(PP->PELock);
 	PP = NULL;
-      }      
+      }
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackFail, HR);
@@ -2993,16 +3118,16 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	      if (IN_BETWEEN(H0,pt1,HR)) {
 		if (IsAttVar(pt1)) {
-		  goto failloop;	
+		  goto failloop;
 		} else if (*pt1 == (CELL)FunctorBigInt) {
 		  Yap_CleanOpaqueVariable(pt1);
 		  goto failloop;
-		}	       	  
-	      }  
+		}
+	      }
 #ifdef FROZEN_STACKS  /* TRAIL */
 	    /* don't reset frozen variables */
 	    if (pt0 < TR_FZ)
-		goto failloop;		       	    
+		goto failloop;
 #endif
 	    flags = *pt1;
 #if MULTIPLE_STACKS
@@ -3033,14 +3158,14 @@ Yap_absmi(int inp)
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
 		    saveregs();
-		    /* at this point, 
+		    /* at this point,
 		       we are the only ones accessing the clause,
 		       hence we don't need to have a lock it */
 		    Yap_ErLogUpdIndex(cl);
 		    setregs();
 		  } else if (cl->ClFlags & DirtyMask) {
 		    saveregs();
-		    /* at this point, 
+		    /* at this point,
 		       we are the only ones accessing the clause,
 		       hence we don't need to have a lock it */
 		    Yap_CleanUpIndex(cl);
@@ -3059,7 +3184,7 @@ Yap_absmi(int inp)
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
 		    saveregs();
-		    /* at this point, 
+		    /* at this point,
 		       we are the only ones accessing the clause,
 		       hence we don't need to have a lock it */
 		    Yap_ErLogUpdCl(cl);
@@ -3070,14 +3195,14 @@ Yap_absmi(int inp)
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
-		
+
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
 		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		UNLOCK(cl->ClLock);
 		if (erase) {
 		  saveregs();
-		  /* at this point, 
+		  /* at this point,
 		     we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  Yap_ErCl(cl);
@@ -3119,7 +3244,7 @@ Yap_absmi(int inp)
 	  CELL *pt = RepAppl(d1);
 	  /* AbsAppl means */
 	  /* multi-assignment variable */
-	  /* so the next cell is the old value */ 
+	  /* so the next cell is the old value */
 #ifdef FROZEN_STACKS
 	  --pt0;
 	  pt[0] = TrailVal(pt0);
@@ -3223,7 +3348,7 @@ Yap_absmi(int inp)
 
 #ifdef COROUTINING
     NoStackCutE:
-      PROCESS_INT(interrupt_cut_t, do_cut_e);
+      PROCESS_INT(interrupt_cut_e, do_cut_e);
 #endif
 
       ENDOp();
@@ -3355,7 +3480,7 @@ Yap_absmi(int inp)
 	goto skip_do_execute;
 #endif
       do_execute:
-	FETCH_Y_FROM_ENV(YREG);	
+	FETCH_Y_FROM_ENV(YREG);
 	pt0 = PREG->u.pp.p;
       skip_do_execute:
 #ifdef LOW_LEVEL_TRACER
@@ -3399,7 +3524,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,PREG->u.pp.p,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */ 
+#endif	/* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt0;
@@ -3433,7 +3558,7 @@ Yap_absmi(int inp)
 	CPREG = (yamop *) ENV_YREG[E_CP];
 	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
 #ifdef FROZEN_STACKS
-	{ 
+	{
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
@@ -3512,7 +3637,7 @@ Yap_absmi(int inp)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
-	{ 
+	{
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
@@ -3583,7 +3708,7 @@ Yap_absmi(int inp)
       DEPTH = ENV_YREG[E_DEPTH];
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
-      { 
+      {
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
@@ -3661,7 +3786,7 @@ Yap_absmi(int inp)
 	  Yap_regp=old_regs;
 #endif
 	  return(0);
-        } 
+        }
 
         saveregs();
         if (!eam_am((PredEntry *) PREG->u.os.s)) FAIL();
@@ -3676,7 +3801,7 @@ Yap_absmi(int inp)
         HB = B->cp_h; /* cut_fail */
         RECOVER_B();
 
-        if (0) { register choiceptr ccp;                                          
+        if (0) { register choiceptr ccp;
 	  /* initialize ccp */
 #define NORM_CP(CP)            ((choiceptr)(CP))
 
@@ -4606,7 +4731,7 @@ Yap_absmi(int inp)
 	}
       if (Yap_gmp_tcmp_big_big(d0,PREG->u.xN.b))
 	FAIL();
-      PREG = NEXTOP(PREG, xN);      
+      PREG = NEXTOP(PREG, xN);
       ENDP(pt0);
       /* enter read mode */
       GONext();
@@ -4642,7 +4767,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       /* we have met a preexisting dbterm */
       d1 = PREG->u.xD.D;
-      PREG = NEXTOP(PREG, xD);      
+      PREG = NEXTOP(PREG, xD);
       UnifyBound(d0,d1);
       ENDD(d1);
 
@@ -5441,7 +5566,7 @@ Yap_absmi(int inp)
     uvaly_nonvar:
       /* first argument is bound */
       BEGP(pt1);
-      pt1 = YREG+PREG->u.oy.y; 
+      pt1 = YREG+PREG->u.oy.y;
       d1 = *pt1;
       deref_head(d1, uvaly_nonvar_unk);
 
@@ -5788,7 +5913,7 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, uvaly_loc_unk, uvaly_loc_nonvar);
       /* first argument is unbound */
       BEGP(pt1);
-      pt1 = YREG+PREG->u.oy.y; 
+      pt1 = YREG+PREG->u.oy.y;
       d1 = *pt1;
       deref_head(d1, uvaly_loc_var_unk);
 
@@ -6120,7 +6245,7 @@ Yap_absmi(int inp)
       deref_head(d0, ufloat_unk);
     ufloat_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       /* look inside term */
       BEGP(pt0);
@@ -6169,7 +6294,7 @@ Yap_absmi(int inp)
       deref_head(d0, ulfloat_unk);
     ulfloat_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6217,7 +6342,7 @@ Yap_absmi(int inp)
       deref_head(d0, ustring_unk);
     ustring_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       /* look inside term */
       BEGP(pt0);
@@ -6258,7 +6383,7 @@ Yap_absmi(int inp)
       deref_head(d0, ulstring_unk);
     ulstring_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6299,7 +6424,7 @@ Yap_absmi(int inp)
     ulongint_nonvar:
       /* look inside term */
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6342,7 +6467,7 @@ Yap_absmi(int inp)
       deref_head(d0, ullongint_unk);
     ullongint_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6387,7 +6512,7 @@ Yap_absmi(int inp)
     ubigint_nonvar:
       /* look inside term */
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6427,7 +6552,7 @@ Yap_absmi(int inp)
       deref_head(d0, ulbigint_unk);
     ulbigint_nonvar:
       if (!IsApplTerm(d0)) {
-	FAIL();	
+	FAIL();
       }
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -6897,7 +7022,7 @@ Yap_absmi(int inp)
       GONext();
       ENDD(d0);
       ENDOp();
- 
+
       Op(put_dbterm, xD);
       BEGD(d0);
       d0 = PREG->u.xD.D;
@@ -7288,7 +7413,7 @@ Yap_absmi(int inp)
 
       /* This instruction is called when the previous goal
 	 was interrupted when waking up goals
-      */	 
+      */
       BOp(move_back, l);
       PREG = (yamop *)(((char *)PREG)-(Int)(NEXTOP((yamop *)NULL,Osbpp)));
       JMPNext();
@@ -7296,7 +7421,7 @@ Yap_absmi(int inp)
 
       /* This instruction is called when the previous goal
 	 was interrupted when waking up goals
-      */	 
+      */
       BOp(skip, l);
       PREG = NEXTOP(PREG,l);
       JMPNext();
@@ -7320,7 +7445,7 @@ Yap_absmi(int inp)
       BEGCHO(pt1);
       pt1 = (choiceptr) ((char *) YREG + (yslot) d0);
 #ifdef FROZEN_STACKS
-      { 
+      {
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	if (pt1 > top_b || pt1 < (choiceptr)HR) pt1 = top_b;
@@ -7477,7 +7602,7 @@ Yap_absmi(int inp)
       }
       do_c_call:
 #ifdef FROZEN_STACKS
-      { 
+      {
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
@@ -7515,7 +7640,7 @@ Yap_absmi(int inp)
       PROCESS_INT(interrupt_call, do_c_call);
 
       ENDBOp();
-      
+
       /* execute     Label               */
       BOp(execute_cpred, pp);
       check_trail(TR);
@@ -7529,7 +7654,7 @@ Yap_absmi(int inp)
       do_executec:
 #endif
 #ifdef FROZEN_STACKS
-	{ 
+	{
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
@@ -7618,7 +7743,7 @@ Yap_absmi(int inp)
 	}
 #endif	/* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
-      { 
+      {
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
@@ -7677,7 +7802,7 @@ Yap_absmi(int inp)
 	}
 #endif	/* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
-      { 
+      {
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
@@ -7742,14 +7867,14 @@ Yap_absmi(int inp)
 	saveregs();
 	SREG = (CELL *) ((f) (PASS_REGS1));
       	/* This last instruction changes B B*/
-	while (POP_CHOICE_POINT(B)){ 
+	while (POP_CHOICE_POINT(B)){
 	  cut_c_pop();
 	}
 	setregs();
       }
       if (!SREG) {
 	/* Removes the cut functions from the stack
-	 without executing them because we have fail 
+	 without executing them because we have fail
 	 and not cuted the predicate*/
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
@@ -7861,7 +7986,7 @@ Yap_absmi(int inp)
       LOCAL_PrologMode &= ~UserCCallMode;
       if (!SREG) {
 	/* Removes the cut functions from the stack
-	 without executing them because we have fail 
+	 without executing them because we have fail
 	 and not cuted the predicate*/
 	while(POP_CHOICE_POINT(B))
 	  cut_c_pop();
@@ -8033,7 +8158,7 @@ Yap_absmi(int inp)
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
 	  if (!PP) {
-	    UNLOCKPE(16,pe);	    
+	    UNLOCKPE(16,pe);
 	  }
 	  JMPNext();
 	}
@@ -8054,7 +8179,7 @@ Yap_absmi(int inp)
 
       BOp(undef_p, e);
       /* save S for module name */
-      { 
+      {
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
 	/* avoid trouble with undefined dynamic procedures */
@@ -8153,7 +8278,7 @@ Yap_absmi(int inp)
 	    Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
-	  } 
+	  }
 	  LOCAL_PredEntriesCounter--;
 	  if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	    UNLOCKPE(21,pe);
@@ -8161,8 +8286,8 @@ Yap_absmi(int inp)
 	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
-	  } 
-	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
+	  }
+	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) ==
 	    CountPredFlag) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
 	    UNLOCKPE(22,pe);
@@ -8181,7 +8306,7 @@ Yap_absmi(int inp)
 	  }
 	}
 	UNLOCKPE(25,pe);
-	
+
 	d0 = pe->ArityOfPE;
 	/* save S for ModuleName */
 	if (d0 == 0) {
@@ -8202,7 +8327,7 @@ Yap_absmi(int inp)
 	    /* just copy it to the heap */
 	    *HR++ = d1;
 	    continue;
-	    
+
 	    derefa_body(d1, pt0, dospy_unk, dospy_nonvar);
 	    if (pt0 <= HR) {
 	      /* variable is safe */
@@ -8485,7 +8610,7 @@ Yap_absmi(int inp)
       check_trail(TR);
       {
 	UInt timestamp;
-	
+
 	CACHE_Y(YREG);
 	timestamp = IntegerOfTerm(S_YREG[0]);
 	/* fprintf(stderr,"+ %p/%p %d %d %d--%u\n",PREG,PREG->u.OtaLl.d->ClPred,timestamp,PREG->u.OtaLl.d->ClPred->TimeStampOfPred,PREG->u.OtaLl.d->ClTimeStart,PREG->u.OtaLl.d->ClTimeEnd);*/
@@ -8518,7 +8643,7 @@ Yap_absmi(int inp)
       {
 	UInt timestamp;
 	CACHE_Y(B);
-      
+
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
 	  PP = PREG->u.OtaLl.d->ClPred;
@@ -8606,7 +8731,7 @@ Yap_absmi(int inp)
 	  cl->ClFlags &= ~InUseMask;
 	  B->cp_tr--;
 #if FROZEN_STACKS
-	  if (B->cp_tr > TR_FZ) 
+	  if (B->cp_tr > TR_FZ)
 #endif
 	    {
 	      TR = B->cp_tr;
@@ -8726,7 +8851,7 @@ Yap_absmi(int inp)
        * the empty list;
        * some other atom;
        * a variable;
-       * 
+       *
        */
       BOp(switch_list_nl, ollll);
       ALWAYS_LOOKAHEAD(PREG->u.ollll.pop);
@@ -9104,29 +9229,29 @@ Yap_absmi(int inp)
       I_R = AbsAppl(SREG-1);
       GONext();
       ENDOp();
-      
+
       Op(index_blob, e);
       PREG = NEXTOP(PREG, e);
       I_R = Yap_DoubleP_key(SREG);
       GONext();
       ENDOp();
-      
+
       Op(index_long, e);
       PREG = NEXTOP(PREG, e);
       I_R = Yap_IntP_key(SREG);
       GONext();
       ENDOp();
-      
+
 
 
 /************************************************************************\
 *	Native Code Execution						 *
 \************************************************************************/
- 
-      /* native_me  */
-      BOp(native_me, aFlp); 
 
-	if (PREG->u.aFlp.n) 
+      /* native_me  */
+      BOp(native_me, aFlp);
+
+	if (PREG->u.aFlp.n)
 	  EXEC_NATIVE(PREG->u.aFlp.n);
 	else {
 	  PREG->u.aFlp.n++;
@@ -9136,7 +9261,7 @@ Yap_absmi(int inp)
 
       PREG = NEXTOP(PREG, aFlp);
       JMPNext();
-      
+
       ENDBOp();
 
 
@@ -9384,8 +9509,8 @@ Yap_absmi(int inp)
 	  default:
 	    PREG = PREG->u.xl.F;
 	    GONext();
-	  } 
-	} 
+	  }
+	}
       }
       PREG = PREG->u.xl.F;
       GONext();
@@ -9431,7 +9556,7 @@ Yap_absmi(int inp)
 	  default:
 	    PREG = PREG->u.yl.F;
 	    GONext();
-	  } 
+	  }
 	}
       }
       PREG = PREG->u.yl.F;
@@ -11425,7 +11550,7 @@ Yap_absmi(int inp)
 	    PREG = nextp;
 	    ALWAYS_GONext();
 	    ALWAYS_END_PREFETCH();
-	  }    
+	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
 	    yamop *nextp = NEXTOP(PREG, plxxs);
@@ -11455,7 +11580,7 @@ Yap_absmi(int inp)
 	    ALWAYS_END_PREFETCH();
 	  }
 	}
-      } 
+      }
     exec_bin_cmp_xx:
       {
 	 CmpPredicate f = PREG->u.plxxs.p->cs.d_code;
@@ -11530,7 +11655,7 @@ Yap_absmi(int inp)
 	    JMPNext();
 	  }
 	}
-      } 
+      }
     exec_bin_cmp_yx:
       {
 	CmpPredicate f = PREG->u.plxys.p->cs.d_code;
@@ -11603,7 +11728,7 @@ Yap_absmi(int inp)
 	    JMPNext();
 	  }
 	}
-      } 
+      }
     exec_bin_cmp_xy:
       {
 	CmpPredicate f = PREG->u.plxys.p->cs.d_code;
@@ -11679,7 +11804,7 @@ Yap_absmi(int inp)
 	    JMPNext();
 	  }
 	}
-      } 
+      }
     exec_bin_cmp_yy:
       {
 	CmpPredicate f = PREG->u.plyys.p->cs.d_code;
@@ -11804,7 +11929,7 @@ Yap_absmi(int inp)
 	    CELL *pt = RepAppl(d1);
 	    /* AbsAppl means */
 	    /* multi-assignment variable */
-	    /* so the next cell is the old value */ 
+	    /* so the next cell is the old value */
 #ifdef FROZEN_STACKS
 	    pt[0] = TrailVal(--TR);
 #else
@@ -12002,7 +12127,7 @@ Yap_absmi(int inp)
 	GONext();
       }
       PREG = NEXTOP(PREG, l);
-      GONext();      
+      GONext();
       ENDP(pt1);
       ENDD(d1);
       ENDP(pt0);
@@ -12053,11 +12178,11 @@ Yap_absmi(int inp)
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
-	  /* don't complain here for Prolog compatibility 
+	  /* don't complain here for Prolog compatibility
 	  if ((Int)d0 <= 0) {
 	    saveregs();
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
 	  */
@@ -12087,7 +12212,7 @@ Yap_absmi(int inp)
       }
       else {
 	/*
-	  don't complain here for SWI Prolog compatibility 
+	  don't complain here for SWI Prolog compatibility
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
@@ -12118,7 +12243,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	CELL *Ho = HR;
-	Term t = MkIntegerTerm(PREG->u.xxn.c); 
+	Term t = MkIntegerTerm(PREG->u.xxn.c);
 	HR[0] =  t;
 	HR[1] = XREG(PREG->u.xxn.xi);
 	RESET_VARIABLE(HR+2);
@@ -12144,11 +12269,11 @@ Yap_absmi(int inp)
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
-	  /* don't complain here for Prolog compatibility 
+	  /* don't complain here for Prolog compatibility
 	  if ((Int)d0 <= 0) {
 	    saveregs();
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
 	  */
@@ -12242,11 +12367,11 @@ Yap_absmi(int inp)
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
-	  /* don't complain here for Prolog compatibility 
+	  /* don't complain here for Prolog compatibility
 	  if ((Int)d0 <= 0) {
 	    saveregs();
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    saveregs();
 	  }
 	  */
@@ -12282,7 +12407,7 @@ Yap_absmi(int inp)
       }
       else {
 	/*
-	  don't complain here for SWI Prolog compatibility 
+	  don't complain here for SWI Prolog compatibility
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
@@ -12313,7 +12438,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	CELL *Ho = HR;
-	Term t = MkIntegerTerm(PREG->u.yxn.c); 
+	Term t = MkIntegerTerm(PREG->u.yxn.c);
 	HR[0] =  t;
 	HR[1] = XREG(PREG->u.yxn.xi);
 	HR[2] = YREG[PREG->u.yxn.y];
@@ -12340,11 +12465,11 @@ Yap_absmi(int inp)
 	}
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
-	  /* don't complain here for Prolog compatibility 
+	  /* don't complain here for Prolog compatibility
 	  if ((Int)d0 <= 0) {
 	    saveregs();
 	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
 	  */
@@ -12380,7 +12505,7 @@ Yap_absmi(int inp)
       }
       else {
 	/*
-	  don't complain here for SWI Prolog compatibility 
+	  don't complain here for SWI Prolog compatibility
 	  saveregs();
 	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  setregs();
@@ -13054,7 +13179,7 @@ Yap_absmi(int inp)
       if (!IsAtomTerm(d0)) {
 	FAIL();
       }
-      else 
+      else
 	d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
       pt1 = HR;
       *pt1++ = d0;
@@ -13490,7 +13615,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* join all the meta-call code into a single procedure with three entry points */
-      { 
+      {
 	CACHE_Y_AS_ENV(YREG);
 	BEGD(d0);       /* term to be meta-called */
 	Term mod;       /* module to be used */
@@ -13500,7 +13625,7 @@ Yap_absmi(int inp)
 
 	/* we are doing the rhs of a , */
 	BOp(p_execute_tail, Osbmp);
-	
+
 	FETCH_Y_FROM_ENV(YREG);
 	/* place to cut to */
 	b_ptr = (choiceptr)ENV_YREG[E_CB];
@@ -13514,7 +13639,7 @@ Yap_absmi(int inp)
 	/* Try to preserve the environment */
 	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbmp.s);
 #ifdef FROZEN_STACKS
-	{ 
+	{
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
@@ -13575,7 +13700,7 @@ Yap_absmi(int inp)
 	/* Try to preserve the environment */
 	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbmp.s);
 #ifdef FROZEN_STACKS
-	{ 
+	{
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
 	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
@@ -13676,7 +13801,7 @@ Yap_absmi(int inp)
 		goto execute_metacall;
 	    }
 	  }
-	  
+
 	  /* copy arguments of meta-call to XREGS */
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);

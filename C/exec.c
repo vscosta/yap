@@ -30,7 +30,6 @@ static Int  EnterCreepMode(Term, Term CACHE_TYPE);
 static Int  p_save_cp( USES_REGS1 );
 static Int  p_execute( USES_REGS1 );
 static Int  p_execute0( USES_REGS1 );
-static int execute_pred(PredEntry *ppe, CELL *pt USES_REGS);
 
 static Term
 cp_as_integer(choiceptr cp USES_REGS)
@@ -676,7 +675,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     ARG3 = ARG2;
     goto complete;
@@ -685,7 +684,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     ARG3 = ARG2;
     goto complete;
@@ -696,7 +695,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -706,7 +705,7 @@ p_do_goal_expansion( USES_REGS1 )
        (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     ARG3 = ARG2;
     out = TRUE;
   }
@@ -738,7 +737,7 @@ p_do_term_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -746,7 +745,7 @@ p_do_term_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -755,7 +754,7 @@ p_do_term_expansion( USES_REGS1 )
        (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       execute_pred(pe, NULL PASS_REGS) ) {
+       Yap_execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
   }
  complete:
@@ -1215,8 +1214,8 @@ Yap_exec_absmi(int top)
 }
 
 
-static int
-execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
+int
+Yap_execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 {
   yamop *saved_p, *saved_cp;
   yamop        *CodeAdr;
@@ -1226,15 +1225,9 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
   saved_cp = CP;
   
   PELOCK(81,ppe);
-  if (ppe->ArityOfPE == 0) {
-    CodeAdr = ppe->CodeOfPred;
-    UNLOCK(ppe->PELock);
-    out = do_goal(CodeAdr, 0, pt, FALSE PASS_REGS);
-  } else {
-    CodeAdr = ppe->CodeOfPred;
-    UNLOCK(ppe->PELock);
-    out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
-  }
+  CodeAdr = ppe->CodeOfPred;
+  UNLOCK(ppe->PELock);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
 
   if (out == 1) {
     choiceptr cut_B;
@@ -1335,7 +1328,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   if (pe == NIL) {
     return CallMetaCall(t, mod PASS_REGS);
   }
-  return execute_pred(ppe, pt PASS_REGS);
+  return Yap_execute_pred(ppe, pt PASS_REGS);
 
 }
 
@@ -1430,13 +1423,17 @@ Yap_RunTopGoal(Term t)
 }
 
 static void
-restore_regs(Term t USES_REGS)
+restore_regs(Term t, int restore_all USES_REGS)
 {
   if (IsApplTerm(t)) {
     Int i;
-    Int max = ArityOfFunctor(FunctorOfTerm(t));
-    CELL *ptr = RepAppl(t)+1;
+    Int max = ArityOfFunctor(FunctorOfTerm(t))-4;
+    CELL *ptr = RepAppl(t)+5;
 
+    P = (yamop *)IntegerOfTerm(ptr[-4]);
+    CP = (yamop *)IntegerOfTerm(ptr[-3]);
+    ENV = (CELL *)(LCL0-IntegerOfTerm(ptr[-2]));
+    YENV = (CELL *)(LCL0-IntegerOfTerm(ptr[-1]));
     for (i = 0; i < max; i += 2) {
       Int j = IntOfTerm(ptr[0]);
       XREGS[j] = ptr[1];
@@ -1455,7 +1452,7 @@ p_restore_regs( USES_REGS1 )
     return(FALSE);
   }
   if (IsAtomTerm(t)) return(TRUE);
-  restore_regs(t PASS_REGS);
+  restore_regs(t, FALSE PASS_REGS);
   return(TRUE);
 }
 
@@ -1466,13 +1463,15 @@ p_restore_regs2( USES_REGS1 )
 
   Term t = Deref(ARG1), d0;
   choiceptr pt0;
+  Int d;
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,t,"support for coroutining");    
     return(FALSE);
   }
   d0 = Deref(ARG2);
   if (!IsAtomTerm(t)) {
-    restore_regs(t PASS_REGS);
+    restore_regs(t, TRUE PASS_REGS);
   }
   if (IsVarTerm(d0)) {
     Yap_Error(INSTANTIATION_ERROR,d0,"support for coroutining");    
@@ -1481,13 +1480,16 @@ p_restore_regs2( USES_REGS1 )
   if (!IsIntegerTerm(d0)) {
     return(FALSE);
   }
+  d = IntegerOfTerm(d0);
+  if (!d)
+	  return TRUE;
 #if YAPOR_SBA
-  pt0 = (choiceptr)IntegerOfTerm(d0);
+  pt0 = (choiceptr)d;
 #else
-  pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
+  pt0 = (choiceptr)(LCL0-d);
 #endif
   /* find where to cut to */
-  if (pt0 > B) {
+  if ((CELL *)pt0 != LCL0 && pt0 > B) {
     /* Wow, we're gonna cut!!! */
     while (B->cp_b < pt0) {
       while (POP_CHOICE_POINT(B->cp_b))
