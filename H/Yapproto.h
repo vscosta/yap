@@ -25,13 +25,13 @@ int	Yap_GetName(char *,UInt,Term);
 Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);
 struct operator_entry *Yap_GetOpPropForAModuleHavingALock(AtomEntry *, Term);
-Atom	Yap_LookupAtom(char *);
-Atom	Yap_LookupAtomWithLength(char *, size_t);
-Atom	Yap_LookupUTF8Atom(char *);
-Atom	Yap_LookupMaybeWideAtom(wchar_t *);
-Atom	Yap_LookupMaybeWideAtomWithLength(wchar_t *, size_t);
-Atom	Yap_FullLookupAtom(char *);
-void	Yap_LookupAtomWithAddress(char *,AtomEntry *);
+Atom	Yap_LookupAtom(const char *);
+Atom	Yap_LookupAtomWithLength(const char *, size_t);
+Atom	Yap_LookupUTF8Atom(const char *);
+Atom	Yap_LookupMaybeWideAtom(const wchar_t *);
+Atom	Yap_LookupMaybeWideAtomWithLength(const wchar_t *, size_t);
+Atom	Yap_FullLookupAtom(const char *);
+void	Yap_LookupAtomWithAddress(const char *,AtomEntry *);
 Prop	Yap_NewPredPropByFunctor(struct FunctorEntryStruct *, Term);
 Prop	Yap_NewPredPropByAtom(struct AtomEntryStruct *, Term);
 Prop	Yap_PredPropByFunctorNonThreadLocal(struct FunctorEntryStruct *, Term);
@@ -126,7 +126,7 @@ void	Yap_InitCdMgr(void);
 struct pred_entry * Yap_PredFromClause( Term t USES_REGS );
 int	Yap_discontiguous(struct pred_entry  *ap USES_REGS );
 int	Yap_multiple(struct pred_entry  *ap USES_REGS );
-void	Yap_init_consult(int, char *);
+void	Yap_init_consult(int, const char *);
 void	Yap_end_consult(void);
 void	Yap_Abolish(struct pred_entry *);
 void	Yap_BuildMegaClause(struct pred_entry *);
@@ -182,6 +182,7 @@ Int	Yap_exec_absmi(int);
 void	Yap_trust_last(void);
 Term	Yap_GetException(void);
 void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
+int     Yap_execute_pred(struct pred_entry  *ppe, CELL *pt USES_REGS);
 int     Yap_dogc( int extra_args, Term *tp USES_REGS );
 
 /* exo.c */
@@ -244,12 +245,12 @@ void	Yap_DebugEndline(void);
 int	Yap_DebugGetc(void);
 #endif
 int	Yap_IsOpType(char *);
-void	Yap_InitCPred(char *, unsigned long int, CPredicate, UInt);
-void	Yap_InitAsmPred(char *, unsigned long int, int, CPredicate, UInt);
-void	Yap_InitCmpPred(char *, unsigned long int, CmpPredicate, UInt);
-void	Yap_InitCPredBack(char *, unsigned long int, unsigned int, CPredicate,CPredicate,UInt);
-void	Yap_InitCPredBackCut(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
-void    Yap_InitCPredBack_(char *, unsigned long int, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
+void	Yap_InitCPred(const char *, UInt, CPredicate, UInt);
+void	Yap_InitAsmPred(const char *, UInt, int, CPredicate, UInt);
+void	Yap_InitCmpPred(const char *, UInt, CmpPredicate, UInt);
+void	Yap_InitCPredBack(const char *, UInt, unsigned int, CPredicate,CPredicate,UInt);
+void	Yap_InitCPredBackCut(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
+void    Yap_InitCPredBack_(const char *, UInt, unsigned int, CPredicate,CPredicate,CPredicate,UInt);
 void	Yap_InitWorkspace(UInt,UInt,UInt,UInt,UInt,int,int,int);
 
 #ifdef YAPOR
@@ -385,6 +386,7 @@ void	Yap_WinError(char *);
 /* threads.c */
 void   Yap_InitThreadPreds(void);
 void   Yap_InitFirstWorkerThreadHandle(void);
+int	   Yap_ThreadID( void );
 #if THREADS
 int    Yap_InitThread(int);
 #endif
