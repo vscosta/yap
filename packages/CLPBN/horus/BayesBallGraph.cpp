@@ -1,4 +1,9 @@
+
+#if __ANDROID__
+#define assert(P)
+#else
 #include <cassert>
+#endif
 
 #include <iostream>
 #include <fstream>
