@@ -385,7 +385,7 @@
 #endif
 
 /**
-@group slotInterface Term Handles or Slots
+@defgroup slotInterface Term Handles or Slots
 @{
 
 Term handles correspond to SWI-Prolog's term_t datatype: they are a safe representation
