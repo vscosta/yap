@@ -568,6 +568,9 @@
 /* Define to 1 if you have the `rl_free_line_state' function. */
 #undef HAVE_RL_FREE_LINE_STATE
 
+/* Define to 1 if the system has the type `rl_hook_func_t'. */
+#undef HAVE_RL_HOOK_FUNC_T
+
 /* Define to 1 if you have the `rl_insert_close' function. */
 #undef HAVE_RL_INSERT_CLOSE
 
