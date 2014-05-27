@@ -645,7 +645,7 @@ then
                    [--with-readline was given, but test for readline failed])
                fi
               ])
-              AC_CHECK_TYPES([rl_hook_func_t])
+              AC_CHECK_TYPES([rl_hook_func_t, rl_completion_func_t])
 fi
 
 if test "$yap_cv_gmp" != "no"

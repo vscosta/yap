@@ -6731,6 +6731,15 @@ _ACEOF
 
 
 fi
+ac_fn_c_check_type "$LINENO" "rl_completion_func_t" "ac_cv_type_rl_completion_func_t" "$ac_includes_default"
+if test "x$ac_cv_type_rl_completion_func_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_RL_COMPLETION_FUNC_T 1
+_ACEOF
+
+
+fi
 
 fi
 
@@ -12472,7 +12481,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12475 "configure" */
+/* #line 12484 "configure" */
 public class Test {
 }
 EOF
@@ -12648,7 +12657,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12651: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12660: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12779,7 +12788,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12782 "configure" */
+/* #line 12791 "configure" */
 public class Test {
 }
 EOF
@@ -12814,7 +12823,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12817 "configure" */
+/* [#]line 12826 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

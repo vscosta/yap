@@ -556,6 +556,9 @@
 /* Define to 1 if you have the `rl_clear_pending_input' function. */
 #undef HAVE_RL_CLEAR_PENDING_INPUT
 
+/* Define to 1 if the system has the type `rl_completion_func_t'. */
+#undef HAVE_RL_COMPLETION_FUNC_T
+
 /* Define to 1 if you have the `rl_completion_matches' function. */
 #undef HAVE_RL_COMPLETION_MATCHES
 
