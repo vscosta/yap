@@ -4,7 +4,7 @@ dnl
 
 AC_PREREQ([2.50])
 
-dnl VARIABLES EXPORTED 
+dnl VARIABLES EXPORTED
 dnl
 dnl ARCH
 dnl
@@ -39,6 +39,15 @@ dnl EXTRA_LIBS_FOR_SWIDLLS= libs that are required when lding a SWI so
 AC_INIT(YAP, 6.3.4, yap-users@sf.net, yap )
 
 DOC_VERSION=4.2.9
+
+AC_ARG_WITH(sysroot,
+	[ --with-sysroot[=DIR]           set sysroot in compiler],
+	  [   SYSROOT="$withval"
+		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
+		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT" ],
+	[yap_cv_gmp=yes])
 
 AC_PROG_CC
 AC_PROG_CPP
@@ -193,7 +202,7 @@ AC_ARG_WITH(gmp,
 	    CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
-	
+
 AC_ARG_WITH(R,
 	[ --with-R[=DIR]              interface to R language],
 	if test "$withval" = yes; then
@@ -204,7 +213,7 @@ AC_ARG_WITH(R,
 	    yap_cv_R=$withval
 	fi,
 	[yap_cv_R=no])
-	
+
 AC_ARG_WITH(judy,
 	[  --with-judy[=DIR] UDI needs judy library],
 	if test "$withval" = yes; then
@@ -317,7 +326,7 @@ AC_ARG_WITH(max-threads,
 	[yap_cv_max_threads="1024"])
 
   AC_DEFINE(MinHeapSpace, (2048*SIZEOF_INT_P), [at least 2M Cells for Heap])
-  AC_DEFINE(MinStackSpace,(1024*SIZEOF_INT_P), [at least 1M Cells for Stack]) 
+  AC_DEFINE(MinStackSpace,(1024*SIZEOF_INT_P), [at least 1M Cells for Stack])
   AC_DEFINE(MinTrailSpace,(256*SIZEOF_INT_P), [at least 1/2M Cells for Trail])
 if test "$orparallelism" = threads
 then
@@ -352,7 +361,7 @@ fi
  AC_DEFINE_UNQUOTED(MAX_THREADS,$yap_cv_max_threads,[max number of threads, default 1 or 1024])
 
 
-if test "$yap_cv_prism" = no 
+if test "$yap_cv_prism" = no
 then
   INSTALL_PRISM=""
 else
@@ -373,7 +382,7 @@ if test "$yap_cv_clpbn_bp"="yes"; then
   AC_LANG_POP()
 fi
 
-if test "$yap_cv_clpbn_bp" = no 
+if test "$yap_cv_clpbn_bp" = no
 then
   PKG_CLPBN="packages/CLPBN"
 else
@@ -383,7 +392,7 @@ fi
 
 
 dnl condor universe does not like dynamic linking on Linux, DEC, and HP-UX platforms.
-if test "$use_condor" = yes 
+if test "$use_condor" = yes
 then
   static_compilation="yes"
   use_malloc="yes"
@@ -403,7 +412,7 @@ fi
 dnl Compilation Flags
 if test "$GCC" = "yes"
 then
-     if test "$debugyap" = "yes" 
+     if test "$debugyap" = "yes"
      then
        CXXFLAGS="-O -g -Wall $CXXFLAGS"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
@@ -413,9 +422,9 @@ then
        C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
-       case "`$CC --version < /dev/null`" in	
-	  *3.4*) 
-	    CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" 
+       case "`$CC --version < /dev/null`" in
+	  *3.4*)
+	    CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS"
 	  ;;
        esac
        case "$target_cpu" in
@@ -425,7 +434,7 @@ then
         ;;
         sparc*)
 	  case "$target_os" in
-           *solaris[2-9]*)	dnl 
+           *solaris[2-9]*)	dnl
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
              CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CXXFLAGS"
             ;;
@@ -576,10 +585,10 @@ then
       esac
     fi
     WINDOWS=""
-    PKG_WINCONSOLE="swi/console"   
+    PKG_WINCONSOLE="swi/console"
   else
     WINDOWS="#"
-    PKG_WINCONSOLE=""   
+    PKG_WINCONSOLE=""
     LIBS="-lcygwin"
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
@@ -636,6 +645,7 @@ then
                    [--with-readline was given, but test for readline failed])
                fi
               ])
+              AC_CHECK_TYPES([rl_hook_func_t])
 fi
 
 if test "$yap_cv_gmp" != "no"
@@ -649,7 +659,7 @@ fi
 
 if test "$threads" = yes
 then
-  AC_CHECK_HEADERS(pthread.h)	
+  AC_CHECK_HEADERS(pthread.h)
   AC_CHECK_FUNCS(pthread_mutexattr_setkind_np pthread_mutexattr_settype)
   if test "$pthreadlocking" = yes
   then
@@ -698,7 +708,7 @@ else
 fi
 
 if test "$use_clpqr" = no; then
-  PKG_CLPQR="" 
+  PKG_CLPQR=""
 elif test -e "$srcdir"/packages/clpqr/Makefile.in; then
   PKG_CLPQR="packages/clpqr"
 else
@@ -781,7 +791,7 @@ then
   AC_MSG_CHECKING([whether ld supports --enable-new-dtags])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
     [AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no]) 
+    [AC_MSG_RESULT([no])
      LDFLAGS="$OLDLDFLAGS"]
   )
 fi
@@ -793,7 +803,7 @@ fi
 	else
 	  AC_SYS_RESTARTABLE_SYSCALLS
 	fi
-	
+
 	dnl defaults
 	INSTALL_DLLS="no"
 	EXTRA_OBJS=""
@@ -803,10 +813,10 @@ fi
 	M4="m4"
 	MERGE_DLL_OBJS="#"
 	IN_UNIX=""
-	
+
 	dnl This has to be before $target_os
 	YAPLIB="libYap.a"
-	
+
 	dnl now this is where things get nasty.
 	dnl trying to get the libraries
 	case "$target_os" in
@@ -853,7 +863,7 @@ fi
 		    LIBS="$LIBS -lnsl"
 	     fi
 	        if test "$dynamic_loading" = "yes"
-	        then 
+	        then
 	           YAPLIB_LD="\$(CC) -shared"
 	           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-rpath=\$(YAPLIBDIR) -Wl,-rpath=\$(LIBDIR)"
 	           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -978,14 +988,14 @@ dnl Linux has both elf and a.out, in this case we found elf
 	     have_dl=no)
 	  if test ${have_dl} = yes
 	  then
-	    LIBS="$LIBS -ldl"	  
+	    LIBS="$LIBS -ldl"
 	  fi
 	fi
 	SO="dylib"
         SOPATH="DYLD_LIBRARY_PATH"
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
-        then 
+        then
 	       SHLIB_LD="$CC  -dynamiclib"
            SHLIB_CXX_LD="$CXX  -dynamiclib"
            EXTRA_LIBS_FOR_DLLS="-L\$(abs_top_builddir) $LIBS $EXTRA_LIBS_FOR_DLLS -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
@@ -1013,7 +1023,7 @@ dnl Linux has both elf and a.out, in this case we found elf
       *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
-	  #an a.out system 	
+	  #an a.out system
 	  SHLIB_CFLAGS="$CFLAGS"
 	  SHLIB_CXXFLAGS="$CXXFLAGS"
 	  SO="o"
@@ -1053,7 +1063,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         DYNYAPLIB=libYap."$SO"
 	SONAMEFLAG="-Wl,--soname=$DYNYAPLIB"
         if test "$dynamic_loading" = "yes"
-        then 
+        then
            YAPLIB_LD="\$(CC)"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:$LD_LIBRARY_PATH"
@@ -1124,7 +1134,7 @@ dnl use the current files, even if older
 PRE_INSTALL_ENV="$PRE_INSTALL_ENV YAPLIBDIR=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:\$(abs_top_builddir)/packages/clib "
 
 if test "$dynamic_loading" = "yes"
-then 
+then
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
   YAPLIB="$DYNYAPLIB"
 else
@@ -1147,29 +1157,29 @@ if test "$eam" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DBEAM"
 fi
-  
+
 if test "$wamprofile" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DANALYST=1"
 fi
-  
+
 if test "$depthlimit" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1"
 fi
-  
+
 if test "$use_april" = "yes"
-  then	
+  then
    YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1 -DAPRIL"
    LDFLAGS="$LDFLAGS -L."
    LIBS="$LIBS -lApril"
 fi
-  
+
 if test "$lowleveltracer" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DLOW_LEVEL_TRACER=1"
 fi
-  
+
 if test "$threads" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTHREADS=1"
@@ -1256,7 +1266,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_rl_catch=yes,yap_cv_rl_catch=no ) ] )
 AC_MSG_RESULT($yap_cv_rl_catch)
-if test "$yap_cv_rl_catch" = yes 
+if test "$yap_cv_rl_catch" = yes
 then
   AC_DEFINE(HAVE_RL_CATCH_SIGNAL, 1, [Defined if you can turn off readline's signal handling.])
 fi
@@ -1306,7 +1316,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_gcc=yes,yap_cv_gcc=no,yap_cv_gcc=yes)])
 AC_MSG_RESULT($yap_cv_gcc)
-if test "$yap_cv_gcc" = yes 
+if test "$yap_cv_gcc" = yes
 then
 M4GENHDRS=m4/gcc_genhdrs.m4
 AC_DEFINE(HAVE_GCC,1,[Old m4 auto-heder generation, not really useful now])
@@ -1334,6 +1344,19 @@ if test "x$ARCH" = "x"; then
 fi
 changequote([,])dnl
 AC_SUBST(ARCH)
+
+case "$host" in
+		*android*)
+		   STARTUP_ANDROID=""
+			 STARTUP_DEFAULT="x"
+			;;
+			**)
+       STARTUP_ANDROID="x"
+       STARTUP_DEFAULT=""
+			;;
+esac
+AC_SUBST(STARTUP_ANDROID)
+AC_SUBST(STARTUP_DEFAULT)
 
 CMDEXT=sh
 
@@ -1417,7 +1440,7 @@ if test "$yap_cv_threaded_code" = yes && test "$yap_cv_gcc" = yes
 then
 	AC_DEFINE(USE_THREADED_CODE,1,[threaded emulator])
 	M4GENABSMI=gen_gcc.m4
-else	
+else
 	M4GENABSMI=gen_ansi.m4
 fi
 
@@ -1437,7 +1460,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_ffieee=yes,yap_cv_ffieee=no,yap_cv_ffieee=yes)])
 AC_MSG_RESULT($yap_cv_ffieee)
-if test "$yap_cv_ffieee" = yes 
+if test "$yap_cv_ffieee" = yes
 then
 AC_DEFINE(FFIEEE,1,[IEEE floating-point, basically everyone except old VAXEN])
 fi
@@ -1454,7 +1477,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_sigsetjmp=yes,yap_cv_sigsetjmp=no)])
 AC_MSG_RESULT($yap_cv_sigsetjmp)
-if test "$yap_cv_sigsetjmp" = yes 
+if test "$yap_cv_sigsetjmp" = yes
 then
 AC_DEFINE(HAVE_SIGSETJMP,1,[support for sigsetjmp])
 fi
@@ -1470,7 +1493,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_sigsegv=yes,yap_cv_sigsegv=no)])
 AC_MSG_RESULT($yap_cv_sigsegv)
-if test "$yap_cv_sigsegv" = yes 
+if test "$yap_cv_sigsegv" = yes
 then
 AC_DEFINE(HAVE_SIGSEGV,1,[UNIX signal SEGV])
 fi
@@ -1486,7 +1509,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_sigprof=yes,yap_cv_sigprof=no)])
 AC_MSG_RESULT($yap_cv_sigprof)
-if test "$yap_cv_sigsegv" = yes 
+if test "$yap_cv_sigsegv" = yes
 then
 AC_DEFINE(HAVE_SIGPROF,1, [UNIX Signal SIGPROF])
 fi
@@ -1502,7 +1525,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_siginfo=yes,yap_cv_siginfo=no)])
 AC_MSG_RESULT($yap_cv_siginfo)
-if test "$yap_cv_siginfo" = yes 
+if test "$yap_cv_siginfo" = yes
 then
 AC_DEFINE(HAVE_SIGINFO,1, [Unix SIGINFO])
 fi
@@ -1518,7 +1541,7 @@ AC_TRY_COMPILE(
 	,
 	yap_cv_sigfpe=yes,yap_cv_sigfpe=no)])
 AC_MSG_RESULT($yap_cv_sigfpe)
-if test "$yap_cv_sigfpe" = yes 
+if test "$yap_cv_sigfpe" = yes
 then
 AC_DEFINE(HAVE_SIGFPE,1, [Unix SIGFPE])
 fi
@@ -1558,7 +1581,7 @@ AC_CHECK_MEMBER(struct tm.tm_gmtoff,
 dnl this is copied from the Tcl code
 dnl this code checks whether the system defines an union wait
 AC_MSG_CHECKING([union wait])
-AC_TRY_LINK([#include <sys/types.h> 
+AC_TRY_LINK([#include <sys/types.h>
 #include <sys/wait.h>], [
 union wait x;
 wait(&x);		/* make sure we can compile wait */
@@ -1627,7 +1650,7 @@ then
   AC_CHECK_FUNCS(alarm mmap popen shmat sleep system ttyname waitpid)
 fi
 
-if test "$target_os" != "mingw32" 
+if test "$target_os" != "mingw32"
 then
   AC_CHECK_FUNCS(fetestexcept snprintf)
 fi
@@ -1644,12 +1667,12 @@ AC_TRY_LINK(
 	,
 	yap_cv_mpz_xor=yes,yap_cv_mpz_xor=no)])
 AC_MSG_RESULT($yap_cv_mpz_xor)
-if test "$yap_cv_mpz_xor" = yes 
+if test "$yap_cv_mpz_xor" = yes
 then
   AC_DEFINE(HAVE_MPZ_XOR,1,[Older versions of MPZ didn't have XOR])
 fi
 
-if test "$use_malloc" = "yes" -a "$maxmemory" = "yes" 
+if test "$use_malloc" = "yes" -a "$maxmemory" = "yes"
 then
   maxmemory="no"
 fi
@@ -1824,7 +1847,7 @@ AC_TRY_COMPILE(
    AC_MSG_RESULT(yes),
    AC_MSG_RESULT(no))
 
-if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no" 
+if test "$yap_cv_minisat" = no -a "$INSTALL_DLLS" = "no"
 then
   PKG_MINISAT=""
 else
@@ -1925,7 +1948,7 @@ dnl
 
 if test "$yap_cv_java" = no
 then
-	PKG_JPL=""   
+	PKG_JPL=""
 elif test -e "$srcdir"/packages/jpl/Makefile.in
 then
 	PKG_JPL="packages/jpl"

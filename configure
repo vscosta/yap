@@ -752,6 +752,8 @@ SHLIB_CFLAGS
 MERGE_DLL_OBJS
 INSTALL_DLLS
 EXTRAYAPLIBS
+STARTUP_DEFAULT
+STARTUP_ANDROID
 ARCH
 M4GENHDRS
 M4
@@ -839,6 +841,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_sysroot
 enable_abi
 enable_tabling
 enable_or_parallelism
@@ -1550,6 +1553,7 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+ --with-sysroot=DIR           set sysroot in compiler
  --with-gmp=DIR           use GNU Multiple Precision in DIR
  --with-R=DIR              interface to R language
   --with-judy=DIR UDI needs judy library
@@ -1824,6 +1828,133 @@ fi
 
 } # ac_fn_c_try_link
 
+# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
+# -------------------------------------------
+# Tests whether TYPE exists after having included INCLUDES, setting cache
+# variable VAR accordingly.
+ac_fn_c_check_type ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  eval "$3=no"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof ($2))
+	 return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof (($2)))
+	    return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+else
+  eval "$3=yes"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_c_check_type
+
+# ac_fn_c_try_run LINENO
+# ----------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
+# that executables *can* be run.
+ac_fn_c_try_run ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && { ac_try='./conftest$ac_exeext'
+  { { case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+       $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+       ac_retval=$ac_status
+fi
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_run
+
+# ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
+# -------------------------------------------------------
+# Tests whether HEADER exists and can be compiled using the include files in
+# INCLUDES, setting the cache variable VAR accordingly.
+ac_fn_c_check_header_compile ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+#include <$2>
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_c_check_header_compile
+
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
 # Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -1914,79 +2045,6 @@ fi
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_header_mongrel
-
-# ac_fn_c_try_run LINENO
-# ----------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
-# that executables *can* be run.
-ac_fn_c_try_run ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && { ac_try='./conftest$ac_exeext'
-  { { case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_try") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: program exited with status $ac_status" >&5
-       $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-       ac_retval=$ac_status
-fi
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_run
-
-# ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
-# -------------------------------------------------------
-# Tests whether HEADER exists and can be compiled using the include files in
-# INCLUDES, setting the cache variable VAR accordingly.
-ac_fn_c_check_header_compile ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if eval \${$3+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-#include <$2>
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  eval "$3=yes"
-else
-  eval "$3=no"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} # ac_fn_c_check_header_compile
 
 # ac_fn_c_check_func LINENO FUNC VAR
 # ----------------------------------
@@ -2294,60 +2352,6 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_member
-
-# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
-# -------------------------------------------
-# Tests whether TYPE exists after having included INCLUDES, setting cache
-# variable VAR accordingly.
-ac_fn_c_check_type ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if eval \${$3+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  eval "$3=no"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof ($2))
-	 return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof (($2)))
-	    return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-else
-  eval "$3=yes"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} # ac_fn_c_check_type
 cat >config.log <<_ACEOF
 This file contains any messages produced by compilers while
 running configure, to aid debugging if configure makes a mistake.
@@ -2702,6 +2706,19 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 DOC_VERSION=4.2.9
+
+
+# Check whether --with-sysroot was given.
+if test "${with_sysroot+set}" = set; then :
+  withval=$with_sysroot;    SYSROOT="$withval"
+		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
+		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT"
+else
+  yap_cv_gmp=yes
+fi
+
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -6445,104 +6462,6 @@ See \`config.log' for more details" "$LINENO" 5; }
 
 fi
 
-fi
-
-if test "$yap_cv_gmp" != "no"
-then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lgmp" >&5
-$as_echo_n "checking for main in -lgmp... " >&6; }
-if ${ac_cv_lib_gmp_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lgmp  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_gmp_main=yes
-else
-  ac_cv_lib_gmp_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_gmp_main" >&5
-$as_echo "$ac_cv_lib_gmp_main" >&6; }
-if test "x$ac_cv_lib_gmp_main" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBGMP 1
-_ACEOF
-
-  LIBS="-lgmp $LIBS"
-
-fi
-
-fi
-
-if test "$yap_cv_judy" != "no"; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Judy1Set in -lJudy" >&5
-$as_echo_n "checking for Judy1Set in -lJudy... " >&6; }
-if ${ac_cv_lib_Judy_Judy1Set+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lJudy  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char Judy1Set ();
-int
-main ()
-{
-return Judy1Set ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_Judy_Judy1Set=yes
-else
-  ac_cv_lib_Judy_Judy1Set=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Judy_Judy1Set" >&5
-$as_echo "$ac_cv_lib_Judy_Judy1Set" >&6; }
-if test "x$ac_cv_lib_Judy_Judy1Set" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBJUDY 1
-_ACEOF
-
-  LIBS="-lJudy $LIBS"
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: libJudy not found, UDI will only work with one Index at a time" >&5
-$as_echo "libJudy not found, UDI will only work with one Index at a time" >&6; }
-fi
-
-fi
-
-if test "$threads" = yes
-then
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
 $as_echo_n "checking for grep that handles long lines and -e... " >&6; }
@@ -6803,7 +6722,115 @@ fi
 done
 
 
-for ac_header in pthread.h
+ac_fn_c_check_type "$LINENO" "rl_hook_func_t" "ac_cv_type_rl_hook_func_t" "$ac_includes_default"
+if test "x$ac_cv_type_rl_hook_func_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_RL_HOOK_FUNC_T 1
+_ACEOF
+
+
+fi
+
+fi
+
+if test "$yap_cv_gmp" != "no"
+then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lgmp" >&5
+$as_echo_n "checking for main in -lgmp... " >&6; }
+if ${ac_cv_lib_gmp_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgmp  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_gmp_main=yes
+else
+  ac_cv_lib_gmp_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_gmp_main" >&5
+$as_echo "$ac_cv_lib_gmp_main" >&6; }
+if test "x$ac_cv_lib_gmp_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBGMP 1
+_ACEOF
+
+  LIBS="-lgmp $LIBS"
+
+fi
+
+fi
+
+if test "$yap_cv_judy" != "no"; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Judy1Set in -lJudy" >&5
+$as_echo_n "checking for Judy1Set in -lJudy... " >&6; }
+if ${ac_cv_lib_Judy_Judy1Set+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lJudy  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char Judy1Set ();
+int
+main ()
+{
+return Judy1Set ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_Judy_Judy1Set=yes
+else
+  ac_cv_lib_Judy_Judy1Set=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Judy_Judy1Set" >&5
+$as_echo "$ac_cv_lib_Judy_Judy1Set" >&6; }
+if test "x$ac_cv_lib_Judy_Judy1Set" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBJUDY 1
+_ACEOF
+
+  LIBS="-lJudy $LIBS"
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: libJudy not found, UDI will only work with one Index at a time" >&5
+$as_echo "libJudy not found, UDI will only work with one Index at a time" >&6; }
+fi
+
+fi
+
+if test "$threads" = yes
+then
+  for ac_header in pthread.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_h" = xyes; then :
@@ -8610,6 +8637,19 @@ if test "x$ARCH" = "x"; then
       ;;
   esac
 fi
+
+
+case "$host" in
+		*android*)
+		   STARTUP_ANDROID=""
+			 STARTUP_DEFAULT="x"
+			;;
+			**)
+       STARTUP_ANDROID="x"
+       STARTUP_DEFAULT=""
+			;;
+esac
+
 
 
 CMDEXT=sh
@@ -12432,7 +12472,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12435 "configure" */
+/* #line 12475 "configure" */
 public class Test {
 }
 EOF
@@ -12608,7 +12648,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12611: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12651: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12739,7 +12779,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12742 "configure" */
+/* #line 12782 "configure" */
 public class Test {
 }
 EOF
@@ -12774,7 +12814,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12777 "configure" */
+/* [#]line 12817 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -15427,14 +15467,13 @@ if test "$PKG_SWIG" != ""; then
 mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
-mkdir -p packages/swig/src
-mkdir -p packages/swig/jni
+mkdir -p packages/swig/fli
 
 
 
 
 
-ac_config_files="$ac_config_files packages/swig/Makefile packages/swig/jni/Android.mk"
+ac_config_files="$ac_config_files packages/swig/Makefile packages/swig/Android.mk"
 
 fi
 
@@ -16773,7 +16812,7 @@ do
     "library/matlab/Makefile") CONFIG_FILES="$CONFIG_FILES library/matlab/Makefile" ;;
     "packages/python/Makefile") CONFIG_FILES="$CONFIG_FILES packages/python/Makefile" ;;
     "packages/swig/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swig/Makefile" ;;
-    "packages/swig/jni/Android.mk") CONFIG_FILES="$CONFIG_FILES packages/swig/jni/Android.mk" ;;
+    "packages/swig/Android.mk") CONFIG_FILES="$CONFIG_FILES packages/swig/Android.mk" ;;
     "packages/cuda/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cuda/Makefile" ;;
     "packages/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES packages/gecode/Makefile" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
