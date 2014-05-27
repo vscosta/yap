@@ -7,6 +7,7 @@ JAR=@JAR@
 include ../Makefile.defs
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 YAP_EXTRAS=@YAP_EXTRAS@
+srcdir=@srcdir@
 CPPFLAGS=@CPPFLAGS@  -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
 CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
@@ -34,16 +35,29 @@ java: jni/libyap.@SO@ java/yap.java
 jni/libyap.@SO@: jni/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
-jni/yap_wrap.c: $(srcdir)/yap.i
+jni/yap_wrap.cpp: $(srcdir)/yap.i
 	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
 
-jni/yap_wrap.o:  jni/yap_wrap.c
+jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
+
+android: android/jni/yap_wrap.cpp
+
+android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
+	android create project --target 1 --name SwigSimple --path ./android --activity SwigSimple --package org.swig.simple
+	( cd android ; mkdir -p jni;\
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package org.swig.simple -outdir src/org/swig/simple -o jni/yap_wrap.cpp  $< ;\
+	cp $(srcdir)/android/SwigSimple.java src/org/swig/simple/ ;\
+	cp $(srcdir)/android/main.xml res/layout ;\
+	cp ../Android.mk jni ;\
+	ndk-build; \
+	ant debug \
+	)
 
 R:
 
 
-yap.i: $(srcdir)/../../include/YapInterface.h
+yap.i: $(srcdir)/../../../../include/YapInterface.h
 
 install: 
 
