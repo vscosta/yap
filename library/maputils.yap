@@ -2,6 +2,15 @@
 % map utilities
 %%%%%%%%%%%%%%%%%%%%
 
+/**
+  * @file maputils.yap
+  *
+  * @addtogroup maplist
+  *
+  * Auxiliary routines
+  *
+  *@{
+*/
 :- module(maputils,
 	  [compile_aux/2,
 	   goal_expansion_allowed/0,
@@ -71,9 +80,9 @@ harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-%%	contains_illegal_dcgnt(+Term) is semidet.
+%%	contains_illegal_dcgnt(+ Term) is semidet.
 %
-%	True if Term contains a non-terminal   we cannot deal with using
+%	`True` if _Term_ contains a non-terminal   we cannot deal with using
 %	goal-expansion. The test is too general approximation, but safe.
 
 contains_illegal_dcgnt(NT) :-
@@ -83,7 +92,14 @@ contains_illegal_dcgnt(NT) :-
 %	write(contains_illegal_nt(NT)),		% JW: we do not want to write
 %	nl.
 
+%%	goal_expansion_allowed is semidet.
+%
+%	`True` if we can use
+%	goal-expansion.
 goal_expansion_allowed :-
 	once( prolog_load_context(_, _) ), % make sure we are compiling.
 	\+ current_prolog_flag(xref, true).
 
+/**
+  @}
+*/
