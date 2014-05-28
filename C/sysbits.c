@@ -1137,7 +1137,7 @@ static Int
 p_set_random_state ( USES_REGS1 )
 {
   register Term t0 = Deref (ARG1);
-  char *old, * new = (char *) malloc(256);
+  char *old, * new;
 
   if (IsVarTerm (t0)) {
     return FALSE;
@@ -1148,6 +1148,23 @@ p_set_random_state ( USES_REGS1 )
     return FALSE;
   old = setstate( new );
   return Yap_unify(ARG2, MkIntegerTerm((Int)old));
+}
+
+static Int
+p_release_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old;
+
+  if (IsVarTerm (t0)) {
+    return FALSE;
+  }
+  if (IsIntegerTerm (t0))
+    old = (char *) IntegerOfTerm (t0);
+  else
+    return FALSE;
+  free( old );
+  return TRUE;
 }
 #endif
 
@@ -3054,6 +3071,7 @@ Yap_InitSysPreds(void)
 #if HAVE_RANDOM
   Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
   Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
+  Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
