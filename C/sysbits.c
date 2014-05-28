@@ -1146,7 +1146,7 @@ p_set_random_state ( USES_REGS1 )
     new = (char *) IntegerOfTerm (t0);
   else
     return FALSE;
-  old = initstate(random(), new, 256);
+  old = setstate( new );
   return Yap_unify(ARG2, MkIntegerTerm((Int)old));
 }
 #endif
