@@ -3053,7 +3053,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
 #if HAVE_RANDOM
   Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
-  Yap_InitCPred ("set_random_state", 1, p_set_random_state, SafePredFlag);
+  Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
 #endif
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
