@@ -23,8 +23,8 @@
 #include <limits.h>
 #endif
 
-#define LOCK()   PL_LOCK(L_PLFLAG)
-#define UNLOCK() PL_UNLOCK(L_PLFLAG)
+//#define LOCK()   PL_LOCK(L_PLFLAG)
+//#define UNLOCK() PL_UNLOCK(L_PLFLAG)
 
 int fileerrors;
 
@@ -1185,12 +1185,13 @@ static int thread_highest_id = 0;
 X_API int
 PL_w32thread_raise(DWORD id, int sig)
 { int i;
+  CACHE_REGS
 
   if ( sig < 0 || sig > MAXSIGNAL )
     return FALSE;			/* illegal signal */
 
-  LOCK();
-  LOCK(LOCAL_SignalLock);
+  PL_LOCK(L_PLFLAG);	
+  // LOCK(LOCAL_SignalLock);
   for(i = 0; i <= thread_highest_id; i++)
     { PL_thread_info_t *info = GD->thread.threads[i];
       
@@ -1200,14 +1201,14 @@ PL_w32thread_raise(DWORD id, int sig)
 	  Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
 	  if ( info->w32id )
 	    PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
-	  UNLOCK(LOCAL_SignalLock);
-	  UNLOCK();
+	  //UNLOCK(LOCAL_SignalLock);
+	  PL_UNLOCK(L_PLFLAG);
 	  DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
 	  return TRUE;
 	}
     }
-  UNLOCK(LOCAL_SignalLock);
-  UNLOCK();
+  // UNLOCK(LOCAL_SignalLock);
+  PL_UNLOCK(L_PLFLAG);
   
   return FALSE;				/* can't find thread */
 }
