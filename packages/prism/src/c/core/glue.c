@@ -1,5 +1,10 @@
 #include <stdlib.h>
 
+void bp4p_init(int *argc, char **argv[]);
+void bp4p_exit(int status);
+void bp4p_quit(int status);
+void bp4p_register_preds(void);
+
 /*--------------------------------------------------------------------*/
 
 #define REGISTER_CPRED(p,n) \
@@ -13,8 +18,6 @@ SYM_REC_PTR insert_cpred(const char *, int, int(*)(void));
 void exit(int);
 
 #ifdef __YAP_PROLOG__
-
-int YAP_UserCpredicate(const char *s, int (*f)(void), unsigned long int n);
 
 SYM_REC_PTR insert_cpred(const char *s, int n, int(*f)(void))
 {

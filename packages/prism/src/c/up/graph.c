@@ -12,6 +12,8 @@ NORET  myquit(int, const char *);
 /* univ.c (B-Prolog) */
 int    list_length(BPLONG, BPLONG);
 
+int pc_import_graph_stats_4(void);
+
 /*------------------------------------------------------------------------*/
 
 static int max_egraph_size        = INIT_MAX_EGRAPH_SIZE;

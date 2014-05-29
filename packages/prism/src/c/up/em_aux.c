@@ -19,11 +19,22 @@ int    failure_observed;
 /* mic.c (B-Prolog) */
 int  compare(TERM,TERM);
 void quit(const char *);
+void alloc_occ_switches(void);
+void sort_occ_switches(void);
+void release_occ_switches(void);
+void alloc_num_sw_vals(void);
+void release_num_sw_vals(void);
+void transfer_hyperparams_prolog(void);
+int pc_compute_viterbi_5(void);
+void release_num_sw_vals(void);
+void transfer_hyperparams_prolog(void);
+int pc_compute_n_viterbi_3(void);
 
 /*------------------------------------------------------------------------*/
 
 /* for sort_occ_switches() */
-static int compare_sw_ins(const void *a, const void *b)
+static int
+compare_sw_ins(const void *a, const void *b)
 {
     SW_INS_PTR sw_ins_a, sw_ins_b;
     TERM msw_a, msw_b;

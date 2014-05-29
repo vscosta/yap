@@ -11,6 +11,29 @@
 #include "up/em_aux.h"
 #include "up/util.h"
 
+int check_smooth(int *smooth);
+void initialize_params(void);
+int compute_inside_scaling_none(void);
+int compute_inside_scaling_none(void);
+int compute_daem_inside_scaling_none(void);
+int compute_daem_inside_scaling_log_exp(void);
+int examine_inside_scaling_none(void);
+int examine_inside_scaling_log_exp(void);
+int compute_expectation_scaling_none(void);
+int compute_expectation_scaling_log_exp(void);
+double compute_daem_log_prior(void);
+double compute_likelihood_scaling_none(void);
+void release_num_sw_vals(void);
+void transfer_hyperparams_prolog(void);
+double compute_likelihood_scaling_log_exp(void);
+void save_params(void);
+void restore_params(void);
+double compute_log_prior(void);
+double compute_bic(double likelihood);
+double compute_cs(double likelihood);
+int update_params(void);
+
+int update_params_smooth(void);
 /*------------------------------------------------------------------------*/
 
 /* We check if all smoothing constants are positive (MAP),

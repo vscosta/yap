@@ -21,6 +21,10 @@ struct ViterbiRankEntry {
 NORET quit(const char *);
 NORET myquit(int, const char *);
 
+int pc_compute_n_viterbi_3(void);
+int pc_compute_n_viterbi_rerank_4(void);
+void transfer_hyperparams_prolog(void);
+
 /*------------------------------------------------------------------------*/
 
 static EG_NODE_PTR *  viterbi_egraphs = NULL;
@@ -38,6 +42,10 @@ static int            max_n_viterbi_egraph_size;
 static int            n_viterbi_egraph_size;
 
 static V_RANK_PTR     viterbi_rank = NULL;
+
+void compute_max(void);
+void compute_n_max(int n);
+int pc_compute_viterbi_5(void);
 
 /* Viterbi works on only one explanation graph */
 void compute_max(void)

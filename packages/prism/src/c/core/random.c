@@ -46,6 +46,17 @@ Here is the original copyright notice.
 
 /***********[  REDUCED VERSION OF MT19937AR.C STARTS HERE  ]***********/
 
+void init_by_array(unsigned long init_key[], int key_length);
+int pc_random_auto_seed_1(void);
+int pc_random_init_by_seed_1(void);
+int pc_random_init_by_list_1(void);
+int pc_random_float_1(void);
+int pc_random_gaussian_1(void);
+int pc_random_int_2(void);
+int pc_random_int_3(void);
+int pc_random_get_state_1(void);
+int pc_random_set_state_1(void);
+
 /* Period parameters */
 #define N 624
 #define M 397
