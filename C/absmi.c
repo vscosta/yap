@@ -770,7 +770,7 @@ safe_interrupt_handler( PredEntry *pe USES_REGS )
 	  d1 = Deref(d1);
 	  if (VarOfTerm(d1) < H0 || VarOfTerm(d1) > HR) {
 	    Term v = MkVarTerm();
-	    Bind( VarOfTerm(d1),v );
+	    YapBind( VarOfTerm(d1),v );
 	  } else {
 	    goto loop;
 	  }
