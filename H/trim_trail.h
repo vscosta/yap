@@ -30,7 +30,7 @@
 	  } else if (IN_BETWEEN(H0,pt,HR) && IsAttVar(pt)) {
 	    CELL val = Deref(*pt);
 	    if (IsVarTerm(val)) {
-	      Bind(pt, MkAtomTerm(AtomCut));
+	      YapBind(pt, MkAtomTerm(AtomCut));
 	      Yap_WakeUp(pt);
 	    }
 	  } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
@@ -131,7 +131,7 @@
 	if (IN_BETWEEN(H0,pt,HR) && IsAttVar(pt)) {
 	  CELL val = Deref(*pt);
 	  if (IsVarTerm(val)) {
-	    Bind(VarOfTerm(val), MkAtomTerm(AtomCut));
+	    YapBind(VarOfTerm(val), MkAtomTerm(AtomCut));
 	    Yap_WakeUp(pt);
 	  }
 	} else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {

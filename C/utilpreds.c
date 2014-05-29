@@ -4150,7 +4150,7 @@ p_subsumes( USES_REGS1 ) /* subsumes terms t1 and t2	 */
   if (t1 == t2)
     return (TRUE);
   if (IsVarTerm(t1)) {
-    Bind(VarOfTerm(t1), t2);
+    YapBind(VarOfTerm(t1), t2);
     if (Yap_rational_tree_loop(VarOfTerm(t1)-1,VarOfTerm(t1),(CELL **)AuxSp,(CELL **)AuxBase))
       return FALSE;
     return TRUE;
@@ -4238,7 +4238,7 @@ static int term_subsumer_complex(register CELL *pt0, register CELL *pt0_end, reg
       HR[1] = d1;
       HR[2] = (CELL)npt;
       HR[3] = d0;
-      Bind(VarOfTerm(d0), (CELL)HR);
+      YapBind(VarOfTerm(d0), (CELL)HR);
       HR+=4;
       RESET_VARIABLE(npt);
       npt++;

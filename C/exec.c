@@ -125,7 +125,7 @@ p_save_cp( USES_REGS1 )
 #endif
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer(B PASS_REGS);
-  Bind((CELL *)t,td);
+  YapBind((CELL *)t,td);
   return(TRUE);
 }
 
@@ -139,7 +139,7 @@ p_save_env_b( USES_REGS1 )
 #endif
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer((choiceptr)YENV[E_CB] PASS_REGS);
-  Bind((CELL *)t,td);
+  YapBind((CELL *)t,td);
   return(TRUE);
 }
 

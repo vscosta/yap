@@ -290,7 +290,7 @@ GetNBTerm(live_term *ar, Int indx USES_REGS)
 	return TermNil;
       }
     }
-    Bind(&(ar[indx].tlive), livet);
+    YapBind(&(ar[indx].tlive), livet);
     return livet;
   }
 }
@@ -2002,7 +2002,7 @@ p_assign_dynamic( USES_REGS1 )
 	Term tn = Yap_NewTimedVar(t3);
 	CELL *sp = RepAppl(tn);
 	*sp = (CELL)FunctorAtFoundOne;
-	Bind(&(ptr->ValueOfVE.lterms[indx].tlive),tn);
+	YapBind(&(ptr->ValueOfVE.lterms[indx].tlive),tn);
       } else {
 	Yap_UpdateTimedVar(t, t3);
       }

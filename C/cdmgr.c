@@ -4311,7 +4311,7 @@ p_is_profiled( USES_REGS1 )
 
     if (PROFILING) ta = MkAtomTerm(AtomOn);
     else ta = MkAtomTerm(AtomOff);
-    Bind((CELL *)t,ta);
+    YapBind((CELL *)t,ta);
     return(TRUE);
   } else if (!IsAtomTerm(t)) return(FALSE);
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -4409,7 +4409,7 @@ p_is_call_counted( USES_REGS1 )
 
     if (CALL_COUNTING) ta = MkAtomTerm(AtomOn);
     else ta = MkAtomTerm(AtomOff);
-    Bind((CELL *)t,ta);
+    YapBind((CELL *)t,ta);
     return(TRUE);
   } else if (!IsAtomTerm(t)) return(FALSE);
   s = RepAtom(AtomOfTerm(t))->StrOfAE;

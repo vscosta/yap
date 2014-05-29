@@ -3774,7 +3774,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt0, gvalx_nonvar_unk, gvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, xx);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       GONext();
 
       ENDP(pt0);
@@ -3791,7 +3791,7 @@ Yap_absmi(int inp)
     gvalx_var_nonvar:
       /* first unbound, second bound */
       PREG = NEXTOP(PREG, xx);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
 
       BEGP(pt1);
@@ -3836,7 +3836,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt1, gvaly_nonvar_unk, gvaly_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, yx);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -3850,7 +3850,7 @@ Yap_absmi(int inp)
     gvaly_var_nonvar:
       /* first unbound, second bound */
       PREG = NEXTOP(PREG, yx);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
 
       BEGP(pt1);
@@ -3887,7 +3887,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_unk, gatom_nonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, xc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -3918,7 +3918,7 @@ Yap_absmi(int inp)
       /* argument is a variable */
       pt0 = (CELL *)d0;
       PREG = NEXTOP(PREG, x);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -3944,7 +3944,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_2unk, gatom_2nonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cc.c1);
+      YapBind(pt0, PREG->u.cc.c1);
       ENDP(pt0);
     gatom_2b:
       /* fetch arguments */
@@ -3966,7 +3966,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_2bunk, gatom_2bnonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, cc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -3992,7 +3992,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_3unk, gatom_3nonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccc.c1);
+      YapBind(pt0, PREG->u.ccc.c1);
       ENDP(pt0);
     gatom_3b:
       /* fetch arguments */
@@ -4011,7 +4011,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_3bunk, gatom_3bnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccc.c2);
+      YapBind(pt0, PREG->u.ccc.c2);
       ENDP(pt0);
     gatom_3c:
       /* fetch arguments */
@@ -4033,7 +4033,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_3cunk, gatom_3cnonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, ccc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -4059,7 +4059,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_4unk, gatom_4nonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccc.c1);
+      YapBind(pt0, PREG->u.cccc.c1);
       ENDP(pt0);
     gatom_4b:
       /* fetch arguments */
@@ -4078,7 +4078,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_4bunk, gatom_4bnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccc.c2);
+      YapBind(pt0, PREG->u.cccc.c2);
       ENDP(pt0);
     gatom_4c:
       /* fetch arguments */
@@ -4097,7 +4097,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_4cunk, gatom_4cnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccc.c3);
+      YapBind(pt0, PREG->u.cccc.c3);
       ENDP(pt0);
    gatom_4d:
       /* fetch arguments */
@@ -4119,7 +4119,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_4dunk, gatom_4dnonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, cccc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -4145,7 +4145,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_5unk, gatom_5nonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccccc.c1);
+      YapBind(pt0, PREG->u.ccccc.c1);
       ENDP(pt0);
     gatom_5b:
       /* fetch arguments */
@@ -4164,7 +4164,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_5bunk, gatom_5bnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccccc.c2);
+      YapBind(pt0, PREG->u.ccccc.c2);
       ENDP(pt0);
     gatom_5c:
       /* fetch arguments */
@@ -4183,7 +4183,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_5cunk, gatom_5cnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccccc.c3);
+      YapBind(pt0, PREG->u.ccccc.c3);
       ENDP(pt0);
    gatom_5d:
       /* fetch arguments */
@@ -4202,7 +4202,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_5dunk, gatom_5dnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.ccccc.c4);
+      YapBind(pt0, PREG->u.ccccc.c4);
       ENDP(pt0);
    gatom_5e:
       /* fetch arguments */
@@ -4224,7 +4224,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_5eunk, gatom_5enonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, ccccc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -4250,7 +4250,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6unk, gatom_6nonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccccc.c1);
+      YapBind(pt0, PREG->u.cccccc.c1);
       ENDP(pt0);
     gatom_6b:
       /* fetch arguments */
@@ -4269,7 +4269,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6bunk, gatom_6bnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccccc.c2);
+      YapBind(pt0, PREG->u.cccccc.c2);
       ENDP(pt0);
     gatom_6c:
       /* fetch arguments */
@@ -4288,7 +4288,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6cunk, gatom_6cnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccccc.c3);
+      YapBind(pt0, PREG->u.cccccc.c3);
       ENDP(pt0);
    gatom_6d:
       /* fetch arguments */
@@ -4307,7 +4307,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6dunk, gatom_6dnonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccccc.c4);
+      YapBind(pt0, PREG->u.cccccc.c4);
       ENDP(pt0);
    gatom_6e:
       /* fetch arguments */
@@ -4326,7 +4326,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6eunk, gatom_6enonvar);
       /* argument is a variable */
-      Bind(pt0, PREG->u.cccccc.c5);
+      YapBind(pt0, PREG->u.cccccc.c5);
       ENDP(pt0);
     gatom_6f:
       /* fetch arguments */
@@ -4348,7 +4348,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_6funk, gatom_6fnonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, cccccc);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDP(pt0);
       ENDD(d1);
@@ -4385,7 +4385,7 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, x);
       BEGD(d0);
       d0 = AbsPair(S_SREG);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       S_SREG = HR;
       /* don't put an ENDD just after a label */
       HR = S_SREG + 2;
@@ -4432,7 +4432,7 @@ Yap_absmi(int inp)
       START_PREFETCH_W(xfa);
       BEGD(d1);
       d1 = AbsAppl(HR);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       /* now, set pt0 to point to the heap where we are going to
        * build our term */
       pt0 = HR;
@@ -4491,7 +4491,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       d1 = AbsAppl(PREG->u.xd.d);
       PREG = NEXTOP(PREG, xd);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDD(d1);
       END_PREFETCH();
@@ -4537,7 +4537,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       d1 = PREG->u.xu.ut;
       PREG = NEXTOP(PREG, xu);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDD(d1);
       END_PREFETCH();
@@ -4577,7 +4577,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       d1 = AbsAppl(PREG->u.xi.i);
       PREG = NEXTOP(PREG, xi);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDD(d1);
       END_PREFETCH();
@@ -4620,7 +4620,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       d1 = PREG->u.xN.b;
       PREG = NEXTOP(PREG, xN);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDD(d1);
       END_PREFETCH();
@@ -4654,7 +4654,7 @@ Yap_absmi(int inp)
       BEGD(d1);
       d1 = PREG->u.xD.D;
       PREG = NEXTOP(PREG, xD);
-      Bind(pt0, d1);
+      YapBind(pt0, d1);
       GONext();
       ENDD(d1);
       END_PREFETCH();
@@ -4701,7 +4701,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt1, glist_valx_nonvar_unk, glist_valx_nonvar_nonvar);
       /* head bound, argument unbound */
       PREG = NEXTOP(PREG, xx);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -4744,7 +4744,7 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, xx);
       HR = S_SREG + 2;
       WRITEBACK_S(S_SREG+1);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       ALWAYS_GONextW();
       ALWAYS_END_PREFETCH_W();
       ENDCACHE_S();
@@ -4788,7 +4788,7 @@ Yap_absmi(int inp)
       /* deref second argument */
       derefa_body(d1, pt1, glist_valy_nonvar_unk, glist_valy_nonvar_nonvar);
       /* first argument bound, second unbound */
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
 
 
@@ -4825,7 +4825,7 @@ Yap_absmi(int inp)
       BEGP(pt1);
       pt1 = HR;
       d0 = AbsPair(pt1);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       BEGD(d0);
       /* include XREG on it */
       d0 = YREG[PREG->u.yx.y];
@@ -4874,7 +4874,7 @@ Yap_absmi(int inp)
       HR = pt1 + 2;
       BEGD(d0);
       d0 = AbsPair(pt1);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       PREG = NEXTOP(PREG, xx);
       ENDD(d0);
       ENDP(pt1);
@@ -4912,7 +4912,7 @@ Yap_absmi(int inp)
       RESET_VARIABLE(pt1+1);
       d0 = AbsPair(pt1);
       HR = pt1 + 2;
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       GONext();
       ENDP(pt1);
       ENDP(pt0);
@@ -4952,7 +4952,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt1, glist_void_valx_nonvar_unk, glist_void_valx_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, xx);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
       ENDD(d1);
@@ -4986,7 +4986,7 @@ Yap_absmi(int inp)
       BEGP(pt1);
       pt1 = HR;
       d0 = AbsPair(pt1);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       pt1 = HR;
       BEGD(d0);
       /* include XREG on it */
@@ -5036,7 +5036,7 @@ Yap_absmi(int inp)
       derefa_body(d1, pt1, glist_void_valy_nonvar_unk, glist_void_valy_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, yx);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
 
       ENDP(pt1);
@@ -5070,7 +5070,7 @@ Yap_absmi(int inp)
       CACHE_S();
       S_SREG = HR;
       d0 = AbsPair(S_SREG);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       S_SREG = HR;
       /* include XREG on it */
       BEGD(d1);
@@ -5330,7 +5330,7 @@ Yap_absmi(int inp)
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, ox);
       SREG++;
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5393,7 +5393,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt1, ulvalx_nonvar_unk, ulvalx_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, ox);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5457,7 +5457,7 @@ Yap_absmi(int inp)
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, oy);
       SREG++;
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5530,7 +5530,7 @@ Yap_absmi(int inp)
       derefa_body(d1, pt1, ulvaly_nonvar_unk, ulvaly_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, oy);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5604,7 +5604,7 @@ Yap_absmi(int inp)
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, ox);
       SREG++;
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5696,7 +5696,7 @@ Yap_absmi(int inp)
       deref_body(d1, pt0, ulvalx_loc_nonvar_unk, ulvalx_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, ox);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       GONext();
 
       /* first argument may be unbound */
@@ -5780,7 +5780,7 @@ Yap_absmi(int inp)
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, oy);
       SREG++;
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -5873,7 +5873,7 @@ Yap_absmi(int inp)
       derefa_body(d1, pt1, ulvaly_loc_nonvar_unk, ulvaly_loc_nonvar_nonvar);
       /* first argument bound, second unbound */
       PREG = NEXTOP(PREG, oy);
-      Bind(pt1, d0);
+      YapBind(pt1, d0);
       GONext();
       ENDP(pt1);
 
@@ -13353,7 +13353,7 @@ Yap_absmi(int inp)
 	BEGP(pt0);
 	deref_body(d1, pt0, func_nvar_unk, func_nvar_nvar);
 	/* A2 is a variable, go and bind it */
-	Bind(pt0, d0);
+	YapBind(pt0, d0);
 	/* I have to this here so that I don't have a jump to a closing bracket */
 	d0 = arity;
 	ENDP(pt0);
@@ -13374,7 +13374,7 @@ Yap_absmi(int inp)
 	deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
 	/* A3 is a variable, go and bind it */
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbmp),l);
-	Bind(pt0, d0);
+	YapBind(pt0, d0);
 	/* Done */
 	GONext();
 
@@ -13463,7 +13463,7 @@ Yap_absmi(int inp)
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
-      Bind(pt0, d0);
+      YapBind(pt0, d0);
       GONext();
 
 
