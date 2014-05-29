@@ -32,7 +32,7 @@
 #define YAPVERSION 60000
 #endif
 
-#include "yap_structs.h"
+#include "YapDefs.h"
 
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -140,10 +140,10 @@ extern X_API YAP_Term YAP_MkRationalTerm(void *);
 extern X_API YAP_Int YAP_IntOfTerm(YAP_Term);
 
 /*    void *  BigNumOfTerm(Term) */
-extern X_API void *YAP_BigNumOfTerm(YAP_Term, void *);
+extern X_API YAP_Bool YAP_BigNumOfTerm(YAP_Term t, void *b);
 
 /*    void *  RationalOfTerm(Term) */
-extern X_API void *YAP_RationalOfTerm(YAP_Term, void *);
+extern X_API YAP_Bool YAP_RationalOfTerm(YAP_Term, void *);
 
 /*    Term MkFloatTerm(YAP_Float)  */
 extern X_API YAP_Term YAP_MkFloatTerm(YAP_Float);
@@ -157,26 +157,20 @@ extern X_API YAP_Term YAP_MkAtomTerm(YAP_Atom);
 /*    YAP_Atom  AtomOfTerm(Term) */
 extern X_API YAP_Atom YAP_AtomOfTerm(YAP_Term);
 
-/*    YAP_Atom  LookupAtom(const char *) */
-extern X_API YAP_Atom YAP_LookupAtom(const char *);
+extern X_API YAP_Atom YAP_LookupAtom(const char *c);
 
-/*    YAP_Atom  LookupWideAtom(const wchar_t *) */
-extern X_API YAP_Atom YAP_LookupWideAtom(const wchar_t *);
+extern X_API YAP_Atom YAP_LookupWideAtom(const wchar_t *c);
 
-/*    YAP_Atom  FullLookupAtom(const char *) */
-extern X_API YAP_Atom YAP_FullLookupAtom(const char *);
+extern X_API YAP_Atom YAP_FullLookupAtom(const char *c);
 
 /*    int  AtomNameLength(Atom) */
 extern X_API size_t YAP_AtomNameLength(YAP_Atom);
 
-/*    const char* IsWideAtom(YAP_Atom) */
-extern X_API int *YAP_IsWideAtom(YAP_Atom);
+extern X_API YAP_Bool YAP_IsWideAtom(YAP_Atom a);
 
-/*    const char* AtomName(YAP_Atom) */
-extern X_API const char *YAP_AtomName(YAP_Atom);
+extern X_API const char *YAP_AtomName(YAP_Atom a);
 
-/*    const wchar_t* AtomWideName(YAP_Atom) */
-extern X_API const wchar_t *YAP_WideAtomName(YAP_Atom);
+extern X_API const wchar_t *YAP_WideAtomName(YAP_Atom a);
 
 /*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
 extern X_API YAP_Term YAP_MkPairTerm(YAP_Term,YAP_Term);
@@ -200,29 +194,21 @@ extern X_API YAP_Term YAP_TermNil(void);
 
 extern X_API int YAP_IsTermNil(YAP_Term);
 
-/*    YAP_Term     MkApplTerm(YAP_Functor f, unsigned int n, YAP_Term[] args) */
-extern X_API YAP_Term YAP_MkApplTerm(YAP_Functor,unsigned int,YAP_Term *);
+extern X_API YAP_Term YAP_MkApplTerm(YAP_Functor functor, YAP_UInt arity,YAP_Term args[]);
 
-/*    YAP_Term     MkNewApplTerm(YAP_Functor f, unsigned int n) */
-extern X_API YAP_Term YAP_MkNewApplTerm(YAP_Functor,unsigned int);
+extern X_API YAP_Term YAP_MkNewApplTerm( YAP_Functor f, YAP_UInt arity);
 
-/*    YAP_Functor  YAP_FunctorOfTerm(Term)  */
-extern X_API YAP_Functor YAP_FunctorOfTerm(YAP_Term);
+extern X_API YAP_Functor YAP_FunctorOfTerm(YAP_Term t);
 
-/*    YAP_Term     ArgOfTerm(unsigned int argno,YAP_Term t) */
-extern X_API YAP_Term YAP_ArgOfTerm(unsigned int,YAP_Term);
+extern X_API YAP_Term YAP_ArgOfTerm(YAP_UInt n, YAP_Term t);
 
-/*    YAP_Term    *ArgsOfTerm(YAP_Term t) */
-extern X_API YAP_Term *YAP_ArgsOfTerm(YAP_Term);
+extern X_API YAP_Term *YAP_ArgsOfTerm(YAP_Term t);
 
-/*    YAP_Functor  MkFunctor(YAP_Atom a,int arity) */
-extern X_API YAP_Functor YAP_MkFunctor(YAP_Atom,unsigned int);
+extern X_API YAP_Functor YAP_MkFunctor(YAP_Atom a, YAP_UInt n);
 
-/*    YAP_Atom     NameOfFunctor(Functor) */
-extern X_API YAP_Atom YAP_NameOfFunctor(YAP_Functor);
+extern X_API YAP_Atom YAP_NameOfFunctor(YAP_Functor g);
 
-/*    unsigned unsigned int     YAP_ArityOfFunctor(Functor) */
-extern X_API unsigned int YAP_ArityOfFunctor(YAP_Functor);
+extern X_API YAP_UInt YAP_ArityOfFunctor(YAP_Functor f);
 
 /*  void ExtraSpace(void) */
 extern X_API void *YAP_ExtraSpace(void);
@@ -232,28 +218,27 @@ extern X_API void *YAP_ExtraSpaceCut(void);
 #define YAP_PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 #define YAP_PRESERVED_DATA_CUT(ptr,type) (ptr = (type *)YAP_ExtraSpaceCut())
 
-/*   YAP_Bool      unify(YAP_Term a, YAP_Term b) */
-extern X_API YAP_Bool YAP_Unify(YAP_Term, YAP_Term);
+extern X_API YAP_Bool YAP_Unify(YAP_Term t1, YAP_Term t2);
 
 /*  void UserCPredicate(const char *name, int *fn(), int arity) */
-extern X_API void YAP_UserCPredicate(const char *, YAP_Bool (*)(void), unsigned int);
+extern X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 
 /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity) */
-extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_Bool (*)(void), YAP_Arity, YAP_Term);
+extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity, YAP_Term);
 
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void YAP_UserBackCPredicate(const char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int);
+extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
 
 /*   YAP_Int      YAP_ListLength(YAP_Term t) */
 extern X_API YAP_Int YAP_ListLength(YAP_Term);
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
-extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int);
+extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred, YAP_UserCPred, YAP_UserCPred, YAP_Arity, unsigned int);
 
 /*  void CallProlog(YAP_Term t) */
-extern X_API YAP_Bool YAP_CallProlog(YAP_Term t);
+extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
 
 /*  void cut_fail(void) */
 extern X_API void YAP_cut_up(void);
@@ -318,24 +303,13 @@ extern X_API YAP_Bool YAP_GoalHasException(YAP_Term *);
 /*  void YAP_ClearExceptions(void) */
 extern X_API void YAP_ClearExceptions(void);
 
-/*  int YAP_Reset(void) */
-extern X_API void YAP_Reset(void);
+extern X_API int YAP_Reset(void);
 
-/*  void YAP_Error(int, YAP_Term, const char *,...) */
-extern X_API void YAP_Error(int, YAP_Term, const char *, ...);
+extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 
-/*  YAP_Term YAP_Read(void *) */
-extern X_API YAP_Term YAP_Read(void *);
-
-/*  void YAP_Write(YAP_Term,void (*)(int),int) */
-extern X_API void YAP_Write(YAP_Term,void *,int);
-
-/*  void YAP_WriteBufffer(YAP_Term,char *,unsgined int,int) */
 extern X_API int YAP_WriteBuffer(YAP_Term,char *,size_t,int);
 
-/*  char* YAP_WriteDynamicBufffer(YAP_Term,char *,unsigned int,unsigned int
-*,int *,int) */
-extern X_API char* YAP_WriteDynamicBuffer(YAP_Term,char *,size_t *, int *, int);
+extern X_API char* YAP_WriteDynamicBuffer(YAP_Term t,char *buf,size_t sze, size_t *lengthp, int *encp, int flags);
 
 /*  void YAP_Term(YAP_Term) */
 extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
@@ -344,21 +318,32 @@ extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
 extern X_API char *YAP_CompileClause(YAP_Term);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API int YAP_Init(YAP_init_args *);
+extern X_API YAP_Int YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API int YAP_FastInit(const char *);
+extern X_API YAP_Int YAP_FastInit(char saved_state[]);
 
-/*  void * YAP_TermToStream(YAP_Term) */
-extern X_API void * YAP_TermToStream(YAP_Term);
+#ifndef _PL_STREAM_H
+// if we don't know what a stream is, just don't assume nothing about the pointer
+#define IOSTREAM void
+#endif /* FPL_STREAM_H */
 
-/*  void * YAP_InitConsult(int, const char *) */
-extern X_API void * YAP_InitConsult(int, const char *);
+extern X_API YAP_Term YAP_Read(IOSTREAM *s);
 
-/*  int YAP_EndConsult(void) */
-extern X_API int YAP_EndConsult(void *);
+extern X_API void YAP_Write(YAP_Term t,IOSTREAM *s,int);
 
-/*  void YAP_Exit(int) */
+extern X_API  IOSTREAM * YAP_TermToStream(YAP_Term t);
+
+extern X_API  IOSTREAM * YAP_InitConsult(int mode, const char *filename);
+
+extern X_API void YAP_EndConsult(IOSTREAM *s);
+
+#ifndef _PL_STREAM_H
+// if we don't know what a stream is, just don't assume nothing about the pointer
+#undef IOSTREAM
+#endif /* FPL_STREAM_H */
+
+
 extern X_API void YAP_Exit(int);
 
 /*  void YAP_PutValue(YAP_Atom, YAP_Term) */
@@ -376,50 +361,36 @@ extern X_API YAP_Int  YAP_ListToInts(YAP_Term, YAP_Int *, size_t);
 /*  int StringToBuffer(YAP_Term,char *,unsigned int) */
 extern X_API int YAP_StringToBuffer(YAP_Term,char *,unsigned int);
 
-/*  int BufferToString(const char *) */
-extern X_API YAP_Term YAP_BufferToString(const char *);
+extern X_API YAP_Term YAP_BufferToString(const char *s);
 
-/*  int BufferToString(const char *) */
-extern X_API YAP_Term YAP_NBufferToString(const char *, size_t len);
+extern X_API YAP_Term YAP_NBufferToString(const char *s, size_t len);
 
 /*  int BufferToString(const char *) */
 extern X_API YAP_Term YAP_WideBufferToString(const wchar_t *);
 
-/*  int BufferToString(const char *) */
-extern X_API YAP_Term YAP_NWideBufferToString(const wchar_t *, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToString(const wchar_t *s, size_t len);
 
-/*  int BufferToAtomList(const char *) */
-extern X_API YAP_Term YAP_BufferToAtomList(const char *);
+extern X_API YAP_Term YAP_BufferToAtomList(const char *s);
 
-/*  int BufferToAtomList(const char *) */
-extern X_API YAP_Term YAP_NBufferToAtomList(const char *, size_t len);
+extern X_API YAP_Term YAP_NBufferToAtomList(const char *s, size_t len);
 
-/*  int BufferToAtomList(const char *) */
-extern X_API YAP_Term YAP_WideBufferToAtomList(const wchar_t *);
+extern X_API YAP_Term YAP_WideBufferToAtomList(const wchar_t *s);
 
-/*  int BufferToAtomList(const char *) */
-extern X_API YAP_Term YAP_NWideBufferToAtomList(const wchar_t *, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToAtomList(const wchar_t *s, size_t len);
 
-/*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term YAP_NWideBufferToAtomDiffList(const wchar_t *, YAP_Term, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToAtomDiffList(const wchar_t *s, YAP_Term t0, size_t len);
 
-/*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term YAP_BufferToDiffList(const char *);
+extern X_API YAP_Term YAP_BufferToDiffList(const char *s, YAP_Term t0);
 
-/*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term YAP_NBufferToDiffList(const char *, size_t len);
+extern X_API YAP_Term YAP_NBufferToDiffList(const char *s, YAP_Term t0, size_t len);
 
-/*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term YAP_WideBufferToDiffList(const wchar_t *);
+extern X_API YAP_Term YAP_WideBufferToDiffList(const wchar_t *s, YAP_Term t0);
 
-/*  int BufferToDiffList(const char *) */
-extern X_API YAP_Term YAP_NWideBufferToDiffList(const wchar_t *, YAP_Term, size_t len);
+extern X_API YAP_Term YAP_NWideBufferToDiffList(const wchar_t *s, YAP_Term t0, size_t len);
 
-/* YAP_Term BufferToTerm(const char *) */
-extern X_API YAP_Term YAP_ReadBuffer(const char *,YAP_Term *);
+extern X_API YAP_Term YAP_ReadBuffer(const char *s,YAP_Term *tp);
 
-/*  void YAP_InitSocks(const char *,long) */
-extern X_API int YAP_InitSocks(const char *,long);
+extern X_API int YAP_InitSocks(const char *host,long port);
 
 #ifdef  SFUNC
 
@@ -469,13 +440,10 @@ extern X_API YAP_Term *YAP_AddressOfTermInSlot(YAP_Int);
 /*  YAP_Term  YAP_PutInSlots(t)  */
 extern X_API void YAP_PutInSlot(YAP_Int, YAP_Term);
 
-/*  void  YAP_RecoverSlots()  */
-extern X_API int YAP_RecoverSlots(int);
+extern X_API int YAP_RecoverSlots(int n, YAP_Int top_slot);
 
-/*  void  YAP_RecoverSlots()  */
 extern X_API YAP_Int YAP_ArgsToSlots(int);
 
-/*  void  YAP_RecoverSlots()  */
 extern X_API void YAP_SlotsToArgs(int, YAP_Int);
 
 /*  void  YAP_Throw()  */
@@ -490,7 +458,7 @@ extern X_API void YAP_AsyncThrow(YAP_Term);
 #define YAP_ModuleName(mod) (mod)
 
 /*  int  YAP_Halt()  */
-extern X_API int  YAP_Halt(int);
+extern X_API void  YAP_Halt(int);
 
 /*  int  YAP_TopOfLocalStack()  */
 extern X_API YAP_Term  *YAP_TopOfLocalStack(void);
@@ -520,7 +488,7 @@ extern X_API int  YAP_AtomGetHold(YAP_Atom);
 extern X_API int  YAP_AtomReleaseHold(YAP_Atom);
 
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
-extern X_API YAP_agc_hook  YAP_AGCRegisterHook(YAP_agc_hook);
+extern X_API YAP_agc_hook  YAP_AGCRegisterHook(YAP_agc_hook hook);
 
 /*  void  YAP_AtomReleaseHold(YAP_Atom)  */
 extern X_API int  YAP_HaltRegisterHook(YAP_halt_hook, void *);
@@ -530,7 +498,7 @@ extern X_API char *  YAP_cwd(void);
 
 /* thread stuff */
 extern X_API int YAP_ThreadSelf(void);
-extern X_API int YAP_ThreadCreateEngine(YAP_thread_attr *);
+extern X_API int YAP_ThreadCreateEngine(YAP_thread_attr *attr);
 extern X_API int YAP_ThreadAttachEngine(int);
 extern X_API int YAP_ThreadDetachEngine(int);
 extern X_API int YAP_ThreadDestroyEngine(int);
@@ -589,16 +557,23 @@ extern X_API int YAP_MaxOpPriority(YAP_Atom, YAP_Term);
 /*    int  YAP_OpInfo(Atom, Term, int, int *, int *)  */
 extern X_API int  YAP_OpInfo(YAP_Atom, YAP_Term, int, int *, int *);
 
-/*    YAP_Bool  YAP_IsExternalDataInStackTerm(YAP_Term)  */
 extern X_API YAP_Bool YAP_IsExternalDataInStackTerm(YAP_Term);
 
-extern X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *);
+extern X_API YAP_Term YAP_AllocExternalDataInStack(size_t bytes);
 
-extern X_API YAP_Bool YAP_IsOpaqueObjectTerm(YAP_Term, YAP_opaque_tag_t);
+extern X_API void *YAP_ExternalDataInStackFromTerm(YAP_Term t);
 
-extern X_API YAP_Term YAP_NewOpaqueObject(YAP_opaque_tag_t, size_t);
+extern X_API YAP_Bool YAP_IsExternalDataInStackTerm(YAP_Term t);
 
-extern X_API void *YAP_OpaqueObjectFromTerm(YAP_Term);
+extern X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
+
+extern X_API YAP_Bool YAP_IsOpaqueObjectTerm(YAP_Term t, YAP_opaque_tag_t tag);
+
+extern X_API YAP_Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes);
+
+extern X_API void *YAP_OpaqueObjectFromTerm(YAP_Term t);
+
+extern X_API YAP_CELL *YAP_HeapStoreOpaqueTerm(YAP_Term t);
 
 extern X_API int  YAP_Argv(char ***);
 
@@ -624,4 +599,3 @@ extern X_API YAP_Atom     YAP_IntToAtom(YAP_Int i);
 __END_DECLS
 
 #endif
-

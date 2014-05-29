@@ -121,7 +121,7 @@ Yap_IsOpType(char *type)
 }
 
 static int 
-OpDec(int p, char *type, Atom a, Term m)
+OpDec(int p, const char *type, Atom a, Term m)
 {
   int             i;
   AtomEntry      *ae = RepAtom(a);
@@ -399,7 +399,7 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
 }
 
 void 
-Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
+Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, UInt flags)
 {
   CACHE_REGS
   Atom              atom = NIL;
@@ -503,7 +503,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
 }
 
 void 
-Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt flags)
+Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, UInt flags)
 {
   CACHE_REGS
   Atom              atom = NIL;
@@ -581,7 +581,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt
 }
 
 void 
-Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, UInt flags)
+Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, UInt flags)
 {
   CACHE_REGS
   Atom            atom = NIL;
@@ -719,21 +719,21 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
 }
 
 void 
-Yap_InitCPredBack(char *Name, unsigned long int Arity,
+Yap_InitCPredBack(const char *Name, UInt Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,NULL,flags);
 }
 
 void
-Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
+Yap_InitCPredBackCut(const char *Name, UInt Arity,
 		     unsigned int Extra, CPredicate Start,
 		     CPredicate Cont,CPredicate Cut, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
 }
 
 void
-Yap_InitCPredBack_(char *Name, unsigned long int Arity,
+Yap_InitCPredBack_(const char *Name, UInt Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, CPredicate Cut, UInt flags)
 {

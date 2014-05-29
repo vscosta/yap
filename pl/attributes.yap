@@ -84,6 +84,7 @@ cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
 %	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
 %'), fail.
 prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
+%	writeln( [Module1|Continuation]:LG),
 	execute_woken_system_goals(LG),
 	do_continuation(Continuation, Module1).
 
@@ -97,8 +98,12 @@ prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
 do_continuation('$cut_by'(X), _) :- !,
 	'$$cut_by'(X).
 do_continuation('$restore_regs'(X), _) :- !,
+%	yap_flag(gc_trace,verbose),
+%	garbage_collect,
 	'$restore_regs'(X).
 do_continuation('$restore_regs'(X,Y), _) :- !,
+%	yap_flag(gc_trace,verbose),
+%	garbage_collect,
 	'$restore_regs'(X,Y).
 do_continuation(Continuation, Module1) :-
 	execute_continuation(Continuation,Module1).

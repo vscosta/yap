@@ -1110,6 +1110,64 @@ Yap_random (void)
 #endif
 }
 
+#if HAVE_RANDOM
+static Int
+p_init_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old, * new = (char *) malloc(256);
+
+  if (IsVarTerm (t0)) {
+    return(Yap_unify(ARG1,MkIntegerTerm((Int)current_seed)));
+  }
+  if(!IsNumTerm (t0))
+    return (FALSE);
+  if (IsIntTerm (t0))
+    current_seed = (unsigned int) IntOfTerm (t0);
+  else if (IsFloatTerm (t0))
+    current_seed  = (unsigned int) FloatOfTerm (t0);
+  else
+    current_seed  = (unsigned int) LongIntOfTerm (t0);
+  old = initstate(random(), new, 256);
+  return Yap_unify(ARG2, MkIntegerTerm((Int)old)) &&
+      Yap_unify(ARG3, MkIntegerTerm((Int)new));
+}
+
+static Int
+p_set_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old, * new;
+
+  if (IsVarTerm (t0)) {
+    return FALSE;
+  }
+  if (IsIntegerTerm (t0))
+    new = (char *) IntegerOfTerm (t0);
+  else
+    return FALSE;
+  old = setstate( new );
+  return Yap_unify(ARG2, MkIntegerTerm((Int)old));
+}
+
+static Int
+p_release_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old;
+
+  if (IsVarTerm (t0)) {
+    return FALSE;
+  }
+  if (IsIntegerTerm (t0))
+    old = (char *) IntegerOfTerm (t0);
+  else
+    return FALSE;
+  free( old );
+  return TRUE;
+}
+#endif
+
 static Int
 p_srandom ( USES_REGS1 )
 {
@@ -3018,6 +3076,11 @@ Yap_InitSysPreds(void)
   /* can only do after heap is initialised */
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
+#if HAVE_RANDOM
+  Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
+  Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
+  Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
+#endif
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);

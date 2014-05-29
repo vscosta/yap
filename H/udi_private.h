@@ -30,7 +30,7 @@ typedef struct udi_info *UdiInfo;
 
 /* to ease code for a UdiInfo hash table*/
 #define HASH_FIND_UdiInfo(head,find,out)             \
-  HASH_FIND(hh,head,find,sizeof(PredEntry *),out)
+  HASH_FIND(hh,head,find,sizeof(PredEntry),out)
 #define HASH_ADD_UdiInfo(head,p,add)                 \
   HASH_ADD_KEYPTR(hh,head,p,sizeof(PredEntry *),add)
 

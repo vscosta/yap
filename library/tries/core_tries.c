@@ -1364,7 +1364,7 @@ void traverse_and_save(TrNode node, FILE *file, int float_block) {
       if (YAP_IsAtomTerm(t))
 	  fprintf(file, "%lu %d %s%c ", ATOM_SAVE_MARK, index, YAP_AtomName(YAP_AtomOfTerm(t)), '\0');
       else  /* (ApplTag & t) */
-	fprintf(file, "%lu %d %s %d ", FUNCTOR_SAVE_MARK, index,
+	fprintf(file, "%lu %d %s %lu ", FUNCTOR_SAVE_MARK, index,
 		YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))),
 		YAP_ArityOfFunctor((YAP_Functor)(~ApplTag & t)));
     } else

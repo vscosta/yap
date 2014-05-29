@@ -1073,7 +1073,7 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case write_local_op:
     case f_var_op:
     case f_val_op:
-    case fetch_args_for_bccall:
+    case fetch_args_for_bccall_op:
     case bccall_op:
     case save_pair_op:
     case save_appl_op:

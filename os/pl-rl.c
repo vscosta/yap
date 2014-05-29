@@ -454,10 +454,15 @@ Sread_readline(void *handle, char *buf, size_t size)
 #endif
 
 #ifdef HAVE_RL_EVENT_HOOK
-      if ( PL_dispatch(0, PL_DISPATCH_INSTALLED) )
+      if ( PL_dispatch(0, PL_DISPATCH_INSTALLED) ) {
+#if HAVE_RL_HOOK_FUNC_T
 	rl_event_hook = event_hook;
-      else
+#else
+	rl_event_hook = (Function *)event_hook;
+#endif
+      } else {
 	rl_event_hook = NULL;
+      }
 #endif
 
       prompt = PL_prompt_string(fd);
@@ -607,7 +612,11 @@ PL_install_readline(void)
 #else
   rl_basic_word_break_characters = ":\t\n\"\\'`@$><= [](){}+*!,|%&?";
 #endif
+#ifdef HAVE_RL_COMPLETION_FUNC_T
   rl_add_defun("prolog-complete", prolog_complete, '\t');
+#else
+  rl_add_defun("prolog-complete", (Function *)prolog_complete, '\t');
+#endif
 #if HAVE_RL_INSERT_CLOSE
   rl_add_defun("insert-close", rl_insert_close, ')');
 #endif

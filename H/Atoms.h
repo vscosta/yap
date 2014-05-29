@@ -18,11 +18,12 @@
 #ifndef ATOMS_H
 #define ATOMS_H 1
 
-#undef EXTERN
+#ifndef EXTERN
 #ifndef ADTDEFS_C
 #define EXTERN  static
 #else
 #define EXTERN
+#endif
 #endif
 
 #include <wchar.h>

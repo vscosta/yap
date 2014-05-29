@@ -128,9 +128,9 @@ module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 '$module_dec'(N, Ps) :-
-	'$current_module'(_,N),
 	source_location(F, _),
-	'$add_module_on_file'(N, F, Ps).
+	'$add_module_on_file'(N, F, Ps),
+	'$current_module'(_,N).
 
 '$add_module_on_file'(Mod, F, Exports) :-
 	recorded('$module','$module'(F0,Mod,_,_),R), !,
@@ -159,12 +159,23 @@ module(N) :-
 	'$add_exports'( NewExports, OriginalExports, Exports ).
 
 
-% redefining a previously-defined file, no problem.
+% redefining the same previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
 	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	( source_location(_, Line) -> true ; Line = 0 ),
 	recorda('$module','$module'(F,Mod,Exports, Line),_).
+'$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
+	b_getval('$lf_status', TOpts),
+	'$lf_opt'(redefine_module, TOpts, RM),
+	( RM == false
+	->
+	  '$do_error'(permission_error(module,redefined,Mod),module(Mod,Exports)), !
+	;
+	  RM == true
+	->
+	  '$add_preexisting_module_on_file'(F, F, Mod, Exports, R), !
+	).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
 	format(user_error, "The module ~a is being redefined.~n    Old file:  ~a~n    New file:  ~a~nDo you really want to redefine it? (y or n)",[Mod,F0,F]),

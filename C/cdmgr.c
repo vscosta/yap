@@ -2671,7 +2671,7 @@ Yap_ConsultingFile ( USES_REGS1 )
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
 static void
-init_consult(int mode, char *file)
+init_consult(int mode, const char *file)
 {
   CACHE_REGS
   if (!LOCAL_ConsultSp) {
@@ -2693,7 +2693,7 @@ init_consult(int mode, char *file)
 }
 
 void
-Yap_init_consult(int mode, char *file)
+Yap_init_consult(int mode, const char *file)
 {
   init_consult(mode,file);
 }

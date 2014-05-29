@@ -11,9 +11,69 @@
 %   Purpose: Macros to apply a predicate to all elements
 %            of a list or to all sub-terms of a term.
 
+/**
+  * @file maplist.yap
+  *
+  * @defgroup maplist Map List and Term Operations
+  *
+  * This library provides a set of utilities for applying a predicate to
+  * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
+  *  To avoid performance degradation, each call creates an
+  * equivalent Prolog program, without meta-calls, which is executed by
+  * the Prolog engine instead. The library was based on code
+  * by Joachim Schimpf and on code from SWI-Prolog, and it is also inspired by the GHC
+  * libraries.
+  *
+  * The following routines are available once included with the
+  * `use_module(library(apply_macros))` command.
+  * @author : Lawrence Byrd
+  * @author Richard A. O'Keefe
+  * @author Joachim Schimpf
+  * @author Jan Wielemaker
+  * @author E. Alphonse
+  * @author Vitor Santos Costa
+
+ 
+Examples:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+%given
+plus(X,Y,Z) :- Z is X + Y.
+  
+plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
+
+vars(X, Y, [X|Y]) :- var(X), !.
+vars(_, Y, Y).
+
+trans(TermIn, TermOut) :-
+        nonvar(TermIn),
+        TermIn =.. [p|Args],
+        TermOut =..[q|Args], !.
+trans(X,X).
+
+%success
+
+  ?- maplist(plus(1), [1,2,3,4], [2,3,4,5]).
+
+  ?- checklist(var, [X,Y,Z]).
+
+  ?- selectlist(<(0), [-1,0,1], [1]).
+
+  ?- convlist(plus_if_pos(1), [-1,0,1], [2]).
+
+  ?- sumlist(plus, [1,2,3,4], 1, 11).
+
+  ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  @{
+  
+  */
+
 
 :- module(maplist, [selectlist/3,
 	            selectlist/4,
+	            selectlists/5,
 		    checklist/2,
 		    maplist/2,			% :Goal, +List
 		    maplist/3,			% :Goal, ?List1, ?List2
@@ -91,9 +151,15 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/** include(+ _Pred_, + _ListIn_, ? _ListOut_)
+  Same as selectlist/3.
+*/
 include(G,In,Out) :-
 	selectlist(G, In, Out).
-
+ 
+/** selectlist(: _Pred_, + _ListIn_, ? _ListOut_))
+  Creates  _ListOut_ of all list elements of  _ListIn_ that pass a given test
+*/
 selectlist(_, [], []).
 selectlist(Pred, [In|ListIn], ListOut) :-
     (call(Pred, In) ->
@@ -103,6 +169,26 @@ selectlist(Pred, [In|ListIn], ListOut) :-
     ),
     selectlist(Pred, ListIn, NewListOut).
 
+/** selectlist(: _Pred_, + _ListIn_, + _ListInAux_, ? _ListOut_, ? _ListOutAux_)
+  Creates  _ListOut_ and _ListOutAux_ of all list elements of  _ListIn_ and _ListInAux_ that
+  pass the given test  _Pred_.
+*/
+selectlists(_, [], [], [], []).
+selectlists(Pred, [In|ListIn], [In1|ListIn1], ListOut, ListOut1) :-
+    (call(Pred, In, In1) ->
+	ListOut = [In|NewListOut],
+	ListOut1 = [In1|NewListOut1]
+    ;
+	ListOut1 = NewListOut1,
+	ListOut = NewListOut
+    ),
+    selectlist(Pred, ListIn, ListIn1, NewListOut, NewListOut1).
+
+/** selectlist(: _Pred_, + _ListIn_, + _ListInAux_, ? _ListOut_)
+  Creates  _ListOut_ of all list elements of  _ListIn_ that
+  pass the given test  _Pred_ using + _ListInAux_ as an
+  auxiliary element.
+*/
 selectlist(_, [], [], []).
 selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
     (call(Pred, In, In1) ->
@@ -112,6 +198,10 @@ selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
     ),
     selectlist(Pred, ListIn, ListIn1, NewListOut).
 
+/** exclude(+ _Goal_, + _List1_, ? _List2_)
+  Filter elements for which  _Goal_ fails. True if  _List2_ contains
+  those elements  _Xi_ of  _List1_ for which `call(Goal, Xi)` fails.
+*/
 exclude(_, [], []).
 exclude(Pred, [In|ListIn], ListOut) :-
     (call(Pred, In) ->
@@ -121,6 +211,11 @@ exclude(Pred, [In|ListIn], ListOut) :-
     ),
     exclude(Pred, ListIn, NewListOut).
 
+/** partition(+ _Pred_,  + _List1_, ? _Included_, ? _Excluded_)
+  Filter elements of  _List_ according to  _Pred_. True if
+  _Included_ contains all elements for which `call(Pred, X)`
+  succeeds and  _Excluded_ contains the remaining elements.
+*/
 partition(_, [], [], []).
 partition(Pred, [In|ListIn], List1, List2) :-
     (call(Pred, In) ->
@@ -132,6 +227,15 @@ partition(Pred, [In|ListIn], List1, List2) :-
     ),
     partition(Pred, ListIn, RList1, RList2).
 
+/** partition(+ _Pred_,  + _List1_, ? _Lesser_, ? _Equal_, ? _Greater_)
+
+  Filter list according to  _Pred_ in three sets. For each element
+  _Xi_ of  _List_, its destination is determined by
+  `call(Pred, Xi, Place)`, where  _Place_ must be unified to one
+  of `\<`, `=` or `\>`. `Pred` must be deterministic.
+
+
+*/
 partition(_, [], [], [], []).
 partition(Pred, [In|ListIn], List1, List2, List3) :-
     call(Pred, In, Diff),
@@ -154,54 +258,77 @@ partition(Pred, [In|ListIn], List1, List2, List3) :-
     ),
     partition(Pred, ListIn, RList1, RList2, RList3).
 
+/** checklist(: _Pred_, + _List_)
+  Succeeds if the predicate  _Pred_ succeeds on all elements of  _List_.
+*/
 checklist(_, []).
 checklist(Pred, [In|ListIn]) :-
     call(Pred, In),
     checklist(Pred, ListIn).
 
-%   maplist(Pred, OldList)
-%   succeeds when Pred(Old,New) succeeds for each corresponding
-%   Old in OldList, New in NewList.  In InterLisp, this is MAPCAR. 
-%   It is also MAP2C.  Isn't bidirectionality wonderful?
+/** maplist(: _Pred_, ? _ListIn_)
+
+  Applies predicate  _Pred_( _El_ ) to all
+  elements _El_ of  _ListIn_.
+
+*/
 maplist(_, []).
 maplist(Pred, [In|ListIn]) :-
     call(Pred, In),
     maplist(Pred, ListIn).
 
-%   maplist(Pred, OldList, NewList)
-%   succeeds when Pred(Old,New) succeeds for each corresponding
-%   Old in OldList, New in NewList.  In InterLisp, this is MAPCAR. 
-%   It is also MAP2C.  Isn't bidirectionality wonderful?
+
+/** maplist(: _Pred_, ? _L1_, ? _L2_ )
+  _L1_  and  _L2_ are such that
+  `call( _Pred_, _A1_, _A2_)` holds for every
+  corresponding element in lists  _L1_,   _L2_.
+
+  Comment from Richard O'Keefe: succeeds when _Pred( _Old_, _New_) succeeds for each corresponding
+  _Gi_ in _Listi_, _New_ in _NewList_.  In InterLisp, this is MAPCAR. 
+   It is also MAP2C.  Isn't bidirectionality wonderful?
+*/
 maplist(_, [], []).
 maplist(Pred, [In|ListIn], [Out|ListOut]) :-
 	call(Pred, In, Out),
 	maplist(Pred, ListIn, ListOut).
 
-%   maplist(Pred, List1, List2, List3)
-%   succeeds when Pred(Old,New) succeeds for each corresponding
-%   Gi in Listi, New in NewList.  In InterLisp, this is MAPCAR. 
-%   It is also MAP2C.  Isn't bidirectionality wonderful?
+/** maplist(: _Pred_, ? _L1_, ? _L2_, ? _L3_)
+  _L1_,   _L2_, and  _L3_ are such that
+  `call( _Pred_, _A1_, _A2_, _A3_)` holds for every
+  corresponding element in lists  _L1_,   _L2_, and  _L3_.
+
+*/
 maplist(_, [], [], []).
 maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
     call(Pred, A1, A2, A3),
     maplist(Pred, L1, L2, L3).
 
-%   maplist(Pred, List1, List2, List3, List4)
-%   succeeds when Pred(Old,New) succeeds for each corresponding
-%   Gi in Listi, New in NewList.  In InterLisp, this is MAPCAR. 
-%   It is also MAP2C.  Isn't bidirectionality wonderful?
+/** maplist(: _Pred_, ? _L1_, ? _L2_, ? _L3_, ? _L4_)
+  _L1_,  _L2_,  _L3_, and  _L4_ are such that
+  `call( _Pred_, _A1_, _A2_, _A3_, _A4_)` holds
+  for every corresponding element in lists  _L1_,  _L2_,  _L3_, and
+  _L4_.
+*/
 maplist(_, [], [], [], []).
 maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
     call(Pred, A1, A2, A3, A4),
     maplist(Pred, L1, L2, L3, L4).
 
-%   convlist(Rewrite, OldList, NewList)
-%   is a sort of hybrid of maplist/3 and sublist/3.
-%   Each element of NewList is the image under Rewrite of some
-%   element of OldList, and order is preserved, but elements of
-%   OldList on which Rewrite is undefined (fails) are not represented.
-%   Thus if foo(X,Y) :- integer(X), Y is X+1.
-%   then convlist(foo, [1,a,0,joe(99),101], [2,1,102]).
+/**
+  convlist(: _Pred_, + _ListIn_, ? _ListOut_) @anchor convlist
+
+  A combination of maplist/3 and selectlist/3: creates  _ListOut_ by
+  applying the predicate  _Pred_ to all list elements on which
+  _Pred_ succeeds.
+
+  ROK: convlist(Rewrite, OldList, NewList)
+  is a sort of hybrid of maplist/3 and sublist/3.
+  Each element of NewList is the image under Rewrite of some
+  element of OldList, and order is preserved, but elements of
+  OldList on which Rewrite is undefined (fails) are not represented.
+  Thus if foo(X,Y) :- integer(X), Y is X+1.
+  then convlist(foo, [1,a,0,joe(99),101], [2,1,102]).
+*/
 convlist(_, [], []).
 convlist(Pred, [Old|Olds], NewList) :-
 	call(Pred, Old, New),
@@ -211,6 +338,12 @@ convlist(Pred, [Old|Olds], NewList) :-
 convlist(Pred, [_|Olds], News) :-
 	convlist(Pred, Olds, News).
 
+/**
+  mapnodes(+ _Pred_, + _TermIn_, ? _TermOut_)
+  
+  Creates  _TermOut_ by applying the predicate  _Pred_
+  to all sub-terms of  _TermIn_ (depth-first and left-to-right order).  
+*/
 mapnodes(Pred, TermIn, TermOut) :-
     (atomic(TermIn); var(TermIn)), !,
     call(Pred, TermIn, TermOut).
@@ -225,6 +358,12 @@ mapnodes_list(Pred, [TermIn|ArgsIn], [TermOut|ArgsOut]) :-
     mapnodes(Pred, TermIn, TermOut),
     mapnodes_list(Pred, ArgsIn, ArgsOut).
 
+/**
+  checknodes(+ _Pred_, + _Term_)  @anchor checknodes
+
+  Succeeds if the predicate  _Pred_ succeeds on all sub-terms of
+  _Term_ (depth-first and left-to-right order)
+*/
 checknodes(Pred, Term) :-
     (atomic(Term); var(Term)), !,
     call(Pred, Term).
@@ -238,11 +377,24 @@ checknodes_list(Pred, [Term|Args]) :-
     checknodes_body(Pred, Term),
     checknodes_list(Pred, Args).
 
+/**
+  sumlist(: _Pred_, + _List_, ? _AccIn_, ? _AccOut_)
+
+  Calls  _Pred_ on all elements of List and collects a result in
+  _Accumulator_. Same as fold/4.
+*/
 sumlist(_, [], Acc, Acc).
 sumlist(Pred, [H|T], AccIn, AccOut) :-
     call(Pred, H, AccIn, A1),
     sumlist(Pred, T, A1, AccOut).
 
+/**
+  sumnodes(+ _Pred_, + _Term_, ? _AccIn_, ? _AccOut_) @anchor sumnodes
+
+  Calls the predicate  _Pred_ on all sub-terms of  _Term_ and
+  collect a result in  _Accumulator_ (depth-first and left-to-right
+  order)
+*/
 sumnodes(Pred, Term, A0, A2) :-
     call(Pred, Term, A0, A1),
     (compound(Term) ->
@@ -268,16 +420,13 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 
 %%	foldl(:Goal, +List, +V0, -V, +W0, -WN).
 %
-%	Fold a list, using arguments of the   list as left argument. The
-%	foldl family of predicates is defined by:
-%
-%	  ==
-%	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
-%		P(X11, V0, V1, W0, W1),
-%		...
-%		P(X1n, Vn1, Vn, Wn1, Wn).
-%	  ==
 
+/**
+  foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
+
+  Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
+  foldr/3.
+*/
 foldl(Goal, List, V0, V) :-
 	foldl_(List, Goal, V0, V).
 
@@ -286,6 +435,21 @@ foldl_([H|T], Goal, V0, V) :-
 	call(Goal, H, V0, V1),
 	foldl_(T, Goal, V1, V).
 
+/**
+  foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
+
+  Calls  _Pred_ on all elements of _List1_ and
+  _List2_ and collects a result in  _Accumulator_. Same as
+  foldr/4.
+
+  The foldl family of predicates is defined 
+	  ==
+	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
+		P(X11, V0, V1, W0, W1),
+		...
+		P(X1n, Vn1, Vn, Wn1, Wn).
+	  ==
+*/
 foldl(Goal, List1, List2, V0, V) :-
 	foldl_(List1, List2, Goal, V0, V).
 
@@ -294,7 +458,9 @@ foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
 	call(Goal, H1, H2, V0, V1),
 	foldl_(T1, T2, Goal, V1, V).
 
-
+/**
+  
+*/
 foldl(Goal, List1, List2, List3, V0, V) :-
 	foldl_(List1, List2, List3, Goal, V0, V).
 
@@ -304,6 +470,9 @@ foldl_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V) :-
 	foldl_(T1, T2, T3, Goal, V1, V).
 
 
+/**
+  
+*/
 foldl(Goal, List1, List2, List3, List4, V0, V) :-
 	foldl_(List1, List2, List3, List4, Goal, V0, V).
 
@@ -313,21 +482,13 @@ foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
 	foldl_(T1, T2, T3, T4, Goal, V1, V).
 
 
-%%	foldl(:Goal, +List, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +List3, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +List3, +List4, +V0, -V).
-%
-%	Fold a list, using arguments of the   list as left argument. The
-%	foldl family of predicates is defined by:
-%
-%	  ==
-%	  foldl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, Vn) :-
-%		P(X11, ..., Xm1, V0, V1),
-%		...
-%		P(X1n, ..., Xmn, V', Vn).
-%	  ==
+/**
+  foldl2(: _Pred_, + _List_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+  
+  Calls  _Pred_ on all elements of `List` and collects a result in
+  _X_ and  _Y_.
 
+*/
 foldl2(Goal, List, V0, V, W0, W) :-
 	foldl2_(List, Goal, V0, V, W0, W).
 
@@ -336,7 +497,12 @@ foldl2_([H|T], Goal, V0, V, W0, W) :-
 	call(Goal, H, V0, V1, W0, W1),
 	foldl2_(T, Goal, V1, V, W1, W).
 
+/**
+  foldl2(: _Pred_, + _List_, ? _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
 
+  Calls  _Pred_ on all elements of  _List_  and  _List1_  and collects a result in
+  _X_ and  _Y_.
+*/
 foldl2(Goal, List1, List2, V0, V, W0, W) :-
 	foldl2_(List1, List2, Goal, V0, V, W0, W).
 
@@ -345,6 +511,13 @@ foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
 	call(Goal, H1, H2, V0, V1, W0, W1),
 	foldl2_(T1, T2, Goal, V1, V, W1, W).
 
+/**
+  foldl2(: _Pred_, + _List_, ? _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+
+  Calls  _Pred_ on all elements of  _List_,  _List1_  and  _List2_  and collects a result in
+  _X_ and  _Y_.
+
+*/
 foldl2(Goal, List1, List2, List3, V0, V, W0, W) :-
 	foldl2_(List1, List2, List3, Goal, V0, V, W0, W).
 
@@ -354,6 +527,13 @@ foldl2_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
 	foldl2_(T1, T2, T3, Goal, V1, V, W1, W).
 
 
+/**
+  foldl3(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+
+
+  Calls  _Pred_ on all elements of `List` and collects a
+  result in  _X_,  _Y_ and  _Z_.
+*/
 foldl3(Goal, List, V0, V, W0, W, X0, X) :-
 	foldl3_(List, Goal, V0, V, W0, W, X0, X).
 
@@ -362,6 +542,13 @@ foldl3_([H|T], Goal, V0, V, W0, W, X0, X) :-
 	call(Goal, H, V0, V1, W0, W1, X0, X1),
 	fold3_(T, Goal, V1, V, W1, W, X1, X).
 
+/**
+  foldl4(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
+
+
+  Calls  _Pred_ on all elements of `List` and collects a
+  result in  _X_,  _Y_,  _Z_ and  _W_.
+*/
 foldl4(Goal, List, V0, V, W0, W, X0, X, Y0, Y) :-
 	foldl4_(List, Goal, V0, V, W0, W, X0, X, Y0, Y).
 
@@ -391,6 +578,20 @@ foldl4_([H|T], Goal, V0, V, W0, W, X0, X, Y0, Y) :-
 %	        P(X1n, ..., Xmn, V', Vn).
 %	  ==
 
+/**
+    scanl(: _Pred_, + _List_, + _V0_, ? _Values_)
+
+
+Left scan of  list.  The  scanl   family  of  higher  order list
+operations is defined by:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+      scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+        P(X11, ..., Xm1, V0, V1),
+        ...
+            P(X1n, ..., Xmn, Vn-1, Vn).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 scanl(Goal, List, V0, [V0|Values]) :-
 	scanl_(List, Goal, V0, Values).
 
@@ -399,7 +600,11 @@ scanl_([H|T], Goal, V, [VH|VT]) :-
 	call(Goal, H, V, VH),
 	scanl_(T, Goal, VH, VT).
 
+/**
+  scanl(: _Pred_, + _List1_, + _List2_, ? _V0_, ? _Vs_)
 
+Left scan of  list.  
+ */
 scanl(Goal, List1, List2, V0, [V0|Values]) :-
 	scanl_(List1, List2, Goal, V0, Values).
 
@@ -408,7 +613,11 @@ scanl_([H1|T1], [H2|T2], Goal, V, [VH|VT]) :-
 	call(Goal, H1, H2, V, VH),
 	scanl_(T1, T2, Goal, VH, VT).
 
+/**
+ scanl(: _Pred_, + _List1_, + _List2_, + _List3_, ? _V0_, ? _Vs_)
 
+Left scan of  list.  
+*/
 scanl(Goal, List1, List2, List3, V0, [V0|Values]) :-
 	scanl_(List1, List2, List3, Goal, V0, Values).
 
@@ -417,7 +626,11 @@ scanl_([H1|T1], [H2|T2], [H3|T3], Goal, V, [VH|VT]) :-
 	call(Goal, H1, H2, H3, V, VH),
 	scanl_(T1, T2, T3, Goal, VH, VT).
 
-
+/**
+  scanl(: _Pred_, + _List1_, + _List2_, + _List3_, + _List4_, ? _V0_, ? _Vs_)
+  
+  Left scan of  list.  
+*/
 scanl(Goal, List1, List2, List3, List4, V0, [V0|Values]) :-
 	scanl_(List1, List2, List3, List4, Goal, V0, Values).
 
@@ -575,6 +788,29 @@ goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
 		     Base,
 		     (RecursionHead :-
 		         (Apply -> Outs = [In|NOuts]; Outs = NOuts),
+			 RecursiveCall)
+		    ], Mod).
+
+goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(selectlist, 4, Proto, GoalName),
+	append(MetaVars, [ListIn, ListIn1, ListOut, ListOut1], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], [], [], []], Base),
+	append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs, Outs1], RecursionHead),
+	append_args(Pred, [In, In1], Apply),
+	append_args(HeadPrefix, [Ins, Ins1, NOuts, NOuts1], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :-
+		         (Apply -> Outs = [In|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
 			 RecursiveCall)
 		    ], Mod).
 
@@ -1020,5 +1256,9 @@ user:goal_expansion(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
 	;  ( Xs0 = Xs0c, NewGoal1 ) = NewGoal
 	).
 :- hide('$translate_rule').
+*/
+
+/**
+@}
 */
 

@@ -1,4 +1,8 @@
+#if __ANDROID__
+#define assert(P)
+#else
 #include <cassert>
+#endif
 
 #include "BayesBall.h"
 

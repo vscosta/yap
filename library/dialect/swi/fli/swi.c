@@ -2655,7 +2655,7 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 
       yapt.ssize = attr->local_size;
       yapt.tsize = attr->global_size;
-      yapt.alias = (YAP_Term)attr->alias;
+      yapt.alias = MkAtomTerm(Yap_LookupAtom(attr->alias));
       yapt.cancel =  attr->cancel;
       wid = YAP_ThreadCreateEngine(&yapt);
     } else {
@@ -2704,7 +2704,7 @@ PL_create_engine(const PL_thread_attr_t *attr)
 
     yapt.ssize = attr->local_size;
     yapt.tsize = attr->global_size;
-    yapt.alias = (YAP_Term)attr->alias;
+    yapt.alias = MkAtomTerm(Yap_LookupAtom(attr->alias));
     yapt.cancel =  attr->cancel;
 
     eng = YAP_ThreadCreateEngine(&yapt);

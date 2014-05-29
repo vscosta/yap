@@ -105,7 +105,7 @@ load_files(Files,Opts) :-
 '$lf_option'('$location', 19, _).
 '$lf_option'(dialect, 20, yap).
 '$lf_option'(format, 21, source).
-'$lf_option'(redefine_module, 22, ask).
+'$lf_option'(redefine_module, 22, false).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
@@ -702,7 +702,7 @@ initialization(G,OPT) :-
 
 
 source_file(FileName) :-
-	recorded('$lf_loaded','$lf_loaded'(FileName, _),_).
+	recorded('$lf_loaded','$lf_loaded'(FileName, _, _),_).
 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
@@ -748,10 +748,11 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 
 '$ensure_file_loaded'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1, _, _),_),
 	same_file(F1,F), !.
-'$ensure_file_loaded'(F, _M, F1) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
+'$ensure_file_loaded'(F, M, F1) :-
+	% loaded from the same module, but does not define a module.
+	recorded('$lf_loaded','$lf_loaded'(F1, _, M),_),
 	same_file(F1,F), !.
 	
 
@@ -765,11 +766,11 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 
 '$ensure_file_unchanged'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,Age,_),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
-'$ensure_file_unchanged'(F, _M, F1) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
+'$ensure_file_unchanged'(F, M, F1) :-
+	recorded('$lf_loaded','$lf_loaded'(F1, Age, M),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
 
@@ -814,10 +815,10 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	( F0 == user_input, nonvar(UserFile) -> UserFile = F ; F = F0 ),
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
-	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
+	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _,_),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( Reconsult \== consult, recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
-	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age), _) -> true ; true ),
+	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age, M), _) -> true ; true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
 '$set_encoding'(Encoding) :-
@@ -1017,14 +1018,14 @@ source_file_property( File0, Prop) :-
 	'$source_file_property'( File, Prop).
 
 '$source_file_property'( OldF, includes(F, Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
-	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
+	recorded('$lf_loaded','$lf_loaded'( F, _M, _ include, _File, OldF, _Line, _), _),
+	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, included_in(OldF, Line)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).
 '$source_file_property'( F, load_context(OldF, Line, Options)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, V, _File, OldF, Line, Options), _), V \== include.
 '$source_file_property'( F, modified(Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
+	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_,_),_).
 

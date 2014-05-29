@@ -15,6 +15,9 @@
 static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
+// keep eclipse happy, avoiding collisions with amiops.h
+#ifdef YAPOR_SBA
+
 #define  IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
 
 /* dereferencing macros */
@@ -382,3 +385,4 @@ Binding Macros for Multiple Assignment Variables.
 #define LT_OK_IN_CMP 2
 #define GT_OK_IN_CMP 4
 
+#endif /* YAPOR_SBA */

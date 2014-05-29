@@ -1054,7 +1054,6 @@ static Int
 p_read_program( USES_REGS1 )
 {
   IOSTREAM *stream;
-  void YAP_Reset(void);
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {

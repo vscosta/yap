@@ -509,9 +509,9 @@ Yap_thread_self(void)
 }
 
 CELL
-Yap_thread_create_engine(thread_attr *ops)
+Yap_thread_create_engine(YAP_thread_attr *ops)
 {
-  thread_attr opsv;
+  YAP_thread_attr opsv;
   int new_id = allocate_new_tid();
   Term t = TermNil;
 

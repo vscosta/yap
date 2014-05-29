@@ -13,43 +13,41 @@
 * comments:	Data structures and defines used in the Interface	 *
 *									 *
 *************************************************************************/
+#ifndef _YAPDEFS_H
 
-#if  defined(__STDC__) || defined(_MSC_VER)
-#ifdef PROTO
-#undef PROTO
-#endif
-#define PROTO(X,ARGS) X ARGS
-#define CONST const
+#define _YAPDEFS_H 1
 
-#else
-
-#define PROTO(X,ARGS) X()
-#define CONST /* empty */
-#endif
+#include <stdlib.h>
 
 #ifdef YAP_H
 
 /* if Yap.h is available, just reexport */
 
-typedef CELL YAP_CELL;
+#define YAP_CELL CELL
 
-typedef Term YAP_Term;
+#define YAP_Term Term
 
-typedef CELL YAP_Arity;
+typedef UInt YAP_Arity;
 
 typedef Term YAP_Module;
 
-typedef Functor YAP_Functor;
+#define YAP_Functor  Functor
 
-typedef Atom YAP_Atom;
+#define YAP_Atom Atom
 
-typedef Int YAP_Int;
+#define YAP_Int Int
 
-typedef UInt YAP_UInt;
+#define YAP_UInt UInt
 
-typedef Float YAP_Float;
+#define YAP_Float Float
 
 typedef int YAP_Bool;
+
+#define YAP_PredEntryPtr struct pred_entry *
+
+#define YAP_UserCPred CPredicate
+
+#define YAP_agc_hook    Agc_hook
 
 #else
 
@@ -93,9 +91,25 @@ typedef double YAP_Float;
 #define FALSE	0
 #endif
 
+typedef struct YAP_pred_entry *YAP_PredEntryPtr;
+
+typedef YAP_Bool (* YAP_UserCPred)(void);
+
+typedef int  (*YAP_agc_hook)(void *_Atom);
+
 #include "YapError.h"
 
 #endif
+
+
+typedef struct YAP_thread_attr_struct {
+  size_t		    ssize;
+  size_t		    tsize;
+  size_t		    sysize;
+  int		   (*cancel)(int thread);
+  YAP_Term              egoal, alias;
+} YAP_thread_attr;
+
 
 typedef enum {
   YAP_TAG_ATT = 0x1,
@@ -221,16 +235,6 @@ typedef struct yap_boot_params {
 Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] );
 #endif
 
-/* from thread.h */
-typedef struct {
-  unsigned long int		    ssize;
-  unsigned long int		    tsize;
-  YAP_Term		   alias;
-  int		   (*cancel)(int);
-} YAP_thread_attr;
-
-typedef struct YAP_pred_entry *YAP_PredEntryPtr;
-
 /* this should be opaque to the user */ 
 typedef struct {
   unsigned long  b;
@@ -238,7 +242,6 @@ typedef struct {
   struct yami *p, *cp;
 } YAP_dogoalinfo;
 
-typedef int  (*YAP_agc_hook)(void *_Atom);
 
 typedef void  (*YAP_halt_hook)(int exit_code, void *closure);
 
@@ -290,3 +293,4 @@ typedef enum
     YAPC_ENABLE_AGC                 /* enable or disable atom garbage collection */
   } yap_flag_t;
 
+#endif /* _YAPDEFS_H */

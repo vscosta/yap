@@ -185,7 +185,7 @@ typedef enum compiler_op {
   equal_op,
   exit_op, 
 #endif
-  fetch_args_for_bccall,
+  fetch_args_for_bccall_op,
   bccall_op,
   blob_op,
   string_op,

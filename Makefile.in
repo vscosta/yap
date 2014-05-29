@@ -149,7 +149,7 @@ IOLIB_HEADERS=os/pl-buffer.h \
 	os/pl-table.h \
 	os/pl-text.h \
 	os/pl-utf8.h \
-	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c 
+	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c
 
 HEADERS = \
 	H/Atoms.h \
@@ -550,7 +550,7 @@ INSTALLED_PACKAGES= \
 	@PKG_SGML@ \
 	@PKG_SWIG@ \
 	@PKG_WINCONSOLE@ \
-	@PKG_ZLIB@ # @PKG_PLDOC@ 
+	@PKG_ZLIB@ # @PKG_PLDOC@
 
 PACKAGES=  \
 	library \
@@ -564,7 +564,7 @@ all: startup.yss
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p || exit 1; fi; \
 	done
 
-startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+@STARTUP_DEFAULT@startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
@@ -579,20 +579,31 @@ yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd swi/console; $(MAKE))
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
-libYap.a: $(LIB_OBJECTS) 
+libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a
 	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
-@DYNYAPLIB@: $(LIB_OBJECTS) yapi.o
+@DYNYAPLIB@: $(LIB_OBJECTS) yapi.o libYap.a
 	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
 
+@STARTUP_ANDROID@startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+	adb shell mkdir -p /data/yap
+	adb shell mkdir -p /data/yap/pl
+	adb shell mkdir -p /data/yap/swi/library
+	adb push yap /data/yap/
+	adb push libYap.so.? /data/yap/
+	adb push $(srcdir)/swi/library /data/yap/swi/library
+	adb push $(srcdir)/pl /data/yap/pl/
+	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
+	adb pull /data/yap/startup.yss .
+
 install: @INSTALL_COMMAND@  install_common
 
-install_unix: install_ubins startup.yss @YAPLIB@
+install_unix: startup.yss @YAPLIB@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)
@@ -645,12 +656,12 @@ install_library: @YAPLIB@
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 ##########
-FULL_PATH_C_SOURCES=$(addprefix $(srcdir)/, $(C_SOURCES) ) 
-FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) ) 
-FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) ) 
+FULL_PATH_C_SOURCES=$(addprefix $(srcdir)/, $(C_SOURCES) )
+FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) )
+FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) )
 
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
-	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS) 
+	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS)
 	for p in $(PACKAGES); do \
 	  echo " ============== INSTALLING" $$p; \
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p TAGS || exit 1; fi; \
@@ -668,7 +679,7 @@ clean: clean_docs clean_local
 	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) clean ); done
 
 clean_local:
-	rm -f *.o *~ *.BAK *.a 	
+	rm -f *.o *~ *.BAK *.a
 
 distclean:  distclean_docs clean_local
 	for p in $(PACKAGES); do \
@@ -767,4 +778,3 @@ installcheck:
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-

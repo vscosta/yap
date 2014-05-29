@@ -34,7 +34,6 @@ PROGRAMS= \
 	$(srcdir)/edit.pl \
 	$(srcdir)/error.pl \
 	$(srcdir)/main.pl \
-	$(srcdir)/maplist.pl \
 	$(srcdir)/menu.pl \
 	$(srcdir)/nb_set.pl \
 	$(srcdir)/occurs.yap \

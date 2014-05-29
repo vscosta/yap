@@ -1275,7 +1275,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
 	while ( (chr = *ptr++) != '\0' ) *buf++ = chr;
       }
       *buf++ = '\0';
-      at = out->val.a = Yap_LookupAtom((char *)HR);
+      at = out->val.a = Yap_LookupAtom((const char *)HR);
       return at;
     }
   }
