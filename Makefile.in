@@ -590,21 +590,40 @@ libYap.a: $(LIB_OBJECTS)
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
 
-install: @INSTALL_COMMAND@
+install: @INSTALL_COMMAND@  install_common
 
-install_unix: startup.yss @YAPLIB@
+install_unix: install_ubins startup.yss @YAPLIB@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
-	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
+	mkdir -p $(DESTDIR)$(SHAREDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
+	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
+	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
+
+install_startup: startup.yss 
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
+
+install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
+	mkdir -p $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
+	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
+	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
+	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons/yap.ico
+
+install_common:
+	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
-	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
-	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
-	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $(DESTDIR)$(LIBDIR)/$$p; \
 	done
@@ -620,13 +639,6 @@ install_unix: startup.yss @YAPLIB@
 	  echo " ============== INSTALLING" $$p; \
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p install || exit 1; fi; \
 	done
-
-install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
-	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
-	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
-	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
-	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
-	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
