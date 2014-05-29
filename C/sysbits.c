@@ -1657,15 +1657,23 @@ ReceiveSignal (int s, void *x, void *y)
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI
 MSCHandleSignal(DWORD dwCtrlType) {
-  CACHE_REGS
+#if THREADS
+  if (REMOTE_InterruptsDisabled(0)) {
+#else
   if (LOCAL_InterruptsDisabled) {
+#endif
     return FALSE;
   }
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
+#if THREADS
+   Yap_external_signal(0, YAP_WINTIMER_SIGNAL);
+    REMOTE_PrologMode(0) |= InterruptMode;
+#else
     Yap_signal(YAP_WINTIMER_SIGNAL);
-    LOCAL_PrologMode |= InterruptMode;
+     LOCAL_PrologMode |= InterruptMode;
+#endif
     return(TRUE);
   default:
     return(FALSE);
