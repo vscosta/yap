@@ -28,8 +28,8 @@ ComponentText "This will install YAP on your computer."
 DirText "This program will install YAP on your computer.\
          Choose a directory"
 
-Icon        c:\${ROOTDIR}\share\Yap\icons\yap.ico
-LicenseData c:\${ROOTDIR}\share\doc\Yap\Artistic
+Icon        ${ROOTDIR}\share\Yap\icons\yap.ico
+LicenseData ${ROOTDIR}\share\doc\Yap\Artistic
 LicenseText "YAP is governed by the Artistic License and LGPL;\
 	it includes code under the GPL and LGPL."
 
@@ -53,31 +53,31 @@ Section "Base system (required)"
   Delete $INSTDIR\bin\*.pdb
 
   SetOutPath $INSTDIR\bin
-  File c:\${ROOTDIR}\bin\yap.exe
-  File c:\${ROOTDIR}\bin\yap.dll
-  File c:\${ROOTDIR}\bin\yap-win.exe
-  File c:\${ROOTDIR}\bin\*.dll
+  File ${ROOTDIR}\bin\yap.exe
+  File ${ROOTDIR}\bin\yap.dll
+  File ${ROOTDIR}\bin\yap-win.exe
+  File ${ROOTDIR}\bin\*.dll
 
 ; first, copy library DLLs
   SetOutPath $INSTDIR\lib\Yap
 ; SYSTEM STUFF
-  File c:\${ROOTDIR}\lib\Yap\*.dll
+  File ${ROOTDIR}\lib\Yap\*.dll
 
   SetOutPath $INSTDIR\lib\Yap
 ; SYSTEM STUFF
-  File c:\${ROOTDIR}\lib\Yap\startup.yss
+  File ${ROOTDIR}\lib\Yap\startup.yss
   
   SetOutPath $INSTDIR\share\Yap
 ; SYSTEM STUFF
-  File /r c:\${ROOTDIR}\share\Yap\*
+  File /r ${ROOTDIR}\share\Yap\*
 
   SetOutPath $INSTDIR\share\doc\Yap
-  File c:\${ROOTDIR}\share\doc\Yap\yap.html
-  File c:\${ROOTDIR}\share\doc\Yap\yap.pdf
-;  File c:\${ROOTDIR}\share\doc\Yap\yap.info
-  File c:\${ROOTDIR}\share\doc\Yap\Artistic
-  File c:\${ROOTDIR}\share\doc\Yap\README.TXT
-  File c:\${ROOTDIR}\share\doc\Yap\COPYING
+  File ${ROOTDIR}\share\doc\Yap\yap.html
+  File ${ROOTDIR}\share\doc\Yap\yap.pdf
+;  File ${ROOTDIR}\share\doc\Yap\yap.info
+  File ${ROOTDIR}\share\doc\Yap\Artistic
+  File ${ROOTDIR}\share\doc\Yap\README.TXT
+  File ${ROOTDIR}\share\doc\Yap\COPYING
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
   WriteRegStr HKLM ${REGKEY} "bin" "$INSTDIR\bin\yap.exe"

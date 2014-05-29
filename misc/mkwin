@@ -1,9 +1,16 @@
 #!/bin/sh
 #
 # script for compiling and installing YAP under msys. Uses a mingw64
-# compiler and nsis to do the installing
+# compiler, msys shell and nsis to do the installing
+# Please read the script before trying to execute it.
+# Legal arguments for the script are
+#  'threads' - enable threads
+#  'no_threads', 
+#  '32', '64'  - compile for 32 or 64 bit architecture.
+# By default threads are turned off and we use 64 bits.
 #
-# please check:
+# please check if you have gcc 64 bits in your path and a clone
+# of msys shell like smartgit:
 #
 # http://sourceforge.net/projects/mingwbuilds/
 #   PS: don't install in the default location.
@@ -15,6 +22,9 @@
 VERSION=6.3.4
 THREADS=no
 ABI=64
+ROOTS=/l/work/noth/git
+ROOTS_WIN=L:\\work\\noth\\git
+TARGET=$ROOTS/yap
 
 if test $# = 1; then
   if test $1 = threads; then
@@ -53,7 +63,8 @@ else
   fi
 fi
 
-CONFIGURE=../yap-6.3/configure
+# srcdir comes from here, please avoid relative paths
+CONFIGURE=$ROOTS/yap-6.3/configure
 
 # debugging setup
 do_compile=true
@@ -61,7 +72,7 @@ do_install=true
 
 # HOME WIN64 configuration
 
-DOCS_DIR=/z/Yap/bins/osx
+DOCS_DIR=/l/work/noth/yapdocs
 if test "$THREADS" = yes; then
   FULL_VERSION="$VERSION"-threads
 else
@@ -69,28 +80,28 @@ else
 fi
 
 if test $ABI = 64; then
-GCC_PATH=/c/cygwin/Yap/mingw64
+GCC_PATH=/l/Work/noth/mingw-w64/x86_64-4.9.0-posix-seh-rt_v3-rev1/mingw64
 HOST="--host=x86_64-w64-mingw32"
 # ok.
 
-CUDD=yes
-GECODE=no #does not link with mingw64, VC++ trouble
-GMP=yes
-JAVA=yes
-PYTHON=no
-REAL=yes
+CUDD=no # BDD compiler package. Get version that compiles on Windows from Vitor!
+GECODE=no  #does not link with mingw64, VC++ trouble
+GMP=yes    # Compile it for infinite precision numbers and rationals 
+JAVA=no    # for JPL only
+PYTHON=no  # does not work in Windows anyway (currently)
+REAL=no    # interface to R
 
   # it seems python2.7 does not support mingw64
   PYTHON_PATH="/c/Python33-64"
   export PATH="$GCC_PATH"/bin:"$PATH"
   GECODE_PATH="/c/Program Files/Gecode"
-  GMP=/c/cygwin/Yap/win64
+  GMP=/l/Work/noth/msys/1.0/local
   CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw64
   JAVA_PATH="/c/Program Files/Java/jdk1.7.0_51"
   R_PATH="/c/Program Files/R/R-3.0.2"
   if test $THREADS = yes
   then
-    cp "$GCC_PATH/x86_64-w64-mingw32/lib/libwinpthread-1.dll" .
+    cp "$GCC_PATH/x86_64-w64-mingw32/lib/libwinpthread-1.dll" .  # interface from posix threads to windows native threads
     cp libwinpthread-1.dll pthreadGC2.dll
   fi
 fi
@@ -108,7 +119,7 @@ REAL=yes
 
   PYTHON_PATH="/c/Python27"
   export PATH="$GCC_PATH"/bin:$PATH
-#  GECODE_PATH="/c/Program Files/Gecode"
+  GECODE_PATH="/c/Program Files/Gecode"
   GMP=/c/cygwin/Yap/win32
   CUDD_PATH=/c/cygwin/Yap/cudd-2.5.0-mingw32
   JAVA_PATH="/c/Program Files (x86)/Java/jdk1.7.0_51"
@@ -149,8 +160,11 @@ then
   export PATH="$PATH":"$R_PATH"/bin/"$R_ABI"
 fi
 
+export INSTALL_SH=$ROOTS/yap-6.3/install.sh
+# avoid using relativ paths
 if test "$do_compile" = true; then
 "$CONFIGURE" $HOST \
+    --prefix=$TARGET \
 	--with-R="$REAL" \
 	--with-java="$JAVA" \
 	--with-gmp="$GMP" \
@@ -159,16 +173,16 @@ if test "$do_compile" = true; then
 	--enable-gecode="$GECODE" \
 	--enable-threads="$THREADS"  --enable-pthread-locking \
 	 --enable-debug-yap --enable-low-level-tracer
-make install
+make -j 4 install
 fi
 if test "$do_install" = true; then
 if test $ABI = 64; then
-  cp $DOCS_DIR/*html /c/Yap64/share/doc/Yap
-  cp $DOCS_DIR/*pdf /c/Yap64/share/doc/Yap
-  "/c/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog64 -DROOTDIR=Yap64 -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="..\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -D"WIN64=1" -NOCD ../yap-6.3/misc/Yap.nsi
+  cp $DOCS_DIR/*html $TARGET/share/doc/Yap
+  cp $DOCS_DIR/*pdf $TARGET/share/doc/Yap
+  "/l/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog64 -DROOTDIR=$TARGET -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="$ROOTS_WIN\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -D"WIN64=1" -NOCD $ROOTS/yap-6.3/misc/Yap.nsi
 else
-  cp $DOCS_DIR/*html /c/Yap/share/doc/Yap
-  cp $DOCS_DIR/*pdf /c/Yap/share/doc/Yap
-  "/c/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog -DROOTDIR=Yap -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="..\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -NOCD ../yap-6.3/misc/Yap.nsi
+  cp $DOCS_DIR/*html $TARGET/share/doc/Yap
+  cp $DOCS_DIR/*pdf $TARGET/share/doc/Yap
+  "/l/Program Files (x86)/NSIS/makensis" -DREGKEY=SOFTWARE\\YAP\\Prolog -DROOTDIR=$TARGET -DABI="$ABI" -DVERSION="$FULL_VERSION" -DOPTIONS="$ROOTS_WIN\\yap-6.3\\misc\\options.ini" -DOUT_DIR=".." -NOCD $ROOTS/yap-6.3/misc/Yap.nsi
 fi
 fi
