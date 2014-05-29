@@ -2335,7 +2335,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 	mod != TermProlog && mod)
        )
       ) {
-    printf("p=%p p->PredFlags=%lx %lx p->cs.p_code.NOfClauses=%ld\n", p, p->PredFlags,SysExportPredFlag  , p->cs.p_code.NOfClauses); 
+    //printf("p=%p p->PredFlags=%lx %lx p->cs.p_code.NOfClauses=%ld\n", p, p->PredFlags,SysExportPredFlag  , p->cs.p_code.NOfClauses);
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     UNLOCKPE(30,p);
     return TermNil;
