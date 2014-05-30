@@ -564,35 +564,36 @@ mutex_unlock_all :-
 	'$mutex_unlock_all'(Id).
 
 with_mutex(M, G) :-
-	'$no_threads', !,
-	call(G).
-with_mutex(M, G) :-
-	var(M), !,
-	'$do_error'(instantiation_error,with_mutex(M, G)).
-with_mutex(M, G) :-
-	var(G), !,
-	'$do_error'(instantiation_error,with_mutex(M, G)).
-with_mutex(M, G) :-
-	\+ callable(G), !,
-	'$do_error'(type_error(callable,G),with_mutex(M, G)).
-with_mutex(M, G) :-
-	atom(M), !,
-	'$with_mutex_mutex'(WMId),
-	'$lock_mutex'(WMId),
-	(	recorded('$mutex_alias',[Id|M],_) ->
+	( '$no_threads' ->
+	  once(G)
+	;
+	  var(M) ->
+	  '$do_error'(instantiation_error,with_mutex(M, G))
+	;
+	  var(G) ->
+	  '$do_error'(instantiation_error,with_mutex(M, G))
+	;
+	  \+ callable(G) ->
+	  '$do_error'(type_error(callable,G),with_mutex(M, G))
+	;
+	  atom(M) ->
+	  '$with_mutex_mutex'(WMId),
+	  '$lock_mutex'(WMId),
+	  (	recorded('$mutex_alias',[Id|M],_) ->
 		true
-	;	'$new_mutex'(Id),
+	  ;	'$new_mutex'(Id),
 		recorda('$mutex_alias',[Id|M],_)
-	),
-	'$lock_mutex'(Id),
-	'$unlock_mutex'(WMId),
-	(	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
+	  ),
+	  '$unlock_mutex'(WMId),
+	  '$lock_mutex'(Id),
+	  (	catch('$execute'(G), E, ('$unlock_mutex'(Id), throw(E))) ->
 		'$unlock_mutex'(Id)
-	;	'$unlock_mutex'(Id),
+	  ;	'$unlock_mutex'(Id),
 		fail
+	  )
+	;
+	'$do_error'(type_error(atom,M),with_mutex(M, G))
 	).
-with_mutex(M, G) :-
-	'$do_error'(type_error(atom,M),with_mutex(M, G)).
 
 current_mutex(M, T, NRefs) :-
 	recorded('$mutex_alias',[Id|M],_),
