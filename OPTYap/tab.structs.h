@@ -271,8 +271,8 @@ typedef struct subgoal_entry {
 
 #define SgEnt_lock(X)            ((X)->lock)
 #define SgEnt_code(X)            ((X)->code_of_subgoal)
-#define SgEnt_tab_ent(X)         (((X)->code_of_subgoal)->u.Otapl.te)
-#define SgEnt_arity(X)           (((X)->code_of_subgoal)->u.Otapl.s)
+#define SgEnt_tab_ent(X)         (((X)->code_of_subgoal)->y_u.Otapl.te)
+#define SgEnt_arity(X)           (((X)->code_of_subgoal)->y_u.Otapl.s)
 #define SgEnt_hash_chain(X)      ((X)->hash_chain)
 #define SgEnt_answer_trie(X)     ((X)->answer_trie)
 #define SgEnt_first_answer(X)    ((X)->first_answer)
@@ -316,8 +316,8 @@ typedef struct subgoal_frame {
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 #define SgFr_lock(X)                    (SUBGOAL_ENTRY(X) lock)
 #define SgFr_code(X)                    (SUBGOAL_ENTRY(X) code_of_subgoal)
-#define SgFr_tab_ent(X)                 ((SUBGOAL_ENTRY(X) code_of_subgoal)->u.Otapl.te)
-#define SgFr_arity(X)                   ((SUBGOAL_ENTRY(X) code_of_subgoal)->u.Otapl.s)
+#define SgFr_tab_ent(X)                 ((SUBGOAL_ENTRY(X) code_of_subgoal)->y_u.Otapl.te)
+#define SgFr_arity(X)                   ((SUBGOAL_ENTRY(X) code_of_subgoal)->y_u.Otapl.s)
 #define SgFr_hash_chain(X)              (SUBGOAL_ENTRY(X) hash_chain)
 #define SgFr_answer_trie(X)             (SUBGOAL_ENTRY(X) answer_trie)
 #define SgFr_first_answer(X)            (SUBGOAL_ENTRY(X) first_answer)

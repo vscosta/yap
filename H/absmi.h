@@ -379,7 +379,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define DO_PREFETCH(TYPE) to_go = (void *)(NEXTOP(PREG,TYPE)->opc)
 
-#define DO_PREFETCH_W(TYPE) to_go = (void *)(NEXTOP(PREG,TYPE)->u.o.opcw)
+#define DO_PREFETCH_W(TYPE) to_go = (void *)(NEXTOP(PREG,TYPE)->y_u.o.opcw)
 
 #if LIMITED_PREFETCH||USE_PREFETCH
 
@@ -466,7 +466,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 	JMP((void *)(PREG->opc))
 
 #define JMPNextW()						\
-	JMP((void *)(PREG->u.o.opcw))
+	JMP((void *)(PREG->y_u.o.opcw))
 
 #if USE_THREADED_CODE && (LIMITED_PREFETCH || USE_PREFETCH)
 

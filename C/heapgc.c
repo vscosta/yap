@@ -451,7 +451,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
   /* push any live registers we might have hanging around */
   if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
-    CELL *lab = (CELL *)(nextop->u.l.l);
+    CELL *lab = (CELL *)(nextop->y_u.l.l);
     CELL max = lab[0];
     Int curr = lab[1];
     lab += 2;
@@ -547,7 +547,7 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
   /* pop any live registers we might have hanging around */
   if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
-    CELL *lab = (CELL *)(nextop->u.l.l);
+    CELL *lab = (CELL *)(nextop->y_u.l.l);
     CELL max = lab[0];
     Int curr = lab[1];
     lab += 2;
@@ -2055,8 +2055,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
       mark_environments((CELL_PTR) (gc_B->cp_a1),
-			-gc_B->cp_cp->u.Osblp.s / ((OPREG)sizeof(CELL)),
-			gc_B->cp_cp->u.Osblp.bmap
+			-gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
+			gc_B->cp_cp->y_u.Osblp.bmap
 			 PASS_REGS);
     } else {
       /* choicepoint with arguments */
@@ -2107,10 +2107,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	  }
 	  B = old_b;
 	}
-	nargs = rtp->u.OtapFs.s+rtp->u.OtapFs.extra;
+	nargs = rtp->y_u.OtapFs.s+rtp->y_u.OtapFs.extra;
 	break;
       case _jump:
-	rtp = rtp->u.l.l;
+	rtp = rtp->y_u.l.l;
 	op = rtp->opc;
 	opnum = Yap_op_from_opcode(op);
 	goto restart_cp;
@@ -2144,7 +2144,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	{
 	  CELL *vars_ptr, vars;
 	  vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	  nargs = rtp->u.Otapl.s;
+	  nargs = rtp->y_u.Otapl.s;
 	  while (nargs--) {	
 	    mark_external_reference(vars_ptr PASS_REGS);
 	    vars_ptr++;
@@ -2307,15 +2307,15 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.OtaLl.n;
+	  yamop *end = rtp->y_u.OtaLl.n;
 	  while (end->opc != trust_lu &&
 		 end->opc != count_trust_lu &&
 		 end->opc != profiled_trust_lu )
-	    end = end->u.OtaLl.n;
-	  mark_ref_in_use((DBRef)end->u.OtILl.block PASS_REGS);
+	    end = end->y_u.OtaLl.n;
+	  mark_ref_in_use((DBRef)end->y_u.OtILl.block PASS_REGS);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.OtaLl.s+1;
+	nargs = rtp->y_u.OtaLl.s+1;
 	break;
       case _count_retry_logical:
 	{
@@ -2324,13 +2324,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.OtaLl.n;
+	  yamop *end = rtp->y_u.OtaLl.n;
 	  while (Yap_op_from_opcode(end->opc) != _count_trust_logical)
-	    end = end->u.OtaLl.n;
-	  mark_ref_in_use((DBRef)end->u.OtILl.block PASS_REGS);
+	    end = end->y_u.OtaLl.n;
+	  mark_ref_in_use((DBRef)end->y_u.OtILl.block PASS_REGS);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.OtaLl.s+1;
+	nargs = rtp->y_u.OtaLl.s+1;
 	break;
       case _profiled_retry_logical:
 	{
@@ -2339,28 +2339,28 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	     on the other hand it's the only way we can be sure we can reclaim
 	     space
 	  */
-	  yamop *end = rtp->u.OtaLl.n;
+	  yamop *end = rtp->y_u.OtaLl.n;
 	  while (Yap_op_from_opcode(end->opc) != _profiled_trust_logical)
-	    end = end->u.OtaLl.n;
-	  mark_ref_in_use((DBRef)end->u.OtILl.block PASS_REGS);
+	    end = end->y_u.OtaLl.n;
+	  mark_ref_in_use((DBRef)end->y_u.OtILl.block PASS_REGS);
 	}
 	/* mark timestamp */
-	nargs = rtp->u.OtaLl.s+1;
+	nargs = rtp->y_u.OtaLl.s+1;
 	break;
       case _trust_logical:
       case _count_trust_logical:
       case _profiled_trust_logical:
 	/* mark timestamp */
-	mark_ref_in_use((DBRef)rtp->u.OtILl.block PASS_REGS);
-	nargs = rtp->u.OtILl.d->ClPred->ArityOfPE+1;
+	mark_ref_in_use((DBRef)rtp->y_u.OtILl.block PASS_REGS);
+	nargs = rtp->y_u.OtILl.d->ClPred->ArityOfPE+1;
 	break;
       case _retry_exo:
       case _retry_exo_udi:
       case _retry_all_exo:
-	nargs = rtp->u.lp.p->ArityOfPE;
+	nargs = rtp->y_u.lp.p->ArityOfPE;
 	break;
       case _retry_udi:
-	nargs = rtp->u.p.p->ArityOfPE;
+	nargs = rtp->y_u.p.p->ArityOfPE;
 	break;
 #ifdef DEBUG
       case _retry_me:
@@ -2375,14 +2375,14 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	  fprintf(stderr,"OOPS in GC: gc not supported in this case!!!\n");
 	  exit(1);
 	}
-	nargs = rtp->u.Otapl.s;
+	nargs = rtp->y_u.Otapl.s;
 	break;
       default:
 	fprintf(stderr, "OOPS in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
 #else
       default:
-	nargs = rtp->u.Otapl.s;
+	nargs = rtp->y_u.Otapl.s;
 #endif
       }
 	
@@ -2399,8 +2399,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 		 pt->opc != count_trust_lu &&
 		 pt->opc != profiled_trust_lu
 		 )
-	    pt = pt->u.OtaLl.n;
-	  mark_ref_in_use((DBRef)pt->u.OtILl.block PASS_REGS);
+	    pt = pt->y_u.OtaLl.n;
+	  mark_ref_in_use((DBRef)pt->y_u.OtILl.block PASS_REGS);
 	}
       }
       /* for each saved register */
@@ -3050,8 +3050,8 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _or_last:
 
       sweep_environments((CELL_PTR)(gc_B->cp_a1),
-			 -gc_B->cp_cp->u.Osblp.s / ((OPREG)sizeof(CELL)),
-			 gc_B->cp_cp->u.Osblp.bmap
+			 -gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
+			 gc_B->cp_cp->y_u.Osblp.bmap
 			  PASS_REGS);
       break;
     case _retry_profiled:
@@ -3061,7 +3061,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       opnum = Yap_op_from_opcode(op);
       goto restart_cp;
     case _jump:
-      rtp = rtp->u.l.l;
+      rtp = rtp->y_u.l.l;
       op = rtp->opc;
       opnum = Yap_op_from_opcode(op);
       goto restart_cp;
@@ -3094,7 +3094,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
 	CELL *vars_ptr, vars;
 	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
 	vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
-	nargs = rtp->u.Otapl.s;
+	nargs = rtp->y_u.Otapl.s;
 	while(nargs--) {
 	  CELL cp_cell = *vars_ptr;
 	  if (MARKED_PTR(vars_ptr)) {
@@ -3288,12 +3288,12 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _count_retry_logical:
     case _profiled_retry_logical:
 	/* sweep timestamp */
-      sweep_b(gc_B, rtp->u.OtaLl.s+1 PASS_REGS);
+      sweep_b(gc_B, rtp->y_u.OtaLl.s+1 PASS_REGS);
       break;
     case _trust_logical:
     case _count_trust_logical:
     case _profiled_trust_logical:
-      sweep_b(gc_B, rtp->u.OtILl.d->ClPred->ArityOfPE+1 PASS_REGS);
+      sweep_b(gc_B, rtp->y_u.OtILl.d->ClPred->ArityOfPE+1 PASS_REGS);
       break;
     case _retry2:
       sweep_b(gc_B, 2 PASS_REGS);
@@ -3305,12 +3305,12 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       sweep_b(gc_B, 4 PASS_REGS);
       break;
     case _retry_udi:
-      sweep_b(gc_B, rtp->u.p.p->ArityOfPE PASS_REGS);
+      sweep_b(gc_B, rtp->y_u.p.p->ArityOfPE PASS_REGS);
       break;
     case _retry_exo:
     case _retry_exo_udi:
     case _retry_all_exo:
-      sweep_b(gc_B, rtp->u.lp.p->ArityOfPE PASS_REGS);
+      sweep_b(gc_B, rtp->y_u.lp.p->ArityOfPE PASS_REGS);
       break;
     case _retry_c:
     case _retry_userc:
@@ -3318,8 +3318,8 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
 	register CELL_PTR saved_reg;
 	
 	/* for each extra saved register */
-	for (saved_reg = &(gc_B->cp_a1)+rtp->u.OtapFs.s;
-	     saved_reg < &(gc_B->cp_a1)+rtp->u.OtapFs.s+rtp->u.OtapFs.extra;
+	for (saved_reg = &(gc_B->cp_a1)+rtp->y_u.OtapFs.s;
+	     saved_reg < &(gc_B->cp_a1)+rtp->y_u.OtapFs.s+rtp->y_u.OtapFs.extra;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
 	  if (MARKED_PTR(saved_reg)) {
@@ -3332,7 +3332,7 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       }
       /* continue to clean environments and arguments */
     default:
-      sweep_b(gc_B,rtp->u.Otapl.s PASS_REGS);
+      sweep_b(gc_B,rtp->y_u.Otapl.s PASS_REGS);
     }
 
     /* link to prev choicepoint */

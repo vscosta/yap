@@ -934,10 +934,10 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     
     if (oop == _call_cpred || oop == _call_usercpred) {
       /* doing C-code */
-      current_p = PREVOP(P,Osbpp)->u.Osbpp.p->CodeOfPred;
+      current_p = PREVOP(P,Osbpp)->y_u.Osbpp.p->CodeOfPred;
     } else if ((oop = Yap_op_from_opcode(P->opc)) == _execute_cpred) {
       /* doing C-code */
-      current_p = P->u.pp.p->CodeOfPred;
+      current_p = P->y_u.pp.p->CodeOfPred;
     } else {
       current_p = P;
     }

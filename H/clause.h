@@ -33,7 +33,7 @@ typedef union CONSULT_OBJ {
 #define ASSEMBLING_INDEX	1
 #define ASSEMBLING_EINDEX	2
 
-#define NextDynamicClause(X)	(((yamop *)X)->u.Otapl.d)
+#define NextDynamicClause(X)	(((yamop *)X)->y_u.Otapl.d)
 
 #define PredFirstClause		0
 #define PredMiddleClause	1

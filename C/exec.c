@@ -1587,9 +1587,9 @@ static int is_cleanup_cp(choiceptr cp_b)
   if (cp_b->cp_ap->opc != ORLAST_OPCODE)
     return FALSE;
 #ifdef YAPOR
-  pe = cp_b->cp_ap->u.Osblp.p0;
+  pe = cp_b->cp_ap->y_u.Osblp.p0;
 #else
-  pe = cp_b->cp_ap->u.p.p;
+  pe = cp_b->cp_ap->y_u.p.p;
 #endif	/* YAPOR */
   /* 
      it has to be a cleanup and it has to be a completed goal,
@@ -1902,7 +1902,7 @@ Yap_dogc( int extra_args, Term *tp USES_REGS )
   int i;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    arity = PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
     nextpc = P;
   } else {
     arity = 0;

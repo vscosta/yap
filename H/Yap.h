@@ -86,6 +86,10 @@
 #define TERM_EXTENSIONS 1
 #endif /* COROUTINING && !TERM_EXTENSIONS */
 
+/* truth-values */
+#define	 TRUE	1
+#define	 FALSE	0
+
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */
 #ifdef HAVE_GCC
@@ -154,10 +158,6 @@
 #else
 #define EXTERN
 #endif /* ADTDEFS_C */
-
-/* truth-values */
-#define	 TRUE	1
-#define	 FALSE	0
 
 
 /* null pointer	*/

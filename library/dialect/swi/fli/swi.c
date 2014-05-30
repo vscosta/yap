@@ -81,7 +81,7 @@ do_gc(UInt sz)
   yamop *nextpc;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    arity = PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
     nextpc = P;
   } else {
     arity = 0;

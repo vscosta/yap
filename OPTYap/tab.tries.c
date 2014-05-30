@@ -1071,8 +1071,8 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 
   stack_vars = *Yaddr;
   subs_arity = 0;
-  pred_arity = preg->u.Otapl.s;
-  tab_ent = preg->u.Otapl.te;
+  pred_arity = preg->y_u.Otapl.s;
+  tab_ent = preg->y_u.Otapl.te;
   current_sg_node = get_insert_subgoal_trie(tab_ent PASS_REGS);
   LOCK_SUBGOAL_TRIE(tab_ent);
 

@@ -294,14 +294,14 @@ do_clean_susp_clauses(yamop *ipc USES_REGS) {
   yamop **st = (yamop **)NEXTOP(ipc,sssllp);
 
   ipc->opc = Yap_opcode(_expand_clauses);
-  ipc->u.sssllp.p = PtoPredAdjust(ipc->u.sssllp.p);
-  if (ipc->u.sssllp.sprev) {
-    ipc->u.sssllp.sprev = PtoOpAdjust(ipc->u.sssllp.sprev);
+  ipc->y_u.sssllp.p = PtoPredAdjust(ipc->y_u.sssllp.p);
+  if (ipc->y_u.sssllp.sprev) {
+    ipc->y_u.sssllp.sprev = PtoOpAdjust(ipc->y_u.sssllp.sprev);
   }
-  if (ipc->u.sssllp.snext) {
-    ipc->u.sssllp.snext = PtoOpAdjust(ipc->u.sssllp.snext);
+  if (ipc->y_u.sssllp.snext) {
+    ipc->y_u.sssllp.snext = PtoOpAdjust(ipc->y_u.sssllp.snext);
   }
-  for (i = 0; i < ipc->u.sssllp.s1; i++, st++) {
+  for (i = 0; i < ipc->y_u.sssllp.s1; i++, st++) {
     if (*st) {
       *st = PtoOpAdjust(*st);
     }
@@ -766,10 +766,10 @@ RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
   yamop *ipc = start;
 
   ipc->opc = Yap_opcode(_call);
-  ipc->u.Osbpp.p = pred;
-  ipc->u.Osbpp.p0 = pred;
-  ipc->u.Osbpp.bmap = NULL;
-  ipc->u.Osbpp.s = -Signed(RealEnvSize);
+  ipc->y_u.Osbpp.p = pred;
+  ipc->y_u.Osbpp.p0 = pred;
+  ipc->y_u.Osbpp.bmap = NULL;
+  ipc->y_u.Osbpp.s = -Signed(RealEnvSize);
   ipc = NEXTOP(ipc, Osbpp);
   ipc->opc = Yap_opcode(opc);
   *instp = ipc;
@@ -782,15 +782,15 @@ RestoreOtaplInst__(yamop start[1], OPCODE opc, PredEntry *pe USES_REGS)
 
   /* this is a place holder, it should not really be used */
   ipc->opc = Yap_opcode(opc);
-  ipc->u.Otapl.s = 0;
-  ipc->u.Otapl.p = pe;
-  if (ipc->u.Otapl.d)
-    ipc->u.Otapl.d = PtoOpAdjust(ipc->u.Otapl.d);
+  ipc->y_u.Otapl.s = 0;
+  ipc->y_u.Otapl.p = pe;
+  if (ipc->y_u.Otapl.d)
+    ipc->y_u.Otapl.d = PtoOpAdjust(ipc->y_u.Otapl.d);
 #ifdef YAPOR
   INIT_YAMOP_LTT(ipc, 1);
 #endif /* YAPOR */
 #ifdef TABLING
-  ipc->u.Otapl.te = NULL;
+  ipc->y_u.Otapl.te = NULL;
 #endif /* TABLING */
 }
 
@@ -818,7 +818,7 @@ RestoreExpandList__( USES_REGS1 )
     yamop *ptr = Yap_heap_regs->expand_clauses_first;
     while (ptr) {
       do_clean_susp_clauses(ptr PASS_REGS);
-      ptr = ptr->u.sssllp.snext;
+      ptr = ptr->y_u.sssllp.snext;
     }
   }
 }
