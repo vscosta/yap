@@ -2,6 +2,7 @@
 LOCAL_PATH := $(call my-dir)
 NDK_TOOLCHAIN_VERSION := 4.8
 include $(CLEAR_VARS)
+LOCAL_LDLIBS := -llog -landroid
 LOCAL_LDLIBS +=  @abs_top_builddir@/libYap.a @abs_top_builddir@/yapi.o
 LOCAL_MODULE    := example
 LOCAL_SRC_FILES := yap_wrap.cpp
