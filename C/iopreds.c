@@ -484,7 +484,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 {
   CACHE_REGS
   TokEntry *tokstart;
-  Term t, v;
+  Term t;
   Term OCurrentModule = CurrentModule, tmod, tpos;
   int store_comments = rd->comments;
 
@@ -614,6 +614,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
   if (store_comments && !Yap_unify(LOCAL_Comments, Yap_GetFromSlot( rd->comments PASS_REGS)))
     return FALSE;
   if (rd->varnames) {
+      Term v;
     while (TRUE) {
       CELL *old_H = HR;
 
@@ -638,6 +639,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
   }
 
   if (rd->variables) {
+      Term v;
     while (TRUE) {
       CELL *old_H = HR;
 
@@ -661,6 +663,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       return FALSE;
   }
   if (rd->singles) {
+      Term v;
     while (TRUE) {
       CELL *old_H = HR;
 

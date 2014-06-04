@@ -1082,6 +1082,7 @@ Yap_Restore(char *s, char *lib_dir)
   IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
   if (!stream) 
     return -1;
+  __android_log_print(ANDROID_LOG_INFO, "qlyr.c", "loading startup %p", stream);
   GLOBAL_RestoreFile = s;
   read_module(stream);
   Sclose( stream );

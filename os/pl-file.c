@@ -3247,7 +3247,17 @@ openStream(term_t file, term_t mode, term_t options)
   } else
 #endif /*HAVE_POPEN*/
   if ( PL_get_file_name(file, &path, 0) )
-  { if ( !(s = Sopen_file(path, how)) )
+  {
+#if __ANDROID__
+      if (strstr(path,"/assets/")) {
+	  if (!(s=Sopen_asset(path+8, "r")))
+	    { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
+	    	       ATOM_open, ATOM_source_sink, file);
+	      return NULL;
+	    }
+      } else
+#endif
+    if ( !(s = Sopen_file(path, how)) )
     { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
 	       ATOM_open, ATOM_source_sink, file);
       return NULL;

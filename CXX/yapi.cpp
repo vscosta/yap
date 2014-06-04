@@ -3,6 +3,8 @@
 
 #include "yapi.hh"
 
+
+
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string 
 	BACKUP_H();
 
@@ -12,7 +14,7 @@ YAPAtomTerm::YAPAtomTerm(char *s) { // build string
 	inp.type = YAP_STRING_CHARS;
 	out.type = YAP_STRING_ATOM;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = MkAtomTerm(out.val.a);
+		mk ( MkAtomTerm(out.val.a) );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -29,7 +31,7 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
 	out.sz = len;
 	out.max = len;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = MkAtomTerm(out.val.a);
+		mk ( MkAtomTerm(out.val.a) );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -43,7 +45,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s): YAPTerm() { // build string
 	inp.type = YAP_STRING_WCHARS;
 	out.type = YAP_STRING_ATOM;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = MkAtomTerm(out.val.a);
+		mk ( MkAtomTerm(out.val.a) );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -60,7 +62,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
 	out.sz = len;
 	out.max = len;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = MkAtomTerm(out.val.a);
+		mk ( MkAtomTerm(out.val.a) );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -75,7 +77,7 @@ YAPStringTerm::YAPStringTerm(char *s) { // build string
 	inp.type = YAP_STRING_CHARS;
 	out.type = YAP_STRING_STRING;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = out.val.t;
+		mk ( out.val.t );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -92,7 +94,7 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
 	out.sz = len;
 	out.max = len;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = out.val.t;
+		mk ( out.val.t );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -106,7 +108,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s): YAPTerm() { // build string
 	inp.type = YAP_STRING_WCHARS;
 	out.type = YAP_STRING_STRING;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = out.val.t;
+		mk ( out.val.t );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -123,7 +125,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build stri
 	out.sz = len;
 	out.max = len;
 	if (Yap_CVT_Text(&inp, &out PASS_REGS))
-		t = out.val.t;
+		mk ( out.val.t );
 	else t = 0L;
 	RECOVER_H();
 }
@@ -131,25 +133,25 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build stri
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) : YAPTerm() {
 	UInt arity = ArityOfFunctor(f.f);
-	t = Yap_MkApplTerm( f.f, arity, (Term *)ts);
+	mk ( Yap_MkApplTerm( f.f, arity, (Term *)ts) );
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
 	UInt arity = ArityOfFunctor(f.f);
-	t = Yap_MkNewApplTerm( f.f, arity);
+	mk ( Yap_MkNewApplTerm( f.f, arity) );
 }
 
-YAPTerm  YAPApplTerm::getArg(unsigned int arg) {
-	return YAPTerm( ArgOfTerm(arg, t) );
+YAPTerm  YAPApplTerm::getArg(int arg) {
+	return YAPTerm( ArgOfTerm(arg, gt() ) );
 }
 
 YAPFunctor  YAPApplTerm::getFunctor() {
-	return YAPFunctor( FunctorOfTerm(t) );
+	return YAPFunctor( FunctorOfTerm( gt( )) );
 }
 
 YAPPairTerm::YAPPairTerm(YAPTerm th, YAPTerm tl) : YAPTerm() {
 	CACHE_REGS
-	t = MkPairTerm( th.t, tl.t);
+	mk ( MkPairTerm( th.term(), tl.term() ) );
 }
 
 YAPPairTerm::YAPPairTerm() : YAPTerm() {
@@ -157,8 +159,9 @@ YAPPairTerm::YAPPairTerm() : YAPTerm() {
 }
 
 YAP_tag_t  YAPTerm::tag() {
-	if (IsVarTerm(t)) {
-		CELL *pt = VarOfTerm(t);
+  Term tt = gt( );
+	if (IsVarTerm(tt)) {
+		CELL *pt = VarOfTerm(tt);
 		if (IsUnboundVar(pt)) {
 			CACHE_REGS
 			if (IsAttVar(pt))
@@ -167,14 +170,14 @@ YAP_tag_t  YAPTerm::tag() {
 		}
 		return YAP_TAG_REF;
 	}
-	if (IsPairTerm(t))
+	if (IsPairTerm(tt))
 		return YAP_TAG_PAIR;
-	if (IsAtomOrIntTerm(t)) {
-		if (IsAtomTerm(t))
+	if (IsAtomOrIntTerm(tt)) {
+		if (IsAtomTerm(tt))
 			return YAP_TAG_ATOM;
 		return YAP_TAG_INT;
 	} else {
-		Functor f = FunctorOfTerm(t);
+		Functor f = FunctorOfTerm(tt);
 
 		if (IsExtensionFunctor(f)) {
 			if (f == FunctorDBRef) {
@@ -184,7 +187,7 @@ YAP_tag_t  YAPTerm::tag() {
 				return YAP_TAG_LONG_INT;
 			}
 			if (f == FunctorBigInt) {
-				big_blob_type bt = (big_blob_type)RepAppl(t)[1];
+				big_blob_type bt = (big_blob_type)RepAppl(tt)[1];
 				switch (bt) {
 				case BIG_INT:
 					return YAP_TAG_BIG_INT;
@@ -203,7 +206,7 @@ YAPTerm  YAPTerm::deepCopy() {
 	Term tn;
 	BACKUP_MACHINE_REGS();
 
-	tn = Yap_CopyTerm(t);
+	tn = Yap_CopyTerm( gt() );
 
 	RECOVER_MACHINE_REGS();
 	return new YAPTerm( tn );
@@ -213,7 +216,7 @@ bool YAPTerm::exactlyEqual(YAPTerm t1) {
 	int out;
 	BACKUP_MACHINE_REGS();
 
-	out = Yap_eq(Deref(t), Deref(t1.t));
+	out = Yap_eq(gt(), t1.term());
 
 	RECOVER_MACHINE_REGS();
 	return out;
@@ -223,7 +226,7 @@ bool YAPTerm::unify(YAPTerm t1) {
 	int out;
 	BACKUP_MACHINE_REGS();
 
-	out = Yap_unify(Deref(t), Deref(t1.t));
+	out = Yap_unify(gt(), t1.term());
 
 	RECOVER_MACHINE_REGS();
 	return out;
@@ -233,7 +236,7 @@ bool YAPTerm::unifiable(YAPTerm t1) {
 	int out;
 	BACKUP_MACHINE_REGS();
 
-	out = Yap_Unifiable(Deref(t), Deref(t1.t));
+	out = Yap_Unifiable(gt(), t1.term());
 
 	RECOVER_MACHINE_REGS();
 	return out;
@@ -243,22 +246,56 @@ bool YAPTerm::variant(YAPTerm t1) {
 	int out;
 	BACKUP_MACHINE_REGS();
 
-	out = Yap_Variant(Deref(t), Deref(t1.t));
+	out = Yap_Variant(gt(), t1.term());
 
 	RECOVER_MACHINE_REGS();
 	return out;
 }
 
 intptr_t YAPTerm::hash(size_t sz, size_t depth, bool variant) {
-	Int out;
+  intptr_t 	out;
 
 	BACKUP_MACHINE_REGS();
 
-	out = Yap_TermHash(t, sz, depth, variant);
+	out =  Yap_TermHash(gt(), sz, depth, variant) ;
 
 	RECOVER_MACHINE_REGS();
 	return out;
 }
+
+char *YAPTerm::text(void) {
+  size_t sze = 4096, sz, length;
+  char *buf = new char[sze], *b;
+  int enc;
+
+  BACKUP_MACHINE_REGS();
+  if ((b = Yap_TermToString(gt(), buf, sze, &length, &enc, 0)) != buf) {
+      if (b) free(b);
+      RECOVER_MACHINE_REGS();
+      return NULL;
+  }
+  sz = length+1;
+  char *os = new char[sz];
+  if (!os) {
+      RECOVER_MACHINE_REGS();
+    return NULL;
+  }
+  memcpy(os, buf, sz);
+  delete buf;
+  RECOVER_MACHINE_REGS();
+  return os;
+}
+
+/*
+YAPTerm *YAPTerm::vars()
+{
+  BACKUP_MACHINE_REGS();
+  CACHE_REGS
+  YAPPairTerm lv = YAPPairTerm(Yap_TermVariables(gt(), 0 PASS_REGS));
+  RECOVER_MACHINE_REGS();
+  return lv;
+}
+*/
 
 
 char *YAPAtom::name(void) {
@@ -312,8 +349,27 @@ char *YAPAtom::name(void) {
 }
 
 
+YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) {
+  CACHE_REGS
+  vnames = Yap_NewSlots(1 PASS_REGS);
+  Term t = Yap_StringToTerm(s, strlen(s)+1, vnames), m;
+  t = Yap_StripModule(t, &m);
+	if (IsVarTerm(t) || IsNumTerm(t))
+		ap = NULL;
+	if (IsAtomTerm(t)) {
+		ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
+		*outp = NULL;
+	} else if (IsApplTerm(t)) {
+		ap = RepPredProp(PredPropByFunc(FunctorOfTerm(t), m));
+		*outp = RepAppl(t)+1;
+	} else if (IsPairTerm(t)) {
+		ap = RepPredProp(PredPropByFunc(FunctorOfTerm(t), m));
+		*outp = RepPair(t);
+	}
+}
+
 void
-YAPQuery::initQuery( Term *t )
+YAPQuery::initQuery( Term *ts )
 {
 	CACHE_REGS
 
@@ -322,34 +378,36 @@ YAPQuery::initQuery( Term *t )
 	this->q_open=1;
 	this->q_state=0;
 	this->q_flags = 0;
-	this->q_g = t;
+	this->q_g = ts;
+}
+
+void
+YAPQuery::initQuery( YAPTerm t[], arity_t arity )
+{
+	Term *ts = new Term[arity];
+	for (int i = 0; i < arity; i++)
+	  ts[i] = t[i].term();
+
+	return initQuery( ts );
 }
 
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]): YAPPredicate(f, mod)
 {
 	/* ignore flags  for now */
-	initQuery( (Term *)t );
+	initQuery( t , f.arity());
 }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm t[]): YAPPredicate(f)
 {
 	/* ignore flags for now */
-	initQuery( (Term *)t );
+	initQuery( t , f.arity());
 }
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm t[]): YAPPredicate(p.ap)
 {
-	initQuery( (Term *)t );
+	initQuery( t , p.ap->ArityOfPE);
 }
-
-YAPQuery::YAPQuery(char *s): YAPPredicate(s, &this->q_g)
-{
-	Term *t = this->q_g;
-
-	initQuery( t );
-}
-
 
 int YAPQuery::next()
 {
@@ -410,5 +468,12 @@ int YAPPredicate::call(YAPTerm t[])
 
 YAPEngine::YAPEngine(YAPParams const& params)
 { YAP_Init( (YAP_init_args *)&params.init_args ); }
+
+
+YAPEngine::YAPEngine()
+{
+YAPParams *params = new YAPParams();
+  YAP_Init( &params->init_args );
+}
 
 

@@ -37,6 +37,16 @@
 #else
 #include <config.h>
 #endif
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#else
+inline void __android_log_print(int i, char *loc, char *msg, ...) {}
+#define ANDROID_LOG_INFO 0
+#define ANDROID_LOG_ERROR 0
+#define ANDROID_LOG_DEBUG 0
+#endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This modules defines the  SWI-Prolog  I/O   streams.  These  streams are
@@ -545,7 +555,7 @@ S__fillbuf(IOSTREAM *s)
   if ( s->flags & SIO_NBUF )
   { char chr;
     ssize_t n;
-
+    __android_log_print(ANDROID_LOG_ERROR, "pl-stream.c", "calling read   %p", s);
     n = (*s->functions->read)(s->handle, &chr, 1);
     if ( n == 1 )
     { c = char_to_int(chr);
@@ -578,7 +588,8 @@ S__fillbuf(IOSTREAM *s)
       len = s->bufsize;
     }
 
-    n = (*s->functions->read)(s->handle, s->limitp, len);
+    __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p %u", s, len);
+  n = (*s->functions->read)(s->handle, s->limitp, len);
     if ( n > 0 )
     { s->limitp += n;
       c = char_to_int(*s->bufp++);
@@ -738,7 +749,7 @@ unget_byte(int c, IOSTREAM *s)
 
   *--s->bufp = c;
   if ( p )
-  { p->charno--;			/* FIXME: not correct */
+  { p->charno--;			/* sz */
     p->byteno--;
     if ( c == '\n' )
       p->lineno--;
@@ -2875,7 +2886,14 @@ Sopen_file(const char *path, const char *how)
   enum {lnone=0,lread,lwrite} lock = lnone;
   IOSTREAM *s;
   IOENC enc = ENC_UNKNOWN;
-  int wait = TRUE;
+
+#if __ANDROID__
+    __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at  asset   %s", path);
+    if (strstr(path, "/assets/") == path) {
+	  char * p = (char *)path + strlen("/assets/");
+	  return Sopen_asset( p, how-1);
+    }
+#endif
 
   for( ; *how; how++)
   { switch(*how)
@@ -2887,7 +2905,7 @@ Sopen_file(const char *path, const char *how)
 	flags &= ~SIO_RECORDPOS;
         break;
       case 'L':				/* lock r: read, w: write */
-	wait = FALSE;
+//	wait = FALSE;
         /*FALLTHROUGH*/
       case 'l':				/* lock r: read, w: write */
 	if ( *++how == 'r' )
@@ -3180,6 +3198,196 @@ Sopen_pipe(const char *command, const char *type)
 }
 
 #endif /*HAVE_POPEN*/
+
+
+#if __ANDROID__
+
+		 /*******************************
+		 *	  ASSET FILES		*
+		 *******************************/
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Asset files provide a mechanism for accesing file resources stored in
+an Android application pack.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+static ssize_t
+Swrite_asset(void *handle, char *buf, size_t size)
+{
+  return -1L;
+}
+
+
+static ssize_t
+Sread_asset(void *handle, char *buf, size_t size)
+{
+  __android_log_print(ANDROID_LOG_ERROR, "os-stream.c", " size %d", size);
+ int res = AAsset_read((AAsset* )handle, (void* )buf, size);
+ __android_log_print(ANDROID_LOG_ERROR, "os-stream.c", "loaded  %d", res);
+  if (res < 0) {
+      errno = ENOSPC;			/* signal error */
+  }
+  return res;
+}
+
+
+static long
+Sseek_asset(void *handle, long offset, int whence)
+{ int res = AAsset_seek((AAsset* )handle, (off_t)offset, whence);
+  if (res == (off_t)-1) {
+      errno = ENOSPC;			/* signal error */
+  }
+  return res;
+}
+
+static int64_t
+Sseek64_asset(void *handle, int64_t offset, int whence)
+{ off64_t res = AAsset_seek64((AAsset* )handle, (off64_t)offset, whence);
+  if (res == (off64_t)-1) {
+      errno = ENOSPC;			/* signal error */
+  }
+  return res;
+}
+
+static int
+Scontrol_asset(void *handle, int action, void *arg)
+{ AAsset*  h = (AAsset* ) handle;
+  off_t *rval = (off_t *)arg;
+
+  switch(action)
+    {
+    case SIO_GETSIZE:
+      *rval = AAsset_getLength(h);
+      return 0;
+    case SIO_GETFILENO:
+        { off_t start = 0, end = AAsset_getLength(h);
+	  int fd = AAsset_openFileDescriptor((AAsset*)handle, &start, &end);
+	  if (fd == 0)
+	     return -1;
+	  *rval = fd;
+	  return 0;
+        }
+	  case SIO_SETENCODING:
+    case SIO_FLUSHOUTPUT:
+      return 0;
+    default:
+      return -1;
+  }
+}
+
+
+static int
+Sclose_asset(void *handle)
+{
+  AAsset_close((AAsset* )handle);
+
+  return 0;
+}
+
+
+
+IOFUNCTIONS Sassetfunctions =
+{ Sread_asset,
+  Swrite_asset,
+  Sseek_asset,
+  Sclose_asset,
+  Scontrol_asset,
+  Sseek64_asset
+};
+
+#include <jni.h>
+#include <string.h>
+
+AAssetManager *assetManager;
+JNIEnv *env;
+
+void Java_org_swig_simple_SwigSimple_load(JNIEnv *env0, jobject obj, jobject mgr);
+
+void Java_org_swig_simple_SwigSimple_load
+     (JNIEnv *env0, jobject obj, jobject mgr)
+{
+     __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "loading asset   manager %p", mgr);
+      assetManager = AAssetManager_fromJava(env0, mgr);
+      env = env0;
+  if (assetManager == NULL) {
+      __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "error loading asset   manager");
+  } else {
+      __android_log_print(ANDROID_LOG_VERBOSE, "os-stream.c", "loaded asset  manager");
+  }
+
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Sopen_asset(char **buffer, size_t *sizep, const char* mode)
+    Open an Android asset, essentially a read-only 	part of a ZIP archive.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+IOSTREAM *
+Sopen_asset(char *bufp, const char *how)
+{
+  AAsset* asset;
+  int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS|SIO_FBUF;
+  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at %s/%s", bufp, how);\
+  int op = *how++;
+  IOSTREAM *s;
+  IOENC enc = ENC_UNKNOWN;
+  AAssetManager* mgr = assetManager;
+
+  for( ; *how; how++)
+  { switch(*how)
+    { case 'b':				/* binary */
+	flags &= ~SIO_TEXT;
+	enc = ENC_OCTET;
+        break;
+       case 'r':				/* no record */
+	flags &= ~SIO_RECORDPOS;
+        break;
+      case 'L':				/* lock r: read, w: write */
+      case 'l':				/* lock r: read, w: write */
+	// read-only, nothing changes.
+	break;
+      default:
+	errno = EINVAL;
+        return NULL;
+    }
+  }
+  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at %s/%c", bufp, op);\
+
+#if O_LARGEFILES && defined(O_LARGEFILE)
+  oflags |= O_LARGEFILE;
+#endif
+
+  switch(op)
+  { case 'w':
+      return NULL;
+    case 'a':
+      return NULL;
+    case 'u':
+      return NULL;
+    case 'r':
+      __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "loading asset %s", bufp);\
+      //const char *utf8 = (*env)->GetStringUTFChars(env, bufp, NULL);
+       asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      flags |= SIO_INPUT;
+      break;
+    default:
+      errno = EINVAL;
+      return NULL;
+  }
+  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "got asset %p", asset);\
+
+  if ( !asset )
+    return NULL;
+
+
+  s = Snew((void *)asset, flags, &Sassetfunctions);
+  if ( enc != ENC_UNKNOWN )
+    s->encoding = enc;
+
+  return s;
+}
+
+#endif /* __ANDROID__ */
 
 		 /*******************************
 		 *	  MEMORY STREAMS	*

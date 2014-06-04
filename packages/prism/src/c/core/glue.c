@@ -18,6 +18,9 @@ SYM_REC_PTR insert_cpred(const char *, int, int(*)(void));
 void exit(int);
 
 #ifdef __YAP_PROLOG__
+typedef int (*CPredicate)(void);
+void
+YAP_UserCPredicate(const char *name, CPredicate def, uintptr_t arity);
 
 SYM_REC_PTR insert_cpred(const char *s, int n, int(*f)(void))
 {

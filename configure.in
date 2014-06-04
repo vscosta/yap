@@ -47,7 +47,7 @@ AC_ARG_WITH(sysroot,
 		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
 		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
 		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT" ],
-	[yap_cv_gmp=yes])
+	[])
 
 AC_PROG_CC
 AC_PROG_CPP
@@ -409,6 +409,8 @@ else
   STATIC_MODE="# "
 fi
 
+AC_CHECK_DECL(__clang_major__, CLANG=yes, CLANG=no)
+
 dnl Compilation Flags
 if test "$GCC" = "yes"
 then
@@ -615,6 +617,16 @@ else
   INSTALL_COMMAND="install_unix"
   WINDOWS="#"
   PKG_WINCONSOLE=""
+  case "$host" in
+		*android*)
+		   AC_CHECK_LIB(android,main)
+		   	AC_CHECK_LIB(log,main)
+			;;
+			**)
+       STARTUP_ANDROID="x"
+       STARTUP_DEFAULT=""
+			;;
+  esac
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
   dnl X/Open Networking is sometimes a separate library
@@ -860,7 +872,7 @@ fi
 	     fi
 	     if test "$have_nsl" = yes
 		 then
-		    LIBS="$LIBS -lnsl"
+		    LIBS="$LIBS -lnsl"						
 	     fi
 	        if test "$dynamic_loading" = "yes"
 	        then
@@ -1009,8 +1021,14 @@ dnl Linux has both elf and a.out, in this case we found elf
         fi
 	if test "$ac_cv_prog_gcc" = "yes"
 	then
-	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
-	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+	   if test "$CLANG" = "yes"
+	   then
+	     SHLIB_CFLAGS="-fPIC $CFLAGS"
+	     SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
+	   else
+	     SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
+	     SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+	   fi
 	   INSTALL_DLLS="yes"
         fi
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
@@ -1348,7 +1366,7 @@ AC_SUBST(ARCH)
 case "$host" in
 		*android*)
 		   STARTUP_ANDROID=""
-			 STARTUP_DEFAULT="x"
+		   	STARTUP_DEFAULT="x"
 			;;
 			**)
        STARTUP_ANDROID="x"
@@ -1423,6 +1441,8 @@ AC_SUBST(PKG_MINISAT)
 AC_SUBST(PKG_REAL)
 
 AC_SUBST(INSTALL_PRISM)
+
+AC_SUBST(SAVED_STATE_PREFIX)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
@@ -1634,6 +1654,7 @@ AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup wcsnlen)
 case "$host" in
     *android*)
       echo "no locale"
+      SAVED_STATE_PREFIX="/assets/lib/Yap/"
       ;;
       **)
       AC_CHECK_HEADERS(locale.h)

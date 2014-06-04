@@ -247,6 +247,22 @@ open_file(char *my_file, int flag)
 {
   int splfild;
 
+#if __ANDROID__
+  if (strstr(my_file, "/assets/") == my_file) {
+      if (flag == O_RDONLY) {
+	  extern AAssetManager *assetManager;
+	  my_file += strlen("/assets/");
+	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "open_file  %p %s", assetManager, my_file);
+	  AAsset* asset = AAssetManager_open(assetManager, my_file, AASSET_MODE_UNKNOWN);
+	   if (!asset)
+	      return -1;
+	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "open_file   %p", asset);
+	  AAsset_close( asset );
+	  return 0; // usually the file will be compressed, so there is no point in actually trying to open it.
+      }
+      return -1;
+  }
+#endif
 #ifdef M_WILLIAMS
   if (flag & O_CREAT)
     splfild = creat(my_file, flag);
@@ -1453,6 +1469,11 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   int mode = FAIL_RESTORE;
   char save_buffer[YAP_FILENAME_MAX+1];
 
+#if __ANDROID__
+  if (!inpf)
+    inpf = YAPSTARTUP;
+#endif
+  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %s", inpf);
   save_buffer[0] = '\0';
   //  LOCAL_ErrorMessage = NULL;
   if (inpf == NULL) {
@@ -1473,10 +1494,13 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX-1);
     strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   } else {
-    strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+    strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   }
-  if (inpf != NULL && !((splfild = open_file(inpf, O_RDONLY)) < 0)) {
+  if (inpf != NULL  &&
+      !((splfild = open_file(inpf, O_RDONLY)) < 0))
+   {
     if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
+	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p", *streamp);
       return mode;
     }
   }
@@ -1517,7 +1541,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   }
 #if _MSC_VER || defined(__MINGW32__)
   if ((inpf = Yap_RegistryGetString("startup"))) {
-    if (!((splfild = open_file(inpf, O_RDONLY)) < 0)) {
+    if (!((splfild = Sopen_file(inpf, "r")) < 0)) {
       if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	return mode;
       }
@@ -1582,6 +1606,7 @@ Yap_OpenRestore(char *inpf, char *YapLibDir)
   IOSTREAM *stream = NULL;
 
   OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
+  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p", stream);
   return stream;
 }
 

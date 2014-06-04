@@ -52,7 +52,7 @@ DOCSDIR=$(SHAREDIR)/doc/Yap
 #
 YAP_EXTRAS=@YAP_EXTRAS@
 
-YAPSTARTUP=startup.yss
+YAPSTARTUP=@SAVED_STATE_PREFIX@startup.yss
 
 #
 # Please do not add YAP_EXTRA flags here: if you do check the flags
@@ -108,6 +108,7 @@ VPATH=@srcdir@
 CWD=$(PWD)
 #
 VERSION=@YAP_VERSION@
+Y=@YAP_MAJOR_VERSION@
 DOC_VERSION=@DOC_VERSION@
 MYDDAS_VERSION=@MYDDAS_VERSION@
 #
@@ -451,6 +452,9 @@ clause_list.o: C/clause_list.c include/clause_list.h config.h
 udi.o: C/udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $< -o $@
 
+save.o: C/save.c
+	$(CC) -c $(C_INTERF_FLAGS) -DYAPSTARTUP=\"$(YAPSTARTUP)\" $< -o $@
+
 %.o: C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -590,27 +594,26 @@ libYap.a: $(LIB_OBJECTS)
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
 
-@STARTUP_ANDROID@startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+@STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES) install_unix
 	adb shell mkdir -p /data/yap
 	adb shell mkdir -p /data/yap/pl
 	adb shell mkdir -p /data/yap/swi/library
 	adb push yap /data/yap/
-	adb push libYap.so.? /data/yap/
+	adb push @DYNYAPLIB@ /data/yap/
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
-	adb pull /data/yap/startup.yss .
+	adb pull /data/yap/startup.yss
 
-install: @INSTALL_COMMAND@  install_common
+install: @INSTALL_COMMAND@ install_startup install_common
 
-install_unix: startup.yss @YAPLIB@
+install_unix: @YAPLIB@ yap@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
-	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 
 install_startup: startup.yss 
@@ -626,10 +629,12 @@ install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
 	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
-	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons/yap.ico
 
-install_common:
+install_common: install_startup
+	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)

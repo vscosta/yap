@@ -90,6 +90,12 @@ Yap_ThreadID( void )
   return -1;
 }
 
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+  return GLOBAL_NOfThreads;
+}
+
 static int
 allocate_new_tid(void)
 {
@@ -1089,6 +1095,17 @@ void Yap_InitThreadPreds(void)
 }
 
 #else
+
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+#ifdef YAPOR
+  return 2;
+#else
+  return 1;
+#endif
+}
+
 
 static Int 
 p_no_threads(void)

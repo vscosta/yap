@@ -2288,12 +2288,14 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   CACHE_REGS
   int out;
 
+  __android_log_print(ANDROID_LOG_INFO, "yapi.cpp", "got %p pred %p slot %d", LOCAL, pe, dgi->CurSlot);
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
+
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
   P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
@@ -2986,6 +2988,7 @@ YAP_Init(YAP_init_args *yap_init)
   if (initialised)
     return YAP_BOOT_DONE_BEFOREHAND;
   initialised = TRUE;
+  __android_log_print(ANDROID_LOG_INFO, "c_interface.c", "entered init %p", yap_init);
 
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)

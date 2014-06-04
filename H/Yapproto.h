@@ -387,6 +387,7 @@ void	Yap_WinError(char *);
 void   Yap_InitThreadPreds(void);
 void   Yap_InitFirstWorkerThreadHandle(void);
 int	   Yap_ThreadID( void );
+int    Yap_NOfThreads( void );
 #if THREADS
 int    Yap_InitThread(int);
 #endif
@@ -427,6 +428,7 @@ int	Yap_IsAcyclicTerm(Term);
 void	Yap_InitUtilCPreds(void);
 Int     Yap_TermHash(Term, Int, Int, int);
 Int     Yap_NumberVars(Term, Int, int);
+Term    Yap_TermVariables( Term t, UInt arity USES_REGS );
 Term    Yap_UnNumberTerm(Term, int);
 Int     Yap_SkipList(Term *, Term **);
 /* yap.c */

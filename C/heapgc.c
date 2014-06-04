@@ -169,11 +169,13 @@ PUSH_POINTER(CELL *v USES_REGS) {
   *LOCAL_iptop++ = v;
 }
 
+#ifdef EASY_SHUNTING
 inline static void
 POP_POINTER( USES_REGS1 ) {
   if (LOCAL_iptop >= (CELL_PTR *)ASP) return;
   --LOCAL_iptop;
 }
+#endif
 
 inline static void
 POPSWAP_POINTER(CELL_PTR *vp, CELL_PTR v USES_REGS) {
@@ -1521,21 +1523,6 @@ mark_external_reference(CELL *ptr USES_REGS) {
   } else {
     MARK(ptr);
     mark_code(ptr, next PASS_REGS);
-  }
-}
-
-static void inline
-mark_external_reference2(CELL *ptr USES_REGS) {
-  CELL *next = GET_NEXT(*ptr);
-
-  if (ONHEAP(next)) {
-#ifdef HYBRID_SCHEME
-    CELL_PTR *old = LOCAL_iptop;
-#endif      
-    mark_variable(ptr PASS_REGS);
-    POPSWAP_POINTER(old, ptr PASS_REGS);    
-  } else {
-    mark_code(ptr,next PASS_REGS);
   }
 }
 

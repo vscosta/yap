@@ -445,6 +445,16 @@ extern ADDR Yap_HeapBase;
 #ifdef DEBUG
 extern int Yap_output_msg;
 #endif
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#else
+inline void __android_log_print(int i, char *loc, char *msg, ...) {}
+#define ANDROID_LOG_INFO 0
+#define ANDROID_LOG_ERROR 0
+#define ANDROID_LOG_DEBUG 0
+#endif
 
 /*************************************************************************************************
                                 variables concerned with atoms table

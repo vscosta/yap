@@ -1419,13 +1419,18 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
   int res;
   int blob_overflow = (NOfBlobs > NOfBlobsMax);
 
-#if (THREADS) || YAPOR
-  res = FALSE;
-  if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
-    Yap_undo_signal( YAP_CDOVF_SIGNAL );
-    return TRUE;
+  LOCK(GLOBAL_ThreadHandlesLock);
+  // make sure that we cannot have more than a thread life
+  if (Yap_NOfThreads() > 1) {
+      UNLOCK(GLOBAL_ThreadHandlesLock);
+      res = FALSE;
+      if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
+	  Yap_undo_signal( YAP_CDOVF_SIGNAL );
+	  UNLOCK(LOCAL_SignalLock);
+	  return TRUE;
+      }
   }
-#else
+  // don't release the MTHREAD lock in case we're running from the C-interface.
   if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
     UInt n = NOfAtoms;
     if (GLOBAL_AGcThreshold)
@@ -1438,11 +1443,14 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
       res  = growatomtable( PASS_REGS1 );
     } else {
       Yap_undo_signal( YAP_CDOVF_SIGNAL );
+      UNLOCK(GLOBAL_ThreadHandlesLock);
       return TRUE;
     }
     LeaveGrowMode(GrowHeapMode);
-    if (res)
+    if (res) {
+	UNLOCK(GLOBAL_ThreadHandlesLock);
       return res;
+    }
   }
 #if USE_SYSTEM_MALLOC
   P = Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"malloc failed");
@@ -1451,7 +1459,7 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
 #endif
   LeaveGrowMode(GrowHeapMode);
-#endif
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   return res;
 }
 
