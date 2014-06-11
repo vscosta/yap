@@ -407,58 +407,58 @@ For implementation details and more information, please check term_t_slots in th
 /// @brief report the current position of the slots, assuming that they occupy the top of the stack.
 ///
 ///
-X_API Int     YAP_CurrentSlot(void);
+X_API handle_t     YAP_CurrentSlot(void);
 
 /// @brief allocate n empty new slots
 ///
 /// Return a handle to the system's default slot.
-X_API Int     YAP_NewSlots(int NumberOfSlots);
+X_API handle_t     YAP_NewSlots(int NumberOfSlots);
 
 /// @brief allocate n empty new slots
 ///
 /// Allocate  _NumberOfSlots_ from the stack and return an handle to the
 /// last one. The other handle can be obtained by decrementing the handle.
-X_API Int     YAP_InitSlot(YAP_Term t);
+X_API handle_t     YAP_InitSlot(YAP_Term t);
 
 /// @brief read from a slot.
 ///
 ///
-X_API YAP_Term    YAP_GetFromSlot(YAP_Int slot);
+X_API YAP_Term    YAP_GetFromSlot(YAP_handle_t slot);
 
 /// @brief get the memory address of a slot
 ///
 /// Return the address of slot  _slot_: please use with care.
-X_API YAP_Term   *YAP_AddressFromSlot(YAP_Int);
+X_API YAP_Term   *YAP_AddressFromSlot(YAP_handle_t);
 
 /// @brief get the memory address of the term actually stored in a slot
 ///
 ///
-X_API YAP_Term   *YAP_AddressOfTermInSlot(YAP_Int);
+X_API YAP_Term   *YAP_AddressOfTermInSlot(YAP_handle_t);
 
 /// @brief store  term in a slot
 ///
 ///
-X_API void    YAP_PutInSlot(YAP_Int slot, YAP_Term t);
+X_API void    YAP_PutInSlot(YAP_handle_t slot, YAP_Term t);
 
 /// @brief Succeeds if it recovers the space allocated for $n$ contiguous slots starting at topSlot.
 ///
 /// Set the contents of slot  _slot_ to  _t_.
-X_API int     YAP_RecoverSlots(int, YAP_Int topSlot);
+X_API int     YAP_RecoverSlots(int, YAP_handle_t topSlot);
 
 /// @brief copies the first new n YAAM registers to slots
 ///
 /// Store the current first   _HowMany_ arguments in new slots.
-X_API YAP_Int     YAP_ArgsToSlots(int HowMany);
+X_API YAP_handle_t     YAP_ArgsToSlots(int HowMany);
 
 /// @brief copies n slots such that sl is copied to the last abstract ,achine register.
 ///
 /// Set the first  _HowMany_ arguments to the  _HowMany_ slots
 // starting at  _slot_.
-X_API void    YAP_SlotsToArgs(int HowMany, YAP_Int slot);
+X_API void    YAP_SlotsToArgs(int HowMany, YAP_handle_t slot);
 
 /// @}
 
-static UInt
+static arity_t
 current_arity(void)
 {
   CACHE_REGS
@@ -2288,7 +2288,6 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   CACHE_REGS
   int out;
 
-  __android_log_print(ANDROID_LOG_INFO, "yapi.cpp", "got %p pred %p slot %d", LOCAL, pe, dgi->CurSlot);
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
@@ -2299,12 +2298,16 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
   P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL IN Yap_regp=%p LCL0=(%p) %x",  &Yap_REGS, LCL0, LCL0[-15]) ; }
   out = run_emulator(dgi PASS_REGS);
+  //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE Yap_regp=%p LCL0=(%p) %x",  &Yap_REGS, LCL0, LCL0[-15]) ; }
   RECOVER_MACHINE_REGS();
   if (out) {
-    LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
     Yap_StartSlots( PASS_REGS1 );
+  } else {
+      LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
+  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE %d", out) ; }
   return out;
 }
 
@@ -3068,6 +3071,7 @@ YAP_Init(YAP_init_args *yap_init)
       if (restore_result == FAIL_RESTORE) {
 	yap_init->ErrorNo = LOCAL_Error_TYPE;
 	yap_init->ErrorCause = LOCAL_ErrorMessage;
+	      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore failed, %s ", LOCAL_ErrorMessage);
 	/* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
 	return YAP_BOOT_ERROR;
       }
@@ -3104,6 +3108,7 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR */
     RECOVER_MACHINE_REGS();
   }
+    __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p", yap_init);
   /* make sure we do this after restore */
   if (yap_init->MaxStackSize) {
     GLOBAL_AllowLocalExpansion = FALSE;
@@ -3120,7 +3125,7 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     GLOBAL_AllowTrailExpansion = TRUE;
   }
-  if (yap_init->YapPrologRCFile) {
+ if (yap_init->YapPrologRCFile) {
     Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
@@ -3128,6 +3133,7 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
+ __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %s",yap_init->YapPrologRCFile);
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }
@@ -3140,6 +3146,7 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
+  __android_log_print(ANDROID_LOG_INFO, __FILE__, "after setting startup ");
   if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = LOCAL_Error_TYPE;
@@ -3155,9 +3162,11 @@ YAP_Init(YAP_init_args *yap_init)
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
-      YAP_RunGoalOnce(t_goal);
+      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore init goal ");
+     YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs( 0 );
-      return YAP_BOOT_FROM_SAVED_CODE;
+      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore done, loaded startup ");
+          return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
     }
@@ -3569,7 +3578,7 @@ X_API char *
 YAP_cwd(void)
 {
   CACHE_REGS
-  char *buf;
+  char *buf = NULL;
   int len;
   if (!Yap_getcwd(LOCAL_FileNameBuf, YAP_FILENAME_MAX))
     return FALSE;
@@ -3883,11 +3892,11 @@ YAP_Erase(void *handle)
   return 1;
 }
 
-X_API Int
+X_API handle_t
 YAP_ArgsToSlots(int n)
 {
   CACHE_REGS
-  Int slot = Yap_NewSlots(n PASS_REGS);
+  handle_t slot = Yap_NewSlots(n PASS_REGS);
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr0++ = *ptr1++;
@@ -3896,7 +3905,7 @@ YAP_ArgsToSlots(int n)
 }
 
 X_API void
-YAP_SlotsToArgs(int n, Int slot)
+YAP_SlotsToArgs(int n, handle_t slot)
 {
   CACHE_REGS
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
@@ -3938,8 +3947,8 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 }
 
 
-/*    Int  YAP_VarSlotToNumber(Int)  */
-Int YAP_VarSlotToNumber(Int s) {
+/*    handle_t  YAP_VarSlotToNumber(handle_t)  */
+handle_t YAP_VarSlotToNumber(handle_t s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
   if (t < HR)
@@ -3953,7 +3962,7 @@ Term YAP_ModuleUser(void) {
 }
 
 /*    int  YAP_PredicateHasClauses()  */
-Int YAP_NumberOfClausesForPredicate(PredEntry *pe) {
+handle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
   return pe->cs.p_code.NOfClauses;
 }
 

@@ -8,16 +8,10 @@
 #include "Yatom.h"
 #include "pl-incl.h"
 #include "YapText.h"
+#include "yapio.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif
-
-#define	Quote_illegal_f		1
-#define	Ignore_ops_f		2
-#define	Handle_vars_f		4
-#define	Use_portray_f		8
-#define	To_heap_f	       16
-#define	Unfold_cyclics_f       32
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
@@ -649,7 +643,7 @@ numberVars(term_t t, nv_options *opts, int n ARG_LD) {
 		 *	     PROMOTION		*
 		 *******************************/
 
-static int
+int
 check_float(double f)
 {
 #ifdef HAVE_FPCLASSIFY
@@ -856,8 +850,6 @@ PL_get_chars(term_t t, char **s, unsigned flags)
 { return PL_get_nchars(t, NULL, s, flags);
 }
 
-char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
-
 char *
 Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags)
 {
@@ -918,6 +910,42 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
     }
   }
   LOCAL_CurSlot = CurSlot;
+  return NULL;
+}
+
+char *
+Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags)
+{
+  CACHE_REGS
+
+  char *r, buf[4096];
+
+	int64_t size;
+	IOSTREAM *fd;
+
+	  r = buf;
+	fd = Sopenmem(&r, &sz, "w");
+	fd->encoding = ENC_UTF8;
+	    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0+%s=(%p) %p", l, buf, LCL0, &LCL0 ); }
+	if ( PL_write_term(fd, l, 1200, flags) &&
+	     Sputcode(EOS, fd) >= 0 &&
+	     Sflush(fd) >= 0 )
+	  {
+	    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%s=(%p) %p", buf, LCL0, &LCL0 ); }
+	    size = Stell64(fd);
+		*length = size-1;
+		char *bf = malloc(*length+1);
+	      if (!bf)
+		return NULL;
+	      strncpy(bf,buf,*length+1);
+	      Sclose(fd);
+	      r = bf;
+	    return r;
+	  }
+    /* failed */
+    if ( r != buf ) {
+      Sfree(r);
+    }
   return NULL;
 }
 

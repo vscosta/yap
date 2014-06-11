@@ -958,8 +958,6 @@ p_write_string( USES_REGS1 )
   int encoding;
   char buf[256];
 
-  if ((s = Yap_TermToString( in, NULL, 0, &length, &encoding, 0)))
-    fprintf(stderr,"%ld %s\n",length, s);
   if ((s = Yap_TermToString( in, buf, 256, &length, &encoding, 0)))
     fprintf(stderr,"%ld %s\n",length, s);
   return TRUE;
