@@ -316,6 +316,14 @@ absolute_file_name(File0,File) :-
 	'$check_file'(F0, Type, Access, F).
 
 '$check_file'(F, _Type, none, F) :- !.
+'$check_file'(F0, _Type, _Access, F0) :-
+	format('IN ~w~n', [F0]),
+	yap_flag( c_cc, Flag),
+	sub_atom( Flag, _, _, _, android),
+	sub_atom( F0, 0, _, _, '/assets'),
+	catch( open( F0, Access, S ), _, fail ),
+	format('~w~n', [F0]),
+	!.
 '$check_file'(F0, Type, Access, F0) :-
 	access_file(F0, Access),
 	(Type == directory ->
