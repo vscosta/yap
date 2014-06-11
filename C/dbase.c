@@ -2718,7 +2718,7 @@ new_lu_entry(Term t)
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
 
-    WRITE_LOCK(f->FRWLock);
+    FUNC_WRITE_LOCK(f);
     p0 = Yap_NewPredPropByFunctor(f,IDB_MODULE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
@@ -2726,7 +2726,7 @@ new_lu_entry(Term t)
     WRITE_LOCK(RepAtom(at)->ARWLock);
     p0 = Yap_NewPredPropByAtom(at,IDB_MODULE);
   } else {
-    WRITE_LOCK(FunctorList->FRWLock);
+    FUNC_WRITE_LOCK(FunctorList);
     p0 = Yap_NewPredPropByFunctor(FunctorList,IDB_MODULE);
   }
   pe = RepPredProp(p0);

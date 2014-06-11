@@ -1655,10 +1655,10 @@ PredPropByFunc (Functor fe, Term cur_mod)
 {
   Prop p0;
 
-  WRITE_LOCK (fe->FRWLock);
+  FUNC_WRITE_LOCK (fe);
   p0 = GetPredPropByFuncHavingLock(fe, cur_mod);
   if (p0) {
-    WRITE_UNLOCK (fe->FRWLock);
+    FUNC_WRITE_UNLOCK (fe);
     return p0;
   }
   return Yap_NewPredPropByFunctor (fe, cur_mod);
@@ -1713,10 +1713,10 @@ PredPropByFuncAndMod (Functor fe, Term cur_mod)
 {
   Prop p0;
 
-  WRITE_LOCK (fe->FRWLock);
+  FUNC_WRITE_LOCK (fe);
   p0 = GetPredPropByFuncAndModHavingLock(fe, cur_mod);
   if (p0) {
-    WRITE_UNLOCK (fe->FRWLock);
+    FUNC_WRITE_UNLOCK (fe);
     return p0;
   }
   return Yap_NewPredPropByFunctor (fe, cur_mod);
