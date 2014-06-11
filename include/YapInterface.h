@@ -420,31 +420,31 @@ extern X_API void YAP_FlushAllStreams(void);
 #define YAP_SEEKABLE_STREAM	0x80
 
 /*  YAP_Term  *YAP_NewSlots()  */
-extern X_API YAP_Int YAP_NewSlots(int);
+extern X_API YAP_handle_t YAP_NewSlots(int);
 
 /*  YAP_Int  YAP_CurrentSlot()  */
-extern X_API YAP_Int YAP_CurrentSlot(void);
+extern X_API YAP_handle_t YAP_CurrentSlot(void);
 
 /*  YAP_Term  *YAP_InitSlot()  */
-extern X_API YAP_Int YAP_InitSlot(YAP_Term);
+extern X_API YAP_handle_t YAP_InitSlot(YAP_Term);
 
 /*  YAP_Term  YAP_GetFromSlots(t)  */
-extern X_API YAP_Term YAP_GetFromSlot(YAP_Int);
+extern X_API YAP_Term YAP_GetFromSlot(YAP_handle_t);
 
 /*  YAP_Term  *YAP_AddressFromSlots(t)  */
-extern X_API YAP_Term *YAP_AddressFromSlot(YAP_Int);
+extern X_API YAP_Term *YAP_AddressFromSlot(YAP_handle_t);
 
 /*  YAP_Term  *YAP_AddressOfTermInSlot(t)  */
-extern X_API YAP_Term *YAP_AddressOfTermInSlot(YAP_Int);
+extern X_API YAP_Term *YAP_AddressOfTermInSlot(YAP_handle_t);
 
 /*  YAP_Term  YAP_PutInSlots(t)  */
-extern X_API void YAP_PutInSlot(YAP_Int, YAP_Term);
+extern X_API void YAP_PutInSlot(YAP_handle_t, YAP_Term);
 
-extern X_API int YAP_RecoverSlots(int n, YAP_Int top_slot);
+extern X_API int YAP_RecoverSlots(int n, YAP_handle_t top_slot);
 
-extern X_API YAP_Int YAP_ArgsToSlots(int);
+extern X_API YAP_handle_t YAP_ArgsToSlots(int);
 
-extern X_API void YAP_SlotsToArgs(int, YAP_Int);
+extern X_API void YAP_SlotsToArgs(int, YAP_handle_t);
 
 /*  void  YAP_Throw()  */
 extern X_API void YAP_Throw(YAP_Term);

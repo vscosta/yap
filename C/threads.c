@@ -90,6 +90,12 @@ Yap_ThreadID( void )
   return -1;
 }
 
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+  return GLOBAL_NOfThreads;
+}
+
 static int
 allocate_new_tid(void)
 {
@@ -694,11 +700,15 @@ p_thread_set_concurrency( USES_REGS1 )
     Yap_Error(TYPE_ERROR_INTEGER,tnew,"thread_set_concurrency/2");
     return(FALSE);
   }
+#if HAVE_PTHREAD_GETCONCURRENCY
   cur = MkIntegerTerm(pthread_getconcurrency());
   if (pthread_setconcurrency(newc) != 0) {
     return FALSE;
   }
   return Yap_unify(ARG1, MkIntegerTerm(cur));
+#else
+  return FALSE;
+#endif
 }
 
 static Int
@@ -1089,6 +1099,17 @@ void Yap_InitThreadPreds(void)
 }
 
 #else
+
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+#ifdef YAPOR
+  return 2;
+#else
+  return 1;
+#endif
+}
+
 
 static Int 
 p_no_threads(void)

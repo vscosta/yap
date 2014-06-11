@@ -7,6 +7,16 @@
 
 /* mic.c (B-Prolog) */
 int compare(TERM, TERM);
+int prism_printf(const char *fmt, ...);
+int pc_mp_mode_0(void);
+int compare_sw_ins(const void *a, const void *b);
+int get_term_depth(TERM t);
+int pc_get_term_depth_2(void);
+int pc_lngamma_2(void);
+int pc_mtrace_0(void);
+int pc_muntrace_0(void);
+void xsleep(unsigned int milliseconds);
+int pc_sleep_1(void);
 
 /*------------------------------------------------------------------------*/
 

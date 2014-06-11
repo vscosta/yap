@@ -7,6 +7,11 @@
 #ifndef __YAP_PROLOG__
 TERM bpx_build_atom(const char *);
 #endif
+TERM build_runtime_error(const char *s);
+TERM build_internal_error(const char *s);
+void register_prism_errors(void);
+void emit_error(const char *fmt, ...);
+void emit_internal_error(const char *fmt, ...);
 
 /*--------------------------------------------------------------------*/
 

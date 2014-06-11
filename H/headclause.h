@@ -14,195 +14,195 @@
       break;
     case _get_2atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	if (IsApplTerm(cl->u.cc.c1)) {
-          CELL *pt = RepAppl(cl->u.cc.c1);
+	if (IsApplTerm(cl->y_u.cc.c1)) {
+          CELL *pt = RepAppl(cl->y_u.cc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cc.c1;
+	  clause->ucd.t_ptr = cl->y_u.cc.c1;
 	} else
-	  clause->Tag = cl->u.cc.c1;
+	  clause->Tag = cl->y_u.cc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	if (IsApplTerm(cl->u.cc.c2)) {
-          CELL *pt = RepAppl(cl->u.cc.c2);
+	if (IsApplTerm(cl->y_u.cc.c2)) {
+          CELL *pt = RepAppl(cl->y_u.cc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cc.c2;
+	  clause->ucd.t_ptr = cl->y_u.cc.c2;
 	} else
-	  clause->Tag = cl->u.cc.c2;
+	  clause->Tag = cl->y_u.cc.c2;
 	return;
       }
       cl = NEXTOP(cl,cc);
       break;
     case _get_3atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	if (IsApplTerm(cl->u.ccc.c1)) {
-          CELL *pt = RepAppl(cl->u.ccc.c1);
+	if (IsApplTerm(cl->y_u.ccc.c1)) {
+          CELL *pt = RepAppl(cl->y_u.ccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccc.c1;
+	  clause->ucd.t_ptr = cl->y_u.ccc.c1;
 	} else
-	  clause->Tag = cl->u.ccc.c1;
+	  clause->Tag = cl->y_u.ccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	if (IsApplTerm(cl->u.ccc.c2)) {
-          CELL *pt = RepAppl(cl->u.ccc.c2);
+	if (IsApplTerm(cl->y_u.ccc.c2)) {
+          CELL *pt = RepAppl(cl->y_u.ccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccc.c2;
+	  clause->ucd.t_ptr = cl->y_u.ccc.c2;
 	} else
-	  clause->Tag = cl->u.ccc.c2;
+	  clause->Tag = cl->y_u.ccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	if (IsApplTerm(cl->u.ccc.c3)) {
-          CELL *pt = RepAppl(cl->u.ccc.c3);
+	if (IsApplTerm(cl->y_u.ccc.c3)) {
+          CELL *pt = RepAppl(cl->y_u.ccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccc.c3;
+	  clause->ucd.t_ptr = cl->y_u.ccc.c3;
 	} else
-	  clause->Tag = cl->u.ccc.c3;
+	  clause->Tag = cl->y_u.ccc.c3;
 	return;
       }
       cl = NEXTOP(cl,ccc);
       break;
     case _get_4atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	if (IsApplTerm(cl->u.cccc.c1)) {
-          CELL *pt = RepAppl(cl->u.cccc.c1);
+	if (IsApplTerm(cl->y_u.cccc.c1)) {
+          CELL *pt = RepAppl(cl->y_u.cccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccc.c1;
+	  clause->ucd.t_ptr = cl->y_u.cccc.c1;
 	} else
-	  clause->Tag = cl->u.cccc.c1;
+	  clause->Tag = cl->y_u.cccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	if (IsApplTerm(cl->u.cccc.c2)) {
-          CELL *pt = RepAppl(cl->u.cccc.c2);
+	if (IsApplTerm(cl->y_u.cccc.c2)) {
+          CELL *pt = RepAppl(cl->y_u.cccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccc.c2;
+	  clause->ucd.t_ptr = cl->y_u.cccc.c2;
 	} else
-	  clause->Tag = cl->u.cccc.c2;
+	  clause->Tag = cl->y_u.cccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	if (IsApplTerm(cl->u.cccc.c3)) {
-          CELL *pt = RepAppl(cl->u.cccc.c3);
+	if (IsApplTerm(cl->y_u.cccc.c3)) {
+          CELL *pt = RepAppl(cl->y_u.cccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccc.c3;
+	  clause->ucd.t_ptr = cl->y_u.cccc.c3;
 	} else
-	  clause->Tag = cl->u.cccc.c3;
+	  clause->Tag = cl->y_u.cccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	if (IsApplTerm(cl->u.cccc.c4)) {
-          CELL *pt = RepAppl(cl->u.cccc.c4);
+	if (IsApplTerm(cl->y_u.cccc.c4)) {
+          CELL *pt = RepAppl(cl->y_u.cccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccc.c4;
+	  clause->ucd.t_ptr = cl->y_u.cccc.c4;
 	} else
-	  clause->Tag = cl->u.cccc.c4;
+	  clause->Tag = cl->y_u.cccc.c4;
 	return;
       }
       cl = NEXTOP(cl,cccc);
       break;
     case _get_5atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	if (IsApplTerm(cl->u.ccccc.c1)) {
-          CELL *pt = RepAppl(cl->u.ccccc.c1);
+	if (IsApplTerm(cl->y_u.ccccc.c1)) {
+          CELL *pt = RepAppl(cl->y_u.ccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccccc.c1;
+	  clause->ucd.t_ptr = cl->y_u.ccccc.c1;
 	} else
-	  clause->Tag = cl->u.ccccc.c1;
+	  clause->Tag = cl->y_u.ccccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	if (IsApplTerm(cl->u.ccccc.c2)) {
-          CELL *pt = RepAppl(cl->u.ccccc.c2);
+	if (IsApplTerm(cl->y_u.ccccc.c2)) {
+          CELL *pt = RepAppl(cl->y_u.ccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccccc.c2;
+	  clause->ucd.t_ptr = cl->y_u.ccccc.c2;
 	} else
-	  clause->Tag = cl->u.ccccc.c2;
+	  clause->Tag = cl->y_u.ccccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	if (IsApplTerm(cl->u.ccccc.c3)) {
-          CELL *pt = RepAppl(cl->u.ccccc.c3);
+	if (IsApplTerm(cl->y_u.ccccc.c3)) {
+          CELL *pt = RepAppl(cl->y_u.ccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccccc.c3;
+	  clause->ucd.t_ptr = cl->y_u.ccccc.c3;
 	} else
-	  clause->Tag = cl->u.ccccc.c3;
+	  clause->Tag = cl->y_u.ccccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	if (IsApplTerm(cl->u.ccccc.c4)) {
-          CELL *pt = RepAppl(cl->u.ccccc.c4);
+	if (IsApplTerm(cl->y_u.ccccc.c4)) {
+          CELL *pt = RepAppl(cl->y_u.ccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccccc.c4;
+	  clause->ucd.t_ptr = cl->y_u.ccccc.c4;
 	} else
-	  clause->Tag = cl->u.ccccc.c4;
+	  clause->Tag = cl->y_u.ccccc.c4;
 	return;
       }
       if (iarg == Yap_regnotoreg(5)) {
-	if (IsApplTerm(cl->u.ccccc.c5)) {
-          CELL *pt = RepAppl(cl->u.ccccc.c5);
+	if (IsApplTerm(cl->y_u.ccccc.c5)) {
+          CELL *pt = RepAppl(cl->y_u.ccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.ccccc.c5;
+	  clause->ucd.t_ptr = cl->y_u.ccccc.c5;
 	} else
-	  clause->Tag = cl->u.ccccc.c5;
+	  clause->Tag = cl->y_u.ccccc.c5;
 	return;
       }
       cl = NEXTOP(cl,ccccc);
       break;
     case _get_6atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	if (IsApplTerm(cl->u.cccccc.c1)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c1);
+	if (IsApplTerm(cl->y_u.cccccc.c1)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c1;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c1;
 	} else
-	  clause->Tag = cl->u.cccccc.c1;
+	  clause->Tag = cl->y_u.cccccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	if (IsApplTerm(cl->u.cccccc.c2)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c2);
+	if (IsApplTerm(cl->y_u.cccccc.c2)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c2;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c2;
 	} else
-	  clause->Tag = cl->u.cccccc.c2;
+	  clause->Tag = cl->y_u.cccccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	if (IsApplTerm(cl->u.cccccc.c3)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c3);
+	if (IsApplTerm(cl->y_u.cccccc.c3)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c3;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c3;
 	} else
-	  clause->Tag = cl->u.cccccc.c3;
+	  clause->Tag = cl->y_u.cccccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	if (IsApplTerm(cl->u.cccccc.c4)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c4);
+	if (IsApplTerm(cl->y_u.cccccc.c4)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c4;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c4;
 	} else
-	  clause->Tag = cl->u.cccccc.c4;
+	  clause->Tag = cl->y_u.cccccc.c4;
 	return;
       }
       if (iarg == Yap_regnotoreg(5)) {
-	if (IsApplTerm(cl->u.cccccc.c5)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c5);
+	if (IsApplTerm(cl->y_u.cccccc.c5)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c5;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c5;
 	} else
-	  clause->Tag = cl->u.cccccc.c5;
+	  clause->Tag = cl->y_u.cccccc.c5;
 	return;
       }
       if (iarg == Yap_regnotoreg(6)) {
-	if (IsApplTerm(cl->u.cccccc.c6)) {
-          CELL *pt = RepAppl(cl->u.cccccc.c6);
+	if (IsApplTerm(cl->y_u.cccccc.c6)) {
+          CELL *pt = RepAppl(cl->y_u.cccccc.c6);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.cccccc.c6;
+	  clause->ucd.t_ptr = cl->y_u.cccccc.c6;
 	} else
-	  clause->Tag = cl->u.cccccc.c6;
+	  clause->Tag = cl->y_u.cccccc.c6;
 	return;
       }
       cl = NEXTOP(cl,cccccc);
@@ -383,28 +383,28 @@
       cl = NEXTOP(cl,ou);
       break;
     case _save_appl_x:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _save_appl_x_write:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _save_pair_x:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _save_pair_x_write:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
@@ -423,14 +423,14 @@
       cl = NEXTOP(cl,ox);
       break;
     case _unify_l_x_var:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _unify_l_x_var_write:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
@@ -449,58 +449,58 @@
       cl = NEXTOP(cl,ox);
       break;
     case _unify_x_var:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _unify_x_var_write:
-      if (iarg == cl->u.ox.x) {
+      if (iarg == cl->y_u.ox.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,ox);
       break;
     case _unify_l_x_var2:
-      if (iarg == cl->u.oxx.xl) {
+      if (iarg == cl->y_u.oxx.xl) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (iarg == cl->u.oxx.xr) {
+      if (iarg == cl->y_u.oxx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,oxx);
       break;
     case _unify_l_x_var2_write:
-      if (iarg == cl->u.oxx.xl) {
+      if (iarg == cl->y_u.oxx.xl) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (iarg == cl->u.oxx.xr) {
+      if (iarg == cl->y_u.oxx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,oxx);
       break;
     case _unify_x_var2:
-      if (iarg == cl->u.oxx.xl) {
+      if (iarg == cl->y_u.oxx.xl) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (iarg == cl->u.oxx.xr) {
+      if (iarg == cl->y_u.oxx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,oxx);
       break;
     case _unify_x_var2_write:
-      if (iarg == cl->u.oxx.xl) {
+      if (iarg == cl->y_u.oxx.xl) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (iarg == cl->u.oxx.xr) {
+      if (iarg == cl->y_u.oxx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
@@ -558,7 +558,7 @@
       cl = NEXTOP(cl,s);
       break;
     case _get_list:
-      if (iarg == cl->u.x.x) {
+      if (iarg == cl->y_u.x.x) {
 	clause->Tag = AbsPair(NULL);
 	clause->ucd.WorkPC = NEXTOP(cl,x);
 	return;
@@ -566,21 +566,21 @@
       cl = NEXTOP(cl,x);
       break;
     case _put_list:
-      if (iarg == cl->u.x.x) {
+      if (iarg == cl->y_u.x.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
       break;
     case _put_dbterm:
-      if (iarg == cl->u.xD.x) {
+      if (iarg == cl->y_u.xD.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xD);
       break;
     case _get_bigint:
-      if (iarg == cl->u.xN.x) {
+      if (iarg == cl->y_u.xN.x) {
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
 	clause->ucd.t_ptr = (CELL)NULL;
 	return;
@@ -588,78 +588,78 @@
       cl = NEXTOP(cl,xN);
       break;
     case _put_bigint:
-      if (iarg == cl->u.xN.x) {
+      if (iarg == cl->y_u.xN.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xN);
       break;
     case _get_atom:
-      if (iarg == cl->u.xc.x) {
-	if (IsApplTerm(cl->u.xc.c)) {
-          CELL *pt = RepAppl(cl->u.xc.c);
+      if (iarg == cl->y_u.xc.x) {
+	if (IsApplTerm(cl->y_u.xc.c)) {
+          CELL *pt = RepAppl(cl->y_u.xc.c);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->ucd.t_ptr = cl->u.xc.c;
+	  clause->ucd.t_ptr = cl->y_u.xc.c;
 	} else
-	  clause->Tag = cl->u.xc.c;
+	  clause->Tag = cl->y_u.xc.c;
 	return;
       }
       cl = NEXTOP(cl,xc);
       break;
     case _put_atom:
-      if (iarg == cl->u.xc.x) {
+      if (iarg == cl->y_u.xc.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xc);
       break;
     case _get_float:
-      if (iarg == cl->u.xd.x) {
+      if (iarg == cl->y_u.xd.x) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
-	clause->ucd.t_ptr = AbsAppl(cl->u.xd.d);
+	clause->ucd.t_ptr = AbsAppl(cl->y_u.xd.d);
 	return;
       }
       cl = NEXTOP(cl,xd);
       break;
     case _put_float:
-      if (iarg == cl->u.xd.x) {
+      if (iarg == cl->y_u.xd.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xd);
       break;
     case _get_struct:
-      if (iarg == cl->u.xfa.x) {
-	clause->Tag = AbsAppl((CELL *)cl->u.xfa.f);
+      if (iarg == cl->y_u.xfa.x) {
+	clause->Tag = AbsAppl((CELL *)cl->y_u.xfa.f);
 	clause->ucd.WorkPC = NEXTOP(cl,xfa);
 	return;
       }
       cl = NEXTOP(cl,xfa);
       break;
     case _put_struct:
-      if (iarg == cl->u.xfa.x) {
+      if (iarg == cl->y_u.xfa.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xfa);
       break;
     case _get_longint:
-      if (iarg == cl->u.xi.x) {
+      if (iarg == cl->y_u.xi.x) {
 	clause->Tag = AbsAppl((CELL *)FunctorLongInt);
-	clause->ucd.t_ptr = AbsAppl(cl->u.xi.i);
+	clause->ucd.t_ptr = AbsAppl(cl->y_u.xi.i);
 	return;
       }
       cl = NEXTOP(cl,xi);
       break;
     case _put_longint:
-      if (iarg == cl->u.xi.x) {
+      if (iarg == cl->y_u.xi.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xi);
       break;
     case _get_string:
-      if (iarg == cl->u.xu.x) {
+      if (iarg == cl->y_u.xu.x) {
 	clause->Tag = AbsAppl((CELL *)FunctorString);
 	clause->ucd.t_ptr = (CELL)NULL;
 	return;
@@ -667,23 +667,23 @@
       cl = NEXTOP(cl,xu);
       break;
     case _get_x_val:
-      if (cl->u.xx.xl == iarg ||
-        cl->u.xx.xr == iarg) {
+      if (cl->y_u.xx.xl == iarg ||
+        cl->y_u.xx.xr == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xx);
       break;
     case _get_x_var:
-      if (cl->u.xx.xr == iarg ||
-        cl->u.xx.xl == iarg) {
+      if (cl->y_u.xx.xr == iarg ||
+        cl->y_u.xx.xl == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xx);
       break;
     case _gl_void_valx:
-      if (iarg == cl->u.xx.xl) {
+      if (iarg == cl->y_u.xx.xl) {
 	clause->Tag = AbsPair(NULL);
 	clause->ucd.WorkPC = cl;
 	return;
@@ -691,19 +691,19 @@
       cl = NEXTOP(cl,xx);
       break;
     case _gl_void_varx:
-      if (iarg == cl->u.xx.xl) {
+      if (iarg == cl->y_u.xx.xl) {
 	clause->Tag = AbsPair(NULL);
 	clause->ucd.WorkPC = cl;
 	return;
       }
-      if (iarg == cl->u.xx.xr) {
+      if (iarg == cl->y_u.xx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xx);
       break;
     case _glist_valx:
-      if (iarg == cl->u.xx.xl) {
+      if (iarg == cl->y_u.xx.xl) {
 	clause->Tag = AbsPair(NULL);
 	clause->ucd.WorkPC = cl;
 	return;
@@ -711,46 +711,46 @@
       cl = NEXTOP(cl,xx);
       break;
     case _put_x_val:
-      if (cl->u.xx.xl == iarg ||
-        cl->u.xx.xr == iarg) {
+      if (cl->y_u.xx.xl == iarg ||
+        cl->y_u.xx.xr == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xx);
       break;
     case _put_x_var:
-      if (iarg == cl->u.xx.xl) {
+      if (iarg == cl->y_u.xx.xl) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (iarg == cl->u.xx.xr) {
+      if (iarg == cl->y_u.xx.xr) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xx);
       break;
     case _put_xx_val:
-      if (cl->u.xxxx.xl1 == iarg ||
-        cl->u.xxxx.xr1 == iarg) {
+      if (cl->y_u.xxxx.xl1 == iarg ||
+        cl->y_u.xxxx.xr1 == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (cl->u.xxxx.xl2 == iarg ||
-        cl->u.xxxx.xr2 == iarg) {
+      if (cl->y_u.xxxx.xl2 == iarg ||
+        cl->y_u.xxxx.xr2 == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xxxx);
       break;
     case _get_y_val:
-      if (cl->u.yx.x == iarg) {
+      if (cl->y_u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yx);
       break;
     case _get_y_var:
-      if (cl->u.yx.x == iarg) {
+      if (cl->y_u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
@@ -763,7 +763,7 @@
       cl = NEXTOP(cl,yx);
       break;
     case _glist_valy:
-      if (iarg == cl->u.yx.x) {
+      if (iarg == cl->y_u.yx.x) {
 	clause->Tag = AbsPair(NULL);
 	clause->ucd.WorkPC = cl;
 	return;
@@ -771,32 +771,32 @@
       cl = NEXTOP(cl,yx);
       break;
     case _put_unsafe:
-      if (cl->u.yx.x == iarg) {
+      if (cl->y_u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yx);
       break;
     case _put_y_val:
-      if (cl->u.yx.x == iarg) {
+      if (cl->y_u.yx.x == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yx);
       break;
     case _put_y_var:
-      if (iarg == cl->u.yx.x) {
+      if (iarg == cl->y_u.yx.x) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,yx);
       break;
     case _get_yy_var:
-      if (cl->u.yyxx.x1 == iarg) {
+      if (cl->y_u.yyxx.x1 == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }
-      if (cl->u.yyxx.x2 == iarg) {
+      if (cl->y_u.yyxx.x2 == iarg) {
 	clause->Tag = (CELL)NULL;
 	return;
       }

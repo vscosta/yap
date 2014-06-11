@@ -65,30 +65,6 @@
 #include <stdio.h>
 #endif 
 
-#ifdef FROZEN_STACKS
-#ifdef YAPOR_SBA
-#define PROTECT_FROZEN_H(CPTR)                                  \
-       ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
-	 Unsigned((Int)(B_FZ)-(Int)(H_FZ))) ?                   \
-	(CPTR)->cp_h : H_FZ)
-#define PROTECT_FROZEN_B(CPTR)                                  \
-       ((Unsigned((Int)(CPTR)-(Int)(H_FZ)) <                    \
-	 Unsigned((Int)(B_FZ)-(Int)(H_FZ)))  ?                  \
-	(CPTR) : B_FZ)
-	 /*
-#define PROTECT_FROZEN_H(CPTR) ((CPTR)->cp_h > H_FZ && (CPTR)->cp_h < (CELL *)B_FZ ? (CPTR)->cp_h : H_FZ )
-
-#define PROTECT_FROZEN_B(CPTR)  ((CPTR) < B_FZ && (CPTR) > (choiceptr)H_FZ ? (CPTR) : B_FZ )
-	 */
-#else /* TABLING */
-#define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
-#define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
-#endif /* YAPOR_SBA */
-#else
-#define PROTECT_FROZEN_B(CPTR)  (CPTR)
-#define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
-#endif /* FROZEN_STACKS */
-
 #if ALIGN_LONGS
 /*   */ typedef Int DISPREG;
 /*   */ typedef CELL SMALLUNSGN;
@@ -882,7 +858,7 @@ typedef struct yami {
       Term                 c;
       CELL next;
     } yxc;
-  } u;
+  } y_u;
 } yamop;
 
 typedef yamop yamopp;
@@ -891,7 +867,7 @@ typedef yamop yamopp;
 #define OPCW                u.ox.opcw
 
 
-#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
+#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->y_u.TYPE.next)))
 
 #define PREVOP(V,TYPE)    ((yamop *)((CODEADDR)(V)-(CELL)NEXTOP((yamop *)NULL,TYPE)))
 
@@ -1072,13 +1048,13 @@ CELL *ENV_Parent(CELL *env)
 static inline 
 UInt ENV_Size(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.s);
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.s);
 }
 
 static inline 
 struct pred_entry *ENV_ToP(yamop *cp)
 {
-  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.p);
+  return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p);
 }
 
 static inline 
@@ -1096,13 +1072,13 @@ UInt EnvSize(yamop *cp)
 static inline 
 CELL *EnvBMap(yamop *p)
 {
-  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.bmap);
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.bmap);
 }
 
 static inline 
 struct pred_entry *EnvPreg(yamop *p)
 {
-  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.p0);
+  return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
 }
 
 /* access to instructions */

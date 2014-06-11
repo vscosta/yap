@@ -1018,7 +1018,7 @@ source_file_property( File0, Prop) :-
 	'$source_file_property'( File, Prop).
 
 '$source_file_property'( OldF, includes(F, Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, _M, _ include, _File, OldF, _Line, _), _),
+	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
 	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, included_in(OldF, Line)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).

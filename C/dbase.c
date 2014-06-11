@@ -3614,14 +3614,14 @@ index_sz(LogUpdIndex *x)
       endop = Yap_opcode(_profiled_trust_logical);
     else
       endop = Yap_opcode(_trust_logical);
-    start = start->u.Illss.l1;
-    if (start->u.Illss.s) do {
+    start = start->y_u.Illss.l1;
+    if (start->y_u.Illss.s) do {
       sz += (UInt)NEXTOP((yamop*)NULL,OtaLl);
       op1 = start->opc;
       count++;
-      if (start->u.OtaLl.d->ClFlags & ErasedMask)
+      if (start->y_u.OtaLl.d->ClFlags & ErasedMask)
 	dead++;
-      start = start->u.OtaLl.n;
+      start = start->y_u.OtaLl.n;
     } while (op1 != endop);
   }
   x = x->ChildIndex;
@@ -3656,9 +3656,9 @@ lu_statistics(PredEntry *pe USES_REGS)
     /* expand clause blocks */
     yamop *ep = ExpandClausesFirst;
     while (ep) {
-      if (ep->u.sssllp.p == pe)
-	isz += (UInt)NEXTOP((yamop *)NULL,sssllp)+ep->u.sssllp.s1*sizeof(yamop *);
-      ep = ep->u.sssllp.snext;
+      if (ep->y_u.sssllp.p == pe)
+	isz += (UInt)NEXTOP((yamop *)NULL,sssllp)+ep->y_u.sssllp.s1*sizeof(yamop *);
+      ep = ep->y_u.sssllp.snext;
     }
     isz += index_sz(ClauseCodeToLogUpdIndex(pe->cs.p_code.TrueCodeOfPred));
   }
@@ -3915,7 +3915,7 @@ find_next_clause(DBRef ref0 USES_REGS)
 static Int
 p_jump_to_next_dynamic_clause( USES_REGS1 )
 {
-  DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.bmap);
+  DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.bmap);
   yamop *newp = find_next_clause(ref PASS_REGS);
   
   if (newp == NULL) {
@@ -4070,20 +4070,20 @@ MyEraseClause(DynamicClause *clau USES_REGS)
     I don't need to lock the clause at this point because 
     I am the last one using it anyway.
   */
-  ref = (DBRef) NEXTOP(clau->ClCode,Otapl)->u.Osbpp.bmap;
+  ref = (DBRef) NEXTOP(clau->ClCode,Otapl)->y_u.Osbpp.bmap;
   /* don't do nothing if the reference is still in use */
   if (DBREF_IN_USE(ref))
     return;
   if ( P == clau->ClCode ) {
     yamop *np = RTRYCODE;
     /* make it the next alternative */
-    np->u.Otapl.d = find_next_clause((DBRef)(NEXTOP(P,Otapl)->u.Osbpp.bmap) PASS_REGS);
-    if (np->u.Otapl.d == NULL)
+    np->y_u.Otapl.d = find_next_clause((DBRef)(NEXTOP(P,Otapl)->y_u.Osbpp.bmap) PASS_REGS);
+    if (np->y_u.Otapl.d == NULL)
       P = (yamop *)FAILCODE;
     else {
       /* with same arity as before */
-      np->u.Otapl.s = P->u.Otapl.s;
-      np->u.Otapl.p = P->u.Otapl.p;
+      np->y_u.Otapl.s = P->y_u.Otapl.s;
+      np->y_u.Otapl.p = P->y_u.Otapl.p;
       /* go ahead and try this code */
       P = np;
     }
@@ -4134,7 +4134,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
-    prev_code_p->u.Otapl.d = code_p->u.Otapl.d; 
+    prev_code_p->y_u.Otapl.d = code_p->y_u.Otapl.d; 
     /* are we the last? */
     if (p->cs.p_code.LastClause == cl)
       p->cs.p_code.LastClause = prev_code_p;
@@ -4143,7 +4143,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
     if (p->cs.p_code.LastClause == p->cs.p_code.FirstClause) {
       p->cs.p_code.LastClause = p->cs.p_code.FirstClause = NULL;
     } else {
-      p->cs.p_code.FirstClause = code_p->u.Otapl.d;
+      p->cs.p_code.FirstClause = code_p->y_u.Otapl.d;
       p->cs.p_code.FirstClause->opc =
        Yap_opcode(_try_me);
     }
@@ -4158,7 +4158,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
     if (p->cs.p_code.FirstClause != NULL) {
       code_p = p->cs.p_code.FirstClause;
-      code_p->u.Otapl.d = p->cs.p_code.FirstClause;
+      code_p->y_u.Otapl.d = p->cs.p_code.FirstClause;
       p->cs.p_code.TrueCodeOfPred = NEXTOP(code_p, Otapl);
       if (p->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);

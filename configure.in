@@ -47,7 +47,7 @@ AC_ARG_WITH(sysroot,
 		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
 		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
 		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT" ],
-	[yap_cv_gmp=yes])
+	[])
 
 AC_PROG_CC
 AC_PROG_CPP
@@ -184,9 +184,9 @@ AC_ARG_ENABLE(dlcompat,
 	[ --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X],
 	use_dlcompat="$enableval", use_dlcompat=no)
 
-AC_ARG_ENABLE(clpbn-horus,
-	[ --enable-clpbn-horus           enable CLPBN HORUS library.  ],
-	yap_cv_clpbn_horus="$enableval", horus=yes)
+AC_ARG_ENABLE(horus,
+	[ --enable-horus           enable CLPBN HORUS library.  ],
+	yap_cv_horus="$enableval", yap_cv_horus=yes)
 
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
@@ -368,7 +368,7 @@ else
   INSTALL_PRISM="packages/prism/src/c packages/prism/src/prolog"
 fi
 
-if test "$yap_cv_clpbn_bp"="yes"; then
+if test "$yap_cv_horus"="yes"; then
   AC_LANG_PUSH([C++])
   my_save_cxxflags="$CXXFLAGS"
   CXXFLAGS=-std=c++0x
@@ -376,13 +376,13 @@ if test "$yap_cv_clpbn_bp"="yes"; then
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
     [AC_MSG_RESULT([yes])],
     [AC_MSG_RESULT([no])]
-    [yap_cv_clpbn_bp=no]
+    [yap_cv_horus=no]
   )
   CXXFLAGS="$my_save_cxxflags"
   AC_LANG_POP()
 fi
 
-if test "$yap_cv_clpbn_bp" = no
+if test "$yap_cv_horus" = no
 then
   PKG_CLPBN="packages/CLPBN"
 else
@@ -408,6 +408,8 @@ else
   static_compilation="no"
   STATIC_MODE="# "
 fi
+
+AC_CHECK_DECL(__clang_major__, CLANG=yes, CLANG=no)
 
 dnl Compilation Flags
 if test "$GCC" = "yes"
@@ -595,7 +597,7 @@ then
     AC_CHECK_LIB(pthread,pthread_create)
   fi
 else
-  if test "$prefix" = "NONE"
+  if test "$prefix" = "NONE" -a x"$SYSROOT" = x
   then
     prefix=/usr/local
   fi
@@ -603,8 +605,11 @@ else
   then
      LDFLAGS="$LDFLAGS -L${prefix}/lib64"
   fi
-  LDFLAGS="$LDFLAGS -L${prefix}/lib"
-  CPPFLAGS="$CPPFLAGS -I${prefix}/include"
+  if test x"$SYSROOT" = x
+  then
+    LDFLAGS="$LDFLAGS -L${prefix}/lib"
+    CPPFLAGS="$CPPFLAGS -I${prefix}/include"
+  fi
   if test "$exec_prefix" != "NONE" -a "$exec_prefix" != "$prefix"
   then
      if test -d "${exec_prefix}/lib64" -a "$YAP_TARGET" = amd64; then
@@ -615,6 +620,16 @@ else
   INSTALL_COMMAND="install_unix"
   WINDOWS="#"
   PKG_WINCONSOLE=""
+  case "$host" in
+		*android*)
+		   AC_CHECK_LIB(android,main)
+		   AC_CHECK_LIB(log,main)
+			;;
+			**)
+       STARTUP_ANDROID="x"
+       STARTUP_DEFAULT=""
+			;;
+  esac
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
   dnl X/Open Networking is sometimes a separate library
@@ -660,7 +675,7 @@ fi
 if test "$threads" = yes
 then
   AC_CHECK_HEADERS(pthread.h)
-  AC_CHECK_FUNCS(pthread_mutexattr_setkind_np pthread_mutexattr_settype)
+  AC_CHECK_FUNCS(pthread_mutexattr_setkind_np pthread_mutexattr_settype pthread_setconcurrency)
   if test "$pthreadlocking" = yes
   then
     AC_DEFINE(USE_PTHREAD_LOCKING, 1, [do not use our own locking routines])
@@ -860,7 +875,7 @@ fi
 	     fi
 	     if test "$have_nsl" = yes
 		 then
-		    LIBS="$LIBS -lnsl"
+		    LIBS="$LIBS -lnsl"						
 	     fi
 	        if test "$dynamic_loading" = "yes"
 	        then
@@ -1009,8 +1024,14 @@ dnl Linux has both elf and a.out, in this case we found elf
         fi
 	if test "$ac_cv_prog_gcc" = "yes"
 	then
-	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
-	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+	   if test "$CLANG" = "yes"
+	   then
+	     SHLIB_CFLAGS="-fPIC $CFLAGS"
+	     SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
+	   else
+	     SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
+	     SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+	   fi
 	   INSTALL_DLLS="yes"
         fi
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
@@ -1220,7 +1241,7 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(arpa/inet.h alloca.h crtdbg.h crypt.h)
 AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
-AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
+AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h inttypes.h io.h limits.h)
 AC_CHECK_HEADERS(malloc.h math.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h shlobj.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h stdint.h string.h stropts.h)
@@ -1348,7 +1369,7 @@ AC_SUBST(ARCH)
 case "$host" in
 		*android*)
 		   STARTUP_ANDROID=""
-			 STARTUP_DEFAULT="x"
+		   	STARTUP_DEFAULT="x"
 			;;
 			**)
        STARTUP_ANDROID="x"
@@ -1423,6 +1444,8 @@ AC_SUBST(PKG_MINISAT)
 AC_SUBST(PKG_REAL)
 
 AC_SUBST(INSTALL_PRISM)
+
+AC_SUBST(SAVED_STATE_PREFIX)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
@@ -1634,6 +1657,9 @@ AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf wcsdup wcsnlen)
 case "$host" in
     *android*)
       echo "no locale"
+      SAVED_STATE_PREFIX="/assets/lib/Yap/"
+      AC_SUBST(C_PARSER_FLAGS)
+      AC_SUBST(GCC_VERSION)
       ;;
       **)
       AC_CHECK_HEADERS(locale.h)
@@ -2006,7 +2032,7 @@ yap_nversion=`expr $YAP_MAJOR_VERSION \* 10000 + $YAP_MINOR_VERSION \* 100 + $YA
 yap_startup=startup.yss
 
 AC_DEFINE_UNQUOTED( C_CC, [ "$CC" ], [c-compiler used])
-AC_DEFINE_UNQUOTED( C_CFLAGS, ["$CFLAGS $YAP_EXTRAS $DEFS  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM" ], [compilation flags])
+AC_DEFINE_UNQUOTED( C_CFLAGS, ["$CFLAGS $YAP_EXTRAS $  -D_YAP_NOT_INSTALLED_=1 $CPPFLAGS  -I. -I$srcdir/H -I$srcdir/include  -I$srcdir/os -I$srcdir/OPTYap -I$srcdir/BEAM" ], [compilation flags])
 AC_DEFINE_UNQUOTED( C_LDFLAGS, [ "$LDFLAGS" ], [linking flags])
 AC_DEFINE_UNQUOTED( C_LIBS, [ "$LIBS" ], [main libs for YAP])
 AC_DEFINE_UNQUOTED( C_LIBPLSO, [ "$LIBS $EXTRA_LIBS_FOR_DLLS" ], [libs for linking with DLLs])

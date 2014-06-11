@@ -1805,32 +1805,9 @@ Yap_volume_header(char *file)
 }
 
 
-int Yap_getcwd(const char *buf, int len)
+char * Yap_getcwd(const char *cwd, size_t cwdlen)
 {
-  CACHE_REGS
-#if __simplescalar__
-  /* does not implement getcwd */
-  strncpy(Yap_buf,GLOBAL_pwd,len);
-#elif HAVE_GETCWD
-  if (getcwd ((char *)buf, len) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in getcwd/1", errno);
-#endif
-    return FALSE;
-  }
-#else
-  if (getwd (buf) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
-#endif
-    return FALSE;
-  }
-#endif
-  return TRUE;
+  return PL_cwd(cwd, cwdlen);
 }
 
 /******
@@ -2743,7 +2720,11 @@ p_yap_paths( USES_REGS1 ) {
     out3 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_BINDIR));
   } else {
     out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
+#if __ANDROID__
+    out2 = MkAtomTerm(Yap_LookupAtom("/assets/share"));
+#else
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
+#endif
     out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
   }
   return(Yap_unify(out1,ARG1) &&

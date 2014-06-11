@@ -1618,6 +1618,40 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
   return Yap_unify(ARG2,out);
 }
 
+/**
+ * Exports a nil-terminated list with all the variables in a term.
+ * @param[in] the term
+ * @param[in] the arity of the calling predicate (required for exact garbage collection).
+ */
+Term
+Yap_TermVariables( Term t, UInt arity USES_REGS )	/* variables in term t		 */
+{
+  Term out;
+
+   do {
+    t = Deref(t);
+    if (IsVarTerm(t)) {
+      return MkPairTerm(t, TermNil);
+    }  else if (IsPrimitiveTerm(t)) {
+      return TermNil;
+    } else if (IsPairTerm(t)) {
+      out = vars_in_complex_term(RepPair(t)-1,
+				 RepPair(t)+1, TermNil PASS_REGS);
+    }
+    else {
+      Functor f = FunctorOfTerm(t);
+      out = vars_in_complex_term(RepAppl(t),
+				 RepAppl(t)+
+				 ArityOfFunctor(f), TermNil PASS_REGS);
+    }
+    if (out == 0L) {
+      if (!expand_vts( arity PASS_REGS ))
+	return FALSE;
+    }
+  } while (out == 0L);
+  return out;
+}
+
 static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp USES_REGS)
 {
 

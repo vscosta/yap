@@ -27,7 +27,7 @@ install-dummy::
 install-pitf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL)) install-examples
 		mkdir -p $(DESTDIR)$(SOLIBDIR)
 		rm -f $(DESTDIR)$(SOLIBDIR)/python.@SO@
-		$(INSTALL_PROGRAM) $(SOLIBS) $(SOLIBDIR)
+		$(INSTALL_PROGRAM) $(SOLIBS) $(DESTDIR)$(SOLIBDIR)
 		mkdir -p $(DESTDIR)$(PLLIBDIR)
 		for f in $(LIBPL); do \
 		  $(INSTALL_DATA) $(srcdir)/$$f $(DESTDIR)$(PLLIBDIR); \

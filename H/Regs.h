@@ -691,6 +691,33 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 #define BBREG         BB
 #endif /* YAPOR_SBA || TABLING */
 
+// define how to handle frozen segments in tabling, etv.
+#ifdef FROZEN_STACKS
+#ifdef YAPOR_SBA
+#define PROTECT_FROZEN_H(CPTR)                                  \
+       ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
+	 Unsigned((Int)(B_FZ)-(Int)(H_FZ))) ?                   \
+	(CPTR)->cp_h : H_FZ)
+#define PROTECT_FROZEN_B(CPTR)                                  \
+       ((Unsigned((Int)(CPTR)-(Int)(H_FZ)) <                    \
+	 Unsigned((Int)(B_FZ)-(Int)(H_FZ)))  ?                  \
+	(CPTR) : B_FZ)
+	 /*
+#define PROTECT_FROZEN_H(CPTR) ((CPTR)->cp_h > H_FZ && (CPTR)->cp_h < (CELL *)B_FZ ? (CPTR)->cp_h : H_FZ )
+
+#define PROTECT_FROZEN_B(CPTR)  ((CPTR) < B_FZ && (CPTR) > (choiceptr)H_FZ ? (CPTR) : B_FZ )
+	 */
+#else /* TABLING */
+#define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
+#define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
+#endif /* YAPOR_SBA */
+#else
+#define PROTECT_FROZEN_B(CPTR)  (CPTR)
+#define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
+#endif /* FROZEN_STACKS */
+
+
+
 #if !defined(THREADS)
 /* use actual addresses for regs */
 #define PRECOMPUTE_REGADDRESS 1

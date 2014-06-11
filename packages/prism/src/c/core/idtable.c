@@ -172,5 +172,5 @@ TERM unnumber_var_term(TERM term)
 {
   CACHE_REGS
     BPLONG mvn = -1;
-    return unnumberVarTerm(term, local_top, &mvn);
+    return unnumberVarTerm(term, (BPLONG_PTR)local_top, &mvn);
 }

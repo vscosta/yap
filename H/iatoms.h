@@ -376,7 +376,7 @@
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);
-  FunctorCsult = Yap_MkFunctor(AtomCsult,1);
+  FunctorCsult = Yap_MkFunctor(AtomCsult,2);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
   FunctorDBREF = Yap_MkFunctor(AtomDBREF,1);

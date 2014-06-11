@@ -467,30 +467,30 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
     ptr->opc = Yap_opcode(_try_exo);
   else
     ptr->opc = Yap_opcode(_try_all_exo);
-  ptr->u.lp.l = (yamop *)i;
-  ptr->u.lp.p = ap;
+  ptr->y_u.lp.l = (yamop *)i;
+  ptr->y_u.lp.p = ap;
   ptr = NEXTOP(ptr, lp);
   if (count)
     ptr->opc = Yap_opcode(_retry_exo);
   else
     ptr->opc = Yap_opcode(_retry_all_exo);
-  ptr->u.lp.p = ap;
-  ptr->u.lp.l = (yamop *)i;
+  ptr->y_u.lp.p = ap;
+  ptr->y_u.lp.l = (yamop *)i;
   ptr = NEXTOP(ptr, lp);
   for (j = 0; j < i->arity; j++) {
     ptr->opc = Yap_opcode(_get_atom_exo);
 #if PRECOMPUTE_REGADDRESS
-    ptr->u.x.x = (CELL) (XREGS + (j+1));
+    ptr->y_u.x.x = (CELL) (XREGS + (j+1));
 #else
-    ptr->u.x.x = j+1;
+    ptr->y_u.x.x = j+1;
 #endif
     ptr = NEXTOP(ptr, x);
   }
   ptr->opc = Yap_opcode(_procceed);
-  ptr->u.p.p = ap;
+  ptr->y_u.p.p = ap;
   ptr = NEXTOP(ptr, p);
   ptr->opc = Yap_opcode(_Ystop);
-  ptr->u.l.l = i->code;
+  ptr->y_u.l.l = i->code;
   Yap_inform_profiler_of_clause((char *)(i->code), (char *)NEXTOP(ptr,l), ap, GPROF_INDEX);
   if (ap->PredFlags & UDIPredFlag) {
     Yap_new_udi_clause( ap, NULL, (Term)ip);

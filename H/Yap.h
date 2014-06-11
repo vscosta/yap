@@ -49,6 +49,13 @@
 /* bzero */
 #include <strings.h>
 #endif
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 
 /*
 
@@ -85,6 +92,10 @@
 #if defined(COROUTINING) && !defined(TERM_EXTENSIONS)
 #define TERM_EXTENSIONS 1
 #endif /* COROUTINING && !TERM_EXTENSIONS */
+
+/* truth-values */
+#define	 TRUE	1
+#define	 FALSE	0
 
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */
@@ -154,10 +165,6 @@
 #else
 #define EXTERN
 #endif /* ADTDEFS_C */
-
-/* truth-values */
-#define	 TRUE	1
-#define	 FALSE	0
 
 
 /* null pointer	*/

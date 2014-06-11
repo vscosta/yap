@@ -13,7 +13,13 @@
 /*------------------------------------------------------------------------*/
 
 /* mic.c (B-Prolog) */
-NORET quit(const char *);
+extern NORET quit(const char *);
+int compute_outside_scaling_none(void);
+int compute_outside_scaling_log_exp(void);
+int pc_compute_hindsight_4(void);
+int compute_outside_scaling_none(void);
+int compute_outside_scaling_log_exp(void);
+int pc_compute_hindsight_4(void);
 
 /*------------------------------------------------------------------------*/
 

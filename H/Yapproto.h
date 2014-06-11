@@ -369,7 +369,7 @@ int	Yap_signal_index(const char *);
 #ifdef MAC
 void	Yap_SetTextFile(char *);
 #endif
-int     Yap_getcwd(const char *, int);
+char   *Yap_getcwd(const char *, size_t);
 void    Yap_cputime_interval(Int *,Int *);
 void    Yap_systime_interval(Int *,Int *);
 void    Yap_walltime_interval(Int *,Int *);
@@ -387,6 +387,7 @@ void	Yap_WinError(char *);
 void   Yap_InitThreadPreds(void);
 void   Yap_InitFirstWorkerThreadHandle(void);
 int	   Yap_ThreadID( void );
+int    Yap_NOfThreads( void );
 #if THREADS
 int    Yap_InitThread(int);
 #endif
@@ -427,6 +428,7 @@ int	Yap_IsAcyclicTerm(Term);
 void	Yap_InitUtilCPreds(void);
 Int     Yap_TermHash(Term, Int, Int, int);
 Int     Yap_NumberVars(Term, Int, int);
+Term    Yap_TermVariables( Term t, UInt arity USES_REGS );
 Term    Yap_UnNumberTerm(Term, int);
 Int     Yap_SkipList(Term *, Term **);
 /* yap.c */

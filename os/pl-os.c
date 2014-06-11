@@ -1641,6 +1641,7 @@ bool
 ChDir(const char *path)
 { char ospath[MAXPATHLEN];
   char tmp[MAXPATHLEN];
+  int hyper_path = FALSE;
 
   OsPath(path, ospath);
 
@@ -1649,8 +1650,28 @@ ChDir(const char *path)
     succeed;
 
   AbsoluteFile(path, tmp);
+  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "ChDir %s ",osPath);
+#if __ANDROID__
+  /* treat "/assets" as a directory (actually as a mounted file system).
+   *
+   */
+  if (strstr(ospath, "/assets/") == ospath) {
+      extern AAssetManager *assetManager;
+      const char *dirName = ospath+strlen("/assets/");
+      AAssetManager* mgr = assetManager;
+      AAssetDir* dir;
 
-  if ( chdir(ospath) == 0 )
+      if (( dir = AAssetManager_openDir(mgr, dirName))) {
+	  AAssetDir_close(dir);
+	  hyper_path = TRUE;
+      }
+      hyper_path = FALSE;
+  } else if (!strcmp(ospath, "/assets"))
+    hyper_path = TRUE;
+#endif
+
+  if ( hyper_path ||
+      chdir(ospath) == 0 )
   { size_t len;
 
     len = strlen(tmp);

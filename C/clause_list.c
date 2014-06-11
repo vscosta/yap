@@ -75,22 +75,22 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
     fclause = ptr[-1];
     code_p = (yamop *)(ptr-1);
     code_p->opc = Yap_opcode(_try_clause);
-    code_p->u.Otapl.d = fclause;
-    code_p->u.Otapl.s = ap->ArityOfPE;
-    code_p->u.Otapl.p = ap;
+    code_p->y_u.Otapl.d = fclause;
+    code_p->y_u.Otapl.s = ap->ArityOfPE;
+    code_p->y_u.Otapl.p = ap;
 #ifdef TABLING
-    code_p->u.Otapl.te = ap->TableOfPred;
+    code_p->y_u.Otapl.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, 0);
 #endif /* YAPOR */
     code_p = NEXTOP(code_p,Otapl);
     code_p->opc = Yap_opcode(_trust);
-    code_p->u.Otapl.d = clause;
-    code_p->u.Otapl.s = ap->ArityOfPE;
-    code_p->u.Otapl.p = ap;
+    code_p->y_u.Otapl.d = clause;
+    code_p->y_u.Otapl.s = ap->ArityOfPE;
+    code_p->y_u.Otapl.p = ap;
 #ifdef TABLING
-    code_p->u.Otapl.te = ap->TableOfPred;
+    code_p->y_u.Otapl.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, 0);
@@ -100,11 +100,11 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
 
     if (!(code_p = (yamop *)extend_blob(cl->start,((CELL)NEXTOP((yamop *)NULL,Otapl))/sizeof(CELL) PASS_REGS))) return FALSE;
     code_p->opc = Yap_opcode(_trust);
-    code_p->u.Otapl.d = clause;
-    code_p->u.Otapl.s = ap->ArityOfPE;
-    code_p->u.Otapl.p = ap;
+    code_p->y_u.Otapl.d = clause;
+    code_p->y_u.Otapl.s = ap->ArityOfPE;
+    code_p->y_u.Otapl.p = ap;
 #ifdef TABLING
-    code_p->u.Otapl.te = ap->TableOfPred;
+    code_p->y_u.Otapl.te = ap->TableOfPred;
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, 0);

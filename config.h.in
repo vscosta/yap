@@ -324,6 +324,9 @@
 /* Define to 1 if you have the `lgamma' function. */
 #undef HAVE_LGAMMA
 
+/* Define to 1 if you have the `android' library (-landroid). */
+#undef HAVE_LIBANDROID
+
 /* Define to 1 if you have the `comdlg32' library (-lcomdlg32). */
 #undef HAVE_LIBCOMDLG32
 
@@ -338,6 +341,9 @@
 
 /* Define to 1 if you have the <LibLoaderAPI.h> header file. */
 #undef HAVE_LIBLOADERAPI_H
+
+/* Define to 1 if you have the `log' library (-llog). */
+#undef HAVE_LIBLOG
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
@@ -500,6 +506,9 @@
 
 /* Define to 1 if you have the `pthread_mutexattr_settype' function. */
 #undef HAVE_PTHREAD_MUTEXATTR_SETTYPE
+
+/* Define to 1 if you have the `pthread_setconcurrency' function. */
+#undef HAVE_PTHREAD_SETCONCURRENCY
 
 /* Define to 1 if you have the `putenv' function. */
 #undef HAVE_PUTENV

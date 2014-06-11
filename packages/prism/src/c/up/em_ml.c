@@ -11,6 +11,9 @@
 #include "up/flags.h"
 #include "up/util.h"
 
+void config_em(EM_ENG_PTR em_ptr);
+int run_em(EM_ENG_PTR em_ptr);
+
 /*------------------------------------------------------------------------*/
 
 void config_em(EM_ENG_PTR em_ptr)

@@ -30,7 +30,7 @@ typedef void *yamop;
 
 typedef char *ADDR;
 
-#define RESET_VARIABLE(X) (*(X) = (CELL)(X))
+// #define RESET_VARIABLE(X) (*(X) = (CELL)(X))
 
 #ifdef _YAP_NOT_INSTALLED_
 #include "Regs.h"
