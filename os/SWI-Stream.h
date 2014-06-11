@@ -67,7 +67,7 @@ extern "C" {
 
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
-typedef	uintptr_t    term_t;
+typedef	intptr_t    term_t;
 #endif
 		 /*******************************
 		 *	    CONSTANTS		*

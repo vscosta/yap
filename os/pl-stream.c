@@ -37,16 +37,6 @@
 #else
 #include <config.h>
 #endif
-#if __ANDROID__
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-#include <android/log.h>
-#else
-inline void __android_log_print(int i, char *loc, char *msg, ...) {}
-#define ANDROID_LOG_INFO 0
-#define ANDROID_LOG_ERROR 0
-#define ANDROID_LOG_DEBUG 0
-#endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This modules defines the  SWI-Prolog  I/O   streams.  These  streams are
@@ -555,7 +545,6 @@ S__fillbuf(IOSTREAM *s)
   if ( s->flags & SIO_NBUF )
   { char chr;
     ssize_t n;
-    __android_log_print(ANDROID_LOG_ERROR, "pl-stream.c", "calling read   %p", s);
     n = (*s->functions->read)(s->handle, &chr, 1);
     if ( n == 1 )
     { c = char_to_int(chr);
@@ -588,7 +577,6 @@ S__fillbuf(IOSTREAM *s)
       len = s->bufsize;
     }
 
-    __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p %u", s, len);
   n = (*s->functions->read)(s->handle, s->limitp, len);
     if ( n > 0 )
     { s->limitp += n;
@@ -796,7 +784,11 @@ reperror(int c, IOSTREAM *s)
   return -1;
 }
 
-
+#if __ANDROID__
+//hack!!!!
+   char *Yap_AndroidBufp = NULL;
+   void( *Yap_DisplayWithJava)(int c);
+#endif
 
 static int
 put_code(int c, IOSTREAM *s)
@@ -888,8 +880,16 @@ put_code(int c, IOSTREAM *s)
 
 
   s->lastc = c;
+#if __ANDROID__
 
-  if ( c == '\n' && (s->flags & SIO_LBUF) )
+  if (Yap_AndroidBufp && (s == Soutput || s == Serror) ) {
+      __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "get char %c %p",c, Yap_AndroidBufp);
+     (Yap_DisplayWithJava)(c);
+   }
+
+#endif
+
+  if ( (c == '\n' && (s->flags & SIO_LBUF) ) )
   { if ( S__flushbuf(s) < 0 )
       return -1;
   }
@@ -913,7 +913,6 @@ Sputcode(int c, IOSTREAM *s)
   { if ( put_code('\r', s) < 0 )
       return -1;
   }
-
   return put_code(c, s);
 }
 
@@ -2888,7 +2887,6 @@ Sopen_file(const char *path, const char *how)
   IOENC enc = ENC_UNKNOWN;
 
 #if __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at  asset   %s", path);
     if (strstr(path, "/assets/") == path) {
 	  char * p = (char *)path + strlen("/assets/");
 	  return Sopen_asset( p, how-1);
@@ -3221,9 +3219,7 @@ Swrite_asset(void *handle, char *buf, size_t size)
 static ssize_t
 Sread_asset(void *handle, char *buf, size_t size)
 {
-  __android_log_print(ANDROID_LOG_ERROR, "os-stream.c", " size %d", size);
- int res = AAsset_read((AAsset* )handle, (void* )buf, size);
- __android_log_print(ANDROID_LOG_ERROR, "os-stream.c", "loaded  %d", res);
+  int res = AAsset_read((AAsset* )handle, (void* )buf, size);
   if (res < 0) {
       errno = ENOSPC;			/* signal error */
   }
@@ -3306,13 +3302,12 @@ void Java_org_swig_simple_SwigSimple_load(JNIEnv *env0, jobject obj, jobject mgr
 void Java_org_swig_simple_SwigSimple_load
      (JNIEnv *env0, jobject obj, jobject mgr)
 {
-     __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "loading asset   manager %p", mgr);
       assetManager = AAssetManager_fromJava(env0, mgr);
       env = env0;
   if (assetManager == NULL) {
-      __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "error loading asset   manager");
+      __android_log_print(ANDROID_LOG_DEBUG, "os-stream.c", "error loading asset   manager");
   } else {
-      __android_log_print(ANDROID_LOG_VERBOSE, "os-stream.c", "loaded asset  manager");
+      __android_log_print(ANDROID_LOG_DEBUG, "os-stream.c", "loaded asset  manager");
   }
 
 }
@@ -3327,7 +3322,6 @@ Sopen_asset(char *bufp, const char *how)
 {
   AAsset* asset;
   int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS|SIO_FBUF;
-  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at %s/%s", bufp, how);\
   int op = *how++;
   IOSTREAM *s;
   IOENC enc = ENC_UNKNOWN;
@@ -3351,7 +3345,6 @@ Sopen_asset(char *bufp, const char *how)
         return NULL;
     }
   }
-  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "looking at %s/%c", bufp, op);\
 
 #if O_LARGEFILES && defined(O_LARGEFILE)
   oflags |= O_LARGEFILE;
@@ -3365,7 +3358,6 @@ Sopen_asset(char *bufp, const char *how)
     case 'u':
       return NULL;
     case 'r':
-      __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "loading asset %s", bufp);\
       //const char *utf8 = (*env)->GetStringUTFChars(env, bufp, NULL);
        asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
       flags |= SIO_INPUT;
@@ -3374,7 +3366,7 @@ Sopen_asset(char *bufp, const char *how)
       errno = EINVAL;
       return NULL;
   }
-  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "got asset %p", asset);\
+  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "got asset %s -> %p", bufp, asset);\
 
   if ( !asset )
     return NULL;
