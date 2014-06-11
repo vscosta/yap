@@ -8,8 +8,8 @@ include ../Makefile.defs
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 YAP_EXTRAS=@YAP_EXTRAS@
 srcdir=@srcdir@
-CPPFLAGS=@CPPFLAGS@  -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
-CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
+CPPFLAGS= -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
+CXXFLAGS=   $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
 PROGRAMS= $(srcdir)/python/demo.py \
 
@@ -26,7 +26,7 @@ python/_yap.so: python/yap_wrap.o
 
 python/yap_wrap.c: $(srcdir)/yap.i
 	mkdir -p python
-	$(SWIG) -c++ -python  -outdir python -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
+	$(SWIG) -c++ -python  -outdir python -o $@ $(CXXFLAGS) -Wall $<
 
 python/yap_wrap.o:  python/yap_wrap.c
 	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
@@ -35,10 +35,10 @@ java: jni/libyap.@SO@ java/yap.java
 	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
 
 jni/libyap.@SO@: jni/yap_wrap.o
-	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
+	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
 jni/yap_wrap.cpp: $(srcdir)/yap.i
-	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
+	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@  $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
@@ -51,16 +51,18 @@ jni/yap_wrap.o:  jni/yap_wrap.cpp
 # adb install bin/SwigSimple-debug.apk
 #
 #
-android: android/jni/yap_wrap.cpp 
+android: android/jni/yap_wrap.cpp
 
 android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
-	android create project --target 1 --name SwigSimple --path ./android --activity SwigSimple --package org.swig.simple
-	( cd android ; mkdir -p jni; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
-	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package org.swig.simple -outdir src/org/swig/simple -o jni/yap_wrap.cpp  $< ;\
+	android create project --target 1 --name SwigSimple --path ./android --activity SwigSimple --package org.swig.simple;\
+	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package org.swig.simple -outdir src/org/swig/simple -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
 	cp $(srcdir)/android/SwigSimple.java src/org/swig/simple/ ;\
 	cp $(srcdir)/android/main.xml res/layout ;\
+	cp $(srcdir)/android/Application.mk jni ;\
 	cp -r $(DESTDIR)$(PLLIBDIR)/* assets/share/Yap;\
-	cp -r $(DESTDIR)$(SOLIBDIR)/* assets/lib/Yap;\
+	cp -r ../../../startup.yss assets/lib/Yap;\
+	cp -r $(DESTDIR)$(SOLIBDIR)/*.so jni;\
 	cp ../Android.mk jni ;\
 	ndk-build; \
 	ant debug \
@@ -75,7 +77,7 @@ install:
 
 
 clean:
-	rm -f */*
+	rm -fr android/* jni/* java/* python/*
 
 distclean: clean
 	rm -f *def Makefile

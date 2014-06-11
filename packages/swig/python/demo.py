@@ -14,7 +14,6 @@ def go():
             vs = q.namedVars();
             while vs.length() > 0:
                 eq = vs.car()
-                print eq.text()
                 print eq.getArg(1).text() + " = " + eq.getArg(2).text()
                 vs = vs.cdr()
-            print "no more answers"
+        print "no more answers"
