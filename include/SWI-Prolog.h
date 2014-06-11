@@ -136,7 +136,7 @@ typedef unsigned long uintptr_t;
 
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
-typedef	uintptr_t    term_t;
+typedef	intptr_t    term_t;
 #endif
 typedef	struct mod_entry *module_t;
 typedef struct DB_STRUCT *record_t;
@@ -505,7 +505,7 @@ extern X_API  int PL_compare(term_t, term_t);
 /* begin PL_unify_* functions =============================*/
 extern X_API  int PL_unify(term_t, term_t);
 extern X_API  int PL_unify_atom(term_t, atom_t);
-extern X_API  int PL_unify_arg(int, term_t, atom_t);
+extern X_API  int PL_unify_arg(int, term_t, term_t);
 extern X_API  int PL_unify_atom_chars(term_t, const char *);
 extern X_API  int PL_unify_atom_nchars(term_t, size_t len, const char *);
 extern X_API  int PL_unify_float(term_t, double);

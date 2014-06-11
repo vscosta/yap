@@ -295,6 +295,23 @@ list_directory(void)
     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
   }
   _findclose( hFile );
+#elif __ANDROID__
+ {
+    extern AAssetManager *assetManager;
+     const char *dirName = buf+strlen("/assets/");
+     AAssetManager* mgr = assetManager;
+    AAssetDir	 *de;
+    const char* dp;
+
+   if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
+     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+   }
+   while (( dp = AAssetDir_getNextFileName(de))) {
+     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
+     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+   }
+   AAssetDir_close(de);
+ }
 #elif HAVE_OPENDIR
  {
    DIR *de;

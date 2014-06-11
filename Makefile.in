@@ -514,9 +514,6 @@ c_interface.i: C/c_interface.c include/c_interface.h
 	$(CC) -E $(C_INTERF_FLAGS) C/c_interface.c > $@
 #
 
-mycb: mycb.c
-	$(CC) $(CFLAGS) mycb.c -o mycb
-
 INSTALLED_PACKAGES= \
 	library/matrix \
 	library/random \
@@ -572,7 +569,7 @@ all: startup.yss
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
-yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS)
 
 yap-win: yap-win@EXEC_SUFFIX@
@@ -583,27 +580,29 @@ yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd swi/console; $(MAKE))
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
-libYap.a: $(LIB_OBJECTS)
+libYap.a: $(LIB_OBJECTS) yapi.o
 	-rm -f libYap.a
-	$(AR) rc libYap.a $(LIB_OBJECTS)
+	$(AR) rc libYap.a $(LIB_OBJECTS) yapi.o
 	$(RANLIB) libYap.a
 
-@DYNYAPLIB@: $(LIB_OBJECTS) yapi.o libYap.a
-	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+@DYNYAPLIB@: $(LIB_OBJECTS)
+	@SHLIB_LD@  -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
 
-@STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES) install_unix
+@STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
 	adb shell mkdir -p /data/yap
 	adb shell mkdir -p /data/yap/pl
 	adb shell mkdir -p /data/yap/swi/library
 	adb push yap /data/yap/
 	adb push @DYNYAPLIB@ /data/yap/
+	adb push $(GMPDIR)/lib/libgmp.so data/yap/
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
+	$(MAKE) install_unix
 
 install: @INSTALL_COMMAND@ install_startup install_common
 
@@ -733,11 +732,11 @@ install_info:
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" --info-dir=$(DESTDIR)$(INFODIR) pillow_doc.info
 
-install_docs:
+install_docs: doxygen
 	$(MAKE) pdf
 	$(MAKE) html
-	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) pdf $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) README.TXT $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) COPYING $(DESTDIR)$(DOCSDIR)
@@ -746,6 +745,8 @@ install_docs:
 	$(INSTALL_DATA) changes-5.1.html $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) changes-6.0.html $(DESTDIR)$(DOCSDIR)
 
+doxygen:
+	doxygen $(srcdir)/docs/doxygen.rc
 
 info: yap.info
 

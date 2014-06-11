@@ -12,4 +12,12 @@
 #undef  SIZEOF_FLOAT
 #undef  SIZEOF_DOUBLE
 
+#ifndef HAVE_INTTYPES_H
+#undef  HAVE_INTTYPES_H
+#endif
+
+#ifndef HAVE_STDINT_H
+#undef  HAVE_STDINT_H
+#endif
+
 #endif

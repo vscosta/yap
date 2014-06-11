@@ -28,6 +28,7 @@
 #endif
 #endif
 
+
 // SWI Options
 #define O_STRING		1
 #define O_QUASIQUOTATIONS	1
@@ -381,7 +382,6 @@ CloseList(Term t0, Term tail)
     return FALSE;
   return TRUE;
 }
-
 
 
 #endif /* PL_SHARED_INCLUDE */

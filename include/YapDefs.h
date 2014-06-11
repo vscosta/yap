@@ -43,6 +43,8 @@ typedef Term YAP_Module;
 
 typedef int YAP_Bool;
 
+typedef handle_t YAP_handle_t;
+
 #define YAP_PredEntryPtr struct pred_entry *
 
 #define YAP_UserCPred CPredicate
@@ -91,6 +93,8 @@ typedef double YAP_Float;
 #define FALSE	0
 #endif
 
+typedef YAP_Int YAP_handle_t;
+
 typedef struct YAP_pred_entry *YAP_PredEntryPtr;
 
 typedef YAP_Bool (* YAP_UserCPred)(void);
@@ -110,6 +114,9 @@ typedef struct YAP_thread_attr_struct {
   YAP_Term              egoal, alias;
 } YAP_thread_attr;
 
+#ifdef YAP_H
+#include <threads.h>
+#endif
 
 typedef enum {
   YAP_TAG_ATT = 0x1,
@@ -292,5 +299,17 @@ typedef enum
     YAPC_ENABLE_GC,                 /* enable or disable garbage collection */
     YAPC_ENABLE_AGC                 /* enable or disable atom garbage collection */
   } yap_flag_t;
+
+
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#else
+    inline void __android_log_print(int i, const char loc[], const char msg[], ...) {}
+#define ANDROID_LOG_INFO 0
+#define ANDROID_LOG_ERROR 0
+#define ANDROID_LOG_DEBUG 0
+#endif
 
 #endif /* _YAPDEFS_H */

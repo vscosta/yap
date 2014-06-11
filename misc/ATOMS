@@ -381,7 +381,7 @@ F	CommentHook		CommentHook	3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		1
-F	Csult			Csult		1
+F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1
 F	DBREF			DBREF		1

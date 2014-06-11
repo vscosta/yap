@@ -267,6 +267,7 @@ int   Yap_GetCharForSIGINT(void);
 Int   Yap_StreamToFileNo(Term);
 Term  Yap_OpenStream(FILE *,char *,Term,int);
 char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
+char *Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags);
 int     Yap_GetFreeStreamD(void);
 int     Yap_GetFreeStreamDForReading(void);
 
