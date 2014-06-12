@@ -20,20 +20,16 @@
 
 #include <config.h>
 
-#ifndef __ANDROID__
-#if USE_GMP
-#include <gmp.h>
-#endif
-#endif
-
 extern "C" {
 
-#ifdef __ANDROID__
+#include <stddef.h>
 #define old_cplusplus __cplusplus
 #undef __cplusplus
+#endif
 #if USE_GMP
 #include <gmp.h>
 #endif
+#ifdef  old_cplusplus
 #define __cplusplus old_cplusplus
 #undef old_cplusplus
 #endif
