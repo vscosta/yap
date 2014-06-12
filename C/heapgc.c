@@ -111,7 +111,7 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0 USES_REGS)
   /* ask for double the size */
   sz = 2*sz;
   
-  if (!Yap_growtrail(sz, TRUE)) {
+  if (!Yap_locked_growtrail(sz, TRUE)) {
 #ifdef EASY_SHUNTING
     if (begsTR) {
       LOCAL_sTR = (tr_fr_ptr)old_cont_top0;
@@ -386,7 +386,7 @@ static void
 check_pr_trail(tr_fr_ptr trp USES_REGS)
 {
   if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
-    if (!Yap_growtrail(0, TRUE) || TRUE) {
+    if (!Yap_locked_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
       siglongjmp(LOCAL_gc_restore, 2);
