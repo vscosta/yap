@@ -23,6 +23,7 @@
 extern "C" {
 
 #include <stddef.h>
+#ifdef __cplusplus
 #define old_cplusplus __cplusplus
 #undef __cplusplus
 #endif
