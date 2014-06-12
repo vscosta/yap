@@ -64,7 +64,7 @@ android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
 	cp -r ../../../startup.yss assets/lib/Yap;\
 	cp -r $(DESTDIR)$(SOLIBDIR)/*.so jni;\
 	cp ../Android.mk jni ;\
-	ndk-build; \
+	NDK_DEBUG=1 ndk-build ; \
 	ant debug \
 	)
 

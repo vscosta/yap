@@ -1527,6 +1527,9 @@ PL_changed_cwd(void)
   UNLOCK();
 }
 
+#if __ANDROID__
+char *Yap_InAssetDir;
+#endif
 
 static char *
 cwd_unlocked(char *cwd, size_t cwdlen)
@@ -1546,6 +1549,11 @@ to be implemented directly.  What about other Unixes?
 #undef HAVE_GETCWD
 #endif
 
+#if __ANDROID__
+    if (Yap_InAssetDir) {
+	rval = strncpy(buf, Yap_InAssetDir, sizeof(buf));
+    }
+#endif
 #if defined(HAVE_GETWD) && !defined(HAVE_GETCWD)
     rval = getwd(buf);
 #else
@@ -1650,7 +1658,7 @@ ChDir(const char *path)
     succeed;
 
   AbsoluteFile(path, tmp);
-  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "ChDir %s ",osPath);
+  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",ospath);
 #if __ANDROID__
   /* treat "/assets" as a directory (actually as a mounted file system).
    *
@@ -1668,12 +1676,24 @@ ChDir(const char *path)
       hyper_path = FALSE;
   } else if (!strcmp(ospath, "/assets"))
     hyper_path = TRUE;
+  if (hyper_path) {
+      if (Yap_InAssetDir) {
+	  free(Yap_InAssetDir);
+	  Yap_InAssetDir = NULL;
+      }
+      Yap_InAssetDir = (char *)malloc(strlen(ospath)+1);
+  }
 #endif
 
   if ( hyper_path ||
       chdir(ospath) == 0 )
   { size_t len;
-
+#if __ANDROID__
+  if (Yap_InAssetDir) {
+      free(Yap_InAssetDir);
+      Yap_InAssetDir = NULL;
+  }
+#endif
     len = strlen(tmp);
     if ( len == 0 || tmp[len-1] != '/' )
     { tmp[len++] = '/';
@@ -1700,7 +1720,7 @@ ChDir(const char *path)
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     struct tm *PL_localtime_r(time_t time, struct tm *r)
 
-    Convert time in Unix internal form (seconds since Jan 1 1970) into a
+    Convert tunlime in Unix internal form (seconds since Jan 1 1970) into a
     structure providing easier access to the time.
 
     For non-Unix systems: struct time is supposed  to  look  like  this.

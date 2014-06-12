@@ -92,8 +92,8 @@ public class SwigSimple extends Activity
 						outputText.append( "no\n" );
 					}
 				} else {
+					int i=1;
 					while (q.next()) {
-						int i=1;
 						// outputText.append(Integer.toString(i++) + ": " + vs.text() +"\n");
 						while(!vs.nil()){
 							YAPTerm eq = vs.car();
