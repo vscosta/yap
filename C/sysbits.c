@@ -1807,7 +1807,7 @@ Yap_volume_header(char *file)
 
 char * Yap_getcwd(const char *cwd, size_t cwdlen)
 {
-  return PL_cwd(cwd, cwdlen);
+  return PL_cwd((char *)cwd, cwdlen);
 }
 
 /******

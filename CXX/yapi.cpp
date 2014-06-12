@@ -277,7 +277,7 @@ char *YAPTerm::text(void) {
   if (!(os = Yap_HandleToString(t, sze, &length, &enc, 0))) {
       { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "IIa  LCL0+t=(%p) %x",  LCL0, LCL0[-15]) ; }
       RECOVER_MACHINE_REGS();
-      return NULL;
+      return (char *)NULL;
   }
   { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II  LCL0+t=(%p) %x", LCL0, LCL0[-15]) ; }
   RECOVER_MACHINE_REGS();
@@ -403,12 +403,12 @@ PredEntry  *YAPPredicate::getPred( Term t, Term **outp ) {
   Term m = CurrentModule ;
   t = Yap_StripModule(t, &m);
   if (IsVarTerm(t) || IsNumTerm(t)) {
-      ap = NULL;
-      if (outp) *outp = NULL;
+      ap = (PredEntry  *)NULL;
+      if (outp) *outp = (Term  *)NULL;
   }
   if (IsAtomTerm(t)) {
       ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
-      if (outp) *outp = NULL;
+      if (outp) *outp = (Term  *)NULL;
   }  else if (IsPairTerm(t)) {
       ap = RepPredProp(PredPropByFunc(FunctorCsult, PROLOG_MODULE));
       if (outp) *outp = HR;
@@ -418,8 +418,8 @@ PredEntry  *YAPPredicate::getPred( Term t, Term **outp ) {
   } else {
       Functor f = FunctorOfTerm(t);
       if (IsExtensionFunctor(f)) {
-	  ap = NULL;
-	  if (outp) *outp = NULL;
+	  ap = (PredEntry  *)NULL;
+	  if (outp) *outp = (Term *)NULL;
       }
       ap = RepPredProp(PredPropByFunc(f, m));
       if (outp) *outp = RepAppl(t)+1;
@@ -525,7 +525,7 @@ void YAPQuery::close()
   CACHE_REGS
 
   if (EX && !(this->q_flags & (PL_Q_CATCH_EXCEPTION))) {
-      EX = NULL;
+      EX = (struct DB_TERM *)NULL;
   }
   /* need to implement backtracking here */
   if (this->q_open != 1 || this->q_state == 0) {
@@ -599,7 +599,7 @@ YAPEngine::YAPEngine( char *savedState,
                              YAPCallback *cb):  _callback(0)
 { // a single engine can be active
 #if __ANDROID__
-  if (assetManager == NULL)
+  if (assetManager == (AAssetManager *)NULL)
     return;
   Yap_DisplayWithJava = displayWithJava;
   Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);

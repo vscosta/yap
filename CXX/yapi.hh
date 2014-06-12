@@ -20,16 +20,20 @@
 
 #include <config.h>
 
-extern "C" {
-
-#ifdef __cplusplus
-#define old_cplusplus __cplusplus
-#undef __cplusplus
-#endif
+#ifndef __ANDROID__
 #if USE_GMP
 #include <gmp.h>
 #endif
-#ifdef old_cplusplus
+#endif
+
+extern "C" {
+
+#ifdef __ANDROID__
+#define old_cplusplus __cplusplus
+#undef __cplusplus
+#if USE_GMP
+#include <gmp.h>
+#endif
 #define __cplusplus old_cplusplus
 #undef old_cplusplus
 #endif
@@ -341,7 +345,7 @@ private:
   ///
   /// It is just a call to getPred
   inline YAPPredicate(Term t) {
-    ap = getPred( t , NULL );
+    ap = getPred( t , (Term **)NULL );
   }
 
   /// Cast constructor for predicates,
@@ -397,7 +401,7 @@ public:
   inline YAPPredicate(char *s) {
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
-    ap = getPred( t, NULL );
+    ap = getPred( t, (Term **)NULL );
   }
 
 
@@ -407,7 +411,7 @@ public:
  inline YAPPredicate(char *s, Term **outp) {
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
-    ap = getPred( t, NULL );
+    ap = getPred( t, (Term **)NULL );
   }
 
  /// meta-call this predicate, with arguments ts[]
@@ -516,21 +520,20 @@ public:
 class YAPEngine {
 private:
   YAPCallback *_callback;
-  char **buf;
   YAP_init_args init_args;
 public:
-  YAPEngine(char *savedState = NULL,
+  YAPEngine(char *savedState = (char *)NULL,
             size_t stackSize = 0,
             size_t trailSize = 0,
             size_t maxStackSize = 0,
             size_t maxTrailSize = 0,
-            char *libDir = NULL,
-            char *bootFile = NULL,
-            char *goal = NULL,
-            char *topLevel = NULL,
+            char *libDir = (char *)NULL,
+            char *bootFile = (char *)NULL,
+            char *goal = (char *)NULL,
+            char *topLevel = (char *)NULL,
             bool script = FALSE,
             bool fastBoot = FALSE,
-	YAPCallback *callback=NULL);  /// construct a new engine, including aaccess to callbacks
+	YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
   ~YAPEngine() { delYAPCallback(); } /// kill engine
   void delYAPCallback() { _callback = 0; } /// remove current callback
   void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p",cb); } /// set a new callback

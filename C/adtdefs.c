@@ -804,14 +804,14 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
-    FUNC_WRITE_UNLOCK(fe);
+    WRITE_UNLOCK(fe);
     return NULL;
   }
   if (cur_mod == TermProlog)
     p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
-  TRUE_FUNC_WRITE_LOCK(fe);
+  //TRUE_FUNC_WRITE_LOCK(fe);
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
@@ -861,7 +861,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       if (!ExpandPredHash()) {
 	Yap_FreeCodeSpace((ADDR)p);
 	WRITE_UNLOCK(PredHashRWLock);
-	TRUE_FUNC_WRITE_UNLOCK(fe);
+	FUNC_WRITE_UNLOCK(fe);
 	return NULL;
       }
       /* retry hashing */
@@ -887,7 +887,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     fe->PropsOfFE = AbsPredProp(p);
     p->NextOfPE = NIL;
   }
-  TRUE_FUNC_WRITE_UNLOCK(fe);
+  FUNC_WRITE_UNLOCK(fe);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_FUNC);
     if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {

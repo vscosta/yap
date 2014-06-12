@@ -926,12 +926,12 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
 	  r = buf;
 	fd = Sopenmem(&r, &sz, "w");
 	fd->encoding = ENC_UTF8;
-	    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0+%s=(%p) %p", l, buf, LCL0, &LCL0 ); }
+	    {  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0+%s=(%p) %p", l, buf, LCL0, &LCL0 ); }
 	if ( PL_write_term(fd, l, 1200, flags) &&
 	     Sputcode(EOS, fd) >= 0 &&
 	     Sflush(fd) >= 0 )
 	  {
-	    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%s=(%p) %p", buf, LCL0, &LCL0 ); }
+	    {  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%s=(%p) %p", buf, LCL0, &LCL0 ); }
 	    size = Stell64(fd);
 		*length = size-1;
 		char *bf = malloc(*length+1);

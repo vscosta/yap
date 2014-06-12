@@ -1267,7 +1267,7 @@ Yap_GetTranslationProp(Atom at)
   while (p0 && p->KindOfPE != TranslationProperty)
     p = RepTranslationProp(p0 = p->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
-  if (p0 == NIL) return NULL;
+  if (p0 == NIL) return (TranslationEntry *)NULL;
   return p;
 }
 

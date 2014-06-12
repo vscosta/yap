@@ -345,7 +345,7 @@ OpenList(int n USES_REGS)
   BACKUP_H();
 
   while (HR+2*n > ASP-1024) {
-    if (!Yap_dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, (Term *)NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }

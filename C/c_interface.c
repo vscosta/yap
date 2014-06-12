@@ -2307,7 +2307,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   } else {
       LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE %d", out) ; }
+  { __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE %d", out) ; }
   return out;
 }
 

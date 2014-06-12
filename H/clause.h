@@ -202,7 +202,7 @@ INLINE_ONLY EXTERN inline   CELL *
 EXO_OFFSET_TO_ADDRESS(struct index_t *it, BITS32  off)
 {
   if (off == 0L) 
-    return NULL;
+    return (CELL *)NULL;
   return (it->cls)+(off-1)*it->arity;
 }
 
