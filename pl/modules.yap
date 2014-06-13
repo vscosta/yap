@@ -332,16 +332,16 @@ module(N) :-
 expand_goal(G, G) :-
 	var(G), !.
 expand_goal(M:G, M:NG) :-
-	'$do_expand'(G, M, NG), !.
+	'$do_expand'(G, M, [], NG), !.
 expand_goal(G, NG) :- 
 	'$current_module'(Mod),
-	'$do_expand'(G, Mod, NG), !.
+	'$do_expand'(G, Mod, [],  NG), !.
 expand_goal(G, G).
 	
-'$do_expand'(G, _, G) :- var(G), !.
-'$do_expand'(M:G, _CurMod, M:GI) :- !,
-	'$do_expand'(G, M, GI).
-'$do_expand'(G, CurMod, GI) :-
+'$do_expand'(G, _, _, G) :- var(G), !.
+'$do_expand'(M:G, _CurMod, HVars, M:GI) :- !,
+	'$do_expand'(G, M, HVars, GI).
+'$do_expand'(G, CurMod, _HVars, GI) :-
 	(
 	 '$pred_exists'(goal_expansion(G,GI), CurMod),
 	 call(CurMod:goal_expansion(G, GI))
@@ -359,21 +359,21 @@ expand_goal(G, G).
 	;
 	  user:goal_expansion(G, GI)
 	), !.
-'$do_expand'(G, CurMod, NG) :-
+'$do_expand'(G, CurMod, HVars, NG) :-
 	'$is_metapredicate'(G,CurMod), !,
 	functor(G, Name, Arity),
 	prolog:'$meta_predicate'(Name,CurMod,Arity,PredDef),
 	G =.. [Name|GArgs],
 	PredDef =.. [Name|GDefs],
-	'$expand_args'(GArgs, CurMod, GDefs, NGArgs),
+	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs),
 	NG =.. [Name|NGArgs].
 
-'$expand_args'([], _, [], []).
-'$expand_args'([A|GArgs], CurMod, [0|GDefs], [NA|NGArgs]) :-
-	'$do_expand'(A, CurMod, NA), !,
-	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
-'$expand_args'([A|GArgs], CurMod, [_|GDefs], [A|NGArgs]) :-
-	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
+'$expand_args'([], _, [], _, []).
+'$expand_args'([A|GArgs], CurMod, [0|GDefs], HVars, [NA|NGArgs]) :-
+	'$do_expand'(A, CurMod, HVars, NA), !,
+	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs], CurMod, [_|GDefs], HVars, [A|NGArgs]) :-
+	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs).
 
 % args are:
 %       goal to expand
@@ -385,7 +385,7 @@ expand_goal(G, G).
 %       head variables.
 '$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars) :-
 %	'$pred_goal_expansion_on',
-	'$do_expand'(G, CurMod, GI),
+	'$do_expand'(G, CurMod, HVars, GI),
 	GI \== G, !,
 	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
 '$complete_goal_expansion'(G, M, _CM, HM, G1, G2, _HVars) :-
