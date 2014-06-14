@@ -20,6 +20,7 @@ int compute_daem_inside_scaling_log_exp(void);
 int examine_inside_scaling_none(void);
 int examine_inside_scaling_log_exp(void);
 int compute_expectation_scaling_none(void);
+int compute_inside_scaling_log_exp(void);
 int compute_expectation_scaling_log_exp(void);
 double compute_daem_log_prior(void);
 double compute_likelihood_scaling_none(void);

@@ -1332,7 +1332,7 @@ formatFloat(PL_locale *locale, int how, int arg, Number f, Buffer out)
       int written = 0;
       int fbits;
       int digits = 0;
-      int padding = 0;
+      int padding;
 
       switch(how)
       { case 'f':
@@ -1368,6 +1368,8 @@ formatFloat(PL_locale *locale, int how, int arg, Number f, Buffer out)
           if (digits <= arg)             /* leading '0's */
           { padding = (arg-digits+1);
             size += padding;
+          } else
+          { padding = 0;
           }
           size++;                        /* NULL terminator */
 

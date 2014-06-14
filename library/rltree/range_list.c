@@ -142,10 +142,12 @@ RL_Tree* copy_rl(RL_Tree *tree) {
   buf_ptr=(RL_Node*)calloc(tree->size,NODE_SIZE);
   if( new==NULL ) {
     printf("new==NULL");
+	free(buf_ptr);
     return NULL;
   }
   if( buf_ptr==NULL ) {
     printf("buf_ptr==NULL---%lu",tree->size);
+	free(new);
     return NULL;
   }
   memcpy(new,tree,sizeof(RL_Tree));

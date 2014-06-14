@@ -24,11 +24,11 @@ python: $(SWIG_FILES) python/_yap.so python/yap.py
 python/_yap.so: python/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
 
-python/yap_wrap.c: $(srcdir)/yap.i
+python/yap_wrap.cpp python/yap.py: $(srcdir)/yap.i
 	mkdir -p python
 	$(SWIG) -c++ -python  -outdir python -o $@ $(CXXFLAGS) -Wall $<
 
-python/yap_wrap.o:  python/yap_wrap.c
+python/yap_wrap.o:  python/yap_wrap.cpp
 	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
 java: jni/libyap.@SO@ java/yap.java
@@ -37,7 +37,7 @@ java: jni/libyap.@SO@ java/yap.java
 jni/libyap.@SO@: jni/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
-jni/yap_wrap.cpp: $(srcdir)/yap.i
+jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
 	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@  $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp

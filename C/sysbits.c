@@ -1115,7 +1115,7 @@ static Int
 p_init_random_state ( USES_REGS1 )
 {
   register Term t0 = Deref (ARG1);
-  char *old, * new = (char *) malloc(256);
+  char *old, *new;
 
   if (IsVarTerm (t0)) {
     return(Yap_unify(ARG1,MkIntegerTerm((Int)current_seed)));
@@ -1128,6 +1128,8 @@ p_init_random_state ( USES_REGS1 )
     current_seed  = (unsigned int) FloatOfTerm (t0);
   else
     current_seed  = (unsigned int) LongIntOfTerm (t0);
+  
+  new = (char *) malloc(256);
   old = initstate(random(), new, 256);
   return Yap_unify(ARG2, MkIntegerTerm((Int)old)) &&
       Yap_unify(ARG3, MkIntegerTerm((Int)new));

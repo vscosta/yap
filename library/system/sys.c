@@ -481,7 +481,7 @@ file_property(void)
 static int
 p_mktemp(void)
 {
-#if HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
+#if HAVE_MKSTEMP || HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
   char *s, tmp[BUF_SIZE];
   s = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_STRNCPY
@@ -495,6 +495,13 @@ p_mktemp(void)
     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
   return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s))));
+#elif HAVE_MKSTEMP
+  strcpy(tmp, "/tmp/TEST_tmpXXXXXXXX");
+  if(mkstemp(tmp) == -1) {
+    /* return an error number */
+    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+  }
+  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(tmp)));
 #else
   if ((s = mktemp(tmp)) == NULL) {
     /* return an error number */
@@ -511,7 +518,13 @@ p_mktemp(void)
 static int
 p_tmpnam(void)
 {
-#if HAVE_MKTEMP
+#if HAVE_MKSTEMP
+  char s[22];
+  strcpy(s, "/tmp/TEST_tmpXXXXXXXX");
+  if(mkstemp(s) == -1)
+    return FALSE;
+  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#elif HAVE_MKTEMP
   char *s;
   if (!(s = mktemp("/tmp/YAP_tmpXXXXXXXX")))
     return FALSE;

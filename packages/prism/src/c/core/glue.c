@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 
 void bp4p_init(int *argc, char **argv[]);

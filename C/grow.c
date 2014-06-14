@@ -1419,10 +1419,14 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
   int res;
   int blob_overflow = (NOfBlobs > NOfBlobsMax);
 
+#ifdef THREADS
   LOCK(GLOBAL_ThreadHandlesLock);
+#endif
   // make sure that we cannot have more than a thread life
   if (Yap_NOfThreads() > 1) {
+#ifdef THREADS
       UNLOCK(GLOBAL_ThreadHandlesLock);
+#endif
       res = FALSE;
       if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
 	  Yap_undo_signal( YAP_CDOVF_SIGNAL );
@@ -1443,12 +1447,16 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
       res  = growatomtable( PASS_REGS1 );
     } else {
       Yap_undo_signal( YAP_CDOVF_SIGNAL );
+#ifdef THREADS
       UNLOCK(GLOBAL_ThreadHandlesLock);
+#endif
       return TRUE;
     }
     LeaveGrowMode(GrowHeapMode);
     if (res) {
+#ifdef THREADS
 	UNLOCK(GLOBAL_ThreadHandlesLock);
+#endif
       return res;
     }
   }
@@ -1459,7 +1467,9 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
 #endif
   LeaveGrowMode(GrowHeapMode);
+#ifdef THREADS
   UNLOCK(GLOBAL_ThreadHandlesLock);
+#endif
   return res;
 }
 

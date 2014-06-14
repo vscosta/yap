@@ -337,7 +337,7 @@ char *YAPAtom::name(void) {
       sz = strlen(s)+1;
       char *os = new char[sz];
       memcpy(os, s, sz);
-      delete s;
+      delete[] s;
       return os;
   } else if (IsBlob(a)) {
       PL_blob_t *type = RepBlobProp(a->PropsOfAE)->blob_t;
@@ -365,7 +365,7 @@ char *YAPAtom::name(void) {
 #endif
 	  char *os = new char[sz];
 	  memcpy(os, s, sz);
-	  delete s;
+	  delete[] s;
 	  return os;
       }
   } else {

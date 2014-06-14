@@ -804,7 +804,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
-    WRITE_UNLOCK(fe);
+    WRITE_UNLOCK(fe->FRWLock);
     return NULL;
   }
   if (cur_mod == TermProlog)

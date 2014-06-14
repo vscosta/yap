@@ -335,7 +335,7 @@ InitHash(void)
   LOCAL_ExportFunctorHashChain = (export_functor_hash_entry_t *)calloc(LOCAL_ExportFunctorHashTableSize, sizeof(export_functor_hash_entry_t ));
   LOCAL_ExportAtomHashTableNum = 0;
   LOCAL_ExportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
-  LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t *)calloc( LOCAL_ExportAtomHashTableSize,  sizeof(export_atom_hash_entry_t *));
+  LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t *)calloc( LOCAL_ExportAtomHashTableSize,  sizeof(export_atom_hash_entry_t));
   LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
   LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t *)calloc(LOCAL_ExportPredEntryHashTableSize, sizeof(export_pred_entry_hash_entry_t));

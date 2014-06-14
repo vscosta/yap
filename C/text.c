@@ -1358,7 +1358,7 @@ void *
 Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS)
 {
   encoding_t * encv;
-   void **bufv;
+  void **bufv;
   int minimal = FALSE;
   void *buf;
   size_t leng, *lengv;
@@ -1368,8 +1368,6 @@ Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS)
   HEAP_TERM_ERROR(bufv, void *);
   encv = (encoding_t *)malloc(n*sizeof(encoding_t));
   HEAP_ERROR(encv, encoding_t);
-  lengv = (size_t *)malloc(n*sizeof(size_t));
-  HEAP_ERROR(lengv, size_t);
   buf = NULL;
   for (i = 0 ; i < n ; i++) {
     void *nbuf = read_Text( buf, inp+i, encv+i, &minimal, &leng PASS_REGS );
@@ -1381,6 +1379,8 @@ Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS)
       buf = compute_end( nbuf, encv[i] );
     }
   }
+  lengv = (size_t *)malloc(n*sizeof(size_t));
+  HEAP_ERROR(lengv, size_t);
   buf = concat(n, out, bufv, encv, lengv PASS_REGS);
   return buf;
 }

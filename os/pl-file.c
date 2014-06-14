@@ -1428,6 +1428,7 @@ discardOutputRedirect(redir_context *ctx)
 static
 PRED_IMPL("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
 { redir_context outctx;
+  outctx.magic = 0;
 
   if ( setupOutputRedirect(A1, &outctx, TRUE) )
   { term_t ex = 0;

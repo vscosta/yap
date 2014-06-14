@@ -690,7 +690,11 @@ static Int
 p_thread_set_concurrency( USES_REGS1 )
 {
   Term tnew = Deref(ARG2);
-  int newc, cur;
+  int newc;
+#if HAVE_PTHREAD_GETCONCURRENCY
+int cur;
+#endif
+
 
   if (IsVarTerm(tnew)) {
     newc = 0;

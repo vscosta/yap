@@ -1307,9 +1307,9 @@ RestoreHashPreds( USES_REGS1 )
   UInt i;
   PredEntry **oldp = PredHash;
 
-  np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry **)*size);
+  np = (PredEntry **) Yap_AllocAtomSpace(sizeof(PredEntry *)*size);
   if (!np) {
-    if (!(np = (PredEntry **) malloc(sizeof(PredEntry **)*size))) {
+    if (!(np = (PredEntry **) malloc(sizeof(PredEntry *)*size))) {
 	Yap_Error(FATAL_ERROR,TermNil,"Could not allocate space for pred table");
 	return;
       }
