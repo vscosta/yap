@@ -1054,12 +1054,32 @@ Start a new (source-)module
 '$declare_module'(Name, _Test, Context, _File, _Line) :-
 	add_import_module(Name, Context, start).
 
+module_property(Mod, class(L)) :-
+	'$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
 	recorded('$module','$module'(_F,Mod,_,L),_).
 module_property(Mod, file(F)) :-
 	recorded('$module','$module'(F,Mod,_,_),_).
 module_property(Mod, exports(Es)) :-
 	recorded('$module','$module'(_,Mod,Es,_),_).
+
+'$module_class'(system, L) :- '$system_module'(L).
+'$module_class'(library, L) :- '$library_module'(L).
+'$module_class'(user, L) :- '$user_module'(L).
+'$module_class'(temporary, L) :- fail.
+'$module_class'(test, L) :- fail.
+'$module_class'(development, L) :- fail.
+
+'$system_module'(prolog).
+'$system_module'(system).
+
+'$library_module'(M1) :-
+	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
+	library_directory(D),
+	sub_atom(F, 0, _, _, D).
+
+'$user_module'(_).
+
 
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
