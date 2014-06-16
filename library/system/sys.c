@@ -911,24 +911,29 @@ static int
 p_sleep(void)
 {
   YAP_Term ts = YAP_ARG1;
-  unsigned long int secs = 0, usecs = 0, out;
-  if (YAP_IsIntTerm(ts)) {
-    secs = YAP_IntOfTerm(ts);
-  }  else if (YAP_IsFloatTerm(ts)) {
-    double tfl = YAP_FloatOfTerm(ts);
+#if defined(__MINGW32__) || _MSC_VER
+  {
+    unsigned long int secs = 0, usecs = 0,  msecs, out;
+    if (YAP_IsIntTerm(ts)) {
+      secs = YAP_IntOfTerm(ts);
+    }  else if (YAP_IsFloatTerm(ts)) {
+      double tfl = YAP_FloatOfTerm(ts);
     if (tfl > 1.0)
       secs = tfl;
     else
       usecs = tfl*1000000;
+    }
+    msecs = secs*1000 + usecs/1000;
+    Sleep(msecs);
+    /* no errors possible */
+    out = 0;
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
-#if defined(__MINGW32__) || _MSC_VER
-  if (secs) usecs = secs*1000 + usecs/1000;
-  Sleep(usecs);
-  /* no errors possible */
-  out = 0;
 #elif HAVE_NANOSLEEP
   {
     struct timespec req;
+    int out;
+
     if (YAP_IsFloatTerm(ts)) {
       double tfl = YAP_FloatOfTerm(ts);
      
@@ -936,23 +941,39 @@ p_sleep(void)
       req.tv_sec = rint(tfl);
     } else {
       req.tv_nsec = 0;
-      req.tv_sec = secs;
+      req.tv_sec = YAP_IntOfTerm(ts);
     }
     out = nanosleep(&req, NULL);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #elif HAVE_USLEEP
-  if (usecs > 0) {
-    out = usleep(usecs);
-  } else
-#elif HAVE_SLEEP
-    {
-      out = sleep(secs);
+  {
+    useconds_t usecs;
+    if (YAP_IsFloatTerm(ts)) {
+      double tfl = YAP_FloatOfTerm(ts);
+     
+      usecs = rint(tfl*1000000);
+    } else {
+      usecs = YAP_IntOfTerm(ts)*1000000;
     }
+    out = usleep(usecs);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+  }
+#elif HAVE_SLEEP
+  {
+    unsigned int  secs, out;
+    if (YAP_IsFloatTerm(ts)) {
+      secs = rint(YAP_FloatOfTerm(ts));
+    } else {
+      secs = YAP_IntOfTerm(ts);
+    }
+    out = sleep(secs);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+  }
 #else
   YAP_Error(0,0L,"sleep not available in this configuration");
   return FALSE:
 #endif
-  return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
 }
 
 /* host info */
