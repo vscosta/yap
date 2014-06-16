@@ -80,7 +80,7 @@ typedef void *Atom;
 #define UInt_FORMAT "%lu"
 
 #   elif SIZEOF_LONG_LONG_INT==8
-/
+
 #define Int_FORMAT "%I64d"
 #define UInt_FORMAT "%I64u"
 

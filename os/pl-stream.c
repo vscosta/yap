@@ -2897,6 +2897,9 @@ Sopen_file(const char *path, const char *how)
   enum {lnone=0,lread,lwrite} lock = lnone;
   IOSTREAM *s;
   IOENC enc = ENC_UNKNOWN;
+#if __WINDOWS__
+  int wait = TRUE;
+#endif
 
 #if __ANDROID__
     if (strstr(path, "/assets/") == path) {
@@ -2914,8 +2917,10 @@ Sopen_file(const char *path, const char *how)
       case 'r':				/* no record */
 	flags &= ~SIO_RECORDPOS;
         break;
-      case 'L':				/* lock r: read, w: write */
-//	wait = FALSE;
+#if __WINDOWS__
+     case 'L':				/* lock r: read, w: write */
+	wait = FALSE;
+#endif
         /*FALLTHROUGH*/
       case 'l':				/* lock r: read, w: write */
 	if ( *++how == 'r' )
