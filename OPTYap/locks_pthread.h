@@ -15,6 +15,10 @@
 **                      Atomic locks for PTHREADS                      **
 ************************************************************************/
 
+#ifndef LOCK_PTHREAD_H
+
+#define LOCK_PTHREAD_H 1
+
 #include <pthread.h>
 
 //#define DEBUG_LOCKS 1
@@ -64,15 +68,9 @@ xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
 #define WRITE_LOCK(X)          pthread_rwlock_wrlock(&(X))
 #define WRITE_UNLOCK(X)        pthread_rwlock_unlock(&(X))
 
-#define FUNC_READ_LOCK(F)
-#define FUNC_READ_UNLOCK(F)
-
-#define FUNC_WRITE_LOCK(F)
-#define FUNC_WRITE_UNLOCK(F)
 
 #define TRUE_FUNC_WRITE_LOCK(F) WRITE_LOCK((F)->FRWLock)
 #define TRUE_FUNC_WRITE_UNLOCK(F) WRITE_UNLOCK((F)->FRWLock)
-
 
 #if THREADS
 
@@ -101,3 +99,5 @@ xIS_UNLOCKED(pthread_mutex_t *LOCK_VAR) {
 
 
 #endif
+
+#endif // LOCK_PTHREAD_H
