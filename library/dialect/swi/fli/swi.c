@@ -3232,29 +3232,6 @@ term_t Yap_CvtTerm(term_t ts)
   return ts;
 }
 
-#ifdef _WIN32
-
-#include <windows.h>
-
-int WINAPI PROTO(win_yap2swi, (HANDLE, DWORD, LPVOID));
-
-int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
-{
-  switch (reason) 
-    {
-    case DLL_PROCESS_ATTACH:
-      break;
-    case DLL_PROCESS_DETACH:
-      break;
-    case DLL_THREAD_ATTACH:
-      break;
-    case DLL_THREAD_DETACH:
-      break;
-    }
-  return 1;
-}
-#endif
-
 /**
  * @}
  * @}
