@@ -108,7 +108,7 @@ static BPULONG prism_hash_value(TERM term)
     while (! VECTOR_EMPTY(rest)) {
         t = VECTOR_POP(rest);
 
-nderef_loop:
+//nderef_loop:
         switch (XTAG(t)) {
         case REF0:
         case REF1:
@@ -187,7 +187,7 @@ static TERM term_pool_store(TERM_POOL *this, TERM term)
     while (! VECTOR_EMPTY(rest)) {
         p = VECTOR_POP(rest);
 
-nderef_loop:
+//nderef_loop:
         switch (XTAG(*p)) {
         case REF0:
         case REF1:
@@ -319,7 +319,7 @@ static TERM term_pool_intern(const TERM_POOL *this1, TERM_POOL *this2, TERM term
 
     assert(this2 == NULL || this2 == this1);
 
-nderef_loop:
+//nderef_loop:
     switch (XTAG(term)) {
     case REF0:
     case REF1:
