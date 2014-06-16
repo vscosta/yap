@@ -407,18 +407,18 @@ For implementation details and more information, please check term_t_slots in th
 /// @brief report the current position of the slots, assuming that they occupy the top of the stack.
 ///
 ///
-X_API handle_t     YAP_CurrentSlot(void);
+X_API yhandle_t     YAP_CurrentSlot(void);
 
 /// @brief allocate n empty new slots
 ///
 /// Return a handle to the system's default slot.
-X_API handle_t     YAP_NewSlots(int NumberOfSlots);
+X_API yhandle_t     YAP_NewSlots(int NumberOfSlots);
 
 /// @brief allocate n empty new slots
 ///
 /// Allocate  _NumberOfSlots_ from the stack and return an handle to the
 /// last one. The other handle can be obtained by decrementing the handle.
-X_API handle_t     YAP_InitSlot(YAP_Term t);
+X_API yhandle_t     YAP_InitSlot(YAP_Term t);
 
 /// @brief read from a slot.
 ///
@@ -3892,11 +3892,11 @@ YAP_Erase(void *handle)
   return 1;
 }
 
-X_API handle_t
+X_API yhandle_t
 YAP_ArgsToSlots(int n)
 {
   CACHE_REGS
-  handle_t slot = Yap_NewSlots(n PASS_REGS);
+  yhandle_t slot = Yap_NewSlots(n PASS_REGS);
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr0++ = *ptr1++;
@@ -3905,7 +3905,7 @@ YAP_ArgsToSlots(int n)
 }
 
 X_API void
-YAP_SlotsToArgs(int n, handle_t slot)
+YAP_SlotsToArgs(int n, yhandle_t slot)
 {
   CACHE_REGS
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
@@ -3947,8 +3947,8 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 }
 
 
-/*    handle_t  YAP_VarSlotToNumber(handle_t)  */
-handle_t YAP_VarSlotToNumber(handle_t s) {
+/*    yhandle_t  YAP_VarSlotToNumber(yhandle_t)  */
+yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
   if (t < HR)
@@ -3962,7 +3962,7 @@ Term YAP_ModuleUser(void) {
 }
 
 /*    int  YAP_PredicateHasClauses()  */
-handle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
+yhandle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
   return pe->cs.p_code.NOfClauses;
 }
 

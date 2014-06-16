@@ -49,9 +49,9 @@ This section lists the main internal functions for slot management. These functi
 *************************************************************************************************/
 
 /// @brief start a new set of slots, linking them to the last active slots (who may, or not, be active).
-static inline handle_t
+static inline yhandle_t
 Yap_StartSlots( USES_REGS1 ) {
-  handle_t CurSlot = LOCAL_CurSlot;
+  yhandle_t CurSlot = LOCAL_CurSlot;
   // if (CurSlot == LCL0-(ASP+(IntOfTerm(ASP[0])+2)))
   //  return CurSlot;
   /* new slot */
@@ -65,56 +65,56 @@ Yap_StartSlots( USES_REGS1 ) {
 
 /// @brief reset slots to a well-known position in the stack
 static inline void
-Yap_CloseSlots( handle_t slot USES_REGS ) {
+Yap_CloseSlots( yhandle_t slot USES_REGS ) {
   LOCAL_CurSlot = slot;
 }
 
 /// @brief report the current position of the slots, assuming that they occupy the top of the stack.
-static inline handle_t
+static inline yhandle_t
 Yap_CurrentSlot( USES_REGS1 ) {
   return IntOfTerm(ASP[0]);
 }
 
 /// @brief read from a slot.
 static inline Term
-Yap_GetFromSlot(handle_t slot USES_REGS)
+Yap_GetFromSlot(yhandle_t slot USES_REGS)
 {
   return(Deref(LCL0[slot]));
 }
 
 /// @brief read from a slot. but does not try to dereference the slot.
 static inline Term
-Yap_GetDerefedFromSlot(handle_t slot USES_REGS)
+Yap_GetDerefedFromSlot(yhandle_t slot USES_REGS)
 {
   return LCL0[slot];
 }
 
 /// @brief read the object in a slot. but do not try to dereference the slot.
 static inline Term
-Yap_GetPtrFromSlot(handle_t slot USES_REGS)
+Yap_GetPtrFromSlot(yhandle_t slot USES_REGS)
 {
   return(LCL0[slot]);
 }
 
 /// @brief get the memory address of a slot
 static inline Term *
-Yap_AddressFromSlot(handle_t slot USES_REGS)
+Yap_AddressFromSlot(yhandle_t slot USES_REGS)
 {
   return(LCL0+slot);
 }
 
 /// @brief store  term in a slot
 static inline void
-Yap_PutInSlot(handle_t slot, Term t USES_REGS)
+Yap_PutInSlot(yhandle_t slot, Term t USES_REGS)
 {
   LCL0[slot] = t;
 }
 
 /// @brief allocate n empty new slots
-static inline handle_t
+static inline yhandle_t
 Yap_NewSlots(int n USES_REGS)
 {
-  handle_t old_slots = IntOfTerm(ASP[0]), oldn = n;
+  yhandle_t old_slots = IntOfTerm(ASP[0]), oldn = n;
   while (n > 0) {
     RESET_VARIABLE(ASP);
     ASP--;
@@ -128,7 +128,7 @@ Yap_NewSlots(int n USES_REGS)
 static inline Int
 Yap_InitSlot(Term t USES_REGS)
 {
-  handle_t old_slots = IntOfTerm(ASP[0]);
+  yhandle_t old_slots = IntOfTerm(ASP[0]);
   *ASP = t;
   ASP--;
   ASP[old_slots+2] = ASP[0] = MkIntTerm(old_slots+1);
@@ -137,9 +137,9 @@ Yap_InitSlot(Term t USES_REGS)
 
 /// @brief Succeeds if it is to recover the space allocated for $n$ contiguos slots starting at topSlot.
 static inline int
-Yap_RecoverSlots(int n, handle_t topSlot USES_REGS)
+Yap_RecoverSlots(int n, yhandle_t topSlot USES_REGS)
 {
-  handle_t old_slots = IntOfTerm(ASP[0]);
+  yhandle_t old_slots = IntOfTerm(ASP[0]);
   if (old_slots  < n) {
     return FALSE;
   }

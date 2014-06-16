@@ -131,7 +131,7 @@ typedef UInt BITS32;
 
 typedef CELL Term;
 
-typedef Int handle_t;
+typedef Int yhandle_t;
 
 /*   */ typedef double Float;
 

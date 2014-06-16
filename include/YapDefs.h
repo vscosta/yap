@@ -43,7 +43,7 @@ typedef Term YAP_Module;
 
 typedef int YAP_Bool;
 
-typedef handle_t YAP_handle_t;
+typedef yhandle_t YAP_handle_t;
 
 #define YAP_PredEntryPtr struct pred_entry *
 

@@ -101,7 +101,7 @@ class YAPTerm {
   friend class YAPPairTerm;
   friend class YAPListTerm;
 protected:
-  handle_t t;
+  yhandle_t t;
   void mk(Term t0);
   Term gt();
   YAPTerm(Term tn) {  mk( tn ); }
@@ -336,7 +336,7 @@ private:
   ///
   /// It also communicates the array of arguments t[]  abd the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term **outp, handle_t& vnames );
+  YAPPredicate(const char *s, Term **outp, yhandle_t& vnames );
 
   /// Term constructor for predicates
   ///
@@ -456,7 +456,7 @@ class YAPQuery: public YAPPredicate {
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
-  handle_t vnames;
+  yhandle_t vnames;
   void initQuery( Term ts[] );
   void initQuery( YAPTerm t[], arity_t arity  );
 public:
