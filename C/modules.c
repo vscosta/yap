@@ -264,6 +264,21 @@ p_strip_module( USES_REGS1 )
 }
 
 static Int
+p_system_module( USES_REGS1 )
+{
+  Term t1 = Deref(ARG1);
+  if (t1 == PROLOG_MODULE) {
+    return TRUE;
+  }
+  return t1 == TermProlog ||
+    t1 == IDB_MODULE ||
+    t1 == IDB_MODULE ||
+    t1 == ATTRIBUTES_MODULE ||
+    t1 == SYSTEM_MODULE ||
+    t1 == GLOBALS_MODULE;
+}
+
+static Int
 p_context_module( USES_REGS1 )
 {
   yamop *parentcp = P;
@@ -336,6 +351,7 @@ Yap_InitModulesC(void)
   Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("context_module", 1, p_context_module, 0);
+  Yap_InitCPred("$system_module", 1, p_system_module, 0);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
 		SafePredFlag|SyncPredFlag);
 }
