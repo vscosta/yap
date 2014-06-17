@@ -657,8 +657,8 @@ typedef enum
 {
   DiscontiguousPredFlag = ((UInt)0x00000010 << EXTRA_FLAG_BASE),	/* predicates whose clauses may be all-over the place.. */
   SysExportPredFlag = ((UInt)0x00000008 << EXTRA_FLAG_BASE),		/* reuse export list to prolog module. */
-  NoDebugPredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
-  NoTracePredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
+  NoTracePredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this predicate */
+  NoSpyPredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot spy this predicate */
   QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   (UInt)0x80000000, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = (UInt)0x40000000,	/* local to a thread */

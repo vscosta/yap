@@ -854,7 +854,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     }
   }
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= NoTracePredFlag;
   }
   p->FunctorOfPred = fe;
   if (fe->PropsOfFE) {
@@ -943,7 +943,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->FunctorOfPred = ap->FunctorOfPred;
   Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= (NoSpyPredFlag|NoTracePredFlag);
   }
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
     Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_THREAD);
@@ -1014,7 +1014,7 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= (NoTracePredFlag|NoSpyPredFlag);
   }
   WRITE_UNLOCK(ae->ARWLock);
   {
