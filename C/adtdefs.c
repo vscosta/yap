@@ -812,6 +812,10 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   else
     p->ModuleOfPred = cur_mod;
   //TRUE_FUNC_WRITE_LOCK(fe);
+#if DEBUG_NEW_FUNCTOR
+  if (!strcmp(fe->NameOfFE->StrOfAE, "library_directory"))
+    jmp_deb(1);
+#endif
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;

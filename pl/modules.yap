@@ -1063,23 +1063,21 @@ module_property(Mod, file(F)) :-
 module_property(Mod, exports(Es)) :-
 	recorded('$module','$module'(_,Mod,Es,_),_).
 
-'$module_class'(system, L) :- '$system_module'(L).
-'$module_class'(library, L) :- '$library_module'(L).
-'$module_class'(user, L) :- '$user_module'(L).
-'$module_class'(temporary, L) :- fail.
-'$module_class'(test, L) :- fail.
-'$module_class'(development, L) :- fail.
-
-'$system_module'(prolog).
-'$system_module'(system).
+'$module_class'(Mod, system) :- '$system_module'( Mod ).
+'$module_class'(Mod, library) :- '$library_module'( Mod ).
+'$module_class'(Mod, user) :- '$user_module'( Mod ).
+'$module_class'(_, temporary) :- fail.
+'$module_class'(_, test) :- fail.
+'$module_class'(_, development) :- fail.
 
 '$library_module'(M1) :-
 	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
-	library_directory(D),
+	user:library_directory(D),
 	sub_atom(F, 0, _, _, D).
 
-'$user_module'(_).
-
+'$user_module'( Mod ) :- 
+    \+ '$library_module'( Mod),
+    \+ '$system_module'( Mod).
 
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
