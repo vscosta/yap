@@ -653,14 +653,13 @@ then
               ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1], [Define if you have libreadline])
-		LIBS="-lreadline $LIBS"
+		        LIBS="-lreadline $LIBS"
+		        AC_CHECK_TYPES([rl_hook_func_t, rl_completion_func_t])
               ],
-              [if test "x$with_readline" != xcheck; then
-                 AC_MSG_FAILURE(
-                   [--with-readline was given, but test for readline failed])
-               fi
-              ])
-              AC_CHECK_TYPES([rl_hook_func_t, rl_completion_func_t])
+              [
+                 AC_MSG_RESULT( [test for readline failed])
+              ]
+           )
 fi
 
 if test "$yap_cv_gmp" != "no"
