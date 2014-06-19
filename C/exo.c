@@ -41,7 +41,7 @@
 #define FNV32_PRIME ((UInt)16777619)
 #define FNV64_PRIME ((UInt)1099511628211)
 
-#define FNV32_OFFSET ((UInt)2166136261)
+#define FNV32_OFFSET ((UInt)0x811c9dc5)
 #define FNV64_OFFSET ((UInt)14695981039346656037)
 
 /*MurmurHash3 from: https://code.google.com/p/smhasher/wiki/MurmurHash3*/
@@ -435,7 +435,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       continue;
     }
 #if DEBUG
-    fprintf(stderr, "entries=%ld collisions=%ld (max=%ld) trys=%ld\n", i->nentries, i->ncollisions,  i->max_col_count, i->ntrys);
+  fprintf(stderr, "entries=" UInt_FORMAT " collisions=" UInt_FORMAT" (max="  UInt_FORMAT ") trys=" UInt_FORMAT "\n", i->nentries, i->ncollisions,  i->max_col_count, i->ntrys);
 #endif
     if (!i->ntrys && !i->is_key) {
       i->is_key = TRUE;

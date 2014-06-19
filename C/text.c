@@ -24,6 +24,7 @@
 #include "YapText.h"
 
 #include <string.h>
+#include <wchar.h>
 
 #ifndef HAVE_WCSNLEN
 inline static size_t

@@ -1000,6 +1000,7 @@ getFormat(compiler_vm_op ic) {
   "write_s_end"
 #endif
     }
+  return NULL;
 }
 
 void

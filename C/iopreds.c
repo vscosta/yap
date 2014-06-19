@@ -959,7 +959,7 @@ p_write_string( USES_REGS1 )
   char buf[256];
 
   if ((s = Yap_TermToString( in, buf, 256, &length, &encoding, 0)))
-    fprintf(stderr,"%ld %s\n",length, s);
+    fprintf(stderr,"%s\n", s);
   return TRUE;
 }
 #endif
