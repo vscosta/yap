@@ -45,9 +45,9 @@ AC_ARG_WITH(sysroot,
 	  [   SYSROOT="$withval"
 		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
 		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
-		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		CXXFLAGS="$CXXFLAGS --sysroot=$SYSROOT"
 		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT" ],
-	[])
+	[])∫
 
 AC_PROG_CC
 AC_PROG_CPP

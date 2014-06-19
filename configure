@@ -2761,10 +2761,10 @@ if test "${with_sysroot+set}" = set; then :
   withval=$with_sysroot;    SYSROOT="$withval"
 		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
 		CFLAGS="$CFLAGS --sysroot=$SYSROOT"
-		CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
+		CXXFLAGS="$CXXFLAGS --sysroot=$SYSROOT"
 		LDFLAGS="$LDFLAGS --sysroot=$SYSROOT"
 fi
-
+∫
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -6853,19 +6853,8 @@ if test "x$ac_cv_lib_readline_main" = xyes; then :
 
 $as_echo "#define HAVE_LIBREADLINE 1" >>confdefs.h
 
-		LIBS="-lreadline $LIBS"
-
-else
-  if test "x$with_readline" != xcheck; then
-                 { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-readline was given, but test for readline failed
-See \`config.log' for more details" "$LINENO" 5; }
-               fi
-
-fi
-
-              ac_fn_c_check_type "$LINENO" "rl_hook_func_t" "ac_cv_type_rl_hook_func_t" "$ac_includes_default"
+		        LIBS="-lreadline $LIBS"
+		        ac_fn_c_check_type "$LINENO" "rl_hook_func_t" "ac_cv_type_rl_hook_func_t" "$ac_includes_default"
 if test "x$ac_cv_type_rl_hook_func_t" = xyes; then :
 
 cat >>confdefs.h <<_ACEOF
@@ -6880,6 +6869,15 @@ if test "x$ac_cv_type_rl_completion_func_t" = xyes; then :
 cat >>confdefs.h <<_ACEOF
 #define HAVE_RL_COMPLETION_FUNC_T 1
 _ACEOF
+
+
+fi
+
+
+else
+
+                 { $as_echo "$as_me:${as_lineno-$LINENO}: result: test for readline failed" >&5
+$as_echo "test for readline failed" >&6; }
 
 
 fi
@@ -10705,18 +10703,15 @@ case "$CPP" in
 	*) ACPP="$CPP"
 esac
 
-( if test x"$SYSROOT" != x; then
-   CC="$ACC  --sysroot=$SYSROOT"; LD=$ALD; CPP="$ACPP  --sysroot=$SYSROOT"; CFLAGS=$SHLIB_CFLAGS; LDFLAGS=$LDFLAGS;
-  else
-   CC=$ACC; LD=$ALD; CPP=$ACPP; CFLAGS=$SHLIB_CFLAGS; LDFLAGS=$LDFLAGS;
-  fi
+(
+  CC=$ACC; LD=$ALD; CPP=$ACPP; CFLAGS=$SHLIB_CFLAGS; LDFLAGS=$LDFLAGS;
   export CC LD CFLAGS LDFLAGS;
   mkdir -p packages/clib/maildrop/rfc822;
   mkdir -p packages/clib/maildrop/rfc2045;
   MIME_DIR=`dirname "$srcdir"/packages/clib/maildrop`
   MIME_DIR=`cd $MIME_DIR && pwd`
-  ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc822/configure --host=$host)
-  ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc2045/configure --host=$host))
+  ( cd packages/clib/maildrop/rfc822  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc822/configure --host=$host_alias)
+  ( cd packages/clib/maildrop/rfc2045  && $CONFIG_SHELL "$MIME_DIR"/maildrop/rfc2045/configure --host=$host_alias))
 
 
 
@@ -12639,7 +12634,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12642 "configure" */
+/* #line 12637 "configure" */
 public class Test {
 }
 EOF
@@ -12815,7 +12810,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 12818: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 12813: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12946,7 +12941,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12949 "configure" */
+/* #line 12944 "configure" */
 public class Test {
 }
 EOF
@@ -12981,7 +12976,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12984 "configure" */
+/* [#]line 12979 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
