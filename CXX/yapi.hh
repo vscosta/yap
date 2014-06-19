@@ -67,7 +67,7 @@ extern "C" {
 #include <string.h>
 #endif
 
-#if _MSC_VER || defined(__MINGW32__) 
+#if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 #endif
 
@@ -100,40 +100,45 @@ class YAPTerm {
   friend class YAPApplTerm;
   friend class YAPPairTerm;
   friend class YAPListTerm;
+  friend class YAPQuery;
 protected:
-  yhandle_t t;
-  void mk(Term t0);
-  Term gt();
-  YAPTerm(Term tn) {  mk( tn ); }
+  yhandle_t t; /// handle to term, equivalent to term_t
+  void mk(Term t0); /// internal method to convert from term to handle
+  Term gt(); /// get handle and obtain term
+  YAPTerm(Term tn) {  mk( tn ); } /// private method to convert from Term (internal YAP representation) to YAPTerm
+  inline Term term() { return gt(); } /// private method to convert from YAPTerm to Term (internal YAP representation)
 public:
-  YAPTerm() { mk(TermNil); } // do nothing constructor
+  // do nothing constructor
+  YAPTerm() { mk(TermNil); }
+  /// integer to term
   YAPTerm(intptr_t i);
+  /// pointer to term
   YAPTerm(void *ptr);
+  /// parse string s and construct a term.
   YAPTerm(char *s) { Term tp ; mk( YAP_ReadBuffer(s,&tp) );  }
-  /*~YAPTerm(void) {
-		CACHE_REGS
-		Yap_RecoverSlots(1, t PASS_REGS);
-	}*/
-  Term term() { return gt(); }
+  /// extract the tag of a term, after dereferencing.
   YAP_tag_t  tag();
+  /// copy the term ( term copy )
   YAPTerm  deepCopy();
   //const YAPTerm *vars();
+  /// this term is == to t1
   bool exactlyEqual(YAPTerm t1);
-  bool unify(YAPTerm t1);
-  bool unifiable(YAPTerm t1);
-  bool variant(YAPTerm t1);
-  intptr_t hash(size_t sz, size_t depth, bool variant);
-  bool isVar() { return IsVarTerm( gt() ); }
-  bool isAtom() { return IsAtomTerm( gt() ); }
-  bool isInteger() { return IsIntegerTerm( gt() ); }
-  bool isFloat() { return IsFloatTerm( gt() ); }
-  bool isCompound() { return !(IsVarTerm( gt() ) || IsNumTerm( gt() )); }
-  bool isAppl() { return IsApplTerm( gt() ); }
-  bool isPair() { return IsPairTerm( gt() ); }
-  bool isGround() { return Yap_IsGroundTerm( gt() ); }
-  bool isList() { return Yap_IsListTerm( gt() ); }
-  bool isString() { return IsStringTerm( gt() ); }
+  bool unify(YAPTerm t1);     /// t = t1
+  bool unifiable(YAPTerm t1);  /// we can unify t and t1
+  bool variant(YAPTerm t1);   /// t =@= t1, the two terms are equal up to variable renaming
+  intptr_t hash(size_t sz, size_t depth, bool variant); /// term hash,
+  bool isVar() { return IsVarTerm( gt() ); }   /// type check for unbound
+  bool isAtom() { return IsAtomTerm( gt() ); } ///  type check for atom
+  bool isInteger() { return IsIntegerTerm( gt() ); } /// type check for integer
+  bool isFloat() { return IsFloatTerm( gt() ); } /// type check for floating-point
+  bool isString() { return IsStringTerm( gt() ); } /// type check for a string " ... "
+  bool isCompound() { return !(IsVarTerm( gt() ) || IsNumTerm( gt() )); } /// is a primitive term
+  bool isAppl() { return IsApplTerm( gt() ); } /// is a structured term
+  bool isPair() { return IsPairTerm( gt() ); } /// is a pair term
+  bool isGround() { return Yap_IsGroundTerm( gt() ); } /// term is ground
+  bool isList() { return Yap_IsListTerm( gt() ); } /// term is a list
 
+  /// extract the argument i of the term, where i in 1...arity
   inline YAPTerm getArg(int i) {
    Term t0 = gt();
     if (IsApplTerm(t0))
@@ -146,6 +151,8 @@ public:
     }
     return YAPTerm((Term)0);
   }
+
+  /// return a string with a textual representation of the term
   char *text();
 };
 
@@ -155,8 +162,11 @@ public:
 class YAPVarTerm: public YAPTerm {
   YAPVarTerm(Term t) { if (IsVarTerm(t)) mk( t ); }
 public:
+  /// constructor
   YAPVarTerm();
+  /// get the internal representation
   CELL *getVar() { return VarOfTerm( gt() ); }
+  /// is the variable bound to another one
   bool unbound() { return IsUnboundVar(VarOfTerm( gt() )); }
 };
 
@@ -243,13 +253,19 @@ class YAPAtom {
   friend class YAPFunctor;
   friend class YAPAtomTerm;
   Atom a;
-public:
+  /// construct new YAPAtom from Atom
   YAPAtom( Atom at ) { a = at; }
+public:
+  /// construct new YAPAtom from string
   YAPAtom( char * s) { a = Yap_LookupAtom( s ); }
+  /// construct new YAPAtom from wide string
   YAPAtom( wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
+  /// construct new YAPAtom from max-length string
   YAPAtom( char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
+  /// construct new YAPAtom from max-length wide string
   YAPAtom( wchar_t * s, size_t len) { a = Yap_LookupMaybeWideAtomWithLength( s, len ); }
-  char *name(void);
+  /// get name of atom
+  char *getName(void);
 };
 
 /**
@@ -257,9 +273,13 @@ public:
  */
 class YAPStringTerm: public YAPTerm {
 public:
+  /// your standard constructor
   YAPStringTerm(char *s) ;
+  /// use this one to construct length limited strings
   YAPStringTerm(char *s, size_t len);
+  /// construct using wide chars
   YAPStringTerm(wchar_t *s) ;
+  /// construct using length-limited wide chars
   YAPStringTerm(wchar_t *s, size_t len);
   const char *getString() { return StringOfTerm( gt() ); }
 };
@@ -502,16 +522,19 @@ public:
 
 // Java support
 
-// This class implements 	a callback Prolog-side
+/// This class implements a callback Prolog-side. It will be inherited by the Java or Python
+/// class that actually implements the callback.
 class YAPCallback {
 public:
       virtual ~YAPCallback() { printf("~YAPCallback\n"); }
       virtual void run() { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "callback");  }
-      virtual void displayInWindow(char *s) {  }
+      virtual void run(char *s) {  }
 };
 
 /**
- * @brief YAP Engine: takes care of constructing an execution environment where we can go executing goals
+ * @brief YAP Engine: takes care of the execution environment
+   where we can go executing goals.
+ *
  *
  */
 class YAPEngine {
@@ -531,12 +554,18 @@ public:
             bool script = FALSE,
             bool fastBoot = FALSE,
 	YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
-  ~YAPEngine() { delYAPCallback(); } /// kill engine
-  void delYAPCallback() { _callback = 0; } /// remove current callback
-  void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p",cb); } /// set a new callback
-  void call() { if (_callback) _callback->run(); } /// execute the callback.
-  void display( char *s) { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "bef calling disp %s %p",s, _callback);  if (_callback) _callback->displayInWindow(s); } /// execute the callback.
-  YAPQuery *query( char *s ); /// build a query on the engine
+  /// kill engine
+  ~YAPEngine() { delYAPCallback(); }
+  /// remove current callback
+  void delYAPCallback() { _callback = 0; }
+  /// set a new callback
+  void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p",cb); }
+  /// execute the callback.
+  void run() { if (_callback) _callback->run(); }
+  /// execute the callback with a text argument.
+  void run( char *s) { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "bef calling disp %s %p",s, _callback);  if (_callback) _callback->run(s); }
+  /// build a query on the engine
+  YAPQuery *query( char *s );
 };
 
 /*

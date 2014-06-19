@@ -5,7 +5,7 @@
 #include "SWI-Stream.h"
 
 
-YAPAtomTerm::YAPAtomTerm(char *s) { // build string 
+YAPAtomTerm::YAPAtomTerm(char *s) { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -20,7 +20,7 @@ YAPAtomTerm::YAPAtomTerm(char *s) { // build string
 }
 
 
-YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string 
+YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -36,7 +36,7 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   RECOVER_H();
 }
 
-YAPAtomTerm::YAPAtomTerm(wchar_t *s): YAPTerm() { // build string 
+YAPAtomTerm::YAPAtomTerm(wchar_t *s): YAPTerm() { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -51,7 +51,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s): YAPTerm() { // build string
 }
 
 
-YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string 
+YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -68,7 +68,7 @@ YAPAtomTerm::YAPAtomTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
 }
 
 
-YAPStringTerm::YAPStringTerm(char *s) { // build string 
+YAPStringTerm::YAPStringTerm(char *s) { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -83,7 +83,7 @@ YAPStringTerm::YAPStringTerm(char *s) { // build string
 }
 
 
-YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string 
+YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -99,7 +99,7 @@ YAPStringTerm::YAPStringTerm(char *s, size_t len) { // build string
   RECOVER_H();
 }
 
-YAPStringTerm::YAPStringTerm(wchar_t *s): YAPTerm() { // build string 
+YAPStringTerm::YAPStringTerm(wchar_t *s): YAPTerm() { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -114,7 +114,7 @@ YAPStringTerm::YAPStringTerm(wchar_t *s): YAPTerm() { // build string
 }
 
 
-YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build string 
+YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len) : YAPTerm() { // build string
   BACKUP_H();
 
   CACHE_REGS
@@ -323,7 +323,7 @@ YAPTerm YAPListTerm::car()
 YAPVarTerm::YAPVarTerm() { CACHE_REGS mk( MkVarTerm( ) ); }
 
 
-char *YAPAtom::name(void) {
+char *YAPAtom::getName(void) {
   if (IsWideAtom(a)) {
       // return an UTF-8 version
       size_t sz = 512;
@@ -576,7 +576,7 @@ displayWithJava(int c)
   if (c == '\n' ) {
       Yap_AndroidBufp[Yap_AndroidSz] = '\0';
       __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "after char %c:%s %p",c, Yap_AndroidBufp, curren);
-      curren->display(Yap_AndroidBufp);
+      curren->run(Yap_AndroidBufp);
       Yap_AndroidSz = 0;
   }
 }
