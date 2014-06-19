@@ -586,7 +586,7 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@SHLIB_LD@  -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+	@SHLIB_LD@  -o $@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
