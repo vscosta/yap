@@ -493,12 +493,10 @@ setRandom(unsigned int *seedp)
 #endif
   }
 
-#ifdef HAVE_SRANDOM
+#if HAVE_SRANDOM
   srandom(seed);
-#else
-#ifdef HAVE_SRAND
+#elif HAVE_SRAND
   srand(seed);
-#endif
 #endif
 }
 

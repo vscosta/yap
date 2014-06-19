@@ -139,6 +139,11 @@
 #undef HAVE_ENVIRON
 #endif
 #endif
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#endif
 
 void init_sys(void);
 
@@ -295,7 +300,8 @@ list_directory(void)
     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
   }
   _findclose( hFile );
-#elif __ANDROID__
+#else
+#if __ANDROID__
  {
     extern AAssetManager *assetManager;
      const char *dirName = buf+strlen("/assets/");
@@ -312,7 +318,8 @@ list_directory(void)
    }
    AAssetDir_close(de);
  }
-#elif HAVE_OPENDIR
+#endif
+#if HAVE_OPENDIR
  {
    DIR *de;
    struct dirent *dp;
@@ -327,6 +334,7 @@ list_directory(void)
    closedir(de);
  }
 #endif /* HAVE_OPENDIR */
+#endif
   tf = YAP_GetFromSlot(sl);
   return YAP_Unify(YAP_ARG2, tf);
 }
@@ -496,7 +504,7 @@ p_mktemp(void)
   }
   return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s))));
 #elif HAVE_MKSTEMP
-  strcpy(tmp, "/tmp/TEST_tmpXXXXXXXX");
+  strcpy(tmp, "/tmp/YAP_tmpXXXXXXXX");
   if(mkstemp(tmp) == -1) {
     /* return an error number */
     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
@@ -519,8 +527,8 @@ static int
 p_tmpnam(void)
 {
 #if HAVE_MKSTEMP
-  char s[22];
-  strcpy(s, "/tmp/TEST_tmpXXXXXXXX");
+  char s[21];
+  strcpy(s, "/tmp/YAP_tmpXXXXXXXX");
   if(mkstemp(s) == -1)
     return FALSE;
   return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));

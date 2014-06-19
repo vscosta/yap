@@ -856,8 +856,6 @@ unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
   { case FT_BOOL:
       if ( f->index >= 0 )
       { unsigned int mask = (unsigned int)1 << (f->index-1);
-	char *s;
-	s=PL_atom_chars(key);
 	return PL_unify_bool_ex(val, truePrologFlag(mask) != FALSE);
       }
       /*FALLTHROUGH*/
