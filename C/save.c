@@ -252,11 +252,10 @@ open_file(char *my_file, int flag)
       if (flag == O_RDONLY) {
 	  extern AAssetManager *assetManager;
 	  my_file += strlen("/assets/");
-	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "open_file  %p %s", assetManager, my_file);
 	  AAsset* asset = AAssetManager_open(assetManager, my_file, AASSET_MODE_UNKNOWN);
 	   if (!asset)
 	      return -1;
-	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "open_file   %p", asset);
+	   __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "  %p", asset);
 	  AAsset_close( asset );
 	  return 0; // usually the file will be compressed, so there is no point in actually trying to open it.
       }

@@ -184,7 +184,6 @@ class JavaCallback extends YAPCallback
   
   public void run(String s)
   {
-    System.out.println("JavaCallback.run() ");
     Log.i(TAG, "java callback ");
     output.append(s);
  }

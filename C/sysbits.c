@@ -134,6 +134,7 @@ Yap_WinError(char *yap_error)
 static int
 is_directory(char *FileName)
 {
+  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",FileName);
 #ifdef _WIN32
   char s[YAP_FILENAME_MAX+1];
   char *s0 = FileName;

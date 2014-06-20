@@ -48,6 +48,9 @@
 /* use Barts idea of allocating extra memory */
 #undef GC_NO_TAGS
 
+/* Define if gethostname() is provided */
+#undef HAS_GETHOSTNAME
+
 /* Define to 1 if you have the `access' function. */
 #undef HAVE_ACCESS
 
@@ -387,6 +390,9 @@
 /* Define to 1 if you have the `stdc++' library (-lstdc++). */
 #undef HAVE_LIBSTDC__
 
+/* Whether we have libunicode.a */
+#undef HAVE_LIBUNICODE
+
 /* Define to 1 if you have the `ws2_32' library (-lws2_32). */
 #undef HAVE_LIBWS2_32
 
@@ -697,6 +703,9 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
+/* Define to 1 if you have the `strcasecmp' function. */
+#undef HAVE_STRCASECMP
+
 /* Define to 1 if you have the `strcasestr' function. */
 #undef HAVE_STRCASESTR
 
@@ -717,6 +726,9 @@
 
 /* Define to 1 if you have the `strlwr' function. */
 #undef HAVE_STRLWR
+
+/* Define to 1 if you have the `strncasecmp' function. */
+#undef HAVE_STRNCASECMP
 
 /* Define to 1 if you have the `strncat' function. */
 #undef HAVE_STRNCAT
@@ -922,6 +934,12 @@
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
+/* Specify package */
+#undef RFC2045PKG
+
+/* Specify version */
+#undef RFC2045VER
+
 /* The size of `double', as computed by sizeof. */
 #undef SIZEOF_DOUBLE
 
@@ -1000,6 +1018,15 @@
 /* threaded emulator */
 #undef USE_THREADED_CODE
 
+/* Whether daylight savings time offset is set via the altzone variable */
+#undef USE_TIME_ALTZONE
+
+/* Whether daylight savings time offset is set via the tm_isdst member */
+#undef USE_TIME_DAYLIGHT
+
+/* Whether time offset is specified via the tm_gmtoff member */
+#undef USE_TIME_GMTOFF
+
 /* Define to name of the UUID header file. */
 #undef UUID_H
 
@@ -1060,8 +1087,20 @@
 /* compiling for Windows */
 #undef __WINDOWS__
 
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 #undef inline
 #endif
+
+/* Define to `long int' if <sys/types.h> does not define. */
+#undef off_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef pid_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t

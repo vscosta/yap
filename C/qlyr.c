@@ -828,6 +828,7 @@ ReadHash(IOSTREAM *stream)
 static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   CACHE_REGS
+  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "   ? read_uint %p %d  %p", pp, nclauses, stream);
   if (pp->PredFlags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
     if (pp->cs.p_code.NOfClauses) {
@@ -968,8 +969,9 @@ read_pred(IOSTREAM *stream, Term mod) {
   }
   ap->TimeStampOfPred = read_uint(stream);
   /* multifile predicates cannot reside in module 0 */
-  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE)
+  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
     ap->ModuleOfPred = TermProlog;
+  }
   read_clauses(stream, ap, nclauses, flags);
   if (flags & HiddenPredFlag) {  
     Yap_HidePred(ap);
@@ -1003,15 +1005,17 @@ read_module(IOSTREAM *stream) {
   InitHash();
   read_header(stream);
   ReadHash(stream);
+  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , " after read_hash  %p", stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
     Term mod = (Term)read_uint(stream);
-
+    __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , " after read_uint %x  %p", mod, stream);
     mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
     if (mod)
     while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
       read_pred(stream, mod);
     }
   }
+  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "  %p", stream);
   read_ops(stream);
   CloseHash();
 }
@@ -1087,6 +1091,7 @@ Yap_Restore(char *s, char *lib_dir)
   read_module(stream);
   Sclose( stream );
   GLOBAL_RestoreFile = NULL;
+  __android_log_print(ANDROID_LOG_INFO, "qlyr.c", "loading startup %p, done", stream);
   return DO_ONLY_CODE;
 }
 

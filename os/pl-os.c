@@ -1649,6 +1649,8 @@ ChDir(const char *path)
   char tmp[MAXPATHLEN];
   int hyper_path = FALSE;
 
+  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",ospath);
+
   OsPath(path, ospath);
 
   if ( path[0] == EOS || streq(path, ".") ||
@@ -1656,7 +1658,6 @@ ChDir(const char *path)
     succeed;
 
   AbsoluteFile(path, tmp);
-  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",ospath);
 #if __ANDROID__
   /* treat "/assets" as a directory (actually as a mounted file system).
    *

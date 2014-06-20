@@ -1087,3 +1087,9 @@ ls_imports :-
 ls_imports.
 
 
+'$system_module'('$swi').
+'$system_module'('$win_menu').
+'$system_module'('prolog').
+'$system_module'('system').
+'$system_module'('$attributes').
+

@@ -31,8 +31,8 @@
 	'$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
         '$do_log_upd_clause_erase'/6,
-        '$do_static_clause'/5,
-        '$system_module'/1], []).
+        '$do_static_clause'/5], [
+        '$system_module'/1]).
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
@@ -166,9 +166,6 @@ version(yap,[6,3]).
 :- use_module('../swi/library/predopts.pl').
 :- use_module('../swi/library/menu.pl').
 
-
-'$system_module'('$swi').
-'$system_module'('$win_menu').
 
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
