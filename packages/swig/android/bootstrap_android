@@ -1,0 +1,8 @@
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/yap
+DIR=/data/yap
+cd $DIR
+$DIR/yap -b $DIR/pl/boot.yap << EOF
+bootstrap("pl/init.yap").
+module(user).
+qsave_program('startup.yss').
+EOF
