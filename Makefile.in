@@ -592,17 +592,21 @@ libYap.a: $(LIB_OBJECTS) yapi.o
 	done
 
 @STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+	adb shell rm -rf /data/yap
 	adb shell mkdir -p /data/yap
 	adb shell mkdir -p /data/yap/pl
 	adb shell mkdir -p /data/yap/swi/library
 	adb push yap /data/yap/
 	adb push @DYNYAPLIB@ /data/yap/
-	adb push $(GMPDIR)/lib/libgmp.so data/yap/
+	for p in $(EXTRAYAPLIBS); do \
+	  adb shell $(LN_S) /data/yap/@DYNYAPLIB@ /data/yap/$$p; \
+	done
+	adb push $(GMPDIR)/lib/libgmp.so /data/yap
 	adb push $(srcdir)/swi/library /data/yap/swi/library
 	adb push $(srcdir)/pl /data/yap/pl/
 	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
 	adb pull /data/yap/startup.yss
-	$(MAKE) install_unix
+	adb shell rm -rf /data/yap
 
 install: @INSTALL_COMMAND@ install_startup install_common
 
