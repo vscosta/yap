@@ -373,8 +373,8 @@ PL_EXPORT(int)		StryLock(IOSTREAM *s);
 PL_EXPORT(int)		Sunlock(IOSTREAM *s);
 PL_EXPORT(IOSTREAM *)	Snew(void *handle, int flags, IOFUNCTIONS *functions);
 PL_EXPORT(IOSTREAM *)	Sopen_file(const char *path, const char *how);
-#if __ANDROID__
-PL_EXPORT(IOSTREAM *)	Sopen_asset(char *bufp, const char *how);
+#ifdef ANDROID_ASSET_MANAGER_H
+PL_EXPORT(IOSTREAM *)	Sopen_asset(char *bufp, const char *how, AAssetManager* mgr);
 #endif
 PL_EXPORT(IOSTREAM *)	Sfdopen(int fd, const char *type);
 PL_EXPORT(int)	   	Sfileno(IOSTREAM *s);

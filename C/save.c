@@ -250,12 +250,10 @@ open_file(char *my_file, int flag)
 #if __ANDROID__
   if (strstr(my_file, "/assets/") == my_file) {
       if (flag == O_RDONLY) {
-	  extern AAssetManager *assetManager;
 	  my_file += strlen("/assets/");
-	  AAsset* asset = AAssetManager_open(assetManager, my_file, AASSET_MODE_UNKNOWN);
+	  AAsset* asset = AAssetManager_open(GLOBAL_assetManager, my_file, AASSET_MODE_UNKNOWN);
 	   if (!asset)
 	      return -1;
-	   __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "  %p", asset);
 	  AAsset_close( asset );
 	  return 0; // usually the file will be compressed, so there is no point in actually trying to open it.
       }
@@ -1472,7 +1470,6 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   if (!inpf)
     inpf = YAPSTARTUP;
 #endif
-  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %s", inpf);
   save_buffer[0] = '\0';
   //  LOCAL_ErrorMessage = NULL;
   if (inpf == NULL) {
@@ -1499,7 +1496,6 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       !((splfild = open_file(inpf, O_RDONLY)) < 0))
    {
     if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
-	  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p", *streamp);
       return mode;
     }
   }
@@ -1605,7 +1601,6 @@ Yap_OpenRestore(char *inpf, char *YapLibDir)
   IOSTREAM *stream = NULL;
 
   OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
-  __android_log_print(ANDROID_LOG_ERROR, "save.c", "saved state   %p", stream);
   return stream;
 }
 

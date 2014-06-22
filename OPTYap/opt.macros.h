@@ -26,17 +26,17 @@ extern int Yap_page_size;
 /* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
 
 #if SIZEOF_INT_P == 4
-#define ALIGN	                   3
+#define OPTYAP_ALIGN	                   3
 #define ALIGNMASK                  0xfffffffc
 #elif SIZEOF_INT_P == 8
-#define ALIGN	                   7
+#define OPTYAP_ALIGN	                   7
 #define ALIGNMASK                  0xfffffff8
 #else
 #define ALIGN	                   OOOOPPS!!! Unknown Pointer Sizeof
 #define ALIGNMASK                  OOOOPPS!!! Unknown Pointer Sizeof
 #endif /* SIZEOF_INT_P */
 
-#define ADJUST_SIZE(SIZE)          ((SIZE + ALIGN) & ALIGNMASK)
+#define ADJUST_SIZE(SIZE)          ((SIZE + OPTYAP_ALIGN) & ALIGNMASK)
 #define ADJUST_SIZE_TO_PAGE(SIZE)  ((SIZE) - (SIZE) % Yap_page_size + Yap_page_size)
 #define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned long int)STR - (unsigned long int)STR % Yap_page_size)
 #define STRUCT_NEXT(STR)           ((STR)->next)

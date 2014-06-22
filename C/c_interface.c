@@ -2298,16 +2298,13 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
   P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL IN Yap_regp=%p LCL0=(%p) %x",  &Yap_REGS, LCL0, LCL0[-15]) ; }
   out = run_emulator(dgi PASS_REGS);
-  //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE Yap_regp=%p LCL0=(%p) %x",  &Yap_REGS, LCL0, LCL0[-15]) ; }
   RECOVER_MACHINE_REGS();
   if (out) {
     Yap_StartSlots( PASS_REGS1 );
   } else {
       LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
-  { __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "EMUL DONE %d", out) ; }
   return out;
 }
 
@@ -2991,7 +2988,6 @@ YAP_Init(YAP_init_args *yap_init)
   if (initialised)
     return YAP_BOOT_DONE_BEFOREHAND;
   initialised = TRUE;
-  __android_log_print(ANDROID_LOG_INFO, "c_interface.c", "entered init %p", yap_init);
 
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -3071,7 +3067,6 @@ YAP_Init(YAP_init_args *yap_init)
       if (restore_result == FAIL_RESTORE) {
 	yap_init->ErrorNo = LOCAL_Error_TYPE;
 	yap_init->ErrorCause = LOCAL_ErrorMessage;
-	      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore failed, %s ", LOCAL_ErrorMessage);
 	/* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
 	return YAP_BOOT_ERROR;
       }
@@ -3108,7 +3103,6 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR */
     RECOVER_MACHINE_REGS();
   }
-    __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p", yap_init);
   /* make sure we do this after restore */
   if (yap_init->MaxStackSize) {
     GLOBAL_AllowLocalExpansion = FALSE;
@@ -3133,7 +3127,6 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
- __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %s",yap_init->YapPrologRCFile);
   if (yap_init->YapPrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
   }
@@ -3146,7 +3139,6 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
-  __android_log_print(ANDROID_LOG_INFO, __FILE__, "after setting startup ");
   if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = LOCAL_Error_TYPE;
@@ -3162,11 +3154,9 @@ YAP_Init(YAP_init_args *yap_init)
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
-      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore init goal ");
      YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs( 0 );
-      __android_log_print(ANDROID_LOG_INFO, __FILE__, "restore done, loaded startup ");
-          return YAP_BOOT_FROM_SAVED_CODE;
+      return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
     }

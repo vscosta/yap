@@ -256,7 +256,7 @@ bool YAPTerm::variant(YAPTerm t1) {
   return out;
 }
 
-intptr_t YAPTerm::hash(size_t sz, size_t depth, bool variant) {
+intptr_t YAPTerm::hashTerm(size_t sz, size_t depth, bool variant) {
   intptr_t 	out;
 
   BACKUP_MACHINE_REGS();
@@ -374,12 +374,14 @@ char *YAPAtom::getName(void) {
 }
 
 
-YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) {
+YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) throw (int) {
   CACHE_REGS
   vnames = Yap_NewSlots(1 PASS_REGS);
   Term t = Yap_StringToTerm(s, strlen(s)+1, vnames);
+  if (t == 0L)
+    throw YAPError::SYNTAX_ERROR;
   ap = getPred( t, outp );
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "OUT vnames=%d ap=%p LCL0=%p",  vnames, ap, LCL0) ; }
+  //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "OUT vnames=%d ap=%p LCL0=%p",  vnames, ap, LCL0) ; }
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {
@@ -477,7 +479,6 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm t[]): YAPPredicate(p.ap)
 }
 
 YAPListTerm YAPQuery::namedVars() {
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "vnames=%d LCL0=%p %x", vnames,  LCL0, LCL0[vnames]) ; }
   CACHE_REGS
   Term o = Yap_GetFromSlot( vnames PASS_REGS );
   return YAPListTerm( o );
@@ -487,7 +488,6 @@ bool YAPQuery::next()
 {
   CACHE_REGS
   int result;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, " CALL vnames=%d ap=%p LCL0=%p %x",  vnames, ap, LCL0, LCL0[vnames]) ; }
   if (this->q_open != 1) return false;
   if (setjmp(((YAPQuery *)LOCAL_execution)->q_env))
     return false;
@@ -501,12 +501,10 @@ bool YAPQuery::next()
       result = (bool)YAP_RetryGoal(&this->q_h);
   }
   this->q_state = 1;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "FAIL vnames=%d %d  LCL0=(%p) %x",  vnames, result, LCL0, LCL0[vnames]) ; }
   if (!result) {
       YAP_LeaveGoal(FALSE, &this->q_h);
       this->q_open = 0;
   }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "SUCCESS vnames=%d ap=%p  LCL0=(%p) %x",  vnames, ap, LCL0, LCL0[vnames]) ; }
   return result;
 }
 
@@ -599,7 +597,7 @@ YAPEngine::YAPEngine( char *savedState,
                              YAPCallback *cb):  _callback(0)
 { // a single engine can be active
 #if __ANDROID__
-  if (assetManager == (AAssetManager *)NULL)
+  if (GLOBAL_assetManager == (AAssetManager *)NULL)
     return;
   Yap_DisplayWithJava = displayWithJava;
   Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);

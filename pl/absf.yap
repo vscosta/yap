@@ -329,7 +329,6 @@ absolute_file_name(File0,File) :-
 	atom_concat([File,NExt],F).
 '$add_extensions'([_|Extensions],File,F) :-
 	'$add_extensions'(Extensions,File,F).
-
 '$mk_sure_true_ext'(Ext,NExt) :-
 	atom_codes(Ext,[C|L]),
 	C \= 0'.,

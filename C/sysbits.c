@@ -134,7 +134,6 @@ Yap_WinError(char *yap_error)
 static int
 is_directory(char *FileName)
 {
-  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",FileName);
 #ifdef _WIN32
   char s[YAP_FILENAME_MAX+1];
   char *s0 = FileName;
@@ -2736,6 +2735,34 @@ p_yap_paths( USES_REGS1 ) {
 }
 
 static Int
+p_log_event( USES_REGS1 ) {
+  Term in = Deref(ARG1);
+  Atom at;
+
+  if (IsVarTerm(in))
+    return FALSE;
+  if (!IsAtomTerm(in))
+    return FALSE;
+  at = AtomOfTerm( in );
+#if DEBUG
+  if (IsWideAtom(at) )
+    fprintf(stderr, "LOG %S\n", RepAtom(at)->WStrOfAE);
+  else if (IsBlob(at))
+    return FALSE;
+  else
+    fprintf(stderr, "LOG %s\n", RepAtom(at)->StrOfAE);
+#endif
+  if (IsWideAtom(at) || IsBlob(at))
+    return FALSE;
+#if __ANDROID__
+  __android_log_print(ANDROID_LOG_INFO, "YAP", " %s ",RepAtom(at)->StrOfAE);
+#endif
+  return TRUE;
+
+}
+
+
+static Int
 p_env_separator( USES_REGS1 ) {
 #if defined(_WIN32)
   return Yap_unify(MkIntegerTerm(';'),ARG1);
@@ -3065,6 +3092,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
   Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
+  Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);

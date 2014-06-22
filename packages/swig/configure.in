@@ -25,6 +25,7 @@ mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
 mkdir -p packages/swig/fli
+mkdir -p packages/swig/jni
 
 AC_SUBST(SWIG)
 AC_SUBST(SWIG_TARGET)

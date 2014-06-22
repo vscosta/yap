@@ -37,6 +37,10 @@
 #error THREADS only works with YAPOR_THREADS
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
+// Bad export from Python
+#ifdef HAVE_STAT
+#undef HAVE_STAT
+#endif
 #include "config.h"
 
 #define FunAdr(X) X

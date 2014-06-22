@@ -1345,6 +1345,7 @@ catch_ball(C, C).
 	fail.
 '$run_at_thread_start'.
 
-
-
+log_event( String, Args ) :-
+	format( atom( M ), String, Args),
+	log_event( M ).
 

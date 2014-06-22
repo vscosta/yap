@@ -789,7 +789,6 @@ PL_unify_wchars_diff(term_t t, term_t tail, int flags,
 
   if ( len == (size_t)-1 )
     len = wcslen(s);
-
   text.text.w    = (pl_wchar_t *)s;
   text.encoding  = ENC_WCHAR;
   text.storage   = PL_CHARS_HEAP;
@@ -916,7 +915,6 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
 char *
 Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags)
 {
-  CACHE_REGS
 
   char *r, buf[4096];
 
@@ -926,12 +924,10 @@ Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags
 	  r = buf;
 	fd = Sopenmem(&r, &sz, "w");
 	fd->encoding = ENC_UTF8;
-	    {  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0+%s=(%p) %p", l, buf, LCL0, &LCL0 ); }
 	if ( PL_write_term(fd, l, 1200, flags) &&
 	     Sputcode(EOS, fd) >= 0 &&
 	     Sflush(fd) >= 0 )
 	  {
-	    {  __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I LCL0+%s=(%p) %p", buf, LCL0, &LCL0 ); }
 	    size = Stell64(fd);
 		*length = size-1;
 		char *bf = malloc(*length+1);

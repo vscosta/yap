@@ -38,7 +38,8 @@ jni/libyap.@SO@: jni/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
 jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
-	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@  $(CXXFLAGS) -Wall $<
+	mkdir -p jni
+	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp  $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
 	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@

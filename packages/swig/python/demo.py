@@ -9,7 +9,10 @@ engine = yap.YAPEngine();
 def go():
     while True:
         s = raw_input("Prolog Query: ")
-        q = engine.query(s)
+        try: 
+            q = engine.query(s)
+        except:
+...         print "Oops!  That was no valid number.  Try again..."  
         while q.next():
             vs = q.namedVars();
             while vs.length() > 0:

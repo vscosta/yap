@@ -25,7 +25,33 @@ extern "C" {
  
 /* turn on director wrapping Callback */
 %feature("director") YAPCallback;
-
  	
+class YAPPredicate;
+
+#ifdef SWIGPYTHON
+%exception YAPPredicate {
+   try {
+      $action
+   } catch (...) {
+      fprintf(stderr,"here\n");
+      PyErr_SetString(PyExc_SyntaxError, "syntax error");
+      return NULL;
+   }
+}
+#endif
+
+
 %include "yapi.hh"
+
+#ifdef SWIGJAVA
+%javaexception("java.text.ParseException") YAPPredicate {
+  try {
+     $action
+  } catch (YAPError::SYNTAX_ERROR &e) {
+    jclass clazz = jenv->FindClass("java/text/ParseException");
+    jenv->ThrowNew(clazz, "Syntax error");
+    return $null;
+   }
+}
+#endif
 

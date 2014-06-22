@@ -18,6 +18,10 @@
  */
 #include <stdlib.h>
 
+// Bad export from Python
+#ifdef HAVE_STAT
+#undef HAVE_STAT
+#endif
 #include <config.h>
 
 extern "C" {
@@ -90,6 +94,8 @@ class YAPApplTerm;
 class YAPPairTerm;
 class YAPQuery;
 
+#include "yapie.hh"
+
 class TypeError {};
 
 /**
@@ -126,7 +132,7 @@ public:
   bool unify(YAPTerm t1);     /// t = t1
   bool unifiable(YAPTerm t1);  /// we can unify t and t1
   bool variant(YAPTerm t1);   /// t =@= t1, the two terms are equal up to variable renaming
-  intptr_t hash(size_t sz, size_t depth, bool variant); /// term hash,
+  intptr_t hashTerm(size_t sz, size_t depth, bool variant); /// term hash,
   bool isVar() { return IsVarTerm( gt() ); }   /// type check for unbound
   bool isAtom() { return IsAtomTerm( gt() ); } ///  type check for atom
   bool isInteger() { return IsIntegerTerm( gt() ); } /// type check for integer
@@ -356,7 +362,7 @@ private:
   ///
   /// It also communicates the array of arguments t[]  abd the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term **outp, yhandle_t& vnames );
+  YAPPredicate(const char *s, Term **outp, yhandle_t& vnames ) throw (int);
 
   /// Term constructor for predicates
   ///
@@ -415,9 +421,11 @@ public:
   /// String constructor for predicates.
   ///
   /// String is a Prolog term, we extract the main functor after considering the module qualifiers.
-  inline YAPPredicate(char *s) {
+  inline YAPPredicate(char *s) throw (int) {
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
+    if (t == 0L)
+      throw YAPError::SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 
@@ -425,9 +433,11 @@ public:
   /// String constructor for predicates, also keeps arguments in tp[]
   ///
   /// String is a Prolog term, we extract the main functor after considering the module qualifiers.
- inline YAPPredicate(char *s, Term **outp) {
+ inline YAPPredicate(char *s, Term **outp) throw (int) {
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
+    if (t == 0L)
+      throw YAPError::SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 

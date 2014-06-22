@@ -121,6 +121,29 @@ LastModifiedFile(const char *name, double *tp)
 #else
   char tmp[MAXPATHLEN];
   statstruct buf;
+#ifdef __ANDROID__
+  if (strstr(name,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      *tp = (double)0;
+      if (!strcmp(name,"/assets"))
+	 return TRUE;
+      const char *bufp=name+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir) {
+	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
+	  AAssetDir_close(assetDir);
+	  if (ptr)
+	    return TRUE;
+      }
+      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      if (!asset)
+	return FALSE;
+      AAsset_close(asset);
+      return TRUE;
+   }
+
+#endif
 
   if ( statfunc(OsPath(name, tmp), &buf) < 0 )
     return FALSE;
@@ -178,6 +201,29 @@ LastModifiedFile64(const char *name, int64_t *tp)
 #else
   char tmp[MAXPATHLEN];
   statstruct buf;
+#ifdef __ANDROID__
+  if (strstr(name,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      *tp = (int64_t)0;
+      if (!strcmp(name,"/assets"))
+	 return TRUE;
+      const char *bufp=name+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir) {
+	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
+	  AAssetDir_close(assetDir);
+	  if (ptr)
+	    return TRUE;
+      }
+      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      if (!asset)
+	return FALSE;
+      AAsset_close(asset);
+      return TRUE;
+   }
+
+#endif
 
   if ( statfunc(OsPath(name, tmp), &buf) < 0 )
     return FALSE;
@@ -199,6 +245,28 @@ SizeFile(const char *path)
 { char tmp[MAXPATHLEN];
   statstruct buf;
 
+#ifdef __ANDROID__
+  if (strstr(path,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      if (!strcmp(path,"/assets"))
+	 return 0;
+      const char *bufp=path+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir) {
+	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
+	  AAssetDir_close(assetDir);
+	  if (ptr)
+	    return 0;
+      }
+      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      if (!asset)
+	return -1;
+      AAsset_close(asset);
+      return 0;
+   }
+
+#endif
   if ( statfunc(OsPath(path, tmp), &buf) < 0 )
     return -1;
 
@@ -220,6 +288,36 @@ ACCESS_WRITE and ACCESS_EXECUTE.
 int
 AccessFile(const char *path, int mode)
 { char tmp[MAXPATHLEN];
+#ifdef __ANDROID__
+  if (strstr(path,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      if (!strcmp(path,"/assets"))
+	 return !(mode & ACCESS_WRITE );
+      const char *bufp=path+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir) {
+	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
+	  AAssetDir_close(assetDir);
+	  if (ptr)
+	  return !(mode & ACCESS_WRITE );
+      }
+      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      if (!asset)
+	return FALSE;
+      AAsset_close(asset);
+      if ( mode == ACCESS_EXIST )
+        return TRUE;
+      else
+      {
+        if ( mode & ACCESS_WRITE   ) return FALSE;
+    #ifdef X_OK
+        if ( mode & ACCESS_EXECUTE ) return FALSE;
+    #endif
+        return TRUE;
+      }
+  }
+#endif
 #ifdef HAVE_ACCESS
   int m = 0;
 
@@ -249,6 +347,27 @@ ExistsFile(const char *path)
   char tmp[MAXPATHLEN];
   statstruct buf;
 
+#ifdef __ANDROID__
+  if (strstr(path,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      if (!strcmp(path,"/assets"))
+	 return TRUE;
+      const char *bufp=path+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir) {
+	  const char *ptr = AAssetDir_getNextFileName(assetDir)	;
+	  AAssetDir_close(assetDir);
+	  if (ptr)
+	    return TRUE;
+      }
+      AAsset *asset = AAssetManager_open(mgr, bufp, AASSET_MODE_UNKNOWN);
+      if (!asset)
+	return FALSE;
+      AAsset_close(asset);
+      return TRUE;
+   }
+#endif
   if ( statfunc(OsPath(path, tmp), &buf) == -1 || !S_ISREG(buf.st_mode) )
   { DEBUG(2, perror(tmp));
     return FALSE;
@@ -268,6 +387,24 @@ ExistsDirectory(const char *path)
   char *ospath = OsPath(path, tmp);
   statstruct buf;
 
+#ifdef __ANDROID__
+  if (strstr(ospath,"/assets")) {
+      AAssetManager* mgr = GLOBAL_assetManager;
+      const char *ptr = NULL;
+
+      if (!strcmp(path,"/assets"))
+	 return TRUE;
+      const char *bufp=path+strlen("/assets/");
+      // check if file is a directory.
+      AAssetDir *assetDir = AAssetManager_openDir(mgr, bufp);
+      if (assetDir)
+	ptr = AAssetDir_getNextFileName(assetDir);
+     if (assetDir) {
+	  AAssetDir_close(assetDir);
+      }
+      return ptr != NULL;
+   }
+#endif
   if ( statfunc(ospath, &buf) < 0 )
     return FALSE;
 
@@ -1016,7 +1153,8 @@ PRED_IMPL("working_directory", 2, working_directory, 0)
     { char *n;
 
       if ( PL_get_file_name(new, &n, 0) )
-      { if ( ChDir(n) )
+      {
+	  if ( ChDir(n) )
 	  return TRUE;
 
 	if ( truePrologFlag(PLFLAG_FILEERRORS) )

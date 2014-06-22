@@ -91,6 +91,8 @@ otherwise.
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 :- bootstrap('preddecls.yap').
+
+
 :- bootstrap('atoms.yap').
 :- bootstrap('os.yap').
 :- bootstrap('absf.yap').
@@ -136,6 +138,8 @@ otherwise.
 	 'yapor.yap',
          'qly.yap',
          'udi.yap'].
+
+:- meta_predicate(log_event(+,:)).
 
 :- dynamic prolog:'$user_defined_flag'/4.
 

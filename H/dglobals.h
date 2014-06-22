@@ -34,6 +34,10 @@
 
 #define GLOBAL_AGcThreshold Yap_global->AGcThreshold_
 #define GLOBAL_AGCHook Yap_global->AGCHook_
+#if __ANDROID__
+
+#define GLOBAL_assetManager Yap_global->assetManager_
+#endif
 
 #if THREADS
 

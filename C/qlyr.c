@@ -828,7 +828,6 @@ ReadHash(IOSTREAM *stream)
 static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   CACHE_REGS
-  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "   ? read_uint %p %d  %p", pp, nclauses, stream);
   if (pp->PredFlags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
     if (pp->cs.p_code.NOfClauses) {
@@ -1005,17 +1004,14 @@ read_module(IOSTREAM *stream) {
   InitHash();
   read_header(stream);
   ReadHash(stream);
-  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , " after read_hash  %p", stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
     Term mod = (Term)read_uint(stream);
-    __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , " after read_uint %x  %p", mod, stream);
     mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
     if (mod)
     while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
       read_pred(stream, mod);
     }
   }
-  __android_log_print(ANDROID_LOG_ERROR, __FUNCTION__ , "  %p", stream);
   read_ops(stream);
   CloseHash();
 }
@@ -1086,12 +1082,10 @@ Yap_Restore(char *s, char *lib_dir)
   IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
   if (!stream) 
     return -1;
-  __android_log_print(ANDROID_LOG_INFO, "qlyr.c", "loading startup %p", stream);
   GLOBAL_RestoreFile = s;
   read_module(stream);
   Sclose( stream );
   GLOBAL_RestoreFile = NULL;
-  __android_log_print(ANDROID_LOG_INFO, "qlyr.c", "loading startup %p, done", stream);
   return DO_ONLY_CODE;
 }
 

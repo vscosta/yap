@@ -1525,10 +1525,6 @@ PL_changed_cwd(void)
   UNLOCK();
 }
 
-#if __ANDROID__
-char *Yap_InAssetDir;
-#endif
-
 static char *
 cwd_unlocked(char *cwd, size_t cwdlen)
 { GET_LD
@@ -1548,9 +1544,9 @@ to be implemented directly.  What about other Unixes?
 #endif
 
 #if __ANDROID__
-    if (Yap_InAssetDir) {
-	rval = strncpy(buf, Yap_InAssetDir, sizeof(buf));
-    }
+    if (LOCAL_InAssetDir) {
+	rval = strncpy(buf, LOCAL_InAssetDir, sizeof(buf));
+    } else
 #endif
 #if defined(HAVE_GETWD) && !defined(HAVE_GETCWD)
     rval = getwd(buf);
@@ -1647,9 +1643,6 @@ bool
 ChDir(const char *path)
 { char ospath[MAXPATHLEN];
   char tmp[MAXPATHLEN];
-  int hyper_path = FALSE;
-
-  __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, " %s ",ospath);
 
   OsPath(path, ospath);
 
@@ -1662,37 +1655,38 @@ ChDir(const char *path)
   /* treat "/assets" as a directory (actually as a mounted file system).
    *
    */
-  if (strstr(ospath, "/assets/") == ospath) {
-      extern AAssetManager *assetManager;
+  if (LOCAL_InAssetDir) {
+      free(LOCAL_InAssetDir);
+      LOCAL_InAssetDir = NULL;
+  }
+  if (strstr(ospath, "/assets/") == ospath)  {
       const char *dirName = ospath+strlen("/assets/");
-      AAssetManager* mgr = assetManager;
+      AAssetManager* mgr = GLOBAL_assetManager;
       AAssetDir* dir;
 
-      if (( dir = AAssetManager_openDir(mgr, dirName))) {
+      if (( dir = AAssetManager_openDir(mgr, dirName) ) &&
+	  AAssetDir_getNextFileName( dir ) ) {
+	  // valid directpry
+	  size_t sz = strlen(ospath)+1;
 	  AAssetDir_close(dir);
-	  hyper_path = TRUE;
+	  LOCAL_InAssetDir = (char *)malloc(sz);
+	  strncpy(LOCAL_InAssetDir, ospath, sz-1);
+	  succeed;
+      }  else {
+	  fail;
       }
-      hyper_path = FALSE;
-  } else if (!strcmp(ospath, "/assets"))
-    hyper_path = TRUE;
-  if (hyper_path) {
-      if (Yap_InAssetDir) {
-	  free(Yap_InAssetDir);
-	  Yap_InAssetDir = NULL;
-      }
-      Yap_InAssetDir = (char *)malloc(strlen(ospath)+1);
+  } else if ( !strcmp(ospath,"/assets") ||
+      !strcmp(ospath,"/assets/") ) {
+	  // valid directpry
+	  size_t sz = strlen("/assets")+1;
+	  LOCAL_InAssetDir = (char *)malloc(sz);
+	  strncpy(LOCAL_InAssetDir, ospath, sz);
+	  succeed;
   }
-#endif
+ #endif
 
-  if ( hyper_path ||
-      chdir(ospath) == 0 )
+  if ( chdir(ospath) == 0 )
   { size_t len;
-#if __ANDROID__
-  if (Yap_InAssetDir) {
-      free(Yap_InAssetDir);
-      Yap_InAssetDir = NULL;
-  }
-#endif
     len = strlen(tmp);
     if ( len == 0 || tmp[len-1] != '/' )
     { tmp[len++] = '/';

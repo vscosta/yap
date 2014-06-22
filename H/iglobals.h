@@ -34,6 +34,10 @@ static void InitGlobal(void) {
 
   GLOBAL_AGcThreshold = 10000;
   GLOBAL_AGCHook = NULL;
+#if __ANDROID__
+
+  GLOBAL_assetManager = GLOBAL_assetManager;
+#endif
 
 #if THREADS
 

@@ -895,7 +895,6 @@ put_code(int c, IOSTREAM *s)
 #if __ANDROID__
 
   if (Yap_AndroidBufp && (s == Soutput || s == Serror) ) {
-      __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "get char %c %p",c, Yap_AndroidBufp);
      (Yap_DisplayWithJava)(c);
    }
 
@@ -2903,8 +2902,9 @@ Sopen_file(const char *path, const char *how)
 
 #if __ANDROID__
     if (strstr(path, "/assets/") == path) {
-	  char * p = (char *)path + strlen("/assets/");
-	  return Sopen_asset( p, how-1);
+	AAssetManager *Yap_assetManager( void );
+	char * p = (char *)path + strlen("/assets/");
+	return Sopen_asset( p, how-1, Yap_assetManager());
     }
 #endif
 
@@ -3311,23 +3311,6 @@ IOFUNCTIONS Sassetfunctions =
 #include <jni.h>
 #include <string.h>
 
-AAssetManager *assetManager;
-JNIEnv *env;
-
-void Java_org_swig_simple_SwigSimple_load(JNIEnv *env0, jobject obj, jobject mgr);
-
-void Java_org_swig_simple_SwigSimple_load
-     (JNIEnv *env0, jobject obj, jobject mgr)
-{
-      assetManager = AAssetManager_fromJava(env0, mgr);
-      env = env0;
-  if (assetManager == NULL) {
-      __android_log_print(ANDROID_LOG_DEBUG, "os-stream.c", "error loading asset   manager");
-  } else {
-      __android_log_print(ANDROID_LOG_DEBUG, "os-stream.c", "loaded asset  manager");
-  }
-
-}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Sopen_asset(char **buffer, size_t *sizep, const char* mode)
@@ -3335,14 +3318,13 @@ Sopen_asset(char **buffer, size_t *sizep, const char* mode)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 IOSTREAM *
-Sopen_asset(char *bufp, const char *how)
+Sopen_asset(char *bufp, const char *how, AAssetManager* mgr)
 {
   AAsset* asset;
   int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS|SIO_FBUF;
   int op = *how++;
   IOSTREAM *s;
   IOENC enc = ENC_UNKNOWN;
-  AAssetManager* mgr = assetManager;
 
   for( ; *how; how++)
   { switch(*how)
@@ -3383,7 +3365,6 @@ Sopen_asset(char *bufp, const char *how)
       errno = EINVAL;
       return NULL;
   }
-  __android_log_print(ANDROID_LOG_INFO, "os-stream.c", "got asset %s -> %p", bufp, asset);\
 
   if ( !asset )
     return NULL;

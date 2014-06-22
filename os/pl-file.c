@@ -3251,7 +3251,7 @@ openStream(term_t file, term_t mode, term_t options)
   {
 #if __ANDROID__
       if (strstr(path,"/assets/")) {
-	  if (!(s=Sopen_asset(path+8, "r")))
+	  if (!(s=Sopen_asset(path+8, "r", GLOBAL_assetManager)))
 	    { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
 	    	       ATOM_open, ATOM_source_sink, file);
 	      return NULL;
@@ -5142,6 +5142,31 @@ static const PL_extension foreigns[] = {
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };
+
+#if __ANDROID__
+JNIEnv *Yap_jenv;
+
+void Java_org_swig_simple_SwigSimple_load(JNIEnv *env0, jobject obj, jobject mgr);
+
+void Java_org_swig_simple_SwigSimple_load
+     (JNIEnv *env0, jobject obj, jobject mgr0)
+{
+  AAssetManager *mgr = AAssetManager_fromJava(env0, mgr0);
+  Yap_jenv = env0;
+  if (mgr == NULL) {
+  } else {
+      GLOBAL_assetManager = mgr;
+  }
+}
+
+AAssetManager *Yap_assetManager( void );
+
+AAssetManager *Yap_assetManager( void )
+{
+  return GLOBAL_assetManager;
+}
+#endif
+
 
 struct PL_local_data *Yap_InitThreadIO(int wid)
 {

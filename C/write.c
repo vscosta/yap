@@ -574,7 +574,6 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
   wtype          atom_or_symbol;
   wrf stream = wglb->stream;
 
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "AA LCL0=(%p) %p", LCL0, &LCL0 ); }
   if (IsBlob(atom)) {
     wrputblob(RepAtom(atom),Quote_illegal,wglb);
     return;
@@ -594,11 +593,7 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
     }
     return;
   }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "AB LCL0=(%p) %p",  LCL0, &LCL0 ); }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "AB LCL0=(%p) %p",  LCL0, RepAtom(atom)->StrOfAE ); }
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "AB LCL0=(%p) %c",  LCL0, RepAtom(atom)->StrOfAE[0]); }
   s  = (unsigned char *)RepAtom(atom)->StrOfAE;
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "AC %s LCL0=(%p) %p", s, LCL0, &LCL0 ); }
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (Yap_GetValue(AtomCryptAtoms) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
@@ -891,16 +886,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   if (EX)
     return;
   t = Deref(t);
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
   if (IsVarTerm(t)) {
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "V %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
     write_var((CELL *)t, wglb, &nrwt);
   } else if (IsIntTerm(t)) {
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
 
     wrputn((Int) IntOfTerm(t),wglb);
   } else if (IsAtomTerm(t)) {
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "A %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
   } else if (IsPairTerm(t)) {
      if (wglb->Ignore_ops) {
@@ -933,18 +924,14 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsCodesTerm(t)) {
       putString(t, wglb);
     } else {
-	      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */ 
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
      write_list(t, 0, depth, wglb, rwt);
       wrputc(']', wglb->stream);
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "III II%d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
    lastw = separator;
     }
   } else {		/* compound term */
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
    Functor         functor = FunctorOfTerm(t);
     int             Arity;
     Atom            atom;
@@ -1101,8 +1088,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     } else if (!wglb->Ignore_ops &&
 	       Arity == 2  && Yap_IsInfixOp(atom, &op, &lp,
 						 &rp) ) {
-	      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "II %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
-     Term  tleft = ArgOfTerm(1, t);
+	Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);
       int   bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
@@ -1119,9 +1105,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (bracket_left) {
 	wropen_bracket(wglb, TRUE);
       }
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "III %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
-      { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "IV %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
       t = AbsAppl(restore_from_write(&nrwt, wglb)-1);
       if (bracket_left) {
 	wrclose_bracket(wglb, TRUE);
@@ -1256,7 +1240,6 @@ Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
-  { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "I %d LCL0=(%p) %p", t, LCL0, &LCL0 ); }
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
   restore_from_write(&rwt, &wglb);
 }
