@@ -22,7 +22,7 @@ python: $(SWIG_FILES) python/_yap.so python/yap.py
 	cp $(srcdir)/python/demo.py python
 
 python/_yap.so: python/yap_wrap.o
-	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
+	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthrea
 
 python/yap_wrap.cpp python/yap.py: $(srcdir)/yap.i
 	mkdir -p python
@@ -38,7 +38,6 @@ jni/libyap.@SO@: jni/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
 jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
-	mkdir -p jni
 	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp  $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
@@ -55,10 +54,10 @@ jni/yap_wrap.o:  jni/yap_wrap.cpp
 android: android/jni/yap_wrap.cpp
 
 android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
-	android create project --target 1 --name SwigSimple --path ./android --activity SwigSimple --package org.swig.simple;\
+	android create project --target 1 --name Yap --path ./android --activity Yap --package pt.up.fc.dcc.yap;\
 	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
-	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package org.swig.simple -outdir src/org/swig/simple -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
-	cp $(srcdir)/android/SwigSimple.java src/org/swig/simple/ ;\
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.simple -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
+	cp $(srcdir)/android/Yap.java src/pt/up/fc/dcc/yap/ ;\
 	cp $(srcdir)/android/main.xml res/layout ;\
 	cp $(srcdir)/android/Application.mk jni ;\
 	cp -r $(DESTDIR)$(PLLIBDIR)/* assets/share/Yap;\
