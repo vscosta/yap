@@ -239,6 +239,7 @@ TAB_SIZE               = 4
 # newlines.
 
 ALIASES                = "predicate=@brief" \
+                         "license=@par License:\n" \
                          "doxygen=\if english" \
                          "endenglish=\endif" \
                          "dutch=\if dutch" \
@@ -775,7 +776,11 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = docs/yap.md \
+# INPUT                  = /Users/vsc/git/yap-6.3/packages/ProbLog/problog_learning_lbdd.yap
+# INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
+#INPUT = /Users/vsc/git/yap-6.3/packages/R/R.pl		
+
+INPUT = docs/yap.md \
                          pl \
                          C \
                          H \
