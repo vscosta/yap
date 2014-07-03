@@ -576,6 +576,8 @@ public:
   void run( char *s) { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "bef calling disp %s %p",s, _callback);  if (_callback) _callback->run(s); }
   /// build a query on the engine
   YAPQuery *query( char *s );
+  /// build a query on the engine
+  YAPQuery *safeQuery( char *s );
 };
 
 /*

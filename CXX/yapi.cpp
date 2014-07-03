@@ -626,3 +626,14 @@ YAPQuery *YAPEngine::query( char *s ) {
   YAPQuery *n = new YAPQuery( s );
   return n;
 }
+
+YAPQuery *YAPEngine::safeQuery( char *s ) {
+  try 
+    {
+      YAPQuery *n = new YAPQuery( s );
+      return n;
+    }
+  catch (...) {
+    return 0;
+  }
+}
