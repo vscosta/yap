@@ -28,6 +28,10 @@ inline( []/0 ).
 %
 
 main :-
+      unix(argv([D])),
+      working_directory(_, D),
+      fail.
+main :-
       % from libraries outside the current directories
       assert( node( attributes, woken_att_do/4, 'library/atts.yap', prolog ) ),
      fail.
@@ -36,13 +40,13 @@ main :-
      c_preds('OPTYap'),
      c_preds('os'),
      c_preds('library/dialeect/swi/fli'),
-     c_preds(operating_system_support:'library/system'),
-     c_preds(random:'library/random'),
-     c_preds(regexp:'library/regex'),
      pl_preds(pl),
+     pl_preds(library),
+     pl_preds('swi/library'),
      undefs,
      doubles,
-     pl_exports(pl).
+%     pl_exports(pl).
+     c_links.
 
 c_preds(M:Dir) :-
     Root = '.',
@@ -86,24 +90,27 @@ c_line(Line, _Mod, _) :-
      mod(M, _Mod, Mod),
      nb_setval( current_module, Mod ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitCPred", NS, AS|_], Line), !,
+     append( _, [ "Yap_InitCPred", NS, AS, FS|_], Line), !,
      atom_string( N, NS),
+     atom_string( Fu, FS),
      number_string(A, AS),
      nb_getval( current_module, Mod  ),
      \+ inline(N/A),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, c(Fu)) ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitAsmPred", NS, AS|_], Line), !,
+     append( _, [ "Yap_InitAsmPred", NS, AS, FS|_], Line), !,
      atom_string( N, NS),
+     atom_string( Fu, FS),
      number_string(A, AS),
      nb_getval( current_module, Mod  ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, asm(Fu)) ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitCmpPred", NS, AS|_], Line), !,
+     append( _, [ "Yap_InitCmpPred", NS, AS, FS|_], Line), !,
      atom_string( N, NS),
      number_string(A, AS),
+     atom_string( Fu, FS),
      nb_getval( current_module, Mod  ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, cmp(Fu)) ).
 c_line(Line, _Mod, F) :- 
      append( _, [ "Yap_InitCPredBack", NS, AS|_], Line), !,
      atom_string(N,NS),
@@ -111,17 +118,19 @@ c_line(Line, _Mod, F) :-
      nb_getval( current_module, Mod ),
      assert( node( Mod, N/A, F, c) ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "YAP_UserCPredicate", NS, AS|_], Line), !,
+     append( _, [ "YAP_UserCPredicate", NS, NF, AS|_], Line), !,
      atom_string(N,NS),
+     atom_string(Fu,NF),
      number_string(A, AS),
      nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, c(Fu)) ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "PRED_DEF", NS, AS|_], Line), !,
+     append( _, [ "PRED_DEF", NS, AS, FS|_], Line), !,
      atom_string(N,NS),
+     atom_string(Fu,FS),
      number_string(A, AS),
      nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, c(Fu)) ).
 /*
 c_line(Line, _Mod, F) :- 
      append( _, [ "PRED_IMPL", NS, AS|_], Line), !,
@@ -131,17 +140,25 @@ c_line(Line, _Mod, F) :-
      assert( node( Mod, N/A, F, c) ).
 */
 c_line(Line, _Mod, F) :- 
-     append( _, [ "PRED", NS, AS|_], Line), !,
+     append( _, [ "PRED", NS, AS, FS|_], Line), !,
      atom_string(N,NS),
+     atom_string(Fu,FS),
      number_string(A, AS),
      nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, c(Fu)) ).
 c_line(Line, _Mod, F) :- 
-     append( _, [ "FRG", NS, AS|_], Line), !,
+     append( _, [ "REGISTER_CPRED", NS, AS], Line), !,
      atom_string(N,NS),
      number_string(A, AS),
      nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
+     assert( node( Mod, N/A, F, c(N)) ).
+c_line(Line, _Mod, F) :- 
+     append( _, [ "FRG", NS, AS, FS|_], Line), !,
+     atom_string(N,NS),
+     atom_string(Fu,FS),
+     number_string(A, AS),
+     nb_getval( current_module, Mod ),
+     assert( node( Mod, N/A, F, c(Fu)) ).
 
 
 mod("ATTRIBUTES_MODULE", _, attributes ).
@@ -202,14 +219,16 @@ pl_preds(_).
 
 pl_nodes(F, _Mod, Suffix) :-
 %    writeln(F),
-	file_to_module(F, Suffix, Mod),
+    file_to_module(F, Suffix, Mod),
+    save_ops(Ops),
     nb_setval( current_module, Mod ),
     open(F, read, S),
     repeat,
-    read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ),
+    catch( read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ), Throw, (writeln(Throw), fail )),
     ( T == end_of_file
       ->
 	  !,
+          restore_ops(Ops),
 	  close(S)
       ;
 %      warn_singletons(Vars, Pos),
@@ -230,10 +249,12 @@ build_nodes( (H --> _B), F, M ) :- !,
     functor(H, N, A1),
     A is A1+2,
     add_node( M:N/A, F).
+build_nodes( S, _F, _M ) :- string( S ), !.
 build_nodes( (:- module( NM, Is ) ), F, _M ) :- !,
      nb_setval( current_module, NM ),
      F = FN:_,
      assert( module_on( FN:_ , NM) ),
+     maplist(process_decl, Is),
      maplist( public(F, NM), Is ). 
 build_nodes( (:- private( Is ) ), F, M ) :- !,
      maplist( private(F, M), Is ). 
@@ -256,13 +277,23 @@ private(F, M, I) :-
 	assert(private_predicate(I, M, F)).
 	
 
+save_ops( Ops ) :-
+    findall(op(X,Y,Z), current_op(X,Y,Z), Ops).
+
+restore_ops( Ops ) :-
+    maplist(restore_op, Ops).
+
+restore_op(op(_X,_Y,',')) :- !.
+restore_op(op(X,Y,Z)) :-
+    op(X,Y,Z).
+
 add_nodes( (A,B), F, M) :- !,
     add_nodes( A, F, M),
     add_nodes( B, F, M).
 add_nodes( M:A, F, _M) :- !,
     add_nodes( A, F, M).
 add_nodes( B, F, M) :- !,
-    add_node( M:B, F).
+    ( string( B ) -> true; add_node( M:B, F) ). 
 
 
 add_node( N, F, M ) :-
@@ -297,7 +328,7 @@ pl_file(F, _Mod, Suffix) :-
 	nb_setval( current_module, Mod ),
     open(F, read, S),
     repeat,
-    read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ),
+    catch(  read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ), Throw, (writeln(Throw), fail) ),
     ( T == end_of_file
       ->
 	  !,
@@ -312,10 +343,11 @@ pl_file(F, _Mod, Suffix) :-
 
 file_to_module(F, _Suffix, Mod) :-
     module_on(F:_, Mod), !.
-file_to_module(F, Suffix, Mod) :-
-    file_base_name(F, Base),
-    atom_concat(Mod0, Suffix, Base),
-    atom_concat('$_',Mod0, Mod).
+file_to_module(F, _Suffix, Mod) :-
+    file_directory_name(F, Base),
+    atom_concat(_, pl, Base), !,
+    Mod = prolog.
+file_to_module(_F, _Suffix, user).
 
 build_graph( M:T, F, _ ) :- !,
     build_graph( T, F, M ).
@@ -328,14 +360,26 @@ build_graph( (H --> B), F, M ) :- !,
     functor(H, N, A1),
     A is A1+2,
     add_deps( B, M, M:N/A, F, 2).
-build_graph( (:- module( NM, _Is ) ), F, _M ) :- !,
+build_graph( (:- module( NM, Is ) ), F, _M ) :- !,
      nb_setval( current_module, NM ),
      F = FN:_,
+     maplist(process_decl, Is),
      assert( module_on( FN:_ , NM) ). 
+build_graph( (:- load_foreign_files( _, _, _ ) ), _F, _M ) :- !,
+     nb_getval( current_module, NM ),
+     c_location( NM, D),
+     c_preds( NM:D ).
+build_graph( (:- op( X, Y, Z) ), _F, _M ) :- !,
+     op(X,Y, prolog:Z).
 build_graph( (:- _B), _F, _M ) :- !.
 build_graph( (?- _B), _F, _M ) :- !.
 build_graph( _H, _F, _M ).
 
+
+process_decl(op(X,Y,Z)) :-
+    !,
+    op(X,Y, prolog:Z).
+process_decl(_).
 
 add_deps(V, _M, _P, _F, _) :- var(V), !.
 add_deps((A,B), M, P, F, L) :- !,
@@ -362,7 +406,7 @@ add_deps(A, _M0, P, F, L) :- !,
     always_strip_module(unused_module:A, M1, A1),
     functor(A1, N, Ar0),
     Ar1 is Ar0+L,
-    (M1 == unused_module -> ( node( M, N/Ar1, _, _) -> true ; writeln( undef:M:N/Ar1 ), assert(node(prolog,N/Ar1,'/dev/null':0,prolog)) ) ; M = M1 ),
+    (string(A1) -> true ; M1 == unused_module -> ( node( M, N/Ar1, _, _) -> true ; format( 'UNDEF ~w ~w ~w~n',[ M, F, N/Ar1]) , assert(node(prolog,N/Ar1,'/dev/null':0,prolog)) ) ; M = M1 ),
     P = _:Na/Ar,
     ( put_deps(M, N/Ar1, Na/Ar, F, L)
     ->
@@ -382,6 +426,8 @@ doubles :-
     node(M, P, _F, _),
     node(M1, P, _F1, _),
     M @< M1,
+    public_predicate( P, M, _F),
+    public_predicate( P, M1, _F1),
     format('~w vs ~w~n', [M:P,M1:P]),
     fail.
 doubles.
@@ -500,3 +546,18 @@ always_strip_module(_:M0:A, M1, B) :- !,
 always_strip_module(M0:A, M0, call(A)) :- var(A),!.
 always_strip_module(M0:A, M0, A).
 
+c_location( matrix, 'library/matrix').
+c_location( lammpi, 'library/lammpi').
+c_location( matlab, 'library/matlab').
+c_location( matlab, 'library/matlab').
+c_location( matlab, 'library/random').
+c_location( regex, 'library/regex').
+c_location( rltree, 'library/rltree').
+c_location( tries, 'library/tries').
+c_location( operating_system_support, 'library/system').
+
+c_links :-
+    node( M, P, _, c(F)),
+    format( ':- implements( ~q , ~q ).~n', [M:P, F] ),
+    fail.
+c_links.
