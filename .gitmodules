@@ -31,9 +31,6 @@
 [submodule "packages/R"]
 	path = packages/R
 	url = git://git.code.sf.net/p/yap/R
-[submodule "packages/pldoc"]
-	path = packages/pldoc
-	url = git://git.code.sf.net/p/yap/pldoc
 [submodule "packages/real"]
 	path = packages/real
 	url = git://git.code.sf.net/p/yap/real
@@ -46,9 +43,6 @@
 [submodule "packages/udi"]
 	path = packages/udi
 	url = https://github.com/davidvaz/yap-udi-indexers.git
-[submodule "packages/ltx2htm"]
-	path = packages/ltx2htm
-	url = git://git.code.sf.net/p/yap/ltx2htm
 [submodule "packages/raptor"]
 	path = packages/raptor
 	url = git://git.code.sf.net/p/yap/raptor
