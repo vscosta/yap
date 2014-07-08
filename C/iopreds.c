@@ -689,7 +689,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       else
 	rd->singles = FALSE;
     } else if (rd->singles) {
-      if (!Yap_unify( rd->singles, Yap_GetFromSlot( v PASS_REGS )))
+      if (!Yap_unify( v, Yap_GetFromSlot( rd->singles PASS_REGS )))
 	  return FALSE;
     }
   }
