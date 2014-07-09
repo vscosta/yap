@@ -61,7 +61,9 @@ then
 	     ODBC_LIBS="$ODBC_LIBS -liodbc"
 	  fi
         fi
-	AC_CHECK_HEADERS(mysql/mysql.h, [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	#from SWI ODBC library.
+	AC_CHECK_HEADERS(windef.h)
+	AC_CHECK_HEADERS(sql.h, [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
