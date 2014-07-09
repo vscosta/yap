@@ -697,6 +697,7 @@ CLIB_CRYPTLIBS
 CLIB_NETLIBS
 CLIB_PLTARGETS
 CLIB_TARGETS
+RFC822_CFLAGS
 RFC2045_CFLAGS
 RFC2045CHARSET
 rfc822includedir
@@ -10815,6 +10816,8 @@ fi
 done
 
 
+RFC822_CFLAGS="$SHLIB_CFLAGS"
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to calculate alternate timezone" >&5
 $as_echo_n "checking how to calculate alternate timezone... " >&6; }
 if ${librfc822_cv_SYS_TIMEZONE+:} false; then :
@@ -10944,6 +10947,9 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 fi
+
+
+
 
 
 
@@ -13264,7 +13270,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13267 "configure" */
+/* #line 13273 "configure" */
 public class Test {
 }
 EOF
@@ -13440,7 +13446,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13443: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13449: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13571,7 +13577,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13574 "configure" */
+/* #line 13580 "configure" */
 public class Test {
 }
 EOF
@@ -13606,7 +13612,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13609 "configure" */
+/* [#]line 13615 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
