@@ -10253,12 +10253,25 @@ fi
 	     ODBC_LIBS="$ODBC_LIBS -liodbc"
 	  fi
         fi
-	for ac_header in mysql/mysql.h
+	#from SWI ODBC library.
+	for ac_header in windef.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "mysql/mysql.h" "ac_cv_header_mysql_mysql_h" "$ac_includes_default"
-if test "x$ac_cv_header_mysql_mysql_h" = xyes; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "windef.h" "ac_cv_header_windef_h" "$ac_includes_default"
+if test "x$ac_cv_header_windef_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_MYSQL_MYSQL_H 1
+#define HAVE_WINDEF_H 1
+_ACEOF
+
+fi
+
+done
+
+	for ac_header in sql.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sql.h" "ac_cv_header_sql_h" "$ac_includes_default"
+if test "x$ac_cv_header_sql_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SQL_H 1
 _ACEOF
  yap_cv_odbc="yes"
 else
@@ -13237,7 +13250,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13240 "configure" */
+/* #line 13253 "configure" */
 public class Test {
 }
 EOF
@@ -13413,7 +13426,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13416: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13429: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13544,7 +13557,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13547 "configure" */
+/* #line 13560 "configure" */
 public class Test {
 }
 EOF
@@ -13579,7 +13592,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13582 "configure" */
+/* [#]line 13595 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16192,6 +16205,7 @@ mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
 mkdir -p packages/swig/fli
+mkdir -p packages/swig/jni
 
 
 
