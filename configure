@@ -10116,6 +10116,20 @@ else
   yap_cv_mysql="no"
 fi
 
+	for ac_header in mysql/mysql.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "mysql/mysql.h" "ac_cv_header_mysql_mysql_h" "$ac_includes_default"
+if test "x$ac_cv_header_mysql_mysql_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MYSQL_MYSQL_H 1
+_ACEOF
+
+else
+  yap_cv_mysql="no"
+fi
+
+done
+
 	if test "$yap_cv_mysql" = yes
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
@@ -10273,7 +10287,7 @@ if test "x$ac_cv_header_sql_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_SQL_H 1
 _ACEOF
- yap_cv_odbc="yes"
+
 else
   yap_cv_odbc="no"
 fi
@@ -13250,7 +13264,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13253 "configure" */
+/* #line 13267 "configure" */
 public class Test {
 }
 EOF
@@ -13426,7 +13440,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13429: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13443: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13557,7 +13571,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13560 "configure" */
+/* #line 13574 "configure" */
 public class Test {
 }
 EOF
@@ -13592,7 +13606,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13595 "configure" */
+/* [#]line 13609 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

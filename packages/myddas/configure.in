@@ -37,6 +37,7 @@ then
 	PKG_MYDDAS="packages/myddas"
 	dnl check for mysql
 	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
+	AC_CHECK_HEADERS(mysql/mysql.h, [], [yap_cv_mysql="no"])
 	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
@@ -63,7 +64,7 @@ then
         fi
 	#from SWI ODBC library.
 	AC_CHECK_HEADERS(windef.h)
-	AC_CHECK_HEADERS(sql.h, [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	AC_CHECK_HEADERS(sql.h, [ ], [yap_cv_odbc="no"])
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
