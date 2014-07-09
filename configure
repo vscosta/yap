@@ -10471,7 +10471,7 @@ fi
 
 
 
-RFC2045_CFLAGS="$CFLAGS"
+RFC2045_CFLAGS="$SHLIB_CFLAGS"
 ac_fn_c_check_func "$LINENO" "strncasecmp" "ac_cv_func_strncasecmp"
 if test "x$ac_cv_func_strncasecmp" = xyes; then :
 
