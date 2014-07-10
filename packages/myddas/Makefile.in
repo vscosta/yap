@@ -79,7 +79,7 @@ all: $(SOBJS)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ 
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@ @MYDDAS_LIBS@ 
 
 install: all install_myddas install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)

@@ -701,6 +701,7 @@ RFC822_CFLAGS
 RFC2045_CFLAGS
 RFC2045CHARSET
 rfc822includedir
+MYDDAS_LIBS
 PKG_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
 CLIB_PTHREADS
@@ -10059,7 +10060,8 @@ fi
 if test "$yap_cv_myddas" != "no"
 then
 	PKG_MYDDAS="packages/myddas"
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing mysql_init" >&5
+		OLD_LIBS="$LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing mysql_init" >&5
 $as_echo_n "checking for library containing mysql_init... " >&6; }
 if ${ac_cv_search_mysql_init+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -10112,7 +10114,7 @@ $as_echo "$ac_cv_search_mysql_init" >&6; }
 ac_res=$ac_cv_search_mysql_init
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  yap_cv_mysql="yes"
+  yap_cv_mysql="yes" MYDDAS_LIBS="-lmysqlclient $MYDDAS_LIBS"
 else
   yap_cv_mysql="no"
 fi
@@ -10139,6 +10141,7 @@ done
 	        case "$target_os" in
 	  *darwin*)
 	    LIBS="$LIBS -framework CoreFoundation"
+	    MYDDAS_LIBS="$MYDDAS_LIBS -framework CoreFoundation"
 	;;
 	  **)
 	;;
@@ -10203,7 +10206,7 @@ fi
 
 	if test "$yap_cv_odbc" = yes
 	then
-	   ODBC_LIBS="$ODBC_LIBS -lodbc"
+	   MYDDAS_LIBS="$MYDDAS_LIBS -lodbc"
 	else
 	  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing SQLAllocHandle" >&5
 $as_echo_n "checking for library containing SQLAllocHandle... " >&6; }
@@ -10265,7 +10268,70 @@ fi
 
 	  if test "$yap_cv_odbc" = yes
 	  then
-	     ODBC_LIBS="$ODBC_LIBS -liodbc"
+	     MYDDAS_LIBS="$MYDDAS_LIBS -liodbc"
+  	  else
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing SQLAllocHandle" >&5
+$as_echo_n "checking for library containing SQLAllocHandle... " >&6; }
+if ${ac_cv_search_SQLAllocHandle+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char SQLAllocHandle ();
+int
+main ()
+{
+return SQLAllocHandle ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' odbc32; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_SQLAllocHandle=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_SQLAllocHandle+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_SQLAllocHandle+:} false; then :
+
+else
+  ac_cv_search_SQLAllocHandle=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_SQLAllocHandle" >&5
+$as_echo "$ac_cv_search_SQLAllocHandle" >&6; }
+ac_res=$ac_cv_search_SQLAllocHandle
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  yap_cv_odbc="yes"
+else
+  yap_cv_odbc="no"
+fi
+
+	    if test "$yap_cv_odbc" = yes
+	    then
+	     MYDDAS_LIBS="$MYDDAS_LIBS -lodbc32"
+	    fi
 	  fi
         fi
 	#from SWI ODBC library.
@@ -10309,9 +10375,11 @@ done
 	  then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
+	LIBS="$OLD_LIBS"
 else
 	ENABLE_MYDDAS=""
 fi
+
 
 
 
@@ -10505,10 +10573,10 @@ fi
 
 # Check whether --with-rfc2045-package was given.
 if test "${with_rfc2045_package+set}" = set; then :
-  withval=$with_rfc2045_package; rfc2045-package="$withval"
+  withval=$with_rfc2045_package;  rfc2045_package="$withval"
 else
 
-    package="$PACKAGE"
+    rfc2045_package="$PACKAGE"
     ac_configure_args="$ac_configure_args --with-rfc2045-package=$PACKAGE"
 
 fi
@@ -10517,10 +10585,10 @@ fi
 
 # Check whether --with-rfc2045-version was given.
 if test "${with_rfc2045_version+set}" = set; then :
-  withval=$with_rfc2045_version; rfc2045-version="$withval"
+  withval=$with_rfc2045_version; rfc2045_version="$withval"
 else
 
-    rfc2045-version="$VERSION"
+    rfc2045_version="$VERSION"
     ac_configure_args="$ac_configure_args --with-rfc2045-version=$VERSION"
 
 fi
@@ -10528,12 +10596,12 @@ fi
 
 
 cat >>confdefs.h <<_ACEOF
-#define RFC2045PKG "$rfc2045-package"
+#define RFC2045PKG "$rfc2045_package"
 _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define RFC2045VER "$rfc2045-version"
+#define RFC2045VER "$rfc2045_version"
 _ACEOF
 
 
@@ -13270,7 +13338,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13273 "configure" */
+/* #line 13341 "configure" */
 public class Test {
 }
 EOF
@@ -13446,7 +13514,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13449: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13517: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13577,7 +13645,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13580 "configure" */
+/* #line 13648 "configure" */
 public class Test {
 }
 EOF
@@ -13612,7 +13680,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13615 "configure" */
+/* [#]line 13683 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
