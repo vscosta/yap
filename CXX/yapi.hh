@@ -94,10 +94,6 @@ class YAPApplTerm;
 class YAPPairTerm;
 class YAPQuery;
 
-#include "yapie.hh"
-
-class TypeError {};
-
 /**
  * @brief Generic Prolog Term
  */
@@ -425,7 +421,7 @@ public:
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
-      throw YAPError::SYNTAX_ERROR;
+      throw SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 
@@ -437,7 +433,7 @@ public:
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
-      throw YAPError::SYNTAX_ERROR;
+      throw SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 
@@ -515,6 +511,10 @@ public:
 
     initQuery( ts );
   }
+  /// set flags for query execution, currently only for exception handling
+  void setFlag(int flag) {q_flags |= flag; }
+  /// reset flags for query execution, currently only for exception handling
+  void resetFlag(int flag) {q_flags &= ~flag; }
   ///  first query
   ///
   /// actually implemented by calling the next();
@@ -551,6 +551,7 @@ class YAPEngine {
 private:
   YAPCallback *_callback;
   YAP_init_args init_args;
+  yap_error_number error;
 public:
   YAPEngine(char *savedState = (char *)NULL,
             size_t stackSize = 0,
@@ -569,15 +570,17 @@ public:
   /// remove current callback
   void delYAPCallback() { _callback = 0; }
   /// set a new callback
-  void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; __android_log_print(ANDROID_LOG_INFO, __FILE__, "after loading startup %p",cb); }
+  void setYAPCallback(YAPCallback *cb) { delYAPCallback(); _callback = cb; }
   /// execute the callback.
   void run() { if (_callback) _callback->run(); }
   /// execute the callback with a text argument.
-  void run( char *s) { __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "bef calling disp %s %p",s, _callback);  if (_callback) _callback->run(s); }
+  void run( char *s) {  if (_callback) _callback->run(s); }
   /// build a query on the engine
   YAPQuery *query( char *s );
-  /// build a query on the engine
+  /// build a query on the engine handling exceptions
   YAPQuery *safeQuery( char *s );
+
+  yap_error_number hasError(  ); //> report whether the engine has found an error
 };
 
 /*

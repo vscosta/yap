@@ -379,7 +379,7 @@ YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) throw (in
   vnames = Yap_NewSlots(1 PASS_REGS);
   Term t = Yap_StringToTerm(s, strlen(s)+1, vnames);
   if (t == 0L)
-    throw YAPError::SYNTAX_ERROR;
+    throw SYNTAX_ERROR;
   ap = getPred( t, outp );
   //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "OUT vnames=%d ap=%p LCL0=%p",  vnames, ap, LCL0) ; }
 }
@@ -446,7 +446,7 @@ YAPQuery::initQuery( Term *ts )
   LOCAL_execution = (struct open_query_struct *)this;
   this->q_open=1;
   this->q_state=0;
-  this->q_flags = 0;
+  this->q_flags = PL_Q_PASS_EXCEPTION;
   this->q_g = ts;
 }
 
@@ -493,7 +493,7 @@ bool YAPQuery::next()
     return false;
   // don't forget, on success these guys must create slots
   if (this->q_state == 0) {
-      extern void toggle_low_level_trace(void);
+    // extern void toggle_low_level_trace(void);
       //toggle_low_level_trace();
       result = (bool)YAP_EnterGoal((YAP_PredEntryPtr)this->ap, this->q_g, &this->q_h);
   } else {
@@ -537,7 +537,9 @@ void YAPQuery::close()
 int YAPPredicate::call(YAPTerm t[])
 {
   YAPQuery q = YAPQuery(*this, t);
-  int ret = q.next();
+  int ret;
+
+  ret = q.next();
   q.cut();
   q.close();
   return ret;
@@ -628,12 +630,14 @@ YAPQuery *YAPEngine::query( char *s ) {
 }
 
 YAPQuery *YAPEngine::safeQuery( char *s ) {
-  try 
-    {
-      YAPQuery *n = new YAPQuery( s );
-      return n;
-    }
-  catch (...) {
-    return 0;
-  }
+     try {
+       YAPQuery *n = new YAPQuery( s );
+       n->setFlag( PL_Q_CATCH_EXCEPTION );
+       n->resetFlag( PL_Q_PASS_EXCEPTION );
+       return n;
+     } 
+     catch (yap_error_number errno) {
+       error = errno;
+       return 0;
+     }
 }
