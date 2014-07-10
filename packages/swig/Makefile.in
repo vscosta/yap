@@ -48,16 +48,16 @@ jni/yap_wrap.o:  jni/yap_wrap.cpp
 #   emulator -avd first &
 #
 # adb uninstall org.swig.simple  ( if not the first time )
-# adb install bin/SwigSimple-debug.apk
+# adb install bin/JavaYap-debug.apk
 #
 #
 android: android/jni/yap_wrap.cpp
 
 android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
-	android create project --target 1 --name Yap --path ./android --activity Yap --package pt.up.fc.dcc.yap;\
+	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap;\
 	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
-	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.simple -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
-	cp $(srcdir)/android/Yap.java src/pt/up/fc/dcc/yap/ ;\
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
+	cp $(srcdir)/android/JavaYap.java src/pt/up/fc/dcc/yap/ ;\
 	cp $(srcdir)/android/main.xml res/layout ;\
 	cp $(srcdir)/android/Application.mk jni ;\
 	cp -r $(DESTDIR)$(PLLIBDIR)/* assets/share/Yap;\
@@ -67,6 +67,10 @@ android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
 	NDK_DEBUG=1 ndk-build ; \
 	ant debug \
 	)
+
+make install-android: android
+	adb uninstall pt.up.fc.dcc.yap
+	adb install android/bin/JavaYap-debug.apk
 
 R:
 

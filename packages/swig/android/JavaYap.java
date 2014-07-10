@@ -1,4 +1,4 @@
-package org.swig.simple;
+package pt.up.fc.dcc.yap;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -14,9 +14,9 @@ import android.content.res.AssetManager;
 import 	android.widget.EditText;
 import 	java.text.ParseException;
 
-public class SwigSimple extends Activity
+public class JavaYap extends Activity
 {
-	 TextView outputText = null;
+	TextView outputText = null;
 	ScrollView scroller = null;
 	YAPEngine eng = null;
 	EditText text;
@@ -154,7 +154,7 @@ public class SwigSimple extends Activity
 
 	private AssetManager mgr;
 
-	private static final String TAG = "SwigSimple";
+	private static final String TAG = "JavaYap";
 
 }
 

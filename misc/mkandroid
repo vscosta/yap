@@ -2,9 +2,15 @@
 #
 # script to compile yap for Android.
 
-export SDK_ROOT=$HOME/Yap/android-sdk-linux
+if test -d $HOME/Yap/android-sdk-linux
+then
+  export SDK_ROOT=$HOME/Yap/android-sdk-linux
+elif test -d $HOME/Yap/android-sdk-macosx
+then
+  export SDK_ROOT=$HOME/Yap/android-sdk-macosx
+fi
+
 export NDK_ROOT=$HOME/Yap/android-ndk-r9d
-export PATH=$PATH:"$SDK_ROOT"/tools:"$NDK_ROOT"
 
 export GMPDIR=$HOME/Yap/gmp-android
 
@@ -28,7 +34,7 @@ else
                                  --install-dir="$HOME"/Yap/my-android-toolchain
 fi
 
-export PATH=$HOME/Yap/my-android-toolchain/bin:"$NDK_ROOT":"$SDK_ROOT/tools":"$SDK_ROOT/platform-tools":$PATH
+export PATH="$HOME"/Yap/my-android-toolchain/bin:"$NDK_ROOT":"$SDK_ROOT/tools":"$SDK_ROOT/platform-tools":$PATH
 
 cd ~/Yap/bins/android
 
@@ -55,5 +61,6 @@ fi
 cd packages/swig
 mkdir -p $ANDROID_NDK_ROOT/build/core/lib
 make android
-adb uninstall org.swig.simple
-adb install android/bin/SwigSimple-debug.apk
+make install-android
+adb uninstall pt.up.fc.dcc.yap
+adb install android/bin/JavaYap-debug.apk

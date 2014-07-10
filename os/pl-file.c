@@ -5146,9 +5146,9 @@ static const PL_extension foreigns[] = {
 #if __ANDROID__
 JNIEnv *Yap_jenv;
 
-void Java_org_swig_simple_SwigSimple_load(JNIEnv *env0, jobject obj, jobject mgr);
+void Java_pt_up_fc_dcc_yap_JavaYap_load(JNIEnv *env0, jobject obj, jobject mgr);
 
-void Java_org_swig_simple_SwigSimple_load
+void Java_pt_up_fc_dcc_yap_JavaYap_load
      (JNIEnv *env0, jobject obj, jobject mgr0)
 {
   AAssetManager *mgr = AAssetManager_fromJava(env0, mgr0);
