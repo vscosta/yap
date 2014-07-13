@@ -701,6 +701,19 @@ RFC822_CFLAGS
 RFC2045_CFLAGS
 RFC2045CHARSET
 rfc822includedir
+CLANG
+LLVM
+PAPILIB
+JITCODEGENPREDS
+JITTRANSFORMPREDS
+JITANALYSISPREDS
+JITCONFIGPREDS
+JITCOMPILER
+JITSTATISTICPREDS
+JITDEBUGPREDS
+JITLIBS
+JITLD
+JITFLAGS
 MYDDAS_LIBS
 PKG_MYDDAS
 EXTRA_LIBS_FOR_SWIDLLS
@@ -883,6 +896,9 @@ with_max_threads
 enable_myddas
 enable_myddas_stats
 enable_myddas_top_level
+enable_jit
+enable_debug_predicates
+enable_statistic_predicates
 with_rfc2045_package
 with_rfc2045_version
 enable_mimecharset
@@ -1553,6 +1569,9 @@ Optional Features:
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
+ --enable-jit                   support just-in-time (JIT) compilation
+ --enable-debug-predicates      support debug predicates
+ --enable-statistic-predicates  support statistic predicates
   --enable-mimecharset=charset   Default MIME charset to set on new messages
  --enable-bddlib           dynamic bdd library
  --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
@@ -10386,6 +10405,244 @@ fi
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Check whether --enable-jit was given.
+if test "${enable_jit+set}" = set; then :
+  enableval=$enable_jit; yap_jit="$enableval"
+else
+  yap_jit=no
+fi
+
+
+# Check whether --enable-debug-predicates was given.
+if test "${enable_debug_predicates+set}" = set; then :
+  enableval=$enable_debug_predicates; dbg_preds="$enableval"
+else
+  dbg_preds=no
+fi
+
+
+# Check whether --enable-statistic-predicates was given.
+if test "${enable_statistic_predicates+set}" = set; then :
+  enableval=$enable_statistic_predicates; stat_preds="$enableval"
+else
+  stat_preds=no
+fi
+
+
+if test "$yap_jit" = "yes"
+then
+
+  # Extract the first word of "llvm-config", so it can be a program name with args.
+set dummy llvm-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_LLVM+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$LLVM"; then
+  ac_cv_prog_LLVM="$LLVM" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_LLVM="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_LLVM" && ac_cv_prog_LLVM="no"
+fi
+fi
+LLVM=$ac_cv_prog_LLVM
+if test -n "$LLVM"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LLVM" >&5
+$as_echo "$LLVM" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
+  if test "$LLVM" = "no" ;then
+        as_fn_error $? "--enable-jit was given, but test for LLVM 3.1 failed" "$LINENO" 5
+
+  else
+        LLVM_VERSION="`llvm-config --version`"
+	if test "$LLVM_VERSION" != "3.1";then
+           as_fn_error $? "Test for LLVM 3.1 failed" "$LINENO" 5
+        fi
+
+  fi
+
+  # Extract the first word of "clang", so it can be a program name with args.
+set dummy clang; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_CLANG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$CLANG"; then
+  ac_cv_prog_CLANG="$CLANG" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_CLANG="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_CLANG" && ac_cv_prog_CLANG="no"
+fi
+fi
+CLANG=$ac_cv_prog_CLANG
+if test -n "$CLANG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CLANG" >&5
+$as_echo "$CLANG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
+  if test "$CLANG" = "no" ;then
+        as_fn_error $? "--enable-jit was given, but test for clang faild" "$LINENO" 5
+  fi
+
+  YAP_EXTRAS="$YAP_EXTRAS -DYAP_JIT=1"
+  JITCOMPILER="JIT_Compiler.o"
+  JITCONFIGPREDS="jit_configpreds.o"
+  JITANALYSISPREDS="jit_analysispreds.o"
+  JITTRANSFORMPREDS="jit_transformpreds.o"
+  JITCODEGENPREDS="jit_codegenpreds.o"
+  JITFLAGS="`llvm-config --cxxflags`"
+  JITLD="`llvm-config --ldflags`"
+  JITLIBS="`llvm-config --libs all`"
+
+fi
+
+if test "$dbg_preds" = "yes"
+  then
+
+  if test "$yap_jit" = "no"
+  then
+
+    as_fn_error $? "--enable-debug-predicates was given, but --enable-jit was not given" "$LINENO" 5
+
+  fi
+
+  YAP_EXTRAS="$YAP_EXTRAS -DYAP_DBG_PREDS=1"
+  JITDEBUGPREDS="jit_debugpreds.o"
+fi
+
+if test "$stat_preds" = "yes"
+  then
+
+  if test "$yap_jit" = "no"
+  then
+
+    as_fn_error $? "--enable-statistic-predicates was given, but --enable-jit was not given" "$LINENO" 5
+
+  fi
+
+  ac_fn_c_check_header_mongrel "$LINENO" "papi.h" "ac_cv_header_papi_h" "$ac_includes_default"
+if test "x$ac_cv_header_papi_h" = xyes; then :
+
+else
+  if test "$stat_preds" != "no"; then
+                   as_fn_error $? "--enable-statistic-predicates was given, but papi.h not found" "$LINENO" 5
+                 fi
+
+fi
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_start in -lpapi" >&5
+$as_echo_n "checking for PAPI_start in -lpapi... " >&6; }
+if ${ac_cv_lib_papi_PAPI_start+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PAPI_start ();
+int
+main ()
+{
+return PAPI_start ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_papi_PAPI_start=yes
+else
+  ac_cv_lib_papi_PAPI_start=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_start" >&5
+$as_echo "$ac_cv_lib_papi_PAPI_start" >&6; }
+if test "x$ac_cv_lib_papi_PAPI_start" = xyes; then :
+  if test "$stat_preds" != "no"; then
+			   PAPILIB="-lpapi"
+              fi
+
+else
+  if test "$stat_preds" != "no"; then
+                as_fn_error $? "--enable-statistic-predicates was given, but test for papi failed" "$LINENO" 5
+              fi
+
+fi
+
+
+  YAP_EXTRAS="$YAP_EXTRAS -DYAP_STAT_PREDS=1"
+  JITSTATISTICPREDS="jit_statisticpreds.o"
+  PAPILIB="-lpapi"
+
+fi
+
+
+
 if test "$PKG_CLIB" != ""
 then
 
@@ -13338,7 +13595,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13341 "configure" */
+/* #line 13598 "configure" */
 public class Test {
 }
 EOF
@@ -13514,7 +13771,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13517: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13774: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13645,7 +13902,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13648 "configure" */
+/* #line 13905 "configure" */
 public class Test {
 }
 EOF
@@ -13680,7 +13937,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13683 "configure" */
+/* [#]line 13940 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -14348,8 +14605,7 @@ fi
 
 if test -e "$srcdir"/packages/raptor/Makefile.in
 then
-  PKG_RAPTOR="packages/raptor"
-
+   PKG_RAPTOR="packages/raptor"
 
 
 

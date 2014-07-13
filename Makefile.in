@@ -103,6 +103,11 @@ TEXI2HTML=texi2html
 TEXI2PDF=texi2pdf
 YAPLIB=@YAPLIB@
 SONAMEFLAG=@SONAMEFLAG@
+#---------------
+JITFLAGS=@JITFLAGS@
+JITLD=@JITLD@
+JITLIBS=@JITLIBS@
+PAPILIB=@PAPILIB@
 
 VPATH=@srcdir@
 CWD=$(PWD)
@@ -211,7 +216,9 @@ HEADERS = \
 	OPTYap/locks_mips_funcs.h OPTYap/locks_alpha.h \
 	OPTYap/locks_alpha_funcs.h \
 	OPTYap/locks_pthread.h \
-	library/dialect/swi/fli/swi.h
+	library/dialect/swi/fli/swi.h \
+ 	JIT/HPP/JIT.hh 	JIT/HPP/JIT_Compiler.hh \
+    JIT/HPP/jit_predicates.hh
 
 IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
 	os/pl-codelist.c \
@@ -277,7 +284,6 @@ C_SOURCES= \
 	C/utilpreds.c C/write.c console/yap.c \
 	C/yap-args.c \
 	C/ypstdio.c \
-	CXX/yapi.cpp \
 	BEAM/eam_am.c BEAM/eam_showcode.c \
 	BEAM/eamindex.c BEAM/eamamasm.c \
 	BEAM/eam_gc.c BEAM/eam_split.c \
@@ -292,6 +298,11 @@ C_SOURCES= \
 	library/dialect/swi/fli/blobs.c \
 	# library/mpi/mpi.c library/mpi/mpe.c \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
+
+CXX_SOURCES = \
+	CXX/yapi.cpp \
+    JIT/JIT_Compiler.cpp
+        
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -388,6 +399,15 @@ ENGINE_OBJECTS = \
 	yap-args.o write.o \
 	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)
 
+JIT_OBJECTS = \
+        @JITCOMPILER@ \
+        @JITCONFIGPREDS@ \
+        @JITANALYSISPREDS@ \
+        @JITTRANSFORMPREDS@ \
+        @JITCODEGENPREDS@ \
+        @JITDEBUGPREDS@ \
+        @JITSTATISTICPREDS@
+
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
         tai_sub.o tai_unpack.o taia_add.o taia_approx.o \
@@ -415,7 +435,7 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
@@ -481,6 +501,12 @@ yap_random.o: library/random/yap_random.c config.h
 
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
+
+JIT_Compiler.o: IT/JIT_Compiler.cpp
+	$(CXX) -c $(CFLAGS) $(JITFLAGS) $< -o $@
+
+%.o: $JIT/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
 pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
@@ -569,8 +595,8 @@ all: startup.yss
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
-yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS)
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a 
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(PAPILIB) $(JITLIBS) $(JITLD)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
