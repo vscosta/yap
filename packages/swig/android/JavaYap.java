@@ -30,6 +30,8 @@ public class JavaYap extends Activity
 			YAPQuery q = eng.query( str );
 
 			YAPListTerm vs0 = q.namedVars();
+			int rc;
+
 			// text.setText("");
 			if (vs0.nil()) {
 				if (q.next()) {
@@ -39,7 +41,7 @@ public class JavaYap extends Activity
 				}
 			} else {
 				int i=1;
-				while (q.next()) {
+				while (rc = q.next()) {
 					YAPListTerm vs = vs0;
 					while(!vs.nil()){
 						YAPTerm eq = vs.car();

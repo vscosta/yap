@@ -33,7 +33,6 @@ class YAPPredicate;
    try {
       $action
    } catch (...) {
-      fprintf(stderr,"here\n");
       PyErr_SetString(PyExc_SyntaxError, "syntax error");
       return NULL;
    }
