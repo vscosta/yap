@@ -1,4 +1,4 @@
-#include "JIT_Compiler.hpp"
+#include "JIT_Compiler.hh"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
