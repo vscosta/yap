@@ -1891,6 +1891,8 @@ fi
 
 m4_include([packages/myddas/configure.in])
 
+m4_include([JIT/configure.in])
+
 if test "$PKG_CLIB" != ""
 then
 
@@ -1977,8 +1979,7 @@ fi
 
 if test -e "$srcdir"/packages/raptor/Makefile.in
 then
-  PKG_RAPTOR="packages/raptor"
-
+   PKG_RAPTOR="packages/raptor"
    m4_include([packages/raptor/configure.in])
 else
    PKG_RAPTOR=""
