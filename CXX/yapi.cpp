@@ -379,7 +379,7 @@ YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) throw (in
   vnames = Yap_NewSlots(1 PASS_REGS);
   Term t = Yap_StringToTerm(s, strlen(s)+1, vnames);
   if (t == 0L)
-    throw SYNTAX_ERROR;
+    throw YAPError::YAP_SYNTAX_ERROR;
   ap = getPred( t, outp );
   //{ CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__, "OUT vnames=%d ap=%p LCL0=%p",  vnames, ap, LCL0) ; }
 }
@@ -575,7 +575,6 @@ displayWithJava(int c)
   Yap_AndroidBufp[Yap_AndroidSz] = '\0';
   if (c == '\n' ) {
       Yap_AndroidBufp[Yap_AndroidSz] = '\0';
-      __android_log_print(ANDROID_LOG_INFO, __FUNCTION__, "after char %c:%s %p",c, Yap_AndroidBufp, curren);
       curren->run(Yap_AndroidBufp);
       Yap_AndroidSz = 0;
   }
@@ -636,8 +635,8 @@ YAPQuery *YAPEngine::safeQuery( char *s ) {
        n->resetFlag( PL_Q_PASS_EXCEPTION );
        return n;
      } 
-     catch (yap_error_number errno) {
-       error = errno;
+     catch (YAPError yerr) {
+       yerror = yerr;
        return 0;
      }
 }

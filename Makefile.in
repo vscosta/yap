@@ -563,13 +563,11 @@ INSTALLED_PACKAGES= \
 	@PKG_PRISM@ \
 	@PKG_PYTHON@ \
 	@PKG_RAPTOR@ \
-	@PKG_CHR@ \
 	@PKG_CLIB@ \
+	@PKG_CHR@ \
 	@PKG_JPL@ \
 	@PKG_LIBARCHIVE@ \
-	@PKG_LTX2HTM@ \
 	@PKG_ODBC@ \
-	\
 	@PKG_PLUNIT@ \
 	@PKG_REAL@ \
 	@PKG_RDF@ \
@@ -577,7 +575,7 @@ INSTALLED_PACKAGES= \
 	@PKG_SGML@ \
 	@PKG_SWIG@ \
 	@PKG_WINCONSOLE@ \
-	@PKG_ZLIB@ # @PKG_PLDOC@
+	@PKG_ZLIB@
 
 PACKAGES=  \
 	library \
@@ -603,7 +601,7 @@ yap-win: yap-win@EXEC_SUFFIX@
 yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
-	(cd swi/console; $(MAKE))
+	$(MAKE) -C swi/console 
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) yapi.o
@@ -710,7 +708,7 @@ depend: $(HEADERS) $(C_SOURCES)
 	fi
 
 clean: clean_docs clean_local
-	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) clean ); done
+	for f in $(PACKAGES); do ( $(MAKE) -C $$f clean ); done
 
 clean_local:
 	rm -f *.o *~ *.BAK *.a
@@ -810,7 +808,7 @@ distclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
 installcheck:
-	(cd packages/cplint; $(MAKE) installcheck)
+	$(MAKE) -C packages/cplint installcheck
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

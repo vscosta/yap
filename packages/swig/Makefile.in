@@ -9,7 +9,7 @@ DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 YAP_EXTRAS=@YAP_EXTRAS@
 srcdir=@srcdir@
 CPPFLAGS= -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
-CXXFLAGS=   $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
+CXXFLAGS=  $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
 PROGRAMS= $(srcdir)/python/demo.py \
 
@@ -22,14 +22,14 @@ python: $(SWIG_FILES) python/_yap.so python/yap.py
 	cp $(srcdir)/python/demo.py python
 
 python/_yap.so: python/yap_wrap.o
-	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthrea
+	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
 
 python/yap_wrap.cpp python/yap.py: $(srcdir)/yap.i
 	mkdir -p python
 	$(SWIG) -c++ -python  -outdir python -o $@ $(CXXFLAGS) -Wall $<
 
 python/yap_wrap.o:  python/yap_wrap.cpp
-	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
+	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
 java: jni/libyap.@SO@ java/yap.java
 	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
@@ -41,7 +41,7 @@ jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
 	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp  $(CXXFLAGS) -Wall $<
 
 jni/yap_wrap.o:  jni/yap_wrap.cpp
-	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
+	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
 
 # depends on make install on top-level
 # also, should have an android device running, say

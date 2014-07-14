@@ -59,6 +59,8 @@ extern "C" {
 
 #include "YapText.h"
 
+#include "yapie.hh"
+
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -421,7 +423,7 @@ public:
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
-      throw SYNTAX_ERROR;
+      throw YAPError::YAP_SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 
@@ -433,7 +435,7 @@ public:
     Term t, tp;
     t = YAP_ReadBuffer(s,&tp);
     if (t == 0L)
-      throw SYNTAX_ERROR;
+      throw YAPError::YAP_SYNTAX_ERROR;
     ap = getPred( t, (Term **)NULL );
   }
 
@@ -551,7 +553,7 @@ class YAPEngine {
 private:
   YAPCallback *_callback;
   YAP_init_args init_args;
-  yap_error_number error;
+  YAPError yerror;
 public:
   YAPEngine(char *savedState = (char *)NULL,
             size_t stackSize = 0,
@@ -575,12 +577,12 @@ public:
   void run() { if (_callback) _callback->run(); }
   /// execute the callback with a text argument.
   void run( char *s) {  if (_callback) _callback->run(s); }
+  /// execute the callback with a text argument.
+  YAPError hasError( ) {  return yerror; }
   /// build a query on the engine
   YAPQuery *query( char *s );
   /// build a query on the engine handling exceptions
   YAPQuery *safeQuery( char *s );
-
-  yap_error_number hasError(  ); //> report whether the engine has found an error
 };
 
 /*
