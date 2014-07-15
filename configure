@@ -623,6 +623,12 @@ ac_includes_default="\
 
 ac_subst_vars='PKG_ODBC
 PKG_LIBARCHIVE
+PROSQLITE_LIBS
+PROSQLITE_LDFLAGS
+PROSQLITE_CFLAGS
+PROSQLITE_PLTARGETS
+PROSQLITE_TARGETS
+PKG_PROSQLITE
 GECODE_MAJOR
 GECODE_VERSION
 GECODE_INCLUDES
@@ -917,6 +923,7 @@ with_python
 with_swig
 with_cuda
 enable_gecode
+with_sqlite
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1605,6 +1612,7 @@ Optional Packages:
  --with-python=DIR              interface to R language
  --with-swig=DIR              swig interface generator
  --enable-cuda           use minisat interface
+ --with-prosqlite(=location)              interface to sqlite
 
 Some influential environment variables:
   CC          C compiler command
@@ -13599,7 +13607,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13602 "configure" */
+/* #line 13610 "configure" */
 public class Test {
 }
 EOF
@@ -13775,7 +13783,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13778: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13786: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13906,7 +13914,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13909 "configure" */
+/* #line 13917 "configure" */
 public class Test {
 }
 EOF
@@ -13941,7 +13949,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13944 "configure" */
+/* [#]line 13952 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -16871,6 +16879,133 @@ fi
 
 
 
+PKG_PROSQLITE="packages/prosqlite"
+
+
+
+
+
+
+
+
+
+
+yap_cv_prosqlite=yes
+
+yap_cv_prosqlite=yes
+
+# Check whether --with-sqlite was given.
+if test "${with_sqlite+set}" = set; then :
+  withval=$with_sqlite; if test "$withval" = yes; then
+	    PROSQLITE_DIR=/usr
+	elif test "$withval" = no; then
+	    yap_cv_prosqlite=no
+	else
+	    PROSQLITE_DIR=$withval
+	fi
+else
+  PROSQLITE_DIR=/usr
+fi
+
+
+havelib=no
+
+if test $yap_cv_prosqlite = yes; then
+    OCFLAGS="${CFLAGS}"
+    OCPPFLAGS="${CPPFLAGS}"
+    OCIFLAGS="${CIFLAGS}"
+    OLDFLAGS="${LDFLAGS}"
+
+  if test ! -z "$PROSQLITE_DIR"; then
+    PROSQLITE_CFLAGS="-I${PROSQLITE_DIR}/include"
+    PROSQLITE_LDFLAGS="-L${PROSQLITE_DIR}/lib"
+    CFLAGS="-I${PROSQLITE_DIR}/include ${CFLAGS}"
+    CPPFLAGS="-I${PROSQLITE_DIR}/include ${CPPFLAGS}"
+    CIFLAGS="-I${PROSQLITE_DIR}/include ${CIFLAGS}"
+    LDFLAGS="-L${PROSQLITE_DIR}/lib ${LDFLAGS}"
+  fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
+if ${ac_cv_lib_sqlite3_sqlite3_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqlite3  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open ();
+int
+main ()
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sqlite3_sqlite3_open=yes
+else
+  ac_cv_lib_sqlite3_sqlite3_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
+$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqlite3_sqlite3_open" = xyes; then :
+  PROSQLITE_LIBS="-lsqlite3 $LIBS"
+                       havelib=yes
+fi
+
+
+  for ac_header in sqlite3.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"
+if test "x$ac_cv_header_sqlite3_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SQLITE3_H 1
+_ACEOF
+
+fi
+
+done
+
+
+    CFLAGS="${OCFLAGS}"
+    CPPFLAGS="${OCPPFLAGS}"
+    CIFLAGS="${OCIFLAGS}"
+    LDFLAGS="${OLDFLAGS}"
+
+fi
+
+
+if test "$havelib" = yes &&
+    test "$ac_cv_header_sqlite3_h" = yes; then
+  PROSQLITE_TARGETS="prosqlite.$SO"
+  PROSQLITE_PLTARGETS="prolog/prosqlite.pl"
+else
+  echo "ERROR:   Cannot find odbc library or the header sql.h"
+  echo "WARNING: PROSQLITE interface will not be built"
+  PROSQLITE_TARGETS=""
+fi
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17017,7 +17152,7 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/ProbLog/simplecudd_lfi
+mkdir -p  packages/prosqlite
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -17172,6 +17307,11 @@ if test "$PKG_PRISM" != ""; then
 ac_config_files="$ac_config_files packages/prism/src/c/Makefile"
 
 ac_config_files="$ac_config_files packages/prism/src/prolog/Makefile"
+
+fi
+
+if test "$PKG_PROSQLITE" != ""; then
+   ac_config_files="$ac_config_files packages/prosqlite/Makefile"
 
 fi
 
@@ -17935,6 +18075,7 @@ do
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;
+    "packages/prosqlite/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prosqlite/Makefile" ;;
     "swi/console/Makefile") CONFIG_FILES="$CONFIG_FILES swi/console/Makefile" ;;
     "packages/yap-lbfgs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/yap-lbfgs/Makefile" ;;
 

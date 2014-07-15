@@ -2000,6 +2000,8 @@ m4_include([packages/cuda/configure.in])
 
 m4_include([packages/gecode/configure.in])
 
+m4_include([packages/prosqlite/configure.in])
+
 AC_SUBST(PKG_LIBARCHIVE)
 
 AC_SUBST(PKG_ODBC)
@@ -2074,7 +2076,7 @@ mkdir -p  packages/prism/src/c/up
 mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
-mkdir -p  packages/ProbLog/simplecudd_lfi
+mkdir -p  packages/prosqlite
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/real
@@ -2187,6 +2189,10 @@ fi
 if test "$PKG_PRISM" != ""; then
 AC_CONFIG_FILES([packages/prism/src/c/Makefile])
 AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
+fi
+
+if test "$PKG_PROSQLITE" != ""; then
+   AC_CONFIG_FILES([packages/prosqlite/Makefile])
 fi
 
 if test "$PKG_WINCONSOLE" != ""; then
