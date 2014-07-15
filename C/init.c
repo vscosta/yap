@@ -776,6 +776,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
+    UInt sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
     if (flags &  UserCPredFlag) 
       pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | StandardPredFlag | flags;
     else
@@ -785,7 +786,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
     
-    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l));
+    cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     
     if (cl == NULL) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
@@ -793,7 +794,7 @@ Yap_InitCPredBack_(const char *Name, UInt Arity,
     }
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
-    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
+    Yap_ClauseSpace += sz;
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),e);
     cl->usc.ClLine = Yap_source_line_no();

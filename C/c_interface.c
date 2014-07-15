@@ -1279,7 +1279,7 @@ typedef Int (*CPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
-static Int
+static 
 execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
 {
   switch (pe->ArityOfPE) {
@@ -1388,19 +1388,19 @@ execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
   }
 }
 
-typedef Int (*CBPredicate)(struct foreign_context *);
-typedef Int (*CBPredicate1)(Int,struct foreign_context *);
-typedef Int (*CBPredicate2)(Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate)(struct foreign_context *);
+typedef uintptr_t (*CBPredicate1)(Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate2)(Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 
-static Int
+static uintptr_t
 execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx USES_REGS)
 {
   switch (pe->ArityOfPE) {
@@ -1418,9 +1418,10 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   case 2:
     {
       CBPredicate2 code2 = (CBPredicate2)exec_code;
-      return ((code2)(&B->cp_a1-LCL0,
+      uintptr_t val = ((code2)(&B->cp_a1-LCL0,
 		      &B->cp_a2-LCL0,
 		      ctx));
+      return val;
     }
   case 3:
     {
@@ -1519,7 +1520,7 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   }
 }
 
-static Int
+static uintptr_t
 complete_fail(choiceptr ptr, int has_cp USES_REGS)
 {
   // this case is easy, jut be sure to throw everything 
@@ -1532,7 +1533,7 @@ complete_fail(choiceptr ptr, int has_cp USES_REGS)
   return FALSE;
 }
 
-static int
+static uintptr_t
 complete_exit(choiceptr ptr, int has_cp, int cut_all USES_REGS)
 {
   // the user often leaves open frames, especially in forward execution
@@ -1632,8 +1633,8 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   CELL ocp = LCL0-(CELL *)B;
   /* for slots to work */
   Int CurSlot = Yap_StartSlots( PASS_REGS1 );
-  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
-    Int val;
+  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag|ModuleTransparentPredFlag)) {
+    uintptr_t val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
 
@@ -1667,7 +1668,8 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 	ctx->context = (uintptr_t)(val & ~REDO_PTR);
       else
 	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
-      return TRUE;
+      /* fix dropped cps */
+      return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
@@ -1796,7 +1798,8 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       else
 	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
     }
-    return TRUE;
+    /* fix dropped cps */
+    return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
     LOCAL_CurSlot = CurSlot;
@@ -2301,9 +2304,10 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   if (out) {
+    dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots( PASS_REGS1 );
   } else {
-      LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
+    LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
   return out;
 }
@@ -2325,7 +2329,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
-  LOCAL_CurSlot = dgi->CurSlot;
+  LOCAL_CurSlot = dgi->EndSlot;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   if (out) {
