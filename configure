@@ -753,6 +753,7 @@ PKG_CLIB
 PKG_CHR
 NO_BUILTIN_REGEXP
 YAP_EXTRAS
+GMPDIR
 SONAMEFLAG
 DYNYAPLIB
 YAPLIB
@@ -4567,10 +4568,12 @@ fi
 if test "${with_gmp+set}" = set; then :
   withval=$with_gmp; if test "$withval" = yes; then
 		yap_cv_gmp=yes
+		GMPDIR=/usr
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
-		yap_cv_gmp=$with_gmp
+		yap_cv_gmp="$with_gmp"
+		GMPDIR="$with_gmp"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
@@ -8822,6 +8825,7 @@ esac
 
 
 CMDEXT=sh
+
 
 
 
@@ -13595,7 +13599,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13598 "configure" */
+/* #line 13602 "configure" */
 public class Test {
 }
 EOF
@@ -13771,7 +13775,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 13774: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 13778: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -13902,7 +13906,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 13905 "configure" */
+/* #line 13909 "configure" */
 public class Test {
 }
 EOF
@@ -13937,7 +13941,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 13940 "configure" */
+/* [#]line 13944 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

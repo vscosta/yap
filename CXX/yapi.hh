@@ -566,7 +566,7 @@ public:
             char *topLevel = (char *)NULL,
             bool script = FALSE,
             bool fastBoot = FALSE,
-	YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
+            YAPCallback *callback=(YAPCallback *)NULL);  /// construct a new engine, including aaccess to callbacks
   /// kill engine
   ~YAPEngine() { delYAPCallback(); }
   /// remove current callback
@@ -581,8 +581,6 @@ public:
   YAPError hasError( ) {  return yerror; }
   /// build a query on the engine
   YAPQuery *query( char *s );
-  /// build a query on the engine handling exceptions
-  YAPQuery *safeQuery( char *s );
 };
 
 /*

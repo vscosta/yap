@@ -12,7 +12,7 @@ def go():
         try: 
             q = engine.query(s)
         except:
-...         print "Oops!  That was no valid number.  Try again..."  
+            print "Oops!  That was no valid number.  Try again..."  
         while q.next():
             vs = q.namedVars();
             while vs.length() > 0:

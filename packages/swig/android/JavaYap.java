@@ -30,7 +30,7 @@ public class JavaYap extends Activity
 			YAPQuery q = eng.query( str );
 
 			YAPListTerm vs0 = q.namedVars();
-			int rc;
+			Boolean rc;
 
 			// text.setText("");
 			if (vs0.nil()) {

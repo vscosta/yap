@@ -1,10 +1,50 @@
 /* example.i */
  %module(directors="1") yap
 
+// Language independent exception handler
+%include exception.i       
+
+ class YAPPredicate;
+ class YAPEngine;
+
+#ifdef SWIGPYTHON
+%exception YAPPredicate {
+   try {
+      $action
+   } catch (...) {
+      PyErr_SetString(PyExc_SyntaxError, "syntax error");
+      return NULL;
+   }
+}
+#endif
+
+%exception query {
+    try {
+        $action
+    } 
+    catch (YAPError YAP_SYMTAX_ERROR) {
+        SWIG_exception(SWIG_SyntaxError,"Syntax Error exception");
+    }
+    catch (...) {
+        SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+	    }
+	}
+
+%exception next {
+    try {
+        $action
+    } 
+    catch (...) {
+        SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+}
+
+
  %{
  /* Put header files here or function declarations like below */
  
 #define YAP_CPP_INTERFACE 1
+ 
  
 extern "C" {
 
@@ -26,20 +66,6 @@ extern "C" {
 /* turn on director wrapping Callback */
 %feature("director") YAPCallback;
  	
-class YAPPredicate;
-
-#ifdef SWIGPYTHON
-%exception YAPPredicate {
-   try {
-      $action
-   } catch (...) {
-      PyErr_SetString(PyExc_SyntaxError, "syntax error");
-      return NULL;
-   }
-}
-#endif
-
-
 %include "yapi.hh"
 
 #ifdef SWIGJAVA

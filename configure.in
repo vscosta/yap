@@ -192,10 +192,12 @@ AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
 	if test "$withval" = yes; then
 		yap_cv_gmp=yes
+		GMPDIR=/usr
 	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
-		yap_cv_gmp=$with_gmp
+		yap_cv_gmp="$with_gmp"
+		GMPDIR="$with_gmp"
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
@@ -1396,6 +1398,7 @@ AC_SUBST(YAPLIB)
 AC_SUBST(DYNYAPLIB)
 AC_SUBST(LDFLAGS)
 AC_SUBST(SONAMEFLAG)
+AC_SUBST(GMPDIR)
 dnl install_info
 AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile

@@ -627,16 +627,3 @@ YAPQuery *YAPEngine::query( char *s ) {
   YAPQuery *n = new YAPQuery( s );
   return n;
 }
-
-YAPQuery *YAPEngine::safeQuery( char *s ) {
-     try {
-       YAPQuery *n = new YAPQuery( s );
-       n->setFlag( PL_Q_CATCH_EXCEPTION );
-       n->resetFlag( PL_Q_PASS_EXCEPTION );
-       return n;
-     } 
-     catch (YAPError yerr) {
-       yerror = yerr;
-       return 0;
-     }
-}
