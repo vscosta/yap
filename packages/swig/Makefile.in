@@ -57,6 +57,9 @@ android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
 	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap;\
 	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
 	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
+	cp -r $(srcdir)/android/jni/sqlite jni ;\
+	cp -r $(srcdir)/android/src/* src ;\
+	cp -r $(srcdir)/../prosqlite/prolog/prosqlite.pl assets/share/Yap ;\
 	cp $(srcdir)/android/JavaYap.java src/pt/up/fc/dcc/yap/ ;\
 	cp $(srcdir)/android/main.xml res/layout ;\
 	cp $(srcdir)/android/Application.mk jni ;\

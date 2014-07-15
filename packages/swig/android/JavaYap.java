@@ -13,7 +13,18 @@ import  android.util.Log;
 import android.content.res.AssetManager;
 import 	android.widget.EditText;
 import 	java.text.ParseException;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteStatement;
+import org.sqlite.database.sqlite.SQLiteDatabaseCorruptException;
+import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
+import org.sqlite.database.DatabaseErrorHandler;
+class DoNotDeleteErrorHandler implements DatabaseErrorHandler {
+  private static final String TAG = "DoNotDeleteErrorHandler";
+  public void onCorruption(SQLiteDatabase dbObj) {
+    Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
+  }
+}
 public class JavaYap extends Activity
 {
 	TextView outputText = null;
@@ -149,6 +160,7 @@ public class JavaYap extends Activity
 		System.loadLibrary("android");
 		System.loadLibrary("log");
 		System.loadLibrary("gmp");
+		System.loadLibrary("sqliteX");
 		System.loadLibrary("example");
 	}
 
