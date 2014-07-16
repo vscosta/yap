@@ -847,6 +847,8 @@ predicate_property(Pred,Prop) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,M,_,public) :-
 	'$is_public'(P,M).
+'$predicate_property'(P,M,_,thread_local) :-
+	'$is_thread_local'(P,M).
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
 	once(recorded('$module','$module'(_TFN,M,Publics,_L),_)),
@@ -931,12 +933,12 @@ system_predicate(P) :-
 	'$pred_exists'(T,M).
 
 current_predicate(F0) :-
-	strip_module(F0, M, F),
+	'$yap_strip_module'(F0, M, F),
 	'$$current_predicate'(F, M).
 
 '$$current_predicate'(F, M) :-
         ( var(M) ->			% only for the predicate
-	'$current_module'(M)
+	'$all_current_modules'(M)
 	; true),
 	M \= prolog,
 	'$current_predicate3'(F,M).

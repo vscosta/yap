@@ -119,6 +119,7 @@ cd $BUILDDROID
 
 if test x$1 = xmake
 then
+  ./config.status
   make -j install
   rm -r packages/swig/android
 elif test x$1 = xenv
@@ -133,7 +134,7 @@ else
    startemulator
   rm -rf "$BUILDDROID"/*
   cd "$BUILDDROID" 
-  "$YAP_SRC"/configure --host="$ANDROID_ARCH"-linux-androideabi --prefix=`pwd` --enable-low-level-tracer --enable-debug-yap --enable-dynamic-loading --with-swig --with-gmp=$GMPDIR  --disable-chr #--enable-threads
+  "$YAP_SRC"/configure --host="$ANDROID_ARCH"-linux-androideabi --prefix=`pwd` --enable-low-level-tracer --enable-debug-yap --enable-dynamic-loading --with-swig --with-gmp=$GMPDIR  --with-sqlite=no --disable-chr #--enable-threads
   make depend
   make -j install
 fi

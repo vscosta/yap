@@ -244,9 +244,11 @@ Int Yap_InitDefaults( YAP_init_args *init_args, char saved_state[] );
 
 /* this should be opaque to the user */ 
 typedef struct {
-  unsigned long  b;
-  YAP_Int CurSlot; 
-  struct yami *p, *cp;
+  unsigned long  b;  //> choice-point at entry
+  YAP_Int CurSlot;   //> variables at entry
+  YAP_Int EndSlot;   //> variables at successful execution
+  struct yami *p;    //> Program Counter at entry
+  struct yami  *cp;  //> Continuation PC at entry
 } YAP_dogoalinfo;
 
 

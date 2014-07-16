@@ -145,7 +145,7 @@ typedef	struct pred_entry    *predicate_t;
 typedef struct  open_query_struct *qid_t;
 typedef uintptr_t    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);
-typedef unsigned long	foreign_t;	/* return type of foreign functions */
+typedef uintptr_t	foreign_t;	/* return type of foreign functions */
 typedef wchar_t pl_wchar_t;             /* wide character support */
 #include <inttypes.h>			/* more portable than stdint.h */
 #if  !defined(_MSC_VER) 
