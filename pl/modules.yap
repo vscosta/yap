@@ -254,7 +254,7 @@ module(N) :-
 %       code to pass to listing
 %       code to pass to compiler
 %       current module for looking up preds  M
-%       default module  DM
+%       source module  SM
 %       head module   HM
 %
 % to understand the differences, you can consider:
@@ -277,39 +277,45 @@ module(N) :-
 %       head variables.
 %       goals or arguments/sub-arguments?
 % I cannot use call here because of format/3
-'$module_expansion'(V,NG,NG,_,MM,_,HVars) :-
+% modules:
+% A4: module for body of clause (this is the one used in looking up predicates)
+% A5: context module (this is the current context
+% A6: head module (this is the one used in compiling and accessing).
+%
+%
+'$module_expansion'(V,NG,NG,_,SM,_,HVars) :-
 	var(V), !,
 	( '$not_in_vars'(V,HVars)
 	->
-	  NG = call(MM:V)
+	  NG = call(SM:V)
 	;
 	  NG = call(V)
 	).	
-'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,HM,HVars) :- var(A), !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
-'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,HM,HVars),
+'$module_expansion'((A,B),(A1,B1),(AO,BO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,SM,HM,HVars) :- var(A), !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars).
+'$module_expansion'((A*->B;C),(A1*->B1;C1),(yap_hacks:current_choicepoint(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,SM,HM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars),
-	'$module_expansion'(C,C1,CO,M,MM,HM,HVars).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
-'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
-'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AOO,M,MM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars),
+	'$module_expansion'(C,C1,CO,M,SM,HM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars).
+'$module_expansion'((A|B),(A1|B1),(AO|BO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars),
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars).
+'$module_expansion'((A->B),(A1->B1),(AO->BO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AOO,M,SM,HM,HVars),
 	'$clean_cuts'(AOO, AO),
-	'$module_expansion'(B,B1,BO,M,MM,HM,HVars).
-'$module_expansion'(\+A,\+A1,\+AO,M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars).
-'$module_expansion'(not(A),not(A1),not(AO),M,MM,HM,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,MM,HM,HVars).
+	'$module_expansion'(B,B1,BO,M,SM,HM,HVars).
+'$module_expansion'(\+A,\+A1,\+AO,M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars).
+'$module_expansion'(not(A),not(A1),not(AO),M,SM,HM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,SM,HM,HVars).
 '$module_expansion'(true,true,true,_,_,_,_) :- !.
 '$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
@@ -318,30 +324,30 @@ module(N) :-
 '$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
 '$module_expansion'(M:G,G1,GO,_,_CM,HM,HVars) :- !,
 	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
+'$module_expansion'(G, G1, GO, CurMod, SM, HM,HVars) :-
 	% is this imported from some other module M1?
 	'$imported_pred'(G, CurMod, GG, M1),
 	!,
-	'$module_expansion'(GG, G1, GO, M1, MM, HM,HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
-	'$meta_expansion'(G, CurMod, MM, HM, GI, HVars), !,
-	'$complete_goal_expansion'(GI, CurMod, MM, HM, G1, GO, HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
-	'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars).
+	'$module_expansion'(GG, G1, GO, M1, SM, HM,HVars).
+'$module_expansion'(G, G1, GO, CurMod, SM, HM,HVars) :-
+	'$meta_expansion'(G, CurMod, SM, HM, GI, HVars), !,
+	'$complete_goal_expansion'(GI, CurMod, SM, HM, G1, GO, HVars).
+'$module_expansion'(G, G1, GO, CurMod, SM, HM, HVars) :-
+	'$complete_goal_expansion'(G, CurMod, SM, HM, G1, GO, HVars).
 
 expand_goal(G, G) :-
 	var(G), !.
 expand_goal(M:G, M:NG) :-
-	'$do_expand'(G, M, [], NG), !.
+	'$do_expand'(G, M, prolog, [], NG), !.
 expand_goal(G, NG) :- 
 	'$current_module'(Mod),
-	'$do_expand'(G, Mod, [],  NG), !.
+	'$do_expand'(G, Mod, prolog, [],  NG), !.
 expand_goal(G, G).
 	
-'$do_expand'(G, _, _, G) :- var(G), !.
-'$do_expand'(M:G, _CurMod, HVars, M:GI) :- !,
-	'$do_expand'(G, M, HVars, GI).
-'$do_expand'(G, CurMod, _HVars, GI) :-
+'$do_expand'(G, _, _, _, G) :- var(G), !.
+'$do_expand'(M:G, _CurMod, SM, HVars, M:GI) :- !,
+	'$do_expand'(G, M, SM, HVars, GI).
+'$do_expand'(G, CurMod, _SM, _HVars, GI) :-
 	(
 	 '$pred_exists'(goal_expansion(G,GI), CurMod),
 	 call(CurMod:goal_expansion(G, GI))
@@ -359,36 +365,38 @@ expand_goal(G, G).
 	;
 	  user:goal_expansion(G, GI)
 	), !.
-'$do_expand'(G, CurMod, HVars, NG) :-
+'$do_expand'(G, CurMod, SM, HVars, NG) :-
 	'$is_metapredicate'(G,CurMod), !,
 	functor(G, Name, Arity),
 	prolog:'$meta_predicate'(Name,CurMod,Arity,PredDef),
 	G =.. [Name|GArgs],
 	PredDef =.. [Name|GDefs],
-	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs),
+	'$expand_args'(GArgs, CurMod, SM, GDefs, HVars, NGArgs),
 	NG =.. [Name|NGArgs].
 
-'$expand_args'([], _, [], _, []).
-'$expand_args'([A|GArgs], CurMod, [0|GDefs], HVars, [NA|NGArgs]) :-
-	'$do_expand'(A, CurMod, HVars, NA), !,
-	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs).
-'$expand_args'([A|GArgs], CurMod, [_|GDefs], HVars, [A|NGArgs]) :-
-	'$expand_args'(GArgs, CurMod, GDefs, HVars, NGArgs).
+'$expand_args'([], _, _, [], _, []).
+'$expand_args'([A|GArgs], CurMod, SM,  [0|GDefs], HVars, [NA|NGArgs]) :-
+	'$do_expand'(A, CurMod, SM, HVars, NA), !,
+	'$expand_args'(GArgs, CurMod, SM, GDefs, HVars, NGArgs).
+'$expand_args'([A|GArgs], CurMod, SM, [_|GDefs], HVars, [A|NGArgs]) :-
+	'$expand_args'(GArgs, CurMod, SM, GDefs, HVars, NGArgs).
 
 % args are:
 %       goal to expand
 %       current module for looking up pred
-%       current module for looking up pred
-%       current module from top-level clause
+%       context module 
+%       current module from head of clause  
+% :- module(m, []). o:p :- n:(g, l).
+%
 %       goal to pass to listing
 %       goal to pass to compiler
 %       head variables.
-'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars) :-
+'$complete_goal_expansion'(G, CurMod, SM, HM, G1, GO, HVars) :-
 %	'$pred_goal_expansion_on',
-	'$do_expand'(G, CurMod, HVars, GI),
+	'$do_expand'(G, CurMod, SM, HVars, GI),
 	GI \== G, !,
-	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
-'$complete_goal_expansion'(G, M, _CM, HM, G1, G2, _HVars) :-
+	'$module_expansion'(GI, G1, GO, CurMod, SM, HM, HVars).
+'$complete_goal_expansion'(G, M, _SM, HM, G1, G2, _HVars) :-
 	'$all_system_predicate'(G,M,ORIG), !,
 	% make built-in processing transparent.
 	'$match_mod'(G, M, ORIG, HM, G1),
@@ -399,7 +407,12 @@ expand_goal(G, G).
 
 %'$match_mod'(G, GMod, GMod, NG) :- !,
 %	NG = G.
-'$match_mod'(G, _, SM, _, G) :- SM == prolog, nonvar(G), \+ '$is_multifile'(G,SM), !. % prolog: needs no module info.
+'$match_mod'(G, _, M, _, G) :- 
+    nonvar(G),
+    '$system_predicate'(G,prolog),
+%    \+ '$is_metapredicate'(G, prolog),
+    \+ '$is_multifile'(G,H), 
+    !. % prolog: needs no module info.
 % same module as head,  and body goal (I cannot get rid of qualifier before
 % meta-call.
 '$match_mod'(G, HMod, _, HM, G) :- HMod == HM, !.
@@ -546,22 +559,6 @@ expand_goal(G, G).
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
-'$meta_expansion0'(G,_Mod,MP,_HM, G1,_HVars) :-
-    var(G), !,
-    G1 = call(MP:G).
-'$meta_expansion0'(M:G,_Mod,_MP,_HM,G1,_HVars) :-
-    var(M), !,
-    G1 = '$execute_wo_mod'(G,M).
-% support for all/3
-'$meta_expansion0'(same(G, P),Mod,MP,HM, same(G1, P),HVars) :- !,
-    '$meta_expansion0'(G,Mod,MP,HM,G1,HVars).
-'$meta_expansion0'(G,Mod,MP,HM,M2:G2,HVars) :-
-    nonvar(G), G \= _:_,
-    '$module_expansion'(G,_,G1,MP,MP,HM,HVars), !,
-    strip_module(MP:G1, M2, G2).
-'$meta_expansion0'(G,Mod,MP,HM,M1:G1,HVars) :-
-    strip_module(MP:G,M1,G1).
-
 
 '$meta_expansion'(G,Mod,MP,HM,G1,HVars) :-
 	functor(G,F,N),
@@ -570,6 +567,7 @@ expand_goal(G, G).
 	functor(G1,F,N),
 	'$meta_expansion_loop'(N, D, G, G1, HVars, Mod, MP, HM).
 %	format(user_error,' gives ~w]`n',[G1]).
+
 
 % expand argument
 '$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
@@ -583,7 +581,7 @@ expand_goal(G, G).
 	  '$meta_expansion0'(A,CurMod,M,HM,NA,HVars),
 	  '$values'('$c_arith', _False, Old)
 	  ;
-	      NA = M:A
+	  NA = M:A
 	),
 	arg(I,NG,NA),
 	I1 is I-1,
@@ -593,6 +591,19 @@ expand_goal(G, G).
 	arg(I,NG,A),
 	I1 is I-1,
 	'$meta_expansion_loop'(I1, D, G, NG, HVars, CurMod, M, HM).
+
+'$meta_expansion0'(G,_Mod,MP,_HM, G1,_HVars) :-
+    var(G), !,
+    G1 = MP:G.
+'$meta_expansion0'(M:G,_Mod,_MP,_HM,G1,_HVars) :-
+    var(M), !,
+    G1 = '$execute_wo_mod'(G,M).
+% support for all/3
+'$meta_expansion0'(same(G, P),Mod,MP,HM, same(G1, P),HVars) :- !,
+    '$meta_expansion0'(G,Mod,MP,HM,G1,HVars).
+'$meta_expansion0'(G,Mod,MP,HM,M1:G1,HVars) :-
+    strip_module(Mod:G,M1,G1).
+
 
 % check if an argument should be expanded
 '$should_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
@@ -676,7 +687,6 @@ source_module(Mod) :-
 	if(0,0,0),
 	ignore(0),
 	incore(0),
-	listing(:),
 	multifile(:),
 	nospy(:),
         not(0),
