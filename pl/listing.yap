@@ -37,25 +37,41 @@ listing :-
         '$list_clauses'(Stream,Mod,Pred).
 listing.
 
+listing(MV) :-
+    current_output(Stream),
+    listing(Stream, MV).
 
-listing(V) :-
-	current_output(Stream),
-	'$current_module'(M),
-	'$listing'(V,M,Stream).
+listing(Stream, MV) :-
+    '$mlisting'(Stream, MV, _).
+listing(Stream, []) :- !.
+listing(Stream, [MV|MVs]) :- !,
+    listing(Stream,  MV),
+    listing(Stream, MVs).	    
 
-'$listing'(V,Mod,Stream) :- var(V), !,
-	'$current_predicate_no_modules'(Mod,_,Pred),
-        ( '$list_clauses'(Stream,Mod,Pred) ; true ).
-'$listing'(M:V,_,Stream) :- !,
-	'$listing'(V,M,Stream).
-'$listing'([],_,_) :- !.
-'$listing'([X|Rest], M, Stream) :-
-        !,
-        '$listing'(X, M, Stream),
-        '$listing'(Rest, M, Stream).
+'$mlisting'(Stream, MV, M) :-
+    ( var(MV) -> MV = NA, '$do_listing'(Stream, M, NA)
+	 ;
+      atom(MV) -> MV/_ = NA, '$do_listing'(Stream, M, NA)
+	 ;
+      MV = N//Ar -> ( integer(Ar) -> Ar2 is Ar+2, NA is N/Ar2 ; '$do_listing'(Stream, Na/Ar2, M), Ar2 >= 2, Ar is Ar2-2 )
+	 ;
+      MV = N/Ar, ( atom(N) -> true ; var(N) ), ( integer(Ar) -> true ; var(A) )  -> '$do_listing'(Stream, M, MV)
+	 ;
+      MV = M1:PP ->  '$mlisting'(Stream, PP, M1)
+	 ;
+     '$do_error'(type_error(predicate_indicator,MV),listing(Stream, MV) )
+    ).
+
+'$do_listing'(Stream, M, NA) :-
+    ( '$$current_predicate'(NA, M),
+     '$listing'(NA,M,Stream),
+     fail
+   ;
+     true
+   ).
+
 '$listing'(X, M, Stream) :-
         '$funcspec'(X,Name,Arity),
-        '$current_predicate_no_modules'(M,Name,Pred),
         functor(Pred,Name,Arity),
         '$list_clauses'(Stream,M,Pred).
 '$listing'(_,_,_).
@@ -66,11 +82,65 @@ listing(V) :-
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
 '$list_clauses'(Stream, M, Pred) :-
+    ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ), 
+    functor( Pred, M, Ar ),
+    '$current_module'(Mod),
+    ( 
+	M == Mod
+    ->
+      format( Stream, '~n:- dynamic ~q/~d.~n', [N,Ar])
+    ;
+      format( Stream, '~n:- dynamic ~q:~q/~d.~n', [M,N,Ar])
+     ),
+     fail.
+'$list_clauses'(Stream, M, Pred) :-
+    '$is_thread_local'(Pred, M), 
+    functor( Pred, M, Ar ),
+    '$current_module'(Mod),
+    ( 
+	M == Mod
+    ->
+      format( Stream, '~n:- thread_local ~q/~d.~n', [N,Ar])
+    ;
+      format( Stream, '~n:- thread_local ~q:~q/~d.~n', [M,N,Ar])
+     ),
+     fail.
+'$list_clauses'(Stream, M, Pred) :-
+    '$is_multifile'(Pred, M), 
+    functor( Pred, M, Ar ),
+    '$current_module'(Mod),
+    ( 
+	M == Mod
+    ->
+      format( Stream, '~n:- multifile ~q/~d.~n', [N,Ar])
+    ;
+      format( Stream, '~n:- multifile ~q:~q/~d.~n', [M,N,Ar])
+     ),
+     fail.
+'$list_clauses'(Stream, M, Pred) :-
+   '$is_metapredicate'(Pred, M), 
+    functor( Pred, Name, Arity ),
+    prolog:'$meta_predicate'(Name,M,Arity,PredDef),
+    '$current_module'(Mod),
+    ( 
+	M == Mod
+    ->
+      format( Stream, '~n:- ~q.~n', [PredDef])
+    ;
+      format( Stream, '~n:- ~q:~q.~n', [M,PredDef])
+     ),
+     fail.
+'$list_clauses'(Stream, M, Pred) :-
+        nl( Stream ),
+        fail.
+'$list_clauses'(Stream, M, Pred) :-
 	'$flags'(Pred,M,Flags,Flags),
 	% has to be dynamic, source, or log update.
 	Flags /\ 0x08402000 =\= 0,
 	'$clause'(Pred, M, Body, _),
-	'$portray_clause'(Stream,(Pred:-Body)),
+	'$current_module'(Mod),
+	( M \= Mod -> H = M:Pred ; H = Pred ),
+	'$portray_clause'(Stream,(H:-Body)),
         fail.
 
 portray_clause(Stream, Clause) :-
@@ -81,10 +151,7 @@ portray_clause(_, _).
 
 portray_clause(Clause) :-
         current_output(Stream),
-	copy_term_nat(Clause, CopiedClause),
-	'$portray_clause'(Stream, CopiedClause),
-	fail.
-portray_clause(_).
+	portray_clause(Stream, Clause).
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
 	'$beautify_vars'(Pred),
@@ -114,7 +181,7 @@ portray_clause(_).
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_body'(P,I1,'(',Stream),
-	format(Stream, ' ->',[]),
+	format(Stream, '~n~*c->',[I,0' ]),
 	'$write_disj'((Q;S),I,I1,'->',Stream),
 	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P->Q|S),I,_,Stream) :-
@@ -122,7 +189,7 @@ portray_clause(_).
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
 	'$write_body'(P,I,'(',Stream),
-	format(Stream, ' ->',[]),
+	format(Stream, '~n~*c->',[I,0' ]),
 	'$write_disj'((Q|S),I,I1,'->',Stream),
 	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P->Q),I,_,Stream) :-
@@ -130,7 +197,7 @@ portray_clause(_).
 	format(Stream, '~n~*c(',[I,0' ]),
 	I1 is I+2,
         '$write_body'(P,I1,'(',Stream),
-	format(Stream, ' ->',[]),
+	format(Stream, '~n~*c->',[I,0' ]),
         '$write_body'(Q,I1,'->',Stream),
 	format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'((P;Q),I,_,Stream) :-

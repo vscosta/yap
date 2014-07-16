@@ -3175,6 +3175,21 @@ p_is_discontiguous( USES_REGS1 )
 }
 
 static Int 
+p_is_thread_local( USES_REGS1 )
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Int             out;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_log_updatable");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(27,pe);
+  out = (pe->PredFlags & ThreadLocalPredFlag);
+  UNLOCKPE(45,pe);
+  return(out);
+}
+
+static Int 
 p_is_log_updatable( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -6617,6 +6632,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_thread_local", 2, p_is_thread_local, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
