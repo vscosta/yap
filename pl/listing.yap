@@ -82,39 +82,44 @@ listing(Stream, [MV|MVs]) :- !,
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
 '$list_clauses'(Stream, M, Pred) :-
+	'$flags'(Pred,M,Flags,Flags),
+	Flags /\ 0x48602000 =\= 0,
+	nl(Stream),
+	fail.
+'$list_clauses'(Stream, M, Pred) :-
     ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ), 
-    functor( Pred, M, Ar ),
+    functor( Pred, N, Ar ),
     '$current_module'(Mod),
     ( 
 	M == Mod
     ->
-      format( Stream, '~n:- dynamic ~q/~d.~n', [N,Ar])
+      format( Stream, ':- dynamic ~q/~d.~n', [N,Ar])
     ;
-      format( Stream, '~n:- dynamic ~q:~q/~d.~n', [M,N,Ar])
+      format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
     '$is_thread_local'(Pred, M), 
-    functor( Pred, M, Ar ),
+    functor( Pred, N, Ar ),
     '$current_module'(Mod),
     ( 
 	M == Mod
     ->
-      format( Stream, '~n:- thread_local ~q/~d.~n', [N,Ar])
+      format( Stream, ':- thread_local ~q/~d.~n', [N,Ar])
     ;
-      format( Stream, '~n:- thread_local ~q:~q/~d.~n', [M,N,Ar])
+      format( Stream, ':- thread_local ~q:~q/~d.~n', [M,N,Ar])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
     '$is_multifile'(Pred, M), 
-    functor( Pred, M, Ar ),
+    functor( Pred, N, Ar ),
     '$current_module'(Mod),
     ( 
 	M == Mod
     ->
-      format( Stream, '~n:- multifile ~q/~d.~n', [N,Ar])
+      format( Stream, ':- multifile ~q/~d.~n', [N,Ar])
     ;
-      format( Stream, '~n:- multifile ~q:~q/~d.~n', [M,N,Ar])
+      format( Stream, ':- multifile ~q:~q/~d.~n', [M,N,Ar])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
@@ -125,16 +130,16 @@ listing(Stream, [MV|MVs]) :- !,
     ( 
 	M == Mod
     ->
-      format( Stream, '~n:- ~q.~n', [PredDef])
+      format( Stream, ':- ~q.~n', [PredDef])
     ;
-      format( Stream, '~n:- ~q:~q.~n', [M,PredDef])
+      format( Stream, '~:- ~q:~q.~n', [M,PredDef])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
         nl( Stream ),
         fail.
 '$list_clauses'(Stream, M, Pred) :-
-	'$flags'(Pred,M,Flags,Flags),
+    '$flags'(Pred,M,Flags,Flags),
 	% has to be dynamic, source, or log update.
 	Flags /\ 0x08402000 =\= 0,
 	'$clause'(Pred, M, Body, _),
