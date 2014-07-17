@@ -776,11 +776,13 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
+INPUT                  = /Users/vsc/git/yap-6.3/pl/modules.yap
+# INPUT                  = /Users/vsc/git/yap-6.3/pl/absf.yap
 # INPUT                  = /Users/vsc/git/yap-6.3/packages/ProbLog/problog_learning_lbdd.yap
 # INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
 #INPUT = /Users/vsc/git/yap-6.3/packages/R/R.pl		
 
-INPUT = docs/yap.md \
+INPUTX = docs/yap.md \
                          pl \
                          C \
                          H \
@@ -868,7 +870,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = *pltotex.pl
+EXCLUDE                = *pltotex.pl packages/swig/android
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

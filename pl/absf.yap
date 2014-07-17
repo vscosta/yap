@@ -8,10 +8,7 @@
 *									 *
 *************************************************************************/
 
-/**
-  @file absf.yap
-
-  @defgroup abs_file_name File Name Resolution
+/** @defgroup absf0 File Name Resolution
 
   Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -21,8 +18,7 @@
 
   @{
 
- */
-
+ **/
 
 :- system_module( absolute_file_name, [absolute_file_name/2,
         absolute_file_name/3,
@@ -32,6 +28,7 @@
         remove_from_path/1], ['$full_filename'/3,
         '$system_library_directories'/2]).
 
+
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
@@ -39,8 +36,8 @@
 :- use_system_module( '$_lists', [member/2]).
 
 /**
-  absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
-  absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
+  @pred absolute_file_name(+File:atom, +Options:list, +Path:atom) is nondet
+  @pred absolute_file_name(-File:atom, +Path:atom, +Options:list) is nondet
 
    _Options_ is a list of options to guide the conversion:
 
@@ -121,7 +118,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
 
 /**
-  absolute_file_name(+Name:atom,+Path:atom) is nondet
+  @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
 
   Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
 */
@@ -461,7 +458,7 @@ absolute_file_name(File0,File) :-
 	atom_concat([P0,A,Atoms],NFile).
 
 /**
-  path(-Directories:list) is det,deprecated
+  @pred path(-Directories:list) is det,deprecated
 
  YAP specific procedure that returns a list of user-defined directories
  in the library search-path.We suggest using user:file_search_path/2 for
@@ -475,7 +472,7 @@ path(Path) :- findall(X,'$in_path'(X),Path).
 		  atom_codes(X,S) ).
 
 /**
-  add_to_path(+Directory:atom) is det,deprecated
+  @pred add_to_path(+Directory:atom) is det,deprecated
 
   YAP-specific predicate to include directory in library search path.
   We suggest using user:file_search_path/2 for
@@ -484,7 +481,7 @@ path(Path) :- findall(X,'$in_path'(X),Path).
 add_to_path(New) :- add_to_path(New,last).
 
 /**
-  add_to_path(+Directory:atom, +Position:atom) is det,deprecated
+  @pred add_to_path(+Directory:atom, +Position:atom) is det,deprecated
 
   YAP-specific predicate to include directory in front or back of
   library search path. We suggest using user:file_search_path/2 for
@@ -500,7 +497,7 @@ add_to_path(New,Pos) :-
 '$add_to_path'(New,last) :- !, recordz('$path',New,_).
 '$add_to_path'(New,first) :- recorda('$path',New,_).
 
-/**    remove_from_path(+Directory:atom) is det,deprecated
+/**  @pred   remove_from_path(+Directory:atom) is det,deprecated
 
 */
 remove_from_path(New) :- '$check_path'(New,Path),
@@ -513,7 +510,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
 
 /**
-  user:library_directory(?Directory:atom) is nondet, dynamic
+  @pred user:library_directory(?Directory:atom) is nondet, dynamic
 
   Dynamic, multi-file predicate that succeeds when _Directory_ is a
   current library directory name. Asserted in the user module.
@@ -529,7 +526,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 :- dynamic user:library_directory/1.
 
 /**
-  user:commons_directory(?Directory:atom) is nondet, dynamic
+  @pred user:commons_directory(?Directory:atom) is nondet, dynamic
 
 */
 
@@ -538,7 +535,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 :- dynamic user:commons_directory/1.
 
 /**
-  user:prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
+  @pred user:prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
 
   This multifile/dynamic predicate relates a file extension _Suffix_
   to a language or file type _Handler_. By
@@ -578,7 +575,7 @@ user:prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
 
 /**
-  user:file_search_path(+Name:atom, -Directory:atom) is nondet
+  @pred user:file_search_path(+Name:atom, -Directory:atom) is nondet
 
   Allows writing file names as compound terms. The  _Name_ and
   _DIRECTORY_ must be atoms. The predicate may generate multiple

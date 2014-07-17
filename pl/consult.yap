@@ -357,47 +357,6 @@ exo_files(Fs) :-
 db_files(Fs) :-
 	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
 
-%
-% stub to prevent modules defined within the prolog module.
-%
-module(Mod, Decls) :-
-	'$current_module'(prolog, Mod), !,
-	'$export_preds'(Decls).
-
-'$export_preds'([]).
-'$export_preds'([N/A|Decls]) :-
-    functor(S, N, A),
-    '$sys_export'(S, prolog),
-    '$export_preds'(Decls).
-
-
-% prevent modules within the kernel module...
-use_module(M,F,Is) :-
-	'$use_module'(M,F,Is).
-
-'$use_module'(M,F,Is) :-  
-	var(Is), !,
-	'$use_module'(M,F,all).
-'$use_module'(M,F,Is) :-
-	nonvar(F), !,
-        strip_module(F, M0, F0),
-	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
-	( var(M) -> true
-	;
-	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
-	  recorded('$module','$module'(F1,M,_,_),_)
-	).
-'$use_module'(M,F,Is) :-
-	nonvar(M), !,
-	strip_module(F, M0, F0),
-	(
-	    recorded('$module','$module'(F1,M,_,_),_)
-	->
-	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
-	),
-        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
-'$use_module'(M,F,Is) :-
-	'$do_error'(instantiation_error,use_module(M,F,Is)).
 
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
@@ -666,6 +625,110 @@ initialization(G,OPT) :-
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
 	nb_setval('$included_file',OY).
 
+
+/**
+
+@addtogroup yapmodules
+
+@{
+
+**/
+
+%
+% stub to prevent modules defined within the prolog module.
+%
+module(Mod, Decls) :-
+	'$current_module'(prolog, Mod), !,
+	'$export_preds'(Decls).
+
+'$export_preds'([]).
+'$export_preds'([N/A|Decls]) :-
+    functor(S, N, A),
+    '$sys_export'(S, prolog),
+    '$export_preds'(Decls).
+
+
+% prevent modules within the kernel module...
+/** @pred use_module(? _M_,? _F_,+ _L_) is directive
+    SICStus compatible way of using a module
+
+If module _M_ is instantiated, import the procedures in _L_ to the
+current module. Otherwise, operate as use_module/2, and load the files
+specified by _F_, importing the predicates specified in the list _L_.
+*/ 
+
+use_module(M,F,Is) :- '$use_module'(M,F,Is).
+
+'$use_module'(M,F,Is) :-  
+	var(Is), !,
+	'$use_module'(M,F,all).
+'$use_module'(M,F,Is) :-
+	nonvar(F), !,
+        strip_module(F, M0, F0),
+	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
+	( var(M) -> true
+	;
+	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+	  recorded('$module','$module'(F1,M,_,_),_)
+	).
+'$use_module'(M,F,Is) :-
+	nonvar(M), !,
+	strip_module(F, M0, F0),
+	(
+	    recorded('$module','$module'(F1,M,_,_),_)
+	->
+	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+	),
+        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
+'$use_module'(M,F,Is) :-
+	'$do_error'(instantiation_error,use_module(M,F,Is)).
+
+/**
+
+  @pred reexport(+F) is directive
+  @pred reexport(+F, +Decls ) is directive
+  allow a module to use and export predicates from another module
+
+Export all predicates defined in list  _F_ as if they were defined in
+the current module.
+
+Export predicates defined in file  _F_ according to  _Decls_. The
+declarations should be of the form:
+
+<ul>
+ <li>A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form `` _PI_ `as`
+ _NewName_'', meaning that the predicate with indicator  _PI_ is
+to be exported under name  _NewName_.
+</li>
+ <li>`except`( _List_) 
+In this case, all predicates not in  _List_ are exported. Moreover,
+if ` _PI_ `as`  _NewName_` is found, the predicate with
+indicator  _PI_ is to be exported under name  _NewName_ as
+before.
+</li>
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+<ul>
+ <li>
+The `reexport` declarations must be the first declarations to
+follow the  `module` declaration.
+</li>
+ <li>
+It is possible to use both `reexport` and `use_module`, but
+all predicates reexported are automatically available for use in the
+current module.
+</li>
+ <li>
+In order to obtain efficient execution, YAP compiles dependencies
+between re-exported predicates. In practice, this means that changing a
+`reexport` declaration and then  *just* recompiling the file
+may result in incorrect execution.
+</li>
+</ul>
+**/
 '$reexport'( TOpts, File, Imports, OldF ) :-
 	'$lf_opt'(reexport, TOpts, Reexport),
 	( Reexport == false -> true ;
@@ -674,6 +737,10 @@ initialization(G,OPT) :-
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
 	  '$extend_exports'(File, Imports, OldF )
 	).
+
+/**
+@}
+**/
 
 %
 % reconsult at startup...

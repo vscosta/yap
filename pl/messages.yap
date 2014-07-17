@@ -253,6 +253,8 @@ system_message(error(permission_error(alias,new,P), Where)) -->
 system_message(error(permission_error(create,Name,P), Where)) -->
 	{ object_name(Name, ObjName) },
 	[ 'PERMISSION ERROR- ~w: cannot create ~a ~w' - [Where,ObjName,P] ].
+system_message(error(permission_error(import,M1:I,redefined,SecondMod), Where)) -->
+	[ 'PERMISSION ERROR- loading ~w: modules ~w and ~w both define ~w' - [Where,M1,SecondMod,I] ].
 system_message(error(permission_error(input,binary_stream,Stream), Where)) -->
 	[ 'PERMISSION ERROR- ~w: cannot read from binary stream ~w' - [Where,Stream] ].
 system_message(error(permission_error(input,closed_stream,Stream), Where)) -->

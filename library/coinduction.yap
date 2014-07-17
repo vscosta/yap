@@ -65,6 +65,9 @@ regardless of the cycle-length.
         left as a responsibility to the user.
 @see    "Co-Logic Programming: Extending Logic  Programming with Coinduction"
         by Luke Somin et al.
+
+@{
+
 */
 
 :- meta_predicate coinductive(:).
@@ -155,7 +158,7 @@ writeG_val(G_var) :-
 
 %-----------------------------------------------------
 
-/**************************************
+/**
 
   Some examples from Coinductive Logic Programming and its Applications by Gopal Gupta et al, ICLP 97
 
@@ -191,6 +194,7 @@ i(s(N)) :- i(N).
                 get_code(_),
                 fail.
 
+@}
 
 **************************************/
 

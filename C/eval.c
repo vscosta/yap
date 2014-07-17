@@ -542,12 +542,6 @@ init_between( USES_REGS1 )
   return cont_between( PASS_REGS1 );
 }
 
-/**
- *
- * @}
- * 
- * @}
-*/
 void
 Yap_InitEval(void)
 {
@@ -562,3 +556,7 @@ Yap_InitEval(void)
   Yap_InitCPredBack("between", 3, 2, init_between, cont_between, 0);
 }
 
+/**
+ *
+ * @}
+*/
