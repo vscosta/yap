@@ -19,7 +19,7 @@
 
 
 /**
-   @group  term_t_slots
+   @groupdef  term_t_slots
 
 Also known as term handles, slots are offsets to entries in the local stack. YAP never compresses the local stack, so slots are respected by the garbage collector,
 hence providing a way to access terms without being exposed to stack shifts or garbage-collection.

@@ -360,7 +360,7 @@ private:
   ///
   /// It also communicates the array of arguments t[]  abd the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s, Term **outp, yhandle_t& vnames ) throw (int);
+  YAPPredicate(const char *s, Term **outp, YAPTerm& vnames ) throw (int);
 
   /// Term constructor for predicates
   ///

@@ -579,7 +579,36 @@ sort_expand(GlobInfo info)
   qsort(ip, is, sizeof(int), compareBagEntries);
 }
 
+/**
+	
+	@addgroup 
 
+	\pred expand_file_name(+ _WildCard_,- _List_)  
+
+
+	This is an SWI-Prolog built-in that unifies  _List_ with a sorted list of
+	files or directories matching  _WildCard_. The normal Unix wildcard
+	constructs <tt>?</tt>, <tt>\\\*</tt>, <tt>[ ... ]</tt> and <tt>{...}</tt> are recognised. The
+	interpretation of <tt>{...}</tt> is interpreted slightly different from the
+	C shell (csh(1)). The comma separated argument can be arbitrary
+	patterns, including <tt>{...}</tt> patterns. The empty pattern is legal as
+	well: <tt>{.pl,}</tt> matches either <tt>.pl</tt> or the empty string.
+
+	If the pattern contains wildcard characters, only existing files and
+	directories are returned. Expanding a <em>pattern'</em> without wildcard
+	characters returns the argument, regardless on whether or not it exists.
+
+	Before expanding wildcards, the construct $var is expanded to the value
+	of the environment variable var and a possible leading ~ character is
+	expanded to the user's home directory. In Windows, the home directory is
+	determined as follows: if the environment variable `HOME` exists,
+	this is used. If the variables `HOMEDRIVE` and `HOMEPATH`
+	exist (Windows-NT), these are used. At initialisation, the system will
+	set the environment variable `HOME` to point to the YAP home
+	directory if neither `HOME` nor `HOMEPATH` and
+	`HOMEDRIVE` are defined.
+
+*/
 static
 PRED_IMPL("expand_file_name", 2, expand_file_name, 0)
 { PRED_LD

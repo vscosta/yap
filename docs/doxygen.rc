@@ -118,7 +118,7 @@ REPEAT_BRIEF           = YES
 # the entity):The $name class, The $name widget, The $name file, is, provides,
 # specifies, contains, represents, a, an and the.
 
-ABBREVIATE_BRIEF       = "The $name class" \
+ABBREVIATE_BRIEF       = "The $name predicate or class" \
                          "The $name widget" \
                          "The $name file" \
                          is \
@@ -303,7 +303,8 @@ OPTIMIZE_OUTPUT_FOR_PROLOG                                        = YES
 # the files are not read by doxygen.
 
 EXTENSION_MAPPING      = md \
-                         pl=Prolog
+                         pl=Prolog \
+			 ypp=Prolog
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -776,13 +777,17 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = /Users/vsc/git/yap-6.3/pl/modules.yap
+# INPUT                  = pl/boot.yap
+# INPUT                  = /Users/vsc/git/yap-6.3/packages/clib/pltotex.pl
+# INPUT                  = /Users/vsc/git/yap-6.3/pl/modules.yap  /Users/vsc/git/yap-6.3/packages/real/real.pl # /Users/vsc/git/yap-6.3/CXX
 # INPUT                  = /Users/vsc/git/yap-6.3/pl/absf.yap
-# INPUT                  = /Users/vsc/git/yap-6.3/packages/ProbLog/problog_learning_lbdd.yap
+# INPUT                  = /Users/vsc/git/yap-6.3/packages/real/real.pl
+#INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
 # INPUT                  = /Users/vsc/git/yap-6.3/packages/cplint/mcintyre.pl
 #INPUT = /Users/vsc/git/yap-6.3/packages/R/R.pl		
 
-INPUTX = docs/yap.md \
+INPUT = docs/yap.md \
+			 docs/yapdocs.yap \
                          pl \
                          C \
                          H \
@@ -855,7 +860,8 @@ FILE_PATTERNS          = *.c \
                          *.as \
                          *.js \
                          *.pl \
-                         *.yap
+                         *.yap \
+			 *.ypp
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.

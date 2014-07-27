@@ -1259,7 +1259,15 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
     return FALSE;
 }
 
+/** @pred   prolog_to_os_filename(+ _PrologPath_,- _OsPath_)
 
+This is an SWI-Prolog built-in. Converts between the internal Prolog
+pathname conventions and the operating-system pathname conventions. The
+internal conventions are Unix and this predicates is equivalent to =/2
+(unify) on Unix systems. On DOS systems it will change the
+directory-separator, limit the filename length map dots, except for the
+last one, onto underscores.
+*/
 static
 PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
 { PRED_LD
