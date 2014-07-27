@@ -16,6 +16,7 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+/*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                     %%
 %%                   The YapTab/YapOr/OPTYap systems                   %%
@@ -28,6 +29,12 @@
 %%      Yap Prolog was developed at University of Porto, Portugal      %%
 %%                                                                     %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/**
+YapTab extends the Yap Prolog engine to support sequential tabling. YapOr extends the Yap Prolog engine to support or-parallelism. YapOr extends the Yap Prolog engine to support or-parallelism.
+*/
+
 
 :- meta_predicate 
    table(:), 

@@ -33,6 +33,45 @@
 
 :- use_system_module( '$_modules', ['$clean_cuts'/2]).
 
+/** @defgroup CompilerAnalysis Internal Clause Rewriting
+    @ingroup YAPCompilerSettings
+
+ YAP supports several clause optimisation mechanisms, that
+ are designed to improve execution of arithmetic
+ and term construction built-ins. In other words, during the
+ compilation process a clause is rewritten twice:
+
+ 1. first, perform user-defined goal_expansion as described
+   in the predicates goal_expansion/1 and goal_expansion/2.
+
+ 2. Perform expansion of some built-ins like:
+
+	+ pruning operators, like ->/2 and *->/2
+
+    * arithmetic, including early evaluation of constant expressions
+
+    * specialise versions for some built-ins, if we are aware of the
+      run-time execution mode
+
+  The user has some control over this process, through some
+  built-ins and through execution flsgs.
+
+@{	
+
+*/
+
+/**
+  @pred expand_exprs(- _O_,+ _N_) 
+	Control term expansion during compilation.
+
+Enables low-level optimizations. It reports the current state by
+unifying _O_ with the previous state.  It then puts YAP in state _N_
+(`on` or `off`)/ _On_ is equivalent to compile_expressions/0 and `off`
+is equivalent to do_not_compile_expressions/0.
+
+This predicate is useful when debugging, to ensure execution close to the original source.
+	
+*/
 expand_exprs(Old,New) :-
 	(get_value('$c_arith',true) ->
 			Old = on ;
@@ -42,8 +81,40 @@ expand_exprs(Old,New) :-
 '$set_arith_expan'(on) :- set_value('$c_arith',true).
 '$set_arith_expan'(off) :- set_value('$c_arith',[]).
 
+/**  @pred   compile_expressions
+
+After a call to this predicate, arithmetical expressions will be compiled.
+(see example below). This is the default behavior.
+*/
 compile_expressions :- set_value('$c_arith',true).
 
+/**  @pred do_not_compile_expressions
+
+
+After a call to this predicate, arithmetical expressions will not be compiled.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+?- source, do_not_compile_expressions.
+yes
+?- [user].
+| p(X) :- X is 2 * (3 + 8).
+| :- end_of_file.
+?- compile_expressions.
+yes
+?- [user].
+| q(X) :- X is 2 * (3 + 8).
+| :- end_of_file.
+:- listing.
+
+p(A):-
+      A is 2 * (3 + 8).
+
+q(A):-
+      A is 22.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+*/
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, OUT) :-
@@ -297,5 +368,9 @@ expand_expr(Op, X, Y, O, Q, P) :-
 	integer(X), \+ '$bignum'(X), !.
 '$preprocess_args_for_non_commutative'(X, Y, Z, W, E) :-
 	'$do_and'(Z = X, Y = W, E).
-	
 
+/**	
+
+@}
+
+*/

@@ -374,7 +374,7 @@ char *YAPAtom::getName(void) {
 }
 
 
-YAPPredicate::YAPPredicate(const char *s, Term **outp, term_t &vnames) throw (int) {
+YAPPredicate::YAPPredicate(const char *s, Term **outp, YAPTerm &vnames) throw (int) {
   CACHE_REGS
   vnames = Yap_NewSlots(1 PASS_REGS);
   Term t = Yap_StringToTerm(s, strlen(s)+1, vnames);
@@ -433,8 +433,6 @@ YAPPredicate::YAPPredicate(YAPFunctor f) {
   CACHE_REGS
   ap = RepPredProp(PredPropByFunc(f.f,CurrentModule));
 }
-
-
 
 
 void

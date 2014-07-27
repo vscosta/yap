@@ -17,9 +17,9 @@
 
 /**
 
-   \defgroup yapmodules The YAP module system 
+   \defgroup YAPModules The YAP Module system 
 
-\section syapmods The YAP Module System
+   @group YAPProgramming
 
   The YAP module system is based on the Quintus/SISCtus module
 system. In this design, modules are named collections of predicates,
@@ -32,7 +32,7 @@ The main predicates in the module system are:
 
      * module/2 associates a source file to a module. It has two arguments: the name of the new module, and a list of predicates exported by the module.
 
-    * use_module/1 and use_module/2 can be used to load a module. They take as first argument the source file for the module. Whereas use_module/1 loads all exported predicates, use_module/2 only takes the ones given by the second argument.
+     * use_module/1 and use_module/2 can be used to load a module. They take as first argument the source file for the module. Whereas use_module/1 loads all exported predicates, use_module/2 only takes the ones given by the second argument.
 
 YAP pre-defines a number of modules. Most system predicates belong to
 the module `prolog`. Predicates from the module `prolog` are
@@ -132,90 +132,6 @@ module. Hence after this call:
 there will be a `nasa`module in the system, even if nasa:launch/2 is
 not at all defined.
 
-\subsection Using_Modules Using Modules
-
-By default, all procedures to consult a file will load the modules
-defined therein. The two following declarations allow one to import a
-module explicitly. They differ on whether one imports all predicate
-declared in the module or not.
-
-
-\subsection MetahYPredicates_in_Modules Meta-Predicates and Modules
-
-Consider the files opl.pl and rel.pl:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
-% opl.pl
-:- module(opl,[set_min/2]).
-
-% obtain the smallest value for the last argument of goal G
-set_min(G, Min) :- 
-    last_argument( G, A ),
-    findall( A, call(G, A), Vs),
-    sort( Vs, [Min|_]).
-
-% rel.pl
-:- module(rel,[min_last/2]).
-
-:- use_module(opl).
-
-node(1, 2).
-node(1, 4).
-node(2, 3).
-node(0, 4).
-node(1, 4).
-
-min_last(First, Min) :-
-    rel_min( node(First, V), Min). 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Calling `min_last(node(_,_),Min)` should return `Min = 2` and
-min_last(node(0,_),Min) should return `Min = 4`.  To obtain this
-behavior we need to call rel:node/1 from opl:set_min/2. However,
-`opl:set_min/2` has no way to know that the goal `G` is from module
-`rel`.
-
-The meta_predicate/1 declaration addresses this problem by informing
-the compiler that arguments of a predicate are goals, clauses, clauses
-heads or other terms related to a module, and that these arguments
-must be prefixed with their source module:
-
-In the example we need to declare set_min/2 as a meta-predicate that
-calls its first argument:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
-:- meta_predicate set_min(0,-).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The 0 in the first argument refers to the use of call/1. The second argument has a mode (output mode) declaration, but this is not used in YAP.
-
-
-The compiler uses this declaration to rewrite the calls to set_min/1 so that the module of the first argument is made explicit. In the example this corresponds to rewriting min_last/2.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
-min_last(First, Min) :-
-    rel_min( rel:node(First, V), Min). 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Note the prefix `rel` before passing the call to node/2.
-
-This process is not entirely transparent. Namely, last_argument/2 is
-now forced to deal with the term `rel:node(First, V)`, instead of the
-simpler `node(First, V)`. The very useful built-in strip_module/3
-extracts the module prefix. We thus obtain:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
-last_argument( G, A) :-
-    strip_module( G, _M, T),
-    functor(T, _, Arity),
-    arg(Arity, T, A).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-An alternate mechanism is the directive module_transparent/1 that is
-offered for compatibility with SWI-Prolog.
-
 \{ 
 
 **/
@@ -304,6 +220,7 @@ and use_module/1 simply gives a warning. As an example, if the file
 :- use_module(b).
 
 a(1).
+a(X) :- b(X).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 and the file `b.pl` contains:
@@ -318,24 +235,16 @@ b(1).
 
 YAP will execute as follows:
 
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
- ?- use_module(a).
- % consulting /Users/vsc/Yap/a.pl...
-  % consulting /Users/vsc/Yap/b.pl...
-  % consulted /Users/vsc/Yap/b.pl in module b, 0 msec 0 bytes
-% 
-% Warning: 
-% at line 5 in /Users/vsc/Yap/a.pl,
-% Module a redefines imported predicate b:a/1.
- % consulted /Users/vsc/Yap/a.pl in module a, 0 msec 0 bytes
+?- [a].
+ % consulting .../a.pl...
+  % consulting .../b.pl...
+  % consulted .../b.pl in module b, 0 msec 0 bytes
+ % consulted .../a.pl in module a, 1 msec 0 bytes
 true.
  ?- a(X).
-X = 1.
- ?- b(X).
-     ERROR!!
-     EXISTENCE ERROR- procedure b/1 is undefined, called from context  prolog:$user_call/2
-                 Goal was user:b(_131290)
- ?- a:b(X).
+X = 1 ? ;
 X = 1.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -382,8 +291,8 @@ The result is as follows:
 YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
      
      ERROR!!
-     at line 3 in /Users/vsc/Yap/bins/threads/d2.pl,
-     PERMISSION ERROR- loading /Users/vsc/Yap/bins/threads/c.pl: modules d1 and d2 both define b/1
+     at line 3 in o/d2.pl,
+     PERMISSION ERROR- loading .../c.pl: modules d1 and d2 both define b/1
  ?- a(X).
 X = 2 ? ;
      ERROR!!
@@ -391,12 +300,13 @@ X = 2 ? ;
                  Goal was c:c(_131290)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The state of  the module system after this error is actually undefined.
+The state of  the module system after this error is undefined.
 
 
 **/
+
 use_module(F) :- '$load_files'(F,
-[if(not_loaded),must_be_module(true)], use_module(F)).
+			       [if(not_loaded),must_be_module(true)], use_module(F)).
 
 	
 
@@ -421,6 +331,7 @@ the graphs library is implemented on top of the red-black trees library, and som
 :- use_module(library(rbtrees), [
 	rb_min/3 as min_assoc,
 	rb_max/3 as max_assoc,
+
         ...]).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -461,11 +372,11 @@ This directive defines the file where it appears as a _module file_;
 it must be the first declaration in the file.  _Module_ must be an
 atom specifying the module name; _ExportList_ must be a list
 containing the module's public predicates specification, in the form
-`[predicate_name/arity,...]`. The _ExportList_ can also include
+`[predicate_name/arity,...]`. The _ExportList_ can  include
 operator declarations for operators that are exported by the module.
 
-The public predicates of a module file can be made accessible by other
-files through loading the source file, using directives
+The public predicates of a module file can be made accessible to other
+files through loading the source file, using the directives
 use_module/1 or use_module/2,
 ensure_loaded/1 and the predicates
 consult/1 or reconsult/1. The
@@ -483,8 +394,21 @@ name with the `:/2` operator.
 	'$module_dec'(N,P).
 
 /** 
+ \pred module(+ M:atom,+ L:list ) is directive
+  the current file defines module _M_ with exports _L_. The list may include
+
+  + predicatae indicators
+  
+  + operator definitions that look like calls to op/3.
+
+The list _L_ may include predicates imported from other modules. If
+you want to fully reexport a module, or a sub-set, also consider reexport/1.
+
+*/
+
+/** 
  \pred module(+ _M_,+ _L_, + _Options_) is directive
-  define a new module with options
+  defines a new module with options
 
 Similar to module/2, this directive defines the file where it
 appears in as a module file; it must be the first declaration in the file.
@@ -504,11 +428,12 @@ The last argument  _Options_ must be a list of options, which can be:
 
      + <b>export(+PredicateIndicator )</b>
 		Add predicates to the public list of the context module. This implies
-	the predicate will be imported into another module if this moduleis imported with use_module/1 and use_module/2.
+	the predicate will be imported into another module if this module
+	is imported with use_module/1 and use_module/2.
 
      + <b>export_list(? _Mod_,? _ListOfPredicateIndicator_)</b>
        The list  _ListOfPredicateIndicator_ contains all predicates
-       exported by module  _Mod_
+     	exported by module  _Mod_
 
 Note that predicates are normally exported using the directive
 `module/2`. The `export/1` argumwnt is meant to allow export from
@@ -598,6 +523,30 @@ of predicates.
 	recorded('$import','$import'(MI,M0,G1,_,N,K),_),
 	functor(G1, N1, K1),
 	'$module_produced by'(M,MI,N1,K1).	
+
+
+/** \pred current_module( ? Mod:atom) is nondet
+   : _Mod_ is any user-visible module.
+
+*/
+current_module(Mod) :-
+	'$all_current_modules'(Mod),
+	\+ '$system_module'(Mod).
+
+/** \pred current_module( ? Mod:atom, ? File : file ) is nondet
+   : _Mod_ is any user-visible module and _File_ its source file, or `user` if none exists.
+
+*/
+current_module(Mod,TFN) :-
+	'$all_current_modules'(Mod),
+	( recorded('$module','$module'(TFN,Mod,_Publics, _),_) -> true ; TFN = user ).
+
+/** \pred source_module( - Mod:atom ) is nondet
+   : _Mod_ is the current read-in or source module.
+
+*/
+source_module(Mod) :-
+	'$current_module'(Mod).
 
 
 % expand module names in a clause
@@ -872,44 +821,14 @@ expand_goal(G, G).
 	'$continue_imported'(FM, IM, FPred, Pred).
 
 
-% module_transparent declaration
-% 
-/** \pred module_transparent( + _Preds_ ) is directive
-   _Preds_ can access the calling context.
+/**
 
- _Preds_ is a comma separated sequence of name/arity predicate
-indicators (like in dynamic/1). Each goal associated with a
-transparent declared predicate will inherit the context module from
-its parent goal. 
+ \defgroup YAPMetaPredicates Using Meta-Calls with Modules
+ \ingroup YAPModules
 
-*/
+@{
 
-:- dynamic('$module_transparent'/4).
-
-'$module_transparent'((P,Ps), M) :- !, 
-	'$module_transparent'(P, M),
-	'$module_transparent'(Ps, M).
-'$module_transparent'(M:D, _) :- !,
-	'$module_transparent'(D, M).
-'$module_transparent'(F/N, M) :-
-	'$module_transparent'(F,M,N,_), !.
-'$module_transparent'(F/N, M) :-
-	functor(P,F,N),
-	asserta(prolog:'$module_transparent'(F,M,N,P)),
-	'$flags'(P, M, Fl, Fl),
-	NFlags is Fl \/ 0x200004,
-	'$flags'(P, M, Fl, NFlags).
-
-'$is_mt'(M, H, B, (context_module(CM),B), CM) :-
-	'$module_transparent'(_, M, _, H), !.
-'$is_mt'(M, _, B, B, M).
-
-% meta_predicate declaration
-% records $meta_predicate(SourceModule,Functor,Arity,Declaration)
-
-% directive now meta_predicate Ps :- $meta_predicate(Ps).
-
-/** meta_predicate(_G1_,...., _Gn) is directive
+  \pred meta_predicate(_G1_,...., _Gn) is directive
 
 Declares that this predicate manipulates references to predicates.
 Each _Gi_ is a mode specification.
@@ -926,7 +845,14 @@ For example, the declaration for call/1 and setof/3 are:
 :- meta_predicate call(0), setof(?,0,?).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+meta_predicate declaration
+ implemented by asserting $meta_predicate(SourceModule,Functor,Arity,Declaration)
+
 */
+
+
+% directive now meta_predicate Ps :- $meta_predicate(Ps).
+
 :- dynamic('$meta_predicate'/4).
 
 :- multifile '$meta_predicate'/4.
@@ -1036,16 +962,35 @@ For example, the declaration for call/1 and setof/3 are:
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 
-current_module(Mod) :-
-	'$all_current_modules'(Mod),
-	\+ '$system_module'(Mod).
+/*
+ \pred module_transparent( + _Preds_ ) is directive
+   _Preds_ is a list of predicates that can access the calling context.
 
-current_module(Mod,TFN) :-
-	'$all_current_modules'(Mod),
-	( recorded('$module','$module'(TFN,Mod,_Publics, _),_) -> true ; TFN = user ).
+ _Preds_ is a comma separated sequence of name/arity predicate
+indicators (like in dynamic/1). Each goal associated with a
+transparent declared predicate will inherit the context module from
+its parent goal. 
 
-source_module(Mod) :-
-	'$current_module'(Mod).
+*/
+:- dynamic('$module_transparent'/4).
+
+'$module_transparent'((P,Ps), M) :- !, 
+	'$module_transparent'(P, M),
+	'$module_transparent'(Ps, M).
+'$module_transparent'(M:D, _) :- !,
+	'$module_transparent'(D, M).
+'$module_transparent'(F/N, M) :-
+	'$module_transparent'(F,M,N,_), !.
+'$module_transparent'(F/N, M) :-
+	functor(P,F,N),
+	asserta(prolog:'$module_transparent'(F,M,N,P)),
+	'$flags'(P, M, Fl, Fl),
+	NFlags is Fl \/ 0x200004,
+	'$flags'(P, M, Fl, NFlags).
+
+'$is_mt'(M, H, B, (context_module(CM),B), CM) :-
+	'$module_transparent'(_, M, _, H), !.
+'$is_mt'(M, _, B, B, M).
 
 % comma has its own problems.
 :- '$install_meta_predicate'((0,0), prolog).
@@ -1150,9 +1095,48 @@ source_module(Mod) :-
 	\+(2,?,?),
 	\+ 0 .
 
-%
-% get rid of a module and of all predicates included in the module.
-%
+/** 
+
+@}
+
+@{
+ \defgroup YAPDynamicYAPModules Dynamic Modules
+ \ingroup YAPModules
+
+  YAP (in the footsteps of SWI-Prolog) allows to create modules that
+  are not bound to files. One application is in Inductive Logic Programming,
+  where dynamic modules can be used to represent training examples. YAP now include 
+  built-ins to create a module. manipulate its interface, and eventually abolish the 
+  module, releasing all the data therein.
+
+*/
+
+/**
+
+  \pred declare_module(+Module, +Super, +File, +Line, +Redefine) is det
+   declare explicitely a module
+
+Start a new (source-)module _Module_ that inherits all exports from
+_Super_. The module is as if defined in file _File_ and _Line_ and if _Redefine_
+holds true may
+be associated to a new file.
+
+\param[in]	_Module_ is the name of the module to declare
+\param[in]	_MSuper_ is the name of the context module. Use `prolog`or `system`
+                if you do not need a context.
+\param[in]	_File_ is the canonical name of the file from which the module is loaded
+\param[in]  Line is the line-number of the :- module/2 directive.
+\param[in]	 If _Redefine_ `true`, allow associating the module to a new file
+*/
+
+'$declare_module'(Name, _Super, Context, _File, _Line) :-
+	add_import_module(Name, Context, start).
+
+
+/**
+ \pred abolish_module( + Mod) is det
+ get rid of a module and of all predicates included in the module.
+*/
 abolish_module(Mod) :-
 	recorded('$module','$module'(_,Mod,_,_),R), erase(R),
 	fail.
@@ -1414,6 +1398,16 @@ export_list(Module, List) :-
 	'$conj_has_cuts'(G3, DCP, NG3, OK).
 '$conj_has_cuts'(G,_,G, _).
 
+/**
+    set_base_module( +ExportingModule ) is det
+All exported predicates from _ExportingModule_ are automatically available to the 
+current source  module.
+
+This built-in was introduced by SWI-Prolog. In YAP, by default, modules only
+inherit from `prolog`. This extension allows predicates in the current
+module (see module/2 and module/1) to inherit from `user` or other modules.
+
+*/
 set_base_module(ExportingModule) :-
 	var(ExportingModule),
 	'$do_error'(instantiation_error,set_base_module(ExportingModule)).
@@ -1425,6 +1419,16 @@ set_base_module(ExportingModule) :-
 set_base_module(ExportingModule) :-
 	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
 
+/**
+    import_module( +ImportingModule, +ExportingModule ) is det
+All exported predicates from _ExportingModule_ are automatically available to the 
+ source  module _ImportModule_.
+
+This innovation was introduced by SWI-Prolog. By default, modules only
+inherit from `prolog`. This extension allows predicates in any module
+to inherit from `user`oe other modules.
+
+*/
 import_module(Mod, ImportModule) :-
 	var(Mod),
 	'$do_error'(instantiation_error,import_module(Mod, ImportModule)).
@@ -1476,21 +1480,6 @@ delete_import_module(Mod, ImportModule) :-
 '$set_source_module'(Source0, SourceF) :-
 	current_module(Source0, SourceF).
 
-/** 
-  \pred declare_module(+Module, +Super, +File, +Line, +Redefine) is det
-   declare explicitely a module
-
-Start a new (source-)module
-
-\param	Module is the name of the module to declare
-\param	File is the canonical name of the file from which the module
-	is loaded
-\param  Line is the line-number of the :- module/2 directive.
-\param	Redefine If `true`, allow associating the module to a new file
-*/
-'$declare_module'(Name, _Test, Context, _File, _Line) :-
-	add_import_module(Name, Context, start).
-
 module_property(Mod, class(L)) :-
 	'$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
@@ -1532,6 +1521,8 @@ ls_imports.
 
 /**
 
-\}
+@}
+
+@}
 
 **/

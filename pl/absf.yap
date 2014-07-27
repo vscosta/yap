@@ -8,7 +8,9 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup absf0 File Name Resolution
+/** @defgroup YAPAbsoluteFileName File Name Resolution
+
+   @ingroup YAPProgramming
 
   Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -634,3 +636,4 @@ user:file_search_path(path, C) :-
 	),
 	lists:member(C, B)
     ).
+

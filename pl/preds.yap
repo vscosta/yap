@@ -728,35 +728,17 @@ dynamic_predicate(P,Sem) :-
 '$expand_clause'(H,H1,H1,Mod,HM) :-
 	strip_module(Mod:H, HM, H1).
 
-'$public'(X, _) :- var(X), !,
-	'$do_error'(instantiation_error,public(X)).
-'$public'(Mod:Spec, _) :- !,
-	'$public'(Spec,Mod).
-'$public'((A,B), M) :- !, '$public'(A,M), '$public'(B,M).
-'$public'([],_) :- !.
-'$public'([H|L], M) :- !, '$public'(H, M), '$public'(L, M).
-'$public'(A//N1, Mod) :- integer(N1), !,
-	N is N1+2,
-	'$public'(A/N, Mod).
-'$public'(A/N, Mod) :- integer(N), atom(A), !,
-	functor(T,A,N),
-	'$do_make_public'(T, Mod).
-'$public'(X, Mod) :- 
-	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
-
-'$do_make_public'(T, Mod) :-
-	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
-'$do_make_public'(T, Mod) :-
-	'$flags'(T,Mod,F,F),
-	NF is F\/0x00400000,
-	'$flags'(T,Mod,F,NF).
-
 '$is_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
 '$is_public'(T, Mod) :-
 	'$flags'(T,Mod,F,F),
 	F\/0x00400000 =\= 0.
 
+/**  @pred stash_predicate(+ _Pred_) @anchor stash_predicate
+Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
+`listing`, and friends. New predicates with the same name and
+functor can be declared.
+ **/
 stash_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,stash_predicate(V)).
 stash_predicate(M:P) :- !,
@@ -773,7 +755,11 @@ stash_predicate(P) :-
 '$stash_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
 
+/** @pred @pred hide_predicate(+ _Pred_)
+Make predicate  _Pred_ invisible to `current_predicate/2`,
+`listing`, and friends.
 
+ **/
 hide_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(V)).
 hide_predicate(M:P) :- !,
