@@ -235,7 +235,8 @@ offered for compatibility with SWI-Prolog.
         set_base_module/1,
         source_module/1,
         use_module/1,
-        use_module/2], ['$add_to_imports'/3,
+        use_module/2,
+        use_module/3], ['$add_to_imports'/3,
         '$clean_cuts'/2,
         '$convert_for_export'/7,
         '$do_import'/3,
@@ -404,6 +405,7 @@ use_module(F) :- '$load_files'(F,
   \pred  use_module(+Files, +Imports)
   loads a module file but only imports the named predicates
 
+
 This predicate loads the file specified by _Files_, importing their
 public predicates specified by _Imports_ into the current type-in
 module. It is implemented as if by:
@@ -483,7 +485,7 @@ name with the `:/2` operator.
 	'$module_dec'(N,P).
 
 /** 
- \pred module(+ _M_,+ _L_, + _Options_) is directive
+ \pred module(+ M, + L, + Options) is directive
   define a new module with options
 
 Similar to module/2, this directive defines the file where it
@@ -1138,9 +1140,10 @@ source_module(Mod) :-
 	when(+,0),
 	with_mutex(+,0),
 	with_output_to(?,0),
-	(0 -> 0),
-	(0 *-> 0),
-	(0 ; 0),
+	'->'(0 , 0),
+	'*->'(0 , 0),
+	';'(0 , 0),
+	','(0 , 0),
 	^(+,0),
 	{}(0,?,?),
 	','(2,2,?,?),
@@ -1148,7 +1151,7 @@ source_module(Mod) :-
 	'|'(2,2,?,?),
 	->(2,2,?,?),
 	\+(2,?,?),
-	\+ 0 .
+	\+( 0 ).
 
 %
 % get rid of a module and of all predicates included in the module.
