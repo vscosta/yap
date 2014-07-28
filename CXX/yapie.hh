@@ -1,12 +1,4 @@
 
-class YAPEngine;
-class YAPAtom;
-class YAPFunctor;
-class YAPApplTerm;
-class YAPPairTerm;
-class YAPQuery;
-class YAPPredicate;
-
 
 class YAPError {
 public:

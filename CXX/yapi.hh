@@ -484,7 +484,7 @@ class YAPQuery: public YAPPredicate {
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
-  yhandle_t vnames;
+  YAPTerm vnames;
   void initQuery( Term ts[] );
   void initQuery( YAPTerm t[], arity_t arity  );
 public:
@@ -503,12 +503,24 @@ public:
   /// It is given a functor, and an array of terms that must have at least
   /// the same arity as the functor. Works within the current module.
   YAPQuery(YAPFunctor f, YAPTerm t[]);
+  /// string constructor without varnames
+  ///
+  /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
+  /// goal. It does not ask for a list of variables.
+  inline YAPQuery(char *s): YAPPredicate(s, &this->q_g)
+  {
+    this->vnames = vnames;
+    Term *ts = this->q_g;
+
+    initQuery( ts );
+  }
   /// string constructor with varnames
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that should be a callable
   /// goal and a list of variables. Useful for top-level simulation. Works within the current module.
-  inline YAPQuery(char *s): YAPPredicate(s, &this->q_g, vnames)
+  inline YAPQuery(char *s, YAPTerm &vnames): YAPPredicate(s, &this->q_g, vnames)
   {
+    this->vnames = vnames;
     Term *ts = this->q_g;
 
     initQuery( ts );
@@ -583,7 +595,7 @@ public:
   YAPQuery *query( char *s );
 };
 
-/*
+/**
  * @}
  *
  */

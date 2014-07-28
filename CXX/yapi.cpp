@@ -377,7 +377,7 @@ char *YAPAtom::getName(void) {
 YAPPredicate::YAPPredicate(const char *s, Term **outp, YAPTerm &vnames) throw (int) {
   CACHE_REGS
   vnames = Yap_NewSlots(1 PASS_REGS);
-  Term t = Yap_StringToTerm(s, strlen(s)+1, vnames);
+  Term t = Yap_StringToTerm(s, strlen(s)+1, Yap_GetFromSlot( vnames.t PASS_REGS));
   if (t == 0L)
     throw YAPError::YAP_SYNTAX_ERROR;
   ap = getPred( t, outp );
@@ -478,7 +478,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm t[]): YAPPredicate(p.ap)
 
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
-  Term o = Yap_GetFromSlot( vnames PASS_REGS );
+    Term o = Yap_GetFromSlot( this->vnames.t PASS_REGS );
   return YAPListTerm( o );
 }
 
@@ -625,3 +625,5 @@ YAPQuery *YAPEngine::query( char *s ) {
   YAPQuery *n = new YAPQuery( s );
   return n;
 }
+
+
