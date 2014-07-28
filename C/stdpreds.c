@@ -1920,10 +1920,6 @@ Yap_InitCPreds(void)
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
-  /* hiding and unhiding some predicates */
-  Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag);
 #ifndef YAPOR

@@ -2115,4 +2115,8 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, p_get_string_code3, 0);
+  /* hiding and unhiding some predicates */
+  Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
 }
