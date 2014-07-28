@@ -92,6 +92,8 @@ __BEGIN_DECLS
 #define X_API
 #endif
 
+__END_DECLS
+
 /**
  *
  * Using the compiler:
