@@ -43,7 +43,9 @@ do(0, NumProc):-
 	  set_value(n, NewCounter),
 	  NewCounter == 1,
 	!,
-	format( '0: Result: ~q.~n', [
+	format( '0: Result: ~q.~n', [NewAcc]).
+
+
 do(Rank, NumProc):-
 	!,
 	% catch the task broadcast

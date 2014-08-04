@@ -179,46 +179,46 @@ vars_set(Term, Vars) :-
 
 sort(=<, L, R) :-
 	length(L, N), 
-	$bp_sort(@=<, N, L, _, R1), !, 
+	'$bp_sort'(@=<, N, L, _, R1), !, 
 	R = R1.
 sort(>=, L, R) :-
 	length(L, N), 
-	$bp_sort(@>=, N, L, _, R1), !, 
+	'$bp_sort'(@>=, N, L, _, R1), !, 
 	R = R1.
 sort(<, L, R) :-
 	length(L, N), 
-	$bp_sort2(@<, N, L, _, R1), !, 
+	'$bp_sort2'(@<, N, L, _, R1), !, 
 	R = R1.
 sort(>, L, R) :-
 	length(L, N), 
-	$bp_sort2(@>, N, L, _, R1), !, 
+	'$bp_sort2'(@>, N, L, _, R1), !, 
 	R = R1.
 
-$bp_sort(P, 2, [X1, X2|L], L, R) :- !, 
+'$bp_sort'(P, 2, [X1, X2|L], L, R) :- !, 
 	(
 	    call(P, X1, X2) ->
 	    R = [X1,X2]
 	;
 	    R = [X2,X1]
 	).
-$bp_sort(_, 1, [X|L], L, [X]) :- !.
-$bp_sort(_, 0, L, L, []) :- !.
-$bp_sort(P, N, L1, L3, R) :-
+'$bp_sort'(_, 1, [X|L], L, [X]) :- !.
+'$bp_sort'(_, 0, L, L, []) :- !.
+'$bp_sort'(P, N, L1, L3, R) :-
 	N1 is N // 2, 
 	plus(N1, N2, N), 
-	$bp_sort(P, N1, L1, L2, R1), 
-	$bp_sort(P, N2, L2, L3, R2), 
-	$bp_predmerge(P, R1, R2, R).
+	'$bp_sort'(P, N1, L1, L2, R1), 
+	'$bp_sort'(P, N2, L2, L3, R2), 
+	'$bp_predmerge'(P, R1, R2, R).
 
-$bp_predmerge(_, [], R, R) :- !.
-$bp_predmerge(_, R, [], R) :- !.
-$bp_predmerge(P, [H1|T1], [H2|T2], [H1|Result]) :-
+'$bp_predmerge'(_, [], R, R) :- !.
+'$bp_predmerge'(_, R, [], R) :- !.
+'$bp_predmerge'(P, [H1|T1], [H2|T2], [H1|Result]) :-
 	call(P, H1, H2), !,
-	$bp_predmerge(P, T1, [H2|T2], Result).
-$bp_predmerge(P, [H1|T1], [H2|T2], [H2|Result]) :-
-	$bp_predmerge(P, [H1|T1], T2, Result).
+	'$bp_predmerge'(P, T1, [H2|T2], Result).
+'$bp_predmerge'(P, [H1|T1], [H2|T2], [H2|Result]) :-
+	'$bp_predmerge'(P, [H1|T1], T2, Result).
 
-$bp_sort2(P, 2, [X1, X2|L], L, R) :- !, 
+'$bp_sort2'(P, 2, [X1, X2|L], L, R) :- !, 
 	(
 	    call(P, X1, X2) ->
 	    R = [X1,X2]
@@ -229,22 +229,22 @@ $bp_sort2(P, 2, [X1, X2|L], L, R) :- !,
 	;
 	    R = [X2,X1]
 	).
-$bp_sort2(_, 1, [X|L], L, [X]) :- !.
-$bp_sort2(_, 0, L, L, []) :- !.
-$bp_sort2(P, N, L1, L3, R) :-
+'$bp_sort2'(_, 1, [X|L], L, [X]) :- !.
+'$bp_sort2'(_, 0, L, L, []) :- !.
+'$bp_sort2'(P, N, L1, L3, R) :-
 	N1 is N // 2, 
 	plus(N1, N2, N), 
-	$bp_sort(P, N1, L1, L2, R1), 
-	$bp_sort(P, N2, L2, L3, R2), 
-	$bp_predmerge(P, R1, R2, R).
+	'$bp_sort'(P, N1, L1, L2, R1), 
+	'$bp_sort'(P, N2, L2, L3, R2), 
+	'$bp_predmerge'(P, R1, R2, R).
 
-$bp_predmerge2(_, [], R, R) :- !.
-$bp_predmerge2(_, R, [], R) :- !.
-$bp_predmerge2(P, [H1|T1], [H2|T2], [H1|Result]) :-
+'$bp_predmerge2'(_, [], R, R) :- !.
+'$bp_predmerge2'(_, R, [], R) :- !.
+'$bp_predmerge2'(P, [H1|T1], [H2|T2], [H1|Result]) :-
 	call(P, H1, H2), !,
-	$bp_predmerge(P, T1, [H2|T2], Result).
-$bp_predmerge2(P, [H1|T1], [H2|T2], [H1|Result]) :-
+	'$bp_predmerge'(P, T1, [H2|T2], Result).
+'$bp_predmerge2'(P, [H1|T1], [H2|T2], [H1|Result]) :-
 	H1 == H2, !,
-	$bp_predmerge(P, T1, T2, Result).
-$bp_predmerge2(P, [H1|T1], [H2|T2], [H2|Result]) :-
-	$bp_predmerge(P, [H1|T1], T2, Result).
+	'$bp_predmerge'(P, T1, T2, Result).
+'$bp_predmerge2'(P, [H1|T1], [H2|T2], [H2|Result]) :-
+	'$bp_predmerge'(P, [H1|T1], T2, Result).

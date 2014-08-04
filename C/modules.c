@@ -121,7 +121,7 @@ LookupModule(Term a )
 
   /* prolog module */
   if (a == 0) {
-    return GetModuleEntry(AtomProlog);
+    return GetModuleEntry(AtomUser);
   }
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);

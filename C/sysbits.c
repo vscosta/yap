@@ -1823,6 +1823,9 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
   char ares1[YAP_FILENAME_MAX];
 
   result[0] = '\0';
+  if (strlen(source) >= YAP_FILENAME_MAX) {
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));    
+  }
 #if defined(__MINGW32__) || _MSC_VER
   /* step 0: replace / by \ */
   strncpy(ares1, source, YAP_FILENAME_MAX);

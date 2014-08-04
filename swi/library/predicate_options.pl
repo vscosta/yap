@@ -69,7 +69,7 @@ predicate_options/3. This directive allows  us   to  specify  that e.g.,
 open/4 processes options using the 4th  argument and supports the option
 =type= using the values =text= and  =binary=. Declaring options that are
 processed allows for more reliable  handling   of  predicate options and
-simplifies porting applications. This  libarry   provides  the following
+simplifies porting applications. This  library   provides  the following
 functionality:
 
   * Query supported options through current_predicate_option/3

@@ -2072,11 +2072,8 @@ init_current_wide_atom( USES_REGS1 )
 void
 Yap_InitBackAtoms(void)
 {
-  Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
-		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,
-		    cont_current_wide_atom,
-		    SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,cont_current_wide_atom,SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);

@@ -242,6 +242,8 @@ DumpActiveGoals ( USES_REGS1 )
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
       pe = Yap_PredForChoicePt(b_ptr);
+      if (!pe)
+	break;
       PELOCK(72,pe);
       {
 	Functor f;
@@ -251,10 +253,13 @@ DumpActiveGoals ( USES_REGS1 )
 	if (pe->ModuleOfPred)
 	  mod = pe->ModuleOfPred;
 	else mod = TermProlog;
-	YapPlWrite (mod);
-	YapPutc (LOCAL_c_error_stream,':');
+	if (mod != TermProlog && 
+	    mod != MkAtomTerm(AtomUser) ) {
+	  YapPlWrite (mod);
+	  YapPutc (LOCAL_c_error_stream,':');
+	}
 	if (pe->ArityOfPE == 0) {
-	  YapPlWrite (MkAtomTerm (NameOfFunctor(f)));
+	  YapPlWrite (MkAtomTerm ((Atom)f));
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);
@@ -1990,6 +1995,9 @@ E);
       Yap_RestartYap( 1 );
     }
     UNLOCK(LOCAL_SignalLock);
+#if DEBUG
+    DumpActiveGoals( PASS_REGS1 );
+#endif
     /* wait if we we are in user code,
        it's up to her to decide */
 
