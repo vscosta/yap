@@ -217,7 +217,10 @@ save_program(File, _Goal) :-
 	yap_flag(M:unknown, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
+	X \= gc_margin, % different machines will have different needs,
 	X \= language,
+	X \= max_threads,
+	X \= max_workers,
 	X \= readline,
 	X \= timezone,
 	X \= tty_control,

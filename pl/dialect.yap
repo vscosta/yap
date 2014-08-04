@@ -65,8 +65,8 @@ source_exports(Source, Export) :-
 	open_source(Source, In),
 	catch(call_cleanup(exports(In, Exports), close(In)), _, fail),
 	(   ground(Export)
-	->  memberchk(Export, Exports)
-	;   member(Export, Exports)
+	->  lists:memberchk(Export, Exports)
+	;   lists:member(Export, Exports)
 	).
 
 %%	open_source(+Source, -In:stream) is semidet.

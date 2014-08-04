@@ -64,7 +64,6 @@
 
 :- system_module( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
-        '$init_style_check'/1,
         '$sv_warning'/2,
         '$syntax_check_discontiguous'/2,
         '$syntax_check_multiple'/2,
@@ -183,7 +182,7 @@ no_style_check(-single_var) :-
 no_style_check(-singleton) :-
 	'$style_checker'( [ -singleton ] ).
 no_style_check(-discontiguous) :-
-	'$stylechecker'( [ -discontiguous ] ).
+	'$style_checker'( [ -discontiguous ] ).
 no_style_check(-multiple) :-
 	'$style_checker'( [  -multiple ] ).
 no_style_check([]).

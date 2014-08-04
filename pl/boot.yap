@@ -653,15 +653,15 @@ true :- true.
  '$process_directive'(G, _, M, VL, Pos) :-
 	 ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
- '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
+'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
 	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
- '$continue_with_command'(reconsult,V,Pos,G,Source) :-
+'$continue_with_command'(reconsult,V,Pos,G,Source) :-
 	 '$go_compile_clause'(G,V,Pos,5,Source),
 	 fail.
- '$continue_with_command'(consult,V,Pos,G,Source) :-
-	 '$go_compile_clause'(G,V,Pos,13,Source),
+'$continue_with_command'(consult,V,Pos,G,Source) :-
+     '$go_compile_clause'(G,V,Pos,13,Source),
 	 fail.
- '$continue_with_command'(top,V,_,G,_) :-
+'$continue_with_command'(top,V,_,G,_) :-
 	 '$query'(G,V).
 
  %
@@ -683,18 +683,9 @@ true :- true.
 '$go_compile_clause'((M:H :- B),V,Pos,N,_,BodyMod,Source) :- !,
 	  '$go_compile_clause'((H :- B),V,Pos,N,M,BodyMod,Source).
 '$go_compile_clause'(G,V,Pos,N,HeadMod,BodyMod,Source) :- !,
-	 '$prepare_term'(G, V, Pos, G0, G1, BodyMod, HeadMod, Source),
+	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod),
 	 '$$compile'(G1, G0, N, HeadMod).
 
- '$prepare_term'(G, V, Pos, G0, G1, BodyMod, SourceMod, Source) :-
-	 (
-	     get_value('$syntaxcheckflag',on)
-          ->
-	     '$check_term'(Source, G, V, Pos, BodyMod)
-	 ;
-	     true 
-	 ),
-	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod).
 
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-

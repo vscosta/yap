@@ -204,7 +204,9 @@
 
 
 '$do_error'(Type,Message) :-
+        format('~w~n', [Type]),
 	'$current_stack'(local_sp(_,CP,Envs,CPs)),
+	'$stack_dump',
 	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).
 
 '$Error'(E) :-
@@ -218,7 +220,7 @@
 	'$process_error'(Error, Level),
 	fail.
 '$LoopError'(_, _) :-
-	flush_all_streams,
+	flush_output,
 	fail.
 
 '$process_error'('$abort', top) :- !,

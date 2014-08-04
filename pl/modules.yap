@@ -989,7 +989,7 @@ its parent goal.
 '$is_mt'(M, _, B, B, M).
 
 % comma has its own problems.
-:- '$install_meta_predicate'((0,0), prolog).
+:- '$install_meta_predicate'(','(0,0), prolog).
 
 :- meta_predicate
 	abolish(:),

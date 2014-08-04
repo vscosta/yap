@@ -20,10 +20,9 @@
 	  [display_stack_info/4,
 	   display_stack_info/6,
 	   display_pc/3,
-	   code_location/3,
-	   '$stack_dump'/0]).
+	   code_location/3]).
 
-'$stack_dump' :-
+prolog:'$stack_dump' :-
 	yap_hacks:current_choicepoints(CPs),
 	yap_hacks:current_continuations([Env|Envs]),
 	yap_hacks:continuation(Env,_,ContP,_),

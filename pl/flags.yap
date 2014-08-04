@@ -83,7 +83,7 @@ yap_flag(gc_margin,N) :-
 	( var(N) -> 
 	    get_value('$gc_margin',N)
 	;
-	  integer(N), N >0  ->
+	integer(N), N >=0  ->
 	    set_value('$gc_margin',N)
 	;
 	    '$do_error'(domain_error(flag_value,gc_margin+X),yap_flag(gc_margin,X))

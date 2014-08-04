@@ -241,7 +241,7 @@ assertz_static(C) :-
 	'$head_and_body'(C0, H0, B0),
 	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(Head, Mod) ->
-	    sourcee_location(F, _),
+	    source_location(F, _),
 	    functor(H0, Na, Ar),
 	    recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
 	;
