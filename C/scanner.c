@@ -307,6 +307,11 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     return '\b';
   case 'c':
     while (chtype((ch = getchrq(inp_stream))) == BS);
+    {
+      int och = ch;
+      ch = getchrq(inp_stream);
+      return och;
+    }
     goto do_switch;
   case 'd':
     return 127;
