@@ -10,6 +10,7 @@
 :- initialization(main).
 
 :- yap_flag( double_quotes, string ).
+%:- yap_flag( dollar_as_lower_case, on ).
 
 :- dynamic edge/1,
    public/2,
@@ -57,7 +58,6 @@ main :-
 	    'swi/library'-user,
 	    'packages'-user],
     dirs( Dirs ),
-    ops_default,
     %%% phase 1: find modules
     nb_setval( current_module, user ),
     nb_setval( private, false ),
@@ -86,7 +86,8 @@ dirs( Roots ) :-
 	File \= '.git',
 	subdir( New )
     ;
-        assert_new( dir( Root, File ))
+	absolute_file_name( Root, FRoot ),
+        assert_new( dir( FRoot, File ))
     ),
     fail.
 dirs(_).
@@ -102,13 +103,13 @@ subdir( Root ) :-
 	File \= '.git',
 	subdir( New )
     ;
-        assert_new( dir( Root, File ))
+	absolute_file_name( Root, ARoot),
+        assert_new( dir( ARoot, File ))
     ),
     fail.
 
 
 init :-
-    ops_default,
     retractall(dir(_)),
     retractall(edge(_)),
     retractall(private(_,_)),
@@ -234,18 +235,19 @@ system_mod("cm", M, M ).
 
 pl_interfs(Dir - Mod) :-
     format(' ************* MOD: ~a ***********************\n', [Dir]),
+    nb_setval( current_module, Mod ),
     atom( Dir ),
     directory_files( Dir , Files),
     member( File, Files ),
-    File \= '.', % don't loop
-    File \= '..', % don't go up
-    File \= '.git', % don't go up
     atom_concat([Dir,'/',File], Path),
     ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
 	  ops_restore,
 	 pl_interf( Path , Mod )
     ;
-         file_property( Path, type(directory) ),
+         exists_directory( Path ),
+         \+ atom_concat(_, '/.', Path),
+         \+ atom_concat(_, '/..', Path),
+         \+ atom_concat(_, '/.git', Path),
 	 pl_interfs( Path - Mod )
     ),
     fail.
@@ -264,8 +266,7 @@ pl_interf(F, _Mod) :-
     !.
 pl_interf(F, Mod) :-
     writeln(F),
-%	  ( sub_atom(F,_,_,_,'clpfd.pl') -> spy get_interf ; true ), 
-    ops_restore,
+%	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
     assert_new(consulted(F, Mod ) ), 
     nb_getval( private, Default ),
     nb_setval( private, false ),
@@ -273,6 +274,7 @@ pl_interf(F, Mod) :-
     repeat,
     nb_getval( current_module, MR ),
     catch( read_term( S, T, [module( MR )] ), Throw, (writeln(F:MR:Throw), break, fail)),
+% ( sub_atom(F,_,_,_,'matrix.yap') ->  writeln(MR:T) ; true ), 
     ( 
 	T == end_of_file
 	->
@@ -334,7 +336,7 @@ get_interf( (:- reexport( Loc, Is ) ), F, M ) :-
     % link bdd
     module_on( NF, NM, _ ),
     maplist( exported( NF, F, NM, M) , Is ),
-    maplist( public(F, NM), Is ).
+    maplist( public(F, M), Is ).
 get_interf( (:- use_module( Loc, Is ) ), F, M ) :- !,
     !,
     % find the file
@@ -353,6 +355,7 @@ get_interf( (:- use_module( Loc ) ), F, M ) :- !,
     % link b
     module_on( NF, NM, Is ),
     maplist( exported( NF, F, NM, M) , Is ).
+%	nb_getval(current_module,MM), writeln(NM:MM:M).
 get_interf( (:- use_module( Loc, Is, _ ) ), F, M ) :- !,
     !,
     % find the file
@@ -374,7 +377,7 @@ get_interf( (:- ensure_loaded( Files ) ), F, M ) :-
 get_interf( (:- include( Files ) ), F, M ) :- 
     !,
     include_files(  F, M, Files ).
-get_interf( (:- load_files( Files , [] ) ), F, M ) :- 
+get_interf( (:- load_files( Files , [_|_] ) ), F, M ) :- 
     !,
     include_files(  F, M, Files ).
 get_interf( (:- [F1|Fs] ), F, M ) :- 
@@ -577,6 +580,7 @@ pl_graphs(Dir - Mod) :-
          exists_directory( File ),
          \+ atom_concat(_, '/.', File),
          \+ atom_concat(_, '/..', File),
+         \+ atom_concat(_, '/.git', File),
 	 pl_graphs( File - Mod )
     ),
     fail.
@@ -598,7 +602,8 @@ pl_graph(F, Mod) :-
     assert( consulted( F, Mod )),
     catch( open(F, read, S), _, fail ),
     repeat,
-    catch( read_term( S, T, [term_position(Pos)] ), Throw, (writeln(Throw), T = end_of_file)),
+    nb_getval( current_module, MR ),
+    catch( read_term( S, T, [term_position(Pos),module(MR)] ), Throw, (writeln(Throw))),
     ( 
 	T == end_of_file
 	->
@@ -853,45 +858,57 @@ doc( Comment, N ) :-
 %
 % Directories into atoms
 search_file(  Loc , F, FN ) :-
-    search_file0(  Loc , F, FN ), !.
+    search_file0(  Loc , F, FN ),
+    !.
 search_file(  Loc , F, _FN ) :-
     format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
      fail.
 
+%
+% handle some special cases.
+%
+search_file0( library(gecode), _, FN) :-
+	absolute_file_name( 'packages/gecode/gecode4_yap_hand_written.yap', FN ).
+search_file0(  'clpbn/learning/em', _, FN) :-
+	absolute_file_name( 'packages/CLPBN/clpbn/learning/em.yap', FN ).
+search_file0(  'cplint/slipcover', _, FN) :-
+	absolute_file_name( 'packages/cplint/slipcover/slipcover.pl', FN ).
 search_file0( A/B, F, FN ) :- !,
     term_to_atom(A/B, AB),
-    search_file( AB, F, FN ).
+    search_file0( AB, F, FN ).
 % libraries can be anywhere in the source.
-search_file0( LibLoc, _F, FN ) :-
+search_file0( LibLoc, F, FN ) :-
     LibLoc =.. [Dir,File], 
-    term_to_atom( Dir/File, Full ),
-    !,
-    %but we try two choices: look for library/ 
-    %
-    search_file( Full, Dir, FN ),
-    !.
+	!,
+    ( term_to_atom( Dir/File, Full ) ; Full = File ),
+    search_file0( Full, F, FN ).
 %try to use your base
-search_file0(  Loc , _F, FN ) :- 
-    file_base_name( Loc, Loc0),
-    Loc \= Loc0, !, % you *have* to check the key
-    check_suffix( Loc0, Loc1 ), 
-    file_directory_name( Loc, LocD),
-    match_file( LocD, Loc1, FN ),
-    !.
-% you try using the parent
-search_file0(  Loc , F, FN ) :- 
+search_file0(  Loc , F, FN ) :-
     file_directory_name( F, FD),
-    '' \= FD, % no point here
+    check_suffix(  Loc , LocS ),
+    atom_concat( [ FD, '/', LocS], NLoc),
+    absolute_file_name( NLoc, FN),
+    file_base_name( FN, LocNam),
+    file_directory_name( FN, D),
+    dir( D, LocNam).
+search_file0(  Loc , _F, FN ) :-
     file_base_name( Loc, Loc0),
-    check_suffix( Loc0, Loc1 ),
-    match_file(FD, Loc1, FN ),
-    !.
-% everything goes
-search_file0(  Loc , _F, FN ) :- 
-    file_base_name( Loc, Loc0),
-    check_suffix( Loc0, Loc1 ),
-    match_file( _LocD, Loc1, FN ),
-    !.
+    file_directory_name( Loc, LocD),
+    check_suffix(  Loc0 , LocS ),
+    dir( D, LocS),
+    sub_dir( D, DD),
+    atom_concat( [ DD, '/', LocD], NLoc),
+    absolute_file_name( NLoc, D),
+    atom_concat( [D,'/', LocS], FN).
+% you try using the parent
+
+
+sub_dir( D, D ).
+sub_dir( D, DD) :-
+	D \= '/',
+	atom_concat( D, '/..', DD0),
+	absolute_file_name( DD0, DDA),
+	sub_dir( DDA, DD).
 
 % files must be called .yap or .pl
 % if it is .yap...
@@ -911,9 +928,12 @@ check_suffix(  Loc0 , Loc ) :-
 
 
  
-match_file( LocD, Loc0, FN ) :-  var(LocD), !,
+match_file( LocD, Loc0, FN ) :-  
+	var(LocD), !,
 	dir( LocD, Loc0 ),
-	atom_concat( [LocD, '/', Loc0], FN ).
+	atom_concat( [LocD, '/', Loc0], F ),
+	absolute_file_name( F, FN ),
+	exists( FN ).
 match_file( SufLocD, Loc0, FN ) :- 
 	dir( LocD, Loc0 ),
 	atom_concat(_, SufLocD, LocD ),
@@ -949,6 +969,13 @@ public( F, M, M:N/Ar ) :-
     fail.
 public( F, M, N/Ar ) :-
     assert_new( public( F, M:N/Ar ) ).
+public( F, M, M:N//Ar ) :-
+	Ar2 is Ar+2,
+    retract( private( F, M:N/Ar2 ) ),
+    fail.
+public( F, M, N//Ar ) :-
+	Ar2 is Ar+2,
+    assert_new( public( F, M:N/Ar2 ) ).
 
 private( F, M, op(X,Y,Z) ) :- 
     !,
@@ -975,9 +1002,12 @@ assert_new( G ) :- assert( G ).
 error( Error ) :- throw(Error ).
 
 ops_default :-
+    abolish( default_ops/1 ),
     A = (_,_), functor(A,Comma,2),
     findall(op(X,Y,prolog:Z), ( current_op(X,Y,prolog:Z), Z\= Comma ), L),
     assert_static( default_ops(L) ).
+
+:- initialization(ops_default, now).
 
 ops_restore :-
     A = (_,_), functor(A,Comma,2),
