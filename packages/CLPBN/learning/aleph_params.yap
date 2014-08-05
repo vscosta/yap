@@ -20,7 +20,8 @@
 		[{}/1,
 		 clpbn_flag/2,
 		 clpbn_flag/3,
-		 set_clpbn_flag/2
+		 set_clpbn_flag/2,
+		 op(500, xfy, with)
 		]).
 
 :- use_module(library('clpbn/learning/em')).

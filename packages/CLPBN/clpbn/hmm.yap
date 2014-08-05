@@ -7,13 +7,15 @@
 
 :- ensure_loaded(library(clpbn)).
 
+:- use_module(library(atts)).
+
 :- use_module(library(lists),
 		[nth/3]).
 
-:- use_module(library(nbhash),
-		[nb_hash_new/2,
-		 nb_hash_lookup/3,
-		 nb_hash_insert/3
+:- use_module(library(bhash),
+		[b_hash_new/2,
+		 b_hash_lookup/3,
+		 b_hash_insert/3
 		]).
 
 :- ensure_loaded(library(tries)).
