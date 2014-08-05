@@ -3113,6 +3113,7 @@ static const opt_spec open4_options[] =
   { ATOM_wait,		 OPT_BOOL },
   { ATOM_encoding,	 OPT_ATOM },
   { ATOM_bom,		 OPT_BOOL },
+  { ATOM_scripting,	 OPT_BOOL },
 #ifdef O_LOCALE
   { ATOM_locale,	 OPT_LOCALE },
 #endif
@@ -3139,6 +3140,7 @@ openStream(term_t file, term_t mode, term_t options)
 #endif
   int    close_on_abort = TRUE;
   int	 bom		= -1;
+  int	 scripting	= FALSE;
   char   how[10];
   char  *h		= how;
   char *path;
@@ -3149,7 +3151,7 @@ openStream(term_t file, term_t mode, term_t options)
   { if ( !scan_options(options, 0, ATOM_stream_option, open4_options,
 		       &type, &reposition, &alias, &eof_action,
 		       &close_on_abort, &buffer, &lock, &wait,
-		       &encoding, &bom
+  &encoding, &bom, &scripting
 #ifdef O_LOCALE
 		       , &locale
 #endif
@@ -3322,6 +3324,15 @@ openStream(term_t file, term_t mode, term_t options)
 
 	streamStatus(getStream(s));
 	return NULL;
+      }
+      if ( scripting) {
+	int c;
+	while (( c = Sgetc(s)) == '#') {
+	  while( (c = Sgetc(s)) != EOF && c != 10);
+	}
+	if ( c != EOF )
+	  Sungetc(c, s);
+	else goto bom_error;
       }
     } else
     { if ( mname == ATOM_write ||

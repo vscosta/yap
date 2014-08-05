@@ -551,6 +551,7 @@
   YAP_AtomToInt(Yap_LookupAtom("runtime"));
   YAP_AtomToInt(Yap_LookupAtom("save_class"));
   YAP_AtomToInt(Yap_LookupAtom("save_option"));
+  YAP_AtomToInt(Yap_LookupAtom("scripting"));
   YAP_AtomToInt(Yap_LookupAtom("see"));
   YAP_AtomToInt(Yap_LookupAtom("seed"));
   YAP_AtomToInt(Yap_LookupAtom("seek_method"));
