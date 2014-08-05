@@ -22,7 +22,7 @@
 :- use_module(library(lists)).
 
 % android does it by loading the code at startup.
-:- if prolog_flag( host_type , Host), \+ sub_atom(Host, _, _, 0, androideabi).
+:- if( prolog_flag( host_type , Host), \+ sub_atom(Host, _, _, 0, androideabi) ).
 :- use_module(library(shlib)).
 :- load_foreign_library(foreign(prosqlite)).
 :- endif.
