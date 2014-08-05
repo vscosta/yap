@@ -60,7 +60,6 @@ PROGRAMS= \
 	$(srcdir)/queues.yap \
 	$(srcdir)/random.yap \
 	$(srcdir)/range.yap \
-	$(srcdir)/r_session.yap \
 	$(srcdir)/rbtrees.yap \
 	$(srcdir)/regexp.yap \
 	$(srcdir)/rltree.yap \
