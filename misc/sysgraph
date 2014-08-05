@@ -248,7 +248,8 @@ pl_interfs(Dir - Mod) :-
          \+ atom_concat(_, '/.', Path),
          \+ atom_concat(_, '/..', Path),
          \+ atom_concat(_, '/.git', Path),
-	 pl_interfs( Path - Mod )
+	 absolute_file_name( Path, APath ),
+	 pl_interfs( APath - Mod )
     ),
     fail.
 pl_interfs(_).
@@ -262,24 +263,28 @@ pl_interfs(_).
 %                             module_on ( M, File ) 
 %
 pl_interf(F, _Mod) :-
-    consulted(F, _M ), 
+    module_on( F , _M, _Is),
+    !.
+pl_interf(F, Mod) :-
+    consulted(F, Mod ), 
     !.
 pl_interf(F, Mod) :-
     writeln(F),
 %	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
+% ( sub_atom( F, _, _, 0, 'chr.yap' ) -> spy get_interf; true ),
     assert_new(consulted(F, Mod ) ), 
     nb_getval( private, Default ),
     nb_setval( private, false ),
-    catch( open(F, read, S, []) , _, fail ),
+    catch( open(F, read, S, [scripting(true)]) , _, fail ),
     repeat,
     nb_getval( current_module, MR ),
     catch( read_term( S, T, [module( MR )] ), Throw, (writeln(F:MR:Throw), break, fail)),
-% ( sub_atom(F,_,_,_,'matrix.yap') ->  writeln(MR:T) ; true ), 
+% ( sub_atom(F,_,_,_,'gecode/clpfd.yap') ->  spy get_interf ; nospyall ), 
     ( 
 	T == end_of_file
 	->
 	    !,
-	    % also, clo ops defined in the module M, if M \= Mod
+	    % also, close ops defined in the module M, if M \= Mod
 	    generate_interface( F, Mod ),
 	    nb_setval( current_module, Mod ),
 	    nb_setval( private, Default ),
@@ -331,9 +336,7 @@ get_interf( (:- reexport( Loc, Is ) ), F, M ) :-
     !,
     % find the file
     search_file( Loc, F, NF ),
-    % depth visit
-    pl_interf(NF, M), % should verify Is in _Is
-    % link bdd
+    % link b
     module_on( NF, NM, _ ),
     maplist( exported( NF, F, NM, M) , Is ),
     maplist( public(F, M), Is ).
@@ -345,7 +348,8 @@ get_interf( (:- use_module( Loc, Is ) ), F, M ) :- !,
     pl_interf(NF, M), % should verify Is in _Is
     % link b
     module_on( NF, NM, _ ),
-    maplist( exported( NF, F, NM, M) , Is ).
+    maplist( exported( NF, F, NM, M) , Is ),
+    maplist( public(F, M), Is ).
 get_interf( (:- use_module( Loc ) ), F, M ) :- !,
     !,
     % find the file
