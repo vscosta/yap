@@ -19,6 +19,8 @@
 	 sum/3
 	]).
 
+:- use_module(meld).
+
 :- use_module(library(meld)).
 
 :- use_module(library(terms), [

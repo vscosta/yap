@@ -11,6 +11,8 @@
 	 minval/3
 	]).
 
+:- use_module(meld).
+
 :- dynamic extensional/3, translate/2.
 
 meld_top_down_aggregate(S0, horn, _) :-
