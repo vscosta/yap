@@ -58,16 +58,17 @@ main :-
 	    'swi/library'-user,
 	    'packages'-user],
     dirs( Dirs ),
+    %%% phase 2: find C-code predicates
+    maplist( c_preds, Dirs ),
     %%% phase 1: find modules
     nb_setval( current_module, user ),
     nb_setval( private, false ),
+    nb_setval( file_entry, user:user ),
     init_loop( Dirs ),
     maplist( pl_interfs, Dirs ),
-    %%% phase 2: find C-code predicates
-    maplist( c_preds, Dirs ),
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
-    maplist( pl_graphs, Dirs ),
+%    maplist( pl_graphs, Dirs ),
     undefs,
     doubles,
     %     pl_exported(pl).
@@ -132,6 +133,9 @@ c_preds(Dir - Mod) :-
          exists_directory( File ),
          \+ atom_concat(_, '/.', File),
          \+ atom_concat(_, '/..', File),
+         'packages/prism' \= File,
+         'packages/RDF' \= File,
+         'packages/semweb' \= File,
          c_preds( File - Mod )
     ),
     fail.
@@ -219,7 +223,7 @@ take_line( Line, NS, AS, FSE, FSB ) :-
 system_mod("ATTRIBUTES_MODULE", _, attributes ).
 system_mod("HACKS_MODULE", _, '$hacks' ).
 system_mod("USER_MODULE", _, user ).
-system_mod("DBLOAD_MODULE", xs, '$db_load' ).
+system_mod("DBLOAD_MODULE", _, '$db_load' ).
 system_mod("GLOBALS_MODULE", _, globals ).
 system_mod("ARG_MODULE", _, arg  ).
 system_mod("PROLOG_MODULE", _ , prolog ).
@@ -248,6 +252,11 @@ pl_interfs(Dir - Mod) :-
          \+ atom_concat(_, '/.', Path),
          \+ atom_concat(_, '/..', Path),
          \+ atom_concat(_, '/.git', Path),
+         'packages/prism' \= Path,
+         'packages/R' \= Path,
+         'packages/RDF' \= Path,
+         'packages/semweb' \= Path,
+         'packages/sgml' \= Path,
 	 absolute_file_name( Path, APath ),
 	 pl_interfs( APath - Mod )
     ),
@@ -269,26 +278,31 @@ pl_interf(F, Mod) :-
     consulted(F, Mod ), 
     !.
 pl_interf(F, Mod) :-
+F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
     writeln(F),
 %	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
 % ( sub_atom( F, _, _, 0, 'chr.yap' ) -> spy get_interf; true ),
     assert_new(consulted(F, Mod ) ), 
     nb_getval( private, Default ),
     nb_setval( private, false ),
+    nb_getval( file_entry, OF:OMod ),
+    nb_setval( file_entry, F:Mod ),
     catch( open(F, read, S, [scripting(true)]) , _, fail ),
     repeat,
     nb_getval( current_module, MR ),
+ %( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ), 
     catch( read_term( S, T, [module( MR )] ), Throw, (writeln(F:MR:Throw), break, fail)),
-% ( sub_atom(F,_,_,_,'gecode/clpfd.yap') ->  spy get_interf ; nospyall ), 
     ( 
 	T == end_of_file
 	->
 	    !,
+	    close(S),
+	    build_graph( F, Mod ),
 	    % also, close ops defined in the module M, if M \= Mod
 	    generate_interface( F, Mod ),
 	    nb_setval( current_module, Mod ),
 	    nb_setval( private, Default ),
-	    close(S)
+	    nb_setval( file_entry, OF:OMod )
 	;
 	nb_getval( current_module, MC0 ),
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
@@ -336,39 +350,22 @@ get_interf( (:- reexport( Loc, Is ) ), F, M ) :-
     !,
     % find the file
     search_file( Loc, F, NF ),
-    % link b
-    module_on( NF, NM, _ ),
-    maplist( exported( NF, F, NM, M) , Is ),
-    maplist( public(F, M), Is ).
+    include_files(  F, M, Is, NF ),
+    % extend the interface.rg
+    retract( module_on( F , M, Is0) ),
+    append( Is0, Is, NIs ),
+    assert( module_on( F , M, NIs) ),
+    maplist( public(F, M), NIs ).
 get_interf( (:- use_module( Loc, Is ) ), F, M ) :- !,
     !,
-    % find the file
-    search_file( Loc, F, NF ),
-    % depth visit
-    pl_interf(NF, M), % should verify Is in _Is
-    % link b
-    module_on( NF, NM, _ ),
-    maplist( exported( NF, F, NM, M) , Is ),
-    maplist( public(F, M), Is ).
+    include_files(  F, M, Is, Loc ).
 get_interf( (:- use_module( Loc ) ), F, M ) :- !,
     !,
-    % find the file
-    search_file( Loc, F, NF ),
-    % depth visit
-    pl_interf(NF, M), % should verify Is in _Is
-    % link b
-    module_on( NF, NM, Is ),
-    maplist( exported( NF, F, NM, M) , Is ).
+    include_files( F, M, Loc ).
 %	nb_getval(current_module,MM), writeln(NM:MM:M).
 get_interf( (:- use_module( Loc, Is, _ ) ), F, M ) :- !,
     !,
-    % find the file
-    search_file( Loc, F, NF ),
-    % depth visit
-    pl_interf(NF, M), % should verify Is in _Is
-    % link b
-    module_on( NF, NM, _ ),
-    maplist( exported( NF, F, NM, M) , Is ).
+    include_files( F, M, Is, Loc ).
 get_interf( (:- consult( Files ) ), F, M ) :- 
     !,
     include_files(  F, M, Files ).
@@ -490,31 +487,35 @@ all_imported( _ProducerFile, _ConsumerFile,  _ProducerMod, _ConsumerMod ).
 
 
 include_files( F, M, Files ) :-
-    maplist( include_files( F, M ), Files ),
+    include_files( F, M, _Is, Files ).
+
+include_files( F, M, Is, Files ) :-
+    maplist( include_files( F, M, Is ), Files ),
     !.
-include_files( F, M, -Files ) :-
+include_files( F, M, Is, -Files ) :-
     !,
-    include_files(  F, M, Files).
-include_files( F, M, Files ) :- 
+    include_files(  F, M, Is, Files).
+include_files( F, M, Is, Files ) :- 
     !,
     always_strip_module(M:Files, M1, NFiles),
-    include_file( F, M1, NFiles ).
-include_files( F, M, Loc ) :- 
-    include_file( F, M, Loc ).
+    include_file( F, M1, Is, NFiles ).
+include_files( F, M, Is, Loc ) :- 
+    include_file( F, M, Is, Loc ).
 
-include_file( F, M, Loc ) :-
+include_file( F, M, Is, Loc ) :-
     is_list( Loc ), !,
-    maplist( include_file( F, M ), Loc ).
-include_file( F, M, Loc ) :-
+    maplist( include_file( F, M, Is), Loc ).
+include_file( F, M, Is0, Loc ) :-
     nb_getval( private, Private ),
     % find the file
-    search_file( Loc, F, NF ),
+    once( search_file( Loc, F, NF ) ),
     % depth visit
     pl_interf(NF, M), % should verify Is in _Is
     % link b
     ( module_on(NF, NM, Is)
     ->
-       maplist( exported( NF, F, NM, M) , Is )
+	( var(Is0) -> Is = Is0 ; true ),
+	maplist( exported( NF, F, NM, M) , Is )
 	;
 	all_imported( NF, F, NM, M)
     ),
@@ -599,12 +600,9 @@ pl_graphs(_).
 %                             module_on ( M, File ) 
 %                             pred ( M :N/A ) 
 %
-pl_graph(F, Mod) :-
-    consulted( F, Mod), !.
-pl_graph(F, Mod) :-
+build_graph(F, Mod) :-
 %    writeln(F),
-    assert( consulted( F, Mod )),
-    catch( open(F, read, S), _, fail ),
+    catch( open(F, read, S, [scripting(true)]), _, fail ),
     repeat,
     nb_getval( current_module, MR ),
     catch( read_term( S, T, [term_position(Pos),module(MR)] ), Throw, (writeln(Throw))),
@@ -613,13 +611,11 @@ pl_graph(F, Mod) :-
 	->
 	    !,
 	    % also, clo ops defined in the module M, if M \= Mod
-	    pl_graph( F, Mod ),
-	    nb_setval( current_module, Mod ),
+% ( sub_atom(F,_,_,_,'/matrix.yap') ->  start_low_level_trace ; nospyall ), 
 	    close(S)
 	;
 	nb_getval( current_module, MC0 ),
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
-	( system_mod(_,_,MC) -> nb_setval( private, true ) ; nb_setval( private, false ) ),
 	get_graph( T, F, Pos, MC  ),
 	fail
     ).
@@ -652,13 +648,9 @@ get_graph( (H :- B), F, _Pos, M ) :-
     functor( H, N, Ar),
     add_deps( B, M, M:N/Ar, F, _Pos, 0 ).
 %% switches to new file n
-get_graph( (:- module(M,_)), _F, _Pos, _M ) :-
-    !,
-    nb_setval( current_module, M ).
 get_graph( (:- _ ), _F, _Pos, _M ) :-
     !.
 get_graph( (?- _ ), _F, _Pos, _M ) :- !.
-
 
 add_deps(V, _M, _P, _F, _Pos, _) :- 
     var(V), !.
@@ -696,7 +688,7 @@ add_deps(true, _M, _P, _F, _Pos, 0) :- !.
 add_deps(false, _M, _P, _F, _Pos, 0) :- !.
 add_deps(fail, _M, _P, _F, _Pos, 0) :- !.
 add_deps(repeat, _M, _P, _F, _Pos, 0) :- !.
-add_deps(A, M, P, F, Pos, L) :- !,
+add_deps(A, M, P, F, Pos, L) :-
      % we're home, M:N/Ar -> P=M1:N1/A1
     functor(A, N, Ar0),
     Ar is Ar0+L,
@@ -971,7 +963,7 @@ public( F, M, op(X,Y,Z) ) :- !,
 public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),
     fail.
-public( F, M, N/Ar ) :-
+public( F, M, N/Ar ) :- !,
     assert_new( public( F, M:N/Ar ) ).
 public( F, M, M:N//Ar ) :-
 	Ar2 is Ar+2,
