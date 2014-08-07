@@ -294,8 +294,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   int ch;
 
   /* escape sequence */
-  ch = getchrq(inp_stream);
  do_switch:
+  ch = getchrq(inp_stream);
   switch (ch) {
   case 10:
     return 0;
@@ -308,11 +308,11 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'c':
     while (chtype((ch = getchrq(inp_stream))) == BS);
     {
-      int och = ch;
-      ch = getchrq(inp_stream);
-      return och;
+      if (ch == '\\') {
+	goto do_switch; 
+      }
+      return ch;
     }
-    goto do_switch;
   case 'd':
     return 127;
   case 'e':
