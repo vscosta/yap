@@ -697,8 +697,8 @@ add_deps(A, M, P, F, Pos, L) :-
 put_dep( (Target :- F0-M:Goal ), _ ) :- 
     exported( ( F0-M:Goal :- F1-M1:N/Ar ) ), !,
     %follow ancestor chain
-    ancestor( ( F1-M1:N/Ar :- F0-M0:N0/Ar )  ),
-    assert_new( edge( (  Target :- F0-M0:N0/Ar ) ) ).
+    ancestor( ( F1-M1:N/Ar :- FA-MA:NA/Ar )  ),
+    assert_new( edge( (  Target :- FA-MA:NA/Ar ) ) ).
 % the base case, copying from the same module ( but maybe not same file 0.
 put_dep( ( Target :- _F-M:N/Ar ) , _ ) :- 
     m_exists(M:N/Ar, F0),
@@ -709,9 +709,9 @@ put_dep( ( Target :- _F-_prolog:N/Ar ), _ ) :-
     m_exists(prolog:N/Ar, F0),
     !,
     assert_new( edge( ( Target :- F0-prolog:N/Ar ) ) ).
-put_dep( ( _ :- F-Mod:N/Ar ), Pos) :-
+put_dep( ( Target :- F-Mod:N/Ar ), Pos) :-
     stream_position_data( line_count, Pos, Line ),
-    format( 'UNDEF in file ~w, line ~d :- ~w:~w~n',[ F, Line,  Mod, N/Ar]) .
+    assert_new( undef( (Target :- F-Mod:N/Ar ), Pos).
 
 ancestor( ( Younger :- Older) ) :-  
     exported(  ( Mid :- Older ) ), !,
