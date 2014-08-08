@@ -19,8 +19,9 @@
    exported/1, 
    dir/2,
    consulted/2,
-   op_export/3.
-   library/1.
+   op_export/3,
+   library/1,
+   undef/2.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -58,14 +59,14 @@ main :-
 	    'swi/library'-user,
 	    'packages'-user],
     dirs( Dirs ),
-    %%% phase 2: find C-code predicates
-    maplist( c_preds, Dirs ),
     %%% phase 1: find modules
     nb_setval( current_module, user ),
     nb_setval( private, false ),
     nb_setval( file_entry, user:user ),
     init_loop( Dirs ),
     maplist( pl_interfs, Dirs ),
+    %%% phase 2: find C-code predicates
+    maplist( c_preds, Dirs ),
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
 %    maplist( pl_graphs, Dirs ),
@@ -115,6 +116,7 @@ init :-
     retractall(edge(_)),
     retractall(private(_,_)),
     retractall(public(_,_)),
+    retractall(undef(_,_)),
     retractall(consulted(_,_)),
     retractall(module_on(_,_,_)),
     retractall(op_export(_,_,_)),
@@ -127,13 +129,21 @@ c_preds(Dir - Mod) :-
     atom_concat([Dir,'/*'], Pattern),
     expand_file_name( Pattern, Files ),
     member( File, Files ),
-    ( ( sub_atom(File,_,_,0,'.c') ; sub_atom(File,_,_,0,'.cpp') ) ->
+    ( ( sub_atom(File,_,_,0,'.c') 
+	;
+	sub_atom(File,_,_,0,'.i')
+	;
+	sub_atom(File,_,_,0,'.cpp')
+	;
+	sub_atom(File,_,_,0,'.icc')
+      ) ->
 	  c_file( File , Mod )
     ;
          exists_directory( File ),
          \+ atom_concat(_, '/.', File),
          \+ atom_concat(_, '/..', File),
          'packages/prism' \= File,
+         'packages/gecode' \= File,
          'packages/RDF' \= File,
          'packages/semweb' \= File,
          c_preds( File - Mod )
@@ -143,7 +153,11 @@ c_preds(_).
 
 
 c_file(F, Mod) :-
+    consulted( F, Mod ), 
+    !.
+c_file(F, Mod) :-
 %    wrixbteln(F),
+    assert( consulted( F, Mod ) ), 
     nb_setval( current_module, Mod ),
     open(F, read, S, [alias(c_file)]),
     repeat,
@@ -236,6 +250,10 @@ system_mod("IDB_MODULE", _, idb ).
 system_mod("CHARSIO_MODULE", _, charsio ).
 system_mod("cm", M, M ).
 
+call_c_files(  File, Mod, _Fun, [CFile] ) :-
+    search_file( CFile, File, c, F ),
+    c_file(F, Mod).
+
 
 pl_interfs(Dir - Mod) :-
     format(' ************* MOD: ~a ***********************\n', [Dir]),
@@ -253,6 +271,7 @@ pl_interfs(Dir - Mod) :-
          \+ atom_concat(_, '/..', Path),
          \+ atom_concat(_, '/.git', Path),
          'packages/prism' \= Path,
+         'packages/gecode' \= Path,
          'packages/R' \= Path,
          'packages/RDF' \= Path,
          'packages/semweb' \= Path,
@@ -349,7 +368,7 @@ get_interf( (:- module( NM, Is ) ), F, _M ) :-
 get_interf( (:- reexport( Loc, Is ) ), F, M ) :- 
     !,
     % find the file
-    search_file( Loc, F, NF ),
+    search_file( Loc, F, pl, NF ),
     include_files(  F, M, Is, NF ),
     % extend the interface.rg
     retract( module_on( F , M, Is0) ),
@@ -385,6 +404,17 @@ get_interf( (:- [F1|Fs] ), F, M ) :-
     !,
     include_files(  F, M, [F1|Fs] ).
 % don't actually use this one.
+get_interf( (:- load_foreign_files(Fs, _, Fun) ), F, M ) :- 
+    !,
+    call_c_files(  F, M, Fun, Fs ).
+get_interf( (:- load_foreign_library(F) ), F0, M ) :- 
+    !,
+    always_strip_module(M:F, M1, F1),
+    call_c_files(  F0, M1, '', F1 ).
+get_interf( (:- load_foreign_library(F,Fun) ), F0, M ) :- 
+    !,
+    always_strip_module(M:F, M1, F1),
+    call_c_files(  F0, M1, Fun, F1 ).
 get_interf( (:- system_module( _NM, _Publics, _Hiddens) ), _F, _M ) :- 
     !.
 get_interf( (:- style_checker( _ ) ), _F, _M ) :- 
@@ -508,7 +538,7 @@ include_file( F, M, Is, Loc ) :-
 include_file( F, M, Is0, Loc ) :-
     nb_getval( private, Private ),
     % find the file
-    once( search_file( Loc, F, NF ) ),
+    once( search_file( Loc, F, pl, NF ) ),
     % depth visit
     pl_interf(NF, M), % should verify Is in _Is
     % link b
@@ -694,11 +724,11 @@ add_deps(A, M, P, F, Pos, L) :-
     Ar is Ar0+L,
     put_dep( ( F-M:P :- F-M:N/Ar ), Pos ).
 
-put_dep( (Target :- F0-M:Goal ), _ ) :- 
+put_dep( (Target :- F0-M:Goal ), Pos ) :- 
     exported( ( F0-M:Goal :- F1-M1:N/Ar ) ), !,
     %follow ancestor chain
     ancestor( ( F1-M1:N/Ar :- FA-MA:NA/Ar )  ),
-    assert_new( edge( (  Target :- FA-MA:NA/Ar ) ) ).
+    put_dep( ( Target :- FA-MA:NA/Ar ), Pos  ).
 % the base case, copying from the same module ( but maybe not same file 0.
 put_dep( ( Target :- _F-M:N/Ar ) , _ ) :- 
     m_exists(M:N/Ar, F0),
@@ -709,9 +739,12 @@ put_dep( ( Target :- _F-_prolog:N/Ar ), _ ) :-
     m_exists(prolog:N/Ar, F0),
     !,
     assert_new( edge( ( Target :- F0-prolog:N/Ar ) ) ).
+put_dep( ( _Target :- _F-Mod:_N/_Ar ), _Pos) :-
+    var( Mod ), !.
 put_dep( ( Target :- F-Mod:N/Ar ), Pos) :-
+    atom( Mod ),
     stream_position_data( line_count, Pos, Line ),
-    assert_new( undef( (Target :- F-Mod:N/Ar ), Pos).
+    assert_new( undef( (Target :- F-Mod:N/Ar ), Line) ).
 
 ancestor( ( Younger :- Older) ) :-  
     exported(  ( Mid :- Older ) ), !,
@@ -732,9 +765,20 @@ doubles :-
 doubles.
 
 undefs :-
-    edge(_M:P,_,F),
-    \+ node(_, P, _, _),
-    format('UNDEFINED procedure call ~q at ~w~n',[P, F]),
+    format('UNDEFINED procedure calls:~n',[]),
+    setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
+    member( Mod, Ms ),
+    format('    module ~a:~n',[Mod]),
+    setof(NA, Target^F^Line^undef( ( Target :- F-Mod:NA ), Line  ), Ns ),
+    member( NA, Ns ),
+    \+ m_exists( Mod:NA , _File1 ),
+    \+ m_exists( prolog:NA , _File2 ),
+    \+ foreign( Mod:NA, _Fu1 ),
+    \+ foreign( prolog:NA, _Fu2 ),
+    format('      predicate ~w:~n',[NA]),
+    setof(F-Line, Target^undef( ( Target :- F-Mod:NA ), Line ), FLs ),
+    member(F-L, FLs ),
+    format('        line ~w, file ~a~n',[L,F]),
     fail.
 undefs.
 
@@ -849,12 +893,12 @@ doc( Comment, N ) :-
 
 
 %%
-% search_file( +Target, +Location, -File )
+% search_file( +Target, +Location, +FileType, -File )
 %
 %
 % Directories into atoms
-search_file(  Loc , F, FN ) :-
-    search_file0(  Loc , F, FN ),
+search_file(  Loc , F, Type, FN ) :-
+    search_file0(  Loc , F, Type, FN ),
     !.
 search_file(  Loc , F, _FN ) :-
     format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
@@ -863,41 +907,49 @@ search_file(  Loc , F, _FN ) :-
 %
 % handle some special cases.
 %
-search_file0( library(gecode), _, FN) :-
+search_file0( library(gecode), _, _Type, FN) :-
 	absolute_file_name( 'packages/gecode/gecode4_yap_hand_written.yap', FN ).
-search_file0(  'clpbn/learning/em', _, FN) :-
-	absolute_file_name( 'packages/CLPBN/clpbn/learning/em.yap', FN ).
-search_file0(  'cplint/slipcover', _, FN) :-
-	absolute_file_name( 'packages/cplint/slipcover/slipcover.pl', FN ).
-search_file0( A/B, F, FN ) :- !,
+search_file0( A/B, F, Type, FN ) :- !,
     term_to_atom(A/B, AB),
-    search_file0( AB, F, FN ).
+    search_file0( AB, F, Type, FN ).
 % libraries can be anywhere in the source.
-search_file0( LibLoc, F, FN ) :-
+search_file0( LibLoc, F, Type, FN ) :-
     LibLoc =.. [Dir,File], 
 	!,
     ( term_to_atom( Dir/File, Full ) ; Full = File ),
-    search_file0( Full, F, FN ).
+    search_file0( Full, F, Type, FN ).
 %try to use your base
-search_file0(  Loc , F, FN ) :-
+search_file0(  Loc , F, c, FN ) :-
+    atom_concat( D, '.yap', F), 
+    atom_concat( [ D, '/', Loc], F1), 
+    check_suffix(  F1 , c, NLoc ),
+    absolute_file_name( NLoc, FN),
+    file_base_name( FN, LocNam),
+    file_directory_name( FN, D),
+    dir( D, LocNam ).
+search_file0(  Loc , F, Type, FN ) :-
     file_directory_name( F, FD),
-    check_suffix(  Loc , LocS ),
+    check_suffix(  Loc , Type, LocS ),
     atom_concat( [ FD, '/', LocS], NLoc),
     absolute_file_name( NLoc, FN),
     file_base_name( FN, LocNam),
     file_directory_name( FN, D),
     dir( D, LocNam).
-search_file0(  Loc , _F, FN ) :-
+search_file0(  Loc , _F, Type, FN ) :-
     file_base_name( Loc, Loc0),
     file_directory_name( Loc, LocD),
-    check_suffix(  Loc0 , LocS ),
+    check_suffix(  Loc0 , Type, LocS ),
     dir( D, LocS),
     sub_dir( D, DD),
     atom_concat( [ DD, '/', LocD], NLoc),
     absolute_file_name( NLoc, D),
     atom_concat( [D,'/', LocS], FN).
+search_file0(  Loc , _F, Type, FN ) :-
+    file_base_name( Loc, Loc0),
+    check_suffix(  Loc0 , Type, LocS ),
+    dir( D, LocS),
+    atom_concat( [D,'/', LocS], FN).
 % you try using the parent
-
 
 sub_dir( D, D ).
 sub_dir( D, DD) :-
@@ -908,32 +960,45 @@ sub_dir( D, DD) :-
 
 % files must be called .yap or .pl
 % if it is .yap...
-check_suffix(  Loc , Loc ) :- 
+check_suffix(  Loc , pl, Loc ) :- 
     atom_concat( _, '.yap', Loc ), !.
 %, otherwise, .pl
-check_suffix(  Loc , Loc ) :- 
+check_suffix(  Loc , pl,  Loc ) :- 
     atom_concat( _, '.pl', Loc ), !.
 %, otherwise, .prolog
-check_suffix(  Loc , Loc ) :- 
+check_suffix(  Loc , pl,  Loc ) :- 
     atom_concat( _, '.prolog', Loc ), !.
 %, otherwise, .P
 % try adding suffix
-check_suffix(  Loc0 , Loc ) :- 
+check_suffix(  Loc0 , pl, Loc ) :- 
     member( Suf , ['.yap', '.pl' , '.prolog']), 
+    atom_concat( Loc0, Suf, Loc ).
+check_suffix(  Loc , c, Loc ) :- 
+    atom_concat( _, '.c', Loc ), !.
+%, otherwise, .pl
+check_suffix(  Loc , c,  Loc ) :- 
+    atom_concat( _, '.icc', Loc ), !.
+%, otherwise, .prolog
+check_suffix(  Loc , c,  Loc ) :- 
+    atom_concat( _, '.cpp', Loc ), !.
+%, otherwise, .P
+% try adding suffix
+check_suffix(  Loc0 , c, Loc ) :- 
+    member( Suf , ['.c', '.icc' , '.cpp']), 
     atom_concat( Loc0, Suf, Loc ).
 
 
  
-match_file( LocD, Loc0, FN ) :-  
+match_file( LocD, Loc0, Type, FN ) :-  
 	var(LocD), !,
 	dir( LocD, Loc0 ),
 	atom_concat( [LocD, '/', Loc0], F ),
-	absolute_file_name( F, FN ),
+	absolute_file_name( F, Type, FN ),
 	exists( FN ).
-match_file( SufLocD, Loc0, FN ) :- 
+match_file( SufLocD, Loc0, Type, FN ) :- 
 	dir( LocD, Loc0 ),
 	atom_concat(_, SufLocD, LocD ),
-	atom_concat( [LocD, '/', Loc0], FN ).
+	atom_concat( [LocD, '/', Loc0], Type, FN ).
 
  
 new_op( F, M, op(X,Y,Z) ) :-
