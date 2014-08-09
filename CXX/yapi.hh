@@ -60,6 +60,11 @@ extern "C" {
 #include <windows.h>
 #endif
 
+
+#Ifdef CACHE_REGS
+#undef CACHE_REGS
+#endif 
+
 // taken from yap_structs.h
 #include "iopreds.h"
 
