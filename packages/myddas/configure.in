@@ -36,7 +36,9 @@ if test "$yap_cv_myddas" != "no"
 then
 	PKG_MYDDAS="packages/myddas"
 	dnl check for mysql
-	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
+	OLD_LIBS="$LIBS"
+	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes" MYDDAS_LIBS="-lmysqlclient $MYDDAS_LIBS"], [yap_cv_mysql="no"])
+	AC_CHECK_HEADERS(mysql/mysql.h, [], [yap_cv_mysql="no"])
 	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
@@ -46,6 +48,7 @@ then
         case "$target_os" in
 	  *darwin*)
 	    LIBS="$LIBS -framework CoreFoundation"
+	    MYDDAS_LIBS="$MYDDAS_LIBS -framework CoreFoundation"
 	;;
 	  **)		
 	;;
@@ -53,15 +56,23 @@ then
 	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
 	if test "$yap_cv_odbc" = yes
 	then
-	   ODBC_LIBS="$ODBC_LIBS -lodbc"
+	   MYDDAS_LIBS="$MYDDAS_LIBS -lodbc"
 	else
 	  AC_SEARCH_LIBS(SQLAllocHandle, [iodbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
 	  if test "$yap_cv_odbc" = yes
 	  then
-	     ODBC_LIBS="$ODBC_LIBS -liodbc"
+	     MYDDAS_LIBS="$MYDDAS_LIBS -liodbc"
+  	  else
+	    AC_SEARCH_LIBS(SQLAllocHandle, [odbc32], [yap_cv_odbc="yes" ], [yap_cv_odbc="no"])
+	    if test "$yap_cv_odbc" = yes
+	    then
+	     MYDDAS_LIBS="$MYDDAS_LIBS -lodbc32"
+	    fi
 	  fi
         fi
-	AC_CHECK_HEADERS(mysql/mysql.h, [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	#from SWI ODBC library.
+	AC_CHECK_HEADERS(windef.h)
+	AC_CHECK_HEADERS(sql.h, [ ], [yap_cv_odbc="no"])
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
@@ -76,10 +87,12 @@ then
 	  then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
+	LIBS="$OLD_LIBS"
 else
 	ENABLE_MYDDAS=""
 fi	
 
 AC_SUBST(PKG_MYDDAS)
+AC_SUBST(MYDDAS_LIBS)
 
 

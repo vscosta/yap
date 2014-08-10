@@ -80,16 +80,16 @@ static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
 #define YAMOP_LTT_BITS    OOOOPPS!!! Unknown Integer Sizeof
 #endif /* SIZEOF_INT */
 
-#define YAMOP_OR_ARG(INST)         ((INST)->u.Otapl.or_arg)
-#define YAMOP_LTT(INST)            (((INST)->u.Otapl.or_arg) & YAMOP_LTT_BITS)
-#define YAMOP_SEQ(INST)            (((INST)->u.Otapl.or_arg) & YAMOP_SEQ_FLAG)
-#define YAMOP_CUT(INST)            (((INST)->u.Otapl.or_arg) & YAMOP_CUT_FLAG)
-#define YAMOP_FLAGS(INST)          (((INST)->u.Otapl.or_arg) & YAMOP_FLAGS_BITS)
+#define YAMOP_OR_ARG(INST)         ((INST)->y_u.Otapl.or_arg)
+#define YAMOP_LTT(INST)            (((INST)->y_u.Otapl.or_arg) & YAMOP_LTT_BITS)
+#define YAMOP_SEQ(INST)            (((INST)->y_u.Otapl.or_arg) & YAMOP_SEQ_FLAG)
+#define YAMOP_CUT(INST)            (((INST)->y_u.Otapl.or_arg) & YAMOP_CUT_FLAG)
+#define YAMOP_FLAGS(INST)          (((INST)->y_u.Otapl.or_arg) & YAMOP_FLAGS_BITS)
 
-#define INIT_YAMOP_LTT(INST, LTT)  ((INST)->u.Otapl.or_arg = LTT+1)
-#define PUT_YAMOP_LTT(INST, LTT)   (INST)->u.Otapl.or_arg = YAMOP_FLAGS(INST) | (LTT+1)
-#define PUT_YAMOP_SEQ(INST)        (INST)->u.Otapl.or_arg |= YAMOP_SEQ_FLAG
-#define PUT_YAMOP_CUT(INST)        (INST)->u.Otapl.or_arg |= YAMOP_CUT_FLAG
+#define INIT_YAMOP_LTT(INST, LTT)  ((INST)->y_u.Otapl.or_arg = LTT+1)
+#define PUT_YAMOP_LTT(INST, LTT)   (INST)->y_u.Otapl.or_arg = YAMOP_FLAGS(INST) | (LTT+1)
+#define PUT_YAMOP_SEQ(INST)        (INST)->y_u.Otapl.or_arg |= YAMOP_SEQ_FLAG
+#define PUT_YAMOP_CUT(INST)        (INST)->y_u.Otapl.or_arg |= YAMOP_CUT_FLAG
 
 #define BRANCH(WORKER, DEPTH)      GLOBAL_branch(WORKER, DEPTH)
 #define BRANCH_LTT(WORKER, DEPTH)  (BRANCH(WORKER, DEPTH) & YAMOP_LTT_BITS)

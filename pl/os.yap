@@ -30,6 +30,7 @@ cd :-
 	cd('~').
 
 cd(F) :-
+		format( atom( M ), 'before absolute_file_name ~w', [F]), log_event( M ),
       absolute_file_name(F, Dir, [file_type(directory),file_errors(fail),access(execute),expand(true)]),
       working_directory(_, Dir).
 

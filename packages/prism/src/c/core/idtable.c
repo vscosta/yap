@@ -148,11 +148,11 @@ IDNUM id_table_retrieve(const ID_TABLE *this, TERM term)
 
 IDNUM id_table_register(ID_TABLE *this, TERM term)
 {
-    BPULONG hash;
+  //    BPULONG hash;
     IDNUM i;
 
     term = term_pool_register(this->store, term);
-    hash = (BPULONG)(term);
+    //hash = (BPULONG)(term);
 
     i = id_table_search(this, term);
     if (i == ID_NONE) {
@@ -172,5 +172,5 @@ TERM unnumber_var_term(TERM term)
 {
   CACHE_REGS
     BPLONG mvn = -1;
-    return unnumberVarTerm(term, local_top, &mvn);
+    return unnumberVarTerm(term, (BPLONG_PTR)local_top, &mvn);
 }

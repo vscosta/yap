@@ -90,6 +90,12 @@ Yap_ThreadID( void )
   return -1;
 }
 
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+  return GLOBAL_NOfThreads;
+}
+
 static int
 allocate_new_tid(void)
 {
@@ -509,9 +515,9 @@ Yap_thread_self(void)
 }
 
 CELL
-Yap_thread_create_engine(thread_attr *ops)
+Yap_thread_create_engine(YAP_thread_attr *ops)
 {
-  thread_attr opsv;
+  YAP_thread_attr opsv;
   int new_id = allocate_new_tid();
   Term t = TermNil;
 
@@ -684,7 +690,11 @@ static Int
 p_thread_set_concurrency( USES_REGS1 )
 {
   Term tnew = Deref(ARG2);
-  int newc, cur;
+  int newc;
+#if HAVE_PTHREAD_GETCONCURRENCY
+int cur;
+#endif
+
 
   if (IsVarTerm(tnew)) {
     newc = 0;
@@ -694,11 +704,15 @@ p_thread_set_concurrency( USES_REGS1 )
     Yap_Error(TYPE_ERROR_INTEGER,tnew,"thread_set_concurrency/2");
     return(FALSE);
   }
+#if HAVE_PTHREAD_GETCONCURRENCY
   cur = MkIntegerTerm(pthread_getconcurrency());
   if (pthread_setconcurrency(newc) != 0) {
     return FALSE;
   }
   return Yap_unify(ARG1, MkIntegerTerm(cur));
+#else
+  return FALSE;
+#endif
 }
 
 static Int
@@ -1089,6 +1103,17 @@ void Yap_InitThreadPreds(void)
 }
 
 #else
+
+int
+Yap_NOfThreads(void) {
+  // GLOBAL_ThreadHandlesLock is held
+#ifdef YAPOR
+  return 2;
+#else
+  return 1;
+#endif
+}
+
 
 static Int 
 p_no_threads(void)

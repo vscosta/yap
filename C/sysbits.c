@@ -1110,6 +1110,66 @@ Yap_random (void)
 #endif
 }
 
+#if HAVE_RANDOM
+static Int
+p_init_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old, *new;
+
+  if (IsVarTerm (t0)) {
+    return(Yap_unify(ARG1,MkIntegerTerm((Int)current_seed)));
+  }
+  if(!IsNumTerm (t0))
+    return (FALSE);
+  if (IsIntTerm (t0))
+    current_seed = (unsigned int) IntOfTerm (t0);
+  else if (IsFloatTerm (t0))
+    current_seed  = (unsigned int) FloatOfTerm (t0);
+  else
+    current_seed  = (unsigned int) LongIntOfTerm (t0);
+  
+  new = (char *) malloc(256);
+  old = initstate(random(), new, 256);
+  return Yap_unify(ARG2, MkIntegerTerm((Int)old)) &&
+      Yap_unify(ARG3, MkIntegerTerm((Int)new));
+}
+
+static Int
+p_set_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old, * new;
+
+  if (IsVarTerm (t0)) {
+    return FALSE;
+  }
+  if (IsIntegerTerm (t0))
+    new = (char *) IntegerOfTerm (t0);
+  else
+    return FALSE;
+  old = setstate( new );
+  return Yap_unify(ARG2, MkIntegerTerm((Int)old));
+}
+
+static Int
+p_release_random_state ( USES_REGS1 )
+{
+  register Term t0 = Deref (ARG1);
+  char *old;
+
+  if (IsVarTerm (t0)) {
+    return FALSE;
+  }
+  if (IsIntegerTerm (t0))
+    old = (char *) IntegerOfTerm (t0);
+  else
+    return FALSE;
+  free( old );
+  return TRUE;
+}
+#endif
+
 static Int
 p_srandom ( USES_REGS1 )
 {
@@ -1657,15 +1717,23 @@ ReceiveSignal (int s, void *x, void *y)
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI
 MSCHandleSignal(DWORD dwCtrlType) {
-  CACHE_REGS
+#if THREADS
+  if (REMOTE_InterruptsDisabled(0)) {
+#else
   if (LOCAL_InterruptsDisabled) {
+#endif
     return FALSE;
   }
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
+#if THREADS
+   Yap_external_signal(0, YAP_WINTIMER_SIGNAL);
+    REMOTE_PrologMode(0) |= InterruptMode;
+#else
     Yap_signal(YAP_WINTIMER_SIGNAL);
-    LOCAL_PrologMode |= InterruptMode;
+     LOCAL_PrologMode |= InterruptMode;
+#endif
     return(TRUE);
   default:
     return(FALSE);
@@ -1739,32 +1807,9 @@ Yap_volume_header(char *file)
 }
 
 
-int Yap_getcwd(const char *buf, int len)
+char * Yap_getcwd(const char *cwd, size_t cwdlen)
 {
-  CACHE_REGS
-#if __simplescalar__
-  /* does not implement getcwd */
-  strncpy(Yap_buf,GLOBAL_pwd,len);
-#elif HAVE_GETCWD
-  if (getcwd ((char *)buf, len) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "error %d in getcwd/1", errno);
-#endif
-    return FALSE;
-  }
-#else
-  if (getwd (buf) == NULL) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "%s in getcwd/1", strerror(errno));
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR, ARG1, "in getcwd/1");
-#endif
-    return FALSE;
-  }
-#endif
-  return TRUE;
+  return PL_cwd((char *)cwd, cwdlen);
 }
 
 /******
@@ -1778,6 +1823,9 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
   char ares1[YAP_FILENAME_MAX];
 
   result[0] = '\0';
+  if (strlen(source) >= YAP_FILENAME_MAX) {
+    Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "%s in true_file-name is larger than the buffer size (%d bytes)", source, strlen(source));    
+  }
 #if defined(__MINGW32__) || _MSC_VER
   /* step 0: replace / by \ */
   strncpy(ares1, source, YAP_FILENAME_MAX);
@@ -2677,13 +2725,45 @@ p_yap_paths( USES_REGS1 ) {
     out3 = MkAtomTerm(Yap_LookupAtom(DESTDIR "/" YAP_BINDIR));
   } else {
     out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
+#if __ANDROID__
+    out2 = MkAtomTerm(Yap_LookupAtom("/assets/share"));
+#else
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
+#endif
     out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
   }
   return(Yap_unify(out1,ARG1) &&
 	 Yap_unify(out2,ARG2) &&
 	 Yap_unify(out3,ARG3));
 }
+
+static Int
+p_log_event( USES_REGS1 ) {
+  Term in = Deref(ARG1);
+  Atom at;
+
+  if (IsVarTerm(in))
+    return FALSE;
+  if (!IsAtomTerm(in))
+    return FALSE;
+  at = AtomOfTerm( in );
+#if DEBUG
+  if (IsWideAtom(at) )
+    fprintf(stderr, "LOG %S\n", RepAtom(at)->WStrOfAE);
+  else if (IsBlob(at))
+    return FALSE;
+  else
+    fprintf(stderr, "LOG %s\n", RepAtom(at)->StrOfAE);
+#endif
+  if (IsWideAtom(at) || IsBlob(at))
+    return FALSE;
+#if __ANDROID__
+  __android_log_print(ANDROID_LOG_INFO, "YAP", " %s ",RepAtom(at)->StrOfAE);
+#endif
+  return TRUE;
+
+}
+
 
 static Int
 p_env_separator( USES_REGS1 ) {
@@ -3010,6 +3090,12 @@ Yap_InitSysPreds(void)
   /* can only do after heap is initialised */
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
+#if HAVE_RANDOM
+  Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
+  Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
+  Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
+#endif
+  Yap_InitCPred ("log_event", 1, p_log_event, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag|UserCPredFlag);

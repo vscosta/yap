@@ -420,7 +420,7 @@ static Int p_tabling_mode( USES_REGS1 ) {
       t = MkPairTerm(MkAtomTerm(AtomBatched), t);
     else if (IsMode_Local(TabEnt_mode(tab_ent)))
       t = MkPairTerm(MkAtomTerm(AtomLocal), t);
-    Bind((CELL *) tvalue, t);
+    YapBind((CELL *) tvalue, t);
     return(TRUE);
   } else if (IsIntTerm(tvalue)) {
     Int value = IntOfTerm(tvalue);
@@ -701,7 +701,7 @@ static Int p_parallel_mode( USES_REGS1 ) {
       ta = MkAtomTerm(Yap_LookupAtom("on"));
     else /* PARALLEL_MODE_RUNNING */
       ta = MkAtomTerm(Yap_LookupAtom("running"));
-    Bind((CELL *)t, ta);
+    YapBind((CELL *)t, ta);
     return(TRUE);
   }
   if (IsAtomTerm(t) && GLOBAL_parallel_mode != PARALLEL_MODE_RUNNING) {
@@ -1041,11 +1041,11 @@ static Int p_get_optyap_statistics( USES_REGS1 ) {
   tbytes = Deref(ARG2);
   tstructs = Deref(ARG3);
   if (IsVarTerm(tbytes)) {
-    Bind((CELL *) tbytes, MkIntTerm(bytes));
+    YapBind((CELL *) tbytes, MkIntTerm(bytes));
   } else if (IsIntTerm(tbytes) &&  IntOfTerm(tbytes) != bytes)
     return (FALSE);
   if (IsVarTerm(tstructs)) {
-    Bind((CELL *) tstructs, MkIntTerm(structs));
+    YapBind((CELL *) tstructs, MkIntTerm(structs));
   } else if (IsIntTerm(tstructs) &&  IntOfTerm(tstructs) != structs)
     return (FALSE);
   return (TRUE);

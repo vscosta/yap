@@ -121,7 +121,7 @@ LookupModule(Term a )
 
   /* prolog module */
   if (a == 0) {
-    return GetModuleEntry(AtomProlog);
+    return GetModuleEntry(AtomUser);
   }
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);
@@ -263,6 +263,62 @@ p_strip_module( USES_REGS1 )
     Yap_unify(ARG2, tmod);      
 }
 
+static Term
+Yap_YapStripModule(Term t,  Term *modp)
+{
+  CACHE_REGS
+  Term tmod;
+
+  if (modp)
+    tmod = *modp;
+  else {
+    tmod = CurrentModule;
+    if (tmod == PROLOG_MODULE) {
+      tmod = TermProlog;
+    }
+  }
+ restart:
+  if (IsVarTerm(t) || !IsApplTerm(t)) {
+    if (modp)
+      *modp = tmod;
+    return t;
+  } else {
+    Functor    fun = FunctorOfTerm(t);
+    if (fun == FunctorModule) {
+      Term t1 = ArgOfTerm(1, t); 
+      tmod = t1;
+      if (!IsVarTerm(tmod) && !IsAtomTerm(tmod) ) {
+	return 0L;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    if (modp)
+      *modp = tmod;
+    return t;
+  }
+  return 0L;
+}
+
+
+
+
+static Int
+p_yap_strip_module( USES_REGS1 )
+{
+  Term t1 = Deref(ARG1), tmod = CurrentModule;
+  if (tmod == PROLOG_MODULE) {
+    tmod = TermProlog;
+  }
+  t1 = Yap_YapStripModule( t1, &tmod );
+  if (!t1) {
+    Yap_Error(TYPE_ERROR_CALLABLE,ARG1,"trying to obtain module");
+    return FALSE;
+  }
+  return Yap_unify(ARG3, t1) &&
+    Yap_unify(ARG2, tmod);      
+}
+
 static Int
 p_context_module( USES_REGS1 )
 {
@@ -335,6 +391,7 @@ Yap_InitModulesC(void)
   Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$yap_strip_module", 3, p_yap_strip_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("context_module", 1, p_context_module, 0);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
 		SafePredFlag|SyncPredFlag);

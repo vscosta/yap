@@ -266,14 +266,14 @@ int   Yap_PlFGetchar(void);
 int   Yap_GetCharForSIGINT(void);
 Int   Yap_StreamToFileNo(Term);
 Term  Yap_OpenStream(FILE *,char *,Term,int);
-Term  Yap_StringToTerm(char *,Term *);
 char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
+char *Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags);
 int     Yap_GetFreeStreamD(void);
 int     Yap_GetFreeStreamDForReading(void);
 
 Term	Yap_WStringToList(wchar_t *);
 Term	Yap_WStringToListOfAtoms(wchar_t *);
-Atom	Yap_LookupWideAtom( wchar_t * );
+Atom	Yap_LookupWideAtom( const wchar_t * );
 
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02

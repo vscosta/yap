@@ -1,4 +1,4 @@
-s%   File   : compile_foreach.pl
+%   File   : compile_foreach.pl
 %   Author : Neng-Fa Zhou
 %   Updated: June 2009, updated Dec. 2009, updated Sep. 2010
 %   Purpose: compile away foreach
@@ -10,9 +10,12 @@ s%   File   : compile_foreach.pl
 
 :- yap_flag(unknown,error).
 :- ensure_loaded(actionrules).
-:- op(560,xfx,[..,to,downto]).
-:- op(700,xfx,[subset,notin,in,@=]).
-
+:- op(1200,fy,[delay]).
+:- op(1150,xfy,[?]).
+:- op(560,xfy,[..,to,downto]).
+:- op(700,xfx,[subset,notin,is,in,\==,\=,@>=,@>,@=<,@=,@<,@:=,?=,>=,>,
+				  =\=,==,=<,=:=,=..,=,<=,<,:=,$>=,$=<,$=,#\=,#>=,#>,#=<,
+		 #=,#<\-,#<>,#<-,#<,#:=,##]).
 /*
 test:-
     Cl1=(test1(L):-foreach(I in L, write(I))),
@@ -32,7 +35,7 @@ test:-
     (member(NCl,NCls), portray_clause(NCl),fail;true).
 */
 compile_foreach(File):-
-    $getclauses_read_file(File,'$t.t.t$',0,_Singleton,_Redef,Cls,[]),
+    '$getclauses_read_file'(File,'$t.t.t$',0,_Singleton,_Redef,Cls,[]),
     compile_foreach(Cls,NCls),
     foreach(NCl in NCls, portray_clause(NCl)).
 
@@ -137,8 +140,8 @@ exp_contains_list_comp(max([(_ : _)|_]),Flag) => Flag=1.
 exp_contains_list_comp(_,_) => true.
 
 %%
-$change_list_comprehension_to_foreach_cmptime(T,I,Is,CallForeach,L):-
-    $retrieve_list_comp_lvars_goal_cmptime(Is,LocalVars1,Goal1,Is1),
+'$change_list_comprehension_to_foreach_cmptime'(T,I,Is,CallForeach,L):-
+    '$retrieve_list_comp_lvars_goal_cmptime'(Is,LocalVars1,Goal1,Is1),
     (nonvar(T),T=_^_->  % array access
         LocalVars=[TempVar|LocalVars1],
         (Goal1==true->
@@ -157,20 +160,20 @@ $change_list_comprehension_to_foreach_cmptime(T,I,Is,CallForeach,L):-
     append(Is1,[LocalVars,ac1(L,[]),Goal],Is2),
     CallForeach=..[foreach,I|Is2].
 
-$retrieve_list_comp_lvars_goal_cmptime([],LocalVars,Goal,Is) =>
+'$retrieve_list_comp_lvars_goal_cmptime'([],LocalVars,Goal,Is) =>
      LocalVars=[],Goal=true,Is=[].
-$retrieve_list_comp_lvars_goal_cmptime([E|Es],LocalVars,Goal,Is),E = (_ in _) =>
+'$retrieve_list_comp_lvars_goal_cmptime'([E|Es],LocalVars,Goal,Is),E = (_ in _) =>
     Is=[E|IsR],
-    $retrieve_list_comp_lvars_goal_cmptime(Es,LocalVars,Goal,IsR).
-$retrieve_list_comp_lvars_goal_cmptime([LVars,G],LocalVars,Goal,Is),LVars=[] =>
+    '$retrieve_list_comp_lvars_goal_cmptime'(Es,LocalVars,Goal,IsR).
+'$retrieve_list_comp_lvars_goal_cmptime'([LVars,G],LocalVars,Goal,Is),LVars=[] =>
     Is=[],LocalVars=LVars,G=Goal.
-$retrieve_list_comp_lvars_goal_cmptime([LVars,G],LocalVars,Goal,Is),LVars=[_|_] =>
+'$retrieve_list_comp_lvars_goal_cmptime'([LVars,G],LocalVars,Goal,Is),LVars=[_|_] =>
     Is=[],LocalVars=LVars,G=Goal.
-$retrieve_list_comp_lvars_goal_cmptime([LVars],LocalVars,Goal,Is),LVars=[_|_] =>
+'$retrieve_list_comp_lvars_goal_cmptime'([LVars],LocalVars,Goal,Is),LVars=[_|_] =>
     Is=[],LocalVars=LVars,Goal=true.
-$retrieve_list_comp_lvars_goal_cmptime([LVars],LocalVars,Goal,Is),LVars=[] =>
+'$retrieve_list_comp_lvars_goal_cmptime'([LVars],LocalVars,Goal,Is),LVars=[] =>
     Is=[],LocalVars=LVars,Goal=true.
-$retrieve_list_comp_lvars_goal_cmptime([G],LocalVars,Goal,Is),nonvar(G) =>
+'$retrieve_list_comp_lvars_goal_cmptime'([G],LocalVars,Goal,Is),nonvar(G) =>
     Is=[],LocalVars=[],G=Goal.
 
 %%
@@ -400,7 +403,7 @@ split_acs_map([ac_inout(Name,In,Out)|ACMap],ACMap1,ACMap2) =>
 /* utilities */
 extract_arg_vars([],_I,_Iterators,_LocalVars,_ACMap,Args,ArgsR) => Args=ArgsR.
 extract_arg_vars([Var|Vars],I,Iterators,LocalVars,ACMap,Args,ArgsR):-true ?
-    ($occur(Var,I);
+    ('$occur'(Var,I);
      is_a_loop_var(Var,Iterators);
      membchk(Var,LocalVars);
      foreach_lookup_acmap(Var,1,_,ACMap);
@@ -410,7 +413,7 @@ extract_arg_vars([Var|Vars],I,Iterators,LocalVars,ACMap,Args,ArgsR) =>
     Args=[Var|Args1],
     extract_arg_vars(Vars,I,Iterators,LocalVars,ACMap,Args1,ArgsR).
 
-is_a_loop_var(Var,(I in _)):-true ? $occur(Var,I),!.
+is_a_loop_var(Var,(I in _)):-true ? '$occur'(Var,I),!.
 is_a_loop_var(Var,(Iterators1,_)):-true ?
     is_a_loop_var(Var,Iterators1),!.
 is_a_loop_var(Var,(_,Iterators2)) =>

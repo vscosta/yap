@@ -30,7 +30,7 @@
 */
 
 :- module('$history',
-	  [ read_history/6,
+	  [ %read_history/6,
 	    '$clean_history'/0,
 	    '$save_history'/1
 	  ]).

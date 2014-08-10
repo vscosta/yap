@@ -657,8 +657,8 @@ typedef enum
 {
   DiscontiguousPredFlag = ((UInt)0x00000010 << EXTRA_FLAG_BASE),	/* predicates whose clauses may be all-over the place.. */
   SysExportPredFlag = ((UInt)0x00000008 << EXTRA_FLAG_BASE),		/* reuse export list to prolog module. */
-  NoDebugPredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
-  NoTracePredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
+  NoTracePredFlag = ((UInt)0x00000004 << EXTRA_FLAG_BASE),		/* cannot trace this predicate */
+  NoSpyPredFlag = ((UInt)0x00000002 << EXTRA_FLAG_BASE),		/* cannot spy this predicate */
   QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   (UInt)0x80000000, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = (UInt)0x40000000,	/* local to a thread */
@@ -1267,7 +1267,7 @@ Yap_GetTranslationProp(Atom at)
   while (p0 && p->KindOfPE != TranslationProperty)
     p = RepTranslationProp(p0 = p->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
-  if (p0 == NIL) return NULL;
+  if (p0 == NIL) return (TranslationEntry *)NULL;
   return p;
 }
 
@@ -1655,10 +1655,10 @@ PredPropByFunc (Functor fe, Term cur_mod)
 {
   Prop p0;
 
-  WRITE_LOCK (fe->FRWLock);
+  FUNC_WRITE_LOCK (fe);
   p0 = GetPredPropByFuncHavingLock(fe, cur_mod);
   if (p0) {
-    WRITE_UNLOCK (fe->FRWLock);
+    FUNC_WRITE_UNLOCK (fe);
     return p0;
   }
   return Yap_NewPredPropByFunctor (fe, cur_mod);
@@ -1713,10 +1713,10 @@ PredPropByFuncAndMod (Functor fe, Term cur_mod)
 {
   Prop p0;
 
-  WRITE_LOCK (fe->FRWLock);
+  FUNC_WRITE_LOCK (fe);
   p0 = GetPredPropByFuncAndModHavingLock(fe, cur_mod);
   if (p0) {
-    WRITE_UNLOCK (fe->FRWLock);
+    FUNC_WRITE_UNLOCK (fe);
     return p0;
   }
   return Yap_NewPredPropByFunctor (fe, cur_mod);

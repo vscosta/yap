@@ -15,10 +15,10 @@
       break;
       /* instructions type Illss */
     case _enter_lu_pred:
-      return walk_got_lu_block(pc->u.Illss.I, startp, endp);
+      return walk_got_lu_block(pc->y_u.Illss.I, startp, endp);
       /* instructions type L */
     case _alloc_for_logical_pred:
-      return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);
+      return walk_got_lu_clause(pc->y_u.L.ClBase, startp, endp);
       /* instructions type N */
     case _write_bigint:
       pc = NEXTOP(pc,N);
@@ -27,7 +27,7 @@
     case _either:
     case _or_else:
       clause_code = TRUE;
-      pp = pc->u.Osblp.p0;
+      pp = pc->y_u.Osblp.p0;
       pc = NEXTOP(pc,Osblp);
       break;
       /* instructions type Osbmp */
@@ -41,30 +41,30 @@
       break;
       /* instructions type Osbpp */
     case _call_cpred:
-      pp = pc->u.Osbpp.p;
+      pp = pc->y_u.Osbpp.p;
       return walk_found_c_pred(pp, startp, endp);
     case _call_usercpred:
-      pp = pc->u.Osbpp.p;
+      pp = pc->y_u.Osbpp.p;
       return walk_found_c_pred(pp, startp, endp);
     case _p_execute2:
       return found_meta_call(startp, endp);
     case _call:
     case _fcall:
       clause_code = TRUE;
-      pp = pc->u.Osbpp.p0;
+      pp = pc->y_u.Osbpp.p0;
       pc = NEXTOP(pc,Osbpp);
       break;
       /* instructions type OtILl */
     case _count_trust_logical:
     case _profiled_trust_logical:
     case _trust_logical:
-      return walk_got_lu_block(pc->u.OtILl.block, startp, endp);
+      return walk_got_lu_block(pc->y_u.OtILl.block, startp, endp);
       /* instructions type OtaLl */
     case _count_retry_logical:
     case _profiled_retry_logical:
     case _retry_logical:
     case _try_logical:
-      pc = pc->u.OtaLl.n;
+      pc = pc->y_u.OtaLl.n;
       break;
       /* instructions type OtapFs */
     case _cut_c:
@@ -74,7 +74,7 @@
     case _try_c:
     case _try_userc:
       clause_code = TRUE;
-      pp = pc->u.OtapFs.p;
+      pp = pc->y_u.OtapFs.p;
       pc = NEXTOP(pc,OtapFs);
       break;
       /* instructions type Otapl */
@@ -94,7 +94,7 @@
     case _try_clause:
     case _try_me:
       clause_code = FALSE;
-      pp = pc->u.Otapl.p;
+      pp = pc->y_u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type aFlp */
@@ -342,7 +342,7 @@
       /* instructions type p */
     case _lock_lu:
     case _procceed:
-      pp = pc->u.p.p;
+      pp = pc->y_u.p.p;
       if (pp->PredFlags & MegaClausePredFlag)
         return found_mega_clause(pp, startp, endp);
       clause_code = TRUE;
@@ -372,12 +372,12 @@
       break;
       /* instructions type pp */
     case _execute_cpred:
-      pp = pc->u.pp.p;
+      pp = pc->y_u.pp.p;
       return walk_found_c_pred(pp, startp, endp);
     case _dexecute:
     case _execute:
       clause_code = TRUE;
-      pp = pc->u.pp.p0;
+      pp = pc->y_u.pp.p0;
       pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
@@ -398,7 +398,7 @@
       break;
       /* instructions type slp */
     case _call_c_wfail:
-      pp = pc->u.slp.p;
+      pp = pc->y_u.slp.p;
       return walk_found_c_pred(pp, startp, endp);
       /* instructions type sssl */
     case _go_on_cons:
@@ -619,7 +619,7 @@
     case _getwork_seq:
     case _sync:
       clause_code = FALSE;
-      pp = pc->u.Otapl.p;
+      pp = pc->y_u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
@@ -644,7 +644,7 @@
     case _table_try_me:
     case _table_try_single:
       clause_code = FALSE;
-      pp = pc->u.Otapl.p;
+      pp = pc->y_u.Otapl.p;
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
@@ -728,13 +728,13 @@
       /* this instruction is hardwired */
     case _or_last:
 #ifdef YAPOR
-      pp = pc->u.Osblp.p0;
+      pp = pc->y_u.Osblp.p0;
       if (pp->PredFlags & MegaClausePredFlag)
         return found_mega_clause(pp, startp, endp);
       clause_code = TRUE;
       pc = NEXTOP(pc,Osblp);
 #else
-      pp = pc->u.p.p;
+      pp = pc->y_u.p.p;
       if (pp->PredFlags & MegaClausePredFlag)
         return found_mega_clause(pp, startp, endp);
       clause_code = TRUE;

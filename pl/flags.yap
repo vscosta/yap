@@ -83,7 +83,7 @@ yap_flag(gc_margin,N) :-
 	( var(N) -> 
 	    get_value('$gc_margin',N)
 	;
-	  integer(N), N >0  ->
+	integer(N), N >=0  ->
 	    set_value('$gc_margin',N)
 	;
 	    '$do_error'(domain_error(flag_value,gc_margin+X),yap_flag(gc_margin,X))
@@ -722,17 +722,6 @@ prolog_flag(F, Old, New) :-
 prolog_flag(F, Old) :-
 	current_prolog_flag(F, Old).
 
-% if source_mode is on, then the source for the predicates
-% is stored with the code
-source_mode(Old,New) :-
-	'$access_yap_flags'(11,X),
-	'$transl_to_on_off'(X,Old),
-	'$transl_to_on_off'(XN,New),
-	'$set_yap_flags'(11,XN).
-
-source :- '$set_yap_flags'(11,1).
-no_source :- '$set_yap_flags'(11,0).
-
 create_prolog_flag(Name, Value, Options) :-
 	'$check_flag_name'(Name, create_prolog_flag(Name, Value, Options)),
 	'$check_flag_options'(Options, Domain, RW, create_prolog_flag(Name, Value, Options)),
@@ -838,3 +827,47 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(_, term).
 
 
+/**
+    @pred source_mode(- _O_,+ _N_) 
+
+The state of source mode can either be on or off. When the source mode
+is on, all clauses are kept both as compiled code and in a "hidden"
+database.  _O_ is unified with the previous state and the mode is set
+according to  _N_.
+@{
+
+*/
+
+
+% if source_mode is on, then the source for the predicates
+% is stored with the code
+source_mode(Old,New) :-
+	'$access_yap_flags'(11,X),
+	'$transl_to_on_off'(X,Old),
+	'$transl_to_on_off'(XN,New),
+	'$set_yap_flags'(11,XN).
+
+/**   @pred source
+
+After executing this goal, YAP keeps information on the source
+of the predicates that will be consulted. This enables the use of
+[listing/0](@ref listing), `listing/1` and [clause/2](@ref clause) for those
+clauses.
+
+The same as `source_mode(_,on)` or as declaring all newly defined
+static procedures as `public`.
+*/
+source :- '$set_yap_flags'(11,1).
+
+
+/** @pred no_source
+ The opposite to `source`.
+
+The same as `source_mode(_,off)`.
+
+*/
+no_source :- '$set_yap_flags'(11,0).
+
+/**
+@}
+*/

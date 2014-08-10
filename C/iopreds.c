@@ -484,14 +484,13 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 {
   CACHE_REGS
   TokEntry *tokstart;
-  Term t, v;
+  Term t;
   Term OCurrentModule = CurrentModule, tmod, tpos;
   int store_comments = rd->comments;
 
   if (inp_stream == NULL) {
     return FALSE;
   }
-  CurrentModule = tmod = MkAtomTerm(rd->module->AtomOfME);
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   while (TRUE) {
     CELL *old_H;
@@ -558,7 +557,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       }
     }
   repeat_cycle:
-    CurrentModule = tmod;
+    CurrentModule = tmod = MkAtomTerm(rd->module->AtomOfME);
     if (LOCAL_ErrorMessage || (t = Yap_Parse(rd)) == 0) {
       CurrentModule = OCurrentModule;
       if (LOCAL_ErrorMessage) {
@@ -601,6 +600,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	rd->has_exception = TRUE;
 	rd->exception = Yap_InitSlot(terror PASS_REGS);
+	CurrentModule = OCurrentModule;
 	return FALSE;
       }
     } else {
@@ -614,6 +614,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
   if (store_comments && !Yap_unify(LOCAL_Comments, Yap_GetFromSlot( rd->comments PASS_REGS)))
     return FALSE;
   if (rd->varnames) {
+      Term v;
     while (TRUE) {
       CELL *old_H = HR;
 
@@ -633,11 +634,14 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS)))
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS))) {
+      CurrentModule = OCurrentModule;
       return FALSE;
+    }
   }
 
   if (rd->variables) {
+      Term v;
     while (TRUE) {
       CELL *old_H = HR;
 
@@ -657,10 +661,13 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 	TR = old_TR;
       }
     }
-    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS)))
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS))) {
+      CurrentModule = OCurrentModule;
       return FALSE;
+    }
   }
   if (rd->singles) {
+    Term v;
     while (TRUE) {
       CELL *old_H = HR;
 
@@ -686,11 +693,14 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       else
 	rd->singles = FALSE;
     } else if (rd->singles) {
-      if (!Yap_unify( rd->singles, Yap_GetFromSlot( v PASS_REGS )))
-	  return FALSE;
+      if (!Yap_unify( v, Yap_GetFromSlot( rd->singles PASS_REGS ))) {
+	CurrentModule = OCurrentModule;
+	return FALSE;
+      }
     }
   }
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+  CurrentModule = OCurrentModule;
   return TRUE;
 }
 
@@ -955,10 +965,8 @@ p_write_string( USES_REGS1 )
   int encoding;
   char buf[256];
 
-  if ((s = Yap_TermToString( in, NULL, 0, &length, &encoding, 0)))
-    fprintf(stderr,"%ld %s\n",length, s);
   if ((s = Yap_TermToString( in, buf, 256, &length, &encoding, 0)))
-    fprintf(stderr,"%ld %s\n",length, s);
+    fprintf(stderr,"%s\n", s);
   return TRUE;
 }
 #endif

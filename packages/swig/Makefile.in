@@ -7,10 +7,11 @@ JAR=@JAR@
 include ../Makefile.defs
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1 -DDESTDIR=\"$(DESTDIR)\"
 YAP_EXTRAS=@YAP_EXTRAS@
-CPPFLAGS=@CPPFLAGS@  -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
-CXXFLAGS=  @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
+srcdir=@srcdir@
+CPPFLAGS= -I../.. -I$(srcdir)/../../H -I$(srcdir)/../../include  -I$(srcdir)/../../os -I$(srcdir)/../../OPTYap -I$(srcdir)/../../BEAM -I$(srcdir)/../../CXX
+CXXFLAGS=  $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 
-PROGRAMS= \
+PROGRAMS= $(srcdir)/python/demo.py \
 
 SWIG_FILES= \
 	$(srcdir)/yap.i
@@ -18,38 +19,72 @@ SWIG_FILES= \
 all: python java R
 
 python: $(SWIG_FILES) python/_yap.so python/yap.py
+	cp $(srcdir)/python/demo.py python
 
 python/_yap.so: python/yap_wrap.o
 	$(CXX) -shared $(LDSOFLAGS) -o python/_yap.so python/yap_wrap.o ../../yapi.o $(LIBS) @PYTHON_LIBS@ -L ../.. -lYap -lpthread
 
-python/yap_wrap.c: $(srcdir)/yap.i
-	$(SWIG) -c++ -python  -outdir python -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
+python/yap_wrap.cpp python/yap.py: $(srcdir)/yap.i
+	mkdir -p python
+	$(SWIG) -c++ -python  -outdir python -o $@ $(CXXFLAGS) -Wall $<
 
-python/yap_wrap.o:  python/yap_wrap.c
-	$(CXX) -c $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
+python/yap_wrap.o:  python/yap_wrap.cpp
+	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @PYTHON_INCLUDES@ $< -o $@
 
 java: jni/libyap.@SO@ java/yap.java
 	cd java ; $(JAVAC) *.java; $(JAR) cvf yap.jar *.class			
 
 jni/libyap.@SO@: jni/yap_wrap.o
-	$(CXX) -shared $(LDSOFLAGS)  -L ../.. -lYap -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
+	$(CXX) -shared $(LDSOFLAGS) -o $@ ../../yapi.o  $< $(LIBS) @JPLLDFLAGS@ -L ../.. -lYap -lpthread
 
-jni/yap_wrap.c: $(srcdir)/yap.i
-	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o $@ $(DEFS) $(CPPFLAGS) -Wall $<
+jni/yap_wrap.cpp java/yap.java: $(srcdir)/yap.i
+	$(SWIG) -c++ -java  -package pt.up.fc.dcc.yap -outdir java -o jni/yap_wrap.cpp  $(CXXFLAGS) -Wall $<
 
-jni/yap_wrap.o:  jni/yap_wrap.c
-	$(CXX) -c $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
+jni/yap_wrap.o:  jni/yap_wrap.cpp
+	$(CXX) -c  @SHLIB_CXXFLAGS@ $(CXXFLAGS) @JPLCFLAGS@  $< -o $@
+
+# depends on make install on top-level
+# also, should have an android device running, say
+#   emulator -avd first &
+#
+# adb uninstall org.swig.simple  ( if not the first time )
+# adb install bin/JavaYap-debug.apk
+#
+#
+android: android/jni/yap_wrap.cpp
+
+android/jni/yap_wrap.cpp:  $(srcdir)/yap.i
+	android create project --target 1 --name JavaYap --path ./android --activity JavaYap --package pt.up.fc.dcc.yap;\
+	( cd android ; mkdir -p jni jni/lib; mkdir -p assets/share/Yap; mkdir -p assets/lib/Yap;\
+	$(SWIG) -c++ -java -I$(srcdir)/../../CXX -package pt.up.fc.dcc.yap -outdir src/pt/up/fc/dcc/yap -o jni/yap_wrap.cpp $(CXXFLAGS) $< ;\
+	cp -r $(srcdir)/android/jni/sqlite jni ;\
+	cp -r $(srcdir)/android/src/* src ;\
+	cp -r $(srcdir)/../prosqlite/prolog/prosqlite.pl assets/share/Yap ;\
+	cp $(srcdir)/android/JavaYap.java src/pt/up/fc/dcc/yap/ ;\
+	cp $(srcdir)/android/main.xml res/layout ;\
+	cp $(srcdir)/android/Application.mk jni ;\
+	cp -r $(DESTDIR)$(PLLIBDIR)/* assets/share/Yap;\
+	cp -r ../../../startup.yss assets/lib/Yap;\
+	cp -r $(DESTDIR)$(SOLIBDIR)/*.so jni;\
+	cp ../Android.mk jni ;\
+	NDK_DEBUG=1 ndk-build ; \
+	ant debug \
+	)
+
+make install-android: android
+	adb uninstall pt.up.fc.dcc.yap
+	adb install android/bin/JavaYap-debug.apk
 
 R:
 
 
-yap.i: $(srcdir)/../../include/YapInterface.h
+yap.i: $(srcdir)/../../../../include/YapInterface.h
 
 install: 
 
 
 clean:
-	rm -f */*
+	rm -fr android/* jni/* java/* python/*
 
 distclean: clean
 	rm -f *def Makefile

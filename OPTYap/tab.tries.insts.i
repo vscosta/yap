@@ -175,7 +175,7 @@
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity - 1;                 \
           next_instruction(heap_arity - 1 || subs_arity, node);         \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], t);                   \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], t);                   \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           next_instruction(subs_arity - 1, node);                       \
         }
@@ -184,7 +184,7 @@
         if (heap_arity) {                                               \
           Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
@@ -206,7 +206,7 @@
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + 1;                 \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-2];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 2;                              \
@@ -221,7 +221,7 @@
         if (heap_arity) {                                               \
           Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
 	} else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
@@ -247,7 +247,7 @@
           TOP_STACK = &aux_stack[-func_arity + 1];                      \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity - 1;    \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsAppl(HR));          \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsAppl(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-func_arity];                          \
           TOP_STACK[HEAP_ARITY_ENTRY] = func_arity;                     \
@@ -266,7 +266,7 @@
           TOP_STACK = &aux_stack[-func_arity];                          \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity;        \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-func_arity - 1];                      \
           TOP_STACK[HEAP_ARITY_ENTRY] = func_arity + 1;                 \
@@ -319,7 +319,7 @@
           for (i = 2; i <= heap_arity; i++)                             \
             TOP_STACK[HEAP_ENTRY(i)] = aux_stack[HEAP_ENTRY(i)];        \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-2];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
@@ -384,7 +384,7 @@
         if (heap_arity) {                                               \
           Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
+          YapBind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \

@@ -1618,6 +1618,40 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
   return Yap_unify(ARG2,out);
 }
 
+/**
+ * Exports a nil-terminated list with all the variables in a term.
+ * @param[in] the term
+ * @param[in] the arity of the calling predicate (required for exact garbage collection).
+ */
+Term
+Yap_TermVariables( Term t, UInt arity USES_REGS )	/* variables in term t		 */
+{
+  Term out;
+
+   do {
+    t = Deref(t);
+    if (IsVarTerm(t)) {
+      return MkPairTerm(t, TermNil);
+    }  else if (IsPrimitiveTerm(t)) {
+      return TermNil;
+    } else if (IsPairTerm(t)) {
+      out = vars_in_complex_term(RepPair(t)-1,
+				 RepPair(t)+1, TermNil PASS_REGS);
+    }
+    else {
+      Functor f = FunctorOfTerm(t);
+      out = vars_in_complex_term(RepAppl(t),
+				 RepAppl(t)+
+				 ArityOfFunctor(f), TermNil PASS_REGS);
+    }
+    if (out == 0L) {
+      if (!expand_vts( arity PASS_REGS ))
+	return FALSE;
+    }
+  } while (out == 0L);
+  return out;
+}
+
 static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp USES_REGS)
 {
 
@@ -4150,7 +4184,7 @@ p_subsumes( USES_REGS1 ) /* subsumes terms t1 and t2	 */
   if (t1 == t2)
     return (TRUE);
   if (IsVarTerm(t1)) {
-    Bind(VarOfTerm(t1), t2);
+    YapBind(VarOfTerm(t1), t2);
     if (Yap_rational_tree_loop(VarOfTerm(t1)-1,VarOfTerm(t1),(CELL **)AuxSp,(CELL **)AuxBase))
       return FALSE;
     return TRUE;
@@ -4238,7 +4272,7 @@ static int term_subsumer_complex(register CELL *pt0, register CELL *pt0_end, reg
       HR[1] = d1;
       HR[2] = (CELL)npt;
       HR[3] = d0;
-      Bind(VarOfTerm(d0), (CELL)HR);
+      YapBind(VarOfTerm(d0), (CELL)HR);
       HR+=4;
       RESET_VARIABLE(npt);
       npt++;

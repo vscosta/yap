@@ -1413,63 +1413,88 @@ return FALSE;
 static int
 atom_to_term(term_t atom, term_t term, term_t bindings)
 { GET_LD
-	PL_chars_t txt;
+  PL_chars_t txt;
 
 if ( !bindings && PL_is_variable(atom) ) /* term_to_atom(+, -) */
-{ char buf[1024];
-size_t bufsize = sizeof(buf);
-int rval;
-char *s = buf;
-IOSTREAM *stream;
-PL_chars_t txt;
+  { char buf[1024];
+  size_t bufsize = sizeof(buf);
+  int rval;
+  char *s = buf;
+  IOSTREAM *stream;
+  PL_chars_t txt;
 
-stream = Sopenmem(&s, &bufsize, "w");
-stream->encoding = ENC_UTF8;
-PL_write_term(stream, term, 1200, PL_WRT_QUOTED);
-Sflush(stream);
+  stream = Sopenmem(&s, &bufsize, "w");
+  stream->encoding = ENC_UTF8;
+  PL_write_term(stream, term, 1200, PL_WRT_QUOTED);
+  Sflush(stream);
 
-txt.text.t = s;
-txt.length = bufsize;
-txt.storage = PL_CHARS_HEAP;
-txt.encoding = ENC_UTF8;
-txt.canonical = FALSE;
-rval = PL_unify_text(atom, 0, &txt, PL_ATOM);
+  txt.text.t = s;
+  txt.length = bufsize;
+  txt.storage = PL_CHARS_HEAP;
+  txt.encoding = ENC_UTF8;
+  txt.canonical = FALSE;
+  rval = PL_unify_text(atom, 0, &txt, PL_ATOM);
 
-Sclose(stream);
-if ( s != buf )
-	Sfree(s);
+  Sclose(stream);
+  if ( s != buf )
+    Sfree(s);
 
-return rval;
-}
+  return rval;
+  }
 
 if ( PL_get_text(atom, &txt, CVT_ALL|CVT_EXCEPTION) )
-{ GET_LD
-	read_data rd;
-int rval;
-IOSTREAM *stream;
-source_location oldsrc = LD->read_source;
+  { GET_LD
+    read_data rd;
+  int rval;
+  IOSTREAM *stream;
+  source_location oldsrc = LD->read_source;
 
-stream = Sopen_text(&txt, "r");
+  stream = Sopen_text(&txt, "r");
+
+  init_read_data(&rd, stream PASS_LD);
+  if ( bindings && (PL_is_variable(bindings) || PL_is_list(bindings)) )
+    rd.varnames = bindings;
+  else if ( bindings )
+    return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, bindings);
+
+  if ( !(rval = read_term(term, &rd PASS_LD)) && rd.has_exception )
+    rval = PL_raise_exception(rd.exception);
+  free_read_data(&rd);
+  Sclose(stream);
+  LD->read_source = oldsrc;
+
+  //   getchar();
+  return rval;
+  }
+
+fail;
+}
+
+Term
+Yap_StringToTerm(const char *s, size_t len, term_t bindings)
+{ GET_LD;
+  read_data rd;
+  int rval;
+  IOSTREAM *stream;
+  source_location oldsrc = LD->read_source;
+
+  stream = Sopen_string(0, (char *)s, strlen( s ),  "r");
 
 init_read_data(&rd, stream PASS_LD);
-if ( bindings && (PL_is_variable(bindings) || PL_is_list(bindings)) )
-	rd.varnames = bindings;
-else if ( bindings )
-	return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, bindings);
+rd.varnames = bindings;
+term_t tt = Yap_NewSlots(1 PASS_REGS);
 
-if ( !(rval = read_term(term, &rd PASS_LD)) && rd.has_exception )
-	rval = PL_raise_exception(rd.exception);
+if ( !(rval = read_term(tt, &rd PASS_LD)) && rd.has_exception ) {
+  rval = PL_raise_exception(rd.exception);
+  return 0L;
+}
 free_read_data(&rd);
 Sclose(stream);
 LD->read_source = oldsrc;
 
 //   getchar();
-return rval;
+return Yap_GetFromSlot( tt PASS_REGS);
 }
-
-fail;
-}
-
 
 static
 PRED_IMPL("atom_to_term", 3, atom_to_term, 0)

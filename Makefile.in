@@ -52,7 +52,7 @@ DOCSDIR=$(SHAREDIR)/doc/Yap
 #
 YAP_EXTRAS=@YAP_EXTRAS@
 
-YAPSTARTUP=startup.yss
+YAPSTARTUP=@SAVED_STATE_PREFIX@startup.yss
 
 #
 # Please do not add YAP_EXTRA flags here: if you do check the flags
@@ -103,11 +103,17 @@ TEXI2HTML=texi2html
 TEXI2PDF=texi2pdf
 YAPLIB=@YAPLIB@
 SONAMEFLAG=@SONAMEFLAG@
+#---------------
+JITFLAGS=@JITFLAGS@
+JITLD=@JITLD@
+JITLIBS=@JITLIBS@
+PAPILIB=@PAPILIB@
 
 VPATH=@srcdir@
 CWD=$(PWD)
 #
 VERSION=@YAP_VERSION@
+Y=@YAP_MAJOR_VERSION@
 DOC_VERSION=@DOC_VERSION@
 MYDDAS_VERSION=@MYDDAS_VERSION@
 #
@@ -149,7 +155,7 @@ IOLIB_HEADERS=os/pl-buffer.h \
 	os/pl-table.h \
 	os/pl-text.h \
 	os/pl-utf8.h \
-	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c 
+	H/pl-yap.h @WINDOWS@ os/windows/dirent.h os/windows/utf8.h os/windows/utf8.c os/windows/uxnt.h  os/windows/popen.c
 
 HEADERS = \
 	H/Atoms.h \
@@ -210,7 +216,9 @@ HEADERS = \
 	OPTYap/locks_mips_funcs.h OPTYap/locks_alpha.h \
 	OPTYap/locks_alpha_funcs.h \
 	OPTYap/locks_pthread.h \
-	library/dialect/swi/fli/swi.h
+	library/dialect/swi/fli/swi.h \
+	JIT/HPP/JIT.hh 	JIT/HPP/JIT_Compiler.hh \
+    JIT/HPP/jit_predicates.hh
 
 IOLIB_SOURCES=os/pl-buffer.c os/pl-ctype.c \
 	os/pl-codelist.c \
@@ -276,7 +284,6 @@ C_SOURCES= \
 	C/utilpreds.c C/write.c console/yap.c \
 	C/yap-args.c \
 	C/ypstdio.c \
-	CXX/yapi.cpp \
 	BEAM/eam_am.c BEAM/eam_showcode.c \
 	BEAM/eamindex.c BEAM/eamamasm.c \
 	BEAM/eam_gc.c BEAM/eam_split.c \
@@ -291,6 +298,11 @@ C_SOURCES= \
 	library/dialect/swi/fli/blobs.c \
 	# library/mpi/mpi.c library/mpi/mpe.c \
 	# library/lammpi/yap_mpi.c library/lamm1pi/hash.c library/lammpi/prologterms2c.c
+
+CXX_SOURCES = \
+	CXX/yapi.cpp \
+    JIT/JIT_Compiler.cpp
+        
 
 PLCONS_SOURCES = \
 	console/LGPL/pl-nt.c \
@@ -387,6 +399,15 @@ ENGINE_OBJECTS = \
 	yap-args.o write.o \
 	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)
 
+JIT_OBJECTS = \
+        @JITCOMPILER@ \
+        @JITCONFIGPREDS@ \
+        @JITANALYSISPREDS@ \
+        @JITTRANSFORMPREDS@ \
+        @JITCODEGENPREDS@ \
+        @JITDEBUGPREDS@ \
+        @JITSTATISTICPREDS@
+
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
         tai_sub.o tai_unpack.o taia_add.o taia_approx.o \
@@ -414,7 +435,7 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)  $(JIT_OBJECTS) 
 
 OBJECTS = yap.o yapi.o $(LIB_OBJECTS)
 
@@ -451,6 +472,9 @@ clause_list.o: C/clause_list.c include/clause_list.h config.h
 udi.o: C/udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $< -o $@
 
+save.o: C/save.c
+	$(CC) -c $(C_INTERF_FLAGS) -DYAPSTARTUP=\"$(YAPSTARTUP)\" $< -o $@
+
 %.o: C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -477,6 +501,12 @@ yap_random.o: library/random/yap_random.c config.h
 
 %.o: os/%.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -Ios  @EXTRA_INCLUDES_FOR_WIN32@  $< -o $@
+
+JIT_Compiler.o: IT/JIT_Compiler.cpp
+	$(CXX) -c $(CFLAGS) $(JITFLAGS) $< -o $@
+
+%.o: $JIT/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
 pl-ntcon.o: console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $< -o $@
@@ -510,9 +540,6 @@ c_interface.i: C/c_interface.c include/c_interface.h
 	$(CC) -E $(C_INTERF_FLAGS) C/c_interface.c > $@
 #
 
-mycb: mycb.c
-	$(CC) $(CFLAGS) mycb.c -o mycb
-
 INSTALLED_PACKAGES= \
 	library/matrix \
 	library/random \
@@ -534,15 +561,14 @@ INSTALLED_PACKAGES= \
 	@PKG_MPI@ \
 	@PKG_MYDDAS@ \
 	@PKG_PRISM@ \
+	@PKG_PROSQLITE@ \
 	@PKG_PYTHON@ \
 	@PKG_RAPTOR@ \
-	@PKG_CHR@ \
 	@PKG_CLIB@ \
+	@PKG_CHR@ \
 	@PKG_JPL@ \
 	@PKG_LIBARCHIVE@ \
-	@PKG_LTX2HTM@ \
 	@PKG_ODBC@ \
-	\
 	@PKG_PLUNIT@ \
 	@PKG_REAL@ \
 	@PKG_RDF@ \
@@ -550,7 +576,7 @@ INSTALLED_PACKAGES= \
 	@PKG_SGML@ \
 	@PKG_SWIG@ \
 	@PKG_WINCONSOLE@ \
-	@PKG_ZLIB@ # @PKG_PLDOC@ 
+	@PKG_ZLIB@
 
 PACKAGES=  \
 	library \
@@ -564,47 +590,84 @@ all: startup.yss
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p || exit 1; fi; \
 	done
 
-startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+@STARTUP_DEFAULT@startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
-yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS)
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@ libYap.a 
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(PAPILIB) $(JITLIBS) $(JITLD)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
 yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
-	(cd swi/console; $(MAKE))
+	$(MAKE) -C swi/console 
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) -lgdi32 @MPILDF@
 
-libYap.a: $(LIB_OBJECTS) 
+libYap.a: $(LIB_OBJECTS) yapi.o
 	-rm -f libYap.a
-	$(AR) rc libYap.a $(LIB_OBJECTS)
+	$(AR) rc libYap.a $(LIB_OBJECTS) yapi.o
 	$(RANLIB) libYap.a
 
-@DYNYAPLIB@: $(LIB_OBJECTS) yapi.o
-	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+@DYNYAPLIB@: $(LIB_OBJECTS)
+	@SHLIB_LD@  -o $@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f @DYNYAPLIB@ $$p; \
 	done
 
-install: @INSTALL_COMMAND@
+@STARTUP_ANDROID@startup.yss: 	yap@EXEC_SUFFIX@ @DYNYAPLIB@ $(PL_SOURCES) $(SWI_LIB_SOURCES)
+	adb shell rm -rf /data/yap
+	adb shell mkdir -p /data/yap
+	adb shell mkdir -p /data/yap/pl
+	adb shell mkdir -p /data/yap/swi/library
+	adb push yap /data/yap/
+	adb push @DYNYAPLIB@ /data/yap/
+	for p in $(EXTRAYAPLIBS); do \
+	  adb shell $(LN_S) /data/yap/@DYNYAPLIB@ /data/yap/$$p; \
+	done
+	adb push $(GMPDIR)/lib/libgmp.so /data/yap
+	adb push $(srcdir)/swi/library /data/yap/swi/library
+	adb push $(srcdir)/pl /data/yap/pl/
+	adb shell "echo \"bootstrap('/data/yap/pl/init.yap'). module(user). qsave_program('/data/yap/startup.yss').\" | LD_LIBRARY_PATH=/data/yap /data/yap/yap@EXEC_SUFFIX@ -b /data/yap/pl/boot.yap"
+	adb pull /data/yap/startup.yss
+	adb shell rm -rf /data/yap
 
-install_unix: startup.yss @YAPLIB@
+install: @INSTALL_COMMAND@ install_startup install_common
+
+install_unix: @YAPLIB@ yap@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
-	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
+	mkdir -p $(DESTDIR)$(SHAREDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
+	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
+	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
+
+install_startup: startup.yss 
+	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
+
+install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@
+	mkdir -p $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/icons
+	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
+	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
+	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
+	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons/yap.ico
+
+install_common: install_startup
+	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/PrologCommons
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(DOCSDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
-	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
-	$(INSTALL_DATA) startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
-	$(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	for p in $(EXTRAYAPLIBS); do \
 	  $(LN_S) -f $(DESTDIR)$(LIBDIR)/@YAPLIB@ $(DESTDIR)$(LIBDIR)/$$p; \
 	done
@@ -621,24 +684,17 @@ install_unix: startup.yss @YAPLIB@
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p install || exit 1; fi; \
 	done
 
-install_win32: startup.yss @WINDOWS@ yap-win@EXEC_SUFFIX@ install_unix
-	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
-	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
-	@WINDOWS@ $(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
-	@WINDOWS@ for i in *.dll; do $(INSTALL_PROGRAM) -m 755 $$i $(DESTDIR)$(BINDIR)/; done
-	$(INSTALL_DATA) $(srcdir)/misc/icons/yap.ico $(DESTDIR)$(SHAREDIR)/Yap/icons
-
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 ##########
-FULL_PATH_C_SOURCES=$(addprefix $(srcdir)/, $(C_SOURCES) ) 
-FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) ) 
-FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) ) 
+FULL_PATH_C_SOURCES=$(addprefix $(srcdir)/, $(C_SOURCES) )
+FULL_PATH_PL_SOURCES=$(addprefix $(srcdir)/, $(PL_SOURCES) )
+FULL_PATH_HEADERS=$(addprefix $(srcdir)/, $(HEADERS) )
 
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
-	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS) 
+	etags  $(FULL_PATH_C_SOURCES)  $(FULL_PATH_PL_SOURCES) $(FULL_PATH_HEADERS)
 	for p in $(PACKAGES); do \
 	  echo " ============== INSTALLING" $$p; \
 	  if [ -r $$p/Makefile ]; then $(MAKE) -C $$p TAGS || exit 1; fi; \
@@ -653,10 +709,10 @@ depend: $(HEADERS) $(C_SOURCES)
 	fi
 
 clean: clean_docs clean_local
-	for f in $(PACKAGES); do ( cd $$f ; $(MAKE) clean ); done
+	for f in $(PACKAGES); do ( $(MAKE) -C $$f clean ); done
 
 clean_local:
-	rm -f *.o *~ *.BAK *.a 	
+	rm -f *.o *~ *.BAK *.a
 
 distclean:  distclean_docs clean_local
 	for p in $(PACKAGES); do \
@@ -705,11 +761,11 @@ install_info:
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" --info-dir=$(DESTDIR)$(INFODIR) pillow_doc.info
 
-install_docs:
+install_docs: doxygen
 	$(MAKE) pdf
 	$(MAKE) html
-	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
-	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) pdf $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) README.TXT $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) Artistic $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) COPYING $(DESTDIR)$(DOCSDIR)
@@ -718,6 +774,8 @@ install_docs:
 	$(INSTALL_DATA) changes-5.1.html $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) changes-6.0.html $(DESTDIR)$(DOCSDIR)
 
+doxygen:
+	doxygen $(srcdir)/docs/doxygen.rc
 
 info: yap.info
 
@@ -751,8 +809,7 @@ distclean_docs: clean_docs
 	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
 
 installcheck:
-	(cd packages/cplint; $(MAKE) installcheck)
+	$(MAKE) -C packages/cplint installcheck
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-

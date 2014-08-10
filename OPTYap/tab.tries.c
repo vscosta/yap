@@ -1071,8 +1071,8 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 
   stack_vars = *Yaddr;
   subs_arity = 0;
-  pred_arity = preg->u.Otapl.s;
-  tab_ent = preg->u.Otapl.te;
+  pred_arity = preg->y_u.Otapl.s;
+  tab_ent = preg->y_u.Otapl.te;
   current_sg_node = get_insert_subgoal_trie(tab_ent PASS_REGS);
   LOCK_SUBGOAL_TRIE(tab_ent);
 
@@ -1311,7 +1311,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
 
   for (i = subs_arity; i >= 1; i--) {
     Term t = STACK_POP_DOWN(stack_terms);
-    Bind((CELL *) subs_ptr[i], t);
+    YapBind((CELL *) subs_ptr[i], t);
   }
   TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)LOCAL_TrailTop);
 
@@ -1332,7 +1332,7 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
 
   subs_ptr = aux_stack + aux_stack[1] + 2;
   t = STACK_POP_DOWN(stack_terms);
-  Bind((CELL *) subs_ptr[subs_arity], t);
+  YapBind((CELL *) subs_ptr[subs_arity], t);
   TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)LOCAL_TrailTop);
   *subs_ptr = subs_arity - 1;
 

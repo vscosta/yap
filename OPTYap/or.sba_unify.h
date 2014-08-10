@@ -87,7 +87,7 @@ EXTERN inline Int unify_constant(register Term a, register Term cons)
     
 
   deref_body(a,pt,unify_cons_unk,unify_cons_nonvar);
-  Bind(pt,cons);
+  YapBind(pt,cons);
   return(TRUE);
 }
 

@@ -204,7 +204,9 @@
 
 
 '$do_error'(Type,Message) :-
+        format('~w~n', [Type]),
 	'$current_stack'(local_sp(_,CP,Envs,CPs)),
+	'$stack_dump',
 	throw(error(Type,[Message|local_sp(Message,CP,Envs,CPs)])).
 
 '$Error'(E) :-
@@ -218,7 +220,7 @@
 	'$process_error'(Error, Level),
 	fail.
 '$LoopError'(_, _) :-
-	flush_all_streams,
+	flush_output,
 	fail.
 
 '$process_error'('$abort', top) :- !,
@@ -232,6 +234,9 @@
 '$process_error'(error(thread_cancel(Id), G),top) :- !.
 '$process_error'(error(thread_cancel(Id), G), _) :- !,
 	throw(error(thread_cancel(Id), G)).
+'$process_error'(error(permission_error(module,redefined,A),B), Level) :-
+	Level \= top, !,
+	throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
 	print_message(error,error(Msg, Where)).

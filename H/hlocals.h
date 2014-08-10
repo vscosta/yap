@@ -55,10 +55,10 @@ typedef struct worker_local {
   char*  ScannerStack_;
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
   struct DB_TERM*  BallTerm_;
-  UInt*  ActiveSignals_;
   UInt  MaxActiveSignals_;
   UInt  FirstActiveSignal_;
   UInt  LastActiveSignal_;
+  UInt*  ActiveSignals_;
   UInt  IPredArity_;
   yamop*  ProfEnd_;
   int  UncaughtThrow_;
@@ -227,6 +227,11 @@ typedef struct worker_local {
   UInt  ImportDBRefHashTableNum_;
   yamop  *ImportFAILCODE_;
   Functor  FunctorVar_;
+#if __ANDROID__
+
+  struct AAssetManager*  assetManager_;
+  char*  InAssetDir_;
+#endif
 
   UInt  ibnds_[256];
   struct index_t*  exo_it_;
@@ -236,7 +241,7 @@ typedef struct worker_local {
 
   struct scan_atoms*  search_atoms_;
 
-  Int  CurSlot_;
+  yhandle_t  CurSlot_;
   Term  SourceModule_;
   size_t  MAX_SIZE_;
 } w_local;

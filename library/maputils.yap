@@ -2,6 +2,15 @@
 % map utilities
 %%%%%%%%%%%%%%%%%%%%
 
+/**
+  * @file maputils.yap
+  *
+  * @addtogroup maplist
+  *
+  * Auxiliary routines
+  *
+  *@{
+*/
 :- module(maputils,
 	  [compile_aux/2,
 	   goal_expansion_allowed/0,
@@ -16,7 +25,7 @@
 number_of_expansions(0).
 
 compile_aux([Clause|Clauses], Module) :-
-	% compile the predicat declaration if needed
+	% compile the predicate declaration if needed
 	( Clause = (Head :- _)
 	; Clause = Head ),
 	!,
@@ -59,8 +68,15 @@ aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
 pred_name(Macro, Arity, _ , Name) :-
+        prolog_load_context(file, FullFileName),
+	file_base_name( FullFileName, File ),
+	prolog_load_context(term_position, Pos),
+	stream_position_data( line_count, Pos, Line ), !,
 	transformation_id(Id),
-	atomic_concat(['$$$__Auxiliary_predicate__ for ',Macro,'/',Arity,'    ',Id], Name).
+	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,' ',Id], Name).
+pred_name(Macro, Arity, _ , Name) :-
+	transformation_id(Id),
+	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,' ',Id], Name).
 
 transformation_id(Id) :-
 	retract(number_of_expansions(Id)),
@@ -71,9 +87,9 @@ harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
 
 
-%%	contains_illegal_dcgnt(+Term) is semidet.
+%%	contains_illegal_dcgnt(+ Term) is semidet.
 %
-%	True if Term contains a non-terminal   we cannot deal with using
+%	`True` if _Term_ contains a non-terminal   we cannot deal with using
 %	goal-expansion. The test is too general approximation, but safe.
 
 contains_illegal_dcgnt(NT) :-
@@ -83,7 +99,14 @@ contains_illegal_dcgnt(NT) :-
 %	write(contains_illegal_nt(NT)),		% JW: we do not want to write
 %	nl.
 
+%%	goal_expansion_allowed is semidet.
+%
+%	`True` if we can use
+%	goal-expansion.
 goal_expansion_allowed :-
 	once( prolog_load_context(_, _) ), % make sure we are compiling.
 	\+ current_prolog_flag(xref, true).
 
+/**
+  @}
+*/

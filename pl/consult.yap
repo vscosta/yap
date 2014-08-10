@@ -16,7 +16,7 @@
 *************************************************************************/
 :- system_module( '$_consult', [compile/1,
         consult/1,
-        db_files/1,
+        db_files/1,-
         ensure_loaded/1,
         exists_source/1,
         exo_files/1,
@@ -54,8 +54,6 @@
         '$loop'/2,
         '$system_catch'/4]).
 
-:- use_system_module( '$_checker', ['$init_style_check'/1]).
-
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_load_foreign', ['$import_foreign'/3]).
@@ -66,6 +64,91 @@
 
 :- use_system_module( '$_preds', ['$current_predicate_no_modules'/3]).
 
+/**
+
+  \defgroup YAPConsulting Loading files into YAP
+  @ingroup YAPProgramming
+
+  We present the main predicates and directives available to load
+files and to set-up the Prolog environment. We discuss
+
+  + @ref YAPReadFiles
+
+  + @ref YAPCompilerSettings 
+
+
+@defgroup YAPReadFiles The Predicates that Read Source Files
+@ingroup  YAPConsulting
+
+@{
+
+ */
+
+
+/**
+
+ @pred load_files(+ _Files_, + _Options_)
+
+General implementation of the consult/1 family. Execution is controlled by the
+following flags:
+
+  + consult(+ _Mode_)
+  This extension controls the type of file to load. If  _Mode_ is:
+    `consult`, clauses are added to the data-base, unless from the same file;
+   `reconsult`, clauses are recompiled,
+   `db`, these are facts that need to be added to the data-base,
+   `exo`, these are facts with atoms and integers that can be stored in a compact representation (see load_exo/1).
+
+  + silent(+ _Bool_)
+  If true, load the file without printing a message. The specified value is the default for all files loaded as a result of loading the specified files.
+
+  + stream(+ _Input_)
+  This SWI-Prolog extension compiles the data from the stream _Input_. If this option is used,  _Files_ must be a single atom which is used to identify the source-location of the loaded
+clauses as well as remove all clauses if the data is re-consulted.
+
+  This option is added to allow compiling from non-file locations such as databases, the web,  the user (see consult/1) or other servers. 
+
+  + compilation_mode(+ _Mode_)
+  This extension controls how procedures are compiled. If  _Mode_
+  is `compact` clauses are compiled and no source code is stored;
+  if it is `source` clauses are compiled and source code is stored;  
+  if it is `assert_all` clauses are asserted into the data-base.
+
+  + encoding(+ _Encoding_)
+  Character encoding used in consulting files. Please  (see [Encoding](@ref Encoding)) for
+  supported encodings.
+
++ expand(+ _Bool_)
+  If `true`, run the
+  filenames through expand_file_name/2 and load the returned
+  files. Default is false, except for consult/1 which is
+  intended for interactive use.
+
+  + if(+ _Condition_)
+  Load the file only if the specified  _Condition_ is
+  satisfied. The value `true` the file unconditionally,
+  `changed` loads the file if it was not loaded before, or has
+  been modified since it was loaded the last time, `not_loaded`
+  loads the file if it was not loaded before.
+
+  + imports(+ _ListOrAll_)
+  If `all` and the file is a module file, import all public
+  predicates. Otherwise import only the named predicates. Each
+  predicate is referred to as `\<name\>/\<arity\>`. This option has
+  no effect if the file is not a module file.
+
+  + must_be_module(+ _Bool_)
+  If true, raise an error if the file is not a module file. Used by
+` use_module/1 and use_module/2.
+
+  + autoload(+ _Autoload_)
+  SWI-compatible option where if  _Autoload_ is `true` undefined predicates
+  are loaded on first call.
+
+  + derived_from(+ _File_)
+  SWI-compatible option to control make/0. Currently
+  not supported.
+*/
 %
 % SWI options
 % autoload(true,false)
@@ -105,7 +188,7 @@ load_files(Files,Opts) :-
 '$lf_option'('$location', 19, _).
 '$lf_option'(dialect, 20, yap).
 '$lf_option'(format, 21, source).
-'$lf_option'(redefine_module, 22, ask).
+'$lf_option'(redefine_module, 22, false).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
@@ -323,12 +406,45 @@ load_files(Files,Opts) :-
 '$start_lf'(_, Mod, Stream, TOpts, File, _) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
+
+/**
+
+@pred ensure_loaded(+ _F_) is iso
+
+When the files specified by  _F_ are module files,
+ensure_loaded/1 loads them if they have note been previously
+loaded, otherwise advertises the user about the existing name clashes
+and prompts about importing or not those predicates. Predicates which
+are not public remain invisible.
+
+When the files are not module files, ensure_loaded/1 loads them
+if they have not been loaded before, and naes nothing otherwise.
+
+ _F_ must be a list containing the names of the files to load.
+*/
 ensure_loaded(Fs) :-
 	'$load_files'(Fs, [if(not_loaded)],ensure_loaded(Fs)).
 
 compile(Fs) :-
 	'$load_files'(Fs, [], compile(Fs)).
 
+/**
+ @pred [ _F_ ]
+ @pred consult(+ _F_)
+
+
+Adds the clauses written in file  _F_ or in the list of files  _F_
+to the program.
+
+In YAP consult/1 does not remove previous clauses for
+the procedures defined in other files than _F_, but since YAP-6.4.3 it will redefine all procedures defined in _F_.
+
+All code in YAP is compiled, and the compileer generates static
+procedures by default. In case you need to manipulate the original
+code, the expanded version of the original source code is available by
+calling source/0 or by enabling the source flag.
+
+*/
 % consult(Fs) :-
 % 	'$has_yap_or',
 % 	'$do_error'(context_error(consult(Fs),clause),query).
@@ -348,56 +464,90 @@ consult(Fs) :-
 '$consult'(Fs, Module) :-
 	'$load_files'(Module:Fs,[consult(consult)],consult(Fs)).
 
+
+/**
+
+@pred [ - _F_ ]
+@pred reconsult(+ _F_ )
+@pred compile(+ _F_ )
+
+Updates the program by replacing the
+previous definitions for the predicates defined in  _F_. It differs from consult/1
+in that it only multifile/1 predicates are not reset in a reconsult. Instead, consult/1
+sees all predicates as multifile.
+
+YAP also offers no difference between consult/1 and compile/1. The two
+are  implemented by the same exact code.
+
+Example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+?- [file1, -file2, -file3, file4].
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+will consult `file1` `file4` and reconsult `file2` and
+`file3`. That is, it could be written as:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+?- consult(file1),
+   reconsult( [file2, file3],
+   consult( [file4] ).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
 reconsult(Fs) :-
 	'$load_files'(Fs, [], reconsult(Fs)).
+
+
+/* exo_files(+ _Files_)
+
+Load compactly a database of facts with equal structure, see @cite
+x. Useful when wanting to read in a very compact way database tables,
+it saves space by storing data, not a compiled program. The idea was
+introduced in @cite y, but never implemented because often indexing
+just takes more room. It was redefined recebtly by exploiting
+different forms of indexing, as shown in @cite x.
+
+@note implementation
+
+  The function Yap_ExoLookup() is the mai interface betwwen the WAM
+  and exo components. The algorithms are straightforward, that is,
+  mostly hash-tables but have close to linear performance..
+*/
 
 exo_files(Fs) :-
 	'$load_files'(Fs, [consult(exo), if(not_loaded)], exo_files(Fs)).
 
+/**
+
+@pred load_db(+ _Files_)
+
+
+Load a database of ground facts. All facts must take up the same amount of storage, so that
+ a fact $I$ can be accessed at position _P[I-1]_. This representation thus stores the facts as a huge continuous array, the so-called mega clause. 
+
+See \cite for a motivation for this technique. YAP implements this
+optimization by default whenever it loads a large number of facts (see
+Yap_BuildMegaClause(PredEntry *ap) ) for the details. On the other
+hand, loading the data-base will cause fragmentation because
+individual facts facts need extra headers ands tails, and because
+often new atoms will be stored in the Symbol Table, see
+LookupAtom(const char *atom). The main advantage of load_db/1 is
+that it allocates the necessary memory only once. Just doing this
+ may halve total memory usage in large in-memory database-oriented applications.
+ 
+@note Implementation 
+
+YAP implements load_db/1 as a two-step non-optimised process. First,
+   it counts the nmuber of facts and checks their size. Second, it
+   allocates and fills the memory. The first step of the algorithm is
+   implemented by dbload_get_space(), and the second by
+   dbload_add_facts().
+
+   db_files/1 itself is just a call to load_files/2. 
+*/
 db_files(Fs) :-
 	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
 
-%
-% stub to prevent modules defined within the prolog module.
-%
-module(Mod, Decls) :-
-	'$current_module'(prolog, Mod), !,
-	'$export_preds'(Decls).
-
-'$export_preds'([]).
-'$export_preds'([N/A|Decls]) :-
-    functor(S, N, A),
-    '$sys_export'(S, prolog),
-    '$export_preds'(Decls).
-
-
-% prevent modules within the kernel module...
-use_module(M,F,Is) :-
-	'$use_module'(M,F,Is).
-
-'$use_module'(M,F,Is) :-  
-	var(Is), !,
-	'$use_module'(M,F,all).
-'$use_module'(M,F,Is) :-
-	nonvar(F), !,
-        strip_module(F, M0, F0),
-	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
-	( var(M) -> true
-	;
-	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
-	  recorded('$module','$module'(F1,M,_,_),_)
-	).
-'$use_module'(M,F,Is) :-
-	nonvar(M), !,
-	strip_module(F, M0, F0),
-	(
-	    recorded('$module','$module'(F1,M,_,_),_)
-	->
-	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
-	),
-        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
-'$use_module'(M,F,Is) :-
-	'$do_error'(instantiation_error,use_module(M,F,Is)).
 
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
@@ -532,69 +682,6 @@ use_module(M,F,Is) :-
 	recorda('$reconsulted','$',_),
 	recorda('$reconsulting',F,_).
 
-'$initialization'(V) :-
-	var(V), !,
-	'$do_error'(instantiation_error,initialization(V)).
-'$initialization'(C) :- number(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
-'$initialization'(C) :- db_reference(C), !,
-	'$do_error'(type_error(callable,C),initialization(C)).
-'$initialization'(G) :-
-	'$show_consult_level'(Level1),
-	% it will be done after we leave the current consult level.
-	Level is Level1-1,
-	recordz('$initialisation',do(Level,G),_),
-	fail.
-'$initialization'(_).
-
-initialization(G,OPT) :-
-	'$initialization'(G,OPT).
-
-'$initialization'(G,OPT) :-
-	( 
-	   var(G)
-	->
-	  '$do_error'(instantiation_error,initialization(G,OPT))
-	;
-	   number(G)
-	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
-	;
-	   db_reference(G)
-	->
-	  '$do_error'(type_error(callable,G),initialization(G,OPT))
-	;
-	   var(OPT)
-	->
-	  '$do_error'(instantiation_error,initialization(G,OPT))
-	;
-	  atom(OPT)
-	->
-	  (
-	   OPT == now
-	  ->
-	   fail
-	  ;
-	   OPT == after_load
-	  ->
-	   fail
-	  ;
-	   OPT == restore
-	  ->
-	   fail
-	  ;
-	   '$do_error'(domain_error(initialization,OPT),initialization(OPT))
-	  )
-	;
-	  '$do_error'(type_error(OPT),initialization(G,OPT))
-	).
-'$initialization'(G,now) :-
-	( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
-'$initialization'(G,after_load) :-
-	'$initialization'(G).
-% ignore for now.
-'$initialization'(_G,restore).
-
 '$exec_initialisation_goals' :-
 	nb_setval('$initialization_goals',on),
 	fail.
@@ -634,6 +721,15 @@ initialization(G,OPT) :-
 	erase(R),
 	G\='$'.
 
+/**
+include(+ _F_) is directive
+
+	The `include` directive adds the text files or sequence of text
+	files specified by  _F_ into the files being currently consulted. It may be used
+	as an replacement to consult/1 by allowing the programmer to include a data-base
+	split into several files. 
+
+*/
 '$include'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,include(V)).
 '$include'([], _) :- !.
@@ -666,14 +762,7 @@ initialization(G,OPT) :-
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
 	nb_setval('$included_file',OY).
 
-'$reexport'( TOpts, File, Imports, OldF ) :-
-	'$lf_opt'(reexport, TOpts, Reexport),
-	( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
-	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
-	  '$extend_exports'(File, Imports, OldF )
-	).
+
 
 %
 % reconsult at startup...
@@ -702,7 +791,7 @@ initialization(G,OPT) :-
 
 
 source_file(FileName) :-
-	recorded('$lf_loaded','$lf_loaded'(FileName, _),_).
+	recorded('$lf_loaded','$lf_loaded'(FileName, _, _),_).
 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
@@ -748,10 +837,11 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 
 '$ensure_file_loaded'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1, _, _),_),
 	same_file(F1,F), !.
-'$ensure_file_loaded'(F, _M, F1) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
+'$ensure_file_loaded'(F, M, F1) :-
+	% loaded from the same module, but does not define a module.
+	recorded('$lf_loaded','$lf_loaded'(F1, _, M),_),
 	same_file(F1,F), !.
 	
 
@@ -765,11 +855,11 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 
 '$ensure_file_unchanged'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P,_),_),
-	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
+	recorded('$lf_loaded','$lf_loaded'(F1,Age,_),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
-'$ensure_file_unchanged'(F, _M, F1) :-
-	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
+'$ensure_file_unchanged'(F, M, F1) :-
+	recorded('$lf_loaded','$lf_loaded'(F1, Age, M),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
 
@@ -778,46 +868,16 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
 
-% add_multifile_predicate when we start consult
-'$add_multifile'(Name,Arity,Module) :-
-	source_location(File,_),
-	'$add_multifile'(File,Name,Arity,Module).
-
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
-%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
-'$add_multifile'(File,Name,Arity,Module) :-
-	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
-	fail.
-'$add_multifile'(File,Name,Arity,Module) :-
-	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
-	erase(R),
-	'$erase_clause'(Ref,Module),
-	fail.
-'$add_multifile'(_,_,_,_).
-
-% retract old multifile clauses for current file.
-'$remove_multifile_clauses'(FileName) :-
-	recorded('$multifile_defs','$defined'(FileName,_,_,_),R1),
-	erase(R1),
-	fail.
-'$remove_multifile_clauses'(FileName) :-
-	recorded('$mf','$mf_clause'(FileName,_,_,Module,Ref),R),
-	'$erase_clause'(Ref, Module),
-	erase(R),
-	fail.
-'$remove_multifile_clauses'(_).
-
 % inform the file has been loaded and is now available.
 '$loaded'(Stream, UserFile, M, OldF, Line, Reconsult, F, Dir, Opts) :-
 	'$file_name'(Stream, F0),
 	( F0 == user_input, nonvar(UserFile) -> UserFile = F ; F = F0 ),
 	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
-	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
+	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _,_),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( Reconsult \== consult, recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
-	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age), _) -> true ; true ),
+	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age, M), _) -> true ; true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
 '$set_encoding'(Encoding) :-
@@ -827,120 +887,14 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 '$set_encoding'(Stream, Encoding) :-
 	( Encoding == default -> true ; set_stream(Stream, encoding(Encoding)) ).
 
-%
-% This is complicated because of embedded ifs.
-%
-'$if'(_,top) :- !, fail.
-'$if'(_Goal,_) :-
-	'$get_if'(Level0),
-	Level is Level0 + 1,
-	nb_setval('$if_level',Level),
-	( '$nb_getval'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-	( '$nb_getval'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
-	nb_setval('$endif',elif(Level,OldEndif,Mode)),
-	fail.
-% we are in skip mode, ignore....
-'$if'(_Goal,_) :-
-	'$nb_getval'('$endif',elif(Level, OldEndif, skip), fail), !,
-	nb_setval('$endif',endif(Level, OldEndif, skip)).	
-% we are in non skip mode, check....
-'$if'(Goal,_) :-
-	('$if_call'(Goal)
-	    ->
-	 % we will execute this branch, and later enter skip
-	 '$nb_getval'('$endif', elif(Level,OldEndif,Mode), fail),
-	 nb_setval('$endif',endif(Level,OldEndif,Mode))
+/** @pred make is det
 
-	;
-	 % we are now in skip, but can start an elif.
-	 nb_setval('$if_skip_mode',skip)
-	).
+SWI-Prolog originally included this built-in as a Prolog version of the Unix `make`
+utility program. In this case the idea is to reconsult all source files that have been
+changed since they were originally compiled into Prolog. YAP has a limited implementation of make/0 that
+just goes through every loaded file and verifies whether reloading is needed.
 
-'$else'(top) :- !, fail.
-'$else'(_) :-
-	'$get_if'(0), !,
-	'$do_error'(context_error(no_if),(:- else)).
-% we have done an if, so just skip
-'$else'(_) :-
-	nb_getval('$endif',endif(_Level,_,_)), !,
-	nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$else'(_) :-
-	'$get_if'(Level),
-	nb_getval('$endif',elif(Level,OldEndif,Mode)),
-	nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	nb_setval('$if_skip_mode',run).
-
-'$elif'(_,top) :- !, fail.
-'$elif'(Goal,_) :-
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- elif(Goal))).
-% we have done an if, so just skip
-'$elif'(_,_) :-
-	 nb_getval('$endif',endif(_,_,_)), !,
-	 nb_setval('$if_skip_mode',skip).
-% we can try the elif
-'$elif'(Goal,_) :-
-	'$get_if'(Level),
-	nb_getval('$endif',elif(Level,OldEndif,Mode)),
-	('$if_call'(Goal)
-	    ->
-% we will not skip, and we will not run any more branches.
-	 nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	 nb_setval('$if_skip_mode',run)
-	;
-% we will (keep) on skipping
-	 nb_setval('$if_skip_mode',skip)
-	).
-'$elif'(_,_).
-
-'$endif'(top) :- !, fail.
-'$endif'(_) :-
-% unmmatched endif.
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- endif)).
-'$endif'(_) :-
-% back to where you belong.
-	'$get_if'(Level),
-	nb_getval('$endif',Endif),
-	Level0 is Level-1,
-	nb_setval('$if_level',Level0),
-	arg(2,Endif,OldEndif),
-	arg(3,Endif,OldMode),
-	nb_setval('$endif',OldEndif),
-	nb_setval('$if_skip_mode',OldMode).
-
-
-'$if_call'(G) :-
-	catch('$eval_if'(G), E, (print_message(error, E), fail)).
-
-'$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
-	once(TrueGoal).
-
-'$if_directive'((:- if(_))).
-'$if_directive'((:- else)).
-'$if_directive'((:- elif(_))).
-'$if_directive'((:- endif)).
-
-
-'$comp_mode'(_OldCompMode, CompMode) :-
-	var(CompMode), !. % just do nothing.
-'$comp_mode'(OldCompMode, assert_all) :-
-	'$fetch_comp_status'(OldCompMode),
-	nb_setval('$assert_all',on).
-'$comp_mode'(OldCompMode, source) :-
-	'$fetch_comp_status'(OldCompMode),
-	'$set_yap_flags'(11,1).
-'$comp_mode'(OldCompMode, compact) :-
-	'$fetch_comp_status'(OldCompMode),
-	'$set_yap_flags'(11,0).
-
-'$fetch_comp_status'(assert_all) :-
-	'$nb_getval'('$assert_all',on, fail), !.
-'$fetch_comp_status'(source) :-
-	 '$access_yap_flags'(11,1), !.
-'$fetch_comp_status'(compact).
+*/
 
 make :-
 	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
@@ -1018,13 +972,478 @@ source_file_property( File0, Prop) :-
 
 '$source_file_property'( OldF, includes(F, Age)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, _Line, _), _),
-	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
+	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, included_in(OldF, Line)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, include, _File, OldF, Line, _), _).
 '$source_file_property'( F, load_context(OldF, Line, Options)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, _M, V, _File, OldF, Line, Options), _), V \== include.
 '$source_file_property'( F, modified(Age)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
+	recorded('$lf_loaded','$lf_loaded'( F, Age, _), _).
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_,_),_).
 
+
+/**
+
+@}
+
+@addtogroup YAPModules
+
+@{
+
+**/
+
+%
+% stub to prevent modules defined within the prolog module.
+%
+module(Mod, Decls) :-
+	'$current_module'(prolog, Mod), !,
+	'$export_preds'(Decls).
+
+'$export_preds'([]).
+'$export_preds'([N/A|Decls]) :-
+    functor(S, N, A),
+    '$sys_export'(S, prolog),
+    '$export_preds'(Decls).
+
+
+% prevent modules within the kernel module...
+/** @pred use_module(? _M_,? _F_,+ _L_) is directive
+    SICStus compatible way of using a module
+
+If module _M_ is instantiated, import the procedures in _L_ to the
+current module. Otherwise, operate as use_module/2, and load the files
+specified by _F_, importing the predicates specified in the list _L_.
+*/ 
+
+use_module(M,F,Is) :- '$use_module'(M,F,Is).
+
+'$use_module'(M,F,Is) :-  
+	var(Is), !,
+	'$use_module'(M,F,all).
+'$use_module'(M,F,Is) :-
+	nonvar(F), !,
+        strip_module(F, M0, F0),
+	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
+	( var(M) -> true
+	;
+	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+	  recorded('$module','$module'(F1,M,_,_),_)
+	).
+'$use_module'(M,F,Is) :-
+	nonvar(M), !,
+	strip_module(F, M0, F0),
+	(
+	    recorded('$module','$module'(F1,M,_,_),_)
+	->
+	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+	),
+        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
+'$use_module'(M,F,Is) :-
+	'$do_error'(instantiation_error,use_module(M,F,Is)).
+
+/**
+
+  @pred reexport(+F) is directive
+  @pred reexport(+F, +Decls ) is directive
+  allow a module to use and export predicates from another module
+
+Export all predicates defined in list  _F_ as if they were defined in
+the current module.
+
+Export predicates defined in file  _F_ according to  _Decls_. The
+declarations should be of the form:
+
+<ul>
+    A list of predicate declarations to be exported. Each declaration
+may be a predicate indicator or of the form `` _PI_ `as`
+ _NewName_'', meaning that the predicate with indicator  _PI_ is
+to be exported under name  _NewName_.
+
+    `except`( _List_) 
+In this case, all predicates not in  _List_ are exported. Moreover,
+if ` _PI_ `as`  _NewName_` is found, the predicate with
+indicator  _PI_ is to be exported under name  _NewName_ as
+before.
+
+
+Re-exporting predicates must be used with some care. Please, take into
+account the following observations:
+
+<ul>
+    
+The `reexport` declarations must be the first declarations to
+follow the  `module` declaration.
+
+    
+It is possible to use both `reexport` and `use_module`, but
+all predicates reexported are automatically available for use in the
+current module.
+
+    
+In order to obtain efficient execution, YAP compiles dependencies
+between re-exported predicates. In practice, this means that changing a
+`reexport` declaration and then  *just* recompiling the file
+may result in incorrect execution.
+
+</ul>
+**/
+'$reexport'( TOpts, File, Imports, OldF ) :-
+	'$lf_opt'(reexport, TOpts, Reexport),
+	( Reexport == false -> true ;
+	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
+	  '$extend_exports'(File, Imports, OldF )
+	).
+
+/**
+@}
+**/
+
+/** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
+    @ingroup  YAPConsulting
+
+  The YAP system also includes a number of primitives designed to set
+  compiler parameters and to track the state of the compiler. One
+  important example is the number of directivees that allow setting up
+  properties of predicates. It is also possible to enable or disable
+  waraanings about possible issues with the code in the program, sich
+  as the occurrence .
+
+This section presents a set of built-ins predicates designed to set the 
+environment for the compiler.
+  prolog_to_os_filename(+ _PrologPath_,- _OsPath_) @anchor prolog_to_os_filename
+
+
+
+This is an SWI-Prolog built-in. Converts between the internal Prolog
+pathname conventions and the operating-system pathname conventions. The
+internal conventions are Unix and this predicates is equivalent to =/2
+(unify) on Unix systems. On DOS systems it will change the
+directory-separator, limit the filename length map dots, except for the
+last one, onto underscores.
+
+@{
+
+*/
+
+% add_multifile_predicate when we start consult
+'$add_multifile'(Name,Arity,Module) :-
+	source_location(File,_),
+	'$add_multifile'(File,Name,Arity,Module).
+
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !.
+%	print_message(warning,declaration((multifile Module:Name/Arity),ignored)).
+'$add_multifile'(File,Name,Arity,Module) :-
+	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
+	fail.
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
+	erase(R),
+	'$erase_clause'(Ref,Module),
+	fail.
+'$add_multifile'(_,_,_,_).
+
+% retract old multifile clauses for current file.
+'$remove_multifile_clauses'(FileName) :-
+	recorded('$multifile_defs','$defined'(FileName,_,_,_),R1),
+	erase(R1),
+	fail.
+'$remove_multifile_clauses'(FileName) :-
+	recorded('$mf','$mf_clause'(FileName,_,_,Module,Ref),R),
+	'$erase_clause'(Ref, Module),
+	erase(R),
+	fail.
+'$remove_multifile_clauses'(_).
+
+
+
+/** @pred initialization(+ _G_) is iso
+The compiler will execute goals  _G_ after consulting the current
+file.
+
+Notice that the goal will execute in the calling context, not within the file context, 
+In other words, the source module and execution directory will be the ones of the parent
+environment. Use initialization/2 for more flexible behavior.
+
+*/
+'$initialization'(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,initialization(V)).
+'$initialization'(C) :- number(C), !,
+	'$do_error'(type_error(callable,C),initialization(C)).
+'$initialization'(C) :- db_reference(C), !,
+	'$do_error'(type_error(callable,C),initialization(C)).
+'$initialization'(G) :-
+	'$show_consult_level'(Level1),
+	% it will be done after we leave the current consult level.
+	Level is Level1-1,
+	recordz('$initialisation',do(Level,G),_),
+	fail.
+'$initialization'(_).
+
+
+
+/** @pred initialization(+ _Goal_,+ _When_)
+
+Similar to initialization/1, but allows for specifying when
+ _Goal_ is executed while loading the program-text:
+
+
+    + now
+      Execute  _Goal_ immediately. 
+
+    + after_load
+      Execute  _Goal_ after loading program-text. This is the same as initialization/1. 
+
+    + restore
+      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet). 
+
+*/
+initialization(G,OPT) :-
+	'$initialization'(G,OPT).
+
+'$initialization'(G,OPT) :-
+	( 
+	   var(G)
+	->
+	  '$do_error'(instantiation_error,initialization(G,OPT))
+	;
+	   number(G)
+	->
+	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	;
+	   db_reference(G)
+	->
+	  '$do_error'(type_error(callable,G),initialization(G,OPT))
+	;
+	   var(OPT)
+	->
+	  '$do_error'(instantiation_error,initialization(G,OPT))
+	;
+	  atom(OPT)
+	->
+	  (
+	   OPT == now
+	  ->
+	   fail
+	  ;
+	   OPT == after_load
+	  ->
+	   fail
+	  ;
+	   OPT == restore
+	  ->
+	   fail
+	  ;
+	   '$do_error'(domain_error(initialization,OPT),initialization(OPT))
+	  )
+	;
+	  '$do_error'(type_error(OPT),initialization(G,OPT))
+	).
+'$initialization'(G,now) :-
+	( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+'$initialization'(G,after_load) :-
+	'$initialization'(G).
+% ignore for now.
+'$initialization'(_G,restore).
+
+/**
+
+@}
+*/
+
+/**
+
+@defgroup Conditional_Compilation Conditional Compilation
+
+@ingroup  YAPCompilerSettings
+
+Conditional compilation builds on the same principle as
+term_expansion/2, goal_expansion/2 and the expansion of
+grammar rules to compile sections of the source-code
+conditionally. One of the reasons for introducing conditional
+compilation is to simplify writing portable code.
+
+
+
+Note that these directives can only be appear as separate terms in the
+input.  Typical usage scenarios include:
+
+
+    Load different libraries on different dialects
+
+    Define a predicate if it is missing as a system predicate
+
+    Realise totally different implementations for a particular
+part of the code due to different capabilities.
+
+    Realise different configuration options for your software.
+
+
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:- if(test1).
+section_1.
+:- elif(test2).
+section_2.
+:- elif(test3).
+section_3.
+:- else.
+section_else.
+:- endif.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+@{
+
+*/
+
+/** @pred    if( : _Goal_) 
+
+Compile subsequent code only if  _Goal_ succeeds.  For enhanced
+portability,  _Goal_ is processed by `expand_goal/2` before execution.
+If an error occurs, the error is printed and processing proceeds as if
+ _Goal_ has failed.
+
+*/
+%
+% This is complicated because of embedded ifs.
+%
+'$if'(_,top) :- !, fail.
+'$if'(_Goal,_) :-
+	'$get_if'(Level0),
+	Level is Level0 + 1,
+	nb_setval('$if_level',Level),
+	( '$nb_getval'('$endif', OldEndif, fail) -> true ; OldEndif=top),
+	( '$nb_getval'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
+	nb_setval('$endif',elif(Level,OldEndif,Mode)),
+	fail.
+% we are in skip mode, ignore....
+'$if'(_Goal,_) :-
+	'$nb_getval'('$endif',elif(Level, OldEndif, skip), fail), !,
+	nb_setval('$endif',endif(Level, OldEndif, skip)).	
+% we are in non skip mode, check....
+'$if'(Goal,_) :-
+	('$if_call'(Goal)
+	    ->
+	 % we will execute this branch, and later enter skip
+	 '$nb_getval'('$endif', elif(Level,OldEndif,Mode), fail),
+	 nb_setval('$endif',endif(Level,OldEndif,Mode))
+
+	;
+	 % we are now in skip, but can start an elif.
+	 nb_setval('$if_skip_mode',skip)
+	).
+
+/** 
+@pred    else
+Start `else' branch.
+
+*/
+'$else'(top) :- !, fail.
+'$else'(_) :-
+	'$get_if'(0), !,
+	'$do_error'(context_error(no_if),(:- else)).
+% we have done an if, so just skip
+'$else'(_) :-
+	nb_getval('$endif',endif(_Level,_,_)), !,
+	nb_setval('$if_skip_mode',skip).
+% we can try the elif
+'$else'(_) :-
+	'$get_if'(Level),
+	nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	nb_setval('$endif',endif(Level,OldEndif,Mode)),
+	nb_setval('$if_skip_mode',run).
+
+/** @pred   elif(+ _Goal_)
+
+
+Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
+as below, the section below the first matching elif is processed, If
+no test succeeds the else branch is processed.
+*/
+'$elif'(_,top) :- !, fail.
+'$elif'(Goal,_) :-
+	'$get_if'(0),
+	'$do_error'(context_error(no_if),(:- elif(Goal))).
+% we have done an if, so just skip
+'$elif'(_,_) :-
+	 nb_getval('$endif',endif(_,_,_)), !,
+	 nb_setval('$if_skip_mode',skip).
+% we can try the elif
+'$elif'(Goal,_) :-
+	'$get_if'(Level),
+	nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	('$if_call'(Goal)
+	    ->
+% we will not skip, and we will not run any more branches.
+	 nb_setval('$endif',endif(Level,OldEndif,Mode)),
+	 nb_setval('$if_skip_mode',run)
+	;
+% we will (keep) on skipping
+	 nb_setval('$if_skip_mode',skip)
+	).
+'$elif'(_,_).
+
+/** @pred    endif
+End of conditional compilation.
+
+*/
+'$endif'(top) :- !, fail.
+'$endif'(_) :-
+% unmmatched endif.
+	'$get_if'(0),
+	'$do_error'(context_error(no_if),(:- endif)).
+'$endif'(_) :-
+% back to where you belong.
+	'$get_if'(Level),
+	nb_getval('$endif',Endif),
+	Level0 is Level-1,
+	nb_setval('$if_level',Level0),
+	arg(2,Endif,OldEndif),
+	arg(3,Endif,OldMode),
+	nb_setval('$endif',OldEndif),
+	nb_setval('$if_skip_mode',OldMode).
+
+
+'$if_call'(G) :-
+	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+
+'$eval_if'(Goal) :-
+	expand_term(Goal,TrueGoal),
+	once(TrueGoal).
+
+'$if_directive'((:- if(_))).
+'$if_directive'((:- else)).
+'$if_directive'((:- elif(_))).
+'$if_directive'((:- endif)).
+
+
+'$comp_mode'(_OldCompMode, CompMode) :-
+	var(CompMode), !. % just do nothing.
+'$comp_mode'(OldCompMode, assert_all) :-
+	'$fetch_comp_status'(OldCompMode),
+	nb_setval('$assert_all',on).
+'$comp_mode'(OldCompMode, source) :-
+	'$fetch_comp_status'(OldCompMode),
+	'$set_yap_flags'(11,1).
+'$comp_mode'(OldCompMode, compact) :-
+	'$fetch_comp_status'(OldCompMode),
+	'$set_yap_flags'(11,0).
+
+'$fetch_comp_status'(assert_all) :-
+	'$nb_getval'('$assert_all',on, fail), !.
+'$fetch_comp_status'(source) :-
+	 '$access_yap_flags'(11,1), !.
+'$fetch_comp_status'(compact).
+
+/**
+@}
+*/

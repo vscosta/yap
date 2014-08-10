@@ -13,6 +13,9 @@
 #include "up/flags.h"
 #include "up/util.h"
 
+void config_vbem(VBEM_ENG_PTR vb_ptr);
+int run_vbem(VBEM_ENG_PTR vb_ptr);
+
 /*------------------------------------------------------------------------*/
 
 void config_vbem(VBEM_ENG_PTR vb_ptr)

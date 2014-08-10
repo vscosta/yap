@@ -61,7 +61,7 @@ void shift_right(RL_Tree *tree,const NUM idx,const long nnodes);
 void shift_left(RL_Tree *tree,const NUM idx, const long nnodes);
 void intersect_leafs(char *storage1,char *storage2);
 
-static void print_nodes(RL_Tree* tree);
+//static void print_nodes(RL_Tree* tree);
 
 //
 RL_Buffer* buffer=NULL;
@@ -142,10 +142,12 @@ RL_Tree* copy_rl(RL_Tree *tree) {
   buf_ptr=(RL_Node*)calloc(tree->size,NODE_SIZE);
   if( new==NULL ) {
     printf("new==NULL");
+	free(buf_ptr);
     return NULL;
   }
   if( buf_ptr==NULL ) {
     printf("buf_ptr==NULL---%lu",tree->size);
+	free(new);
     return NULL;
   }
   memcpy(new,tree,sizeof(RL_Tree));
@@ -245,6 +247,7 @@ NUM rl_next_in_bigger(RL_Tree *tree,NUM min) {
 /* ****************************************************************************** 
    Private Functions
    ****************************************************************************** */
+/*
 static void print_nodes(RL_Tree* tree) {
   RL_Node* nodes=tree->root;
   int j;
@@ -253,6 +256,8 @@ static void print_nodes(RL_Tree* tree) {
     printf("[%d]=%lu\n",j,(unsigned long int)nodes[j].leaf);
   
 }
+*/
+
 // treeXquadrantXinterval->quadrant_minXquadrant_max
 static void quadrant_interval(RL_Tree *tree,short quadrant,NUM interval,NUM *quad_interval) {
   

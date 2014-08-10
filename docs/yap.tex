@@ -84,49 +84,43 @@ Quintus Prolog, and especially with C-Prolog.
 
 @ifplaintext
  
-<ul>
-<li>@subpage Install discusses how to download, compile and install 
-      YAP for your platform.
-</li>
-<li> @subpage Syntax describes the syntax of YAP.
-</li>
-<li>@subpage Run describes how to invoke YAP
-</li>
-<li>@subpage Syntax describe the syntax of YAP.
-</li>
 
-<li>@subpage Loading_Programs presents the main predicates and
-directives available to load files and to control the Prolog
-environment.
+  + @subpage Install discusses how to download, compile and install YAP for your platform.
 
-<ul><li>@subpage abs_file_name explains how to find a file full path.
-</li>
-</ul>
-        
-</li> Built-Ins
-<ul>@subpage page_arithmetic describes how arithmetic works in YAP.
+  + @subpage Syntax describes the syntax of YAP.
 
-<li>@subpage Control describes the predicates for controlling the execution of Prolog programs.
-</li>
+  + @subpage Run describes how to invoke YAP
 
-<li>@subpage Testing_Terms describes the main predicates on terms
-</li>
+  + @subpage Syntax describe the syntax of YAP.
 
-<li>@subpage  Input_Output goes into Input/Ouput.
-</li>
+  + @subpage Loading_Programs presents the main predicates and
+  directives available to load files and to control the Prolog environment.
 
-<li>@subpage Database discusses the clausal data-base
-</li>
-</ul>
-</li>
-<li>@subpage Grammars presents Grammar rules in Prolog
-     that are both a  convenient way to express definite clause grammars 
-     and  an extension
-     of the well known context-free grammars.
-</li>
+        + @subpage abs_file_name explains how to find a file full path.
 
-<li>@subpage OS discusses access to Operating System functionality
-</li>
+  + Built-Ins describes predicates providing core YAP functionality:
+        + @subpage page_arithmetic describes how arithmetic works in YAP.
+
+        + @subpage Control describes the predicates for controlling the execution of Prolog programs.
+
+        + @subpage Testing_Terms describes the main predicates on terms
+
+        + @subpage  Input_Output goes into Input/Ouput.
+		
+        + @subpage Database discusses the clausal data-base
+
+        + @subpage Grammars presents Grammar rules in Prolog that are
+     both a  convenient way to express definite clause grammars and
+     an extension of the well known context-free grammars.
+
+        + @subpage OS discusses access to Operating System functionality
+
+  + Libraries
+
+        + @ref maplist introduces macros to apply an operation over
+          all elements of a list
+
+
 @end ifplaintext
 
 
@@ -1892,6 +1886,8 @@ Same as @code{file_filter/3}, but before starting the filter execute
 @end table
 
 
+@texinfo
+
 
 @node MapArgs, MapList, LineUtilities, Library
 @section Maplist
@@ -1977,6 +1973,8 @@ collects a  result in @var{Accumulator}
 collects a  result in @var{Accumulator} (uses reverse order than foldargs).
 
 @end table
+
+@texinfo
 
 
 @node MapList, matrix, MapArgs, Library
@@ -2244,6 +2242,9 @@ sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
 % another one
 maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
 @end pl_example
+
+@end texinfo
+
 
 @node matrix, MATLAB, MapList, Library
 @section Matrix Library
@@ -9761,6 +9762,15 @@ this is possible, @var{Goal} will become invalid after executing
   YAP_RecoverSlots(1);
   if (out == 0) return FALSE;
 @end example
+
+@ifplaintext
+
+@copydoc real
+
+@end ifplaintext
+
+@texinfo
+
 Slots are safe houses in the stack, the garbage collector and the stack
 shifter know about them and make sure they have correct values. In this
 case, we use a slot to preserve @var{t} during the execution of
@@ -9807,6 +9817,8 @@ Set the first @var{HowMany} arguments to the @var{HowMany} slots
 starting at @var{slot}.
 @end table
 
+@end texinfo
+
 The following functions complement @var{YAP_RunGoal}:
 @table @code
 @item  @code{int} YAP_RestartGoal(@code{void})
@@ -9815,7 +9827,7 @@ Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
 @code{YAP_RunGoal} will become invalid.
 
-@item  @code{int} YAP_Reset(@code{void})
+@Item  @code{int} YAP_Reset(@code{void})
 @findex YAP_Reset (C-Interface function)
 Reset execution environment (similar to the @code{abort/0}
 built-in). This is useful when you want to start a new query before

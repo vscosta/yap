@@ -8,23 +8,17 @@
 #include "Yatom.h"
 #include "pl-incl.h"
 #include "YapText.h"
+#include "yapio.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif
-
-#define	Quote_illegal_f		1
-#define	Ignore_ops_f		2
-#define	Handle_vars_f		4
-#define	Use_portray_f		8
-#define	To_heap_f	       16
-#define	Unfold_cyclics_f       32
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
 
-#define LOCK()   PL_LOCK(L_PLFLAG)
-#define UNLOCK() PL_UNLOCK(L_PLFLAG)
+//#define LOCK()   PL_LOCK(L_PLFLAG)
+//#define UNLOCK() PL_UNLOCK(L_PLFLAG)
 
 int fileerrors;
 
@@ -649,7 +643,7 @@ numberVars(term_t t, nv_options *opts, int n ARG_LD) {
 		 *	     PROMOTION		*
 		 *******************************/
 
-static int
+int
 check_float(double f)
 {
 #ifdef HAVE_FPCLASSIFY
@@ -795,7 +789,6 @@ PL_unify_wchars_diff(term_t t, term_t tail, int flags,
 
   if ( len == (size_t)-1 )
     len = wcslen(s);
-
   text.text.w    = (pl_wchar_t *)s;
   text.encoding  = ENC_WCHAR;
   text.storage   = PL_CHARS_HEAP;
@@ -855,8 +848,6 @@ int
 PL_get_chars(term_t t, char **s, unsigned flags)
 { return PL_get_nchars(t, NULL, s, flags);
 }
-
-char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
 
 char *
 Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags)
@@ -918,6 +909,39 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
     }
   }
   LOCAL_CurSlot = CurSlot;
+  return NULL;
+}
+
+char *
+Yap_HandleToString(term_t l, size_t sz, size_t *length, int *encoding, int flags)
+{
+
+  char *r, buf[4096];
+
+	int64_t size;
+	IOSTREAM *fd;
+
+	  r = buf;
+	fd = Sopenmem(&r, &sz, "w");
+	fd->encoding = ENC_UTF8;
+	if ( PL_write_term(fd, l, 1200, flags) &&
+	     Sputcode(EOS, fd) >= 0 &&
+	     Sflush(fd) >= 0 )
+	  {
+	    size = Stell64(fd);
+		*length = size-1;
+		char *bf = malloc(*length+1);
+	      if (!bf)
+		return NULL;
+	      strncpy(bf,buf,*length+1);
+	      Sclose(fd);
+	      r = bf;
+	    return r;
+	  }
+    /* failed */
+    if ( r != buf ) {
+      Sfree(r);
+    }
   return NULL;
 }
 
@@ -1185,12 +1209,13 @@ static int thread_highest_id = 0;
 X_API int
 PL_w32thread_raise(DWORD id, int sig)
 { int i;
+  CACHE_REGS
 
   if ( sig < 0 || sig > MAXSIGNAL )
     return FALSE;			/* illegal signal */
 
-  LOCK();
-  LOCK(LOCAL_SignalLock);
+  PL_LOCK(L_PLFLAG);	
+  // LOCK(LOCAL_SignalLock);
   for(i = 0; i <= thread_highest_id; i++)
     { PL_thread_info_t *info = GD->thread.threads[i];
       
@@ -1200,14 +1225,14 @@ PL_w32thread_raise(DWORD id, int sig)
 	  Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
 	  if ( info->w32id )
 	    PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
-	  UNLOCK(LOCAL_SignalLock);
-	  UNLOCK();
+	  //UNLOCK(LOCAL_SignalLock);
+	  PL_UNLOCK(L_PLFLAG);
 	  DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
 	  return TRUE;
 	}
     }
-  UNLOCK(LOCAL_SignalLock);
-  UNLOCK();
+  // UNLOCK(LOCAL_SignalLock);
+  PL_UNLOCK(L_PLFLAG);
   
   return FALSE;				/* can't find thread */
 }

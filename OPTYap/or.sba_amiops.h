@@ -15,6 +15,9 @@
 static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
+// keep eclipse happy, avoiding collisions with amiops.h
+#ifdef YAPOR_SBA
+
 #define  IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
 
 /* dereferencing macros */
@@ -211,14 +214,14 @@ extern int condit_binds, shared_binds, uncond_binds;
   else { MABIND_CONDITIONALLY(A,D); }              \
 }
 
-#define Bind(A,D)          {                       \
+#define YapBind(A,D)          {                       \
  if (Unsigned((Int)(A)-(Int)(HBREG)) >             \
       Unsigned(BBREG)-(Int)(HBREG))                \
     { DO_CONDITIONAL_BINDING(A, D); }              \
  else /* uncond_binds++, */ *(A) = (D);            \
 }
 
-#define BIND(A,D,L)   Bind(A,D)
+#define BIND(A,D,L)   YapBind(A,D)
 
 #define MaBind(A,D)        {                       \
  if (Unsigned((Int)(A)-(Int)(HBREG)) >             \
@@ -228,15 +231,15 @@ extern int condit_binds, shared_binds, uncond_binds;
 }
 
 /* I can't gain much here because of the frozen registers */
-#define Bind_Global(A,D)   Bind(A,D)
+#define Bind_Global(A,D)   YapBind(A,D)
 
-#define Bind_Local(A,D)	   Bind(A,D)
+#define Bind_Local(A,D)	   YapBind(A,D)
 
-#define BIND_GLOBAL(A,D,L)   Bind(A,D)
+#define BIND_GLOBAL(A,D,L)   YapBind(A,D)
 
-#define BIND_GLOBAL2(A,D,L1,L2)   Bind(A,D)
+#define BIND_GLOBAL2(A,D,L1,L2)   YapBind(A,D)
 
-#define BIND_GLOBALCELL(A,D)   Bind(A,D); continue
+#define BIND_GLOBALCELL(A,D)   YapBind(A,D); continue
 
 #else /* YAPOR */
 #ifdef TABLING
@@ -276,7 +279,7 @@ extern int condit_binds, shared_binds, uncond_binds;
 
 #define TRAIL_REF(REF)     TrailTerm(TR++) = AbsPair(((CELL *)(REF)))
 
-#define Bind(A,D)          { TRAIL(A,D); *(A) = (D); }
+#define YapBind(A,D)          { TRAIL(A,D); *(A) = (D); }
 
 #define MaBind(A,D)        { MATRAIL(A,*(A),D); *(A) = (D); }
 
@@ -344,7 +347,7 @@ D contains the value it will be bound to
 
 *************************************************************/
 
-#define Bind(A,D)          	 { TRAIL(A); *(A) = (D); }
+#define YapBind(A,D)          	 { TRAIL(A); *(A) = (D); }
 
 #define Bind_Global(A,D)         { TRAIL_GLOBAL(A); *(A) = (D); }
 
@@ -382,3 +385,4 @@ Binding Macros for Multiple Assignment Variables.
 #define LT_OK_IN_CMP 2
 #define GT_OK_IN_CMP 4
 
+#endif /* YAPOR_SBA */

@@ -25,7 +25,7 @@
 		persistent_retract/1
 	]).
 
-:- use_module(library(system),[]).
+:- use_module(library(system)).
 
 :- dynamic(persistent_desc/2).
 

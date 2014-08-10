@@ -14,7 +14,6 @@
 * comments:	Predicate Manipulation for YAP: declaration support	 *
 *									 *
 *************************************************************************/
-
 :- system_module( '$_preddecls', [(discontiguous)/1,
         (dynamic)/1,
         (multifile)/1,
@@ -25,6 +24,17 @@
 :- use_system_module( '$_consult', ['$add_multifile'/3]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
+
+/**
+  @defgroup YAPPredDecls Declaring Properties of Predicates
+  @ingroup YAPCompilerSettings
+
+The YAP Compiler allows the programmer to include declarations with
+important pproprties of predicates, such as where they can be modified
+during execution time, whether they are meta-predicates, or whether they can be 
+defined  across multiple files. We next join some of these declarations.
+
+*/
 
 %
 % can only do as goal in YAP mode.
@@ -79,6 +89,56 @@ dynamic(X) :-
 '$logical_updatable'(X,Mod) :- 
 	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
+/** @pred public(  _P_ ) is iso
+
+Instructs the compiler that the source of a predicate of a list of
+predicates  _P_ must be kept. This source is then accessible through
+the clause/2 procedure and through the `listing` family of
+built-ins.
+
+Note that all dynamic procedures are public. The `source` directive
+defines all new or redefined predicates to be public.
+
+**/
+'$public'(X, _) :- var(X), !,
+	'$do_error'(instantiation_error,public(X)).
+'$public'(Mod:Spec, _) :- !,
+	'$public'(Spec,Mod).
+'$public'((A,B), M) :- !, '$public'(A,M), '$public'(B,M).
+'$public'([],_) :- !.
+'$public'([H|L], M) :- !, '$public'(H, M), '$public'(L, M).
+'$public'(A//N1, Mod) :- integer(N1), !,
+	N is N1+2,
+	'$public'(A/N, Mod).
+'$public'(A/N, Mod) :- integer(N), atom(A), !,
+	functor(T,A,N),
+	'$do_make_public'(T, Mod).
+'$public'(X, Mod) :- 
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
+
+'$do_make_public'(T, Mod) :-
+	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
+'$do_make_public'(T, Mod) :-
+	'$flags'(T,Mod,F,F),
+	NF is F\/0x00400000,
+	'$flags'(T,Mod,F,NF).
+
+
+/** @pred     multifile) _P_ ) is iso
+A predicate that may be defined in several files.
+
+Instructs the compiler about the declaration of a predicate  _P_ in
+more than one file. It must appear in the first of the loaded files
+where the predicate is declared, and before declaration of any of its
+clauses.
+
+Multifile declarations affect [reconsult/1](@ref reconsult) and [compile/1](@ref compile):
+when a multifile predicate is reconsulted, only the clauses from the
+same file are removed.
+
+Since YAP4.3.0 multifile procedures can be static or dynamic.
+
+**/
 multifile(P) :-
 	'$current_module'(OM),
 	'$multifile'(P, M).
@@ -106,6 +166,14 @@ multifile(P) :-
 '$multifile'(P, M) :-
 	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
+/** @pred no_style_check(+ _X_)
+Turns off style checking according to the attribute specified by
+ _X_, which has the same meaning as in style_check/1.
+
+The no_style_check/1 built-in is now deprecated. Please use 
+`set_prolog_flag/1` instead.
+
+**/
 discontiguous(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,discontiguous(V)).

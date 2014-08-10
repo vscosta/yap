@@ -649,7 +649,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     BEGP(pt0);
     deref_body(d1, pt0, func_nvar_unk, func_nvar_nvar);
     /* A2 is a variable, go and bind it */
-    Bind(pt0, d0);
+    YapBind(pt0, d0);
     /* have to buffer ENDP and label */
     d0 = arity;
     ENDP(pt0);
@@ -670,7 +670,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     BEGP(pt0);
     deref_body(d1, pt0, func_nvar3_unk, func_nvar3_nvar);
     /* A3 is a variable, go and bind it */
-    Bind(pt0, d0);
+    YapBind(pt0, d0);
     return(TRUE);
 
     ENDP(pt0);
@@ -748,7 +748,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   } 
   /* else if arity is 0 just pass d0 through */
   /* Ding, ding, we made it */
-  Bind(pt0, d0);
+  YapBind(pt0, d0);
   return(TRUE);
 
 
@@ -923,7 +923,7 @@ p_save_cp( USES_REGS1 )
 #endif
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer(B PASS_REGS);
-  Bind((CELL *)t,td);
+  YapBind((CELL *)t,td);
   return(TRUE);
 }
 

@@ -257,6 +257,13 @@ yamop			       *ImportFAILCODE				=NULL
 
 Functor				FunctorVar				=FunctorVar
 
+#if __ANDROID__
+// current virtual directory.
+struct AAssetManager* assetManager				=GLOBAL_assetManager
+char*				InAssetDir						=NULL
+#endif
+
+
 // exo indexing
 
 UInt				ibnds[256]				void
@@ -269,7 +276,7 @@ UInt				exo_arg					=0
 struct scan_atoms*		search_atoms				void
 
 // Slots
-Int				CurSlot					=0
+yhandle_t				CurSlot					=0
 
 
 Term				SourceModule				=0

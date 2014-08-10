@@ -121,7 +121,7 @@ Yap_IsOpType(char *type)
 }
 
 static int 
-OpDec(int p, char *type, Atom a, Term m)
+OpDec(int p, const char *type, Atom a, Term m)
 {
   int             i;
   AtomEntry      *ae = RepAtom(a);
@@ -399,7 +399,7 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
 }
 
 void 
-Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
+Yap_InitCPred(const char *Name, UInt Arity, CPredicate code, UInt flags)
 {
   CACHE_REGS
   Atom              atom = NIL;
@@ -483,27 +483,27 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
     p_code->opc = Yap_opcode(_call_usercpred);
   else
     p_code->opc = Yap_opcode(_call_cpred);
-  p_code->u.Osbpp.bmap = NULL;
-  p_code->u.Osbpp.s = -Signed(RealEnvSize);
-  p_code->u.Osbpp.p =
-    p_code->u.Osbpp.p0 =
+  p_code->y_u.Osbpp.bmap = NULL;
+  p_code->y_u.Osbpp.s = -Signed(RealEnvSize);
+  p_code->y_u.Osbpp.p =
+    p_code->y_u.Osbpp.p0 =
     pe;
   p_code = NEXTOP(p_code,Osbpp);
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_deallocate);
-    p_code->u.p.p = pe;
+    p_code->y_u.p.p = pe;
     p_code = NEXTOP(p_code,p);
   }
   p_code->opc = Yap_opcode(_procceed);
-  p_code->u.p.p = pe;
+  p_code->y_u.p.p = pe;
   p_code = NEXTOP(p_code,p);
   p_code->opc = Yap_opcode(_Ystop);
-  p_code->u.l.l = cl->ClCode;
+  p_code->y_u.l.l = cl->ClCode;
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
 }
 
 void 
-Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt flags)
+Yap_InitCmpPred(const char *Name, UInt Arity, CmpPredicate cmp_code, UInt flags)
 {
   CACHE_REGS
   Atom              atom = NIL;
@@ -567,21 +567,21 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
   p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_bfunc_xx);
-  p_code->u.plxxs.p = pe;
-  p_code->u.plxxs.f = FAILCODE;
-  p_code->u.plxxs.x1 = Yap_emit_x(1);
-  p_code->u.plxxs.x2 = Yap_emit_x(2);
-  p_code->u.plxxs.flags = Yap_compile_cmp_flags(pe);
+  p_code->y_u.plxxs.p = pe;
+  p_code->y_u.plxxs.f = FAILCODE;
+  p_code->y_u.plxxs.x1 = Yap_emit_x(1);
+  p_code->y_u.plxxs.x2 = Yap_emit_x(2);
+  p_code->y_u.plxxs.flags = Yap_compile_cmp_flags(pe);
   p_code = NEXTOP(p_code,plxxs);
   p_code->opc = Yap_opcode(_procceed);
-  p_code->u.p.p = pe;
+  p_code->y_u.p.p = pe;
   p_code = NEXTOP(p_code,p);
   p_code->opc = Yap_opcode(_Ystop);
-  p_code->u.l.l = cl->ClCode;
+  p_code->y_u.l.l = cl->ClCode;
 }
 
 void 
-Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, UInt flags)
+Yap_InitAsmPred(const char *Name,  UInt Arity, int code, CPredicate def, UInt flags)
 {
   CACHE_REGS
   Atom            atom = NIL;
@@ -655,20 +655,20 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       p_code = NEXTOP(p_code,e);
     }
     p_code->opc = Yap_opcode(_call_cpred);
-    p_code->u.Osbpp.bmap = NULL;
-    p_code->u.Osbpp.s = -Signed(RealEnvSize);
-    p_code->u.Osbpp.p = p_code->u.Osbpp.p0 = pe;
+    p_code->y_u.Osbpp.bmap = NULL;
+    p_code->y_u.Osbpp.s = -Signed(RealEnvSize);
+    p_code->y_u.Osbpp.p = p_code->y_u.Osbpp.p0 = pe;
     p_code = NEXTOP(p_code,Osbpp);
     if (!(flags & SafePredFlag)) {
       p_code->opc = Yap_opcode(_deallocate);
-      p_code->u.p.p = pe;
+      p_code->y_u.p.p = pe;
       p_code = NEXTOP(p_code,p);
     }
     p_code->opc = Yap_opcode(_procceed);
-    p_code->u.p.p = pe;
+    p_code->y_u.p.p = pe;
     p_code = NEXTOP(p_code,p);
     p_code->opc = Yap_opcode(_Ystop);
-    p_code->u.l.l = cl->ClCode;
+    p_code->y_u.l.l = cl->ClCode;
     pe->OpcodeOfPred = pe->CodeOfPred->opc;
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
@@ -689,7 +689,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
     return;
   }
   code = (yamop *)(pe->cs.p_code.FirstClause);
-  code->u.OtapFs.p = pe;
+  code->y_u.OtapFs.p = pe;
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_try_userc);
   else
@@ -698,7 +698,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
   INIT_YAMOP_LTT(code, 2);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  code->u.OtapFs.f = Start;
+  code->y_u.OtapFs.f = Start;
   code = NEXTOP(code,OtapFs);
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_retry_userc);
@@ -708,32 +708,32 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont, CPredicate Cut)
   INIT_YAMOP_LTT(code, 1);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  code->u.OtapFs.f = Cont;
+  code->y_u.OtapFs.f = Cont;
   code = NEXTOP(code,OtapFs);
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_cut_c);
   else
     code->opc = Yap_opcode(_cut_userc);
-  code->u.OtapFs.p = pe;
-  code->u.OtapFs.f = Cut;
+  code->y_u.OtapFs.p = pe;
+  code->y_u.OtapFs.f = Cut;
 }
 
 void 
-Yap_InitCPredBack(char *Name, unsigned long int Arity,
+Yap_InitCPredBack(const char *Name, UInt Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,NULL,flags);
 }
 
 void
-Yap_InitCPredBackCut(char *Name, unsigned long int Arity,
+Yap_InitCPredBackCut(const char *Name, UInt Arity,
 		     unsigned int Extra, CPredicate Start,
 		     CPredicate Cont,CPredicate Cut, UInt flags){
   Yap_InitCPredBack_(Name,Arity,Extra,Start,Cont,Cut,flags);
 }
 
 void
-Yap_InitCPredBack_(char *Name, unsigned long int Arity,
+Yap_InitCPredBack_(const char *Name, UInt Arity,
 		  unsigned int Extra, CPredicate Start,
 		  CPredicate Cont, CPredicate Cut, UInt flags)
 {
@@ -776,6 +776,7 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
+    UInt sz = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
     if (flags &  UserCPredFlag) 
       pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | StandardPredFlag | flags;
     else
@@ -785,7 +786,7 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
     
-    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l));
+    cl = (StaticClause *)Yap_AllocCodeSpace(sz);
     
     if (cl == NULL) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
@@ -793,7 +794,7 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
     }
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
-    Yap_ClauseSpace += (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),l);
+    Yap_ClauseSpace += sz;
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),OtapFs),e);
     cl->usc.ClLine = Yap_source_line_no();
@@ -805,10 +806,10 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_userc);
     else
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_c);
-    code->u.OtapFs.f = Start;
-    code->u.OtapFs.p = pe;
-    code->u.OtapFs.s = Arity;
-    code->u.OtapFs.extra = Extra;
+    code->y_u.OtapFs.f = Start;
+    code->y_u.OtapFs.p = pe;
+    code->y_u.OtapFs.s = Arity;
+    code->y_u.OtapFs.extra = Extra;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code, 2);
     PUT_YAMOP_SEQ(code);
@@ -818,10 +819,10 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
       code->opc = Yap_opcode(_retry_userc);
     else
       code->opc = Yap_opcode(_retry_c);
-    code->u.OtapFs.f = Cont;
-    code->u.OtapFs.p = pe;
-    code->u.OtapFs.s = Arity;
-    code->u.OtapFs.extra = Extra;
+    code->y_u.OtapFs.f = Cont;
+    code->y_u.OtapFs.p = pe;
+    code->y_u.OtapFs.s = Arity;
+    code->y_u.OtapFs.extra = Extra;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code, 1);
     PUT_YAMOP_SEQ(code);
@@ -831,13 +832,13 @@ Yap_InitCPredBack_(char *Name, unsigned long int Arity,
       code->opc = Yap_opcode(_cut_userc);
     else
       code->opc = Yap_opcode(_cut_c);
-    code->u.OtapFs.f = Cut;
-    code->u.OtapFs.p = pe;
-    code->u.OtapFs.s = Arity;
-    code->u.OtapFs.extra = Extra;
+    code->y_u.OtapFs.f = Cut;
+    code->y_u.OtapFs.p = pe;
+    code->y_u.OtapFs.s = Arity;
+    code->y_u.OtapFs.extra = Extra;
     code = NEXTOP(code,OtapFs);
     code->opc = Yap_opcode(_Ystop);
-    code->u.l.l = cl->ClCode;
+    code->y_u.l.l = cl->ClCode;
   }
 }
 
@@ -898,10 +899,10 @@ InitEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
 
   /* make it look like the instruction is preceeded by a call instruction */
   ipc->opc = Yap_opcode(_call);
-  ipc->u.Osbpp.s = -Signed(RealEnvSize);
-  ipc->u.Osbpp.bmap = NULL;
-  ipc->u.Osbpp.p = pred;
-  ipc->u.Osbpp.p0 = pred;
+  ipc->y_u.Osbpp.s = -Signed(RealEnvSize);
+  ipc->y_u.Osbpp.bmap = NULL;
+  ipc->y_u.Osbpp.p = pred;
+  ipc->y_u.Osbpp.p0 = pred;
   ipc = NEXTOP(ipc, Osbpp);
   ipc->opc = Yap_opcode(opc);
   *instp = ipc;
@@ -914,14 +915,14 @@ InitOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
 
   /* this is a place holder, it should not really be used */
   ipc->opc = Yap_opcode(opc);
-  ipc->u.Otapl.s = 0;
-  ipc->u.Otapl.p = pe;
-  ipc->u.Otapl.d = NULL;
+  ipc->y_u.Otapl.s = 0;
+  ipc->y_u.Otapl.p = pe;
+  ipc->y_u.Otapl.d = NULL;
 #ifdef YAPOR
   INIT_YAMOP_LTT(ipc, 1);
 #endif /* YAPOR */
 #ifdef TABLING
-  ipc->u.Otapl.te = NULL;
+  ipc->y_u.Otapl.te = NULL;
 #endif /* TABLING */
 }
 
@@ -1182,8 +1183,8 @@ InitCodes(void)
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  Yap_heap_regs->getwork_code->u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
-  Yap_heap_regs->getwork_seq_code->u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
+  Yap_heap_regs->getwork_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetwork, PROLOG_MODULE));
+  Yap_heap_regs->getwork_seq_code->y_u.Otapl.p = RepPredProp(PredPropByAtom(AtomGetworkSeq, PROLOG_MODULE));
 #endif /* YAPOR */
 
 }

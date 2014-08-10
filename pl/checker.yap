@@ -64,12 +64,44 @@
 
 :- system_module( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
-        '$init_style_check'/1,
         '$sv_warning'/2,
         '$syntax_check_discontiguous'/2,
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
 
+/**
+
+@defgroup   YAPStyle Checker
+    @ingroup  YAPCompilerSettings
+
+@pred style_check(+ _X_)
+
+Turns on style checking according to the attribute specified by  _X_,
+which must be one of the following:
+
+    + single_var
+      Checks single occurrences of named variables in a clause.
+
+    + discontiguous
+      Checks non-contiguous clauses for the same predicate in a file.
+
+    + multiple
+      Checks the presence of clauses for the same predicate in more than one
+      file when the predicate has not been declared as `multifile`
+
+    + all
+      Performs style checking for all the cases mentioned above.
+
+
+By default, style checking is disabled in YAP unless we are in
+`sicstus` or `iso` language mode.
+
+The style_check/1 built-in is now deprecated. Please use
+`set_prolog_flag/1` instead.
+
+@{
+
+**/
 %
 % A Small style checker for YAP
 
@@ -150,9 +182,23 @@ no_style_check(-single_var) :-
 no_style_check(-singleton) :-
 	'$style_checker'( [ -singleton ] ).
 no_style_check(-discontiguous) :-
-	'$stylechecker'( [ -discontiguous ] ).
+	'$style_checker'( [ -discontiguous ] ).
 no_style_check(-multiple) :-
 	'$style_checker'( [  -multiple ] ).
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
+/** @pred discontiguous(+ _G_) is iso
+    Avoid warnings from the sytax checker.
+
+Declare that the predicate _G_ or list of predicates are discontiguous
+procedures, that is, clauses for discontigous procedures may be
+separated by clauses from other procedures.
+
+*/
+
+
+
+/*
+@}
+*/

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<EditText android:id="@+id/EditText01" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_weight="1.0"
+			android:lines="6" />
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="wrap_content" android:layout_height="fill_parent">
+			<Button android:id="@+id/QueryButton" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:text="Query..."
+				android:onClick="onQueryButtonClick" />
+			<Button android:id="@+id/QuerySelectionButton"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:text="Select" android:onClick="onQuerySelectionButtonClick" />
+			<Button android:id="@+id/ClearButton" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:text="Reset"
+				android:onClick="onClearButtonClick" />
+		</LinearLayout>
+	</LinearLayout>
+	<ScrollView android:id="@+id/Scroller" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<TextView android:id="@+id/OutputText" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:singleLine = "false"/>
+		<!-- Set MaxLegth EditText -->
+	</ScrollView>
+</LinearLayout>
+
+  

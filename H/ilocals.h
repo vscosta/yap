@@ -227,6 +227,11 @@ static void InitWorker(int wid) {
   REMOTE_ImportDBRefHashTableNum(wid) = 0;
   REMOTE_ImportFAILCODE(wid) = NULL;
   REMOTE_FunctorVar(wid) = FunctorVar;
+#if __ANDROID__
+
+  REMOTE_assetManager(wid) = GLOBAL_assetManager;
+  REMOTE_InAssetDir(wid) = NULL;
+#endif
 
 
   REMOTE_exo_it(wid) = NULL;

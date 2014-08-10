@@ -34,6 +34,10 @@ static void RestoreGlobal(void) {
 
 
 
+#if __ANDROID__
+
+
+#endif
 
 #if THREADS
 

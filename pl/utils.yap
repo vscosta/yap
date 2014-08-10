@@ -303,5 +303,3 @@ nb_current(GlobalVariable, Val) :-
 
 subsumes_term(A,B) :-
 	\+ \+ terms:subsumes(A,B).
-
-

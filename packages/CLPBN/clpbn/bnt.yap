@@ -16,6 +16,8 @@
 :- use_module(library('clpbn/discrete_utils'),
 		[reorder_CPT/5]).
 
+:- use_module(library('atts')).
+
 :- use_module(library(matlab),
 		[start_matlab/1,
 		 close_matlab/0,

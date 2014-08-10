@@ -1289,7 +1289,7 @@ p_nb_getval( USES_REGS1 )
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
     Term t = MkVarTerm();
-    Bind(VarOfTerm(to), t);
+    YapBind(VarOfTerm(to), t);
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);

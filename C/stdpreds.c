@@ -310,10 +310,6 @@ static Int cont_current_op( USES_REGS1 );
 static Int init_current_atom_op( USES_REGS1 );
 static Int cont_current_atom_op( USES_REGS1 );
 static Int p_flags( USES_REGS1 );
-static int AlreadyHidden(char *);
-static Int p_hide( USES_REGS1 );
-static Int p_hidden( USES_REGS1 );
-static Int p_unhide( USES_REGS1 );
 static Int TrailMax(void);
 static Int GlobalMax(void);
 static Int LocalMax(void);
@@ -840,7 +836,7 @@ cont_current_predicate_for_atom( USES_REGS1 )
     FunctorEntry *pp = RepFunctorProp(pf);
     if (IsFunctorProperty(pp->KindOfPE)) {
       Prop p0;
-      READ_LOCK(pp->FRWLock);
+      FUNC_READ_LOCK(pp);
       p0 = pp->PropsOfFE;
       if (p0) {
 	PredEntry *p = RepPredProp(p0);
@@ -849,7 +845,7 @@ cont_current_predicate_for_atom( USES_REGS1 )
 	  UInt ar = p->ArityOfPE;
 	  /* we found the predicate */
 	  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	  READ_UNLOCK(pp->FRWLock);
+	  FUNC_READ_UNLOCK(pp);
 	  return 
 	    Yap_unify(ARG3,MkIntegerTerm(ar));
 	} else if (p->NextOfPE) {
@@ -862,7 +858,7 @@ cont_current_predicate_for_atom( USES_REGS1 )
 		p->ModuleOfPred == mod)
 	      {
 		READ_UNLOCK(PredHashRWLock);
-		READ_UNLOCK(pp->FRWLock);
+        FUNC_READ_UNLOCK(pp);
 		/* we found the predicate */
 		EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(p->NextOfPE));
 		return Yap_unify(ARG3,MkIntegerTerm(p->ArityOfPE));
@@ -871,7 +867,7 @@ cont_current_predicate_for_atom( USES_REGS1 )
 	  }
 	}
       }
-      READ_UNLOCK(pp->FRWLock);
+      FUNC_READ_UNLOCK(pp);
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
       PELOCK(31,pe);
@@ -1168,117 +1164,6 @@ p_set_flag( USES_REGS1 )
   
   UNLOCK(pe->PELock);
   return TRUE;
-}
-
-
-static int 
-AlreadyHidden(char *name)
-{
-  AtomEntry      *chain;
-
-  READ_LOCK(INVISIBLECHAIN.AERWLock);
-  chain = RepAtom(INVISIBLECHAIN.Entry);
-  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
-  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, name) != 0)
-    chain = RepAtom(chain->NextOfAE);
-  if (EndOfPAEntr(chain))
-    return (FALSE);
-  return (TRUE);
-}
-
-static Int 
-p_hide( USES_REGS1 )
-{				/* hide(+Atom)		 */
-  Atom            atomToInclude;
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"hide/1");
-    return(FALSE);
-  }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"hide/1");
-    return(FALSE);
-  }
-  atomToInclude = AtomOfTerm(t1);
-  if (AlreadyHidden(RepAtom(atomToInclude)->StrOfAE)) {
-    Yap_Error(SYSTEM_ERROR,t1,"an atom of name %s was already hidden",
-	  RepAtom(atomToInclude)->StrOfAE);
-    return(FALSE);
-  }
-  Yap_ReleaseAtom(atomToInclude);
-  WRITE_LOCK(INVISIBLECHAIN.AERWLock);
-  WRITE_LOCK(RepAtom(atomToInclude)->ARWLock);
-  RepAtom(atomToInclude)->NextOfAE = INVISIBLECHAIN.Entry;
-  WRITE_UNLOCK(RepAtom(atomToInclude)->ARWLock);
-  INVISIBLECHAIN.Entry = atomToInclude;
-  WRITE_UNLOCK(INVISIBLECHAIN.AERWLock);
-  return (TRUE);
-}
-
-static Int 
-p_hidden( USES_REGS1 )
-{				/* '$hidden'(+F)		 */
-  Atom            at;
-  AtomEntry      *chain;
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1))
-    at = AtomOfTerm(t1);
-  else if (IsApplTerm(t1))
-    at = NameOfFunctor(FunctorOfTerm(t1));
-  else
-    return (FALSE);
-  READ_LOCK(INVISIBLECHAIN.AERWLock);
-  chain = RepAtom(INVISIBLECHAIN.Entry);
-  while (!EndOfPAEntr(chain) && AbsAtom(chain) != at)
-    chain = RepAtom(chain->NextOfAE);
-  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
-  if (EndOfPAEntr(chain))
-    return (FALSE);
-  return (TRUE);
-}
-
-
-static Int 
-p_unhide( USES_REGS1 )
-{				/* unhide(+Atom)		 */
-  AtomEntry      *atom, *old, *chain;
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"unhide/1");
-    return(FALSE);
-  }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM,t1,"unhide/1");
-    return(FALSE);
-  }
-  atom = RepAtom(AtomOfTerm(t1));
-  WRITE_LOCK(atom->ARWLock);
-  if (atom->PropsOfAE != NIL) {
-    Yap_Error(SYSTEM_ERROR,t1,"cannot unhide an atom in use");
-    return(FALSE);
-  }
-  WRITE_LOCK(INVISIBLECHAIN.AERWLock);
-  chain = RepAtom(INVISIBLECHAIN.Entry);
-  old = NIL;
-  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, atom->StrOfAE) != 0) {
-    old = chain;
-    chain = RepAtom(chain->NextOfAE);
-  }
-  if (EndOfPAEntr(chain))
-    return (FALSE);
-  atom->PropsOfAE = chain->PropsOfAE;
-  if (old == NIL)
-    INVISIBLECHAIN.Entry = chain->NextOfAE;
-  else
-    old->NextOfAE = chain->NextOfAE;
-  WRITE_UNLOCK(INVISIBLECHAIN.AERWLock);
-  WRITE_UNLOCK(atom->ARWLock);
-  return (TRUE);
 }
 
 void
@@ -2035,10 +1920,6 @@ Yap_InitCPreds(void)
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
-  /* hiding and unhiding some predicates */
-  Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag);
 #ifndef YAPOR

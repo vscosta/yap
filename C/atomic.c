@@ -55,6 +55,139 @@ static Int p_number_chars( USES_REGS1 );
 static Int p_number_codes( USES_REGS1 );
 static Int init_current_atom( USES_REGS1 );
 static Int cont_current_atom( USES_REGS1 );
+static int AlreadyHidden(char *);
+static Int p_hide( USES_REGS1 );
+static Int p_hidden( USES_REGS1 );
+static Int p_unhide( USES_REGS1 );
+
+
+
+static int 
+AlreadyHidden(char *name)
+{
+  AtomEntry      *chain;
+
+  READ_LOCK(INVISIBLECHAIN.AERWLock);
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
+  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, name) != 0)
+    chain = RepAtom(chain->NextOfAE);
+  if (EndOfPAEntr(chain))
+    return (FALSE);
+  return (TRUE);
+}
+
+/** @pred hide(+ _Atom_)
+    Make atom  _Atom_ invisible.
+
+    Notice that defining a new atom with the same characters will
+    result in a different atom.xs
+
+ **/
+static Int 
+p_hide( USES_REGS1 )
+{				/* hide(+Atom)		 */
+  Atom            atomToInclude;
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"hide/1");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"hide/1");
+    return(FALSE);
+  }
+  atomToInclude = AtomOfTerm(t1);
+  if (AlreadyHidden(RepAtom(atomToInclude)->StrOfAE)) {
+    Yap_Error(SYSTEM_ERROR,t1,"an atom of name %s was already hidden",
+	  RepAtom(atomToInclude)->StrOfAE);
+    return(FALSE);
+  }
+  Yap_ReleaseAtom(atomToInclude);
+  WRITE_LOCK(INVISIBLECHAIN.AERWLock);
+  WRITE_LOCK(RepAtom(atomToInclude)->ARWLock);
+  RepAtom(atomToInclude)->NextOfAE = INVISIBLECHAIN.Entry;
+  WRITE_UNLOCK(RepAtom(atomToInclude)->ARWLock);
+  INVISIBLECHAIN.Entry = atomToInclude;
+  WRITE_UNLOCK(INVISIBLECHAIN.AERWLock);
+  return (TRUE);
+}
+
+/** @pred hidden( +Atom ) 
+    Is the  atom _Ãtom_ visible to Prolog?
+
+ **/
+static Int 
+p_hidden( USES_REGS1 )
+{				/* '$hidden'(+F)		 */
+  Atom            at;
+  AtomEntry      *chain;
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1))
+    at = AtomOfTerm(t1);
+  else if (IsApplTerm(t1))
+    at = NameOfFunctor(FunctorOfTerm(t1));
+  else
+    return (FALSE);
+  READ_LOCK(INVISIBLECHAIN.AERWLock);
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  while (!EndOfPAEntr(chain) && AbsAtom(chain) != at)
+    chain = RepAtom(chain->NextOfAE);
+  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
+  if (EndOfPAEntr(chain))
+    return (FALSE);
+  return (TRUE);
+}
+
+
+/** @pred unhide(+ _Atom_) 
+    Make hidden atom  _Atom_ visible
+    
+    Note that the operation fails if another atom with name _Atom_ was defined since.
+
+ **/
+static Int 
+p_unhide( USES_REGS1 )
+{				/* unhide(+Atom)		 */
+  AtomEntry      *atom, *old, *chain;
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"unhide/1");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"unhide/1");
+    return(FALSE);
+  }
+  atom = RepAtom(AtomOfTerm(t1));
+  WRITE_LOCK(atom->ARWLock);
+  if (atom->PropsOfAE != NIL) {
+    Yap_Error(SYSTEM_ERROR,t1,"cannot unhide an atom in use");
+    return(FALSE);
+  }
+  WRITE_LOCK(INVISIBLECHAIN.AERWLock);
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  old = NIL;
+  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, atom->StrOfAE) != 0) {
+    old = chain;
+    chain = RepAtom(chain->NextOfAE);
+  }
+  if (EndOfPAEntr(chain))
+    return (FALSE);
+  atom->PropsOfAE = chain->PropsOfAE;
+  if (old == NIL)
+    INVISIBLECHAIN.Entry = chain->NextOfAE;
+  else
+    old->NextOfAE = chain->NextOfAE;
+  WRITE_UNLOCK(INVISIBLECHAIN.AERWLock);
+  WRITE_UNLOCK(atom->ARWLock);
+  return (TRUE);
+}
 
 static Int 
 p_char_code( USES_REGS1 )
@@ -1939,11 +2072,8 @@ init_current_wide_atom( USES_REGS1 )
 void
 Yap_InitBackAtoms(void)
 {
-  Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
-		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,
-		    cont_current_wide_atom,
-		    SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,cont_current_wide_atom,SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
@@ -1982,4 +2112,8 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, p_get_string_code3, 0);
+  /* hiding and unhiding some predicates */
+  Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
 }

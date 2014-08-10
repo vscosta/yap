@@ -42,15 +42,64 @@
 
 :- use_system_module( '$_yio', ['$extend_file_search_path'/1]).
 
+/**
+
+@defgroup YAPSaving Saving and Loading Prolog States
+@ingroup YAPLoading
+
+YAP can save and read images of its current state to files, known as
+saved states. It is possible to save the entire state or just a module
+or a file. Notice that saved states in YAP depend on the architecture
+where they were made, and may also depend on the version of YAP being
+saved.
+
+YAP always tries to find saved states from the current directory
+first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
+defined, or search the default library directory.
+*/
+
+/** @pred save_program(+ _F_)
+Saves the current state of the data-base in file _F_ .
+
+The result is a resource archive containing a saved state that
+expresses all Prolog data from the running program and all
+user-defined resources. Depending on the stand_alone option, the
+resource is headed by the emulator, a Unix shell script or nothing.
+
+**/
 save_program(File) :-
 	qsave_program(File).
 
+/** @pred save_program(+ _F_, : _G_)
+
+Saves an image of the current state of the YAP database in file
+ _F_, and guarantee that execution of the restored code will start by
+trying goal  _G_.
+**/
 qsave_program(File) :-
 	'$save_program_status'([], qsave_program(File)),
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	close(S).	
 
+/** @pred qsave_program(+ _F_, Opts)
+
+Saves an image of the current state of the YAP database in file
+ _F_, currently the options in _Opts_ are ignored:
+
+   + stack(+ _KBytes_)
+     Limit for the local and global stack.
+
+   + trail(+ _KBytes_)
+     Limit for the trail stack.
+
+   + goal(: _Callable_)
+     Initialization goal for the new executable (see -g).
+
+   + init_file(+ _Atom_)
+     Default initialization file for the new executable. See -f.
+
+**/
 qsave_program(File, Opts) :-
 	'$save_program_status'(Opts, qsave_program(File,Opts)),
 	open(File, write, S, [type(binary)]),
@@ -58,6 +107,12 @@ qsave_program(File, Opts) :-
 	% make sure we're not going to bootstrap from this file.
 	close(S).	
 
+/** @pred save_program(+ _F_, : _G_)
+
+Saves an image of the current state of the YAP database in file
+ _F_, and guarantee that execution of the restored code will start by
+trying goal  _G_.
+**/
 save_program(File, Goal) :-
 	recorda('$restore_goal', Goal ,_R),	
 	fail.
@@ -162,7 +217,10 @@ save_program(File, _Goal) :-
 	yap_flag(M:unknown, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
+	X \= gc_margin, % different machines will have different needs,
 	X \= language,
+	X \= max_threads,
+	X \= max_workers,
 	X \= readline,
 	X \= timezone,
 	X \= tty_control,
@@ -241,7 +299,6 @@ save_program(File, _Goal) :-
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', unknown(M:B), R),
 	erase(R),
-writeln(M:B),
 	yap_flag(M:unknown,B),
 	fail.
 '$init_from_saved_state_and_args' :-
@@ -330,9 +387,14 @@ writeln(M:B),
 	 fail.
  '$myddas_import_all'.
 	 
+/** @pred qsave_file(+ _File_, +_State_)
 
-qsave_file(File) :-
-	recorded('$module', '$module'(F,Mod,Exps,Line), _),
+Saves an image of all the information compiled by the systemm from file _F_ to _State_. 
+This includes modules and predicatees eventually including multi-predicates.
+**/
+
+qsave_file(File, State) :-
+	recorded('$module', '$module'(File,Mod,Exps,Line), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
@@ -340,14 +402,18 @@ qsave_file(File) :-
 	'$fetch_module_transparents_module'(Mod, ModTransps),
 	asserta(Mod:'@mod_info'(F, Exps, Line, Parents, Imps, Metas, ModTransps)),
 	atom_concat(Mod,'.qly',OF),
-	open(OF, write, S, [type(binary)]),
+	open(State, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
 	close(S),
 	abolish(Mod:'@mod_info'/7),
 	fail.
 qsave_file(_).
 
-qsave_module(Mod) :-
+/** @pred qsave_module(+ _Module_, +_State_)
+Saves an image of all the information compiled by the systemm on module _F_ to _State_. 
+**/
+
+qsave_module(Mod, OF) :-
 	recorded('$module', '$module'(F,Mod,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
@@ -363,11 +429,21 @@ qsave_module(Mod) :-
 	fail.
 qsave_module(_).
 
+/**
+@pred restore(+ _F_)
+Restores a previously saved state of YAP from file  _F_.
+
+*/
 restore(File) :-
 	open(File, read, S, [type(binary)]),
 	'$qload_program'(S),
 	close(S).
 
+/**
+@pred qload_module(+ _F_)
+Restores a previously saved state of YAP with  from file  _F_.
+
+*/
 qload_module(Mod) :-
 	atom_concat(Mod,'.qly',IF),
 	open(IF, read, S, [type(binary)]),

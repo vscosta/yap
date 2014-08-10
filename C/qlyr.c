@@ -16,8 +16,8 @@
 *									 *
 *************************************************************************/
 
-#include <SWI-Stream.h>
 #include "absmi.h"
+#include <SWI-Stream.h>
 #include "Foreign.h"
 #include "alloc.h"
 #include "yapio.h"
@@ -968,8 +968,9 @@ read_pred(IOSTREAM *stream, Term mod) {
   }
   ap->TimeStampOfPred = read_uint(stream);
   /* multifile predicates cannot reside in module 0 */
-  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE)
+  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
     ap->ModuleOfPred = TermProlog;
+  }
   read_clauses(stream, ap, nclauses, flags);
   if (flags & HiddenPredFlag) {  
     Yap_HidePred(ap);
@@ -1005,7 +1006,6 @@ read_module(IOSTREAM *stream) {
   ReadHash(stream);
   while ((x = read_tag(stream)) == QLY_START_MODULE) {
     Term mod = (Term)read_uint(stream);
-
     mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
     if (mod)
     while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
@@ -1054,7 +1054,6 @@ static Int
 p_read_program( USES_REGS1 )
 {
   IOSTREAM *stream;
-  void YAP_Reset(void);
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {

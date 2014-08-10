@@ -81,7 +81,7 @@ do_gc(UInt sz)
   yamop *nextpc;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    arity = PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
     nextpc = P;
   } else {
     arity = 0;
@@ -2655,7 +2655,7 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 
       yapt.ssize = attr->local_size;
       yapt.tsize = attr->global_size;
-      yapt.alias = (YAP_Term)attr->alias;
+      yapt.alias = MkAtomTerm(Yap_LookupAtom(attr->alias));
       yapt.cancel =  attr->cancel;
       wid = YAP_ThreadCreateEngine(&yapt);
     } else {
@@ -2704,7 +2704,7 @@ PL_create_engine(const PL_thread_attr_t *attr)
 
     yapt.ssize = attr->local_size;
     yapt.tsize = attr->global_size;
-    yapt.alias = (YAP_Term)attr->alias;
+    yapt.alias = MkAtomTerm(Yap_LookupAtom(attr->alias));
     yapt.cancel =  attr->cancel;
 
     eng = YAP_ThreadCreateEngine(&yapt);
@@ -3231,29 +3231,6 @@ term_t Yap_CvtTerm(term_t ts)
   }
   return ts;
 }
-
-#ifdef _WIN32
-
-#include <windows.h>
-
-int WINAPI PROTO(win_yap2swi, (HANDLE, DWORD, LPVOID));
-
-int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
-{
-  switch (reason) 
-    {
-    case DLL_PROCESS_ATTACH:
-      break;
-    case DLL_PROCESS_DETACH:
-      break;
-    case DLL_THREAD_ATTACH:
-      break;
-    case DLL_THREAD_DETACH:
-      break;
-    }
-  return 1;
-}
-#endif
 
 /**
  * @}

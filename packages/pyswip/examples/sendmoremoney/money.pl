@@ -2,7 +2,7 @@
 % SEND + MORE = MONEY
 % Adapted from: http://en.wikipedia.org/wiki/Constraint_programming
 
-:- use_module(library('bounds')).
+:- use_module(library('clpfd')).
 
 sendmore(Digits) :-
    Digits = [S,E,N,D,M,O,R,Y],     % Create variables

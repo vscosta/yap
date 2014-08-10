@@ -15,6 +15,8 @@
 /*--------------------------------------------------------------------*/
 /*                      Functions from B-Prolog                       */
 
+int bpx_mount_query_term(TERM t);
+
 /* cpred.c */
 int         bp_string_2_term(const char *, TERM, TERM);
 char*	    bp_term_2_string(TERM);

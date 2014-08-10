@@ -24,13 +24,13 @@ if test "$PKG_SWIG" != ""; then
 mkdir -p packages/swig/python
 mkdir -p packages/swig/R
 mkdir -p packages/swig/java
-mkdir -p packages/swig/src
+mkdir -p packages/swig/fli
 mkdir -p packages/swig/jni
 
 AC_SUBST(SWIG)
 AC_SUBST(SWIG_TARGET)
 AC_SUBST(PKG_SWIG)
 
-AC_CONFIG_FILES([  packages/swig/Makefile packages/swig/jni/Android.mk ])
+AC_CONFIG_FILES([  packages/swig/Makefile packages/swig/Android.mk ])
 fi
 

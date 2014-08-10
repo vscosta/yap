@@ -16,6 +16,13 @@
 #ifndef YAP_H
 #include "YapTermConfig.h"
 
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 typedef void *Functor;
 typedef void *Atom;
 
@@ -31,11 +38,12 @@ typedef void *Atom;
 /* defines integer  types Int and UInt (unsigned) with the same size as a ptr
 ** and integer types Short and UShort with half the size of a ptr */
 
+/*   */ typedef intptr_t Int;
+/*   */ typedef uintptr_t UInt;
+
 #if SIZEOF_INT_P==4
 
 #if SIZEOF_INT==4
-/*   */ typedef int Int;
-/*   */ typedef unsigned int UInt;
 
 #define Int_FORMAT "%d"
 #define UInt_FORMAT "%u"
@@ -62,22 +70,16 @@ typedef void *Atom;
 #elif SIZEOF_INT_P==8
 
 #if SIZEOF_INT==8
-/*   */ typedef int Int;
-/*   */ typedef unsigned int UInt;
 
 #define Int_FORMAT "%d"
 #define UInt_FORMAT "%u"
 
 #elif SIZEOF_LONG_INT==8
-/*   */ typedef long int Int;
-/*   */ typedef unsigned long int UInt;
 
 #define Int_FORMAT "%ld"
 #define UInt_FORMAT "%lu"
 
 #   elif SIZEOF_LONG_LONG_INT==8
-/*   */ typedef long long int Int;
-/*   */ typedef unsigned long long int UInt;
 
 #define Int_FORMAT "%I64d"
 #define UInt_FORMAT "%I64u"
@@ -128,6 +130,8 @@ typedef UInt BITS32;
 
 
 typedef CELL Term;
+
+typedef Int yhandle_t;
 
 /*   */ typedef double Float;
 

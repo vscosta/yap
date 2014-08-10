@@ -395,7 +395,7 @@ oc_unify_nvar_nvar:
 
   deref_body(d1, pt1, oc_unify_nvar_unk, oc_unify_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  Bind(pt1, d0);
+  YapBind(pt1, d0);
   /* local variables cannot be in a term */
   if (pt1 > HR && pt1 < LCL0)
     return TRUE;
@@ -408,7 +408,7 @@ oc_unify_nvar_nvar:
   deref_head(d1, oc_unify_var_unk);
 oc_unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  Bind(pt0, d1);
+  YapBind(pt0, d1);
   /* local variables cannot be in a term */
   if (pt0 > HR && pt0 < LCL0)
     return TRUE;
@@ -528,7 +528,7 @@ unify_nvar_nvar:
 
   deref_body(d1, pt1, unify_nvar_unk, unify_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  Bind(pt1, d0);
+  YapBind(pt1, d0);
   return (TRUE);
 
   deref_body(d0, pt0, unify_unk, unify_nvar);
@@ -536,7 +536,7 @@ unify_nvar_nvar:
   deref_head(d1, unify_var_unk);
 unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  Bind(pt0, d1);
+  YapBind(pt0, d1);
   return TRUE;
 
 #if TRAILING_REQUIRES_BRANCH

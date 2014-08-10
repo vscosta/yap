@@ -37,6 +37,8 @@ property list
 
 */
 
+#if FALSE
+
 #define SHIFT_HIGH_TAG  29
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
@@ -188,3 +190,5 @@ IntOfTerm (Term t)
 {
   return (Int) (((Int) (t << 3)) >> (3 + 2));
 }
+
+#endif /* NOT IN USE */

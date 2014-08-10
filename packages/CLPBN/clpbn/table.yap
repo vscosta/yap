@@ -110,8 +110,7 @@ clpbn_table(F/N,M) :-
 	asserta(clpbn_table(S, M, IGoal)),
 	assert((M:S :-
 	  !,
-%	  write(S: ' ' ),
-	  b_getval(clpbn_tables, Tab),
+	  b_getval((clpbn_tables), Tab),
 	  % V2 is unbound.
 	  (b_hash_lookup(Key, V2, Tab) ->
 %	    (attvar(V2) -> writeln(ok:A0:V2) ; writeln(error(V2:should_be_attvar(S)))),

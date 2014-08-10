@@ -18,11 +18,12 @@
 #ifndef ATOMS_H
 #define ATOMS_H 1
 
-#undef EXTERN
+#ifndef EXTERN
 #ifndef ADTDEFS_C
 #define EXTERN  static
 #else
 #define EXTERN
+#endif
 #endif
 
 #include <wchar.h>
@@ -106,6 +107,7 @@ typedef struct PropEntryStruct
 
 #define	MaxArity	    255
 
+typedef CELL arity_t;
 
 #define FunctorProperty   ((PropFlags)(0xbb00))
 
@@ -114,7 +116,7 @@ typedef struct FunctorEntryStruct
 {
   Prop NextOfPE;		/* used to chain properties     */
   PropFlags KindOfPE;		/* kind of property             */
-  unsigned int ArityOfFE;	/* arity of functor             */
+  arity_t ArityOfFE;	/* arity of functor             */
   Atom NameOfFE;		/* back pointer to owner atom   */
   Prop PropsOfFE;		/* pointer to list of properties for this functor */
 #if defined(YAPOR) || defined(THREADS)

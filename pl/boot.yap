@@ -15,6 +15,174 @@
 *									 *
 *************************************************************************/
 
+/** @pred   :_P_ , :_Q_   is iso 
+
+
+Conjunction of goals (and).
+
+Example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ p(X) :- q(X), r(X).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+should be read as "p( _X_) if q( _X_) and r( _X_)".
+
+ 
+*/
+
+/** @pred   :_P_ ; :_Q_  is iso 
+
+
+Disjunction of goals (or).
+
+Example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ p(X) :- q(X); r(X).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+should be read as "p( _X_) if q( _X_) or r( _X_)".
+
+ 
+*/
+
+/** @pred  \+ :_P_  is iso 
+
+
+Goal  _P_ is not provable. The execution of this predicate fails if
+and only if the goal  _P_ finitely succeeds. It is not a true logical
+negation, which is impossible in standard Prolog, but
+"negation-by-failure".
+
+This predicate might be defined as:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ \+(P) :- P, !, fail.
+ \+(_).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if  _P_ did not include "cuts".
+
+ 
+*/
+
+
+/** @pred  not :_P_  
+
+
+Goal  _P_ is not provable. The same as `\+  _P_`.
+
+This predicate is kept for compatibility with C-Prolog and previous
+versions of YAP. Uses of not/1 should be replaced by
+`\+`/1, as YAP does not implement true negation.
+
+ 
+*/
+
+
+
+/** @pred   :_P_ -> :_Q_ is iso 
+
+
+Read as "if-then-else" or "commit". This operator is similar to the
+conditional operator of imperative languages and can be used alone or
+with an else part as follows:
+
+
+~~~~~
+    +P -> +Q
+~~~~~
+
+"if P then Q".
+
+
+~~~~~
+  +P -> +Q; +R
+~~~~~
+
+"if P then Q else R".
+
+These two predicates could be defined respectively in Prolog as:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ (P -> Q) :- P, !, Q.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+and
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ (P -> Q; R) :- P, !, Q.
+ (P -> Q; R) :- R.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if there were no "cuts" in  _P_,  _Q_ and  _R_.
+
+Note that the commit operator works by "cutting" any alternative
+solutions of  _P_.
+
+Note also that you can use chains of commit operators like:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    P -> Q ; R -> S ; T.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Note that `(->)/2` does not affect the scope of cuts in its
+arguments.
+
+ 
+*/
+
+/** @pred    :_Condition_ *-> :_Action_  
+
+
+This construct implements the so-called <em>soft-cut</em>. The control is
+defined as follows: If  _Condition_ succeeds at least once, the
+semantics is the same as ( _Condition_,  _Action_). If
+ _Condition_ does not succeed, the semantics is that of (\\+
+ _Condition_,  _Else_). In other words, If  _Condition_
+succeeds at least once, simply behave as the conjunction of
+ _Condition_ and  _Action_, otherwise execute  _Else_.
+
+The construct  _A \*-> B_, i.e. without an  _Else_ branch, is
+translated as the normal conjunction  _A_,  _B_.
+
+ 
+*/
+
+/** @pred  ! is iso 
+
+
+Read as "cut". Cuts any choices taken in the current procedure.
+When first found "cut" succeeds as a goal, but if backtracking should
+later return to it, the parent goal (the one which matches the head of
+the clause containing the "cut", causing the clause activation) will
+fail. This is an extra-logical predicate and cannot be explained in
+terms of the declarative semantics of Prolog.
+
+example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ member(X,[X|_]).
+ member(X,[_|L]) :- member(X,L).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With the above definition
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ?- member(X,[1,2,3]).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+will return each element of the list by backtracking. With the following
+definition:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ member(X,[X|_]) :- !.
+ member(X,[_|L]) :- member(X,L).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+the same query would return only the first element of the 
+list, since backtracking could not "pass through" the cut.
+
+ 
+*/
+
+
 system_module(_init, _SysExps, _Decls) :- !.
 system_module(M, SysExps, Decls) :-
 	'$current_module'(prolog, M),
@@ -485,15 +653,15 @@ true :- true.
  '$process_directive'(G, _, M, VL, Pos) :-
 	 ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
- '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
+'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
 	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
- '$continue_with_command'(reconsult,V,Pos,G,Source) :-
+'$continue_with_command'(reconsult,V,Pos,G,Source) :-
 	 '$go_compile_clause'(G,V,Pos,5,Source),
 	 fail.
- '$continue_with_command'(consult,V,Pos,G,Source) :-
-	 '$go_compile_clause'(G,V,Pos,13,Source),
+'$continue_with_command'(consult,V,Pos,G,Source) :-
+     '$go_compile_clause'(G,V,Pos,13,Source),
 	 fail.
- '$continue_with_command'(top,V,_,G,_) :-
+'$continue_with_command'(top,V,_,G,_) :-
 	 '$query'(G,V).
 
  %
@@ -515,18 +683,9 @@ true :- true.
 '$go_compile_clause'((M:H :- B),V,Pos,N,_,BodyMod,Source) :- !,
 	  '$go_compile_clause'((H :- B),V,Pos,N,M,BodyMod,Source).
 '$go_compile_clause'(G,V,Pos,N,HeadMod,BodyMod,Source) :- !,
-	 '$prepare_term'(G, V, Pos, G0, G1, BodyMod, HeadMod, Source),
+	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod),
 	 '$$compile'(G1, G0, N, HeadMod).
 
- '$prepare_term'(G, V, Pos, G0, G1, BodyMod, SourceMod, Source) :-
-	 (
-	     get_value('$syntaxcheckflag',on)
-          ->
-	     '$check_term'(Source, G, V, Pos, BodyMod)
-	 ;
-	     true 
-	 ),
-	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod).
 
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-
@@ -1345,6 +1504,7 @@ catch_ball(C, C).
 	fail.
 '$run_at_thread_start'.
 
-
-
+log_event( String, Args ) :-
+	format( atom( M ), String, Args),
+	log_event( M ).
 

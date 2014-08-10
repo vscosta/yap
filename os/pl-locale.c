@@ -791,7 +791,7 @@ PRED_IMPL("locale_destroy", 1, locale_destroy, 0)
 static
 PRED_IMPL("set_locale", 1, set_locale, 0)
 { PRED_LD
-  PL_locale *l;
+  PL_locale *l = NULL;
 
   if ( getLocaleEx(A1, &l) )
   { PL_locale *ol = LD->locale.current;

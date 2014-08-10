@@ -139,8 +139,13 @@
 #undef HAVE_ENVIRON
 #endif
 #endif
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#endif
 
-void PROTO(init_sys, (void));
+void init_sys(void);
 
 #if defined(__MINGW32__) || _MSC_VER
 static YAP_Term
@@ -295,7 +300,26 @@ list_directory(void)
     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
   }
   _findclose( hFile );
-#elif HAVE_OPENDIR
+#else
+#if __ANDROID__
+ {
+    extern AAssetManager *assetManager;
+     const char *dirName = buf+strlen("/assets/");
+     AAssetManager* mgr = assetManager;
+    AAssetDir	 *de;
+    const char* dp;
+
+   if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
+     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+   }
+   while (( dp = AAssetDir_getNextFileName(de))) {
+     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
+     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+   }
+   AAssetDir_close(de);
+ }
+#endif
+#if HAVE_OPENDIR
  {
    DIR *de;
    struct dirent *dp;
@@ -310,6 +334,7 @@ list_directory(void)
    closedir(de);
  }
 #endif /* HAVE_OPENDIR */
+#endif
   tf = YAP_GetFromSlot(sl);
   return YAP_Unify(YAP_ARG2, tf);
 }
@@ -464,7 +489,7 @@ file_property(void)
 static int
 p_mktemp(void)
 {
-#if HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
+#if HAVE_MKSTEMP || HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
   char *s, tmp[BUF_SIZE];
   s = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_STRNCPY
@@ -478,6 +503,13 @@ p_mktemp(void)
     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
   return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s))));
+#elif HAVE_MKSTEMP
+  strcpy(tmp, "/tmp/YAP_tmpXXXXXXXX");
+  if(mkstemp(tmp) == -1) {
+    /* return an error number */
+    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+  }
+  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(tmp)));
 #else
   if ((s = mktemp(tmp)) == NULL) {
     /* return an error number */
@@ -494,7 +526,18 @@ p_mktemp(void)
 static int
 p_tmpnam(void)
 {
-#if HAVE_TMPNAM
+#if HAVE_MKSTEMP
+  char s[21];
+  strcpy(s, "/tmp/YAP_tmpXXXXXXXX");
+  if(mkstemp(s) == -1)
+    return FALSE;
+  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#elif HAVE_MKTEMP
+  char *s;
+  if (!(s = mktemp("/tmp/YAP_tmpXXXXXXXX")))
+    return FALSE;
+  return YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#elif HAVE_TMPNAM
   char buf[L_tmpnam], *s;
   if (!(s = tmpnam(buf)))
     return FALSE;
@@ -876,24 +919,29 @@ static int
 p_sleep(void)
 {
   YAP_Term ts = YAP_ARG1;
-  unsigned long int secs = 0, usecs = 0, out;
-  if (YAP_IsIntTerm(ts)) {
-    secs = YAP_IntOfTerm(ts);
-  }  else if (YAP_IsFloatTerm(ts)) {
-    double tfl = YAP_FloatOfTerm(ts);
+#if defined(__MINGW32__) || _MSC_VER
+  {
+    unsigned long int secs = 0, usecs = 0,  msecs, out;
+    if (YAP_IsIntTerm(ts)) {
+      secs = YAP_IntOfTerm(ts);
+    }  else if (YAP_IsFloatTerm(ts)) {
+      double tfl = YAP_FloatOfTerm(ts);
     if (tfl > 1.0)
       secs = tfl;
     else
       usecs = tfl*1000000;
+    }
+    msecs = secs*1000 + usecs/1000;
+    Sleep(msecs);
+    /* no errors possible */
+    out = 0;
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
-#if defined(__MINGW32__) || _MSC_VER
-  if (secs) usecs = secs*1000 + usecs/1000;
-  Sleep(usecs);
-  /* no errors possible */
-  out = 0;
 #elif HAVE_NANOSLEEP
   {
     struct timespec req;
+    int out;
+
     if (YAP_IsFloatTerm(ts)) {
       double tfl = YAP_FloatOfTerm(ts);
      
@@ -901,23 +949,39 @@ p_sleep(void)
       req.tv_sec = rint(tfl);
     } else {
       req.tv_nsec = 0;
-      req.tv_sec = secs;
+      req.tv_sec = YAP_IntOfTerm(ts);
     }
     out = nanosleep(&req, NULL);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
   }
 #elif HAVE_USLEEP
-  if (usecs > 0) {
-    out = usleep(usecs);
-  } else
-#elif HAVE_SLEEP
-    {
-      out = sleep(secs);
+  {
+    useconds_t usecs;
+    if (YAP_IsFloatTerm(ts)) {
+      double tfl = YAP_FloatOfTerm(ts);
+     
+      usecs = rint(tfl*1000000);
+    } else {
+      usecs = YAP_IntOfTerm(ts)*1000000;
     }
+    out = usleep(usecs);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+  }
+#elif HAVE_SLEEP
+  {
+    unsigned int  secs, out;
+    if (YAP_IsFloatTerm(ts)) {
+      secs = rint(YAP_FloatOfTerm(ts));
+    } else {
+      secs = YAP_IntOfTerm(ts);
+    }
+    out = sleep(secs);
+    return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
+  }
 #else
   YAP_Error(0,0L,"sleep not available in this configuration");
   return FALSE:
 #endif
-  return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
 }
 
 /* host info */

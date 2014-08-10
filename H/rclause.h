@@ -18,56 +18,56 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     switch (op) {
       /* instructions type D */
     case _write_dbterm:
-      pc->u.D.D = DBGroundTermAdjust(pc->u.D.D);
+      pc->y_u.D.D = DBGroundTermAdjust(pc->y_u.D.D);
       pc = NEXTOP(pc,D);
       break;
       /* instructions type Illss */
     case _enter_lu_pred:
-      pc->u.Illss.I = PtoLUIndexAdjust(pc->u.Illss.I);
-      pc->u.Illss.l1 = PtoOpAdjust(pc->u.Illss.l1);
-      pc->u.Illss.l2 = PtoOpAdjust(pc->u.Illss.l2);
-      pc->u.Illss.s = ConstantAdjust(pc->u.Illss.s);
-      pc->u.Illss.e = ConstantAdjust(pc->u.Illss.e);
+      pc->y_u.Illss.I = PtoLUIndexAdjust(pc->y_u.Illss.I);
+      pc->y_u.Illss.l1 = PtoOpAdjust(pc->y_u.Illss.l1);
+      pc->y_u.Illss.l2 = PtoOpAdjust(pc->y_u.Illss.l2);
+      pc->y_u.Illss.s = ConstantAdjust(pc->y_u.Illss.s);
+      pc->y_u.Illss.e = ConstantAdjust(pc->y_u.Illss.e);
       opc = NEXTOP(pc,Illss);
-      pc = pc->u.Illss.l1;
+      pc = pc->y_u.Illss.l1;
       break;
       /* instructions type L */
     case _alloc_for_logical_pred:
-      pc->u.L.ClBase = PtoLUClauseAdjust(pc->u.L.ClBase);
+      pc->y_u.L.ClBase = PtoLUClauseAdjust(pc->y_u.L.ClBase);
       pc = NEXTOP(pc,L);
       break;
       /* instructions type N */
     case _write_bigint:
-      pc->u.N.b = BlobTermInCodeAdjust(pc->u.N.b);
+      pc->y_u.N.b = BlobTermInCodeAdjust(pc->y_u.N.b);
       pc = NEXTOP(pc,N);
       break;
       /* instructions type Osblp */
     case _either:
     case _or_else:
-      OrArgAdjust(pc->u.Osblp.or_arg);
-      pc->u.Osblp.s = ConstantAdjust(pc->u.Osblp.s);
-      pc->u.Osblp.bmap = CellPtoHeapAdjust(pc->u.Osblp.bmap);
-      pc->u.Osblp.l = PtoOpAdjust(pc->u.Osblp.l);
-      pc->u.Osblp.p0 = PtoPredAdjust(pc->u.Osblp.p0);
+      OrArgAdjust(pc->y_u.Osblp.or_arg);
+      pc->y_u.Osblp.s = ConstantAdjust(pc->y_u.Osblp.s);
+      pc->y_u.Osblp.bmap = CellPtoHeapAdjust(pc->y_u.Osblp.bmap);
+      pc->y_u.Osblp.l = PtoOpAdjust(pc->y_u.Osblp.l);
+      pc->y_u.Osblp.p0 = PtoPredAdjust(pc->y_u.Osblp.p0);
       pc = NEXTOP(pc,Osblp);
       break;
       /* instructions type Osbmp */
     case _p_execute:
     case _p_execute_tail:
-      OrArgAdjust(pc->u.Osbmp.or_arg);
-      pc->u.Osbmp.s = ConstantAdjust(pc->u.Osbmp.s);
-      pc->u.Osbmp.bmap = CellPtoHeapAdjust(pc->u.Osbmp.bmap);
-      pc->u.Osbmp.mod = ModuleAdjust(pc->u.Osbmp.mod);
-      pc->u.Osbmp.p0 = PtoPredAdjust(pc->u.Osbmp.p0);
+      OrArgAdjust(pc->y_u.Osbmp.or_arg);
+      pc->y_u.Osbmp.s = ConstantAdjust(pc->y_u.Osbmp.s);
+      pc->y_u.Osbmp.bmap = CellPtoHeapAdjust(pc->y_u.Osbmp.bmap);
+      pc->y_u.Osbmp.mod = ModuleAdjust(pc->y_u.Osbmp.mod);
+      pc->y_u.Osbmp.p0 = PtoPredAdjust(pc->y_u.Osbmp.p0);
       pc = NEXTOP(pc,Osbmp);
       break;
       /* instructions type Osbpa */
     case _ensure_space:
-      OrArgAdjust(pc->u.Osbpa.or_arg);
-      pc->u.Osbpa.s = ConstantAdjust(pc->u.Osbpa.s);
-      pc->u.Osbpa.bmap = CellPtoHeapAdjust(pc->u.Osbpa.bmap);
-      pc->u.Osbpa.p = PtoPredAdjust(pc->u.Osbpa.p);
-      pc->u.Osbpa.i = ArityAdjust(pc->u.Osbpa.i);
+      OrArgAdjust(pc->y_u.Osbpa.or_arg);
+      pc->y_u.Osbpa.s = ConstantAdjust(pc->y_u.Osbpa.s);
+      pc->y_u.Osbpa.bmap = CellPtoHeapAdjust(pc->y_u.Osbpa.bmap);
+      pc->y_u.Osbpa.p = PtoPredAdjust(pc->y_u.Osbpa.p);
+      pc->y_u.Osbpa.i = ArityAdjust(pc->y_u.Osbpa.i);
       pc = NEXTOP(pc,Osbpa);
       break;
       /* instructions type Osbpp */
@@ -76,22 +76,22 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _call_usercpred:
     case _fcall:
     case _p_execute2:
-      OrArgAdjust(pc->u.Osbpp.or_arg);
-      pc->u.Osbpp.s = ConstantAdjust(pc->u.Osbpp.s);
-      pc->u.Osbpp.bmap = CellPtoHeapAdjust(pc->u.Osbpp.bmap);
-      pc->u.Osbpp.p = PtoPredAdjust(pc->u.Osbpp.p);
-      pc->u.Osbpp.p0 = PtoPredAdjust(pc->u.Osbpp.p0);
+      OrArgAdjust(pc->y_u.Osbpp.or_arg);
+      pc->y_u.Osbpp.s = ConstantAdjust(pc->y_u.Osbpp.s);
+      pc->y_u.Osbpp.bmap = CellPtoHeapAdjust(pc->y_u.Osbpp.bmap);
+      pc->y_u.Osbpp.p = PtoPredAdjust(pc->y_u.Osbpp.p);
+      pc->y_u.Osbpp.p0 = PtoPredAdjust(pc->y_u.Osbpp.p0);
       pc = NEXTOP(pc,Osbpp);
       break;
       /* instructions type OtILl */
     case _count_trust_logical:
     case _profiled_trust_logical:
     case _trust_logical:
-      OrArgAdjust(pc->u.OtILl.or_arg);
-      TabEntryAdjust(pc->u.OtILl.te);
-      pc->u.OtILl.block = PtoLUIndexAdjust(pc->u.OtILl.block);
-      pc->u.OtILl.d = PtoLUClauseAdjust(pc->u.OtILl.d);
-      pc->u.OtILl.n = PtoOpAdjust(pc->u.OtILl.n);
+      OrArgAdjust(pc->y_u.OtILl.or_arg);
+      TabEntryAdjust(pc->y_u.OtILl.te);
+      pc->y_u.OtILl.block = PtoLUIndexAdjust(pc->y_u.OtILl.block);
+      pc->y_u.OtILl.d = PtoLUClauseAdjust(pc->y_u.OtILl.d);
+      pc->y_u.OtILl.n = PtoOpAdjust(pc->y_u.OtILl.n);
       pc = opc;
       break;
       /* instructions type OtaLl */
@@ -99,12 +99,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _profiled_retry_logical:
     case _retry_logical:
     case _try_logical:
-      OrArgAdjust(pc->u.OtaLl.or_arg);
-      TabEntryAdjust(pc->u.OtaLl.te);
-      pc->u.OtaLl.s = ArityAdjust(pc->u.OtaLl.s);
-      pc->u.OtaLl.d = PtoLUClauseAdjust(pc->u.OtaLl.d);
-      pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
-      pc = pc->u.OtaLl.n;
+      OrArgAdjust(pc->y_u.OtaLl.or_arg);
+      TabEntryAdjust(pc->y_u.OtaLl.te);
+      pc->y_u.OtaLl.s = ArityAdjust(pc->y_u.OtaLl.s);
+      pc->y_u.OtaLl.d = PtoLUClauseAdjust(pc->y_u.OtaLl.d);
+      pc->y_u.OtaLl.n = PtoOpAdjust(pc->y_u.OtaLl.n);
+      pc = pc->y_u.OtaLl.n;
       break;
       /* instructions type OtapFs */
     case _cut_c:
@@ -113,12 +113,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _retry_userc:
     case _try_c:
     case _try_userc:
-      OrArgAdjust(pc->u.OtapFs.or_arg);
-      TabEntryAdjust(pc->u.OtapFs.te);
-      pc->u.OtapFs.s = ArityAdjust(pc->u.OtapFs.s);
-      pc->u.OtapFs.p = PtoPredAdjust(pc->u.OtapFs.p);
-      pc->u.OtapFs.f = ExternalFunctionAdjust(pc->u.OtapFs.f);
-      pc->u.OtapFs.extra = ConstantAdjust(pc->u.OtapFs.extra);
+      OrArgAdjust(pc->y_u.OtapFs.or_arg);
+      TabEntryAdjust(pc->y_u.OtapFs.te);
+      pc->y_u.OtapFs.s = ArityAdjust(pc->y_u.OtapFs.s);
+      pc->y_u.OtapFs.p = PtoPredAdjust(pc->y_u.OtapFs.p);
+      pc->y_u.OtapFs.f = ExternalFunctionAdjust(pc->y_u.OtapFs.f);
+      pc->y_u.OtapFs.extra = ConstantAdjust(pc->y_u.OtapFs.extra);
       pc = NEXTOP(pc,OtapFs);
       break;
       /* instructions type Otapl */
@@ -137,77 +137,77 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _try_and_mark:
     case _try_clause:
     case _try_me:
-      OrArgAdjust(pc->u.Otapl.or_arg);
-      TabEntryAdjust(pc->u.Otapl.te);
-      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
-      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
-      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      OrArgAdjust(pc->y_u.Otapl.or_arg);
+      TabEntryAdjust(pc->y_u.Otapl.te);
+      pc->y_u.Otapl.s = ArityAdjust(pc->y_u.Otapl.s);
+      pc->y_u.Otapl.p = PtoPredAdjust(pc->y_u.Otapl.p);
+      pc->y_u.Otapl.d = PtoOpAdjust(pc->y_u.Otapl.d);
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type aFlp */
     case _native_me:
-      pc->u.aFlp.n = ArityAdjust(pc->u.aFlp.n);
-      pc->u.aFlp.native = ExternalFunctionAdjust(pc->u.aFlp.native);
-      pc->u.aFlp.native_next = PtoOpAdjust(pc->u.aFlp.native_next);
-      pc->u.aFlp.p = PtoPredAdjust(pc->u.aFlp.p);
+      pc->y_u.aFlp.n = ArityAdjust(pc->y_u.aFlp.n);
+      pc->y_u.aFlp.native = ExternalFunctionAdjust(pc->y_u.aFlp.native);
+      pc->y_u.aFlp.native_next = PtoOpAdjust(pc->y_u.aFlp.native_next);
+      pc->y_u.aFlp.p = PtoPredAdjust(pc->y_u.aFlp.p);
       pc = NEXTOP(pc,aFlp);
       break;
       /* instructions type c */
     case _write_atom:
-      pc->u.c.c = ConstantTermAdjust(pc->u.c.c);
+      pc->y_u.c.c = ConstantTermAdjust(pc->y_u.c.c);
       pc = NEXTOP(pc,c);
       break;
       /* instructions type cc */
     case _get_2atoms:
-      pc->u.cc.c1 = ConstantTermAdjust(pc->u.cc.c1);
-      pc->u.cc.c2 = ConstantTermAdjust(pc->u.cc.c2);
+      pc->y_u.cc.c1 = ConstantTermAdjust(pc->y_u.cc.c1);
+      pc->y_u.cc.c2 = ConstantTermAdjust(pc->y_u.cc.c2);
       pc = NEXTOP(pc,cc);
       break;
       /* instructions type ccc */
     case _get_3atoms:
-      pc->u.ccc.c1 = ConstantTermAdjust(pc->u.ccc.c1);
-      pc->u.ccc.c2 = ConstantTermAdjust(pc->u.ccc.c2);
-      pc->u.ccc.c3 = ConstantTermAdjust(pc->u.ccc.c3);
+      pc->y_u.ccc.c1 = ConstantTermAdjust(pc->y_u.ccc.c1);
+      pc->y_u.ccc.c2 = ConstantTermAdjust(pc->y_u.ccc.c2);
+      pc->y_u.ccc.c3 = ConstantTermAdjust(pc->y_u.ccc.c3);
       pc = NEXTOP(pc,ccc);
       break;
       /* instructions type cccc */
     case _get_4atoms:
-      pc->u.cccc.c1 = ConstantTermAdjust(pc->u.cccc.c1);
-      pc->u.cccc.c2 = ConstantTermAdjust(pc->u.cccc.c2);
-      pc->u.cccc.c3 = ConstantTermAdjust(pc->u.cccc.c3);
-      pc->u.cccc.c4 = ConstantTermAdjust(pc->u.cccc.c4);
+      pc->y_u.cccc.c1 = ConstantTermAdjust(pc->y_u.cccc.c1);
+      pc->y_u.cccc.c2 = ConstantTermAdjust(pc->y_u.cccc.c2);
+      pc->y_u.cccc.c3 = ConstantTermAdjust(pc->y_u.cccc.c3);
+      pc->y_u.cccc.c4 = ConstantTermAdjust(pc->y_u.cccc.c4);
       pc = NEXTOP(pc,cccc);
       break;
       /* instructions type ccccc */
     case _get_5atoms:
-      pc->u.ccccc.c1 = ConstantTermAdjust(pc->u.ccccc.c1);
-      pc->u.ccccc.c2 = ConstantTermAdjust(pc->u.ccccc.c2);
-      pc->u.ccccc.c3 = ConstantTermAdjust(pc->u.ccccc.c3);
-      pc->u.ccccc.c4 = ConstantTermAdjust(pc->u.ccccc.c4);
-      pc->u.ccccc.c5 = ConstantTermAdjust(pc->u.ccccc.c5);
+      pc->y_u.ccccc.c1 = ConstantTermAdjust(pc->y_u.ccccc.c1);
+      pc->y_u.ccccc.c2 = ConstantTermAdjust(pc->y_u.ccccc.c2);
+      pc->y_u.ccccc.c3 = ConstantTermAdjust(pc->y_u.ccccc.c3);
+      pc->y_u.ccccc.c4 = ConstantTermAdjust(pc->y_u.ccccc.c4);
+      pc->y_u.ccccc.c5 = ConstantTermAdjust(pc->y_u.ccccc.c5);
       pc = NEXTOP(pc,ccccc);
       break;
       /* instructions type cccccc */
     case _get_6atoms:
-      pc->u.cccccc.c1 = ConstantTermAdjust(pc->u.cccccc.c1);
-      pc->u.cccccc.c2 = ConstantTermAdjust(pc->u.cccccc.c2);
-      pc->u.cccccc.c3 = ConstantTermAdjust(pc->u.cccccc.c3);
-      pc->u.cccccc.c4 = ConstantTermAdjust(pc->u.cccccc.c4);
-      pc->u.cccccc.c5 = ConstantTermAdjust(pc->u.cccccc.c5);
-      pc->u.cccccc.c6 = ConstantTermAdjust(pc->u.cccccc.c6);
+      pc->y_u.cccccc.c1 = ConstantTermAdjust(pc->y_u.cccccc.c1);
+      pc->y_u.cccccc.c2 = ConstantTermAdjust(pc->y_u.cccccc.c2);
+      pc->y_u.cccccc.c3 = ConstantTermAdjust(pc->y_u.cccccc.c3);
+      pc->y_u.cccccc.c4 = ConstantTermAdjust(pc->y_u.cccccc.c4);
+      pc->y_u.cccccc.c5 = ConstantTermAdjust(pc->y_u.cccccc.c5);
+      pc->y_u.cccccc.c6 = ConstantTermAdjust(pc->y_u.cccccc.c6);
       pc = NEXTOP(pc,cccccc);
       break;
       /* instructions type clll */
     case _if_not_then:
-      pc->u.clll.c = ConstantTermAdjust(pc->u.clll.c);
-      pc->u.clll.l1 = PtoOpAdjust(pc->u.clll.l1);
-      pc->u.clll.l2 = PtoOpAdjust(pc->u.clll.l2);
-      pc->u.clll.l3 = PtoOpAdjust(pc->u.clll.l3);
+      pc->y_u.clll.c = ConstantTermAdjust(pc->y_u.clll.c);
+      pc->y_u.clll.l1 = PtoOpAdjust(pc->y_u.clll.l1);
+      pc->y_u.clll.l2 = PtoOpAdjust(pc->y_u.clll.l2);
+      pc->y_u.clll.l3 = PtoOpAdjust(pc->y_u.clll.l3);
       pc = NEXTOP(pc,clll);
       break;
       /* instructions type d */
     case _write_float:
-      DoubleInCodeAdjust(pc->u.d.d);
+      DoubleInCodeAdjust(pc->y_u.d.d);
       pc = NEXTOP(pc,d);
       break;
       /* instructions type e */
@@ -245,13 +245,13 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       /* instructions type fa */
     case _write_l_struc:
     case _write_struct:
-      pc->u.fa.f = FuncAdjust(pc->u.fa.f);
-      pc->u.fa.a = ArityAdjust(pc->u.fa.a);
+      pc->y_u.fa.f = FuncAdjust(pc->y_u.fa.f);
+      pc->y_u.fa.a = ArityAdjust(pc->y_u.fa.a);
       pc = NEXTOP(pc,fa);
       break;
       /* instructions type i */
     case _write_longint:
-      IntegerInCodeAdjust(pc->u.i.i);
+      IntegerInCodeAdjust(pc->y_u.i.i);
       pc = NEXTOP(pc,i);
       break;
       /* instructions type l */
@@ -269,16 +269,16 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _try_clause3:
     case _try_clause4:
     case _try_in:
-      pc->u.l.l = PtoOpAdjust(pc->u.l.l);
+      pc->y_u.l.l = PtoOpAdjust(pc->y_u.l.l);
       if (op == _Ystop) return;
       pc = NEXTOP(pc,l);
       break;
       /* instructions type llll */
     case _switch_on_type:
-      pc->u.llll.l1 = PtoOpAdjust(pc->u.llll.l1);
-      pc->u.llll.l2 = PtoOpAdjust(pc->u.llll.l2);
-      pc->u.llll.l3 = PtoOpAdjust(pc->u.llll.l3);
-      pc->u.llll.l4 = PtoOpAdjust(pc->u.llll.l4);
+      pc->y_u.llll.l1 = PtoOpAdjust(pc->y_u.llll.l1);
+      pc->y_u.llll.l2 = PtoOpAdjust(pc->y_u.llll.l2);
+      pc->y_u.llll.l3 = PtoOpAdjust(pc->y_u.llll.l3);
+      pc->y_u.llll.l4 = PtoOpAdjust(pc->y_u.llll.l4);
       pc = NEXTOP(pc,llll);
       break;
       /* instructions type lp */
@@ -289,8 +289,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _try_exo:
     case _try_exo_udi:
     case _user_switch:
-      pc->u.lp.l = PtoOpAdjust(pc->u.lp.l);
-      pc->u.lp.p = PtoPredAdjust(pc->u.lp.p);
+      pc->y_u.lp.l = PtoOpAdjust(pc->y_u.lp.l);
+      pc->y_u.lp.p = PtoPredAdjust(pc->y_u.lp.p);
       pc = NEXTOP(pc,lp);
       break;
       /* instructions type o */
@@ -302,21 +302,21 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_list_write:
     case _unify_void:
     case _unify_void_write:
-      pc->u.o.opcw = OpcodeAdjust(pc->u.o.opcw);
+      pc->y_u.o.opcw = OpcodeAdjust(pc->y_u.o.opcw);
       pc = NEXTOP(pc,o);
       break;
       /* instructions type oD */
     case _unify_dbterm:
     case _unify_l_dbterm:
-      pc->u.oD.opcw = OpcodeAdjust(pc->u.oD.opcw);
-      pc->u.oD.D = DBGroundTermAdjust(pc->u.oD.D);
+      pc->y_u.oD.opcw = OpcodeAdjust(pc->y_u.oD.opcw);
+      pc->y_u.oD.D = DBGroundTermAdjust(pc->y_u.oD.D);
       pc = NEXTOP(pc,oD);
       break;
       /* instructions type oN */
     case _unify_bigint:
     case _unify_l_bigint:
-      pc->u.oN.opcw = OpcodeAdjust(pc->u.oN.opcw);
-      pc->u.oN.b = BlobTermInCodeAdjust(pc->u.oN.b);
+      pc->y_u.oN.opcw = OpcodeAdjust(pc->y_u.oN.opcw);
+      pc->y_u.oN.b = BlobTermInCodeAdjust(pc->y_u.oN.b);
       pc = NEXTOP(pc,oN);
       break;
       /* instructions type oc */
@@ -324,8 +324,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_atom_write:
     case _unify_l_atom:
     case _unify_l_atom_write:
-      pc->u.oc.opcw = OpcodeAdjust(pc->u.oc.opcw);
-      pc->u.oc.c = ConstantTermAdjust(pc->u.oc.c);
+      pc->y_u.oc.opcw = OpcodeAdjust(pc->y_u.oc.opcw);
+      pc->y_u.oc.c = ConstantTermAdjust(pc->y_u.oc.c);
       pc = NEXTOP(pc,oc);
       break;
       /* instructions type od */
@@ -333,8 +333,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_float_write:
     case _unify_l_float:
     case _unify_l_float_write:
-      pc->u.od.opcw = OpcodeAdjust(pc->u.od.opcw);
-      DoubleInCodeAdjust(pc->u.od.d);
+      pc->y_u.od.opcw = OpcodeAdjust(pc->y_u.od.opcw);
+      DoubleInCodeAdjust(pc->y_u.od.d);
       pc = NEXTOP(pc,od);
       break;
       /* instructions type ofa */
@@ -342,9 +342,9 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_struc_write:
     case _unify_struct:
     case _unify_struct_write:
-      pc->u.ofa.opcw = OpcodeAdjust(pc->u.ofa.opcw);
-      pc->u.ofa.f = FuncAdjust(pc->u.ofa.f);
-      pc->u.ofa.a = ArityAdjust(pc->u.ofa.a);
+      pc->y_u.ofa.opcw = OpcodeAdjust(pc->y_u.ofa.opcw);
+      pc->y_u.ofa.f = FuncAdjust(pc->y_u.ofa.f);
+      pc->y_u.ofa.a = ArityAdjust(pc->y_u.ofa.a);
       pc = NEXTOP(pc,ofa);
       break;
       /* instructions type oi */
@@ -352,17 +352,17 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_longint_write:
     case _unify_longint:
     case _unify_longint_write:
-      pc->u.oi.opcw = OpcodeAdjust(pc->u.oi.opcw);
-      IntegerInCodeAdjust(pc->u.oi.i);
+      pc->y_u.oi.opcw = OpcodeAdjust(pc->y_u.oi.opcw);
+      IntegerInCodeAdjust(pc->y_u.oi.i);
       pc = NEXTOP(pc,oi);
       break;
       /* instructions type ollll */
     case _switch_list_nl:
-      pc->u.ollll.pop = OpcodeAdjust(pc->u.ollll.pop);
-      pc->u.ollll.l1 = PtoOpAdjust(pc->u.ollll.l1);
-      pc->u.ollll.l2 = PtoOpAdjust(pc->u.ollll.l2);
-      pc->u.ollll.l3 = PtoOpAdjust(pc->u.ollll.l3);
-      pc->u.ollll.l4 = PtoOpAdjust(pc->u.ollll.l4);
+      pc->y_u.ollll.pop = OpcodeAdjust(pc->y_u.ollll.pop);
+      pc->y_u.ollll.l1 = PtoOpAdjust(pc->y_u.ollll.l1);
+      pc->y_u.ollll.l2 = PtoOpAdjust(pc->y_u.ollll.l2);
+      pc->y_u.ollll.l3 = PtoOpAdjust(pc->y_u.ollll.l3);
+      pc->y_u.ollll.l4 = PtoOpAdjust(pc->y_u.ollll.l4);
       pc = NEXTOP(pc,ollll);
       break;
       /* instructions type os */
@@ -373,23 +373,23 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_n_voids_write:
     case _unify_n_voids:
     case _unify_n_voids_write:
-      pc->u.os.opcw = OpcodeAdjust(pc->u.os.opcw);
-      pc->u.os.s = ConstantAdjust(pc->u.os.s);
+      pc->y_u.os.opcw = OpcodeAdjust(pc->y_u.os.opcw);
+      pc->y_u.os.s = ConstantAdjust(pc->y_u.os.s);
       pc = NEXTOP(pc,os);
       break;
       /* instructions type osc */
     case _unify_n_atoms:
     case _unify_n_atoms_write:
-      pc->u.osc.opcw = OpcodeAdjust(pc->u.osc.opcw);
-      pc->u.osc.s = ConstantAdjust(pc->u.osc.s);
-      pc->u.osc.c = ConstantTermAdjust(pc->u.osc.c);
+      pc->y_u.osc.opcw = OpcodeAdjust(pc->y_u.osc.opcw);
+      pc->y_u.osc.s = ConstantAdjust(pc->y_u.osc.s);
+      pc->y_u.osc.c = ConstantTermAdjust(pc->y_u.osc.c);
       pc = NEXTOP(pc,osc);
       break;
       /* instructions type ou */
     case _unify_l_string:
     case _unify_string:
-      pc->u.ou.opcw = OpcodeAdjust(pc->u.ou.opcw);
-      pc->u.ou.ut = BlobTermInCodeAdjust(pc->u.ou.ut);
+      pc->y_u.ou.opcw = OpcodeAdjust(pc->y_u.ou.opcw);
+      pc->y_u.ou.ut = BlobTermInCodeAdjust(pc->y_u.ou.ut);
       pc = NEXTOP(pc,ou);
       break;
       /* instructions type ox */
@@ -409,8 +409,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_x_val_write:
     case _unify_x_var:
     case _unify_x_var_write:
-      pc->u.ox.opcw = OpcodeAdjust(pc->u.ox.opcw);
-      pc->u.ox.x = XAdjust(pc->u.ox.x);
+      pc->y_u.ox.opcw = OpcodeAdjust(pc->y_u.ox.opcw);
+      pc->y_u.ox.x = XAdjust(pc->y_u.ox.x);
       pc = NEXTOP(pc,ox);
       break;
       /* instructions type oxx */
@@ -418,9 +418,9 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_x_var2_write:
     case _unify_x_var2:
     case _unify_x_var2_write:
-      pc->u.oxx.opcw = OpcodeAdjust(pc->u.oxx.opcw);
-      pc->u.oxx.xl = XAdjust(pc->u.oxx.xl);
-      pc->u.oxx.xr = XAdjust(pc->u.oxx.xr);
+      pc->y_u.oxx.opcw = OpcodeAdjust(pc->y_u.oxx.opcw);
+      pc->y_u.oxx.xl = XAdjust(pc->y_u.oxx.xl);
+      pc->y_u.oxx.xr = XAdjust(pc->y_u.oxx.xr);
       pc = NEXTOP(pc,oxx);
       break;
       /* instructions type oy */
@@ -440,8 +440,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_y_val_write:
     case _unify_y_var:
     case _unify_y_var_write:
-      pc->u.oy.opcw = OpcodeAdjust(pc->u.oy.opcw);
-      pc->u.oy.y = YAdjust(pc->u.oy.y);
+      pc->y_u.oy.opcw = OpcodeAdjust(pc->y_u.oy.opcw);
+      pc->y_u.oy.y = YAdjust(pc->y_u.oy.y);
       pc = NEXTOP(pc,oy);
       break;
       /* instructions type p */
@@ -454,43 +454,43 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _retry_profiled:
     case _retry_udi:
     case _try_udi:
-      pc->u.p.p = PtoPredAdjust(pc->u.p.p);
+      pc->y_u.p.p = PtoPredAdjust(pc->y_u.p.p);
       pc = NEXTOP(pc,p);
       break;
       /* instructions type plxxs */
     case _call_bfunc_xx:
-      pc->u.plxxs.p = PtoPredAdjust(pc->u.plxxs.p);
-      pc->u.plxxs.f = PtoOpAdjust(pc->u.plxxs.f);
-      pc->u.plxxs.x1 = XAdjust(pc->u.plxxs.x1);
-      pc->u.plxxs.x2 = XAdjust(pc->u.plxxs.x2);
-      pc->u.plxxs.flags = ConstantAdjust(pc->u.plxxs.flags);
+      pc->y_u.plxxs.p = PtoPredAdjust(pc->y_u.plxxs.p);
+      pc->y_u.plxxs.f = PtoOpAdjust(pc->y_u.plxxs.f);
+      pc->y_u.plxxs.x1 = XAdjust(pc->y_u.plxxs.x1);
+      pc->y_u.plxxs.x2 = XAdjust(pc->y_u.plxxs.x2);
+      pc->y_u.plxxs.flags = ConstantAdjust(pc->y_u.plxxs.flags);
       pc = NEXTOP(pc,plxxs);
       break;
       /* instructions type plxys */
     case _call_bfunc_xy:
     case _call_bfunc_yx:
-      pc->u.plxys.p = PtoPredAdjust(pc->u.plxys.p);
-      pc->u.plxys.f = PtoOpAdjust(pc->u.plxys.f);
-      pc->u.plxys.x = XAdjust(pc->u.plxys.x);
-      pc->u.plxys.y = YAdjust(pc->u.plxys.y);
-      pc->u.plxys.flags = ConstantAdjust(pc->u.plxys.flags);
+      pc->y_u.plxys.p = PtoPredAdjust(pc->y_u.plxys.p);
+      pc->y_u.plxys.f = PtoOpAdjust(pc->y_u.plxys.f);
+      pc->y_u.plxys.x = XAdjust(pc->y_u.plxys.x);
+      pc->y_u.plxys.y = YAdjust(pc->y_u.plxys.y);
+      pc->y_u.plxys.flags = ConstantAdjust(pc->y_u.plxys.flags);
       pc = NEXTOP(pc,plxys);
       break;
       /* instructions type plyys */
     case _call_bfunc_yy:
-      pc->u.plyys.p = PtoPredAdjust(pc->u.plyys.p);
-      pc->u.plyys.f = PtoOpAdjust(pc->u.plyys.f);
-      pc->u.plyys.y1 = YAdjust(pc->u.plyys.y1);
-      pc->u.plyys.y2 = YAdjust(pc->u.plyys.y2);
-      pc->u.plyys.flags = ConstantAdjust(pc->u.plyys.flags);
+      pc->y_u.plyys.p = PtoPredAdjust(pc->y_u.plyys.p);
+      pc->y_u.plyys.f = PtoOpAdjust(pc->y_u.plyys.f);
+      pc->y_u.plyys.y1 = YAdjust(pc->y_u.plyys.y1);
+      pc->y_u.plyys.y2 = YAdjust(pc->y_u.plyys.y2);
+      pc->y_u.plyys.flags = ConstantAdjust(pc->y_u.plyys.flags);
       pc = NEXTOP(pc,plyys);
       break;
       /* instructions type pp */
     case _dexecute:
     case _execute:
     case _execute_cpred:
-      pc->u.pp.p = PtoPredAdjust(pc->u.pp.p);
-      pc->u.pp.p0 = PtoPredAdjust(pc->u.pp.p0);
+      pc->y_u.pp.p = PtoPredAdjust(pc->y_u.pp.p);
+      pc->y_u.pp.p0 = PtoPredAdjust(pc->y_u.pp.p0);
       pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
@@ -499,29 +499,29 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _cut_t:
     case _pop_n:
     case _write_n_voids:
-      pc->u.s.s = ConstantAdjust(pc->u.s.s);
+      pc->y_u.s.s = ConstantAdjust(pc->y_u.s.s);
       pc = NEXTOP(pc,s);
       break;
       /* instructions type sc */
     case _write_n_atoms:
-      pc->u.sc.s = ConstantAdjust(pc->u.sc.s);
-      pc->u.sc.c = ConstantTermAdjust(pc->u.sc.c);
+      pc->y_u.sc.s = ConstantAdjust(pc->y_u.sc.s);
+      pc->y_u.sc.c = ConstantTermAdjust(pc->y_u.sc.c);
       pc = NEXTOP(pc,sc);
       break;
       /* instructions type sllll */
     case _switch_on_sub_arg_type:
-      pc->u.sllll.s = ConstantAdjust(pc->u.sllll.s);
-      pc->u.sllll.l1 = PtoOpAdjust(pc->u.sllll.l1);
-      pc->u.sllll.l2 = PtoOpAdjust(pc->u.sllll.l2);
-      pc->u.sllll.l3 = PtoOpAdjust(pc->u.sllll.l3);
-      pc->u.sllll.l4 = PtoOpAdjust(pc->u.sllll.l4);
+      pc->y_u.sllll.s = ConstantAdjust(pc->y_u.sllll.s);
+      pc->y_u.sllll.l1 = PtoOpAdjust(pc->y_u.sllll.l1);
+      pc->y_u.sllll.l2 = PtoOpAdjust(pc->y_u.sllll.l2);
+      pc->y_u.sllll.l3 = PtoOpAdjust(pc->y_u.sllll.l3);
+      pc->y_u.sllll.l4 = PtoOpAdjust(pc->y_u.sllll.l4);
       pc = NEXTOP(pc,sllll);
       break;
       /* instructions type slp */
     case _call_c_wfail:
-      pc->u.slp.s = ConstantAdjust(pc->u.slp.s);
-      pc->u.slp.l = PtoOpAdjust(pc->u.slp.l);
-      pc->u.slp.p = PtoPredAdjust(pc->u.slp.p);
+      pc->y_u.slp.s = ConstantAdjust(pc->y_u.slp.s);
+      pc->y_u.slp.l = PtoOpAdjust(pc->y_u.slp.l);
+      pc->y_u.slp.p = PtoPredAdjust(pc->y_u.slp.p);
       pc = NEXTOP(pc,slp);
       break;
       /* instructions type sssl */
@@ -531,21 +531,21 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _if_func:
     case _switch_on_cons:
     case _switch_on_func:
-      pc->u.sssl.s = ConstantAdjust(pc->u.sssl.s);
-      pc->u.sssl.e = ConstantAdjust(pc->u.sssl.e);
-      pc->u.sssl.w = ConstantAdjust(pc->u.sssl.w);
-      pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l);
-      AdjustSwitchTable(op, pc->u.sssl.l, pc->u.sssl.s);
+      pc->y_u.sssl.s = ConstantAdjust(pc->y_u.sssl.s);
+      pc->y_u.sssl.e = ConstantAdjust(pc->y_u.sssl.e);
+      pc->y_u.sssl.w = ConstantAdjust(pc->y_u.sssl.w);
+      pc->y_u.sssl.l = PtoOpAdjust(pc->y_u.sssl.l);
+      AdjustSwitchTable(op, pc->y_u.sssl.l, pc->y_u.sssl.s);
       pc = NEXTOP(pc,sssl);
       break;
       /* instructions type sssllp */
     case _expand_clauses:
-      pc->u.sssllp.s1 = ConstantAdjust(pc->u.sssllp.s1);
-      pc->u.sssllp.s2 = ConstantAdjust(pc->u.sssllp.s2);
-      pc->u.sssllp.s3 = ConstantAdjust(pc->u.sssllp.s3);
-      pc->u.sssllp.sprev = PtoOpAdjust(pc->u.sssllp.sprev);
-      pc->u.sssllp.snext = PtoOpAdjust(pc->u.sssllp.snext);
-      pc->u.sssllp.p = PtoPredAdjust(pc->u.sssllp.p);
+      pc->y_u.sssllp.s1 = ConstantAdjust(pc->y_u.sssllp.s1);
+      pc->y_u.sssllp.s2 = ConstantAdjust(pc->y_u.sssllp.s2);
+      pc->y_u.sssllp.s3 = ConstantAdjust(pc->y_u.sssllp.s3);
+      pc->y_u.sssllp.sprev = PtoOpAdjust(pc->y_u.sssllp.sprev);
+      pc->y_u.sssllp.snext = PtoOpAdjust(pc->y_u.sssllp.snext);
+      pc->y_u.sssllp.p = PtoPredAdjust(pc->y_u.sssllp.p);
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
@@ -556,50 +556,50 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _write_x_loc:
     case _write_x_val:
     case _write_x_var:
-      pc->u.x.x = XAdjust(pc->u.x.x);
+      pc->y_u.x.x = XAdjust(pc->y_u.x.x);
       pc = NEXTOP(pc,x);
       break;
       /* instructions type xD */
     case _get_dbterm:
     case _put_dbterm:
-      pc->u.xD.x = XAdjust(pc->u.xD.x);
-      pc->u.xD.D = DBGroundTermAdjust(pc->u.xD.D);
+      pc->y_u.xD.x = XAdjust(pc->y_u.xD.x);
+      pc->y_u.xD.D = DBGroundTermAdjust(pc->y_u.xD.D);
       pc = NEXTOP(pc,xD);
       break;
       /* instructions type xN */
     case _get_bigint:
     case _put_bigint:
-      pc->u.xN.x = XAdjust(pc->u.xN.x);
-      pc->u.xN.b = BlobTermInCodeAdjust(pc->u.xN.b);
+      pc->y_u.xN.x = XAdjust(pc->y_u.xN.x);
+      pc->y_u.xN.b = BlobTermInCodeAdjust(pc->y_u.xN.b);
       pc = NEXTOP(pc,xN);
       break;
       /* instructions type xc */
     case _get_atom:
     case _put_atom:
-      pc->u.xc.x = XAdjust(pc->u.xc.x);
-      pc->u.xc.c = ConstantTermAdjust(pc->u.xc.c);
+      pc->y_u.xc.x = XAdjust(pc->y_u.xc.x);
+      pc->y_u.xc.c = ConstantTermAdjust(pc->y_u.xc.c);
       pc = NEXTOP(pc,xc);
       break;
       /* instructions type xd */
     case _get_float:
     case _put_float:
-      pc->u.xd.x = XAdjust(pc->u.xd.x);
-      DoubleInCodeAdjust(pc->u.xd.d);
+      pc->y_u.xd.x = XAdjust(pc->y_u.xd.x);
+      DoubleInCodeAdjust(pc->y_u.xd.d);
       pc = NEXTOP(pc,xd);
       break;
       /* instructions type xfa */
     case _get_struct:
     case _put_struct:
-      pc->u.xfa.x = XAdjust(pc->u.xfa.x);
-      pc->u.xfa.f = FuncAdjust(pc->u.xfa.f);
-      pc->u.xfa.a = ArityAdjust(pc->u.xfa.a);
+      pc->y_u.xfa.x = XAdjust(pc->y_u.xfa.x);
+      pc->y_u.xfa.f = FuncAdjust(pc->y_u.xfa.f);
+      pc->y_u.xfa.a = ArityAdjust(pc->y_u.xfa.a);
       pc = NEXTOP(pc,xfa);
       break;
       /* instructions type xi */
     case _get_longint:
     case _put_longint:
-      pc->u.xi.x = XAdjust(pc->u.xi.x);
-      IntegerInCodeAdjust(pc->u.xi.i);
+      pc->y_u.xi.x = XAdjust(pc->y_u.xi.x);
+      IntegerInCodeAdjust(pc->y_u.xi.i);
       pc = NEXTOP(pc,xi);
       break;
       /* instructions type xl */
@@ -613,37 +613,37 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_number_x:
     case _p_primitive_x:
     case _p_var_x:
-      pc->u.xl.x = XAdjust(pc->u.xl.x);
-      pc->u.xl.F = PtoOpAdjust(pc->u.xl.F);
+      pc->y_u.xl.x = XAdjust(pc->y_u.xl.x);
+      pc->y_u.xl.F = PtoOpAdjust(pc->y_u.xl.F);
       pc = NEXTOP(pc,xl);
       break;
       /* instructions type xll */
     case _jump_if_nonvar:
-      pc->u.xll.x = XAdjust(pc->u.xll.x);
-      pc->u.xll.l1 = PtoOpAdjust(pc->u.xll.l1);
-      pc->u.xll.l2 = PtoOpAdjust(pc->u.xll.l2);
+      pc->y_u.xll.x = XAdjust(pc->y_u.xll.x);
+      pc->y_u.xll.l1 = PtoOpAdjust(pc->y_u.xll.l1);
+      pc->y_u.xll.l2 = PtoOpAdjust(pc->y_u.xll.l2);
       pc = NEXTOP(pc,xll);
       break;
       /* instructions type xllll */
     case _switch_on_arg_type:
-      pc->u.xllll.x = XAdjust(pc->u.xllll.x);
-      pc->u.xllll.l1 = PtoOpAdjust(pc->u.xllll.l1);
-      pc->u.xllll.l2 = PtoOpAdjust(pc->u.xllll.l2);
-      pc->u.xllll.l3 = PtoOpAdjust(pc->u.xllll.l3);
-      pc->u.xllll.l4 = PtoOpAdjust(pc->u.xllll.l4);
+      pc->y_u.xllll.x = XAdjust(pc->y_u.xllll.x);
+      pc->y_u.xllll.l1 = PtoOpAdjust(pc->y_u.xllll.l1);
+      pc->y_u.xllll.l2 = PtoOpAdjust(pc->y_u.xllll.l2);
+      pc->y_u.xllll.l3 = PtoOpAdjust(pc->y_u.xllll.l3);
+      pc->y_u.xllll.l4 = PtoOpAdjust(pc->y_u.xllll.l4);
       pc = NEXTOP(pc,xllll);
       break;
       /* instructions type xps */
     case _commit_b_x:
-      pc->u.xps.x = XAdjust(pc->u.xps.x);
-      pc->u.xps.p0 = PtoPredAdjust(pc->u.xps.p0);
-      pc->u.xps.s = ConstantAdjust(pc->u.xps.s);
+      pc->y_u.xps.x = XAdjust(pc->y_u.xps.x);
+      pc->y_u.xps.p0 = PtoPredAdjust(pc->y_u.xps.p0);
+      pc->y_u.xps.s = ConstantAdjust(pc->y_u.xps.s);
       pc = NEXTOP(pc,xps);
       break;
       /* instructions type xu */
     case _get_string:
-      pc->u.xu.x = XAdjust(pc->u.xu.x);
-      pc->u.xu.ut = BlobTermInCodeAdjust(pc->u.xu.ut);
+      pc->y_u.xu.x = XAdjust(pc->y_u.xu.x);
+      pc->y_u.xu.ut = BlobTermInCodeAdjust(pc->y_u.xu.ut);
       pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */
@@ -654,15 +654,15 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _glist_valx:
     case _put_x_val:
     case _put_x_var:
-      pc->u.xx.xl = XAdjust(pc->u.xx.xl);
-      pc->u.xx.xr = XAdjust(pc->u.xx.xr);
+      pc->y_u.xx.xl = XAdjust(pc->y_u.xx.xl);
+      pc->y_u.xx.xr = XAdjust(pc->y_u.xx.xr);
       pc = NEXTOP(pc,xx);
       break;
       /* instructions type xxc */
     case _p_func2s_cv:
-      pc->u.xxc.x = XAdjust(pc->u.xxc.x);
-      pc->u.xxc.xi = XAdjust(pc->u.xxc.xi);
-      pc->u.xxc.c = ConstantTermAdjust(pc->u.xxc.c);
+      pc->y_u.xxc.x = XAdjust(pc->y_u.xxc.x);
+      pc->y_u.xxc.xi = XAdjust(pc->y_u.xxc.xi);
+      pc->y_u.xxc.c = ConstantTermAdjust(pc->y_u.xxc.c);
       pc = NEXTOP(pc,xxc);
       break;
       /* instructions type xxn */
@@ -679,9 +679,9 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_slr_cv:
     case _p_slr_vc:
     case _p_times_vc:
-      pc->u.xxn.x = XAdjust(pc->u.xxn.x);
-      pc->u.xxn.xi = XAdjust(pc->u.xxn.xi);
-      pc->u.xxn.c = IntegerAdjust(pc->u.xxn.c);
+      pc->y_u.xxn.x = XAdjust(pc->y_u.xxn.x);
+      pc->y_u.xxn.xi = XAdjust(pc->y_u.xxn.xi);
+      pc->y_u.xxn.c = IntegerAdjust(pc->y_u.xxn.c);
       pc = NEXTOP(pc,xxn);
       break;
       /* instructions type xxx */
@@ -696,24 +696,24 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_sll_vv:
     case _p_slr_vv:
     case _p_times_vv:
-      pc->u.xxx.x = XAdjust(pc->u.xxx.x);
-      pc->u.xxx.x1 = XAdjust(pc->u.xxx.x1);
-      pc->u.xxx.x2 = XAdjust(pc->u.xxx.x2);
+      pc->y_u.xxx.x = XAdjust(pc->y_u.xxx.x);
+      pc->y_u.xxx.x1 = XAdjust(pc->y_u.xxx.x1);
+      pc->y_u.xxx.x2 = XAdjust(pc->y_u.xxx.x2);
       pc = NEXTOP(pc,xxx);
       break;
       /* instructions type xxxx */
     case _put_xx_val:
-      pc->u.xxxx.xl1 = XAdjust(pc->u.xxxx.xl1);
-      pc->u.xxxx.xl2 = XAdjust(pc->u.xxxx.xl2);
-      pc->u.xxxx.xr1 = XAdjust(pc->u.xxxx.xr1);
-      pc->u.xxxx.xr2 = XAdjust(pc->u.xxxx.xr2);
+      pc->y_u.xxxx.xl1 = XAdjust(pc->y_u.xxxx.xl1);
+      pc->y_u.xxxx.xl2 = XAdjust(pc->y_u.xxxx.xl2);
+      pc->y_u.xxxx.xr1 = XAdjust(pc->y_u.xxxx.xr1);
+      pc->y_u.xxxx.xr2 = XAdjust(pc->y_u.xxxx.xr2);
       pc = NEXTOP(pc,xxxx);
       break;
       /* instructions type xxy */
     case _p_func2f_xy:
-      pc->u.xxy.x = XAdjust(pc->u.xxy.x);
-      pc->u.xxy.x1 = XAdjust(pc->u.xxy.x1);
-      pc->u.xxy.y2 = YAdjust(pc->u.xxy.y2);
+      pc->y_u.xxy.x = XAdjust(pc->y_u.xxy.x);
+      pc->y_u.xxy.x1 = XAdjust(pc->y_u.xxy.x1);
+      pc->y_u.xxy.y2 = YAdjust(pc->y_u.xxy.y2);
       pc = NEXTOP(pc,xxy);
       break;
       /* instructions type y */
@@ -721,7 +721,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _write_y_loc:
     case _write_y_val:
     case _write_y_var:
-      pc->u.y.y = YAdjust(pc->u.y.y);
+      pc->y_u.y.y = YAdjust(pc->y_u.y.y);
       pc = NEXTOP(pc,y);
       break;
       /* instructions type yl */
@@ -735,15 +735,15 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_number_y:
     case _p_primitive_y:
     case _p_var_y:
-      pc->u.yl.y = YAdjust(pc->u.yl.y);
-      pc->u.yl.F = PtoOpAdjust(pc->u.yl.F);
+      pc->y_u.yl.y = YAdjust(pc->y_u.yl.y);
+      pc->y_u.yl.F = PtoOpAdjust(pc->y_u.yl.F);
       pc = NEXTOP(pc,yl);
       break;
       /* instructions type yps */
     case _commit_b_y:
-      pc->u.yps.y = YAdjust(pc->u.yps.y);
-      pc->u.yps.p0 = PtoPredAdjust(pc->u.yps.p0);
-      pc->u.yps.s = ConstantAdjust(pc->u.yps.s);
+      pc->y_u.yps.y = YAdjust(pc->y_u.yps.y);
+      pc->y_u.yps.p0 = PtoPredAdjust(pc->y_u.yps.p0);
+      pc->y_u.yps.s = ConstantAdjust(pc->y_u.yps.s);
       pc = NEXTOP(pc,yps);
       break;
       /* instructions type yx */
@@ -755,15 +755,15 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _put_unsafe:
     case _put_y_val:
     case _put_y_var:
-      pc->u.yx.y = YAdjust(pc->u.yx.y);
-      pc->u.yx.x = XAdjust(pc->u.yx.x);
+      pc->y_u.yx.y = YAdjust(pc->y_u.yx.y);
+      pc->y_u.yx.x = XAdjust(pc->y_u.yx.x);
       pc = NEXTOP(pc,yx);
       break;
       /* instructions type yxc */
     case _p_func2s_y_cv:
-      pc->u.yxc.y = YAdjust(pc->u.yxc.y);
-      pc->u.yxc.xi = XAdjust(pc->u.yxc.xi);
-      pc->u.yxc.c = ConstantTermAdjust(pc->u.yxc.c);
+      pc->y_u.yxc.y = YAdjust(pc->y_u.yxc.y);
+      pc->y_u.yxc.xi = XAdjust(pc->y_u.yxc.xi);
+      pc->y_u.yxc.c = ConstantTermAdjust(pc->y_u.yxc.c);
       pc = NEXTOP(pc,yxc);
       break;
       /* instructions type yxn */
@@ -780,9 +780,9 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_slr_y_cv:
     case _p_slr_y_vc:
     case _p_times_y_vc:
-      pc->u.yxn.y = YAdjust(pc->u.yxn.y);
-      pc->u.yxn.xi = XAdjust(pc->u.yxn.xi);
-      pc->u.yxn.c = IntegerAdjust(pc->u.yxn.c);
+      pc->y_u.yxn.y = YAdjust(pc->y_u.yxn.y);
+      pc->y_u.yxn.xi = XAdjust(pc->y_u.yxn.xi);
+      pc->y_u.yxn.c = IntegerAdjust(pc->y_u.yxn.c);
       pc = NEXTOP(pc,yxn);
       break;
       /* instructions type yxx */
@@ -797,25 +797,25 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _p_sll_y_vv:
     case _p_slr_y_vv:
     case _p_times_y_vv:
-      pc->u.yxx.y = YAdjust(pc->u.yxx.y);
-      pc->u.yxx.x1 = XAdjust(pc->u.yxx.x1);
-      pc->u.yxx.x2 = XAdjust(pc->u.yxx.x2);
+      pc->y_u.yxx.y = YAdjust(pc->y_u.yxx.y);
+      pc->y_u.yxx.x1 = XAdjust(pc->y_u.yxx.x1);
+      pc->y_u.yxx.x2 = XAdjust(pc->y_u.yxx.x2);
       pc = NEXTOP(pc,yxx);
       break;
       /* instructions type yyx */
     case _p_func2f_yy:
-      pc->u.yyx.y1 = YAdjust(pc->u.yyx.y1);
-      pc->u.yyx.y2 = YAdjust(pc->u.yyx.y2);
-      pc->u.yyx.x = XAdjust(pc->u.yyx.x);
+      pc->y_u.yyx.y1 = YAdjust(pc->y_u.yyx.y1);
+      pc->y_u.yyx.y2 = YAdjust(pc->y_u.yyx.y2);
+      pc->y_u.yyx.x = XAdjust(pc->y_u.yyx.x);
       pc = NEXTOP(pc,yyx);
       break;
       /* instructions type yyxx */
     case _get_yy_var:
     case _put_y_vals:
-      pc->u.yyxx.y1 = YAdjust(pc->u.yyxx.y1);
-      pc->u.yyxx.y2 = YAdjust(pc->u.yyxx.y2);
-      pc->u.yyxx.x1 = XAdjust(pc->u.yyxx.x1);
-      pc->u.yyxx.x2 = XAdjust(pc->u.yyxx.x2);
+      pc->y_u.yyxx.y1 = YAdjust(pc->y_u.yyxx.y1);
+      pc->y_u.yyxx.y2 = YAdjust(pc->y_u.yyxx.y2);
+      pc->y_u.yyxx.x1 = XAdjust(pc->y_u.yyxx.x1);
+      pc->y_u.yyxx.x2 = XAdjust(pc->y_u.yyxx.x2);
       pc = NEXTOP(pc,yyxx);
       break;
 #ifdef YAPOR
@@ -823,11 +823,11 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _getwork:
     case _getwork_seq:
     case _sync:
-      OrArgAdjust(pc->u.Otapl.or_arg);
-      TabEntryAdjust(pc->u.Otapl.te);
-      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
-      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
-      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      OrArgAdjust(pc->y_u.Otapl.or_arg);
+      TabEntryAdjust(pc->y_u.Otapl.te);
+      pc->y_u.Otapl.s = ArityAdjust(pc->y_u.Otapl.s);
+      pc->y_u.Otapl.p = PtoPredAdjust(pc->y_u.Otapl.p);
+      pc->y_u.Otapl.d = PtoOpAdjust(pc->y_u.Otapl.d);
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
@@ -852,11 +852,11 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _table_try_answer:
     case _table_try_me:
     case _table_try_single:
-      OrArgAdjust(pc->u.Otapl.or_arg);
-      TabEntryAdjust(pc->u.Otapl.te);
-      pc->u.Otapl.s = ArityAdjust(pc->u.Otapl.s);
-      pc->u.Otapl.p = PtoPredAdjust(pc->u.Otapl.p);
-      pc->u.Otapl.d = PtoOpAdjust(pc->u.Otapl.d);
+      OrArgAdjust(pc->y_u.Otapl.or_arg);
+      TabEntryAdjust(pc->y_u.Otapl.te);
+      pc->y_u.Otapl.s = ArityAdjust(pc->y_u.Otapl.s);
+      pc->y_u.Otapl.p = PtoPredAdjust(pc->y_u.Otapl.p);
+      pc->y_u.Otapl.d = PtoOpAdjust(pc->y_u.Otapl.d);
       pc = NEXTOP(pc,Otapl);
       break;
       /* instructions type e */
@@ -868,7 +868,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type s */
     case _table_new_answer:
-      pc->u.s.s = ConstantAdjust(pc->u.s.s);
+      pc->y_u.s.s = ConstantAdjust(pc->y_u.s.s);
       pc = NEXTOP(pc,s);
       break;
       /* instructions type e */
@@ -943,15 +943,15 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       /* this instruction is hardwired */
     case _or_last:
 #ifdef YAPOR
-      OrArgAdjust(pc->u.Osblp.or_arg);
-      pc->u.Osblp.s = ConstantAdjust(pc->u.Osblp.s);
-      pc->u.Osblp.bmap = CellPtoHeapAdjust(pc->u.Osblp.bmap);
-      pc->u.Osblp.l = PtoOpAdjust(pc->u.Osblp.l);
-      pc->u.Osblp.p0 = PtoPredAdjust(pc->u.Osblp.p0);
+      OrArgAdjust(pc->y_u.Osblp.or_arg);
+      pc->y_u.Osblp.s = ConstantAdjust(pc->y_u.Osblp.s);
+      pc->y_u.Osblp.bmap = CellPtoHeapAdjust(pc->y_u.Osblp.bmap);
+      pc->y_u.Osblp.l = PtoOpAdjust(pc->y_u.Osblp.l);
+      pc->y_u.Osblp.p0 = PtoPredAdjust(pc->y_u.Osblp.p0);
       pc = NEXTOP(pc,Osblp);
       break;
 #else
-      pc->u.p.p = PtoPredAdjust(pc->u.p.p);
+      pc->y_u.p.p = PtoPredAdjust(pc->y_u.p.p);
       pc = NEXTOP(pc,p);
       break;
 #endif

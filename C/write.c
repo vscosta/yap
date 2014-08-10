@@ -317,7 +317,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   size_t l1 = strlen((const char *)decimalpoint+1);
 #else
   const unsigned char *decimalpoint = ".";
-  l1 = 0;
+  size_t l1 = 0;
 #endif
 
   if (lastw == symbol || lastw == alphanum) {
@@ -578,7 +578,7 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
     wrputblob(RepAtom(atom),Quote_illegal,wglb);
     return;
   }
-  if (IsWideAtom(atom)) {
+  if (IsWideAtom(atom) ) {
     wchar_t *ws = RepAtom(atom)->WStrOfAE;
 
     if (Quote_illegal) {
@@ -889,11 +889,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
   } else if (IsIntTerm(t)) {
+
     wrputn((Int) IntOfTerm(t),wglb);
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
   } else if (IsPairTerm(t)) {
-    if (wglb->Ignore_ops) {
+     if (wglb->Ignore_ops) {
       wrputs("'.'(",wglb->stream);
       lastw = separator;
       writeTerm(from_pointer(RepPair(t),  &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
@@ -909,15 +910,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       struct DB_TERM *old_EX = NULL;
       Int sl = 0;
 
-      targs[0] = t;
+     targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX) old_EX = EX;
       sl = Yap_InitSlot(t PASS_REGS);      
-      Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
+     Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       t = Yap_GetFromSlot(sl PASS_REGS);
       Yap_RecoverSlots(1, sl PASS_REGS);
       if (old_EX != NULL) EX = old_EX;
-      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
+     if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsCodesTerm(t)) {
@@ -926,12 +927,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */ 
-      write_list(t, 0, depth, wglb, rwt);
+     write_list(t, 0, depth, wglb, rwt);
       wrputc(']', wglb->stream);
-      lastw = separator;
+   lastw = separator;
     }
   } else {		/* compound term */
-    Functor         functor = FunctorOfTerm(t);
+   Functor         functor = FunctorOfTerm(t);
     int             Arity;
     Atom            atom;
     int             op, lp, rp;
@@ -1087,7 +1088,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     } else if (!wglb->Ignore_ops &&
 	       Arity == 2  && Yap_IsInfixOp(atom, &op, &lp,
 						 &rp) ) {
-      Term  tleft = ArgOfTerm(1, t);
+	Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);
       int   bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&

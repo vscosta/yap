@@ -97,14 +97,14 @@
 #define REMOTE_ScannerExtraBlocks(wid) REMOTE(wid)->ScannerExtraBlocks_
 #define LOCAL_BallTerm LOCAL->BallTerm_
 #define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
-#define LOCAL_ActiveSignals LOCAL->ActiveSignals_
-#define REMOTE_ActiveSignals(wid) REMOTE(wid)->ActiveSignals_
 #define LOCAL_MaxActiveSignals LOCAL->MaxActiveSignals_
 #define REMOTE_MaxActiveSignals(wid) REMOTE(wid)->MaxActiveSignals_
 #define LOCAL_FirstActiveSignal LOCAL->FirstActiveSignal_
 #define REMOTE_FirstActiveSignal(wid) REMOTE(wid)->FirstActiveSignal_
 #define LOCAL_LastActiveSignal LOCAL->LastActiveSignal_
 #define REMOTE_LastActiveSignal(wid) REMOTE(wid)->LastActiveSignal_
+#define LOCAL_ActiveSignals LOCAL->ActiveSignals_
+#define REMOTE_ActiveSignals(wid) REMOTE(wid)->ActiveSignals_
 #define LOCAL_IPredArity LOCAL->IPredArity_
 #define REMOTE_IPredArity(wid) REMOTE(wid)->IPredArity_
 #define LOCAL_ProfEnd LOCAL->ProfEnd_
@@ -404,6 +404,13 @@
 #define REMOTE_ImportFAILCODE(wid) REMOTE(wid)->ImportFAILCODE_
 #define LOCAL_FunctorVar LOCAL->FunctorVar_
 #define REMOTE_FunctorVar(wid) REMOTE(wid)->FunctorVar_
+#if __ANDROID__
+
+#define LOCAL_assetManager LOCAL->assetManager_
+#define REMOTE_assetManager(wid) REMOTE(wid)->assetManager_
+#define LOCAL_InAssetDir LOCAL->InAssetDir_
+#define REMOTE_InAssetDir(wid) REMOTE(wid)->InAssetDir_
+#endif
 
 #define LOCAL_ibnds LOCAL->ibnds_
 #define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_

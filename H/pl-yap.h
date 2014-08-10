@@ -251,4 +251,6 @@ atom_t ATOM_;
 intptr_t system_thread_id(PL_thread_info_t *info);
 #endif
 
+extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
+
 #endif /* PL_YAP_H */

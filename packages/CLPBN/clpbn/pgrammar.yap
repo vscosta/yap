@@ -11,13 +11,13 @@
 		 pcg_init_graph/0
 		]).
 
-:- load_files([library(clpbn)],
+:- load_files(library(clpbn),
 		[if(not_loaded), silent(true)]).
 
-:- use_module([library(lists)],
+:- use_module(library(lists),
 		[sum_list/2]).
 
-:- use_module([library(matrix)],
+:- use_module(library(matrix),
 		[matrix_new/3,
 		 matrix_add/3,
 		 matrix_get/3,

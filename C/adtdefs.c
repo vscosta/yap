@@ -109,7 +109,7 @@ Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
 }
 
 inline static Atom
-SearchInInvisible(char *atom)
+SearchInInvisible(const char *atom)
 {
   AtomEntry *chain;
 
@@ -141,7 +141,7 @@ SearchAtom(unsigned char *p, Atom a) {
 }
 
 static inline Atom
-SearchWideAtom(wchar_t *p, Atom a) {
+SearchWideAtom(const wchar_t *p, Atom a) {
   AtomEntry *ae;
 
   /* search atom in chain */
@@ -156,7 +156,7 @@ SearchWideAtom(wchar_t *p, Atom a) {
 }
 
 static Atom
-LookupAtom(char *atom)
+LookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   UInt hash;
   unsigned char *p;
@@ -216,7 +216,7 @@ LookupAtom(char *atom)
 
 
 static Atom
-LookupWideAtom(wchar_t *atom)
+LookupWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
   CELL hash;
   wchar_t *p;
@@ -226,7 +226,7 @@ LookupWideAtom(wchar_t *atom)
   WideAtomEntry *wae;
 
   /* compute hash */
-  p = atom;
+  p = (wchar_t *)atom;
   hash = WideHashFunction(p) % WideAtomHashTableSize;
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(WideHashChain[hash].AERWLock);
@@ -285,9 +285,9 @@ LookupWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtom(wchar_t *atom)
+Yap_LookupMaybeWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
-  wchar_t *p = atom, c;
+  wchar_t *p = (wchar_t *)atom, c;
   size_t len = 0;
   char *ptr, *ptr0;
   Atom at;
@@ -297,7 +297,7 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
     len++;
   }
   /* not really a wide atom */
-  p = atom;
+  p = (wchar_t *)atom;
   ptr0 = ptr = Yap_AllocCodeSpace(len+1);
   if (!ptr)
     return NIL;
@@ -308,7 +308,7 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
+Yap_LookupMaybeWideAtomWithLength(const wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
   int wide = FALSE;
@@ -354,7 +354,7 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtomWithLength(char *atom, size_t len0)
+Yap_LookupAtomWithLength(const char *atom, size_t len0)
 {				/* lookup atom in atom table            */
   Atom at;
   char *ptr;
@@ -371,19 +371,19 @@ Yap_LookupAtomWithLength(char *atom, size_t len0)
 }
 
 Atom
-Yap_LookupAtom(char *atom)
+Yap_LookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   return LookupAtom(atom);
 }
 
 Atom
-Yap_LookupWideAtom(wchar_t *atom)
+Yap_LookupWideAtom(const wchar_t *atom)
 {				/* lookup atom in atom table            */
   return LookupWideAtom(atom);
 }
 
 Atom
-Yap_FullLookupAtom(char *atom)
+Yap_FullLookupAtom(const char *atom)
 {				/* lookup atom in atom table            */
   Atom t;
 
@@ -394,7 +394,7 @@ Yap_FullLookupAtom(char *atom)
 }
 
 void
-Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
+Yap_LookupAtomWithAddress(const char *atom, AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
   register unsigned char *p;
@@ -699,10 +699,10 @@ Yap_GetPredPropByFunc(Functor f, Term cur_mod)
 {
   Prop p0;
 
-  READ_LOCK(f->FRWLock);
+  FUNC_READ_LOCK(f);
 
   p0 = GetPredPropByFuncHavingLock(f, cur_mod);
-  READ_UNLOCK(f->FRWLock);
+  FUNC_READ_UNLOCK(f);
   return (p0);
 }
 
@@ -712,9 +712,9 @@ Yap_GetPredPropByFuncInThisModule(Functor f, Term cur_mod)
 {
   Prop p0;
 
-  READ_LOCK(f->FRWLock);
+  FUNC_READ_LOCK(f);
   p0 = GetPredPropByFuncHavingLock(f, cur_mod);
-  READ_UNLOCK(f->FRWLock);
+  FUNC_READ_UNLOCK(f);
   return (p0);
 }
 
@@ -730,9 +730,9 @@ Yap_GetPredPropHavingLock(Atom ap, unsigned int arity, Term mod)
     GetPredPropByAtomHavingLock(ae, mod);
   }
   f = InlinedUnlockedMkFunctor(ae, arity);
-  READ_LOCK(f->FRWLock);
+  FUNC_READ_LOCK(f);
   p0 = GetPredPropByFuncHavingLock(f, mod);
-  READ_UNLOCK(f->FRWLock);
+  FUNC_READ_UNLOCK(f);
   return (p0);
 }
 
@@ -811,40 +811,11 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
-  if (fe->PropsOfFE) {
-    UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
-
-    WRITE_LOCK(PredHashRWLock);
-    if (10*(PredsInHashTable+1) > 6*PredHashTableSize) {
-      if (!ExpandPredHash()) {
-	Yap_FreeCodeSpace((ADDR)p);
-	WRITE_UNLOCK(PredHashRWLock);
-	WRITE_UNLOCK(fe->FRWLock);
-	return NULL;
-      }
-      /* retry hashing */
-      hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
-    }
-    PredsInHashTable++;
-    if (p->ModuleOfPred == 0L) {
-      PredEntry *pe = RepPredProp(fe->PropsOfFE);
-
-      hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
-      /* should be the first one */
-      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
-      PredHash[hsh] = pe;
-      fe->PropsOfFE = AbsPredProp(p);
-    } else {
-      p->NextOfPE = AbsPredProp(PredHash[hsh]);
-      PredHash[hsh] = p;
-    }
-    WRITE_UNLOCK(PredHashRWLock);
-    /* make sure that we have something here: note that this is not a valid pointer!! */
-    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
-  } else {
-    fe->PropsOfFE = AbsPredProp(p);
-    p->NextOfPE = NIL;
-  }
+  //TRUE_FUNC_WRITE_LOCK(fe);
+#if DEBUG_NEW_FUNCTOR
+  if (!strcmp(fe->NameOfFE->StrOfAE, "library_directory"))
+    jmp_deb(1);
+#endif
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
@@ -883,10 +854,44 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     }
   }
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= NoTracePredFlag;
   }
   p->FunctorOfPred = fe;
-  WRITE_UNLOCK(fe->FRWLock);
+  if (fe->PropsOfFE) {
+    UInt hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
+
+    WRITE_LOCK(PredHashRWLock);
+    if (10*(PredsInHashTable+1) > 6*PredHashTableSize) {
+      if (!ExpandPredHash()) {
+	Yap_FreeCodeSpace((ADDR)p);
+	WRITE_UNLOCK(PredHashRWLock);
+	FUNC_WRITE_UNLOCK(fe);
+	return NULL;
+      }
+      /* retry hashing */
+      hsh = PRED_HASH(fe, cur_mod, PredHashTableSize);
+    }
+    PredsInHashTable++;
+    if (p->ModuleOfPred == 0L) {
+      PredEntry *pe = RepPredProp(fe->PropsOfFE);
+
+      hsh = PRED_HASH(fe, pe->ModuleOfPred, PredHashTableSize);
+      /* should be the first one */
+      pe->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = pe;
+      fe->PropsOfFE = AbsPredProp(p);
+    } else {
+      p->NextOfPE = AbsPredProp(PredHash[hsh]);
+      PredHash[hsh] = p;
+    }
+    WRITE_UNLOCK(PredHashRWLock);
+    /* make sure that we have something here: note that this is not a valid pointer!! */
+    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
+  } else {
+    fe->PropsOfFE = AbsPredProp(p);
+    p->NextOfPE = NIL;
+  }
+  FUNC_WRITE_UNLOCK(fe);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_FUNC);
     if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
@@ -938,7 +943,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->FunctorOfPred = ap->FunctorOfPred;
   Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= (NoSpyPredFlag|NoTracePredFlag);
   }
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
     Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_THREAD);
@@ -1009,7 +1014,7 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   if (LOCAL_PL_local_data_p== NULL || !truePrologFlag(PLFLAG_DEBUGINFO)) {
-    p->ExtraPredFlags |= NoDebugPredFlag;
+    p->ExtraPredFlags |= (NoTracePredFlag|NoSpyPredFlag);
   }
   WRITE_UNLOCK(ae->ARWLock);
   {
@@ -1027,7 +1032,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 {
   PredEntry *p;
 
-  WRITE_LOCK(f->FRWLock);
+  FUNC_WRITE_LOCK(f);
   if (!(p = RepPredProp(f->PropsOfFE))) 
     return Yap_NewPredPropByFunctor(f,cur_mod);
 
@@ -1037,7 +1042,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 	p->ModuleOfPred ||
 	!cur_mod ||
 	cur_mod == TermProlog) {
-      WRITE_UNLOCK(f->FRWLock);
+      FUNC_WRITE_UNLOCK(f);
       return AbsPredProp(p);
     }
   }
@@ -1051,7 +1056,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 	  p->ModuleOfPred == cur_mod)
 	{
 	  READ_UNLOCK(PredHashRWLock);
-	  WRITE_UNLOCK(f->FRWLock);
+	  FUNC_WRITE_UNLOCK(f);
 	  return AbsPredProp(p);
 	}
       p = RepPredProp(p->NextOfPE);

@@ -49,6 +49,8 @@ are now 1 in compound terms and structures.
 
 */
 
+#if SIZEOF_INT_P==4 && !defined(USE_LOW32_TAGS)
+
 #define TAGS_FAST_OPS 1
 
 #define SHIFT_HIGH_TAG  29
@@ -320,3 +322,8 @@ AdjustIDBPtr (Term t, Term off)
 
 
 #endif
+
+#endif /* SIZEOF_INT_P==4 */
+
+
+

@@ -36,6 +36,10 @@ UInt				SizeOfOverflow				=0
 UInt				AGcThreshold				=10000
 Agc_hook			AGCHook					=NULL
 
+#if __ANDROID__
+// no need to perform initialization, it is done before we start the Prolog engine.
+struct AAssetManager* assetManager				=GLOBAL_assetManager
+#endif
 
 /* multi-thread support */
 #if THREADS

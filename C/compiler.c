@@ -447,7 +447,7 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     }
     break;
   case bt1_flag:
-    Yap_emit(fetch_args_for_bccall, t, 0, &cglobs->cint);
+    Yap_emit(fetch_args_for_bccall_op, t, 0, &cglobs->cint);
     break;
   case bt2_flag:
     Yap_emit(bccall_op, t, (CELL)cglobs->current_p0, &cglobs->cint);
@@ -2196,7 +2196,7 @@ usesvar(compiler_vm_op ic)
   case save_pair_op:
   case f_val_op:
   case f_var_op:
-  case fetch_args_for_bccall:
+  case fetch_args_for_bccall_op:
   case bccall_op:
     return TRUE;
   default:
@@ -2963,7 +2963,7 @@ c_layout(compiler_struct *cglobs)
     case unify_s_var_op:
     case unify_s_val_op:
 #endif
-    case fetch_args_for_bccall:
+    case fetch_args_for_bccall_op:
     case bccall_op:
       checktemp(arg, rn, ic, cglobs);
       break;

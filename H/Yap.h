@@ -37,6 +37,10 @@
 #error THREADS only works with YAPOR_THREADS
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
+// Bad export from Python
+#ifdef HAVE_STAT
+#undef HAVE_STAT
+#endif
 #include "config.h"
 
 #define FunAdr(X) X
@@ -49,6 +53,13 @@
 /* bzero */
 #include <strings.h>
 #endif
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 
 /*
 
@@ -85,6 +96,10 @@
 #if defined(COROUTINING) && !defined(TERM_EXTENSIONS)
 #define TERM_EXTENSIONS 1
 #endif /* COROUTINING && !TERM_EXTENSIONS */
+
+/* truth-values */
+#define	 TRUE	1
+#define	 FALSE	0
 
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */
@@ -154,10 +169,6 @@
 #else
 #define EXTERN
 #endif /* ADTDEFS_C */
-
-/* truth-values */
-#define	 TRUE	1
-#define	 FALSE	0
 
 
 /* null pointer	*/
@@ -280,6 +291,12 @@ typedef pthread_rwlock_t rwlock_t;
 #include <locks_pthread.h>
 #endif
 
+#define FUNC_READ_LOCK(X) READ_LOCK((X)->FRWLock)
+#define FUNC_READ_UNLOCK(X) READ_UNLOCK((X)->FRWLock)
+#define FUNC_WRITE_LOCK(X) WRITE_LOCK((X)->FRWLock)
+#define FUNC_WRITE_UNLOCK(X) WRITE_UNLOCK((X)->FRWLock)
+
+
 /*************************************************************************************************
                               use an auxiliary function for ranges	
 *************************************************************************************************/
@@ -295,6 +312,14 @@ typedef pthread_rwlock_t rwlock_t;
 
 #define OUTSIDE(MIN,X,MAX) ((void *)(X) < (void *)(MIN) || (void *)(X) > (void *)(MAX))
 #endif
+
+/*************************************************************************************************
+                              main exports in YapInterface.h
+*************************************************************************************************/
+
+/* Basic exports */
+
+#include "YapDefs.h"
 
 /*************************************************************************************************
                                              Atoms	
@@ -437,6 +462,21 @@ extern ADDR Yap_HeapBase;
 #ifdef DEBUG
 extern int Yap_output_msg;
 #endif
+
+
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#else
+static inline char * __android_log_print(int i,const char *loc,const char *msg,...) {
+  return NULL;
+}
+#define ANDROID_LOG_INFO 0
+#define ANDROID_LOG_ERROR 0
+#define ANDROID_LOG_DEBUG 0
+#endif
+
 
 /*************************************************************************************************
                                 variables concerned with atoms table
@@ -673,7 +713,6 @@ typedef struct scratch_block_struct {
 #include "opt.proto.h"
 #include "opt.macros.h"
 #endif /* YAPOR || TABLING */
-
 
 
 /*************************************************************************************************

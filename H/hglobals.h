@@ -34,6 +34,10 @@ typedef struct global_data {
 
   UInt  AGcThreshold_;
   Agc_hook  AGCHook_;
+#if __ANDROID__
+
+  struct AAssetManager*  assetManager_;
+#endif
 
 #if THREADS
 

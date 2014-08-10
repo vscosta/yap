@@ -325,6 +325,11 @@
 *									 *
 *************************************************************************/
 
+/**
+@file c_interface.c
+*/
+
+
 #define Bool int
 #define flt double
 #define C_INTERFACE
@@ -351,7 +356,7 @@
 #include "iopreds.h"
 // we cannot consult YapInterface.h, that conflicts with what we declare, though
 // it shouldn't
-#include "yap_structs.h"
+#include "YapInterface.h"
 #define _yap_c_interface_h 1
 #include "pl-shared.h"
 #include "YapText.h"
@@ -379,124 +384,8 @@
 #define X_API __declspec(dllexport)
 #endif
 
-X_API Term    YAP_A(int);
-X_API Term    YAP_Deref(Term);
-X_API Term    YAP_MkVarTerm(void);
-X_API Bool    YAP_IsVarTerm(Term);
-X_API Bool    YAP_IsNonVarTerm(Term);
-X_API Bool    YAP_IsIntTerm(Term);
-X_API Bool    YAP_IsLongIntTerm(Term);
-X_API Bool    YAP_IsBigNumTerm(Term);
-X_API Bool    YAP_IsNumberTerm(Term);
-X_API Bool    YAP_IsRationalTerm(Term);
-X_API Bool    YAP_IsFloatTerm(Term);
-X_API Bool    YAP_IsDbRefTerm(Term);
-X_API Bool    YAP_IsAtomTerm(Term);
-X_API Bool    YAP_IsPairTerm(Term);
-X_API Bool    YAP_IsApplTerm(Term);
-X_API Bool    YAP_IsCompoundTerm(Term);
-X_API Bool    YAP_IsExternalDataInStackTerm(Term);
-X_API Bool    YAP_IsOpaqueObjectTerm(Term, int);
-X_API Term    YAP_MkIntTerm(Int);
-X_API Term    YAP_MkBigNumTerm(void *);
-X_API Term    YAP_MkRationalTerm(void *);
-X_API Int     YAP_IntOfTerm(Term);
-X_API void    YAP_BigNumOfTerm(Term, void *);
-X_API void    YAP_RationalOfTerm(Term, void *);
-X_API Term    YAP_MkFloatTerm(flt);
-X_API flt     YAP_FloatOfTerm(Term);
-X_API Term    YAP_MkAtomTerm(Atom);
-X_API Atom    YAP_AtomOfTerm(Term);
-X_API Atom    YAP_LookupAtom(char *);
-X_API Atom    YAP_LookupWideAtom(wchar_t *);
-X_API size_t  YAP_AtomNameLength(Atom);
-X_API Atom    YAP_FullLookupAtom(char *);
-X_API int     YAP_IsWideAtom(Atom);
-X_API char   *YAP_AtomName(Atom);
-X_API wchar_t *YAP_WideAtomName(Atom);
-X_API Term    YAP_MkPairTerm(Term,Term);
-X_API Term    YAP_MkListFromTerms(Term *,Int);
-X_API Term    YAP_MkNewPairTerm(void);
-X_API Term    YAP_HeadOfTerm(Term);
-X_API Term    YAP_TailOfTerm(Term);
-X_API Int     YAP_SkipList(Term *, Term **);
-X_API Term    YAP_MkApplTerm(Functor,UInt,Term *);
-X_API Term    YAP_MkNewApplTerm(Functor,UInt);
-X_API Functor YAP_FunctorOfTerm(Term);
-X_API Term    YAP_ArgOfTerm(Int,Term);
-X_API Term   *YAP_ArgsOfTerm(Term);
-X_API Functor YAP_MkFunctor(Atom,Int);
-X_API Atom    YAP_NameOfFunctor(Functor);
-X_API Int     YAP_ArityOfFunctor(Functor);
-X_API void   *YAP_ExtraSpace(void);
-X_API void    YAP_cut_up(void);
-X_API Int     YAP_Unify(Term,Term);
-X_API int     YAP_Unifiable(Term,Term);
-X_API int     YAP_Reset(void);
-X_API Int     YAP_ListLength(Term);
-X_API Int     YAP_Init(YAP_init_args *);
-X_API Int     YAP_FastInit(char *);
-X_API PredEntry *YAP_FunctorToPred(Functor);
-X_API PredEntry *YAP_AtomToPred(Atom);
-X_API PredEntry *YAP_FunctorToPredInModule(Functor, Term);
-X_API PredEntry *YAP_AtomToPredInModule(Atom, Term);
-X_API Int     YAP_CallProlog(Term);
-X_API void   *YAP_AllocSpaceFromYap(size_t);
-X_API void   *YAP_ReallocSpaceFromYap(void*,size_t);
-X_API void    YAP_FreeSpaceFromYap(void *);
-X_API int     YAP_StringToBuffer(Term, char *, unsigned int);
-X_API Term    YAP_ReadBuffer(char *,Term *);
-X_API Term    YAP_FloatsToList(double *, size_t);
-X_API Int     YAP_ListToFloats(Term, double *, size_t);
-X_API Term    YAP_IntsToList(Int *, size_t);
-X_API Int     YAP_ListToInts(Term, Int *, size_t);
-X_API Term    YAP_BufferToString(char *);
-X_API Term    YAP_NBufferToString(char *, size_t);
-X_API Term    YAP_WideBufferToString(wchar_t *);
-X_API Term    YAP_NWideBufferToString(wchar_t *, size_t);
-X_API Term    YAP_BufferToAtomList(char *);
-X_API Term    YAP_NBufferToAtomList(char *,size_t);
-X_API Term    YAP_WideBufferToAtomList(wchar_t *);
-X_API Term    YAP_NWideBufferToAtomList(wchar_t *, size_t);
-X_API Term    YAP_NWideBufferToAtomDiffList(wchar_t *, Term, size_t);
-X_API Term    YAP_BufferToDiffList(char *, Term);
-X_API Term    YAP_NBufferToDiffList(char *, Term, size_t);
-X_API Term    YAP_WideBufferToDiffList(wchar_t *, Term);
-X_API Term    YAP_NWideBufferToDiffList(wchar_t *, Term, size_t);
-X_API void    YAP_Error(int, Term, char *, ...);
-X_API Int     YAP_RunPredicate(PredEntry *, Term *);
-X_API Int     YAP_RunGoal(Term);
-X_API Int     YAP_RunGoalOnce(Term);
-X_API int     YAP_RestartGoal(void);
-X_API int     YAP_ShutdownGoal(int);
-X_API int     YAP_EnterGoal(PredEntry *, Term *, YAP_dogoalinfo *);
-X_API int     YAP_RetryGoal(YAP_dogoalinfo *);
-X_API int     YAP_LeaveGoal(int, YAP_dogoalinfo *);
-X_API int     YAP_GoalHasException(Term *);
-X_API void    YAP_ClearExceptions(void);
-X_API int     YAP_ContinueGoal(void);
-X_API void    YAP_PruneGoal(YAP_dogoalinfo *);
-X_API IOSTREAM   *YAP_TermToStream(Term);
-X_API IOSTREAM   *YAP_InitConsult(int, char *);
-X_API void    YAP_EndConsult(IOSTREAM *);
-X_API Term    YAP_Read(IOSTREAM *);
-X_API void    YAP_Write(Term, IOSTREAM *, int);
-X_API Term    YAP_CopyTerm(Term);
-X_API int     YAP_WriteBuffer(Term, char *, size_t, int);
-X_API char   *YAP_WriteDynamicBuffer(Term, char *, size_t, size_t *, int *, int);
-X_API char   *YAP_CompileClause(Term);
-X_API void    YAP_PutValue(Atom,Term);
-X_API Term    YAP_GetValue(Atom);
-X_API int     YAP_CompareTerms(Term,Term);
-X_API void    YAP_Exit(int);
-X_API void    YAP_InitSocks(char *, long);
-X_API void    YAP_SetOutputMessage(void);
-X_API int     YAP_StreamToFileNo(Term);
-X_API void    YAP_CloseAllOpenStreams(void);
-X_API void    YAP_FlushAllStreams(void);
-
 /**
-@group slotInterface Term Handles or Slots
+@defgroup slotInterface Term Handles or Slots
 @{
 
 Term handles correspond to SWI-Prolog's term_t datatype: they are a safe representation
@@ -518,130 +407,63 @@ For implementation details and more information, please check term_t_slots in th
 /// @brief report the current position of the slots, assuming that they occupy the top of the stack.
 ///
 ///
-X_API Int     YAP_CurrentSlot(void);
+X_API yhandle_t     YAP_CurrentSlot(void);
 
 /// @brief allocate n empty new slots
 ///
 /// Return a handle to the system's default slot.
-X_API Int     YAP_NewSlots(int NumberOfSlots);
+X_API yhandle_t     YAP_NewSlots(int NumberOfSlots);
 
 /// @brief allocate n empty new slots
 ///
 /// Allocate  _NumberOfSlots_ from the stack and return an handle to the
 /// last one. The other handle can be obtained by decrementing the handle.
-X_API Int     YAP_InitSlot(YAP_Term t);
+X_API yhandle_t     YAP_InitSlot(YAP_Term t);
 
 /// @brief read from a slot.
 ///
 ///
-X_API YAP_Term    YAP_GetFromSlot(YAP_Int slot);
+X_API YAP_Term    YAP_GetFromSlot(YAP_handle_t slot);
 
 /// @brief get the memory address of a slot
 ///
 /// Return the address of slot  _slot_: please use with care.
-X_API YAP_Term   *YAP_AddressFromSlot(YAP_Int);
+X_API YAP_Term   *YAP_AddressFromSlot(YAP_handle_t);
 
 /// @brief get the memory address of the term actually stored in a slot
 ///
 ///
-X_API YAP_Term   *YAP_AddressOfTermInSlot(YAP_Int);
+X_API YAP_Term   *YAP_AddressOfTermInSlot(YAP_handle_t);
 
 /// @brief store  term in a slot
 ///
 ///
-X_API void    YAP_PutInSlot(YAP_Int slot, YAP_Term t);
+X_API void    YAP_PutInSlot(YAP_handle_t slot, YAP_Term t);
 
 /// @brief Succeeds if it recovers the space allocated for $n$ contiguous slots starting at topSlot.
 ///
 /// Set the contents of slot  _slot_ to  _t_.
-X_API int     YAP_RecoverSlots(int, YAP_Int topSlot);
+X_API int     YAP_RecoverSlots(int, YAP_handle_t topSlot);
 
 /// @brief copies the first new n YAAM registers to slots
 ///
 /// Store the current first   _HowMany_ arguments in new slots.
-X_API YAP_Int     YAP_ArgsToSlots(int HowMany);
+X_API YAP_handle_t     YAP_ArgsToSlots(int HowMany);
 
 /// @brief copies n slots such that sl is copied to the last abstract ,achine register.
 ///
 /// Set the first  _HowMany_ arguments to the  _HowMany_ slots
 // starting at  _slot_.
-X_API void    YAP_SlotsToArgs(int HowMany, YAP_Int slot);
+X_API void    YAP_SlotsToArgs(int HowMany, YAP_handle_t slot);
 
 /// @}
 
-X_API void    YAP_Throw(Term);
-X_API void    YAP_AsyncThrow(Term);
-X_API void    YAP_Halt(int);
-X_API Term   *YAP_TopOfLocalStack(void);
-X_API void   *YAP_Predicate(Atom,UInt,Term);
-X_API void    YAP_PredicateInfo(void *,Atom *,UInt *,Term *);
-X_API void    YAP_UserCPredicate(char *,CPredicate,UInt);
-X_API void    YAP_UserBackCPredicate(char *,CPredicate,CPredicate,UInt,unsigned int);
-X_API void    YAP_UserCPredicateWithArgs(char *,CPredicate,UInt,Term);
-X_API void    YAP_UserBackCutCPredicate(char *,CPredicate,CPredicate,CPredicate,UInt,unsigned int);
-X_API void   *YAP_ExtraSpaceCut(void);
-X_API Term     YAP_SetCurrentModule(Term);
-X_API Term     YAP_CurrentModule(void);
-X_API Term     YAP_CreateModule(Atom);
-X_API Term     YAP_StripModule(Term, Term *);
-X_API int      YAP_ThreadSelf(void);
-X_API int      YAP_ThreadCreateEngine(struct thread_attr_struct *);
-X_API int      YAP_ThreadAttachEngine(int);
-X_API int      YAP_ThreadDetachEngine(int);
-X_API int      YAP_ThreadDestroyEngine(int);
-X_API Term     YAP_MkBlobTerm(unsigned int);
-X_API void    *YAP_BlobOfTerm(Term);
-X_API Term     YAP_TermNil(void);
-X_API int      YAP_IsTermNil(Term);
-X_API int      YAP_AtomGetHold(Atom);
-X_API int      YAP_AtomReleaseHold(Atom);
-X_API Agc_hook YAP_AGCRegisterHook(Agc_hook);
-X_API int      YAP_HaltRegisterHook(HaltHookFunc, void *);
-X_API char    *YAP_cwd(void);
-X_API Term     YAP_OpenList(int);
-X_API Term     YAP_ExtendList(Term, Term);
-X_API int      YAP_CloseList(Term, Term);
-X_API int      YAP_IsAttVar(Term);
-X_API Term     YAP_AttsOfVar(Term);
-X_API int      YAP_FileNoFromStream(Term);
-X_API void    *YAP_FileDescriptorFromStream(Term);
-X_API void    *YAP_Record(Term);
-X_API Term     YAP_Recorded(void *);
-X_API int      YAP_Erase(void *);
-X_API int      YAP_Variant(Term, Term);
-X_API Int      YAP_NumberVars(Term, Int);
-X_API Term     YAP_UnNumberVars(Term);
-X_API int      YAP_IsNumberedVariable(Term);
-X_API int      YAP_ExactlyEqual(Term, Term);
-X_API Int      YAP_TermHash(Term, Int, Int, int);
-X_API void     YAP_signal(int);
-X_API int      YAP_SetYAPFlag(yap_flag_t, int);
-X_API Int      YAP_VarSlotToNumber(Int);
-X_API Term     YAP_ModuleUser(void);
-X_API Int      YAP_NumberOfClausesForPredicate(PredEntry *);
-X_API int      YAP_MaxOpPriority(Atom, Term);
-X_API int      YAP_OpInfo(Atom, Term, int, int *, int *);
-X_API Term     YAP_AllocExternalDataInStack(size_t);
-X_API void    *YAP_ExternalDataInStackFromTerm(Term);
-X_API int      YAP_NewOpaqueType(void *);
-X_API Term     YAP_NewOpaqueObject(int, size_t);
-X_API void    *YAP_OpaqueObjectFromTerm(Term);
-X_API CELL    *YAP_HeapStoreOpaqueTerm(Term t);
-X_API int      YAP_Argv(char *** argvp);
-X_API YAP_tag_t YAP_TagOfTerm(Term);
-X_API size_t   YAP_ExportTerm(Term, char *, size_t);
-X_API size_t   YAP_SizeOfExportedTerm(char *);
-X_API Term     YAP_ImportTerm(char *);
-X_API int      YAP_RequiresExtraStack(size_t);
-X_API Int      YAP_AtomToInt(Atom At);
-X_API Atom     YAP_IntToAtom(Int i);
-
-static UInt
+static arity_t
 current_arity(void)
 {
   CACHE_REGS
  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    return PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    return PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
   } else {
     return 0;
   }
@@ -654,7 +476,7 @@ doexpand(UInt sz)
   UInt arity;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    arity = PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
   } else {
     arity = 0;
   }
@@ -669,12 +491,6 @@ YAP_A(int i)
 {
   CACHE_REGS
   return(Deref(XREGS[i]));
-}
-
-X_API Term
-YAP_Deref(Term t)
-{
-  return(Deref(t));
 }
 
 X_API Bool 
@@ -813,16 +629,19 @@ YAP_MkBigNumTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API void
+X_API int
 YAP_BigNumOfTerm(Term t, void *b)
 {
 #if USE_GMP
   MP_INT *bz = (MP_INT *)b;
   if (IsVarTerm(t))
-    return;
+    return FALSE;
   if (!IsBigIntTerm(t))
-    return;
+    return FALSE;
   mpz_set(bz,Yap_BigIntOfTerm(t));
+  return TRUE;
+#else
+  return FALSE;
 #endif /* USE_GMP */
 }
 
@@ -840,16 +659,19 @@ YAP_MkRationalTerm(void *big)
 #endif /* USE_GMP */
 }
 
-X_API void
+X_API int
 YAP_RationalOfTerm(Term t, void *b)
 {
 #if USE_GMP
   MP_RAT *br = (MP_RAT *)b;
   if (IsVarTerm(t))
-    return;
+    return FALSE;
   if (!IsBigIntTerm(t))
-    return;
+    return FALSE;
   mpq_set(br,Yap_BigRatOfTerm(t));
+  return TRUE;
+#else
+  return FALSE;
 #endif /* USE_GMP */
 }
 
@@ -935,29 +757,29 @@ YAP_IsWideAtom(Atom a)
   return IsWideAtom(a);
 }
 
-X_API char           *
+X_API const char *
 YAP_AtomName(Atom a)
 {
-  char *o;
+  const char *o;
 
   o = AtomName(a);
   return(o);
 }
 
-X_API wchar_t           *
+X_API const wchar_t *
 YAP_WideAtomName(Atom a)
 {
   return RepAtom(a)->WStrOfAE;
 }
 
 X_API Atom
-YAP_LookupAtom(char *c)
+YAP_LookupAtom(const char *c)
 {
   CACHE_REGS
   Atom a;
 
   while (TRUE) {
-    a = Yap_LookupAtom(c);
+    a = Yap_LookupAtom((char *)c);
     LOCK(LOCAL_SignalLock);
     if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
@@ -969,16 +791,17 @@ YAP_LookupAtom(char *c)
       return a;
     }
   }
+  return NULL;
 }
 
 X_API Atom
-YAP_LookupWideAtom(wchar_t *c)
+YAP_LookupWideAtom(const wchar_t *c)
 {
   CACHE_REGS
   Atom a;
 
   while (TRUE) {
-    a = Yap_LookupWideAtom(c);
+    a = Yap_LookupWideAtom((wchar_t *)c);
     LOCK(LOCAL_SignalLock);
     if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
@@ -990,16 +813,17 @@ YAP_LookupWideAtom(wchar_t *c)
       return a;
     }
   }
+  return NULL;
 }
 
 X_API Atom
-YAP_FullLookupAtom(char *c)
+YAP_FullLookupAtom(const char *c)
 {
   CACHE_REGS
   Atom at;
 
   while (TRUE) {
-    at = Yap_FullLookupAtom(c);
+    at = Yap_FullLookupAtom((char *)c);
     LOCK(LOCAL_SignalLock);
     if (at == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
@@ -1011,6 +835,7 @@ YAP_FullLookupAtom(char *c)
       return at;
     }
   }
+  return NULL;
 }
 
 X_API size_t
@@ -1164,7 +989,7 @@ YAP_SkipList(Term *l, Term **tailp)
 }
 
 X_API Term
-YAP_MkApplTerm(Functor f,UInt arity, Term args[])
+YAP_MkApplTerm(Functor f, UInt arity, Term args[])
 {
   CACHE_REGS
   Term t; 
@@ -1180,7 +1005,7 @@ YAP_MkApplTerm(Functor f,UInt arity, Term args[])
 }
 
 X_API Term
-YAP_MkNewApplTerm(Functor f,UInt arity)
+YAP_MkNewApplTerm(Functor f, UInt arity)
 {
   CACHE_REGS
   Term t; 
@@ -1203,7 +1028,7 @@ YAP_FunctorOfTerm(Term t)
 
 
 X_API Term 
-YAP_ArgOfTerm(Int n, Term t)
+YAP_ArgOfTerm(UInt n, Term t)
 {
   return (ArgOfTerm(n, t));
 }
@@ -1219,7 +1044,7 @@ YAP_ArgsOfTerm(Term t)
 }
 
 X_API Functor 
-YAP_MkFunctor(Atom a, Int n)
+YAP_MkFunctor(Atom a, UInt n)
 {
   return (Yap_MkFunctor(a, n));
  }
@@ -1230,7 +1055,7 @@ YAP_NameOfFunctor(Functor f)
   return (NameOfFunctor(f));
 }
 
-X_API Int 
+X_API UInt
 YAP_ArityOfFunctor(Functor f)
 {
   return (ArityOfFunctor(f));
@@ -1243,7 +1068,7 @@ YAP_ExtraSpaceCut(void)
   void *ptr;
   BACKUP_B();
 
-  ptr = (void *)(((CELL *)(Yap_REGS.CUT_C_TOP))-(((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->u.OtapFs.extra));
+  ptr = (void *)(((CELL *)(Yap_REGS.CUT_C_TOP))-(((yamop *)Yap_REGS.CUT_C_TOP->try_userc_cut_yamop)->y_u.OtapFs.extra));
 
   RECOVER_B();
   return(ptr);
@@ -1258,7 +1083,7 @@ YAP_ExtraSpace(void)
   BACKUP_H();
 
   /* find a pointer to extra space allocable */
-  ptr = (void *)((CELL *)(B+1)+P->u.OtapFs.s);
+  ptr = (void *)((CELL *)(B+1)+P->y_u.OtapFs.s);
   B->cp_h = HR;
 
   RECOVER_H();
@@ -1309,7 +1134,7 @@ YAP_cut_up(void)
   RECOVER_B();
 }
 
-X_API Int
+X_API int
 YAP_Unify(Term t1, Term t2)
 {
   Int out;
@@ -1395,10 +1220,10 @@ YAP_InitSlot(Term t)
 }
 
 X_API int
-YAP_RecoverSlots(int n, Int sl)
+YAP_RecoverSlots(int n, Int top_slot)
 {
   CACHE_REGS
-  return Yap_RecoverSlots(n, sl PASS_REGS);
+  return Yap_RecoverSlots(n, top_slot PASS_REGS);
 }
 
 X_API Term
@@ -1454,7 +1279,7 @@ typedef Int (*CPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
-static Int
+static 
 execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
 {
   switch (pe->ArityOfPE) {
@@ -1563,19 +1388,19 @@ execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
   }
 }
 
-typedef Int (*CBPredicate)(struct foreign_context *);
-typedef Int (*CBPredicate1)(Int,struct foreign_context *);
-typedef Int (*CBPredicate2)(Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
-typedef Int (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate)(struct foreign_context *);
+typedef uintptr_t (*CBPredicate1)(Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate2)(Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef uintptr_t (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 
-static Int
+static uintptr_t
 execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx USES_REGS)
 {
   switch (pe->ArityOfPE) {
@@ -1593,9 +1418,10 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   case 2:
     {
       CBPredicate2 code2 = (CBPredicate2)exec_code;
-      return ((code2)(&B->cp_a1-LCL0,
+      uintptr_t val = ((code2)(&B->cp_a1-LCL0,
 		      &B->cp_a2-LCL0,
 		      ctx));
+      return val;
     }
   case 3:
     {
@@ -1694,7 +1520,7 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   }
 }
 
-static Int
+static uintptr_t
 complete_fail(choiceptr ptr, int has_cp USES_REGS)
 {
   // this case is easy, jut be sure to throw everything 
@@ -1707,7 +1533,7 @@ complete_fail(choiceptr ptr, int has_cp USES_REGS)
   return FALSE;
 }
 
-static int
+static uintptr_t
 complete_exit(choiceptr ptr, int has_cp, int cut_all USES_REGS)
 {
   // the user often leaves open frames, especially in forward execution
@@ -1807,8 +1633,8 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   CELL ocp = LCL0-(CELL *)B;
   /* for slots to work */
   Int CurSlot = Yap_StartSlots( PASS_REGS1 );
-  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
-    Int val;
+  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag|ModuleTransparentPredFlag)) {
+    uintptr_t val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
 
@@ -1842,7 +1668,8 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 	ctx->context = (uintptr_t)(val & ~REDO_PTR);
       else
 	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
-      return TRUE;
+      /* fix dropped cps */
+      return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
     }
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
@@ -1971,7 +1798,8 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       else
 	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
     }
-    return TRUE;
+    /* fix dropped cps */
+    return complete_exit(((choiceptr)(LCL0-ocp)), FALSE, FALSE PASS_REGS);
   } else {
     Int ret = (exec_code)( PASS_REGS1 );
     LOCAL_CurSlot = CurSlot;
@@ -2067,7 +1895,7 @@ YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_BufferToString(char *s)
+YAP_BufferToString(const char *s)
 {
   Term t; 
   BACKUP_H();
@@ -2087,7 +1915,7 @@ YAP_BufferToString(char *s)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_NBufferToString(char *s, size_t len)
+YAP_NBufferToString(const char *s, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2109,7 +1937,7 @@ YAP_NBufferToString(char *s, size_t len)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_WideBufferToString(wchar_t *s)
+YAP_WideBufferToString(const wchar_t *s)
 {
   Term t; 
   BACKUP_H();
@@ -2129,7 +1957,7 @@ YAP_WideBufferToString(wchar_t *s)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_NWideBufferToString(wchar_t *s, size_t len)
+YAP_NWideBufferToString(const wchar_t *s, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2151,7 +1979,7 @@ YAP_NWideBufferToString(wchar_t *s, size_t len)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_ReadBuffer(char *s, Term *tp)
+YAP_ReadBuffer(const char *s, Term *tp)
 {
   CACHE_REGS
   Int sl;
@@ -2199,8 +2027,8 @@ YAP_ReadBuffer(char *s, Term *tp)
 }
 
 /* copy a string to a buffer */
-X_API Term
-YAP_BufferToAtomList(char *s)
+X_API YAP_Term
+YAP_BufferToAtomList(const char *s)
 {
   Term t; 
   BACKUP_H();
@@ -2220,7 +2048,7 @@ YAP_BufferToAtomList(char *s)
 
 /* copy a string of size len to a buffer */
 X_API Term
-YAP_NBufferToAtomList(char *s, size_t len)
+YAP_NBufferToAtomList(const char *s, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2242,7 +2070,7 @@ YAP_NBufferToAtomList(char *s, size_t len)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_WideBufferToAtomList(wchar_t *s)
+YAP_WideBufferToAtomList(const wchar_t *s)
 {
   Term t; 
   BACKUP_H();
@@ -2262,7 +2090,7 @@ YAP_WideBufferToAtomList(wchar_t *s)
 
 /* copy a string of size len to a buffer */
 X_API Term
-YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
+YAP_NWideBufferToAtomList(const wchar_t *s, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2284,7 +2112,7 @@ YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
 
 /* copy a string of size len to a buffer */
 X_API Term
-YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
+YAP_NWideBufferToAtomDiffList(const wchar_t *s, Term t0, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2307,7 +2135,7 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_BufferToDiffList(char *s, Term t0)
+YAP_BufferToDiffList(const char *s, Term t0)
 {
   Term t; 
   BACKUP_H();
@@ -2328,7 +2156,7 @@ YAP_BufferToDiffList(char *s, Term t0)
 
 /* copy a string of size len to a buffer */
 X_API Term
-YAP_NBufferToDiffList(char *s, Term t0, size_t len)
+YAP_NBufferToDiffList(const char *s, Term t0, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2351,7 +2179,7 @@ YAP_NBufferToDiffList(char *s, Term t0, size_t len)
 
 /* copy a string to a buffer */
 X_API Term
-YAP_WideBufferToDiffList(wchar_t *s, Term t0)
+YAP_WideBufferToDiffList(const wchar_t *s, Term t0)
 {
   Term t; 
   BACKUP_H();
@@ -2372,7 +2200,7 @@ YAP_WideBufferToDiffList(wchar_t *s, Term t0)
 
 /* copy a string of size len to a buffer */
 X_API Term
-YAP_NWideBufferToDiffList(wchar_t *s, Term t0, size_t len)
+YAP_NWideBufferToDiffList(const wchar_t *s, Term t0, size_t len)
 {
   Term t; 
   BACKUP_H();
@@ -2395,7 +2223,7 @@ YAP_NWideBufferToDiffList(wchar_t *s, Term t0, size_t len)
 
 
 X_API void
-YAP_Error(int myerrno, Term t, char *buf,...)
+YAP_Error(int myerrno, Term t, const char *buf,...)
 {
 #define YAP_BUF_SIZE 512
   va_list ap;
@@ -2469,14 +2297,17 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
+
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
   P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   if (out) {
-    LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
+    dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots( PASS_REGS1 );
+  } else {
+    LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
   }
   return out;
 }
@@ -2498,7 +2329,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
-  LOCAL_CurSlot = dgi->CurSlot;
+  LOCAL_CurSlot = dgi->EndSlot;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   if (out) {
@@ -2624,7 +2455,8 @@ YAP_ExternalDataInStackFromTerm(Term t)
   return ExternalBlobFromTerm (t);
 }
 
-int YAP_NewOpaqueType(void *f)
+X_API YAP_opaque_tag_t
+YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f)
 {
   int i;
   if (!GLOBAL_OpaqueHandlers) {
@@ -2642,7 +2474,7 @@ int YAP_NewOpaqueType(void *f)
   return i+USER_BLOB_START;
 }
 
-Term YAP_NewOpaqueObject(int tag, size_t bytes)
+Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes)
 {
   Term t = Yap_AllocExternalDataInStack((CELL)tag, bytes);
   if (t == TermNil)
@@ -2651,7 +2483,7 @@ Term YAP_NewOpaqueObject(int tag, size_t bytes)
 }
 
 X_API Bool
-YAP_IsOpaqueObjectTerm(Term t, int tag)
+YAP_IsOpaqueObjectTerm(Term t, YAP_opaque_tag_t tag)
 {
   return IsExternalBlobTerm(t, (CELL)tag);
 }
@@ -2875,7 +2707,7 @@ YAP_ClearExceptions(void)
 }
 
 X_API IOSTREAM *
-YAP_InitConsult(int mode, char *filename)
+YAP_InitConsult(int mode, const char *filename)
 {
   IOSTREAM *st;
   BACKUP_MACHINE_REGS();
@@ -3291,7 +3123,7 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     GLOBAL_AllowTrailExpansion = TRUE;
   }
-  if (yap_init->YapPrologRCFile) {
+ if (yap_init->YapPrologRCFile) {
     Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
@@ -3326,7 +3158,7 @@ YAP_Init(YAP_init_args *yap_init)
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
-      YAP_RunGoalOnce(t_goal);
+     YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs( 0 );
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
@@ -3475,9 +3307,10 @@ YAP_Exit(int retval)
   Yap_exit(retval);
 }
 
-X_API void
-YAP_InitSocks(char *host, long port)
+X_API int
+YAP_InitSocks(const char *host, long port)
 {
+  return 0;
 }
 
 X_API void
@@ -3575,13 +3408,13 @@ YAP_PredicateInfo(void *p, Atom* a, UInt* arity, Term* m)
 } 
 
 X_API void 
-YAP_UserCPredicate(char *name, CPredicate def, UInt arity)
+YAP_UserCPredicate(const char *name, CPredicate def, UInt arity)
 {
   Yap_InitCPred(name, arity, def, UserCPredFlag);
 }
 
 X_API void 
-YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
+YAP_UserBackCPredicate(const char *name, CPredicate init, CPredicate cont,
 		   UInt arity, unsigned int extra)
 {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL ,UserCPredFlag);
@@ -3589,14 +3422,14 @@ YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 }
 
 X_API void 
-YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredicate cut,
+YAP_UserBackCutCPredicate(const char *name, CPredicate init, CPredicate cont, CPredicate cut,
 			  UInt arity, unsigned int extra)
 {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
 }
 
 X_API void
-YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)
+YAP_UserCPredicateWithArgs(const char *a, CPredicate f, UInt arity, Term mod)
 {
   CACHE_REGS
   PredEntry *pe;
@@ -3658,7 +3491,7 @@ YAP_ThreadSelf(void)
 } 
 
 X_API int
-YAP_ThreadCreateEngine(struct thread_attr_struct * attr)
+YAP_ThreadCreateEngine(struct YAP_thread_attr_struct * attr)
 {
 #if THREADS
   return Yap_thread_create_engine(attr);
@@ -3739,7 +3572,7 @@ X_API char *
 YAP_cwd(void)
 {
   CACHE_REGS
-  char *buf;
+  char *buf = NULL;
   int len;
   if (!Yap_getcwd(LOCAL_FileNameBuf, YAP_FILENAME_MAX))
     return FALSE;
@@ -4053,11 +3886,11 @@ YAP_Erase(void *handle)
   return 1;
 }
 
-X_API Int
+X_API yhandle_t
 YAP_ArgsToSlots(int n)
 {
   CACHE_REGS
-  Int slot = Yap_NewSlots(n PASS_REGS);
+  yhandle_t slot = Yap_NewSlots(n PASS_REGS);
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr0++ = *ptr1++;
@@ -4066,7 +3899,7 @@ YAP_ArgsToSlots(int n)
 }
 
 X_API void
-YAP_SlotsToArgs(int n, Int slot)
+YAP_SlotsToArgs(int n, yhandle_t slot)
 {
   CACHE_REGS
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
@@ -4108,8 +3941,8 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 }
 
 
-/*    Int  YAP_VarSlotToNumber(Int)  */
-Int YAP_VarSlotToNumber(Int s) {
+/*    yhandle_t  YAP_VarSlotToNumber(yhandle_t)  */
+yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
   if (t < HR)
@@ -4123,7 +3956,7 @@ Term YAP_ModuleUser(void) {
 }
 
 /*    int  YAP_PredicateHasClauses()  */
-Int YAP_NumberOfClausesForPredicate(PredEntry *pe) {
+yhandle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
   return pe->cs.p_code.NOfClauses;
 }
 

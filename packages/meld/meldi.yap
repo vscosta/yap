@@ -18,6 +18,8 @@
 	 run/1
 	]).
 
+:- use_module(meld).
+
 
 :- use_module(library(nb),
 	[

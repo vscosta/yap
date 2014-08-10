@@ -242,7 +242,8 @@ format_learning(_,_,_) :-
 format_learning_rule(D,'$atom'(A)):-
 	format_learning(D,'~q',[A]).
 format_learning_rule(D,\+A):-
-	format_learning(D,'\+',[]),
+        functor( \+A, Name, _),
+	format_learning(D, Name , []),
 	format_learning_rule(D,A).
 
 format_learning_rule(D,'true'):-

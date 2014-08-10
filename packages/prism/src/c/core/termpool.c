@@ -81,7 +81,7 @@ static void revert_vars(void)
 
     assert(trail_pos0 != 0);
 
-    trail_top0 = trail_up_addr - trail_pos0;
+    trail_top0 = (BPLONG_PTR)(trail_up_addr - trail_pos0);
     UNDO_TRAILING;
     trail_pos0 = 0;
 }
@@ -92,7 +92,6 @@ static void revert_vars(void)
  */
 static BPULONG prism_hash_value(TERM term)
 {
-  CACHE_REGS
     TERM    t, *rest;
     BPLONG  i, n;
     SYM_REC_PTR sym;
@@ -109,7 +108,7 @@ static BPULONG prism_hash_value(TERM term)
     while (! VECTOR_EMPTY(rest)) {
         t = VECTOR_POP(rest);
 
-nderef_loop:
+//nderef_loop:
         switch (XTAG(t)) {
         case REF0:
         case REF1:
@@ -188,7 +187,7 @@ static TERM term_pool_store(TERM_POOL *this, TERM term)
     while (! VECTOR_EMPTY(rest)) {
         p = VECTOR_POP(rest);
 
-nderef_loop:
+//nderef_loop:
         switch (XTAG(*p)) {
         case REF0:
         case REF1:
@@ -201,7 +200,7 @@ nderef_loop:
             break;
 
         case LST:
-            q = term_pool_allocate(this, 2);
+            q = (TERM *)term_pool_allocate(this, 2);
             *(q + 1) = GET_CDR(*p);
             VECTOR_PUSH(rest, q + 1);
             *(q + 0) = GET_CAR(*p);
@@ -212,7 +211,7 @@ nderef_loop:
         case STR:
             sym = GET_STR_SYM_REC(*p);
             n = GET_ARITY_STR(sym);
-            q = term_pool_allocate(this, n + 1);
+            q = (TERM *)term_pool_allocate(this, n + 1);
             *q = (TERM)(sym);
             for (i = n; i >= 1; i--) {
                 *(q + i) = GET_ARG(*p, i);
@@ -320,7 +319,7 @@ static TERM term_pool_intern(const TERM_POOL *this1, TERM_POOL *this2, TERM term
 
     assert(this2 == NULL || this2 == this1);
 
-nderef_loop:
+//nderef_loop:
     switch (XTAG(term)) {
     case REF0:
     case REF1:

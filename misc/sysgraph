@@ -5,12 +5,23 @@
 :- use_module(library(lineutils)).
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
+:- use_module(library(system)).
 
 :- initialization(main).
 
 :- yap_flag( double_quotes, string ).
+%:- yap_flag( dollar_as_lower_case, on ).
 
-:- dynamic edge/4, node/4, public_predicate/3, private_predicate/3, module_on/2.
+:- dynamic edge/1,
+   public/2,
+   private/2,
+   module_on/3,
+   exported/1, 
+   dir/2,
+   consulted/2,
+   op_export/3,
+   library/1,
+   undef/2.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -28,43 +39,127 @@ inline( []/0 ).
 %
 
 main :-
+     init,
+    fail.
+main :-
+      unix(argv([D])),
+      working_directory(_, D),
+      fail.
+main :-
       % from libraries outside the current directories
       assert( node( attributes, woken_att_do/4, 'library/atts.yap', prolog ) ),
      fail.
 main :-
-     c_preds('C'),
-     c_preds('OPTYap'),
-     c_preds('os'),
-     c_preds('library/dialeect/swi/fli'),
-     c_preds(operating_system_support:'library/system'),
-     c_preds(random:'library/random'),
-     c_preds(regexp:'library/regex'),
-     pl_preds(pl),
-     undefs,
-     doubles,
-     pl_exports(pl).
+    Dirs = ['C'-prolog,
+	    'os'-prolog,
+	    'pl'-prolog,
+	    'OPTYap'-prolog,
+	    'library'-user,
+	    'swi/console'-prolog,
+	    'swi/library'-user,
+	    'packages'-user],
+    dirs( Dirs ),
+    %%% phase 1: find modules
+    nb_setval( current_module, user ),
+    nb_setval( private, false ),
+    nb_setval( file_entry, user:user ),
+    init_loop( Dirs ),
+    maplist( pl_interfs, Dirs ),
+    %%% phase 2: find C-code predicates
+    maplist( c_preds, Dirs ),
+    %%% phase 4: construct graph
+    retractall( consulted(_,_) ),
+%    maplist( pl_graphs, Dirs ),
+    undefs,
+    doubles,
+    %     pl_exported(pl).
+    c_links.
 
-c_preds(M:Dir) :-
-    Root = '.',
-    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    c_file( File , M ),
+
+dirs( Roots ) :-
+    member( Root-_, Roots ),
+    directory_files( Root , Files),
+    member(  File, Files ),
+    atom_concat( [Root,'/',File], New ),
+    (
+	file_property( New, type(directory) ),
+	File \= '.',
+	File \= '..',
+	File \= '.git',
+	subdir( New )
+    ;
+	absolute_file_name( Root, FRoot ),
+        assert_new( dir( FRoot, File ))
+    ),
     fail.
-c_preds(Dir) :-
+dirs(_).
+
+subdir( Root ) :-
+    directory_files( Root , Files),
+    member(  File, Files ),
+    atom_concat( [Root,'/',File], New ),
+    (
+	file_property( New, type(directory) ),
+	File \= '.',
+	File \= '..',
+	File \= '.git',
+	subdir( New )
+    ;
+	absolute_file_name( Root, ARoot),
+        assert_new( dir( ARoot, File ))
+    ),
+    fail.
+
+
+init :-
+    retractall(dir(_)),
+    retractall(edge(_)),
+    retractall(private(_,_)),
+    retractall(public(_,_)),
+    retractall(undef(_,_)),
+    retractall(consulted(_,_)),
+    retractall(module_on(_,_,_)),
+    retractall(op_export(_,_,_)),
+    retractall(exported(_)).
+
+init_loop( _Dirs ).
+
+c_preds(Dir - Mod) :-
     atom( Dir ),
-    Root = '.',
-    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
+    atom_concat([Dir,'/*'], Pattern),
     expand_file_name( Pattern, Files ),
     member( File, Files ),
-    c_file( File , prolog ),
+    ( ( sub_atom(File,_,_,0,'.c') 
+	;
+	sub_atom(File,_,_,0,'.i')
+	;
+	sub_atom(File,_,_,0,'.cpp')
+	;
+	sub_atom(File,_,_,0,'.icc')
+      ) ->
+	  c_file( File , Mod )
+    ;
+         exists_directory( File ),
+         \+ atom_concat(_, '/.', File),
+         \+ atom_concat(_, '/..', File),
+         'packages/prism' \= File,
+         'packages/gecode' \= File,
+         'packages/RDF' \= File,
+         'packages/semweb' \= File,
+         c_preds( File - Mod )
+    ),
     fail.
 c_preds(_).
 
+
 c_file(F, Mod) :-
-%    writeln(F),
+    consulted( F, Mod ), 
+    !.
+c_file(F, Mod) :-
+%    wrixbteln(F),
+    assert( consulted( F, Mod ) ), 
     nb_setval( current_module, Mod ),
-    open(F, read, S),
+    open(F, read, S, [alias(c_file)]),
     repeat,
     read_line_to_string( S, String ),
     ( String == end_of_file
@@ -83,364 +178,609 @@ c_line(["}"], Mod, _) :- !,
      nb_setval( current_module, Mod ).
 c_line(Line, _Mod, _) :- 
      append( _, [ "CurrentModule", "=", M|_], Line),
-     mod(M, _Mod, Mod),
+     system_mod(M, _Mod, Mod),
      nb_setval( current_module, Mod ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitCPred", NS, AS|_], Line), !,
-     atom_string( N, NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod  ),
-     \+ inline(N/A),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitAsmPred", NS, AS|_], Line), !,
-     atom_string( N, NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod  ),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitCmpPred", NS, AS|_], Line), !,
-     atom_string( N, NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod  ),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "Yap_InitCPredBack", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "YAP_UserCPredicate", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "PRED_DEF", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
-/*
-c_line(Line, _Mod, F) :- 
-     append( _, [ "PRED_IMPL", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
-*/
-c_line(Line, _Mod, F) :- 
-     append( _, [ "PRED", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
-c_line(Line, _Mod, F) :- 
-     append( _, [ "FRG", NS, AS|_], Line), !,
-     atom_string(N,NS),
-     number_string(A, AS),
-     nb_getval( current_module, Mod ),
-     assert( node( Mod, N/A, F, c) ).
+c_line(Line, Mod, F:_Line) :- 
+    break_line( Line, N/A, Fu),
+    handle_pred( Mod, N, A, F ),
+    assert( foreign( Mod:N/A, Fu ) ).
+
+break_line( Line, N/A, c(Fu)) :-
+    take_line( Line, NS, AS, FS ), !,
+    atom_string(N,NS),
+    atom_string(Fu,FS),
+    number_string(A, AS).
+break_line( Line, N/A, swi(Fu)) :-
+    take_line( Line, NS, AS, FS ), !,
+    atom_string(N,NS),
+    number_string(A, AS),
+    atomic_concat(["pl_",FS,"_",A,"_va"], Fu).
+break_line( Line, N/A, bp(Fu)) :-
+    take_line( Line, NS, AS, FS ), !,
+    atom_string(N,NS),
+    number_string(A, AS),
+    atomic_concat(["pc_",FS,"_",A], Fu).
+break_line( Line, N/A, c(FuE, FuB)) :-
+    take_line( Line, NS, AS, FSE, FSB ), !,
+    atom_string(N,NS),
+    atom_string(FuE,FSE),
+    atom_string(FuB,FSB),
+    number_string(A, AS).
+    
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "Yap_InitCPred", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "Yap_InitAsmPred", NS, AS, _, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "Yap_InitCmpPred", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "Yap_InitCmpPred", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "YAP_UserCPredicate", NS, FS, AS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "PRED", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "PRED_IMPL", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "PRED_DEF", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "FRG", NS, AS, FS|_], Line), !.
 
 
-mod("ATTRIBUTES_MODULE", _, attributes ).
-mod("HACKS_MODULE", _, '$hacks' ).
-mod("USER_MODULE", _, user ).
-mod("DBLOAD_MODULE", _, '$db_load' ).
-mod("GLOBALS_MODULE", _, globals ).
-mod("ARG_MODULE", _, globals  ).
-mod("PROLOG_MODULE", _ , prolog ).
-mod("RANGE_MODULE", _, range ).
-mod("SWI_MODULE", _, swi ).
-mod("OPERATING_SYSTEM_MODULE", _, "operating_system_support"  ).
-mod("TERMS_MODULE", _, terms ).
-mod("SYSTEM_MODULE", _, system ).
-mod("IDB_MODULE", _, idb ).
-mod("CHARSIO_MODULE", _, charsio ).
-mod("cm", M, M ).
-mod("OldCurrentModule", M, M ).
+take_line( Line,  AS, FS ) :-
+     append( _, [ "REGISTER_CPRED", FS, AS], Line), !.
 
 
-pl_preds(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    Suffix = '.yap',
-    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_nodes( File , prolog, Suffix ),
-    fail.
-pl_preds(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    Suffix = '.pl',
-    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_nodes( File , prolog, Suffix ),
-    fail.
-pl_preds(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    Suffix = '.yap',
-    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_file( File , prolog, Suffix ),
-    fail.
-pl_preds(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    Suffix = '.pl',
-    atom_concat([Root,'/',Dir,'/','*',Suffix], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_file( File , prolog, Suffix ),
-    fail.
-pl_preds(_).
+take_line( Line, NS, AS, FSE, FSB ) :-
+     append( _, [ "Yap_InitCPredBack", NS, AS, _, FSE, FSB|_], Line), !.
 
-pl_nodes(F, _Mod, Suffix) :-
-%    writeln(F),
-	file_to_module(F, Suffix, Mod),
+system_mod("ATTRIBUTES_MODULE", _, attributes ).
+system_mod("HACKS_MODULE", _, '$hacks' ).
+system_mod("USER_MODULE", _, user ).
+system_mod("DBLOAD_MODULE", _, '$db_load' ).
+system_mod("GLOBALS_MODULE", _, globals ).
+system_mod("ARG_MODULE", _, arg  ).
+system_mod("PROLOG_MODULE", _ , prolog ).
+system_mod("RANGE_MODULE", _, range ).
+system_mod("SWI_MODULE", _, swi ).
+system_mod("OPERATING_SYSTEM_MODULE", _, operating_system_support  ).
+system_mod("TERMS_MODULE", _, terms ).
+system_mod("SYSTEM_MODULE", _, system ).
+system_mod("IDB_MODULE", _, idb ).
+system_mod("CHARSIO_MODULE", _, charsio ).
+system_mod("cm", M, M ).
+
+call_c_files(  File, Mod, _Fun, [CFile] ) :-
+    search_file( CFile, File, c, F ),
+    c_file(F, Mod).
+
+
+pl_interfs(Dir - Mod) :-
+    format(' ************* MOD: ~a ***********************\n', [Dir]),
     nb_setval( current_module, Mod ),
-    open(F, read, S),
-    repeat,
-    read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ),
-    ( T == end_of_file
-      ->
-	  !,
-	  close(S)
-      ;
-%      warn_singletons(Vars, Pos),
-      nb_getval( current_module, M ),
-      line_count( S, Lines ),
-      build_nodes( T, F:Lines, M ),
-      fail
-    ).
-
-build_nodes( M:T, F, _ ) :- !,
-    build_nodes( T, F, M ).
-build_nodes( (M:H :- B), F, _ ) :- !,
-    build_nodes( (H :- B), F, M ).
-build_nodes( (H :- _B), F, M ) :- !,
-    functor(H, N, A),
-    add_node( M:N/A, F).
-build_nodes( (H --> _B), F, M ) :- !,
-    functor(H, N, A1),
-    A is A1+2,
-    add_node( M:N/A, F).
-build_nodes( (:- module( NM, Is ) ), F, _M ) :- !,
-     nb_setval( current_module, NM ),
-     F = FN:_,
-     assert( module_on( FN:_ , NM) ),
-     maplist( public(F, NM), Is ). 
-build_nodes( (:- private( Is ) ), F, M ) :- !,
-     maplist( private(F, M), Is ). 
-build_nodes( (:- dynamic Bs), F, M ) :-
-    add_nodes( Bs, F, M).
-build_nodes( (:- multifile Bs), F, M ) :-
-    add_nodes( Bs, F, M).
-build_nodes( (:- thread_local Bs), F, M ) :-
-    add_nodes( Bs, F, M).
-build_nodes( (:- _B), _F, _M ) :- !.
-build_nodes( (?- _B), _F, _M ) :- !.
-build_nodes( H, F, M ) :-
-    functor(H, N, A),
-    add_node( M:N/A, F).
-
-public(F, M, I) :-
-	assert(public_predicate(I, M, F)).
-	
-private(F, M, I) :-
-	assert(private_predicate(I, M, F)).
-	
-
-add_nodes( (A,B), F, M) :- !,
-    add_nodes( A, F, M),
-    add_nodes( B, F, M).
-add_nodes( M:A, F, _M) :- !,
-    add_nodes( A, F, M).
-add_nodes( B, F, M) :- !,
-    add_node( M:B, F).
-
-
-add_node( N, F, M ) :-
-    always_strip_module(M:N, M, N1 ),
-    functor(N1, Na, Ar),
-    (Na = '$c_built_in'/3 -> writeln(add_node(M:Na/Ar, F)) ; true ),
-    add_node(M:Na/Ar, F).
-
-add_node( M:N/A, F) :-
-	F = FN:_,
-	F0 = FN:0,
-	( module_on( F, _ ) -> true
-	;
-	  sub_atom(N, 0, 1, _, '$') -> true
-	;
-	  public_predicate(N/A, M, F0) -> true
-	;
-	  private_predicate(N/A, M, F0) -> true
-	;
-	  assert(public_predicate(N/A, M, F0) )
-	),
-	fail.
-add_node( M:N/A, F) :- node( M, N/A, F, _ ), !.
-add_node( M:N/A, F) :-
-	assert( node( M,  N/A, F, prolog ) ).
-
-
-
-pl_file(F, _Mod, Suffix) :-
-%    writeln(F),
-	file_to_module(F, Suffix, Mod),
-	nb_setval( current_module, Mod ),
-    open(F, read, S),
-    repeat,
-    read_term( S, T, [singletons(_Vars), term_position(_Pos) ] ),
-    ( T == end_of_file
-      ->
-	  !,
-	  close(S)
-      ;
-%      warn_singletons(Vars, Pos),
-      nb_getval( current_module, M ),
-      line_count( S, Lines ),
-      build_graph( T, F:Lines, M ),
-      fail
-    ).
-
-file_to_module(F, _Suffix, Mod) :-
-    module_on(F:_, Mod), !.
-file_to_module(F, Suffix, Mod) :-
-    file_base_name(F, Base),
-    atom_concat(Mod0, Suffix, Base),
-    atom_concat('$_',Mod0, Mod).
-
-build_graph( M:T, F, _ ) :- !,
-    build_graph( T, F, M ).
-build_graph( (M:H :- B), F, _ ) :- !,
-    build_graph( (H :- B), F, M ).
-build_graph( (H :- B), F, M ) :- !,
-    functor(H, N, A),
-    add_deps( B, M, M:N/A, F, 0).
-build_graph( (H --> B), F, M ) :- !,
-    functor(H, N, A1),
-    A is A1+2,
-    add_deps( B, M, M:N/A, F, 2).
-build_graph( (:- module( NM, _Is ) ), F, _M ) :- !,
-     nb_setval( current_module, NM ),
-     F = FN:_,
-     assert( module_on( FN:_ , NM) ). 
-build_graph( (:- _B), _F, _M ) :- !.
-build_graph( (?- _B), _F, _M ) :- !.
-build_graph( _H, _F, _M ).
-
-
-add_deps(V, _M, _P, _F, _) :- var(V), !.
-add_deps((A,B), M, P, F, L) :- !,
-    add_deps(A, M, P, F, L),
-    add_deps(B, M, P, F, L).
-add_deps((A;B), M, P, F, L) :- !,
-    add_deps(A, M, P, F, L),
-    add_deps(B, M, P, F, L).
-add_deps((A->B), M, P, F, L) :- !,
-    add_deps(A, M, P, F, L),
-    add_deps(B, M, P, F, L).
-add_deps(once(A), M, P, F, L) :- !,
-    add_deps(A, M, P, F, L).
-add_deps({A}, M, P, F, 2) :- !,
-    add_deps(A, M, P, F, 0).
-add_deps([_|_], _M, _P, _F, 2) :- !.
-add_deps([], _M, _P, _F, 2) :- !.
-add_deps(!, _M, _P, _F, _) :- !.
-add_deps(true, _M, _P, _F, 0) :- !.
-add_deps(false, _M, _P, _F, 0) :- !.
-add_deps(fail, _M, _P, _F, 0) :- !.
-add_deps(repeat, _M, _P, _F, 0) :- !.
-add_deps(A, _M0, P, F, L) :- !,
-    always_strip_module(unused_module:A, M1, A1),
-    functor(A1, N, Ar0),
-    Ar1 is Ar0+L,
-    (M1 == unused_module -> ( node( M, N/Ar1, _, _) -> true ; writeln( undef:M:N/Ar1 ), assert(node(prolog,N/Ar1,'/dev/null':0,prolog)) ) ; M = M1 ),
-    P = _:Na/Ar,
-    ( put_deps(M, N/Ar1, Na/Ar, F, L)
-    ->
-      true
+    atom( Dir ),
+    directory_files( Dir , Files),
+    member( File, Files ),
+    atom_concat([Dir,'/',File], Path),
+    ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
+	  ops_restore,
+	 pl_interf( Path , Mod )
     ;
-      writeln('FAILED'(add_deps(A, _M0, P, F, L)))
+         exists_directory( Path ),
+         \+ atom_concat(_, '/.', Path),
+         \+ atom_concat(_, '/..', Path),
+         \+ atom_concat(_, '/.git', Path),
+         'packages/prism' \= Path,
+         'packages/gecode' \= Path,
+         'packages/R' \= Path,
+         'packages/RDF' \= Path,
+         'packages/semweb' \= Path,
+         'packages/sgml' \= Path,
+	 absolute_file_name( Path, APath ),
+	 pl_interfs( APath - Mod )
+    ),
+    fail.
+pl_interfs(_).
+
+%%
+% pl_interf( File, Mod)
+% adds a node to the file graph and marks which files are modules
+%
+% main side-effect facts like edge( F0-Mod:File )
+%                             exported( ( FMNATarget :- FMNASource ) ) ou exported(F-M, Op ),
+%                             module_on ( M, File ) 
+%
+pl_interf(F, _Mod) :-
+    module_on( F , _M, _Is),
+    !.
+pl_interf(F, Mod) :-
+    consulted(F, Mod ), 
+    !.
+pl_interf(F, Mod) :-
+F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
+    writeln(F),
+%	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
+% ( sub_atom( F, _, _, 0, 'chr.yap' ) -> spy get_interf; true ),
+    assert_new(consulted(F, Mod ) ), 
+    nb_getval( private, Default ),
+    nb_setval( private, false ),
+    nb_getval( file_entry, OF:OMod ),
+    nb_setval( file_entry, F:Mod ),
+    catch( open(F, read, S, [scripting(true)]) , _, fail ),
+    repeat,
+    nb_getval( current_module, MR ),
+ %( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ), 
+    catch( read_term( S, T, [module( MR )] ), Throw, (writeln(F:MR:Throw), break, fail)),
+    ( 
+	T == end_of_file
+	->
+	    !,
+	    close(S),
+	    build_graph( F, Mod ),
+	    % also, close ops defined in the module M, if M \= Mod
+	    generate_interface( F, Mod ),
+	    nb_setval( current_module, Mod ),
+	    nb_setval( private, Default ),
+	    nb_setval( file_entry, OF:OMod )
+	;
+	nb_getval( current_module, MC0 ),
+	( Mod == prolog -> MC = prolog ; MC = MC0 ),
+	get_interf( T, F, MC  ),
+	fail
     ).
 
-put_deps(_, P, _, _, _L) :-
-	inline( P ), !.
-put_deps(M, P, PN, F, _L) :-
-    edge(M, P, PN, F), !.
-put_deps(M, P, PN, F, _L) :-
-    assert(edge(M,P, PN, F) ).
+get_interf( T, _F, _M0 ) :- 
+    var(T), 
+    !. 
+get_interf( T, _F, _M0 ) :-
+%    ( T = (:- op(_,_,_)) -> trace ; true ),
+    var(T), 
+    !. 
+get_interf( M:T, F, _M0 ) :- !,
+    get_interf( T, F, M ). 
+get_interf( ( M:H :- _B), F, _M ) :- 
+    !,
+    get_interf( H, F, M ).
+get_interf( ( M:H --> _B), F, _ ) :- 
+    !,
+    get_interf( ( H --> _B), F, M ).
+get_interf( ( A, _ --> _B), F, M ) :- 
+    get_interf( ( A --> _B), F, M ).
+get_interf( (H --> _B), F, M ) :-
+    !,
+    functor( H, N, Ar),
+    Ar2 is Ar+2,
+    functor( H2, N, Ar2),
+    get_interf( H2, F, M ).
+get_interf( (H :- _B), F, M ) :-
+    !,
+    get_interf( H, F, M ).
+%% switches to new file n
+get_interf( (:- V ), _F, _M ) :-
+    var( V ),
+    !.
+get_interf( (:- module( NM, Is ) ), F, _M ) :-
+    !,
+    nb_setval( current_module, NM ),
+    assert( module_on( F , NM, Is) ),
+    maplist( public(F, NM), Is ),
+    nb_setval( private, true ). 
+get_interf( (:- reexport( Loc, Is ) ), F, M ) :- 
+    !,
+    % find the file
+    search_file( Loc, F, pl, NF ),
+    include_files(  F, M, Is, NF ),
+    % extend the interface.rg
+    retract( module_on( F , M, Is0) ),
+    append( Is0, Is, NIs ),
+    assert( module_on( F , M, NIs) ),
+    maplist( public(F, M), NIs ).
+get_interf( (:- use_module( Loc, Is ) ), F, M ) :- !,
+    !,
+    include_files(  F, M, Is, Loc ).
+get_interf( (:- use_module( Loc ) ), F, M ) :- !,
+    !,
+    include_files( F, M, Loc ).
+%	nb_getval(current_module,MM), writeln(NM:MM:M).
+get_interf( (:- use_module( Loc, Is, _ ) ), F, M ) :- !,
+    !,
+    include_files( F, M, Is, Loc ).
+get_interf( (:- consult( Files ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
+get_interf( (:- reconsult( Files ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
+get_interf( (:- ensure_loaded( Files ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
+get_interf( (:- include( Files ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
+get_interf( (:- load_files( Files , [_|_] ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
+get_interf( (:- [F1|Fs] ), F, M ) :- 
+    !,
+    include_files(  F, M, [F1|Fs] ).
+% don't actually use this one.
+get_interf( (:- load_foreign_files(Fs, _, Fun) ), F, M ) :- 
+    !,
+    call_c_files(  F, M, Fun, Fs ).
+get_interf( (:- load_foreign_library(F) ), F0, M ) :- 
+    !,
+    always_strip_module(M:F, M1, F1),
+    call_c_files(  F0, M1, '', F1 ).
+get_interf( (:- load_foreign_library(F,Fun) ), F0, M ) :- 
+    !,
+    always_strip_module(M:F, M1, F1),
+    call_c_files(  F0, M1, Fun, F1 ).
+get_interf( (:- system_module( _NM, _Publics, _Hiddens) ), _F, _M ) :- 
+    !.
+get_interf( (:- style_checker( _ ) ), _F, _M ) :- 
+    !. 
+get_interf( (:- dynamic T), F, M ) :-
+    !,
+    declare_functors( T, F, M ).
+get_interf( (:- multifile T), F, M ) :- % public?
+    !,
+    declare_functors( T, F, M ).
+get_interf( (:- meta_predicate T), F, M ) :-!,
+    declare_terms( T, F, M ), % public?
+    !.
+get_interf( (:- '$install_meta_predicate'( H, M) ), F, __M ) :-
+    !,
+    declare_functors( H, F, M ).
+get_interf( (:- thread_local _Bs), _F, _M ) :-
+    !.
+get_interf( (:- op( X, Y, Z) ), F, M ) :- 
+    !,
+    always_strip_module(M:Z, M1, Z1),
+    handle_op( F, M1, op( X, Y, Z1) ).
+get_interf( (:- _ ), _F, _M ) :- !.
+get_interf( (?- _ ), _F, _M ) :- !.
+get_interf( V , _F, _M ) :-
+    var( V ),
+    !,
+    error( instantiation_error ).
+get_interf( G , F, M ) :-
+    functor( G, N, A),
+    handle_pred( M, N, A, F ),
+    !.
+
+
+handle_pred( M, N, A, F ) :-
+    (
+        system_mod( _, _, M )
+	->
+	    (
+		atom_concat('$',_,N)
+		->
+		    private( F, M, N/A  )
+		;
+		public( F, M, N/A  )
+	    )
+	;
+	( nb_getval( private, false )
+	  ->
+	      public( F, M, N/A  )
+	  ;
+	  private( F, M, N/A  )
+	)
+    ).
+
+handle_op( F, M, Op ) :-
+    ( nb_getval( private, false )
+      ->
+	  public( F, M, Op  )
+      ;
+      private( F, M, Op  )
+    ),
+    Op = op(X, Y, Z ),
+    ( ( M == user ; M == prolog )
+      ->
+	  op( X, Y, prolog:Z )
+      ;
+	  op( X, Y, M:Z )
+    ).
+
+exported( NF, F, NM, M, op(X,Y,Z)) :- 
+    !,
+    public( NF , NM:op(X,Y,Z) ),
+    handle_op( F, M , op(X,Y,Z) ).
+exported( NF, F, NM, M, N/A) :- !,
+    assert_new( exported( (F-M:N/A :- NF-NM:N/A )) ).
+exported( NF, F, NM, M, N/A as NN) :- !,
+    assert_new( exported( ( F-M:NN/A :- NF-NM:N/A ) ) ).
+exported( NF, F, NM, M, N//A) :- !,
+    A2 is A+2,
+    assert_new( exported( (F-M:N/A2 :- NF-NM:N/A2) ) ).
+exported( NF, F, NM, M, N//A as NN) :- !,
+    A2 is A+2,
+    assert_new( exported( ( F-M:NN/A2 :- NF-NM:N/A2 )) ).
+
+import_publics( F, ProducerMod, ConsumerMod ) :-
+    public(F, ProducerMod:op(X,Y,Z) ),
+    handle_op( F, ConsumerMod, op(X,Y,Z) ),
+    fail.
+import_publics( _F, _ProducerMod, _ConsumerMod ).
+
+all_imported( ProducerFile, ConsumerFile, ProducerMod, ConsumerMod ) :-
+    public(ProducerFile, ProducerMod:op(X,Y,Z) ),
+    handle_op( ConsumerFile,  ConsumerMod, op(X,Y,Z) ),
+    fail.
+all_imported( ProducerFile, ConsumerFile, ProducerMod, ConsumerMod ) :-
+    public(ProducerFile, ProducerMod:N/A ),
+    exported( ProducerFile, ConsumerFile, ProducerMod, ConsumerMod, N/A ),
+    fail.
+all_imported( _ProducerFile, _ConsumerFile,  _ProducerMod, _ConsumerMod ).
+
+
+include_files( F, M, Files ) :-
+    include_files( F, M, _Is, Files ).
+
+include_files( F, M, Is, Files ) :-
+    maplist( include_files( F, M, Is ), Files ),
+    !.
+include_files( F, M, Is, -Files ) :-
+    !,
+    include_files(  F, M, Is, Files).
+include_files( F, M, Is, Files ) :- 
+    !,
+    always_strip_module(M:Files, M1, NFiles),
+    include_file( F, M1, Is, NFiles ).
+include_files( F, M, Is, Loc ) :- 
+    include_file( F, M, Is, Loc ).
+
+include_file( F, M, Is, Loc ) :-
+    is_list( Loc ), !,
+    maplist( include_file( F, M, Is), Loc ).
+include_file( F, M, Is0, Loc ) :-
+    nb_getval( private, Private ),
+    % find the file
+    once( search_file( Loc, F, pl, NF ) ),
+    % depth visit
+    pl_interf(NF, M), % should verify Is in _Is
+    % link b
+    ( module_on(NF, NM, Is)
+    ->
+	( var(Is0) -> Is = Is0 ; true ),
+	maplist( exported( NF, F, NM, M) , Is )
+	;
+	all_imported( NF, F, NM, M)
+    ),
+    nb_setval( private, Private ).
+
+declare_functors( T, _F, _M1) :-  var(T), !,
+    error( unbound_variable ).
+declare_functors( M:T, F, _M1) :-  !,
+    declare_functors( T, F, M).
+declare_functors( (T1,T2), F, M1) :-  !,
+    declare_functors( T1, F, M1),
+    declare_functors( T2, F, M1).
+declare_functors( Ts, F, M1) :-  
+    maplist( declare_functor( F, M1), Ts ), !.
+declare_functors( T, F, M1) :-  
+    declare_functor( F, M1, T).
+
+declare_functor(File, M, N/A) :-
+    handle_pred( M, N, A, File ).
+
+declare_terms( T, _F, _M1) :-  var(T), !,
+    error( unbound_variable ).
+declare_terms( M:T, F, _M1) :-  !,
+    declare_functors( T, F, M).
+declare_terms( (N1,N2), F, M) :- 
+    number(N1),
+    number(N2),
+    !,
+    declare_term(  F, M, (N1,N2)).
+declare_terms( (T1,T2), F, M1) :-  !,
+    declare_terms( T1, F, M1),
+    declare_terms( T2, F, M1).
+declare_terms( Ts, F, M1) :-  
+    maplist( declare_term( F, M1), Ts ), !.
+declare_terms( T, F, M1) :-  
+    declare_term( F, M1, T).
+
+declare_term(F, M, S) :-
+    functor(S, N, A),
+    handle_pred( M, N, A, F ).
+
+% clean operators
+generate_interface( _F, _M ) :-
+fail,
+    public( _, prolog:op(_X,Y,Z) ),
+    op(0,Y,Z),
+    fail.
+generate_interface( _F, _M ) :-
+fail,
+    private( _, prolog:op(_X,Y,Z) ),
+    op(0,Y,Z),
+    fail.
+generate_interface( _F, Mod ) :-
+    nb_setval( current_module, Mod ).
+
+
+
+pl_graphs(Dir - Mod) :-
+    format(' ************* GRAPH: ~a ***********************~n', [Dir]),
+    atom( Dir ),
+    atom_concat([Dir,'/*'], Pattern),
+    expand_file_name( Pattern, Files ),
+    member( File, Files ),
+    ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
+	 pl_graph( File , Mod )
+    ;
+         exists_directory( File ),
+         \+ atom_concat(_, '/.', File),
+         \+ atom_concat(_, '/..', File),
+         \+ atom_concat(_, '/.git', File),
+	 pl_graphs( File - Mod )
+    ),
+    fail.
+pl_graphs(_).
+
+%%
+% pl_graph( File, Mod)
+% adds a node to the file graph and marks which files are modules
+%
+% main side-effect facts like edge( F0-Mod:File )
+%                             exported( F-M , N/A ) ou exported(F- M. Op ),
+%                             module_on ( M, File ) 
+%                             pred ( M :N/A ) 
+%
+build_graph(F, Mod) :-
+%    writeln(F),
+    catch( open(F, read, S, [scripting(true)]), _, fail ),
+    repeat,
+    nb_getval( current_module, MR ),
+    catch( read_term( S, T, [term_position(Pos),module(MR)] ), Throw, (writeln(Throw))),
+    ( 
+	T == end_of_file
+	->
+	    !,
+	    % also, clo ops defined in the module M, if M \= Mod
+% ( sub_atom(F,_,_,_,'/matrix.yap') ->  start_low_level_trace ; nospyall ), 
+	    close(S)
+	;
+	nb_getval( current_module, MC0 ),
+	( Mod == prolog -> MC = prolog ; MC = MC0 ),
+	get_graph( T, F, Pos, MC  ),
+	fail
+    ).
+
+
+get_graph( V , _F, _Pos, _M ) :-
+    var( V ),
+    !,
+    error( instantiation_error ).
+get_graph( T, _F, _Pos, _M0 ) :- 
+    var(T), 
+    !. 
+get_graph( M:T, F, _Pos, _M0 ) :- !,
+    get_graph( T, F, _Pos, M ). 
+get_graph( ( M:H :- B), F, _Pos, M0 ) :- 
+    !,
+    get_graph( (H :- M0:B), F, _Pos, M ).
+get_graph( ( M:H --> B), F, _Pos, M0 ) :- 
+    !,
+    get_graph( ( H --> M0:B), F, _Pos, M ).
+get_graph( ( A, _ --> B), F, _Pos, M ) :- 
+    get_graph( ( A --> B), F, _Pos, M ).
+get_graph( (H --> B), F, _Pos, M ) :-
+    !,
+    functor( H, N, Ar),
+    Ar2 is Ar+2,
+    add_deps( B, M, M:N/Ar2, F, _Pos, 2 ).
+get_graph( (H :- B), F, _Pos, M ) :-
+    !,
+    functor( H, N, Ar),
+    add_deps( B, M, M:N/Ar, F, _Pos, 0 ).
+%% switches to new file n
+get_graph( (:- _ ), _F, _Pos, _M ) :-
+    !.
+get_graph( (?- _ ), _F, _Pos, _M ) :- !.
+
+add_deps(V, _M, _P, _F, _Pos, _) :- 
+    var(V), !.
+add_deps(M1:G, _M, _P, _F, _Pos,L) :- 
+    !,
+    always_strip_module(M1:G, M2, G2),
+    add_deps(G2, M2, _P, _F, _Pos, L).
+add_deps((A,B), M, P, F, _Pos, L) :- 
+    !,
+    add_deps(A, M, P, F, _Pos, L),
+    add_deps(B, M, P, F, _Pos, L).
+add_deps((A;B), M, P, F, _Pos, L) :- !,
+    add_deps(A, M, P, F, _Pos, L),
+    add_deps(B, M, P, F, _Pos, L).
+add_deps((A|B), M, P, F, _Pos, L) :- !,
+    add_deps(A, M, P, F, _Pos, L),
+    add_deps(B, M, P, F, _Pos, L).
+add_deps((A->B), M, P, F, _Pos, L) :- !,
+    add_deps(A, M, P, F, _Pos, L),
+    add_deps(B, M, P, F, _Pos, L).
+add_deps((A*->B), M, P, F, _Pos, L) :- !,
+    add_deps(A, M, P, F, _Pos, L),
+    add_deps(B, M, P, F, _Pos, L).
+add_deps(once(A), M, P, F, _Pos, L) :- !,
+    add_deps(A, M, P, F, _Pos, L).
+add_deps({A}, M, P, F, _Pos, 2) :- !,
+    add_deps(A, M, P, F, _Pos, 0).
+add_deps([_|_], M, P, F, Pos, 2) :- 
+    !,
+    put_dep( (F-M:P :- prolog:'C'/3 ), Pos ).
+add_deps(String, _M, _P, _F, _Pos, _) :-  string(String), !.
+add_deps([], _M, _P, _F, _Pos, 2) :- !.
+add_deps(!, _M, _P, _F, _Pos, _) :- !.
+add_deps(true, _M, _P, _F, _Pos, 0) :- !.
+add_deps(false, _M, _P, _F, _Pos, 0) :- !.
+add_deps(fail, _M, _P, _F, _Pos, 0) :- !.
+add_deps(repeat, _M, _P, _F, _Pos, 0) :- !.
+add_deps(A, M, P, F, Pos, L) :-
+     % we're home, M:N/Ar -> P=M1:N1/A1
+    functor(A, N, Ar0),
+    Ar is Ar0+L,
+    put_dep( ( F-M:P :- F-M:N/Ar ), Pos ).
+
+put_dep( (Target :- F0-M:Goal ), Pos ) :- 
+    exported( ( F0-M:Goal :- F1-M1:N/Ar ) ), !,
+    %follow ancestor chain
+    ancestor( ( F1-M1:N/Ar :- FA-MA:NA/Ar )  ),
+    put_dep( ( Target :- FA-MA:NA/Ar ), Pos  ).
+% the base case, copying from the same module ( but maybe not same file 0.
+put_dep( ( Target :- _F-M:N/Ar ) , _ ) :- 
+    m_exists(M:N/Ar, F0),
+    !,
+    assert_new( edge( ( Target :- F0-M:N/Ar ) ) ).
+% prolog is visi ( but maybe not same file 0.
+put_dep( ( Target :- _F-_prolog:N/Ar ), _ ) :- 
+    m_exists(prolog:N/Ar, F0),
+    !,
+    assert_new( edge( ( Target :- F0-prolog:N/Ar ) ) ).
+put_dep( ( _Target :- _F-Mod:_N/_Ar ), _Pos) :-
+    var( Mod ), !.
+put_dep( ( Target :- F-Mod:N/Ar ), Pos) :-
+    atom( Mod ),
+    stream_position_data( line_count, Pos, Line ),
+    assert_new( undef( (Target :- F-Mod:N/Ar ), Line) ).
+
+ancestor( ( Younger :- Older) ) :-  
+    exported(  ( Mid :- Older ) ), !,
+    ancestor( ( Younger :- Mid) ).
+ancestor( (Older :- Older) ).
+
+m_exists(P, F) :- private( F, P ), !.
+m_exists(P, F) :- public( F, P ).
 
 doubles :-
     node(M, P, _F, _),
     node(M1, P, _F1, _),
     M @< M1,
+    is_public( P, M, _F),
+    is_public( P, M1, _F1),
     format('~w vs ~w~n', [M:P,M1:P]),
     fail.
 doubles.
 
 undefs :-
-    edge(_M,P,_,F),
-    \+ node(_, P, _, _),
-    format('UNDEFINED procedure call ~q at ~w~n',[P, F]),
+    format('UNDEFINED procedure calls:~n',[]),
+    setof(M, Target^F^Line^NA^undef( ( Target :- F-M:NA ), Line  ), Ms ),
+    member( Mod, Ms ),
+    format('    module ~a:~n',[Mod]),
+    setof(NA, Target^F^Line^undef( ( Target :- F-Mod:NA ), Line  ), Ns ),
+    member( NA, Ns ),
+    \+ m_exists( Mod:NA , _File1 ),
+    \+ m_exists( prolog:NA , _File2 ),
+    \+ foreign( Mod:NA, _Fu1 ),
+    \+ foreign( prolog:NA, _Fu2 ),
+    format('      predicate ~w:~n',[NA]),
+    setof(F-Line, Target^undef( ( Target :- F-Mod:NA ), Line ), FLs ),
+    member(F-L, FLs ),
+    format('        line ~w, file ~a~n',[L,F]),
     fail.
 undefs.
-
-pl_exports(M:Dir) :-
-    Root = '.',
-    atom_concat([Root,'/',Dir,'/','*.c'], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_export( File , M, '.c' ),
-    fail.
-pl_exports(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    atom_concat([Root,'/',Dir,'/','*.yap'], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_export( File , prolog, '.yap' ),
-    fail.
-pl_exports(Dir) :-
-    atom( Dir ),
-    Root = '.',
-    atom_concat([Root,'/',Dir,'/','*.pl'], Pattern),
-    expand_file_name( Pattern, Files ),
-    member( File, Files ),
-    pl_export( File , prolog, '.pl' ),
-    fail.
-pl_exports(_).
-
-pl_export(F, _Mod, Suffix) :-
-    file_to_module( F, Suffix, Mod),
-    format('****************** compile ~a ******************~n', [F]),
-    nb_setval( current_module, Mod ),
-    ( module_on( F:_, _) -> Es = [], ( setof(P, mod_priv(Mod, P), Ps) -> true ; Ps = [] )
-      ;
-      ( setof(P, pub(Mod, P), Es) -> true ; Es = [] ),
-      ( setof(P, priv(Mod, P), Ps) -> true ; Ps = [] ),
-      format(':- system_module( ~q, ',[Mod]),
-      out_list(Es),
-      format(', '),
-      out_list(Ps),
-      format(').~n~n', [])
-    ),
-    fail.
-pl_export(F, _Mod, Suffix) :-
-    file_to_module( F, Suffix, Mod),
-    nb_setval( current_module, Mod ),
-    setof( P, has_edge(M, P, Mod, F), Ps),
-    format(':- use_system_module( ~q, ',[M]),
-    out_list(Ps),
-    format(').~n~n', []),
-    fail.
 
 out_list([]) :-
     format('[]', []).
@@ -460,22 +800,22 @@ pub(M, P) :-
     \+ sub_atom(N,0,1,_,'$').
 
 has_edge(M1, P1, M, F) :-
-	edge(M1, P1, _P, F:_),
+	edge(M1:P1, _P, F:_),
 	node(M1, P1, _, _),
 	M1 \= prolog,
 	M1 \= M,
-	\+ public_predicate(P1, M1, _).
+	\+ is_public(P1, M1, _).
 
 mod_priv(M, P) :-
     node(M, P, _, _),
     node(M, P, _, _),
-    \+ public_predicate(P, M, _),
-    edge(M1, P, _P0, _), M1 \= M.
+    \+ is_public(P, M, _),
+    edge(M1:P, _P0, _), M1 \= M.
 
 priv(M, P) :-
     node(M, P, F:_, _),
-    \+ public_predicate(P, M, _),
-    edge(_, P, _P1, F1:_), F1 \= F.
+    \+ is_public(P, M, _),
+    edge(_:P, _P1, F1:_), F1 \= F.
 
 % utilities
     
@@ -499,4 +839,244 @@ always_strip_module(_:M0:A, M1, B) :- !,
 	always_strip_module(M0:A, M1, B).
 always_strip_module(M0:A, M0, call(A)) :- var(A),!.
 always_strip_module(M0:A, M0, A).
+
+c_location( matrix, 'library/matrix').
+c_location( lammpi, 'library/lammpi').
+c_location( matlab, 'library/matlab').
+c_location( matlab, 'library/matlab').
+c_location( matlab, 'library/random').
+c_location( regex, 'library/regex').
+c_location( rltree, 'library/rltree').
+c_location( tries, 'library/tries').
+c_location( operating_system_support, 'library/system').
+
+c_links :-
+    node( M, P, _, c(F)),
+    format( ':- implements( ~q , ~q ).~n', [M:P, F] ),
+    fail.
+c_links.
+
+warn_singletons(_Vars, _Pos).
+
+%%
+% comment( +Comment )
+%
+% Handle documentation comments
+% 
+comment( _Pos - Comment) :- 
+    skip_blanks(1, Comment, N),
+    doc( Comment, N ), !,
+    format( "%s\n", [Comment] ).
+comment( _Pos - _Comment).
+
+skip_blanks(I, Comment, N) :-
+    get_string_code( I, Comment, Code ),
+    code_type( Code, space ),
+    I1 is I+1,
+    skip_blanks(I1, Comment, N).
+skip_blanks(N, _Comment, N).
+
+doc( Comment , N ) :-
+    N1 is N+1,
+    sub_string( Comment, N1, 3, _, Header ),
+    ( Header == "/**" -> true ; Header == "/*!" ), !,
+    N4 is N+4,
+    get_string_code( N4, Comment, Code ),
+    code_type( Code, space ).
+doc( Comment, N ) :-
+    N1 is N+1,
+    sub_string( Comment, N1, 2, _, Header ),
+    ( Header == "%%" -> true ; Header == "%!" ),
+    N3 is N+3,
+    get_string_code( N3, Comment, Code ),
+    code_type( Code, space ).
+
+
+%%
+% search_file( +Target, +Location, +FileType, -File )
+%
+%
+% Directories into atoms
+search_file(  Loc , F, Type, FN ) :-
+    search_file0(  Loc , F, Type, FN ),
+    !.
+search_file(  Loc , F, _FN ) :-
+    format('~n~n~n###############~n~n FAILED TO FIND ~w when at  ~a~n~n###############~n~n~n', [Loc, F ]),
+     fail.
+
+%
+% handle some special cases.
+%
+search_file0( library(gecode), _, _Type, FN) :-
+	absolute_file_name( 'packages/gecode/gecode4_yap_hand_written.yap', FN ).
+search_file0( A/B, F, Type, FN ) :- !,
+    term_to_atom(A/B, AB),
+    search_file0( AB, F, Type, FN ).
+% libraries can be anywhere in the source.
+search_file0( LibLoc, F, Type, FN ) :-
+    LibLoc =.. [Dir,File], 
+	!,
+    ( term_to_atom( Dir/File, Full ) ; Full = File ),
+    search_file0( Full, F, Type, FN ).
+%try to use your base
+search_file0(  Loc , F, c, FN ) :-
+    atom_concat( D, '.yap', F), 
+    atom_concat( [ D, '/', Loc], F1), 
+    check_suffix(  F1 , c, NLoc ),
+    absolute_file_name( NLoc, FN),
+    file_base_name( FN, LocNam),
+    file_directory_name( FN, D),
+    dir( D, LocNam ).
+search_file0(  Loc , F, Type, FN ) :-
+    file_directory_name( F, FD),
+    check_suffix(  Loc , Type, LocS ),
+    atom_concat( [ FD, '/', LocS], NLoc),
+    absolute_file_name( NLoc, FN),
+    file_base_name( FN, LocNam),
+    file_directory_name( FN, D),
+    dir( D, LocNam).
+search_file0(  Loc , _F, Type, FN ) :-
+    file_base_name( Loc, Loc0),
+    file_directory_name( Loc, LocD),
+    check_suffix(  Loc0 , Type, LocS ),
+    dir( D, LocS),
+    sub_dir( D, DD),
+    atom_concat( [ DD, '/', LocD], NLoc),
+    absolute_file_name( NLoc, D),
+    atom_concat( [D,'/', LocS], FN).
+search_file0(  Loc , _F, Type, FN ) :-
+    file_base_name( Loc, Loc0),
+    check_suffix(  Loc0 , Type, LocS ),
+    dir( D, LocS),
+    atom_concat( [D,'/', LocS], FN).
+% you try using the parent
+
+sub_dir( D, D ).
+sub_dir( D, DD) :-
+	D \= '/',
+	atom_concat( D, '/..', DD0),
+	absolute_file_name( DD0, DDA),
+	sub_dir( DDA, DD).
+
+% files must be called .yap or .pl
+% if it is .yap...
+check_suffix(  Loc , pl, Loc ) :- 
+    atom_concat( _, '.yap', Loc ), !.
+%, otherwise, .pl
+check_suffix(  Loc , pl,  Loc ) :- 
+    atom_concat( _, '.pl', Loc ), !.
+%, otherwise, .prolog
+check_suffix(  Loc , pl,  Loc ) :- 
+    atom_concat( _, '.prolog', Loc ), !.
+%, otherwise, .P
+% try adding suffix
+check_suffix(  Loc0 , pl, Loc ) :- 
+    member( Suf , ['.yap', '.pl' , '.prolog']), 
+    atom_concat( Loc0, Suf, Loc ).
+check_suffix(  Loc , c, Loc ) :- 
+    atom_concat( _, '.c', Loc ), !.
+%, otherwise, .pl
+check_suffix(  Loc , c,  Loc ) :- 
+    atom_concat( _, '.icc', Loc ), !.
+%, otherwise, .prolog
+check_suffix(  Loc , c,  Loc ) :- 
+    atom_concat( _, '.cpp', Loc ), !.
+%, otherwise, .P
+% try adding suffix
+check_suffix(  Loc0 , c, Loc ) :- 
+    member( Suf , ['.c', '.icc' , '.cpp']), 
+    atom_concat( Loc0, Suf, Loc ).
+
+
+ 
+match_file( LocD, Loc0, Type, FN ) :-  
+	var(LocD), !,
+	dir( LocD, Loc0 ),
+	atom_concat( [LocD, '/', Loc0], F ),
+	absolute_file_name( F, Type, FN ),
+	exists( FN ).
+match_file( SufLocD, Loc0, Type, FN ) :- 
+	dir( LocD, Loc0 ),
+	atom_concat(_, SufLocD, LocD ),
+	atom_concat( [LocD, '/', Loc0], Type, FN ).
+
+ 
+new_op( F, M, op(X,Y,Z) ) :-
+    nb_getval( private, true ),
+    !,
+    private( F, M, op(X,Y,Z) ),
+    op( X, Y, Z).
+new_op( F, M, op( X, Y, Z) ) :-
+    public( F, M, op( X, Y, Z) ).
+
+
+%%%%%%%
+%% declare a concept exportable
+public( F, M, op(X,Y,Z) ) :-
+    retract( private( F, M:op(X,Y,Z) ) ),
+    fail.
+public( F, M, op(X,Y,Z) ) :- !,
+    assert( op_export(F, _M, op(X,Y,Z) ) ),
+    assert_new( public( F, M:op(X,Y,Z) ) ),
+    ( 
+	( M == user ; M == prolog )
+      ->
+	  op( X, Y, prolog:Z )
+      ;
+	  op( X, Y, M:Z )
+    ).
+public( F, M, M:N/Ar ) :-
+    retract( private( F, M:N/Ar ) ),
+    fail.
+public( F, M, N/Ar ) :- !,
+    assert_new( public( F, M:N/Ar ) ).
+public( F, M, M:N//Ar ) :-
+	Ar2 is Ar+2,
+    retract( private( F, M:N/Ar2 ) ),
+    fail.
+public( F, M, N//Ar ) :-
+	Ar2 is Ar+2,
+    assert_new( public( F, M:N/Ar2 ) ).
+
+private( F, M, op(X,Y,Z) ) :- 
+    !,
+    assert_new( private( F, M:op(X,Y,Z) ) ),
+    ( 
+	( M == user ; M == prolog )
+      ->
+	  op( X, Y, prolog:Z )
+      ;
+	  op( X, Y, M:Z )
+    ).
+private( F, M, N/Ar ) :-
+    assert_new( private( F, M:N/Ar ) ).
+
+is_public( F, M, OP ) :-
+    public( F, M:OP ).
+
+is_private( F, M, OP ) :-
+     private( F, M :OP ).
+
+assert_new( G ) :- G, !.
+assert_new( G ) :- assert( G ).
+
+error( Error ) :- throw(Error ).
+
+ops_default :-
+    abolish( default_ops/1 ),
+    A = (_,_), functor(A,Comma,2),
+    findall(op(X,Y,prolog:Z), ( current_op(X,Y,prolog:Z), Z\= Comma ), L),
+    assert_static( default_ops(L) ).
+
+:- initialization(ops_default, now).
+
+ops_restore :-
+    A = (_,_), functor(A,Comma,2),
+    current_op(_X,Y,prolog:Z), 
+    Z\= Comma,
+    op(0,Y,prolog:Z),
+    fail.
+ops_restore :-
+    default_ops(L),
+    maplist( call, L ).
 

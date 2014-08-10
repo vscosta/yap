@@ -1428,6 +1428,7 @@ discardOutputRedirect(redir_context *ctx)
 static
 PRED_IMPL("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
 { redir_context outctx;
+  outctx.magic = 0;
 
   if ( setupOutputRedirect(A1, &outctx, TRUE) )
   { term_t ex = 0;
@@ -3112,6 +3113,7 @@ static const opt_spec open4_options[] =
   { ATOM_wait,		 OPT_BOOL },
   { ATOM_encoding,	 OPT_ATOM },
   { ATOM_bom,		 OPT_BOOL },
+  { ATOM_scripting,	 OPT_BOOL },
 #ifdef O_LOCALE
   { ATOM_locale,	 OPT_LOCALE },
 #endif
@@ -3138,6 +3140,7 @@ openStream(term_t file, term_t mode, term_t options)
 #endif
   int    close_on_abort = TRUE;
   int	 bom		= -1;
+  int	 scripting	= FALSE;
   char   how[10];
   char  *h		= how;
   char *path;
@@ -3148,7 +3151,7 @@ openStream(term_t file, term_t mode, term_t options)
   { if ( !scan_options(options, 0, ATOM_stream_option, open4_options,
 		       &type, &reposition, &alias, &eof_action,
 		       &close_on_abort, &buffer, &lock, &wait,
-		       &encoding, &bom
+  &encoding, &bom, &scripting
 #ifdef O_LOCALE
 		       , &locale
 #endif
@@ -3247,7 +3250,17 @@ openStream(term_t file, term_t mode, term_t options)
   } else
 #endif /*HAVE_POPEN*/
   if ( PL_get_file_name(file, &path, 0) )
-  { if ( !(s = Sopen_file(path, how)) )
+  {
+#if __ANDROID__
+      if (strstr(path,"/assets/")) {
+	  if (!(s=Sopen_asset(path+8, "r", GLOBAL_assetManager)))
+	    { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
+	    	       ATOM_open, ATOM_source_sink, file);
+	      return NULL;
+	    }
+      } else
+#endif
+    if ( !(s = Sopen_file(path, how)) )
     { PL_error(NULL, 0, OsError(), ERR_FILE_OPERATION,
 	       ATOM_open, ATOM_source_sink, file);
       return NULL;
@@ -3311,6 +3324,15 @@ openStream(term_t file, term_t mode, term_t options)
 
 	streamStatus(getStream(s));
 	return NULL;
+      }
+      if ( scripting) {
+	int c;
+	while (( c = Sgetc(s)) == '#') {
+	  while( (c = Sgetc(s)) != EOF && c != 10);
+	}
+	if ( c != EOF )
+	  Sungetc(c, s);
+	else goto bom_error;
       }
     } else
     { if ( mname == ATOM_write ||
@@ -5131,6 +5153,31 @@ static const PL_extension foreigns[] = {
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };
+
+#if __ANDROID__
+JNIEnv *Yap_jenv;
+
+void Java_pt_up_fc_dcc_yap_JavaYap_load(JNIEnv *env0, jobject obj, jobject mgr);
+
+void Java_pt_up_fc_dcc_yap_JavaYap_load
+     (JNIEnv *env0, jobject obj, jobject mgr0)
+{
+  AAssetManager *mgr = AAssetManager_fromJava(env0, mgr0);
+  Yap_jenv = env0;
+  if (mgr == NULL) {
+  } else {
+      GLOBAL_assetManager = mgr;
+  }
+}
+
+AAssetManager *Yap_assetManager( void );
+
+AAssetManager *Yap_assetManager( void )
+{
+  return GLOBAL_assetManager;
+}
+#endif
+
 
 struct PL_local_data *Yap_InitThreadIO(int wid)
 {

@@ -551,7 +551,7 @@ fillSolutionList (const std::vector<Params>& results)
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
       list             = YAP_GetFromSlot (sl);
-      YAP_RecoverSlots (1);
+      YAP_RecoverSlots (1, sl);
     }
     list = YAP_MkPairTerm (queryBeliefsL, list);
   }

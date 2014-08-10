@@ -21,9 +21,9 @@
 
 :- style_check(all).
 
-:- reexport(meld/meldi).
+%:- reexport(meld/meldi).
 
-:- reexport(meld/meldc).
+%:- reexport(meld/meldc).
 
 simulate(G) :-
 	 input_graph(G),
