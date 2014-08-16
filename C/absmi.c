@@ -13695,6 +13695,7 @@ Yap_absmi(int inp)
 	/* fetch the module from PREG */
 	mod = PREG->y_u.Osbmp.mod;
       start_execute:
+	/* place to cut to */
 	b_ptr = B;
 	/* we have mod, and ARG1 has the goal, let us roll */
 	/* Try to preserve the environment */
@@ -13837,7 +13838,7 @@ Yap_absmi(int inp)
 	  goto execute_metacall;
 	}
 
-	/* execute, byt test first for interrupts */
+	/* execute, but test first for interrupts */
       execute_end:
 	/* code copied from call */
 #ifndef NO_CHECKING
@@ -13891,13 +13892,13 @@ Yap_absmi(int inp)
       NoStackPExecute:
 	WRITEBACK_Y_AS_ENV();
 #ifdef SHADOW_S
-      Yap_REGS.S_ = SREG;
+	Yap_REGS.S_ = SREG;
 #endif
-	saveregs();
+	saveregs_and_ycache();
 	d0 = interrupt_pexecute( pen PASS_REGS );
-	setregs();
+	setregs_and_ycache();
 #ifdef SHADOW_S
-      SREG = Yap_REGS.S_;
+	SREG = Yap_REGS.S_;
 #endif
 	if (!d0) FAIL();
 	if (d0 == 2) goto execute_stack_checked;
