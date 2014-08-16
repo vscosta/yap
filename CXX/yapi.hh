@@ -77,7 +77,12 @@ extern "C" {
 #include <windows.h>
 #endif
 
-  // taken from yap_structs.h
+
+#ifdef CACHE_REGS
+#undef CACHE_REGS
+#endif 
+
+// taken from yap_structs.h
 #include "iopreds.h"
 
   extern Term Yap_StringToTerm(const char *s, size_t len, term_t bindings);
