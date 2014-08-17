@@ -78,10 +78,6 @@ extern "C" {
 #endif
 
 
-#ifdef CACHE_REGS
-#undef CACHE_REGS
-#endif 
-
 // taken from yap_structs.h
 #include "iopreds.h"
 
