@@ -499,6 +499,10 @@ contains_illegal_dcgnt(NT) :-
 %	write(contains_illegal_nt(NT)),		% JW: we do not want to write
 %	nl.
 
+'$expand':allowed_expansion(QExpand) :-
+    strip_module(QExpand, Mod, Pred),
+    goal_expansion_allowed(Pred, Mod).
+
 goal_expansion_allowed(Pred, Mod) :-
 	allowed_module(Pred,Mod),
 	once( prolog_load_context(_, _) ), % make sure we are compiling.

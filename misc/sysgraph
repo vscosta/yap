@@ -264,7 +264,8 @@ pl_interfs(Dir - Mod) :-
     atom_concat([Dir,'/',File], Path),
     ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
 	  ops_restore,
-	 pl_interf( Path , Mod )
+	  absolute_file_name( Path, APath ),
+	  pl_interf( APath , Mod )
     ;
          exists_directory( Path ),
          \+ atom_concat(_, '/.', Path),
