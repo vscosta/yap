@@ -1795,7 +1795,6 @@ Yap_InitYaamRegs( int myworker_id )
   CalculateStackGap( PASS_REGS1 );
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
-  REMOTE_GlobalArena(myworker_id) = TermNil;
 #if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
   worker_id = myworker_id;
@@ -1814,8 +1813,12 @@ Yap_InitYaamRegs( int myworker_id )
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
-  Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
-  Yap_InitPreAllocCodeSpace( myworker_id );
+  if (REMOTE_GlobalArena(myworker_id) == 0L || 
+      REMOTE_GlobalArena(myworker_id) == TermNil) {
+    REMOTE_GlobalArena(myworker_id) = TermNil;
+    Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
+    Yap_InitPreAllocCodeSpace( myworker_id );
+  }
   cut_c_initialize( myworker_id );
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef TABLING
