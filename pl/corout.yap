@@ -446,10 +446,26 @@ prolog:'$wait'(Na/Ar) :-
 	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 prolog:'$wait'(_).
 
-frozen(V, G) :- nonvar(V), !,
-	'$do_error'(uninstantiation_error(V),frozen(V,G)).
-frozen(V, LG) :-
-	'$attributes':get_conj_from_attvars([V], LG).
+prolog:frozen(V, LG) :-
+    var(V), !,
+    '$attributes':attvars_residuals([V], Gs, []),
+    simplify_frozen( Gs, SGs ),
+    list_to_conj( SGs, LG ).
+prolog:frozen(V, G) :-
+    '$do_error'(uninstantiation_error(V),frozen(V,G)).
+
+simplify_frozen( [prolog:freeze(_, G)|Gs], [G|NGs] ) :-
+    simplify_frozen( Gs,NGs ).
+simplify_frozen( [prolog:when(_, G)|Gs], [G|NGs] ) :-
+    simplify_frozen( Gs,NGs ).
+simplify_frozen( [prolog:dif(_, _)|Gs], NGs ) :-
+    simplify_frozen( Gs,NGs ).
+simplify_frozen( [], [] ).
+
+list_to_conj([], true).
+list_to_conj([El], El).
+list_to_conj([E,E1|Els], (E,C) ) :-
+    list_to_conj([E1|Els], C).
 
 %internal_freeze(V,G) :-
 %	attributes:get_att(V, 0, Gs), write(G+Gs),nl,fail.
