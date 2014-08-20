@@ -207,7 +207,7 @@ beautify_hidden_goal('$undefp'(?),prolog) -->
 beautify_hidden_goal(repeat,prolog) -->
 	[repeat].
 beautify_hidden_goal('$recorded_with_key'(A,B,C),prolog) -->
-	recorded(A,B,C).
+	[recorded(A,B,C)].
 beautify_hidden_goal('$findall_with_common_vars'(Templ,Gen,Answ),prolog) -->
 	[findall(Templ,Gen,Answ)].
 beautify_hidden_goal('$bagof'(Templ,Gen,Answ),prolog) -->
