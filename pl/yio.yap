@@ -236,9 +236,9 @@ at_end_of_line :-
 	at_end_of_line(S).
 
 at_end_of_line(S) :-
-	current_stream(S, end_of_stream(past)), !.
+	stream_property(S, end_of_stream(past)), !.
 at_end_of_line(S) :-
-	peek(S,N), ( N = 10 -> true ; N = -1).
+	peek_code(S,N), ( N = 10 -> true ; N = -1).
 
 
 consult_depth(LV) :- '$show_consult_level'(LV).
@@ -300,8 +300,6 @@ current_stream(File, Mode, Stream) :-
 
 sformat(String, Form, Args) :-
 	format(codes(String, []), Form, Args).
-
-write_depth(T,L) :- write_depth(T,L,_).
 
 %%      stream_position_data(?Field, +Pos, ?Date)
 %
