@@ -199,7 +199,6 @@ python_command(Cmd) :-
        python_run_command(Cmd).
 
 start_python :-
-	use_foreign_library(foreign(python)),
 	init_python,
 	python_main_module(MRef),
 	assert(python_mref_cache('__main__', MRef)),
@@ -221,6 +220,8 @@ add_cwd_to_python :-
 
 python_assign(Name, Exp, '$'(Name)) :-
 	python_assign(Name, Exp).
+
+:- initialization( use_foreign_library(foreign(python)), now ).
 
 :- initialization(start_python, now).
 
