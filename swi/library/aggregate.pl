@@ -29,7 +29,7 @@
     the GNU General Public License.
 */
 
-:- module(aggretate,
+:- module(aggregate,
 	  [ foreach/2,			% :Generator, :Goal
 	    aggregate/3,		% +Templ, :Goal, -Result
 	    aggregate/4,		% +Templ, +Discrim, :Goal, -Result
@@ -38,6 +38,7 @@
 	    free_variables/4		% :Generator, :Template, +Vars0, -Vars
 	  ]).
 :- use_module(library(ordsets)).
+:- use_module(library(maplist)).
 :- use_module(library(pairs)).
 :- use_module(library(error)).
 :- use_module(library(lists)).
