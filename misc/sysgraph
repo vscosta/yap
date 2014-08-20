@@ -156,7 +156,7 @@ c_file(F, Mod) :-
     consulted( F, Mod ), 
     !.
 c_file(F, Mod) :-
-%    wrixbteln(F),
+%    writeln(F),
     assert( consulted( F, Mod ) ), 
     nb_setval( current_module, Mod ),
     open(F, read, S, [alias(c_file)]),
@@ -222,6 +222,8 @@ take_line( Line, NS, AS, FS ) :-
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "PRED_IMPL", NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
+     append( _, [ "PL_register_foreign", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
      append( _, [ "PRED_DEF", NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "FRG", NS, AS, FS|_], Line), !.
@@ -251,6 +253,10 @@ system_mod("CHARSIO_MODULE", _, charsio ).
 system_mod("cm", M, M ).
 
 call_c_files(  File, Mod, _Fun, [CFile] ) :-
+    search_file( CFile, File, c, F ),
+    c_file(F, Mod).
+call_c_files(  File, Mod, _Fun, CFile ) :-
+    CFile \= [_|_],
     search_file( CFile, File, c, F ),
     c_file(F, Mod).
 
@@ -299,7 +305,6 @@ pl_interf(F, Mod) :-
     !.
 pl_interf(F, Mod) :-
 F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
-    writeln(F),
 %	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
 % ( sub_atom( F, _, _, 0, 'chr.yap' ) -> spy get_interf; true ),
     assert_new(consulted(F, Mod ) ), 
@@ -311,7 +316,7 @@ F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
     repeat,
     nb_getval( current_module, MR ),
  %( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ), 
-    catch( read_term( S, T, [module( MR )] ), Throw, (writeln(F:MR:Throw), break, fail)),
+    catch( read_term( S, T, [module( MR ),term_position(Pos)] ), Throw, (writeln(F:MR:Throw), break, fail)),
     ( 
 	T == end_of_file
 	->
@@ -325,6 +330,8 @@ F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
 	    nb_setval( file_entry, OF:OMod )
 	;
 	nb_getval( current_module, MC0 ),
+	stream_position_data( line_count, Pos, Line ),
+	nb_setval( line, Line ),
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
 	get_interf( T, F, MC  ),
 	fail
@@ -339,9 +346,27 @@ get_interf( T, _F, _M0 ) :-
     !. 
 get_interf( M:T, F, _M0 ) :- !,
     get_interf( T, F, M ). 
+get_interf( goal_expansion(G, M, _) , F, _M0 ) :- 
+    !,
+    ( var( M ) -> M1 = prolog ; M = M1 ),
+    functor( G, N, A ),
+    handle_pred( M1, N, A, F ).
+get_interf( goal_expansion(G, _) , F, _M0 ) :- 
+    !,
+    functor( G, N, A ),
+    handle_pred( prolog, N, A, F ).
 get_interf( ( M:H :- _B), F, _M ) :- 
     !,
     get_interf( H, F, M ).
+get_interf( ( goal_expansion(G, M, _) :- _) , F, _M0 ) :- 
+    !,
+    ( var( M ) -> M1 = prolog ; M = M1 ),
+    functor( G, N, A ),
+    handle_pred( M1, N, A, F ).
+get_interf( ( goal_expansion(G, _) :- _) , F, _M0 ) :- 
+    !,
+    functor( G, N, A ),
+    handle_pred( prolog, N, A, F ).
 get_interf( ( M:H --> _B), F, _ ) :- 
     !,
     get_interf( ( H --> _B), F, M ).
@@ -401,6 +426,18 @@ get_interf( (:- include( Files ) ), F, M ) :-
 get_interf( (:- load_files( Files , [_|_] ) ), F, M ) :- 
     !,
     include_files(  F, M, Files ).
+get_interf( ( :- ( G -> _ ; _ ) ) , F, M) :- 
+    !,
+    get_interf( (:- G  ) , F, M).
+get_interf( (:- catch( G , _, _ ) ) , F, M) :- 
+    !,
+    get_interf( (:- G  ) , F, M).
+get_interf( (:- initialization( G , now ) ) , F, M) :- 
+    !,
+    get_interf( (:- G  ) , F, M).
+get_interf( (:- load_files( Files , [_|_] ) ), F, M ) :- 
+    !,
+    include_files(  F, M, Files ).
 get_interf( (:- [F1|Fs] ), F, M ) :- 
     !,
     include_files(  F, M, [F1|Fs] ).
@@ -416,6 +453,10 @@ get_interf( (:- load_foreign_library(F,Fun) ), F0, M ) :-
     !,
     always_strip_module(M:F, M1, F1),
     call_c_files(  F0, M1, Fun, F1 ).
+get_interf( (:- use_foreign_library(F) ), F0, M ) :- 
+    !,
+    always_strip_module(M:F, M1, F1),
+    call_c_files(  F0, M1, '', F1 ).
 get_interf( (:- system_module( _NM, _Publics, _Hiddens) ), _F, _M ) :- 
     !.
 get_interf( (:- style_checker( _ ) ), _F, _M ) :- 
@@ -432,8 +473,9 @@ get_interf( (:- meta_predicate T), F, M ) :-!,
 get_interf( (:- '$install_meta_predicate'( H, M) ), F, __M ) :-
     !,
     declare_functors( H, F, M ).
-get_interf( (:- thread_local _Bs), _F, _M ) :-
-    !.
+get_interf( (:- thread_local T), F, M ) :-
+    !,
+    declare_functors( T, F, M ).
 get_interf( (:- op( X, Y, Z) ), F, M ) :- 
     !,
     always_strip_module(M:Z, M1, Z1),
@@ -546,7 +588,7 @@ include_file( F, M, Is0, Loc ) :-
     ( module_on(NF, NM, Is)
     ->
 	( var(Is0) -> Is = Is0 ; true ),
-	maplist( exported( NF, F, NM, M) , Is )
+	maplist( exported( NF, F, NM, M) , Is0 )
 	;
 	all_imported( NF, F, NM, M)
     ),
@@ -636,7 +678,7 @@ build_graph(F, Mod) :-
     catch( open(F, read, S, [scripting(true)]), _, fail ),
     repeat,
     nb_getval( current_module, MR ),
-    catch( read_term( S, T, [term_position(Pos),module(MR)] ), Throw, (writeln(Throw))),
+    catch( read_term( S, T, [term_position(Pos),module(MR),comments(Cs)] ), Throw, (writeln(Throw))),
     ( 
 	T == end_of_file
 	->
@@ -645,6 +687,9 @@ build_graph(F, Mod) :-
 % ( sub_atom(F,_,_,_,'/matrix.yap') ->  start_low_level_trace ; nospyall ), 
 	    close(S)
 	;
+	stream_position_data( line_count, Pos, Line ),
+	maplist( comment, Cs ),
+	nb_setval( line, Line ),
 	nb_getval( current_module, MC0 ),
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
 	get_graph( T, F, Pos, MC  ),
@@ -735,7 +780,7 @@ put_dep( ( Target :- _F-M:N/Ar ) , _ ) :-
     m_exists(M:N/Ar, F0),
     !,
     assert_new( edge( ( Target :- F0-M:N/Ar ) ) ).
-% prolog is visi ( but maybe not same file 0.
+% prolog is visible ( but maybe not same file ).
 put_dep( ( Target :- _F-_prolog:N/Ar ), _ ) :- 
     m_exists(prolog:N/Ar, F0),
     !,
@@ -756,11 +801,11 @@ m_exists(P, F) :- private( F, P ), !.
 m_exists(P, F) :- public( F, P ).
 
 doubles :-
-    node(M, P, _F, _),
-    node(M1, P, _F1, _),
+    node(M, P, F-_, _),
+    node(M1, P, F1-_, _),
     M @< M1,
-    is_public( P, M, _F),
-    is_public( P, M1, _F1),
+    is_public( P, M, F),
+    is_public( P, M1, F1),
     format('~w vs ~w~n', [M:P,M1:P]),
     fail.
 doubles.
@@ -840,16 +885,6 @@ always_strip_module(_:M0:A, M1, B) :- !,
 	always_strip_module(M0:A, M1, B).
 always_strip_module(M0:A, M0, call(A)) :- var(A),!.
 always_strip_module(M0:A, M0, A).
-
-c_location( matrix, 'library/matrix').
-c_location( lammpi, 'library/lammpi').
-c_location( matlab, 'library/matlab').
-c_location( matlab, 'library/matlab').
-c_location( matlab, 'library/random').
-c_location( regex, 'library/regex').
-c_location( rltree, 'library/rltree').
-c_location( tries, 'library/tries').
-c_location( operating_system_support, 'library/system').
 
 c_links :-
     node( M, P, _, c(F)),
@@ -1030,17 +1065,20 @@ public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),
     fail.
 public( F, M, N/Ar ) :- !,
-    assert_new( public( F, M:N/Ar ) ).
+    assert_new( public( F, M:N/Ar ) ),
+    nb_getval( line, L ),
+    assert_new( node( M, N/Ar, F-L, prolog ) ).
 public( F, M, M:N//Ar ) :-
 	Ar2 is Ar+2,
     retract( private( F, M:N/Ar2 ) ),
     fail.
 public( F, M, N//Ar ) :-
 	Ar2 is Ar+2,
-    assert_new( public( F, M:N/Ar2 ) ).
+    assert_new( public( F, M:N/Ar2 ) ),
+    nb_getval( line, L ),
+    assert_new( node( M, N/Ar2, F-L, prolog ) ).
 
 private( F, M, op(X,Y,Z) ) :- 
-    !,
     assert_new( private( F, M:op(X,Y,Z) ) ),
     ( 
 	( M == user ; M == prolog )
@@ -1050,7 +1088,14 @@ private( F, M, op(X,Y,Z) ) :-
 	  op( X, Y, M:Z )
     ).
 private( F, M, N/Ar ) :-
-    assert_new( private( F, M:N/Ar ) ).
+    assert_new( private( F, M:N/Ar ) ),
+    nb_getval( line, L ),
+    assert_new( node( M, N/Ar, F-L, prolog ) ).
+private( F, M, N//Ar ) :-
+	Ar2 is Ar+2,
+    assert_new( private( F, M:N/Ar2 ) ),
+    nb_getval( line, L ),
+    assert_new( node( M, N/Ar2, F-L, prolog ) ).
 
 is_public( F, M, OP ) :-
     public( F, M:OP ).
