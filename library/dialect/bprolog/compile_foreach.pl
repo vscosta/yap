@@ -10,6 +10,7 @@
 
 :- yap_flag(unknown,error).
 :- ensure_loaded(actionrules).
+:- use_module(library(lists)).
 :- op(1200,fy,[delay]).
 :- op(1150,xfy,[?]).
 :- op(560,xfy,[..,to,downto]).

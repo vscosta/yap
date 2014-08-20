@@ -12,6 +12,9 @@
  * but entirely at your own risk.
  */
 
+
+:- use_module(library(lists)).
+
 % Entity and Namespace map operations: these maps are usually quite small, so
 % a linear list lookup is okay. They could be substituted by a logarithmic
 % data structure - in extremis.

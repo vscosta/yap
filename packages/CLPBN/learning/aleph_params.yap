@@ -48,6 +48,7 @@
 		 clpbn_tabled_dynamic/1
 		]).
 
+:- dynamic '$aleph_global'/2.
 %
 % Tell Aleph not to use default solver during saturation
 %

@@ -12,8 +12,12 @@
  * but entirely at your own risk.
  */
 
+
 :- ensure_loaded( xml_utilities ).
 
+
+:- use_module(library(lists)).
+
 /* xml_to_document( +Controls, +XML, ?Document ) translates the list of
  * character codes XML into the Prolog term Document. Controls is a list
  * of terms controlling the treatment of layout characters and character

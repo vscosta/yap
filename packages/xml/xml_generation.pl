@@ -13,6 +13,8 @@
  */
 
 :- ensure_loaded( xml_utilities ).
+
+:- use_module(library(lists)).
 
 /* document_generation( +Format, +Document ) is a DCG generating Document
  * as a list of character codes. Format is true|false defining whether layouts,
