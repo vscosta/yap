@@ -581,7 +581,6 @@ db_files(Fs) :-
 	'$swi_current_prolog_flag'(generate_debug_info, GenerateDebug),
 	'$lf_opt'(compilation_mode, TOpts, CompMode),
 	'$comp_mode'(OldCompMode, CompMode),
-	( get_value('$syntaxcheckflag',on) -> '$init_style_check'(File) ; true ),
 	recorda('$initialisation','$',_),
 	( Reconsult \== consult ->
 	    '$start_reconsulting'(File),
