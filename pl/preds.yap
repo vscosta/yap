@@ -233,7 +233,6 @@ assertz_static(C) :-
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
-	    ( Fl /\ 0x00400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
 	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
@@ -252,7 +251,6 @@ assertz_static(C) :-
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
-            ( Fl /\ 0x00400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
 	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
