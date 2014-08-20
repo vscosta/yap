@@ -455,11 +455,11 @@ of predicates.
 '$process_module_decls_option'(Var,M) :- 
 	var(Var), 
 	'$do_error'(instantiation_error,M).
-'$process_module_decls_option'(At,_) :- 
+'$process_module_decls_option'(At,M) :- 
 	atom(At), !,
-	'$use_module'(At).
-'$process_module_decls_option'(library(L),_) :- !,
-	'$use_module'(library(L)).
+	use_module(M:At).
+'$process_module_decls_option'(library(L),M) :- !,
+	use_module(M:library(L)).
 '$process_module_decls_option'(hidden(Bool),M) :- !,
 	'$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :- 
