@@ -51,6 +51,7 @@
 :- use_module(library(clpr)).
 :- use_module(library(assoc)).
 :- use_module(library(pio)).
+:- use_module(library(maplist)).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    CLP(R) bindings
