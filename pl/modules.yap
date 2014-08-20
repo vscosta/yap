@@ -1359,8 +1359,8 @@ export_list(Module, List) :-
 	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
 	format(user_error,'            Do you want to import it from ~w ? [y, n, e or h] ',M),
 	'$mod_scan'(C),
-	( C =:= 0'e -> halt(1) ;
-	  C =:= 0'y ).  
+	( C == e -> halt(1) ;
+	  C == y ).  
 '$redefine_action'(true, M1, _, _, _, _) :- !,
 	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
 	unload_file(F).
@@ -1368,6 +1368,11 @@ export_list(Module, List) :-
 	recorded('$module','$module'(F, ContextM, _MyExports,_Line),_),
 	'$current_module'(_, M2),
 	'$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
+
+'$mod_scan'(C) :-
+	get_char(C),
+	'$skipeol'(C),
+	(C == y -> true; C == n).
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
