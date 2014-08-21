@@ -21,7 +21,8 @@
    consulted/2,
    op_export/3,
    library/1,
-   undef/2.
+   undef/2,
+   c_dep/2.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -121,6 +122,11 @@ init :-
     retractall(module_on(_,_,_)),
     retractall(op_export(_,_,_)),
     retractall(exported(_)).
+init :-
+    user_c_dep(A,B),
+    do_user_c_dep(A,B),
+    fail.
+init.
 
 init_loop( _Dirs ).
 
@@ -133,9 +139,13 @@ c_preds(Dir - Mod) :-
 	;
 	sub_atom(File,_,_,0,'.i')
 	;
+	sub_atom(File,_,_,0,'.C')
+	;
 	sub_atom(File,_,_,0,'.cpp')
 	;
 	sub_atom(File,_,_,0,'.icc')
+	;
+	sub_atom(File,_,_,0,'.h')
       ) ->
 	  c_file( File , Mod )
     ;
@@ -152,8 +162,8 @@ c_preds(Dir - Mod) :-
 c_preds(_).
 
 
-c_file(F, Mod) :-
-    consulted( F, Mod ), 
+c_file(F, _Mod) :-
+    consulted( F, _ ), 
     !.
 c_file(F, Mod) :-
 %    writeln(F),
@@ -167,6 +177,11 @@ c_file(F, Mod) :-
 	  !,
 	  close(S)
       ;
+      sub_string(String, _, _, _, "PL_extension"),
+%writeln(Fields),
+      c_ext(S, Mod, F),
+      fail
+      ;
       split_string(String, ",; ()\t\"\'", Fields),
 %writeln(Fields),
       line_count(S, Lines),
@@ -174,16 +189,43 @@ c_file(F, Mod) :-
       fail
     ).
 
-c_line(["}"], Mod, _) :- !,
+c_line(["}"],  Mod, _) :- !,
      nb_setval( current_module, Mod ).
 c_line(Line, _Mod, _) :- 
      append( _, [ "CurrentModule", "=", M|_], Line),
      system_mod(M, _Mod, Mod),
      nb_setval( current_module, Mod ).
-c_line(Line, Mod, F:_Line) :- 
+c_line(Line,  Mod, F: LineP) :- 
     break_line( Line, N/A, Fu),
-    handle_pred( Mod, N, A, F ),
-    assert( foreign( Mod:N/A, Fu ) ).
+    assert( node( Mod, N/A, F-LineP, Fu ) ),
+    handle_pred( Mod, N, A, F ).
+
+c_ext( S, Mod, F ) :-
+    repeat,
+    read_line_to_string( S, String ),
+    (
+	sub_string( String, _, _, _, "NULL" ),
+	!
+	;
+	split_string(String, ",; (){}\t\"\'", ["FRG", NS,AS,FS|_]),
+	atom_string(N,NS),
+	atom_string(Fu,FS),
+	number_string(A, AS),
+	stream_property( S, position( Pos ) ),
+	stream_position_data( line_count, Pos, Line ),
+	assert( node( Mod , N/A,  F-Line, Fu ) ),
+	handle_pred( Mod, N, A, F )
+	;
+	split_string(String, ",; (){}\t\"\'", [NS,AS,FS|_]),
+	atom_string(N,NS),
+	atom_string(Fu,FS),
+	number_string(A, AS),
+	stream_property( S, position( Pos ) ),
+	stream_position_data( line_count, Pos, Line ),
+	assert( node( Mod, N/A, F-Line, Fu ) ),
+	handle_pred( Mod, N, A, F )
+    ).
+	
 
 break_line( Line, N/A, c(Fu)) :-
     take_line( Line, NS, AS, FS ), !,
@@ -227,6 +269,11 @@ take_line( Line, NS, AS, FS ) :-
      append( _, [ "PRED_DEF", NS, AS, FS|_], Line), !.
 take_line( Line, NS, AS, FS ) :-
      append( _, [ "FRG", NS, AS, FS|_], Line), !.
+% from odbc
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "NDET", NS, AS, FS|_], Line), !.
+take_line( Line, NS, AS, FS ) :-
+     append( _, [ "DET", NS, AS, FS|_], Line), !.
 
 
 take_line( Line,  AS, FS ) :-
@@ -262,7 +309,7 @@ call_c_files(  File, Mod, _Fun, CFile ) :-
 
 
 pl_interfs(Dir - Mod) :-
-    format(' ************* MOD: ~a ***********************\n', [Dir]),
+    format('% ************* ~a\n', [Dir]),
     nb_setval( current_module, Mod ),
     atom( Dir ),
     directory_files( Dir , Files),
@@ -334,6 +381,13 @@ F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
 	nb_setval( line, Line ),
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
 	get_interf( T, F, MC  ),
+	fail
+	;
+	nb_getval( current_module, MC0 ),
+	stream_position_data( line_count, Pos, Line ),
+	nb_setval( line, Line ),
+	( Mod == prolog -> MC = prolog ; MC = MC0 ),
+	user_deps( F, MC ),
 	fail
     ).
 
@@ -480,6 +534,9 @@ get_interf( (:- op( X, Y, Z) ), F, M ) :-
     !,
     always_strip_module(M:Z, M1, Z1),
     handle_op( F, M1, op( X, Y, Z1) ).
+get_interf( (:- record( Records ) ), F, M ) :- 
+    !,
+    handle_record( Records, F, M).
 get_interf( (:- _ ), _F, _M ) :- !.
 get_interf( (?- _ ), _F, _M ) :- !.
 get_interf( V , _F, _M ) :-
@@ -491,6 +548,50 @@ get_interf( G , F, M ) :-
     handle_pred( M, N, A, F ),
     !.
 
+% support SWI package record
+handle_record( (Records1, Records2), F, M ) :-
+    !,
+    handle_record( Records1, F, M ),
+    handle_record( Records2, F, M ).
+handle_record( Record, F, M ) :-
+    Record =.. [Constructor|Fields],
+    atom_concat(Constructor, '_data', Data),
+    handle_pred( M, Data, 3, F),
+    atom_concat(default_, Constructor, New),
+    handle_pred( M, New, 1, F),
+    atom_concat(is_, Constructor, Is),
+    handle_pred( M, Is, 1, F),
+    atom_concat(make_, Constructor, Make),
+    handle_pred( M, Make, 2, F),
+    handle_pred( M, Make, 3, F),
+    atom_concat([set_, Constructor,'_fields'], Sets),
+    handle_pred( M, Sets, 3, F),
+    handle_pred( M, Sets, 4, F),
+    atom_concat([set_, Constructor,'_field'], Set),
+    handle_pred( M, Set, 3, F),
+    maplist( handle_record_field( Constructor, F, M) , Fields ).
+
+handle_record_field( Constructor, F, M, Name:_=_ ) :-
+    !,
+    handle_record_field_name( Constructor, F, M, Name).
+handle_record_field( Constructor, F, M, Name:_ ) :-
+    !,
+    handle_record_field_name( Constructor, F, M, Name).
+handle_record_field( Constructor, F, M, Name=_ ) :-
+    !,
+    handle_record_field_name( Constructor, F, M, Name).
+handle_record_field( Constructor, F, M, Name ) :-
+    handle_record_field_name( Constructor, F, M, Name).
+
+handle_record_field_name( Constructor, F, M, Name) :-
+    atom_concat([ Constructor,'_', Name], Val),
+    handle_pred( M, Val, 2, F),
+    atom_concat([ set_, Name, '_of_', Constructor ], Set),
+    handle_pred( M, Set, 3, F),
+    handle_pred( M, Set, 2, F),
+    atom_concat([ nb_set_, Name, '_of_', Constructor ], Set),
+    handle_pred( M, Set, 3, F),
+    handle_pred( M, Set, 2, F).   
 
 handle_pred( M, N, A, F ) :-
     (
@@ -817,15 +918,21 @@ undefs :-
     format('    module ~a:~n',[Mod]),
     setof(NA, Target^F^Line^undef( ( Target :- F-Mod:NA ), Line  ), Ns ),
     member( NA, Ns ),
-    \+ m_exists( Mod:NA , _File1 ),
-    \+ m_exists( prolog:NA , _File2 ),
-    \+ foreign( Mod:NA, _Fu1 ),
-    \+ foreign( prolog:NA, _Fu2 ),
+    \+ node( Mod , NA , _File1, _ ),
+    \+ node( prolog , NA , _File2, _ ),
     format('      predicate ~w:~n',[NA]),
-    setof(F-Line, Target^undef( ( Target :- F-Mod:NA ), Line ), FLs ),
-    member(F-L, FLs ),
-    format('        line ~w, file ~a~n',[L,F]),
-    fail.
+    ( 
+        setof(F-Line, Target^undef( ( Target :- F-Mod:NA ), Line ), FLs ),
+	member(F-L, FLs ),
+	format('        line ~w, file ~a~n',[L,F]),
+	fail
+    ;
+         setof(F-M,Type^node( M, NA, F, Type ) , FMs ),
+	 format('      same name at:~n',[]),
+	 member((F-L)-M, FMs ),
+	 format('        module ~a, file ~a, line ~d~n',[M,F,L]),
+	 fail
+    ).
 undefs.
 
 out_list([]) :-
@@ -1066,8 +1173,9 @@ public( F, M, M:N/Ar ) :-
     fail.
 public( F, M, N/Ar ) :- !,
     assert_new( public( F, M:N/Ar ) ),
+    \+ node( M, N/Ar, F-_, _ ),
     nb_getval( line, L ),
-    assert_new( node( M, N/Ar, F-L, prolog ) ).
+    assert( node( M, N/Ar, F-L, prolog ) ).
 public( F, M, M:N//Ar ) :-
 	Ar2 is Ar+2,
     retract( private( F, M:N/Ar2 ) ),
@@ -1075,8 +1183,9 @@ public( F, M, M:N//Ar ) :-
 public( F, M, N//Ar ) :-
 	Ar2 is Ar+2,
     assert_new( public( F, M:N/Ar2 ) ),
+    \+ node( M, N/Ar2, F-_, _ ),
     nb_getval( line, L ),
-    assert_new( node( M, N/Ar2, F-L, prolog ) ).
+    assert( node( M, N/Ar2, F-L, prolog ) ).
 
 private( F, M, op(X,Y,Z) ) :- 
     assert_new( private( F, M:op(X,Y,Z) ) ),
@@ -1089,11 +1198,13 @@ private( F, M, op(X,Y,Z) ) :-
     ).
 private( F, M, N/Ar ) :-
     assert_new( private( F, M:N/Ar ) ),
+    \+ node( M, N/Ar, F-_, _ ), 
     nb_getval( line, L ),
-    assert_new( node( M, N/Ar, F-L, prolog ) ).
+    assert( node( M, N/Ar, F-L, prolog ) ).
 private( F, M, N//Ar ) :-
 	Ar2 is Ar+2,
     assert_new( private( F, M:N/Ar2 ) ),
+    \+ node( M, N/Ar2, F-_, _ ),
     nb_getval( line, L ),
     assert_new( node( M, N/Ar2, F-L, prolog ) ).
 
@@ -1125,4 +1236,26 @@ ops_restore :-
 ops_restore :-
     default_ops(L),
     maplist( call, L ).
+
+do_user_c_dep(F1, F2) :-
+    absolute_file_name(F1, A1), 
+    absolute_file_name(F2, A2),
+    assert(c_dep(A1, A2)).
+
+user_deps( F, M ) :-
+    c_dep(F, A2),
+    c_file(A2 , M),
+    fail.
+user_deps( _F, _M ).
+
+user_c_dep( 'packages/jpl/jpl.pl', 'packages/jpl/src/c/jpl.c' ).
+user_c_dep( 'packages/real/real.pl', 'packages/real/real.c' ).
+user_c_dep( 'packages/odbc/odbc.pl', 'packages/odbc/odbc.c' ).
+user_c_dep( 'packages/swi-minisat2/minisat.pl', 'packages/swi-minisat2/C/pl-minisat.C' ).
+user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/gecode4_yap.cc' ).
+user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_forward_auto_generated.icc' ).
+user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_impl_auto_generated.icc' ).
+user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_init_auto_generated.icc' ).
+
+
 

@@ -1727,7 +1727,6 @@ init_sub_atomic( int sub_atom USES_REGS )
   Atom at = NULL;
 
   tat1 = Deref(ARG1);  
-  tbef = Deref(ARG5);  
   EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(0);
   if (IsVarTerm(tat1)) {
     Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first argument");
@@ -1739,10 +1738,11 @@ init_sub_atomic( int sub_atom USES_REGS )
     Yap_Error(TYPE_ERROR_STRING, tat1, "sub_string/5");
     return FALSE;
   }
-  if (IsVarTerm(tbef = Deref(ARG2))) {
+  tbef = Deref(ARG2);  
+  if (IsVarTerm(tbef)) {
     min = 0;
   } else if (!IsIntegerTerm(tbef)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tbef, "sub_atom/5");
+    Yap_Error(TYPE_ERROR_INTEGER, tbef, "sub_string/5");
     return FALSE;
   } else {
     min = IntegerOfTerm(tbef);
@@ -1752,7 +1752,7 @@ init_sub_atomic( int sub_atom USES_REGS )
   if (IsVarTerm(tsize = Deref(ARG3))) {
     len = 0;
   } else if (!IsIntegerTerm(tsize)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tsize, "sub_atom/5");
+    Yap_Error(TYPE_ERROR_INTEGER, tsize, "sub_string/5");
     return FALSE;
   } else {
     len = IntegerOfTerm(tsize);
@@ -1762,7 +1762,7 @@ init_sub_atomic( int sub_atom USES_REGS )
   if (IsVarTerm(tafter = Deref(ARG4))) {
     after = 0;
   } else if (!IsIntegerTerm(tafter)) {
-    Yap_Error(TYPE_ERROR_INTEGER, tafter, "sub_atom/5");
+    Yap_Error(TYPE_ERROR_INTEGER, tafter, "sub_string/5");
     return FALSE;
   } else {
     after = IntegerOfTerm(tafter);
