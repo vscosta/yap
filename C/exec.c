@@ -1783,6 +1783,14 @@ Yap_InitYaamRegs( int myworker_id )
   DEPTH = RESET_DEPTH();
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
+  if (REMOTE_GlobalArena(myworker_id) == 0L || 
+      REMOTE_GlobalArena(myworker_id) == TermNil) {
+  } else {
+    HR = RepAppl(REMOTE_GlobalArena(myworker_id));
+  }
+  REMOTE_GlobalArena(myworker_id) = TermNil;
+  Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
+  Yap_InitPreAllocCodeSpace( myworker_id );
 #ifdef FROZEN_STACKS
   H_FZ = HR;
 #ifdef YAPOR_SBA
@@ -1813,12 +1821,6 @@ Yap_InitYaamRegs( int myworker_id )
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
-  if (REMOTE_GlobalArena(myworker_id) == 0L || 
-      REMOTE_GlobalArena(myworker_id) == TermNil) {
-    REMOTE_GlobalArena(myworker_id) = TermNil;
-    Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
-    Yap_InitPreAllocCodeSpace( myworker_id );
-  }
   cut_c_initialize( myworker_id );
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef TABLING

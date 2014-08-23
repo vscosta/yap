@@ -36,6 +36,7 @@
 	    op(1150, fx, record)
 	  ]).
 :- use_module(library(error)).
+:- use_module(library(lists)).
 
 /** <module> Access compound arguments by name
 

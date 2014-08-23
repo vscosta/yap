@@ -386,24 +386,24 @@ load_files(Files,Opts) :-
 	'$lf_opt'(if, TOpts, If),
 	( var(If) -> If = true ; true ),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$start_lf'(If, Mod, Stream, TOpts, File, Imports),
+	'$start_lf'(If, Mod, Stream, TOpts, File, Reexport, Imports),
 	close(Stream).
 '$lf'(X, _, Call, _) :-
 	'$do_error'(permission_error(input,stream,X),Call).
 
-'$start_lf'(not_loaded, Mod, Stream, TOpts, UserFile, Imports) :-
+'$start_lf'(not_loaded, Mod, Stream, TOpts, UserFile, Reexport,Imports) :-
 	'$file_loaded'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _File, _Dir, Opts),
-	'$reexport'( TOpts, ParentF, Imports, _File ).
-'$start_lf'(changed, Mod, Stream, TOpts, UserFile, Imports) :-
+	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
+'$start_lf'(changed, Mod, Stream, TOpts, UserFile, Reexport, Imports) :-
 	'$file_unchanged'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
 	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _File, _Dir, Opts),
-	'$reexport'( TOpts, ParentF, Imports, _File ).
-'$start_lf'(_, Mod, Stream, TOpts, File, _) :-
+	'$reexport'( TOpts, ParentF, Reexport, Imports, _File ).
+'$start_lf'(_, Mod, Stream, TOpts, File, Reexport, Imports) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
 
@@ -562,6 +562,7 @@ db_files(Fs) :-
 
 '$do_lf'(ContextModule, Stream, UserFile, TOpts) :-
 	'$lf_opt'('$context_module', TOpts, ContextModule),
+	'$lf_opt'(reexport, TOpts, Reexport),
 	'$msg_level'( TOpts, Verbosity),
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
 	'$lf_opt'(encoding, TOpts, Encoding),
@@ -624,7 +625,7 @@ db_files(Fs) :-
 	'$bind_module'(Mod, UseModule),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	'$reexport'( TOpts, ParentF, Imports, File ),
+	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
 	% format( 'O=~w~n', [Mod=UserFile] ),
@@ -1087,9 +1088,8 @@ may result in incorrect execution.
 
 </ul>
 **/
-'$reexport'( TOpts, File, Imports, OldF ) :-
-	'$lf_opt'(reexport, TOpts, Reexport),
-	( Reexport == false -> true ;
+'$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
+    ( Reexport == false -> true ;
 	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),

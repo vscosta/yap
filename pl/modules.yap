@@ -498,7 +498,7 @@ of predicates.
     '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
     sort( AllExports0, AllExports ),
     ( source_location(_, Line) -> true ; Line = 0 ),
-    '$add_to_imports'(TranslationTab, DonorM, HostM), % insert ops, at least for now
+    '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
     % last, export everything to the host: if the loading crashed you didn't actually do
     % no evil.
     recorda('$module','$module'(DonorF,DonorM,AllExports, Line),_).
@@ -507,7 +507,7 @@ of predicates.
     ( recorded('$module','$module'( DonorF, DonorM, _, DonorExports),_) -> true ; DonorF = user_input ),
     ( recorded('$module','$module'( HostF, HostM, _, _),_) -> true ; HostF = user_input ),
     recorded('$module','$module'(HostF,HostM,AllExports, _Line), R), erase(R),
-    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
+    '$convert_for_export'(Exports, DonorExports, DonorM, HostM, TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
     sort( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),

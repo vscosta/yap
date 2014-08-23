@@ -33,7 +33,7 @@ The same as fail.
 */
 
 /** @pred  repeat is iso 
-Succeeds repeatedly.
+bprolqSucceeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
 a loop. The next example reads all terms in a file:
@@ -882,7 +882,7 @@ the loop.
 /** @pred  tree_to_rational_term(? _TI_,- _TF_) 
 
 
-Inverse of above. The term  _TI_ is a tree representation (without
+Inverse of rational_term_to_tree/2. The term  _TI_ is a tree representation (without
 cycles) for the Prolog term  _TF_. Loops replace terms of the form
 `_LOOP_( _LevelsAbove_)` where  _LevelsAbove_ is the size of
 the loop.

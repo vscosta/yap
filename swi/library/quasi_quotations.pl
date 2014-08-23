@@ -35,6 +35,7 @@
 	  ]).
 :- use_module(library(error)).
 :- use_module(library(pure_input)).
+:- use_module( library(lists) ).
 
 /** <module> Define Quasi Quotation syntax
 

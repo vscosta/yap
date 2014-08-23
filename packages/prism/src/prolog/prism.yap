@@ -2,6 +2,9 @@
 % interface to prism from YAP
 
 :- ensure_loaded(library(dialect/bprolog)).
+
+:- set_prolog_flag(dollar_as_lower_case,on).
+
 % :- set_prolog_flag(tabling_mode, local).
 :- load_foreign_files([prism], [], bp4p_register_preds). /* load prism stuff */
 :- style_check(-discontiguous). /* load prism stuff */

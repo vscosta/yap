@@ -89,6 +89,7 @@
 
 :- use_module(library(gecode)).
 :- use_module(library(maplist)).
+
 :- reexport(library(matrix), [(<==)/2, op(600, xfx, '<=='),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
@@ -223,7 +224,7 @@ sum( L, Op, V) :-
 	check(L, NL),
 	check(V, NV),
 	post( rel(sum(NL), Op, NV), Env, _).
-( A #<==> VBool) :-
+( ( A #<==> VBool )) :-
 	get_home(Space-Map),
 	check(A, NA),
 	check(VBool, NVBool),

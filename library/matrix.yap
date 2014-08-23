@@ -95,7 +95,10 @@ typedef enum {
 	    matrix_set/2,
 	    foreach/2,
 	    foreach/4,
-	    op(100, fy, '[]')
+	    op(50, yf, []),
+            op(50, yf, '()'),
+            op(100, xfy, '.'),
+            op(100, fy, '.')
 	    ]).
 
 :- load_foreign_files([matrix], [], init_matrix).

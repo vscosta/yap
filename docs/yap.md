@@ -1295,6 +1295,28 @@ will be used:
   + a preceding minus sign will denote an "output argument";
   + an argument with no preceding symbol can be used in both ways.
 
+@page Features
+
+@subpage CohYroutining
+
+
+@subpage Attributed_Variables
+
+
+@subpage Tabling
+
+
+@subpage Low_Level_Tracing
+
+
+@subpage Low_Level_Profiling
+
+
+@subpage Indexing
+
+@subpage Parallelism
+
+
 
 @defgroup YAPBuiltins Built-In Predicates
 
@@ -1420,10 +1442,6 @@ will be used:
 
 @subpage Exo_Intervals
 
-
-@subpage Gecode
-
-
 @subpage Heaps
 
 
@@ -1502,16 +1520,6 @@ will be used:
 @subpage DBUsage
 
 
-@subpage Lambda
-
-@page  pYapPacks YAP Packages
-
-@subpage LAM
-
-
-@subpage BDDs
-
-
 @subpage Block_Diagram
 
 
@@ -1527,11 +1535,6 @@ will be used:
 @subpage Rational_Trees
 
 
-@subpage CohYroutining
-
-
-@subpage Attributed_Variables
-
 
 @subpage New_Style_Attribute_Declarations
 
@@ -1539,17 +1542,12 @@ will be used:
 @subpage Old_Style_Attribute_Declarations
 
 
-@subpage CLPR_Solver_Predicates
 
+@subpage Lambda
 
-@subpage CLPR_Syntax
+@page  YapPacks YAP Packages
 
-
-@subpage CLPR_Unification
-
-
-@subpage CLPR_NonhYlinear_Constraints
-
+@subpage LAM
 
 @subpage CHR_Introduction
 
@@ -1572,7 +1570,23 @@ will be used:
 @subpage CHR_Guidelines
 
 
-@subpage Logtalk
+@subpage Gecode
+
+
+
+@subpage BDDs
+
+@subpage CLPR_Solver_Predicates
+
+
+@subpage CLPR_Syntax
+
+
+@subpage CLPR_Unification
+
+
+@subpage CLPR_NonhYlinear_Constraints
+
 
 
 @subpage Creating_and_Destroying_Prolog_Threads
@@ -1587,17 +1601,6 @@ will be used:
 @subpage Thread_Synchronisation
 
 
-@subpage Parallelism
-
-
-@subpage Tabling
-
-
-@subpage Low_Level_Tracing
-
-
-@subpage Low_Level_Profiling
-
 
 @subpage Debugging
 
@@ -1606,9 +1609,6 @@ will be used:
 
 
 @subpage Deb_Interaction
-
-
-@subpage Indexing
 
 
 @subpage Loading_Objects
@@ -1823,6 +1823,8 @@ SICStus Prolog use:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     + By default, directives in YAP can be called from the top level.
+
+@page  SWILibs SWI Libraries
 
 
 

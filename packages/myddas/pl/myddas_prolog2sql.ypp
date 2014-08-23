@@ -72,7 +72,6 @@ translate_(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
 #else
 translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-
 #endif
-	
    % --- initialize variable identifiers and range variables for relations -----
    init_gensym(var),
    init_gensym(rel),

@@ -74,43 +74,35 @@ main :-
     undefs,
     doubles,
     %     pl_exported(pl).
-    c_links.
+    c_links,
+    mkdocs.
 
 
 dirs( Roots ) :-
     member( Root-_, Roots ),
-    directory_files( Root , Files),
+    absolute_file_name( Root, FRoot ),
+    rdir( FRoot ),
+    fail.
+dirs( _Roots ).
+
+rdir( FRoot ) :-
+    directory_files( FRoot , Files),
     member(  File, Files ),
-    atom_concat( [Root,'/',File], New ),
+    atom_concat( [FRoot,'/',File], New0 ),
+    absolute_file_name( New0, New ),
+    \+ doskip( New ),
     (
-	file_property( New, type(directory) ),
+	file_property( New, type(directory) )
+	->
 	File \= '.',
 	File \= '..',
 	File \= '.git',
-	subdir( New )
+	rdir( New )
     ;
-	absolute_file_name( Root, FRoot ),
         assert_new( dir( FRoot, File ))
     ),
     fail.
-dirs(_).
-
-subdir( Root ) :-
-    directory_files( Root , Files),
-    member(  File, Files ),
-    atom_concat( [Root,'/',File], New ),
-    (
-	file_property( New, type(directory) ),
-	File \= '.',
-	File \= '..',
-	File \= '.git',
-	subdir( New )
-    ;
-	absolute_file_name( Root, ARoot),
-        assert_new( dir( ARoot, File ))
-    ),
-    fail.
-
+rdir(_).
 
 init :-
     retractall(dir(_)),
@@ -126,6 +118,14 @@ init :-
     user_c_dep(A,B),
     do_user_c_dep(A,B),
     fail.
+init :-
+    user_skip(A),
+    do_user_skip(A),
+    fail.
+init :-
+    user_expand(N,A),
+    do_user_expand(N,A),
+    fail.
 init.
 
 init_loop( _Dirs ).
@@ -134,7 +134,8 @@ c_preds(Dir - Mod) :-
     atom( Dir ),
     atom_concat([Dir,'/*'], Pattern),
     expand_file_name( Pattern, Files ),
-    member( File, Files ),
+    member( File0, Files ),
+    absolute_file_name( File0, File ),
     ( ( sub_atom(File,_,_,0,'.c') 
 	;
 	sub_atom(File,_,_,0,'.i')
@@ -147,15 +148,13 @@ c_preds(Dir - Mod) :-
 	;
 	sub_atom(File,_,_,0,'.h')
       ) ->
+ 	  \+ doskip( File ),
 	  c_file( File , Mod )
     ;
          exists_directory( File ),
-         \+ atom_concat(_, '/.', File),
+        \+ atom_concat(_, '/.', File),
          \+ atom_concat(_, '/..', File),
-         'packages/prism' \= File,
-         'packages/gecode' \= File,
-         'packages/RDF' \= File,
-         'packages/semweb' \= File,
+	 \+ doskip( File ),
          c_preds( File - Mod )
     ),
     fail.
@@ -193,7 +192,7 @@ c_line(["}"],  Mod, _) :- !,
      nb_setval( current_module, Mod ).
 c_line(Line, _Mod, _) :- 
      append( _, [ "CurrentModule", "=", M|_], Line),
-     system_mod(M, _Mod, Mod),
+     system_mod(M, _Mod, Mod, _),
      nb_setval( current_module, Mod ).
 c_line(Line,  Mod, F: LineP) :- 
     break_line( Line, N/A, Fu),
@@ -283,21 +282,21 @@ take_line( Line,  AS, FS ) :-
 take_line( Line, NS, AS, FSE, FSB ) :-
      append( _, [ "Yap_InitCPredBack", NS, AS, _, FSE, FSB|_], Line), !.
 
-system_mod("ATTRIBUTES_MODULE", _, attributes ).
-system_mod("HACKS_MODULE", _, '$hacks' ).
-system_mod("USER_MODULE", _, user ).
-system_mod("DBLOAD_MODULE", _, '$db_load' ).
-system_mod("GLOBALS_MODULE", _, globals ).
-system_mod("ARG_MODULE", _, arg  ).
-system_mod("PROLOG_MODULE", _ , prolog ).
-system_mod("RANGE_MODULE", _, range ).
-system_mod("SWI_MODULE", _, swi ).
-system_mod("OPERATING_SYSTEM_MODULE", _, operating_system_support  ).
-system_mod("TERMS_MODULE", _, terms ).
-system_mod("SYSTEM_MODULE", _, system ).
-system_mod("IDB_MODULE", _, idb ).
-system_mod("CHARSIO_MODULE", _, charsio ).
-system_mod("cm", M, M ).
+system_mod("ATTRIBUTES_MODULE", _, attributes, user ).
+system_mod("HACKS_MODULE", _, '$hacks' , sys ).
+system_mod("USER_MODULE", _, user, user ).
+system_mod("DBLOAD_MODULE", _, '$db_load', sys ).
+system_mod("GLOBALS_MODULE", _, globals, sys ).
+system_mod("ARG_MODULE", _, arg, sys  ).
+system_mod("PROLOG_MODULE", _ , prolog, sys ).
+system_mod("RANGE_MODULE", _, range, user ).
+system_mod("SWI_MODULE", _, swi, sys ).
+system_mod("OPERATING_SYSTEM_MODULE", _, operating_system_support , sys ).
+system_mod("TERMS_MODULE", _, terms , sys).
+system_mod("SYSTEM_MODULE", _, system, sys ).
+system_mod("IDB_MODULE", _, idb, user ).
+system_mod("CHARSIO_MODULE", _, charsio, sys ).
+system_mod("cm", M, M, user ).
 
 call_c_files(  File, Mod, _Fun, [CFile] ) :-
     search_file( CFile, File, c, F ),
@@ -309,13 +308,14 @@ call_c_files(  File, Mod, _Fun, CFile ) :-
 
 
 pl_interfs(Dir - Mod) :-
+     \+ doskip( Dir ),
     format('% ************* ~a\n', [Dir]),
     nb_setval( current_module, Mod ),
     atom( Dir ),
     directory_files( Dir , Files),
     member( File, Files ),
     atom_concat([Dir,'/',File], Path),
-    ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
+    ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ; sub_atom(File,_,_,0,'.ypp') ) ->
 	  ops_restore,
 	  absolute_file_name( Path, APath ),
 	  pl_interf( APath , Mod )
@@ -324,13 +324,8 @@ pl_interfs(Dir - Mod) :-
          \+ atom_concat(_, '/.', Path),
          \+ atom_concat(_, '/..', Path),
          \+ atom_concat(_, '/.git', Path),
-         'packages/prism' \= Path,
-         'packages/gecode' \= Path,
-         'packages/R' \= Path,
-         'packages/RDF' \= Path,
-         'packages/semweb' \= Path,
-         'packages/sgml' \= Path,
 	 absolute_file_name( Path, APath ),
+	 \+ doskip( APath ),
 	 pl_interfs( APath - Mod )
     ),
     fail.
@@ -351,30 +346,43 @@ pl_interf(F, Mod) :-
     consulted(F, Mod ), 
     !.
 pl_interf(F, Mod) :-
-F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
 %	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ), 
-% ( sub_atom( F, _, _, 0, 'chr.yap' ) -> spy get_interf; true ),
+    ( sub_atom( F, _, _, 0, 'gecode.yap' ) -> spy user_deps; true ),
+writeln( +F:Mod ),
     assert_new(consulted(F, Mod ) ), 
     nb_getval( private, Default ),
     nb_setval( private, false ),
     nb_getval( file_entry, OF:OMod ),
     nb_setval( file_entry, F:Mod ),
-    catch( open(F, read, S, [scripting(true)]) , _, fail ),
+    preprocess_file( F, PF ),
+    catch( open(PF, read, S, [scripting(true)]) , _, fail ),
     repeat,
     nb_getval( current_module, MR ),
- %( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ), 
-    catch( read_term( S, T, [module( MR ),term_position(Pos)] ), Throw, (writeln(F:MR:Throw), break, fail)),
+ %( sub_atom(F,_,_,_,'e.yap') ->  spy get_interf ; nospyall ), 
+    catch( read_term( S, T, [module( MR ),term_position(Pos)] ), Throw, (ypp(F,Throw), fail)),
     ( 
 	T == end_of_file
 	->
 	    !,
 	    close(S),
-	    build_graph( F, Mod ),
-	    % also, close ops defined in the module M, if M \= Mod
-	    generate_interface( F, Mod ),
-	    nb_setval( current_module, Mod ),
-	    nb_setval( private, Default ),
-	    nb_setval( file_entry, OF:OMod )
+	    (
+		c_dep( F, Fc),
+		c_file( Fc, MR ),
+		fail
+	    ;
+	        build_graph( F, MR ),
+		fail
+	    % cleanup
+ 	    ;
+		 module_on( F , _M, _Is)
+			  ->
+		% also, close ops defined in the module M, if M \= Mod
+		nb_setval( current_module, Mod ),
+		nb_setval( private, Default ),
+		nb_setval( file_entry, OF:OMod )
+		 ;
+	       true
+	   )
 	;
 	nb_getval( current_module, MC0 ),
 	stream_position_data( line_count, Pos, Line ),
@@ -382,14 +390,7 @@ F\='/Users/vsc/git/yap-6.3/packages/RDF/rdf_diagram.pl',
 	( Mod == prolog -> MC = prolog ; MC = MC0 ),
 	get_interf( T, F, MC  ),
 	fail
-	;
-	nb_getval( current_module, MC0 ),
-	stream_position_data( line_count, Pos, Line ),
-	nb_setval( line, Line ),
-	( Mod == prolog -> MC = prolog ; MC = MC0 ),
-	user_deps( F, MC ),
-	fail
-    ).
+   ).
 
 get_interf( T, _F, _M0 ) :- 
     var(T), 
@@ -401,11 +402,13 @@ get_interf( T, _F, _M0 ) :-
 get_interf( M:T, F, _M0 ) :- !,
     get_interf( T, F, M ). 
 get_interf( goal_expansion(G, M, _) , F, _M0 ) :- 
+    nonvar( G ),
     !,
     ( var( M ) -> M1 = prolog ; M = M1 ),
     functor( G, N, A ),
     handle_pred( M1, N, A, F ).
 get_interf( goal_expansion(G, _) , F, _M0 ) :- 
+    nonvar( G ),
     !,
     functor( G, N, A ),
     handle_pred( prolog, N, A, F ).
@@ -413,11 +416,13 @@ get_interf( ( M:H :- _B), F, _M ) :-
     !,
     get_interf( H, F, M ).
 get_interf( ( goal_expansion(G, M, _) :- _) , F, _M0 ) :- 
+    nonvar( G ),
     !,
     ( var( M ) -> M1 = prolog ; M = M1 ),
     functor( G, N, A ),
     handle_pred( M1, N, A, F ).
 get_interf( ( goal_expansion(G, _) :- _) , F, _M0 ) :- 
+    nonvar( G ),
     !,
     functor( G, N, A ),
     handle_pred( prolog, N, A, F ).
@@ -476,7 +481,7 @@ get_interf( (:- ensure_loaded( Files ) ), F, M ) :-
     include_files(  F, M, Files ).
 get_interf( (:- include( Files ) ), F, M ) :- 
     !,
-    include_files(  F, M, Files ).
+    source_files(  F, M, Files ).
 get_interf( (:- load_files( Files , [_|_] ) ), F, M ) :- 
     !,
     include_files(  F, M, Files ).
@@ -537,6 +542,9 @@ get_interf( (:- op( X, Y, Z) ), F, M ) :-
 get_interf( (:- record( Records ) ), F, M ) :- 
     !,
     handle_record( Records, F, M).
+get_interf( (:- set_prolog_flag(dollar_as_lower_case,On) ), _F, _M ) :- 
+    !,
+    set_prolog_flag(dollar_as_lower_case,On).
 get_interf( (:- _ ), _F, _M ) :- !.
 get_interf( (?- _ ), _F, _M ) :- !.
 get_interf( V , _F, _M ) :-
@@ -595,7 +603,7 @@ handle_record_field_name( Constructor, F, M, Name) :-
 
 handle_pred( M, N, A, F ) :-
     (
-        system_mod( _, _, M )
+        system_mod( _, _, M, sys )
 	->
 	    (
 		atom_concat('$',_,N)
@@ -695,6 +703,40 @@ include_file( F, M, Is0, Loc ) :-
     ),
     nb_setval( private, Private ).
 
+
+source_files( F, M, Files ) :-
+    maplist( source_files( F, M ), Files ),
+    !.
+source_files( F, M, Loc ) :- 
+    source_file( F, M, Loc ).
+
+source_file( F, M, Loc ) :-
+    once( search_file( Loc, F, pl, NF ) ),
+    % depth visit
+    pl_source(NF, F, M). % should verify Is in _Is
+
+pl_source(F, F0, Mod) :-
+% writeln( -F ),
+    preprocess_file( F, PF ),
+    catch( open(PF, read, S, []) , _, fail ),
+    repeat,
+    nb_getval( current_module, MR ),
+ %( sub_atom(F,_,_,_,'examples/matrix.yap') ->  spy get_interf ; nospyall ), 
+    catch( read_term( S, T, [module( MR ),term_position(Pos)] ), Throw, (writeln(F:MR:Throw), break, fail)),
+    ( 
+	T == end_of_file
+	->
+	    !,
+	    close(S)
+	;
+	nb_getval( current_module, MC0 ),
+	stream_position_data( line_count, Pos, Line ),
+	nb_setval( line, Line ),
+	( Mod == prolog -> MC = prolog ; MC = MC0 ),
+	get_interf( T, F0, MC  ),
+	fail
+    ).
+
 declare_functors( T, _F, _M1) :-  var(T), !,
     error( unbound_variable ).
 declare_functors( M:T, F, _M1) :-  !,
@@ -731,22 +773,6 @@ declare_term(F, M, S) :-
     functor(S, N, A),
     handle_pred( M, N, A, F ).
 
-% clean operators
-generate_interface( _F, _M ) :-
-fail,
-    public( _, prolog:op(_X,Y,Z) ),
-    op(0,Y,Z),
-    fail.
-generate_interface( _F, _M ) :-
-fail,
-    private( _, prolog:op(_X,Y,Z) ),
-    op(0,Y,Z),
-    fail.
-generate_interface( _F, Mod ) :-
-    nb_setval( current_module, Mod ).
-
-
-
 pl_graphs(Dir - Mod) :-
     format(' ************* GRAPH: ~a ***********************~n', [Dir]),
     atom( Dir ),
@@ -754,7 +780,7 @@ pl_graphs(Dir - Mod) :-
     expand_file_name( Pattern, Files ),
     member( File, Files ),
     ( ( sub_atom(File,_,_,0,'.yap') ; sub_atom(File,_,_,0,'.pl') ) ->
-	 pl_graph( File , Mod )
+	 build_graph( File , Mod )
     ;
          exists_directory( File ),
          \+ atom_concat(_, '/.', File),
@@ -776,10 +802,11 @@ pl_graphs(_).
 %
 build_graph(F, Mod) :-
 %    writeln(F),
-    catch( open(F, read, S, [scripting(true)]), _, fail ),
+    preprocess_file( F, PF ),
+    catch( open(PF, read, S, [scripting(true)]), _, fail ),
     repeat,
     nb_getval( current_module, MR ),
-    catch( read_term( S, T, [term_position(Pos),module(MR),comments(Cs)] ), Throw, (writeln(Throw))),
+    catch(read_term( S, T, [term_position(Pos),module(MR),comments(Cs)] ), Throw, (writeln(Throw))),
     ( 
 	T == end_of_file
 	->
@@ -825,9 +852,17 @@ get_graph( (H :- B), F, _Pos, M ) :-
     functor( H, N, Ar),
     add_deps( B, M, M:N/Ar, F, _Pos, 0 ).
 %% switches to new file n
-get_graph( (:- _ ), _F, _Pos, _M ) :-
-    !.
+get_graph( (:-include( Fs ) ), F, _Pos, M ) :-
+    !,
+    source_graphs( M, F, Fs ).
 get_graph( (?- _ ), _F, _Pos, _M ) :- !.
+get_graph( (:- _ ), _F, _Pos, _M ) :- !.
+
+source_graphs( M, F, Fs ) :-
+    maplist( source_graph( M, F ), Fs ), !.
+source_graphs( M, F, Fs ) :-
+    search_file( Fs, F, pl, NF ),
+    build_graph( NF , M ), !.
 
 add_deps(V, _M, _P, _F, _Pos, _) :- 
     var(V), !.
@@ -994,10 +1029,14 @@ always_strip_module(M0:A, M0, call(A)) :- var(A),!.
 always_strip_module(M0:A, M0, A).
 
 c_links :-
+    open('foreigns.yap', write, S),
+    clinks(S).
+clinks(S) :-
     node( M, P, _, c(F)),
-    format( ':- implements( ~q , ~q ).~n', [M:P, F] ),
+    format( S, ':- foreign_predicate( ~q , ~q ).~n', [M:P, F] ),
     fail.
-c_links.
+c_links(S) :-
+    close(S).
 
 warn_singletons(_Vars, _Pos).
 
@@ -1050,8 +1089,8 @@ search_file(  Loc , F, _FN ) :-
 %
 % handle some special cases.
 %
-search_file0( library(gecode), _, _Type, FN) :-
-	absolute_file_name( 'packages/gecode/gecode4_yap_hand_written.yap', FN ).
+search_file0( F, _, _Type, FN ) :-
+    doexpand(F, FN), !.
 search_file0( A/B, F, Type, FN ) :- !,
     term_to_atom(A/B, AB),
     search_file0( AB, F, Type, FN ).
@@ -1114,7 +1153,7 @@ check_suffix(  Loc , pl,  Loc ) :-
 %, otherwise, .P
 % try adding suffix
 check_suffix(  Loc0 , pl, Loc ) :- 
-    member( Suf , ['.yap', '.pl' , '.prolog']), 
+    member( Suf , ['.yap', '.ypp', '.pl' , '.prolog']), 
     atom_concat( Loc0, Suf, Loc ).
 check_suffix(  Loc , c, Loc ) :- 
     atom_concat( _, '.c', Loc ), !.
@@ -1153,6 +1192,17 @@ new_op( F, M, op( X, Y, Z) ) :-
     public( F, M, op( X, Y, Z) ).
 
 
+ypp(F, error(syntax_error(syntax_error),[syntax_error(read(_228515),between(K,L,M),_,_L,_)-_]) ) :-
+	format('SYNTAX ERROR at file ~a, line ~d (~d - ~d).~n', [F,L,K,M] ),
+	break.
+
+preprocess_file(F,NF) :-
+    atom_concat(_, '.ypp', F ), !,
+    atom_concat( [ 'cpp -CC -w -DMYDDAS_MYSQL -DMYDDAS_ODBC -DMYDDAS_STATS -DMYDDAS_TOP_LEVEL -P ',F], OF ),
+    NF = pipe( OF ).
+preprocess_file(F,F). 
+
+
 %%%%%%%
 %% declare a concept exportable
 public( F, M, op(X,Y,Z) ) :-
@@ -1171,11 +1221,12 @@ public( F, M, op(X,Y,Z) ) :- !,
 public( F, M, M:N/Ar ) :-
     retract( private( F, M:N/Ar ) ),
     fail.
-public( F, M, N/Ar ) :- !,
+public( F, M, N/Ar ) :-
     assert_new( public( F, M:N/Ar ) ),
     \+ node( M, N/Ar, F-_, _ ),
     nb_getval( line, L ),
-    assert( node( M, N/Ar, F-L, prolog ) ).
+    assert( node( M, N/Ar, F-L, prolog ) ), !.
+public( _F, _M, _/_Ar ).
 public( F, M, M:N//Ar ) :-
 	Ar2 is Ar+2,
     retract( private( F, M:N/Ar2 ) ),
@@ -1185,7 +1236,8 @@ public( F, M, N//Ar ) :-
     assert_new( public( F, M:N/Ar2 ) ),
     \+ node( M, N/Ar2, F-_, _ ),
     nb_getval( line, L ),
-    assert( node( M, N/Ar2, F-L, prolog ) ).
+    assert( node( M, N/Ar2, F-L, prolog ) ), !.
+public( _F, _M, _//_Ar ).
 
 private( F, M, op(X,Y,Z) ) :- 
     assert_new( private( F, M:op(X,Y,Z) ) ),
@@ -1195,18 +1247,21 @@ private( F, M, op(X,Y,Z) ) :-
 	  op( X, Y, prolog:Z )
       ;
 	  op( X, Y, M:Z )
-    ).
+    ), !.
+private( _F, _M, op(_X,_Y,_Z) ).
 private( F, M, N/Ar ) :-
     assert_new( private( F, M:N/Ar ) ),
     \+ node( M, N/Ar, F-_, _ ), 
     nb_getval( line, L ),
-    assert( node( M, N/Ar, F-L, prolog ) ).
+    assert( node( M, N/Ar, F-L, prolog ) ), !.
+private( _F, _M, _N/_Ar ).
 private( F, M, N//Ar ) :-
 	Ar2 is Ar+2,
     assert_new( private( F, M:N/Ar2 ) ),
     \+ node( M, N/Ar2, F-_, _ ),
     nb_getval( line, L ),
-    assert_new( node( M, N/Ar2, F-L, prolog ) ).
+    assert_new( node( M, N/Ar2, F-L, prolog ) ), !.
+private( _F, _M, _N//_Ar ).
 
 is_public( F, M, OP ) :-
     public( F, M:OP ).
@@ -1218,6 +1273,24 @@ assert_new( G ) :- G, !.
 assert_new( G ) :- assert( G ).
 
 error( Error ) :- throw(Error ).
+
+%% mkdocs inserts a file with a sequence of comments into a sequence of Prolog/C files.
+%
+%
+mkdocs :-
+    open( 'docs/yapdocs.yap', read, S),
+    repeat,
+    (
+	skip_blanks(S)
+    ->
+	get_comment(S, Comment, Owner),
+	store_comment( Comment, Owner ),
+	fail
+    ;
+        close(S),
+	add_comments
+    ).
+
 
 ops_default :-
     abolish( default_ops/1 ),
@@ -1241,6 +1314,12 @@ do_user_c_dep(F1, F2) :-
     absolute_file_name(F1, A1), 
     absolute_file_name(F2, A2),
     assert(c_dep(A1, A2)).
+do_user_skip(F1) :-
+    absolute_file_name(F1, A1), 
+    assert(doskip(A1)).
+do_user_expand(F, F1) :-
+    absolute_file_name(F1, A1), 
+    assert(doexpand(F, A1)).
 
 user_deps( F, M ) :-
     c_dep(F, A2),
@@ -1251,11 +1330,72 @@ user_deps( _F, _M ).
 user_c_dep( 'packages/jpl/jpl.pl', 'packages/jpl/src/c/jpl.c' ).
 user_c_dep( 'packages/real/real.pl', 'packages/real/real.c' ).
 user_c_dep( 'packages/odbc/odbc.pl', 'packages/odbc/odbc.c' ).
+user_c_dep( 'packages/clib/unix.pl', 'packages/clib/unix.c' ).
+user_c_dep( 'packages/clib/cgi.pl', 'packages/clib/cgi.c' ).
+user_c_dep( 'packages/clib/crypt.pl', 'packages/clib/crypt.c' ).
+user_c_dep( 'packages/clib/filesex.pl', 'packages/clib/files.c' ).
+user_c_dep( 'packages/clib/mime.pl', 'packages/clib/mime.c' ).
+user_c_dep( 'packages/clib/socket.pl', 'packages/clib/socket.c' ).
+user_c_dep( 'packages/clib/socket.pl', 'packages/clib/winpipe.c' ).
+user_c_dep( 'packages/http/http_stream.pl', 'packages/http/cgi_stream.c' ).
+user_c_dep( 'packages/http/http_stream.pl', 'packages/http/stream_range.c' ).
+user_c_dep( 'packages/http/http_stream.pl', 'packages/http/http_chunked.c' ).
+user_c_dep( 'packages/http/http_stream.pl', 'packages/http/http_error.c' ).
 user_c_dep( 'packages/swi-minisat2/minisat.pl', 'packages/swi-minisat2/C/pl-minisat.C' ).
-user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/gecode4_yap.cc' ).
-user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_forward_auto_generated.icc' ).
-user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_impl_auto_generated.icc' ).
-user_c_dep( 'packages/gecode/gecode4.yap', 'packages/gecode/4.2.1/gecode_yap_cc_init_auto_generated.icc' ).
+user_c_dep( 'packages/gecode/gecode.yap', 'packages/gecode/gecode4_yap.cc' ).
+user_c_dep( 'packages/gecode/gecode.yap', 'packages/gecode/4.2.1/gecode_yap_cc_forward_auto_generated.icc' ).
+user_c_dep( 'packages/gecode/gecode.yap', 'packages/gecode/4.2.1/gecode_yap_cc_init_auto_generated.icc' ).
+user_c_dep( 'packages/gecode/gecode.yap', 'packages/gecode/4.2.1/gecode_yap_cc_impl_auto_generated.icc' ).
+user_c_dep( 'packages/semweb/rdf_db.pl', 'packages/semweb/atom_map.c' ).
+user_c_dep( 'packages/semweb/rdf_db.pl', 'packages/semweb/resource.c' ).
+user_c_dep( 'packages/sgml/sgml.pl', 'packages/sgml/quote.c' ).
+user_c_dep( 'swi/library/readutil.pl', 'packages/clib/readutil.c' ).
+user_c_dep( 'packages/myddas/pl/myddas.ypp', 'packages/myddas/myddas_shared.c' ).
+user_c_dep( 'packages/myddas/pl/myddas.ypp', 'packages/myddas/myddas_odbc.c' ).
+user_c_dep( 'packages/myddas/pl/myddas.ypp', 'packages/myddas/myddas_mysql.c' ).
+user_c_dep( 'packages/myddas/pl/myddas.ypp', 'packages/myddas/myddas_top_level.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/bpx.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/error.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/fputil.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/gamma.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/glue.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/idtable.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/idtable_preds.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/random.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/termpool.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/vector.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/core/xmalloc.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/em_aux.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/em_aux_ml.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/em_aux_vb.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/em_ml.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/em_preds.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/flags.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/graph.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/graph_aux.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/hindsight.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/util.c' ).
+user_c_dep( 'packages/prism/src/prolog/prism.yap', 'packages/prism/src/c/up/viterbi.c' ).
 
+user_skip( 'packages/gecode/3.6.0').
+user_skip( 'packages/gecode/3.7.0').
+user_skip( 'packages/gecode/3.7.1').
+user_skip( 'packages/gecode/3.7.2').
+user_skip( 'packages/gecode/3.7.3').
+user_skip( 'packages/gecode/4.0.0').
+user_skip( 'packages/gecode/4.2.0').
+user_skip( 'packages/gecode/4.2.1').
+user_skip( 'packages/gecode/gecode3.yap' ).
+user_skip( 'packages/gecode/gecode3_yap.cc' ).
+user_skip( 'packages/gecode/gecode3_yap_hand_written.yap').
+user_skip( 'packages/gecode/gecode3.yap-common.icc').
+user_skip( 'packages/prism/src/prolog/core').
+user_skip( 'packages/prism/src/prolog/up').
+user_skip( 'packages/prism/src/prolog/mp').
+user_skip( 'packages/prism/src/prolog/trans').
+user_skip( 'packages/prism/src/prolog/bp').
+user_skip( 'packages/prism/src/c').
 
+user_expand( library(clpfd), 'library/clp/clpfd.pl' ).
 
+ 

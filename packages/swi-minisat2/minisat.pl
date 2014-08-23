@@ -42,12 +42,9 @@
 ]).
 
 
-:- if(current_prolog_flag(dialect, yap)).
-:- load_foreign_files(['pl-minisat'],[],install).
-:- else.
-:- use_module(library(shlib)).
-:- load_foreign_library('pl-minisat.so',install).
-:- endif.
+:- use_module(library(lists)).
+
+:- load_foreign_library('pl-minisat',install).
 
 :- dynamic tmp/1.
 
