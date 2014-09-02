@@ -414,6 +414,7 @@ fi
 AC_CHECK_DECL(__clang_major__, CLANG=yes, CLANG=no)
 
 dnl Compilation Flags
+
 if test "$GCC" = "yes"
 then
      if test "$debugyap" = "yes"
@@ -704,83 +705,98 @@ else
 fi
 AC_SUBST(PKG_PRISM)
 
-if test -e "$srcdir"/packages/archive/Makefile.in; then
+if test -e "$srcdir"/packages/archive/Makefile.in
+ then
   PKG_LIBARCHIVE="packages/archive"
 else
   PKG_LIBARCHIVE=""
 fi
 
-if test -e "$srcdir"/packages/odbc/Makefile.in; then
+if test -e "$srcdir"/packages/odbc/Makefile.in
+then
   PKG_ODBC="packages/odbc"
 else
   PKG_ODBC=""
 fi
 
-if test "$use_chr" = no; then
+if test "$use_chr" = no
+then
   PKG_CHR=""
-elif test -e "$srcdir"/packages/chr/Makefile.in; then
+elif test -e "$srcdir"/packages/chr/Makefile.in
+then
   PKG_CHR="packages/chr"
 else
   PKG_CHR=""
 fi
 
-if test "$use_clpqr" = no; then
+if test "$use_clpqr" = no
+then
   PKG_CLPQR=""
-elif test -e "$srcdir"/packages/clpqr/Makefile.in; then
+elif test -e "$srcdir"/packages/clpqr/Makefile.in
+then
   PKG_CLPQR="packages/clpqr"
 else
   PKG_CLPQR=""
 fi
 
-if test -e "$srcdir"/packages/clib/Makefile.in; then
+if test -e "$srcdir"/packages/clib/Makefile.in
+then
   PKG_CLIB="packages/clib/maildrop/rfc2045 packages/clib/maildrop/rfc822 packages/clib"
 else
   PKG_CLIB=""
 fi
 
-if test -e "$srcdir"/packages/http/Makefile.in; then
+if test -e "$srcdir"/packages/http/Makefile.in
+then
   PKG_HTTP="packages/http"
 else
   PKG_HTTP=""
 fi
 
-if test -e "$srcdir"/packages/plunit/Makefile.in; then
+if test -e "$srcdir"/packages/plunit/Makefile.in
+then
   PKG_PLUNIT="packages/plunit"
 else
   PKG_PLUNIT=""
 fi
 
-if test -e "$srcdir"/packages/R/Makefile.in; then
+if test -e "$srcdir"/packages/R/Makefile.in
+then
   PKG_R="packages/R"
 else
   PKG_R=""
 fi
 
-if test -e "$srcdir"/packages/raptor/Makefile.in; then
+if test -e "$srcdir"/packages/raptor/Makefile.in
+then
   ENABLE_RAPTOR="packages/raptor"
 else
   ENABLE_RAPTOR=""
 fi
 
-if test -e "$srcdir"/packages/RDF/Makefile.in; then
+if test -e "$srcdir"/packages/RDF/Makefile.in
+then
   PKG_RDF="packages/RDF"
 else
   PKG_RDF=""
 fi
 
-if test -e "$srcdir"/packages/semweb/Makefile.in; then
+if test -e "$srcdir"/packages/semweb/Makefile.in
+then
   PKG_SEMWEB="packages/semweb"
 else
   PKG_SEMWEB=""
 fi
 
-if test -e "$srcdir"/packages/sgml/Makefile.in; then
+if test -e "$srcdir"/packages/sgml/Makefile.in
+then
   PKG_SGML="packages/sgml"
 else
   PKG_SGML=""
 fi
 
-if test -e "$srcdir"/packages/zlib/Makefile.in; then
+if test -e "$srcdir"/packages/zlib/Makefile.in
+then
   PKG_ZLIB="packages/zlib"
 else
   PKG_ZLIB=""
@@ -824,6 +840,7 @@ fi
 
 	dnl now this is where things get nasty.
 	dnl trying to get the libraries
+	
 	case "$target_os" in
 	      *linux*)
 	        if test "$static_compilation" = "no"
@@ -1153,44 +1170,44 @@ fi
 YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DRATIONAL_TREES=1"
 
 if test "$tabling" = yes
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
 
 if test "$debugyap" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DDEBUG=1"
 fi
 
 if test "$eam" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DBEAM"
 fi
 
 if test "$wamprofile" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DANALYST=1"
 fi
 
 if test "$depthlimit" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1"
 fi
 
 if test "$use_april" = "yes"
-  then
+then
    YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1 -DAPRIL"
    LDFLAGS="$LDFLAGS -L."
    LIBS="$LIBS -lApril"
 fi
 
 if test "$lowleveltracer" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DLOW_LEVEL_TRACER=1"
 fi
 
 if test "$threads" = "yes"
-  then
+then
   YAP_EXTRAS="$YAP_EXTRAS -DTHREADS=1"
   if test "$GCC" = "yes"
   then
@@ -1619,7 +1636,8 @@ AC_CHECK_FUNCS(_NSGetEnviron _chsize_s access acosh)
 AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
 AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
-AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime ftruncate getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable ffsl ffsll fgetpos finite)
+AC_CHECK_FUNCS(flsl flsll fpclass ftime ftruncate getcwd getenv)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize getpid)
@@ -1872,7 +1890,7 @@ if test "x$PLARCH" = "x"; then
   case "$host" in
     *linux*)
       PLARCH=`echo $host | sed 's/-.*/-linux/'`
-      ;;
+    ;;
     i?86-*mingw32*)
       # Make PLARCH match the definition in src/config/win32.h
       PLARCH=i386-win32
