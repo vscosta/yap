@@ -99,12 +99,8 @@
 #define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
 #define LOCAL_MaxActiveSignals LOCAL->MaxActiveSignals_
 #define REMOTE_MaxActiveSignals(wid) REMOTE(wid)->MaxActiveSignals_
-#define LOCAL_FirstActiveSignal LOCAL->FirstActiveSignal_
-#define REMOTE_FirstActiveSignal(wid) REMOTE(wid)->FirstActiveSignal_
-#define LOCAL_LastActiveSignal LOCAL->LastActiveSignal_
-#define REMOTE_LastActiveSignal(wid) REMOTE(wid)->LastActiveSignal_
-#define LOCAL_ActiveSignals LOCAL->ActiveSignals_
-#define REMOTE_ActiveSignals(wid) REMOTE(wid)->ActiveSignals_
+#define LOCAL_Signals LOCAL->Signals_
+#define REMOTE_Signals(wid) REMOTE(wid)->Signals_
 #define LOCAL_IPredArity LOCAL->IPredArity_
 #define REMOTE_IPredArity(wid) REMOTE(wid)->IPredArity_
 #define LOCAL_ProfEnd LOCAL->ProfEnd_
@@ -239,10 +235,6 @@
 #endif
 #define LOCAL_consult_level LOCAL->consult_level_
 #define REMOTE_consult_level(wid) REMOTE(wid)->consult_level_
-#if defined(YAPOR) || defined(THREADS)
-#define LOCAL_SignalLock LOCAL->SignalLock_
-#define REMOTE_SignalLock(wid) REMOTE(wid)->SignalLock_
-#endif
 
 #define LOCAL_LocalBase LOCAL->LocalBase_
 #define REMOTE_LocalBase(wid) REMOTE(wid)->LocalBase_

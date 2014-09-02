@@ -272,23 +272,29 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
   CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+    YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (IsVarTerm( t ))
-      return 0;
+    return 0;
   if ( !IsApplTerm(t) ) {
     if (IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
-	return 1;
+        Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
+        return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
-	return 1;
+        Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
+        return 1;
       }
     }
     return 0;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f))
+      return 0;
+    if (index < 1 || index > ArityOfFunctor(f))
+      return 0;
+    Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
+    return 1;
   }
-  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
-  return 1;
 }
 
 /** @brief *ap is assigned the name and *ip the arity from term  ts
@@ -3138,18 +3144,8 @@ X_API int
 PL_raise(int sig)
 {
   CACHE_REGS
-  LOCK(LOCAL_SignalLock);
-  if (sig < SIG_PROLOG_OFFSET) {
-    Yap_signal(YAP_INT_SIGNAL);
-    UNLOCK(LOCAL_SignalLock);
-    return 1;
-  } else if (sig == SIG_PLABORT) {
-    Yap_signal(0x40); /* YAP_INT_SIGNAL */
-    LOCK(LOCAL_SignalLock);
-    return 1;
-  }
-  UNLOCK(LOCAL_SignalLock);
-  return 0;
+  Yap_signal(YAP_INT_SIGNAL);
+   return 1;
 }
 
 int
@@ -3158,9 +3154,7 @@ raiseSignal(PL_local_data_t *ld, int sig)
 #if THREADS
   CACHE_REGS
   if (sig == SIG_THREAD_SIGNAL) {
-    LOCK(LOCAL_SignalLock);
     Yap_signal(YAP_ITI_SIGNAL);
-    UNLOCK(LOCAL_SignalLock);
     return TRUE;    
   }
 #endif

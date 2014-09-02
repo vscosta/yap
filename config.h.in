@@ -216,6 +216,12 @@
 /* Define to 1 if you have the `fetestexcept' function. */
 #undef HAVE_FETESTEXCEPT
 
+/* Define to 1 if you have the `ffsl' function. */
+#undef HAVE_FFSL
+
+/* Define to 1 if you have the `ffsll' function. */
+#undef HAVE_FFSLL
+
 /* Define to 1 if you have the `fgetpos' function. */
 #undef HAVE_FGETPOS
 
@@ -224,6 +230,12 @@
 
 /* Define to 1 if you have the <float.h> header file. */
 #undef HAVE_FLOAT_H
+
+/* Define to 1 if you have the `flsl' function. */
+#undef HAVE_FLSL
+
+/* Define to 1 if you have the `flsll' function. */
+#undef HAVE_FLSLL
 
 /* Define to 1 if you have the `fpclass' function. */
 #undef HAVE_FPCLASS

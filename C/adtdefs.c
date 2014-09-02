@@ -26,8 +26,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #include "Yap.h"
-static Prop	PredPropByFunc(Functor, Term);
-static Prop	PredPropByAtom(Atom, Term);
 #include "Yatom.h"
 #include "yapio.h"
 #include "pl-shared.h"
@@ -206,11 +204,9 @@ LookupAtom(const char *atom)
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
   CACHE_REGS
-  LOCK(LOCAL_SignalLock);
   if (NOfAtoms > 2*AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
-  UNLOCK(LOCAL_SignalLock);
   return na;
 }
 
@@ -276,11 +272,9 @@ LookupWideAtom(const wchar_t *atom)
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(WideHashChain[hash].AERWLock);
   CACHE_REGS
-  LOCK(LOCAL_SignalLock);
   if (NOfWideAtoms > 2*WideAtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
-  UNLOCK(LOCAL_SignalLock);
   return na;
 }
 

@@ -557,14 +557,7 @@ PL_unify_chars(term_t t, int flags, size_t len, const char *s)
 
 X_API int PL_handle_signals(void)
 {
-  GET_LD
-  if ( !LD || LD->critical || !LD->signal.pending )
-    return 0;
-  if (LD->signal.pending == 2) {
-    Yap_Error(PURE_ABORT, TermNil, "abort from console");
-  }
-  //  fprintf(stderr,"PL_handle_signals not implemented\n");
-  return 1;
+  return Yap_HandleInterrupts( );
 }
 
 void
@@ -1215,7 +1208,6 @@ PL_w32thread_raise(DWORD id, int sig)
     return FALSE;			/* illegal signal */
 
   PL_LOCK(L_PLFLAG);	
-  // LOCK(LOCAL_SignalLock);
   for(i = 0; i <= thread_highest_id; i++)
     { PL_thread_info_t *info = GD->thread.threads[i];
       
@@ -1225,13 +1217,11 @@ PL_w32thread_raise(DWORD id, int sig)
 	  Yap_external_signal(i, sig); //raiseSignal(info->thread_data, sig);
 	  if ( info->w32id )
 	    PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
-	  //UNLOCK(LOCAL_SignalLock);
 	  PL_UNLOCK(L_PLFLAG);
 	  DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
 	  return TRUE;
 	}
     }
-  // UNLOCK(LOCAL_SignalLock);
   PL_UNLOCK(L_PLFLAG);
   
   return FALSE;				/* can't find thread */

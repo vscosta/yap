@@ -356,8 +356,9 @@ handled_exception( USES_REGS1 )
 
 
 static void
-dump_stack( USES_REGS1 )
+dump_stack( void )
 {
+  CACHE_REGS
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
   char tp[256];
@@ -458,7 +459,7 @@ error_exit_yap (int value)
 {
   CACHE_REGS
   if (!(LOCAL_PrologMode & BootMode)) {
-    dump_stack( PASS_REGS1 );
+    dump_stack( );
 #if DEBUG
 #endif
   }
@@ -475,7 +476,7 @@ Yap_bug_location(yamop *pc)
   CACHE_REGS
   detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)HR, 256);
   fprintf(stderr,"%s\n",(char *)HR);
-  dump_stack( PASS_REGS1 );
+  dump_stack( );
 }
 
 #endif
@@ -588,10 +589,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     /* make sure failure will be seen at next port */
-    LOCK(LOCAL_SignalLock);
+    // no need to lock & unlock
     if (LOCAL_PrologMode & AsyncIntMode)
       Yap_signal(YAP_FAIL_SIGNAL);
-    UNLOCK(LOCAL_SignalLock);
     P = FAILCODE;
   } else {
     if (IsVarTerm(where)) {
@@ -1151,7 +1151,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack( PASS_REGS1 );
+      dump_stack();
       ti[0] = MkAtomTerm(AtomCodeSpace);
       i = strlen(tmpbuf);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1165,7 +1165,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack( PASS_REGS1 );
+      dump_stack( );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomStack);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1179,7 +1179,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack( PASS_REGS1 );
+      dump_stack( );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomAttributes);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1193,7 +1193,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack( PASS_REGS1 );
+      dump_stack( );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomUnificationStack);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1207,7 +1207,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack( PASS_REGS1 );
+      dump_stack( );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomTrail);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1983,18 +1983,15 @@ E);
   }
   if (serious) {
     /* disable active signals at this point */
-    LOCAL_FirstActiveSignal = LOCAL_LastActiveSignal  = 0;
+    LOCAL_Signals  = 0;
     CalculateStackGap( PASS_REGS1 );
     LOCAL_PrologMode &= ~InErrorMode;
-    LOCK(LOCAL_SignalLock);
     /* we might be in the middle of a critical region */
     if (LOCAL_InterruptsDisabled) {
       LOCAL_InterruptsDisabled = 0;
       LOCAL_UncaughtThrow = TRUE;
-      UNLOCK(LOCAL_SignalLock);
       Yap_RestartYap( 1 );
     }
-    UNLOCK(LOCAL_SignalLock);
 #if DEBUG
     DumpActiveGoals( PASS_REGS1 );
 #endif

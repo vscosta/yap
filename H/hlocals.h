@@ -56,9 +56,7 @@ typedef struct worker_local {
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
   struct DB_TERM*  BallTerm_;
   UInt  MaxActiveSignals_;
-  UInt  FirstActiveSignal_;
-  UInt  LastActiveSignal_;
-  UInt*  ActiveSignals_;
+  uint64_t  Signals_;
   UInt  IPredArity_;
   yamop*  ProfEnd_;
   int  UncaughtThrow_;
@@ -134,9 +132,6 @@ typedef struct worker_local {
   Int  total_choicepoints_;
 #endif
   int  consult_level_;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  SignalLock_;
-#endif
 
   ADDR  LocalBase_;
   ADDR  GlobalBase_;

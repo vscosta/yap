@@ -432,11 +432,9 @@ p_dif( USES_REGS1 )
 #ifdef COROUTINING
     /* now restore Woken Goals to its old value */
     Yap_UpdateTimedVar(LOCAL_WokenGoals, OldWokenGoals);
-    LOCK(LOCAL_SignalLock);
     if (OldWokenGoals == TermNil) {
-      Yap_undo_signal(YAP_WAKEUP_SIGNAL);
+      Yap_get_signal(YAP_WAKEUP_SIGNAL);
     }
-    UNLOCK(LOCAL_SignalLock);
 #endif
     /* restore B */
     B = pt1;

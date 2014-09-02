@@ -208,7 +208,7 @@ kill_thread_engine (int wid, int always_die)
     gl = gl->NextGE;
   }
   Yap_KillStacks(wid);
-  REMOTE_ActiveSignals(wid) = 0L;
+  REMOTE_Signals(wid) = 0L;
   if (REMOTE_ScratchPad(wid).ptr)
     free(REMOTE_ScratchPad(wid).ptr);
   REMOTE_PL_local_data_p(wid)->reg_cache =

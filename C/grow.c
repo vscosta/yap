@@ -1314,7 +1314,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   if (sz >= sizeof(CELL) * K16) {
-    Yap_undo_signal(  YAP_CDOVF_SIGNAL );
+    Yap_get_signal(  YAP_CDOVF_SIGNAL );
     return TRUE;
   }
   /* failed */
@@ -1367,7 +1367,7 @@ growatomtable( USES_REGS1 )
   if (nsize -AtomHashTableSize  > 4*1024*1024)
     nsize =  AtomHashTableSize+4*1024*1024+7919;
 
-  Yap_undo_signal(  YAP_CDOVF_SIGNAL );
+  Yap_get_signal(  YAP_CDOVF_SIGNAL );
   while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
     /* leave for next time */
 #if !USE_SYSTEM_MALLOC
@@ -1429,8 +1429,7 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
 #endif
       res = FALSE;
       if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
-	  Yap_undo_signal( YAP_CDOVF_SIGNAL );
-	  UNLOCK(LOCAL_SignalLock);
+	  Yap_get_signal( YAP_CDOVF_SIGNAL );
 	  return TRUE;
       }
   }
@@ -1446,7 +1445,6 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
 	 NOfAtoms+1 > 2*AtomHashTableSize)) {
       res  = growatomtable( PASS_REGS1 );
     } else {
-      Yap_undo_signal( YAP_CDOVF_SIGNAL );
 #ifdef THREADS
       UNLOCK(GLOBAL_ThreadHandlesLock);
 #endif
@@ -1478,9 +1476,7 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
 {
   CACHE_REGS
   int rc;
-  LOCK(LOCAL_SignalLock);
   rc = Yap_locked_growheap(fix_code, in_size, cip);
-  UNLOCK(LOCAL_SignalLock);
   return rc;
 }
 
@@ -1525,9 +1521,7 @@ Yap_growglobal(CELL **ptr)
 {
   CACHE_REGS
     int rc;
-  LOCK(LOCAL_SignalLock);
   rc = Yap_locked_growglobal(ptr);
-  UNLOCK(LOCAL_SignalLock);
   return rc;
 }
 
@@ -1563,10 +1557,8 @@ Yap_growstack(size_t size)
   int res;
 
   LOCAL_PrologMode |= GrowStackMode;
-  LOCK(LOCAL_SignalLock);
   res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
-  UNLOCK(LOCAL_SignalLock);
   return res;
 }
 
@@ -1821,7 +1813,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     Sfprintf(GLOBAL_stderr, "%%  took %g sec\n", (double)growth_time/1000);
     Sfprintf(GLOBAL_stderr, "%% Total of %g sec expanding trail \n", (double)LOCAL_total_trail_overflow_time/1000);
   }
-  Yap_undo_signal( YAP_TROVF_SIGNAL );
+  Yap_get_signal( YAP_TROVF_SIGNAL );
   return TRUE;
 }
 
@@ -1832,9 +1824,7 @@ Yap_growtrail(long size, int contiguous_only)
 { 
   int rc;
   CACHE_REGS
-  LOCK(LOCAL_SignalLock);
   rc = do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
-  UNLOCK(LOCAL_SignalLock);
   return rc;
 }
 

@@ -1514,165 +1514,29 @@ my_signal_info(int sig, void (*handler)(int, void  *, void *))
 
 #endif
 
-
-static int
-InteractSIGINT(int ch) {
-  CACHE_REGS
-  switch (ch) {
-  case 'a':
-    /* abort computation */
-    if (LOCAL_PrologMode & (GCMode|ConsoleGetcMode|CritMode)) {
-      LOCAL_PrologMode |= AbortMode;
-      return -1;
-    } else {
-      Yap_Error(PURE_ABORT, TermNil, "abort from console");
-    }
-    LOCAL_PrologMode &= ~AsyncIntMode;
-    Yap_RestartYap( 1 );
-    return -1;
-  case 'b':
-    /* continue */
-    Yap_signal (YAP_BREAK_SIGNAL);
-    return 1;
-  case 'c':
-    /* continue */
-    return 1;
-  case 'd':
-    Yap_signal (YAP_DEBUG_SIGNAL);
-    /* enter debug mode */
-    return 1;
-  case 'e':
-    /* exit */
-    Yap_exit(0);
-    return -1;
-  case 'g':
-    /* exit */
-    Yap_signal (YAP_STACK_DUMP_SIGNAL);
-    return -1;
-  case 't':
-    /* start tracing */
-    Yap_signal (YAP_TRACE_SIGNAL);
-    return 1;
-#ifdef LOW_LEVEL_TRACER
-  case 'T':
-    toggle_low_level_trace();
-    return 1;
-#endif
-  case 's':
-    /* show some statistics */
-    Yap_signal (YAP_STATISTICS_SIGNAL);
-    return 1;
-  case EOF:
-    return(0);
-    break;
-  case 'h':
-  case '?':
-  default:
-    /* show an helpful message */
-    fprintf(stderr, "Please press one of:\n");
-    fprintf(stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    fprintf(stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
-    fprintf(stderr, "  b for break\n");
-    return(0);
-  }
-}
-
-/*
-  This function talks to the user about a signal. We assume we are in
-  the context of the main Prolog thread (trivial in Unix, but hard in WIN32)
-*/ 
-static int
-ProcessSIGINT(void)
-{
-  CACHE_REGS
-  int ch, out;
-
-  LOCAL_PrologMode |= AsyncIntMode;
-  do {
-    ch = Yap_GetCharForSIGINT();
-  } while (!(out = InteractSIGINT(ch)));
-  LOCAL_PrologMode &= ~AsyncIntMode;
-  LOCAL_PrologMode &= ~InterruptMode;
-  return(out);
-}
-
-#if !_MSC_VER && !defined(__MINGW32__)
-
-/* This function is called from the signal handler to process signals.
-   We assume we are within the context of the signal handler, whatever
-   that might be
-*/
-static void
-HandleSIGINT (int sig, void   *x, void *y)
-{
-  CACHE_REGS
-    /* fprintf(stderr,"mode = %x\n",LOCAL_PrologMode); */
-  my_signal(SIGINT, HandleSIGINT);
-  /* do this before we act */
-#if HAVE_ISATTY
-  if (!isatty(0)) {
-    Yap_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
-    return;
-  }
-#endif
-  if (LOCAL_InterruptsDisabled) {
-    return;
-  }
-  if (LOCAL_PrologMode & ConsoleGetcMode) {
-    LOCAL_PrologMode |= InterruptMode;
-    return;
-  }
-#ifdef HAVE_SETBUF
-  /* make sure we are not waiting for the end of line */
-  YP_setbuf (stdin, NULL);
-#endif
-  ProcessSIGINT();
-}
-#endif
-
-#if !defined(_WIN32)
-/* this routine is called if the system activated the alarm */
-static RETSIGTYPE
-HandleALRM (int s, void  *x, void *y)
-{
-  my_signal (SIGALRM, HandleALRM);
-  /* force the system to creep */
-  Yap_signal (YAP_ALARM_SIGNAL);
-  /* now, say what is going on */
-  Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
-}
-#endif
-
-
-#if !defined(_WIN32)
-/* this routine is called if the system activated the alarm */
-static RETSIGTYPE
-HandleVTALRM (int s, void   *x, void *y)
-{
-  my_signal (SIGVTALRM, HandleVTALRM);
-  /* force the system to creep */
-  Yap_signal (YAP_VTALARM_SIGNAL);
-  /* now, say what is going on */
-  Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
-}
-#endif
-
-
-/*
- * This function is called after a normal interrupt had been caught.
- * It allows 6 possibilities: abort, continue, trace, debug, help, exit.
- */
-
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
 static RETSIGTYPE
 ReceiveSignal (int s, void *x, void *y)
 {
+  CACHE_REGS
+  LOCAL_PrologMode |= InterruptMode;
   switch (s)
     {
+      case SIGINT:
+      // always direct SIGINT to console
+      Yap_external_signal( 0, YAP_INT_SIGNAL );
+      break;
+      case SIGALRM:
+      Yap_external_signal( worker_id, YAP_ALARM_SIGNAL );
+      break;
+      case SIGVTALRM:
+      Yap_external_signal( worker_id, YAP_VTALARM_SIGNAL );
+      break;
 #ifndef MPW
 #ifdef HAVE_SIGFPE
     case SIGFPE:
       set_fpu_exceptions(FALSE);
+      LOCAL_PrologMode &= ~InterruptMode;
       Yap_Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
       break;
 #endif
@@ -1681,24 +1545,26 @@ ReceiveSignal (int s, void *x, void *y)
       /* These signals are not handled by WIN32 and not the Macintosh */
     case SIGQUIT:
     case SIGKILL:
+      LOCAL_PrologMode &= ~InterruptMode;
       Yap_Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
+      break;
 #endif
 #ifdef SIGUSR1
     case SIGUSR1:
       /* force the system to creep */
-      Yap_signal (YAP_USR1_SIGNAL);
+      Yap_external_signal ( worker_id, YAP_USR1_SIGNAL);
       break;
 #endif /* defined(SIGUSR1) */
 #ifdef SIGUSR2
     case SIGUSR2:
       /* force the system to creep */
-      Yap_signal (YAP_USR2_SIGNAL);
+      Yap_external_signal ( worker_id, YAP_USR2_SIGNAL);
       break;
 #endif /* defined(SIGUSR2) */
 #ifdef SIGPIPE
     case SIGPIPE:
       /* force the system to creep */
-      Yap_signal (YAP_PIPE_SIGNAL);
+      Yap_external_signal ( worker_id, YAP_PIPE_SIGNAL);
       break;
 #endif /* defined(SIGPIPE) */
 #ifdef SIGHUP
@@ -1709,7 +1575,7 @@ ReceiveSignal (int s, void *x, void *y)
 #endif /* defined(SIGHUP) */
     default:
       fprintf(stderr, "\n[ Unexpected signal ]\n");
-      exit (EXIT_FAILURE);
+      exit (s);
     }
 }
 #endif
@@ -1728,11 +1594,11 @@ MSCHandleSignal(DWORD dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
 #if THREADS
-   Yap_external_signal(0, YAP_WINTIMER_SIGNAL);
+    Yap_external_signal(0, YAP_WINTIMER_SIGNAL);
     REMOTE_PrologMode(0) |= InterruptMode;
 #else
-    Yap_signal(YAP_WINTIMER_SIGNAL);
-     LOCAL_PrologMode |= InterruptMode;
+   Yap_signal(YAP_WINTIMER_SIGNAL);
+   LOCAL_PrologMode |= InterruptMode;
 #endif
     return(TRUE);
   default:
@@ -1752,8 +1618,8 @@ InitSignals (void)
     my_signal (SIGUSR1, ReceiveSignal);
     my_signal (SIGUSR2, ReceiveSignal);
     my_signal (SIGHUP,  ReceiveSignal);
-    my_signal (SIGALRM, HandleALRM);
-    my_signal (SIGVTALRM, HandleVTALRM);
+    my_signal (SIGALRM, ReceiveSignal);
+    my_signal (SIGVTALRM, ReceiveSignal);
 #endif
 #ifdef SIGPIPE
     my_signal (SIGPIPE, ReceiveSignal);
@@ -1762,7 +1628,7 @@ InitSignals (void)
     signal (SIGINT, SIG_IGN);
     SetConsoleCtrlHandler(MSCHandleSignal,TRUE);
 #else
-    my_signal (SIGINT, HandleSIGINT);
+    my_signal (SIGINT, ReceiveSignal);
 #endif
 #ifdef HAVE_SIGFPE
     my_signal (SIGFPE, HandleMatherr);
@@ -1961,7 +1827,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib, int expand_roo
 	  strncpy (result, ares1, YAP_FILENAME_MAX);
 	}
       } else {
-	strncpy (result, ares1, YAP_FILENAME_MAX);
+	      strncpy (result, ares1, YAP_FILENAME_MAX);
 	close(tmpf);
       }
     } else {
@@ -2483,9 +2349,9 @@ p_alarm( USES_REGS1 )
   i2 = IntegerOfTerm(t2);
   if (i1 == 0 && i2 == 0) {
 #if _WIN32
-    Yap_undo_signal( YAP_WINTIMER_SIGNAL );
+    Yap_get_signal( YAP_WINTIMER_SIGNAL );
 #else
-    Yap_undo_signal( YAP_ALARM_SIGNAL );
+    Yap_get_signal( YAP_ALARM_SIGNAL );
 #endif
   }    
 #if _MSC_VER || defined(__MINGW32__)
@@ -2844,26 +2710,20 @@ p_win32( USES_REGS1 )
 static Int
 p_enable_interrupts( USES_REGS1 )
 {
-  LOCK(LOCAL_SignalLock);
   LOCAL_InterruptsDisabled--;
-  if (LOCAL_ActiveSignals && !LOCAL_InterruptsDisabled) {
+  if (LOCAL_Signals && !LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
     if ( !Yap_only_has_signal( YAP_CREEP_SIGNAL ) )
       EventFlag = Unsigned( LCL0 );
   }
-  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
 static Int
 p_disable_interrupts( USES_REGS1 )
 {
-  LOCK(LOCAL_SignalLock);
   LOCAL_InterruptsDisabled++;
-  if (LOCAL_ActiveSignals) {
-    CalculateStackGap( PASS_REGS1 );
-  }
-  UNLOCK(LOCAL_SignalLock);
+  CalculateStackGap( PASS_REGS1 );
   return TRUE;
 }
 

@@ -324,13 +324,16 @@ msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
 {
   /* the obvious solution: do it by using binary search */
   Int out = 0;
-  int off = sizeof(CELL)*4;
 
   if (inp < 0) {
     return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	      "msb/1 received %d", inp);
   }
 
+#if 0
+
+#else
+  int off = sizeof(CELL)*4;
   while (off) {
     Int limit = ((CELL)1) << (off);
     if (inp >= limit) {
@@ -339,6 +342,7 @@ msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
     }
     off >>= 1;
   }
+#endif
   return(out);
 }
 

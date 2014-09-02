@@ -63,8 +63,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
-
 #ifdef  COROUTINING
   REMOTE_WokenGoals(wid) = TermToGlobalAdjust(REMOTE_WokenGoals(wid));
   REMOTE_AttsMutableList(wid) = TermToGlobalAdjust(REMOTE_AttsMutableList(wid));
@@ -134,9 +132,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif
 
-#if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(REMOTE_SignalLock(wid));
-#endif
 
 
 

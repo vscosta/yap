@@ -133,6 +133,8 @@ check_area(void)
 PredEntry *old_p[10000];
 Term old_x1[10000], old_x2[10000], old_x3[10000];
 
+static CELL oldv;
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -143,6 +145,12 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
   vsc_count++;
 
+  if (vsc_count == 2956635LL) jmp_deb(1);
+  if (HR >= H0+(248348-10) && H0[248348] != oldv) {
+      printf("%lld HR=%p %lx\n", vsc_count, HR, H0[248348]);
+      oldv = H0[248348];
+  }
+  if (vsc_count < 2950305LL || vsc_count > 2960485LL)   return;
   // if (!worker_id) return;
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;

@@ -158,21 +158,18 @@ do_execute(Term t, Term mod USES_REGS)
   Term t0 = t;
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
-  LOCK(LOCAL_SignalLock);			
   if (PRED_GOAL_EXPANSION_ALL) {
     /* disable creeping when we do goal expansion */
     if (!LOCAL_InterruptsDisabled &&
-	Yap_undo_signal( YAP_CREEP_SIGNAL ) ) {
+	Yap_get_signal( YAP_CREEP_SIGNAL ) ) {
       CalculateStackGap( PASS_REGS1 );
     }
-    UNLOCK(LOCAL_SignalLock);			
     return CallMetaCall(ARG1, mod PASS_REGS);
   } else if (Yap_has_a_signal()  &&
 	     !LOCAL_InterruptsDisabled &&
 	     !(LOCAL_PrologMode & (AbortMode|InterruptMode|SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
-  UNLOCK(LOCAL_SignalLock);			
  restart_exec:
   if (IsVarTerm(t)) {
     return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
@@ -333,22 +330,18 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   if (IsExtensionFunctor(f)) {
     return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   }
-  LOCK(LOCAL_SignalLock);
   if (PRED_GOAL_EXPANSION_ALL) {
     /* disable creeping when we do goal expansion */
-    if (Yap_has_signal( YAP_CREEP_SIGNAL ) &&
+    if (Yap_get_signal( YAP_CREEP_SIGNAL ) &&
 	!LOCAL_InterruptsDisabled) {
-      Yap_undo_signal( YAP_CREEP_SIGNAL );
       CalculateStackGap( PASS_REGS1 );
     }
     t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-    UNLOCK(LOCAL_SignalLock);
   return CallMetaCall(t, mod PASS_REGS);
   } else if (Yap_has_a_signal()  &&
 	     !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS), mod PASS_REGS);
   }
-  UNLOCK(LOCAL_SignalLock);
   if (arity > MaxTemps) {
     return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   }
@@ -385,13 +378,12 @@ static Int
 EnterCreepMode(Term t, Term mod USES_REGS) {
   PredEntry *PredCreep;
 
-  if (Yap_has_signal( YAP_CDOVF_SIGNAL ) ) {
+  if (Yap_get_signal( YAP_CDOVF_SIGNAL ) ) {
     ARG1 = t;
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at meta-call");
     }
     if (!Yap_has_a_signal()) {
-      UNLOCK(LOCAL_SignalLock);			
       return do_execute(ARG1, mod PASS_REGS);
     }
   }
@@ -407,7 +399,6 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
     }
   }
   CalculateStackGap( PASS_REGS1 );
-  UNLOCK(LOCAL_SignalLock);
   P_before_spy = P;
   return CallPredicate(PredCreep, B, PredCreep->CodeOfPred PASS_REGS);
 }
@@ -642,11 +633,9 @@ p_execute_clause( USES_REGS1 )
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  LOCK(LOCAL_SignalLock);
-  if (Yap_undo_signal(YAP_CREEP_SIGNAL)) {
+  if (Yap_get_signal(YAP_CREEP_SIGNAL)) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
-  UNLOCK(LOCAL_SignalLock);
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
 }
 
@@ -659,17 +648,12 @@ p_execute_in_mod( USES_REGS1 )
 static Int
 p_do_goal_expansion( USES_REGS1 )
 {
-  Int creeping = Yap_has_signal(YAP_CREEP_SIGNAL);
+  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = Deref(ARG2);
 
   ARG2 = ARG3;
-  if (creeping) {
-    LOCK(LOCAL_SignalLock);
-    Yap_undo_signal(YAP_CREEP_SIGNAL);    
-    UNLOCK(LOCAL_SignalLock);
-  }
   
   /* CurMod:goal_expansion(A,B) */
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
@@ -710,28 +694,19 @@ p_do_goal_expansion( USES_REGS1 )
     out = TRUE;
   }
  complete:
-  LOCK(LOCAL_SignalLock);
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
   }
-  UNLOCK(LOCAL_SignalLock);
   return out;
 }
 
 static Int
 p_do_term_expansion( USES_REGS1 )
 {
-  LOCK(LOCAL_SignalLock);
-  Int creeping = Yap_has_signal(YAP_CREEP_SIGNAL);
+  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = CurrentModule;
-
-  /* disable creeping */
-  if (creeping)
-    Yap_undo_signal(YAP_CREEP_SIGNAL);    
-  
-  UNLOCK(LOCAL_SignalLock);
 
   /* CurMod:term_expansion(A,B) */
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod) ) ) &&
@@ -758,11 +733,9 @@ p_do_term_expansion( USES_REGS1 )
     out = TRUE;
   }
  complete:
-  LOCK(LOCAL_SignalLock);
   if (creeping) {
     Yap_signal(YAP_CREEP_SIGNAL);    
   }
-  UNLOCK(LOCAL_SignalLock);
   return out;
 }
 
@@ -774,12 +747,10 @@ p_execute0( USES_REGS1 )
   unsigned int    arity;
   Prop            pe;
 
-  LOCK(LOCAL_SignalLock);
   if (Yap_has_a_signal()  &&
       !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
-  UNLOCK(LOCAL_SignalLock);
  restart_exec:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,ARG3,"call/1");    
@@ -906,10 +877,9 @@ p_execute_nonstop( USES_REGS1 )
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  LOCK(LOCAL_SignalLock);
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
     if (!LOCAL_InterruptsDisabled &&
-	Yap_undo_signal(YAP_CREEP_SIGNAL)) {
+	Yap_get_signal(YAP_CREEP_SIGNAL)) {
       Yap_signal(YAP_CREEP_SIGNAL);
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -917,16 +887,14 @@ p_execute_nonstop( USES_REGS1 )
       PP = RepPredProp(pe);
       PELOCK(80,PP);
     }
-    UNLOCK(LOCAL_SignalLock);
 #endif
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
-  }  else { if (Yap_has_signal( YAP_CREEP_SIGNAL )  && 
+  }  else { if (Yap_get_signal( YAP_CREEP_SIGNAL )  &&
 		!LOCAL_InterruptsDisabled &&
 		(!(RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) ||
 		  RepPredProp(pe)->OpcodeOfPred == Yap_opcode(_call_bfunc_xx))) {
       Yap_signal(YAP_CREEP_SIGNAL);
     }
-    UNLOCK(LOCAL_SignalLock);
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred PASS_REGS);
   }
 }
@@ -1097,12 +1065,10 @@ exec_absmi(int top USES_REGS)
 	restore_H();
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
-	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
-	LOCAL_FirstActiveSignal = LOCAL_LastActiveSignal;
+	LOCAL_Signals = 0;
 	CalculateStackGap( PASS_REGS1 );
 	LOCAL_PrologMode = UserMode;
-	UNLOCK(LOCAL_SignalLock);
 	P = (yamop *)FAILCODE;
       }
       break;
@@ -1132,11 +1098,9 @@ exec_absmi(int top USES_REGS)
   YENV[E_CB] = Unsigned (B);
   out = Yap_absmi(0);
   /* make sure we don't leave a FAIL signal hanging around */ 
-  LOCK(LOCAL_SignalLock);
-  Yap_undo_signal( YAP_FAIL_SIGNAL );
+  Yap_get_signal( YAP_FAIL_SIGNAL );
   if (!Yap_has_a_signal())
     CalculateStackGap( PASS_REGS1 );
-  UNLOCK(LOCAL_SignalLock);
   return out;
 }
 
@@ -1657,11 +1621,9 @@ JumpToEnv(Term t USES_REGS) {
 	LOCAL_BallTerm = NULL;
 	P = (yamop *)FAILCODE;
 	/* make sure failure will be seen at next port */
-	LOCK(LOCAL_SignalLock);
 	if (LOCAL_PrologMode & AsyncIntMode) {
 	  Yap_signal(YAP_FAIL_SIGNAL);
 	}
-	UNLOCK(LOCAL_SignalLock);
 	HB = B->cp_h;
 	return TRUE;
       }
@@ -1707,11 +1669,9 @@ JumpToEnv(Term t USES_REGS) {
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  LOCK(LOCAL_SignalLock);
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
-  UNLOCK(LOCAL_SignalLock);
   P = (yamop *)FAILCODE;
   HB = B->cp_h;
   /* try to recover space */
@@ -1799,7 +1759,6 @@ Yap_InitYaamRegs( int myworker_id )
     BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
-  LOCK(REMOTE_SignalLock(myworker_id));
   CalculateStackGap( PASS_REGS1 );
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
@@ -1828,7 +1787,6 @@ Yap_InitYaamRegs( int myworker_id )
   if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
-  UNLOCK(REMOTE_SignalLock(myworker_id));
   // make sure we have slots in case we don go through the top-level */
   Yap_StartSlots( PASS_REGS1 );
 

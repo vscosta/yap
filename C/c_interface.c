@@ -780,14 +780,11 @@ YAP_LookupAtom(const char *c)
 
   while (TRUE) {
     a = Yap_LookupAtom((char *)c);
-    LOCK(LOCAL_SignalLock);
-    if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
-      UNLOCK(LOCAL_SignalLock);
     } else {
-      UNLOCK(LOCAL_SignalLock);
       return a;
     }
   }
@@ -802,14 +799,11 @@ YAP_LookupWideAtom(const wchar_t *c)
 
   while (TRUE) {
     a = Yap_LookupWideAtom((wchar_t *)c);
-    LOCK(LOCAL_SignalLock);
-    if (a == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
-      UNLOCK(LOCAL_SignalLock);
     } else {
-      UNLOCK(LOCAL_SignalLock);
       return a;
     }
   }
@@ -824,14 +818,11 @@ YAP_FullLookupAtom(const char *c)
 
   while (TRUE) {
     at = Yap_FullLookupAtom((char *)c);
-    LOCK(LOCAL_SignalLock);
-    if (at == NIL || Yap_has_signal(YAP_CDOVF_SIGNAL)) {
+    if (at == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
-      UNLOCK(LOCAL_SignalLock);
     } else {
-      UNLOCK(LOCAL_SignalLock);
       return at;
     }
   }
@@ -2859,13 +2850,11 @@ YAP_CompileClause(Term t)
   }
   YAPLeaveCriticalSection();
 
-  LOCK(LOCAL_SignalLock);
-  if (Yap_has_signal( YAP_CDOVF_SIGNAL ) ) {
+  if (Yap_get_signal( YAP_CDOVF_SIGNAL ) ) {
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
     }
   }
-  UNLOCK(LOCAL_SignalLock);
   RECOVER_MACHINE_REGS();
   return(LOCAL_ErrorMessage);
 }
@@ -3912,9 +3901,7 @@ X_API void
 YAP_signal(int sig)
 {
   CACHE_REGS
-  LOCK(LOCAL_SignalLock);
   Yap_signal(sig);
-  UNLOCK(LOCAL_SignalLock);
 }
 
 X_API int

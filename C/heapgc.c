@@ -4265,9 +4265,7 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
   int rc;
-  LOCK(LOCAL_SignalLock);
   rc = Yap_locked_gc(predarity, current_env, nextop);
-  UNLOCK(LOCAL_SignalLock);
   return rc;
 }
 
@@ -4295,7 +4293,6 @@ Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   int res;
   UInt min;
 
-  LOCK(LOCAL_SignalLock);
   CalculateStackGap( PASS_REGS1 );
   min = EventFlag*sizeof(CELL);
   LOCAL_PrologMode |= GCMode;
@@ -4303,7 +4300,6 @@ Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
     gc_lim = min;
   res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
-  UNLOCK(LOCAL_SignalLock);
   return res;
 }
 

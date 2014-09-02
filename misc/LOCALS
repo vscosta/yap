@@ -58,9 +58,7 @@ char*				ScannerStack				=NULL
 struct scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
 struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)
 UInt				MaxActiveSignals			=64L
-UInt				FirstActiveSignal			=0L
-UInt				LastActiveSignal			=0L
-UInt*				ActiveSignals				=Yap_InitSignals(wid)
+uint64_t			Signals				=0L
 UInt				IPredArity				=0L
 yamop*				ProfEnd					=NULL
 int				UncaughtThrow				=FALSE
@@ -150,10 +148,6 @@ Int				total_choicepoints			=0
 #endif
 
 int				consult_level				=0
-
-#if defined(YAPOR) || defined(THREADS)
-lockvar				SignalLock				MkLock
-#endif
 
 // Variables related to memory allocation
 ADDR				LocalBase				void

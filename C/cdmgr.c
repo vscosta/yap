@@ -3849,7 +3849,7 @@ p_toggle_static_predicates_in_use( USES_REGS1 )
 }
 
 static void
-clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) { 
+clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
   if (pp->ModuleOfPred == IDB_MODULE) {
     if (pp->PredFlags & NumberDBPredFlag) {
       *parity = 0;
@@ -4024,7 +4024,7 @@ static Int
 code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   Int out;
 
-  PELOCK(40,pp);
+  // PELOCK(40,pp); this is deadlocking...
   /* check if the codeptr comes from the indexing code */
   if (pp->PredFlags & IndexedPredFlag) {
     if (pp->PredFlags & LogUpdatePredFlag) {
@@ -4044,7 +4044,7 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   if ((out = find_code_in_clause(pp, codeptr, NULL, NULL))) {
     clause_was_found(pp, pat, parity);
   }
-  UNLOCK(pp->PELock); 
+  UNLOCK(pp->PELock);
   return out;
 }
 
