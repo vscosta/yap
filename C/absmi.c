@@ -606,9 +606,6 @@ check_alarm_fail_int(int CONT USES_REGS)
       return CONT;
     }
 #endif
-  if (Yap_get_signal( YAP_INT_SIGNAL ) ) {
-      Yap_Error(PURE_ABORT, TermNil, "abort from console");
-  }
   if (Yap_get_signal( YAP_FAIL_SIGNAL )) {
       return FALSE;
   }

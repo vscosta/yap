@@ -1520,6 +1520,7 @@ ReceiveSignal (int s, void *x, void *y)
 {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
+  my_signal (s, ReceiveSignal);
   switch (s)
     {
       case SIGINT:
@@ -1577,6 +1578,7 @@ ReceiveSignal (int s, void *x, void *y)
       fprintf(stderr, "\n[ Unexpected signal ]\n");
       exit (s);
     }
+  LOCAL_PrologMode &= ~InterruptMode;
 }
 #endif
 

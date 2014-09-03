@@ -107,7 +107,6 @@ ProcessSIGINT(void)
 {
   CACHE_REGS
   int ch, out;
-printf("H\n");
 #if HAVE_ISATTY
   if (!isatty(0)) {
       return YAP_INT_SIGNAL;
@@ -259,7 +258,6 @@ Yap_external_signal(int wid, yap_signals sig)
 #endif
   do_signal(wid, sig PASS_REGS);
   LOCAL_PrologMode &= ~InterruptMode;
-  p_debug( PASS_REGS1 );
 }
 
 int
