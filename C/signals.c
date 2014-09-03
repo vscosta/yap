@@ -151,24 +151,24 @@ get_signal(yap_signals sig USES_REGS)
   // reset the flag
   if ( (old =__sync_fetch_and_and( &LOCAL_Signals, ~SIGNAL_TO_BIT(sig) ) ) !=
       SIGNAL_TO_BIT(sig)) {
-      if (!(old & SIGNAL_TO_BIT(sig)) ) {
-	  // weird, it was consumed?
-          return FALSE;
-      }
       if (!LOCAL_InterruptsDisabled && LOCAL_Signals != 0) {
 	  CreepFlag =  (CELL)LCL0;
       }
-      // more likely case, we have other interrupts.
+       if (!(old & SIGNAL_TO_BIT(sig)) ) {
+	  // not there?
+          return FALSE;
+      }
+     // more likely case, we have other interrupts.
       return TRUE;
   }
   // success, we are good
   return TRUE;
   // should we set the flag?
 #else
-  if (LOCAL_Signals & 1LL<sig) {
-      LOCAL_Signals &= ~(1LL<sig);
+  if (LOCAL_Signals & SIGNAL_TO_BIT(sig)) {
+      LOCAL_Signals &= ~SIGNAL_TO_BIT(sig);
       if (!LOCAL_InterruptsDisabled && LOCAL_Signals != 0) {
-	  Creep	Flag =  (CELL)LCL0;
+	  CreepFlag =  (CELL)LCL0;
       } else {
 	  CalculateStackGap( PASS_REGS1 );
       }
@@ -270,7 +270,7 @@ Yap_get_signal__(yap_signals sig USES_REGS)
 int 
 Yap_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 {
-  return LOCAL_Signals & (1LL<sig1|1LL<sig2);
+  return LOCAL_Signals & (SIGNAL_TO_BIT(sig1)|SIGNAL_TO_BIT(sig2));
 }
 
 
@@ -278,8 +278,8 @@ int
 Yap_only_has_signals__(yap_signals sig1, yap_signals sig2 USES_REGS)
 {
   uint64_t  sigs = LOCAL_Signals;
-  return sigs & (1LL<sig1 | 1LL<sig2) &&
-      ! (sigs & ~(1LL<sig1 | 1LL<sig2)) ;
+  return sigs & (SIGNAL_TO_BIT(sig1) | SIGNAL_TO_BIT(sig2)) &&
+      ! (sigs & ~(SIGNAL_TO_BIT(sig1) | SIGNAL_TO_BIT(sig2))) ;
 }
 
 #ifdef DEBUG
