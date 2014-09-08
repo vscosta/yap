@@ -903,8 +903,10 @@ interrupt_fail( USES_REGS1 )
      be recovered. automatically by fail, so
      better wait.
   */
-  if (!Yap_has_a_signal() ||
-      Yap_has_signals( YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL  )) {
+  if (Yap_has_signal( YAP_CREEP_SIGNAL ) ) {
+    return FALSE;
+  }
+  if (Yap_has_signal( YAP_CDOVF_SIGNAL ) ) {
     return FALSE;
   }
   /* make sure we have the correct environment for continuation */
@@ -1207,8 +1209,7 @@ interrupt_dexecute( USES_REGS1 )
 #endif
   PP = P->y_u.pp.p0;
   pe = P->y_u.pp.p;
-  if (Yap_get_signal(YAP_CREEP_SIGNAL) &&
-      (PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag))) {
+  if ((PP->ExtraPredFlags & (NoTracePredFlag|HiddenPredFlag)) && Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
   /* set S for next instructions */
