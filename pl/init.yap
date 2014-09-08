@@ -169,6 +169,7 @@ version(yap,[6,3]).
 :- use_module('swi.yap').
 :- use_module('../swi/library/predopts.pl').
 :- use_module('../swi/library/menu.pl').
+:- use_module('../library/ypp.yap').
 
 
 

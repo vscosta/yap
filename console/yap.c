@@ -159,10 +159,6 @@ main (int argc, char **argv)
   }
   /* Begin preprocessor code */
   if (BootMode != YAP_BOOT_FROM_SAVED_STACKS) {
-    // load the module
-    YAP_Term mod_arg[1];
-    mod_arg[0] = YAP_MkAtomTerm(YAP_LookupAtom("ypp"));
-    YAP_RunGoalOnce(YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("use_module"),1), 1, mod_arg)); 
     // process the definitions
     for(i=0;i<init_args.def_c;++i) {
       YAP_Term t_args[2],t_goal;
