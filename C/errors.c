@@ -244,7 +244,6 @@ DumpActiveGoals ( USES_REGS1 )
       pe = Yap_PredForChoicePt(b_ptr);
       if (!pe)
 	break;
-      PELOCK(72,pe);
       {
 	Functor f;
 	Term mod = PROLOG_MODULE;
@@ -273,7 +272,6 @@ DumpActiveGoals ( USES_REGS1 )
 	}
 	YapPutc (LOCAL_c_error_stream,'\n');
       }
-      UNLOCK(pe->PELock);
       b_ptr = b_ptr->cp_b;
     }
 }
