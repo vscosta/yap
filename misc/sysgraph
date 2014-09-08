@@ -1,6 +1,9 @@
 
 :- style_check(all).
 
+:- yap_flag( write_strings, on).
+:- yap_flag( gc_trace, verbose ).
+
 :- use_module(library(readutil)).
 :- use_module(library(lineutils)).
 :- use_module(library(lists)).
@@ -8,6 +11,8 @@
 :- use_module(library(system)).
 
 :- initialization(main).
+
+:- style_check(all).
 
 :- yap_flag( double_quotes, string ).
 %:- yap_flag( dollar_as_lower_case, on ).
@@ -71,6 +76,7 @@ main :-
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
 %    maplist( pl_graphs, Dirs ),
+trace,
     undefs,
     doubles,
     %     pl_exported(pl).
@@ -1031,11 +1037,12 @@ always_strip_module(M0:A, M0, A).
 c_links :-
     open('foreigns.yap', write, S),
     clinks(S).
+
 clinks(S) :-
     node( M, P, _, c(F)),
     format( S, ':- foreign_predicate( ~q , ~q ).~n', [M:P, F] ),
     fail.
-c_links(S) :-
+clinks(S) :-
     close(S).
 
 warn_singletons(_Vars, _Pos).
@@ -1282,43 +1289,40 @@ mkdocs :-
     open( 'docs/yapdocs.yap', read, S),
     repeat,
     (
-	skip_blanks(S, Comment, Rest)
+	blanks(S, Comment, Rest)
     ->
 	get_comment(S, Rest),
 	store_comment( Comment ),
 	fail
     ;
         close(S),
+	!,
 	add_comments
     ).
 
-
-skip_blanks( S , T) :-
-    read_line_to_codes(S, T, TF),
-    ( T == end_of_file -> fail;
-      foldl( check, "/**",T, TF) -> true ;
-      skip_blanks( S , TF) ).
+blanks( S , T, TF) :-
+    read_line_to_codes(S, T1, T2),
+    ( T1 == end_of_file -> fail;
+      T2 == [] -> fail;
+      T1 \== T2, foldl( check, [0'/,0'*,0'*],T1, _) -> TF = T2, T = T1 ;
+      blanks( S , T, TF) ).
 
 get_comment( S , T) :-
     read_line_to_codes(S, T, T0),
-    ( T == end_of_file -> fail;
-      diff_end( "*/",T ) -> T0 = [] ;
-      get_comment( S , [10|T0]) ).
+    ( T == end_of_file -> T = [];
+      T0 == [] -> T=[];
+      diff_end( [0'*,0'/,10],T, T0 ) -> true ;
+      get_comment( S , T0) ).
 
 check(C, [C0|L], L) :-
   C == C0.
 
-diff_end( [], T  ) :- var(T), !.
-diff_end( [H|L], [H1|L1]) :-
-  H == H1, !,
-  diff_end( L, L1 ).
-diff_end( L, [_|L1]) :-
-  diff_end( L, L1 ).
+diff_end( L, T, [] ) :-
+   append(_, L, T). 
 
 store_comment(Comment) :-
-  header( Pred, Arity, Comment, [] ),
+  header( Pred, A, Comment, _ ),
   atom_codes( P, Pred),
-  number_codes( A, Arity ),
   node( Mod, P/A, File-Line, Type),
   \+ ( node( M1, P/A, _, _), M1 \= Mod ), !,
   string_codes( C, Comment ),
@@ -1332,8 +1336,34 @@ header(Pred, Arity) -->
   "@pred",
   blank,
   atom(Pred),
-  "/",
-  int(Arity).
+  atom_pred(Arity).
+
+atom_pred(Arity) -->
+  "/", !,
+  int( 0, Arity ).
+atom_pred(0) -->
+  blank, !.
+atom_pred(N) -->
+  "(",
+  !,
+  decl(0,N).
+
+int(I0, I) -->
+    [A],
+    { A >= "0", A =< "9" },
+    !,
+    { I1 is I0*10+(A-"0") }.
+int( I, I ) --> [].
+
+decl(I0, I) -->
+  ")", !,
+  { I is I0+1 }.
+decl(I0, I) -->
+  ",", !,
+  { I is I0+1 }.
+decl(I0, I) -->
+  [_],
+  decl( I0, I).
 
 blank --> " ", !, blank.
 blank --> "\t", !, blank.
@@ -1351,7 +1381,9 @@ atom2([A|As]) -->
     A >= "0", A =< "9" -> true ;
     A =:= "_"
   },
+  !,
   atom2( As ).
+atom2([]) --> [].
 
 add_comments :-
   findall(File, do_comment( File, Line, C, Type), Fs ),
