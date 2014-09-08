@@ -69,6 +69,7 @@ InteractSIGINT(int ch) {
       return YAP_DEBUG_SIGNAL;
     case 'e':
       /* exit */
+      Yap_exit(1);
       return YAP_EXIT_SIGNAL;
     case 'g':
       /* stack dump */
@@ -379,6 +380,9 @@ p_first_signal( USES_REGS1 )
       at = AtomSigVTAlarm;
       break;
 #endif
+    case YAP_EXIT_SIGNAL:
+      Yap_exit(1);
+      return FALSE;
     case YAP_WAKEUP_SIGNAL:
       at = AtomSigWakeUp;
       break;
