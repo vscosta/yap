@@ -11,6 +11,9 @@ functor_t minus2_functor;
 static atom_t ATOM_true;
 static atom_t ATOM_false;
 
+install_t install_prosqlite(void);
+install_t uninstall_prosqlite(void);
+int PL_SQLite_Connection_release(atom_t connection);
 
 int PL_SQLite_Connection_release(atom_t connection)
 {
@@ -77,7 +80,7 @@ typedef struct query_context
 } query_context;
 
 
-query_context* new_query_context(sqlite3_stmt* statement)
+static query_context* new_query_context(sqlite3_stmt* statement)
 {
   int i;
 
@@ -94,7 +97,7 @@ query_context* new_query_context(sqlite3_stmt* statement)
 }
 
 
-void free_query_context(query_context* context)
+static void free_query_context(query_context* context)
 {
   sqlite3_finalize(context->statement);
   free(context->column_types);
@@ -102,7 +105,7 @@ void free_query_context(query_context* context)
 }
 
 
-int unify_row_term(term_t row, query_context* context)
+static int unify_row_term(term_t row, query_context* context)
 {
   int i;
 
@@ -127,7 +130,7 @@ int unify_row_term(term_t row, query_context* context)
 
     case SQLITE_TEXT:
 	 			 if (sqlite3_column_bytes(context->statement,i))
-					PL_put_atom_chars(col_term, sqlite3_column_text(context->statement, i));
+				   PL_put_atom_chars(col_term, (char *)sqlite3_column_text(context->statement, i));
 				else
 					// this should probably never be the case (should be SQLITE_NULL) but firefox's places.sqlite
 					// has 0 length texts
@@ -146,7 +149,7 @@ int unify_row_term(term_t row, query_context* context)
 		 if (sqlite3_column_bytes(context->statement,i))
 					// this should probably never be the case (should be SQLITE_TEXT?) but firefox's places.sqlite
 					// has non 0 length nulls
-					PL_put_atom_chars(col_term, sqlite3_column_text(context->statement, i));
+		   PL_put_atom_chars(col_term, (char *)sqlite3_column_text(context->statement, i));
 				else
 					// PL_put_nil(col_term)  // would be more correct probably
 					PL_put_atom_chars(col_term, "" );
@@ -176,7 +179,7 @@ static foreign_t c_sqlite_version(term_t ver, term_t datem)
     // PL_unify_term(ver,PL_FUNCTOR_CHARS,":",1,PL_CHARS, 
 }
 
-int raise_sqlite_exception(sqlite3* db)
+static int raise_sqlite_exception(sqlite3* db)
 {
   term_t except = PL_new_term_ref();
   if ( PL_unify_term(except,
@@ -190,7 +193,7 @@ int raise_sqlite_exception(sqlite3* db)
 
 
 // Copied and adapted from the odbc package
-int formatted_string(term_t in, char** out)
+static int formatted_string(term_t in, char** out)
 {
   term_t av = PL_new_term_refs(3);
   static predicate_t format;
@@ -223,7 +226,7 @@ int formatted_string(term_t in, char** out)
 }
 
 
-int get_query_string(term_t tquery, char** query)
+static int get_query_string(term_t tquery, char** query)
 {
   if (PL_is_functor(tquery, minus2_functor))
     return formatted_string(tquery, query);
@@ -322,7 +325,7 @@ static foreign_t c_sqlite_query(term_t connection, term_t query, term_t row,
 }
 
 
-install_t install_prosqlite()
+install_t install_prosqlite(void)
 {
 
   ATOM_true  = PL_new_atom("true");
@@ -338,7 +341,7 @@ install_t install_prosqlite()
 }
 
 
-install_t uninstall_prosqlite()
+install_t uninstall_prosqlite(void)
 {
   PL_unregister_atom(row_atom);
   PL_unregister_blob_type(&PL_SQLite_Connection);
