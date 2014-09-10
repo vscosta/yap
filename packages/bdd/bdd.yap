@@ -1,5 +1,6 @@
 
-:- module(bdd, [bdd_new/2,
+:- module(bdd, [
+	bdd_new/2,
 	bdd_new/3,
 	bdd_from_list/3,
 	mtbdd_new/2,

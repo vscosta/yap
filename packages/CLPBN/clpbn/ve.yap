@@ -64,7 +64,8 @@
 :- use_module(library(lists),
 		[member/2,
 		 append/3,
-		 delete/3
+		 delete/3,
+		 sum_list/2
 		]).
 
 :- use_module(library(maplist)).
