@@ -43,13 +43,27 @@ extern "C" {
 #include	<Yap/YapInterface.h>
 #endif
 #include	<stdarg.h>
-#include	<stdlib.h>
 #include        <stddef.h>
 #include        <wchar.h>
 #if HAVE_TIME_H
 #include <time.h>
 #endif
 
+#if HAVE_STDBOOL_H
+
+#include <stdbool.h>
+
+#elif !defined(true)
+
+typedef int _Bool;
+
+#define bool _Bool
+
+#define true 1
+
+#define false 0
+
+#endif
 #ifndef __WINDOWS__
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define __WINDOWS__ 1
