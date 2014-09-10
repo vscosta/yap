@@ -98,8 +98,20 @@
 #endif /* COROUTINING && !TERM_EXTENSIONS */
 
 /* truth-values */
-#define	 TRUE	1
-#define	 FALSE	0
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#else
+
+typedef int _Bool;
+
+#typedef bool _Bool;
+
+#define false 0
+#define true 1
+#endif
+
+#define	 TRUE	true
+#define	 FALSE	false
 
 /* Microsoft's Visual C++ Compiler */
 #ifdef _MSC_VER   /* adjust a config.h from mingw32 to work with vc++ */

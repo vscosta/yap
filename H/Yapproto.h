@@ -215,13 +215,13 @@ void	Yap_AllocateDefaultArena(Int, Int, int);
 Int     Yap_total_stack_shift_time(void);
 void    Yap_InitGrowPreds(void);
 UInt    Yap_InsertInGlobal(CELL *, UInt);
-int     Yap_growheap(int, size_t, void *);
+int     Yap_growheap(bool, size_t, void *);
 int     Yap_growstack( size_t );
-int     Yap_growtrail(long, int);
+int     Yap_growtrail(size_t, bool);
 int     Yap_growglobal(CELL **);
-int     Yap_locked_growheap(int, size_t, void *);
+int     Yap_locked_growheap(bool, size_t, void *);
 int     Yap_locked_growstack( size_t );
-int     Yap_locked_growtrail(long, int);
+int     Yap_locked_growtrail(size_t, bool);
 int     Yap_locked_growglobal(CELL **);
 CELL  **Yap_shift_visit(CELL **, CELL ***, CELL ***);
 #ifdef THREADS

@@ -571,24 +571,20 @@ extern IOENC initEncoding(void);
 
 /**** stuff from pl-error.c ****/
 extern int PL_get_bool_ex(term_t t, int *i);
-extern int PL_get_nchars_ex(term_t t, size_t *len, char **s, unsigned int flags);
 extern int PL_get_chars_ex(term_t t, char **s, unsigned int flags);
 extern int PL_get_integer_ex(term_t t, int *i);
+extern int PL_get_module_ex(term_t t, module_t *m);
+extern int PL_get_nchars_ex(term_t t, size_t *len, char **s, unsigned int flags);
 extern int PL_get_long_ex(term_t t, long *i);
 extern int PL_get_int64_ex(term_t t, int64_t *i);
 extern int PL_get_intptr_ex(term_t t, intptr_t *i);
-extern int PL_get_bool_ex(term_t t, int *i);
 extern int PL_get_float_ex(term_t t, double *f);
 extern int PL_get_char_ex(term_t t, int *p, int eof);
 extern int PL_unify_list_ex(term_t l, term_t h, term_t t);
 extern int PL_unify_nil_ex(term_t l);
 extern int PL_get_list_ex(term_t l, term_t h, term_t t);
 extern int PL_get_nil_ex(term_t l);
-extern int PL_unify_bool_ex(term_t t, bool val);
-extern int PL_unify_bool_ex(term_t t, bool val);
-extern int PL_get_bool_ex(term_t t, int *i);
-extern int PL_get_integer_ex(term_t t, int *i);
-extern int PL_get_module_ex(term_t t, module_t *m);
+extern int PL_unify_bool_ex(term_t t, int val);
 
 /**** stuff from pl-file.c ****/
 extern void initIO(void);
@@ -770,11 +766,11 @@ COMMON(int)		raiseStackOverflow(int overflow);
 COMMON(int)		PL_qualify(term_t raw, term_t qualified);
 
 static inline word
-setBoolean(int *flag, term_t old, term_t new)
-{ if ( !PL_unify_bool_ex(old, *flag) ||
-       !PL_get_bool_ex(new, flag) )
+setBoolean(bool *flag, term_t old, term_t new)
+{ int fl = *flag; if ( !PL_unify_bool_ex(old, &fl) ||
+       !PL_get_bool_ex(new, &fl) )
     fail;
-
+  *flag = fl;
   succeed;
 }
 

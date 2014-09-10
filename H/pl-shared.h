@@ -84,11 +84,9 @@ typedef int pthread_t;
 
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
-#ifndef YAP_CPP_INTERFACE
-typedef int bool;
-#endif
 
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
+
 
 #if !defined(O_PLMT) && !defined(YAPOR)
 
@@ -212,8 +210,8 @@ typedef struct initialise_handle * InitialiseHandle;
 // THIS HAS TO BE ABSTRACTED
 
 #ifndef YAP_CPP_INTERFACE
-#define true(s, a)		((s)->flags & (a))
-#define false(s, a)		(!true((s), (a)))
+#define True(s, a)		((s)->flags & (a))
+#define False(s, a)		(!True((s), (a)))
 #define set(s, a)		((s)->flags |= (a))
 #define clear(s, a)		((s)->flags &= ~(a))
 #endif
@@ -278,7 +276,7 @@ getUnknownModule(module_t m);
 
 #define debugstatus            (LD->_debugstatus)
 
-#define truePrologFlag(flag)      true(&LD->prolog_flag.mask, flag)
+#define truePrologFlag(flag)      True(&LD->prolog_flag.mask, flag)
 #define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
 #define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
 

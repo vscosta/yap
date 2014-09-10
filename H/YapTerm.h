@@ -38,8 +38,8 @@ typedef void *Atom;
 /* defines integer  types Int and UInt (unsigned) with the same size as a ptr
 ** and integer types Short and UShort with half the size of a ptr */
 
-/*   */ typedef intptr_t Int;
-/*   */ typedef uintptr_t UInt;
+typedef intptr_t Int;
+typedef uintptr_t UInt;
 
 #if SIZEOF_INT_P==4
 
@@ -107,18 +107,11 @@ typedef void *Atom;
 #endif
 
 
-typedef UInt CELL;
-#if HAVE_STDINT_H
-#include <stdint.h>
+typedef uintptr_t CELL;
 
 typedef uint16_t BITS16;
 typedef int16_t SBITS16;
 typedef uint32_t BITS32;
-#else
-typedef UShort BITS16;
-typedef Short  SBITS16;
-typedef UInt BITS32;
-#endif
 
 #define WordSize     sizeof(BITS16)
 #define CellSize     sizeof(CELL)
@@ -129,11 +122,11 @@ typedef UInt BITS32;
 *************************************************************************************************/
 
 
-typedef CELL Term;
+typedef uintptr_t Term;
 
-typedef Int yhandle_t;
+typedef intptr_t yhandle_t;
 
-/*   */ typedef double Float;
+typedef double Float;
 
 #if SIZEOF_INT<SIZEOF_INT_P
 #define SHORT_INTS 1
