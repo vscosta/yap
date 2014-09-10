@@ -799,17 +799,17 @@ unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
 { GET_LD
 
   if ( key == ATOM_character_escapes )
-  { atom_t v = (true(m, M_CHARESCAPE) ? ATOM_true : ATOM_false);
+  { atom_t v = (True(m, M_CHARESCAPE) ? ATOM_true : ATOM_false);
 
     return PL_unify_atom(val, v);
   } else if ( key == ATOM_double_quotes )
   { atom_t v;
 
-    if ( true(m, DBLQ_CHARS) )
+    if ( True(m, DBLQ_CHARS) )
       v = ATOM_chars;
-    else if ( true(m, DBLQ_ATOM) )
+    else if ( True(m, DBLQ_ATOM) )
       v = ATOM_atom;
-    else if ( true(m, DBLQ_STRING) )
+    else if ( True(m, DBLQ_STRING) )
       v = ATOM_string;
     else
       v = ATOM_codes;

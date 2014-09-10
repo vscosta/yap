@@ -347,8 +347,8 @@ initIO(void)
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
 
-  if ( false(Sinput, SIO_ISATTY) ||
-       false(Soutput, SIO_ISATTY) )
+  if ( False(Sinput, SIO_ISATTY) ||
+       False(Soutput, SIO_ISATTY) )
   { /* clear PLFLAG_TTY_CONTROL */
     PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
   }
@@ -1548,7 +1548,7 @@ readLine() reads a line from the terminal.  It is used only by the tracer.
 #define DEL 127
 #endif
 
-int
+bool
 readLine(IOSTREAM *in, IOSTREAM *out, char *buffer)
 { GET_LD
   int c;
@@ -1776,12 +1776,12 @@ set_stream(IOSTREAM *s, term_t stream, atom_t aname, term_t a ARG_LD)
     if ( !PL_get_atom_ex(a, &type) )
       return FALSE;
     if ( type == ATOM_text )
-    { if ( false(s, SIO_TEXT) && Ssetenc(s, LD->encoding, NULL) != 0 )
+    { if ( False(s, SIO_TEXT) && Ssetenc(s, LD->encoding, NULL) != 0 )
 	return PL_error(NULL, 0, NULL, ERR_PERMISSION,
 			ATOM_encoding, ATOM_stream, stream);
       s->flags |= SIO_TEXT;
     } else if ( type == ATOM_binary )
-    { if ( true(s, SIO_TEXT) && Ssetenc(s, ENC_OCTET, NULL) != 0 )
+    { if ( True(s, SIO_TEXT) && Ssetenc(s, ENC_OCTET, NULL) != 0 )
 	return PL_error(NULL, 0, NULL, ERR_PERMISSION,
 			ATOM_encoding, ATOM_stream, stream);
 
@@ -1922,7 +1922,7 @@ set_stream(IOSTREAM *s, term_t stream, atom_t aname, term_t a ARG_LD)
     else if ( val == ATOM_dos )
       s->newline = SIO_NL_DOS;
     else if ( val == ATOM_detect )
-    { if ( false(s, SIO_INPUT) )
+    { if ( False(s, SIO_INPUT) )
 	return PL_error(NULL, 0, "detect only allowed for input streams",
 			ERR_DOMAIN, ATOM_newline, a);
       s->newline = SIO_NL_DETECT;
@@ -2081,7 +2081,7 @@ PRED_IMPL("set_end_of_stream", 1, set_end_of_stream, 0)
 
 extern IOFUNCTIONS Smemfunctions;
 
-int
+bool
 tellString(char **s, size_t *size, IOENC enc)
 { GET_LD
   IOSTREAM *stream;
@@ -2095,8 +2095,8 @@ tellString(char **s, size_t *size, IOENC enc)
 }
 
 
-int
-toldString()
+bool
+toldString(void)
 { GET_LD
   IOSTREAM *s = getStream(Scurout);
 
@@ -3384,7 +3384,7 @@ findStreamFromFile(atom_t name, unsigned int flags)
   { stream_context *ctx = symb->value;
 
     if ( ctx->filename == name &&
-	 true(ctx, flags) )
+	 True(ctx, flags) )
     { s = symb->name;
       break;
     }
@@ -4652,7 +4652,7 @@ peek(term_t stream, term_t chr, int how ARG_LD)
 
   if ( !getInputStream(stream, how == PL_BYTE ? S_BINARY : S_TEXT, &s) )
     return FALSE;
-  if ( true(s, SIO_NBUF) || (s->bufsize && s->bufsize < PL_MB_LEN_MAX) )
+  if ( True(s, SIO_NBUF) || (s->bufsize && s->bufsize < PL_MB_LEN_MAX) )
   { releaseStream(s);
     return PL_error(NULL, 0, "stream is unbuffered", ERR_PERMISSION,
 		    ATOM_peek, ATOM_stream, stream);

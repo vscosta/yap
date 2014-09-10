@@ -45,7 +45,7 @@ typedef struct
   int		type;			/* Type of option */
 } opt_spec, *OptSpec;
 
-COMMON(int)		scan_options(term_t list, int flags, atom_t name,
+COMMON(bool)		scan_options(term_t list, int flags, atom_t name,
 				     const opt_spec *specs, ...);
 
 #endif /*OPTION_H_INCLUDED*/

@@ -1265,7 +1265,7 @@ int process_comment;
 int rval;
 atom_t w;
 read_data rd;
-bool charescapes = -1;
+int charescapes = -1;
 atom_t dq = NULL_ATOM;
 atom_t mname = NULL_ATOM;
 fid_t fid = PL_open_foreign_frame();

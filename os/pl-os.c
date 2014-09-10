@@ -1847,7 +1847,7 @@ Sread_terminal(void *handle, char *buf, size_t size)
   int fd = (int)h;
   source_location oldsrc = LD->read_source;
 
-  if ( Soutput && true(Soutput, SIO_ISATTY) )
+  if ( Soutput && True(Soutput, SIO_ISATTY) )
   { if ( LD->prompt.next && ttymode != TTY_RAW )
       PL_write_prompt(TRUE);
     else

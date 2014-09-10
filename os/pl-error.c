@@ -207,7 +207,7 @@ PL_get_module_ex(term_t name, module_t *m)
 }
 
 int
-PL_unify_bool_ex(term_t t, bool val)
+PL_unify_bool_ex(term_t t, int val)
 { GET_LD
   bool v;
 

@@ -361,6 +361,8 @@ get_chr_from_text(const PL_chars_t *t, int index)
       return t->text.t[index]&0xff;
     case ENC_WCHAR:
       return t->text.w[index];
+    case ENC_UTF8:
+      return t->text.w[index];
     default:
       assert(0);
       return 0;				/* not reached */

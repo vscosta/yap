@@ -400,11 +400,11 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
 { GET_LD
   bool quoted     = FALSE;
   bool ignore_ops = FALSE;
-  bool numbervars = -1;			/* not set */
+  int numbervars = -1;			/* not set */
   bool portray    = FALSE;
   term_t gportray = 0;
   bool bqstring   = truePrologFlag(PLFLAG_BACKQUOTED_STRING);
-  bool charescape = -1;			/* not set */
+  int charescape = -1;			/* not set */
   atom_t mname    = ATOM_user;
   atom_t attr     = ATOM_nil;
   atom_t blobs    = ATOM_nil;
@@ -467,7 +467,7 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
   if ( charescape == TRUE ||
        (charescape == -1 
 #ifndef __YAP_PROLOG__
-&& true(options.module, M_CHARESCAPE)
+&& True(options.module, M_CHARESCAPE)
 #endif
 	) )
     options.flags |= PL_WRT_CHARESCAPES;
@@ -488,7 +488,7 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
   if ( bqstring )   options.flags |= PL_WRT_BACKQUOTED_STRING;
   if ( !cycles )    options.flags |= PL_WRT_NO_CYCLES;
 
-  local_varnames = (varnames && false(&options, PL_WRT_NUMBERVARS));
+  local_varnames = (varnames && False(&options, PL_WRT_NUMBERVARS));
 
   BEGIN_NUMBERVARS(local_varnames);
   if ( varnames )
@@ -553,7 +553,7 @@ do_write2(term_t stream, term_t term, int flags)
     options.module    = MODULE_user;
     if ( options.module 
 #ifndef __YAP_PROLOG__
-	 && true(options.module, M_CHARESCAPE) 
+	 && True(options.module, M_CHARESCAPE) 
 #endif
 	 )
       options.flags |= PL_WRT_CHARESCAPES;
