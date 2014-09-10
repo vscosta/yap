@@ -599,12 +599,16 @@ clause_to_indicator(T, M:Name/Arity) :-
 	strip_module(T, M, T1),
 	pred_arity( T1, Name, Arity ).
 
-pred_arity(V,M,M,V,call,1) :- var(V), !.
-pred_arity((H:-_),Name,Arity) :- !,
-	functor(H,Name,Arity).
+pred_arity(V,call,1) :- var(V), !.
+pred_arity((H:-_),Name,Arity) :- 
+    nonvar(H),
+    !,
+    functor(H,Name,Arity).
 pred_arity((H-->_),Name,Arity) :- !,
-	functor(HL,Name,1),
-	Arity is A1+2.
+    nonvar(H),
+    !,
+    functor(HL,Name,1),
+    Arity is A1+2.
 pred_arity(H,Name,Arity) :-
-	functor(H,Name,Arity).
+    functor(H,Name,Arity).
 

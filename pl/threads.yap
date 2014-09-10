@@ -1017,4 +1017,7 @@ threads :-
 '$mk_tstatus_key'(Id0, Key) :-
 	atomic_concat('$thread_exit_status__',Id0,Key).
 
+thread_statistics(Id, Key, Val) :-
+    format("not implemented yet~n",[]).
+
 
