@@ -6,6 +6,10 @@
 %%
 %% This file is in the Public Domain.
 
+:- use_module(library(mpi)).
+:- use_module(library(mpe)).
+
+
 %% demo1_mpe.pl is the same as demo1.pl, except
 %% that MPE is used to log MPI activity.
 

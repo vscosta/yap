@@ -2,6 +2,8 @@
 %% konstant@let.rug.nl, Tue Feb 12 2002
 %%
 
+:- use_module(library(mpi)).
+
 %%
 %% This the calculation that needs to be performed, in this case
 %% the sum of [From..To]

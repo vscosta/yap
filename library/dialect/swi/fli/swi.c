@@ -3143,7 +3143,6 @@ FILE *Yap_FileDescriptorFromStream(Term t)
 X_API int
 PL_raise(int sig)
 {
-  CACHE_REGS
   Yap_signal(YAP_INT_SIGNAL);
    return 1;
 }
@@ -3152,7 +3151,6 @@ int
 raiseSignal(PL_local_data_t *ld, int sig)
 {
 #if THREADS
-  CACHE_REGS
   if (sig == SIG_THREAD_SIGNAL) {
     Yap_signal(YAP_ITI_SIGNAL);
     return TRUE;    

@@ -2,6 +2,7 @@
 %% konstant@let.rug.nl, Thu Jan 24 2002
 %%
 
+:- use_module(library(mpi)).
 
 % make the `floor' operator return integer values
 :- set_prolog_flag(language, iso).

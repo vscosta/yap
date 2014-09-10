@@ -103,3 +103,5 @@ peer_to_client(ip(A,B,C,D), Client) :-
     maplist(atom_number, Parts, Numbers),
     Numbers = [A,B,C,D].
 
+socket_select(_,_,_,_,_) :-
+    format( user_error, "Unsupported in this version, please use wait_for_input/3~n", []).

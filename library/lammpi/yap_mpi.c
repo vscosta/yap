@@ -1025,7 +1025,7 @@ init_mpi(void) {
   YAP_UserCPredicate( "mpi_test_rcv", mpi_test_recv,3);                    // mpi_test(+Handle,-Status,-Data).
   YAP_UserCPredicate( "mpi_bcast", mpi_bcast,2);                           // mpi_bcast(Root,Term)
   YAP_UserCPredicate( "mpi_bcast2", mpi_bcast2,2);                         // mpi_bcast2(Root,Term)
-  YAP_UserCPredicate( "mpi_bcast2", mpi_bcast3,3);                         // mpi_bcast2(Root,Term,Tag)
+  YAP_UserCPredicate( "mpi_bcast3", mpi_bcast3,3);                         // mpi_bcast3(Root,Term,Tag)
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
   YAP_UserCPredicate( "mpi_barrier", mpi_barrier,0);                       // mpi_barrier/0

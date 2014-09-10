@@ -11,7 +11,7 @@
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
-	   file_filter_with_init/5,
+	   file_filter_with_initialization/5,
 	   process/2
 	  ]).
 
@@ -142,7 +142,7 @@ file_filter(Inp, Out, Command) :-
 	close(StreamInp),
 	close(StreamOut).
 
-file_filter_with_init(Inp, Out, Command, FormatString, Parameters) :-
+file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
 	open(Inp, read, StreamInp),
 	open(Out, write, StreamOut),
 	format(StreamOut, FormatString, Parameters),
