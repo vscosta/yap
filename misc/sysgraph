@@ -27,7 +27,8 @@
    op_export/3,
    library/1,
    undef/2,
-   c_dep/2.
+   c_dep/2,
+   do_comment/5.
 
 % @short node(?Module:module, ?Predicate:pred_indicator, ?File:file, ?Generator:atom) is nondet
 %
@@ -76,7 +77,6 @@ main :-
     %%% phase 4: construct graph
     retractall( consulted(_,_) ),
 %    maplist( pl_graphs, Dirs ),
-trace,
     undefs,
     doubles,
     %     pl_exported(pl).
@@ -119,7 +119,8 @@ init :-
     retractall(consulted(_,_)),
     retractall(module_on(_,_,_)),
     retractall(op_export(_,_,_)),
-    retractall(exported(_)).
+    retractall(exported(_)),
+    retractall(do_comment(_,_,_,_,_)).
 init :-
     user_c_dep(A,B),
     do_user_c_dep(A,B),
@@ -353,8 +354,7 @@ pl_interf(F, Mod) :-
     !.
 pl_interf(F, Mod) :-
 %	  ( sub_atom(F,_,_,_,'matrix.yap') -> spy get_interf ; true ),
-    ( sub_atom( F, _, _, 0, 'gecode.yap' ) -> spy user_deps; true ),
-writeln( +F:Mod ),
+%    ( sub_atom( F, _, _, 0, 'gecode.yap' ) -> spy user_deps; true ),
     assert_new(consulted(F, Mod ) ),
     nb_getval( private, Default ),
     nb_setval( private, false ),
@@ -1286,6 +1286,12 @@ error( Error ) :- throw(Error ).
 %
 %
 mkdocs :-
+  open( pages, write, S1),
+  close( S1 ),
+  open( bads, write, S2),
+  close( S2 ),
+  open( groups, write, S3),
+  close( S3 ),
     open( 'docs/yapdocs.yap', read, S),
     repeat,
     (
@@ -1323,44 +1329,87 @@ diff_end( L, T, [] ) :-
 store_comment(Comment) :-
   header( Pred, A, Comment, _ ),
   atom_codes( P, Pred),
-  node( Mod, P/A, File-Line, Type),
-  \+ ( node( M1, P/A, _, _), M1 \= Mod ), !,
+  ( node( Mod, P/A, File-Line, Type) ->
+    true
+  ;
+    format('Missing definition for ~q.~n', [P/A] ),
+    ( node( Mod, P/Ar, File-Line, Type), format('  ~w exists.~n',[Mod:P/Ar]), fail )
+  ),
+  ( node( M1, P/A, _, _),  M1 \= Mod -> Dup = true ; Dup = false),
+  !,
   string_codes( C, Comment ),
-  assert( do_comment( File, Line, C, Type) ).
+  assert( do_comment( File, Line, C, Type, Dup ) ).
 store_comment(Comment) :-
-  assert(open_comment(Comment)).
+  page( Comment, _ ), !,
+  open( pages, append, S),
+  format(S, '*******************************~n~n~s~n~n', [Comment]),
+  close(S).
+store_comment(Comment) :-
+  defgroup( Comment, _ ), !,
+  open( groups, append, S),
+  format(S, '*******************************~n~n~s~n~n', [Comment]),
+  close(S).
+store_comment(Comment) :-
+  open( bads, append, S),
+  format(S, '*******************************~n~n~s~n~n', [Comment]),
+  close(S).
+
+defgroup -->
+  "/**",
+  blank,
+  "@defgroup".
+
+page -->
+  "/**",
+  blank,
+  "@page".
 
 header(Pred, Arity) -->
   "/**",
   blank,
   "@pred",
   blank,
+  atom(_),
+  ":", 
+  !,
   atom(Pred),
   atom_pred(Arity).
+header(Pred, Arity) -->
+  "/**",
+  blank,
+  "@pred",
+  blank,
+  atom(Pred),
+  atom_pred(Arity), 
+  !.
+header(Pred, 2, Comment, _) :-
+    split(Comment, [[0'/,0'*,0'*],[0'@,0'p,0'r,0'e,0'd],_,Pred,_,[0'i,0's]|_]), !.
+
 
 atom_pred(Arity) -->
   "/", !,
   int( 0, Arity ).
-atom_pred(0) -->
-  blank, !.
 atom_pred(N) -->
   "(",
   !,
-  decl(0,N).
+  decl(1,N).
+atom_pred(0) -->
+  blank, !.
 
 int(I0, I) -->
     [A],
     { A >= "0", A =< "9" },
     !,
-    { I1 is I0*10+(A-"0") }.
+    { I1 is I0*10+(A-"0") },
+    int(I1, I).
 int( I, I ) --> [].
 
-decl(I0, I) -->
-  ")", !,
-  { I is I0+1 }.
+decl(I, I) -->
+  ")", !.
 decl(I0, I) -->
   ",", !,
-  { I is I0+1 }.
+  { I1 is I0+1 },
+  decl(I1, I).
 decl(I0, I) -->
   [_],
   decl( I0, I).
@@ -1386,12 +1435,17 @@ atom2([A|As]) -->
 atom2([]) --> [].
 
 add_comments :-
-  findall(File, do_comment( File, Line, C, Type), Fs ),
-  member( F, Fs ),
-  format('File ~a', [F]),
-  setof(Line-C-Type, do_comment( File, Line, C, Type) , Lines ),
-  member(Line-Comment-Type, Lines),
-  format('% line ~d ~w~n~s~n', [Line, Type, Comment]),
+    open( commands, write, S ),
+  findall(File, do_comment( File, Line, C, Type, Dup), Fs ),
+  (
+      member( File, Fs ),
+      setof(Line-C-Type-Dup, do_comment( File, Line, C, Type, Dup) , Lines0 ),
+      reverse( Lines0, Lines),
+      member(Line-Comment-Type-Dup, Lines),
+      format(S, '# ~a~nawk \'NR==~d{print ~q}7\' ~a~n~n',[Dup,Line, Comment, File])
+	  ;
+	  close(S)
+   ),
   fail.
 add_comments :-
   listing( open_comment ).

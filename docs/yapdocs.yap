@@ -4,7 +4,6 @@
 @ingroup YAPBuiltins
 @{
 
- 
 */
 
 
@@ -33,14 +32,13 @@ The same as fail.
 */
 
 /** @pred  repeat is iso 
-bprolqSucceeds repeatedly.
+Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
 a loop. The next example reads all terms in a file:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~{.prolog}
  a :- repeat, read(X), write(X), nl, X=end_of_file, !.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 the loop is effectively terminated by the cut-goal, when the test-goal
 `X=end` succeeds. While the test fails, the goals `read(X)`,
 `write(X)`, and `nl` are executed repeatedly, because
@@ -48,10 +46,10 @@ backtracking is caught by the `repeat` goal.
 
 The built-in `repeat/0` could be defined in Prolog by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  repeat.
  repeat :- repeat.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The predicate between/3 can be used to iterate for a pre-defined
 number of steps.
@@ -97,28 +95,29 @@ and 10. New code should use `call/N` for better portability.
 If  _Name_ is a complex term, then call_with_args/n behaves as
 call/n:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
 
-/** @pred  + _P_ 
+
+/** @pred  + _P_ is nondet
 
 The same as `call( _P_)`. This feature has been kept to provide
 compatibility with C-Prolog. When compiling a goal, YAP
 generates a `call( _X_)` whenever a variable  _X_ is found as
 a goal.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  a(X) :- X.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 is converted to:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  a(X) :- call(X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -128,18 +127,18 @@ is converted to:
 Call goal  _H_ once per each solution of goal  _H_. If goal
  _H_ has no solutions, call goal  _I_.
 
-The built-in `if/3` is similar to `-\>/3`, with the difference
+The built-in `if/3` is similar to `->/3`, with the difference
 that it will backtrack over the test goal. Consider the following
 small data-base:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 a(1).        b(a).          c(x).
 a(2).        b(b).          c(y).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Execution of an `if/3` query will proceed as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
    ?- if(a(X),b(Y),c(Z)).
 
 X = 1,
@@ -155,7 +154,7 @@ X = 2,
 Y = b ? ;
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The system will backtrack over the two solutions for `a/1` and the
 two solutions for `b/1`, generating four solutions.
@@ -174,9 +173,9 @@ it is both more efficient and more portable.
 
 Execute the goal  _G_ only once. The predicate is defined by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  once(G) :- call(G), !.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that cuts inside once/1 can only cut the other goals inside
 once/1.
@@ -191,10 +190,10 @@ For all alternative bindings of  _Cond_  _Action_ can be
 proven. The example verifies that all arithmetic statements in the list
  _L_ are correct. It does not say which is wrong if one proves wrong.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -205,11 +204,11 @@ proven. The example verifies that all arithmetic statements in the list
 Calls  _Goal_ as once/1, but succeeds, regardless of whether
 `Goal` succeeded or not. Defined as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ignore(Goal) :-
         Goal, !.
 ignore(_).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -231,9 +230,9 @@ the top-level.
 Suspends the execution of the current goal and creates a new execution
 level similar to the top level, displaying the following message:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  [ Break (level <number>) ]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 telling the depth of the break level just entered. To return to the
 previous level just type the end-of-file character or call the
 end_of_file predicate.  This predicate is especially useful during
@@ -343,12 +342,13 @@ defining the predicate, and if the predicate has not been declared to be
 dynamic. What YAP does when trying to execute undefined predicates can
 be specified in three different ways:
 
-    + By setting an YAP flag, through the yap_flag/2 or
+
++ By setting an YAP flag, through the yap_flag/2 or
 set_prolog_flag/2 built-ins. This solution generalizes the
 ISO standard.
-    + By using the unknown/2 built-in (this solution is
++ By using the unknown/2 built-in (this solution is
 compatible with previous releases of YAP).
-    + By defining clauses for the hook predicate
++ By defining clauses for the hook predicate
 `user:unknown_predicate_handler/3`. This solution is compatible
 with SICStus Prolog.
 
@@ -378,20 +378,20 @@ Prolog standard the default action is `error`).
 
 After defining `undefined/1` by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 and executing the goal:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 unknown(U,undefined(X)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 a call to a predicate for which no clauses were defined will result in
 the output of a message of the form:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 Undefined predicate: user:xyz(A1,A2)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 followed by the failure of that call.
 
  
@@ -431,9 +431,9 @@ system will execute default action as specified by unknown/2.
 Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time'. The values for  _Exception_ are described below. See also catch/3 and throw/1.
 If this hook predicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
 
-    + undefined_predicate
++ `undefined_predicate`
  _Context_ is instantiated to a predicate-indicator ( _Module:Name/Arity_). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also `unknown`.
-    + undefined_global_variable
++ `undefined_global_variable`
  _Context_ is instantiated to the name of the missing global variable. The hook must call nb_setval/2 or b_setval/2 before returning with the action retry.
 
 
@@ -451,25 +451,25 @@ portray messages. These messages range from prompts to error
 information. All message processing is performed through the builtin
 print_message/2, in two steps:
 
-    + The message is processed into a list of commands 
-    + The commands in the list are sent to the `format/3` builtin
++ The message is processed into a list of commands 
++ The commands in the list are sent to the `format/3` builtin
 in sequence.
 
 
 The first argument to print_message/2 specifies the importance of
 the message. The options are:
 
-    + error
++ `error`
 error handling
-    + warning
++ `warning`
 compilation and run-time warnings,
-    + informational
++ `informational`
 generic informational messages
-    + help 
++ `help`
 help messages (not currently implemented in YAP)
-    + query
++ `query`
 query 	used in query processing (not currently implemented in YAP)
-    + silent
++ `silent`
 messages that do not produce output but that can be intercepted by hooks.
 
 
@@ -479,7 +479,7 @@ handling in YAP:
 
 */
 
-/** @pred print_message(+ _Kind_,  _Term_) 
+/** @pred print_message(+ `_Kind_,  _Term_) 
 
 The predicate print_message/2 is used to print messages, notably from
 exceptions in a human-readable format.  _Kind_ is one of
@@ -489,7 +489,7 @@ the stream user_error.
 
 If the Prolog flag verbose is `silent`, messages with
  _Kind_ `informational`, or `banner` are treated as
-silent.@c  See \\cmdlineoption{-q}.
+silent.@c  See \cmdlineoption{-q}.
 
 This predicate first translates the  _Term_ into a list of `message
 lines' (see print_message_lines/3 for details).  Next it will
@@ -512,19 +512,19 @@ the predicate as multifile.
 Print a message (see print_message/2) that has been translated to
 a list of message elements.  The elements of this list are:
 
-    + `\<Format\>`-`\<Args\>`
++ `Format`-`Args`
 Where  _Format_ is an atom and  _Args_ is a list
 of format argument.  Handed to `format/3`.
-    + `flush`
++ `flush`
 If this appears as the last element,  _Stream_ is flushed
 (see `flush_output/1`) and no final newline is generated.
-    + `at_same_line`
++ `at_same_line`
 If this appears as first element, no prefix is printed for
 the first line and the line-position is not forced to 0
 (see `format/1`, `~N`).
-    + `\<Format\>`
++ `<Format>`
 Handed to `format/3` as `format(Stream, Format, [])`.
-    + nl
++ nl
 A new line is started and if the message is not complete
 the  _Prefix_ is printed too.
 
@@ -756,7 +756,7 @@ Tries to unify terms  _X_ and  _Y_.
  
 */
 
-/** @pred  _X_ \\=  _Y_ is iso 
+/** @pred  _X_ \=  _Y_ is iso 
 
 
 Succeeds if terms  _X_ and  _Y_ are not unifiable.
@@ -772,15 +772,15 @@ is one.
 
 This predicate implements the full unification algorithm. An example:n
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(B)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 will succeed with the bindings `A = b` and `Z = f(B)`. On the
 other hand:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(Z)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would fail, because `Z` is not unifiable with `f(Z)`. Note that
 `(=)/2` would succeed for the previous examples, giving the following
 bindings `A = b` and `Z = f(Z)`.
@@ -795,8 +795,8 @@ Term  _TF_ is a variant of the original term  _TI_, such that for
 each variable  _V_ in the term  _TI_ there is a new variable  _V'_
 in term  _TF_. Notice that:
 
-  + suspended goals and attributes for attributed variables in _TI_ are also duplicated;
-  + ground terms are shared between the new and the old term.
++ suspended goals and attributes for attributed variables in _TI_ are also duplicated;
++ ground terms are shared between the new and the old term.
 
 If you do not want any sharing to occur please use
 duplicate_term/2.
@@ -823,15 +823,6 @@ Also refer to copy_term/2.
 
 True when  _List_ is a proper list. That is,  _List_
 is bound to the empty list (nil) or a term with functor '.' and arity 2.
-
- 
-*/
-
-/** @pred  ? _Term1_ =@= ? _Term2_ 
-
-
-
-Same as variant/2, succeeds if  _Term1_ and  _Term2_ are variant terms.
 
  
 */
@@ -868,29 +859,26 @@ appearance when traversing the term depth-first, left-to-right.
  
 */
 
-/** @pred  rational_term_to_tree(? _TI_,- _TF_) 
+/** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms) 
 
 
-The term  _TF_ is a tree representation (without cycles) for the
-Prolog term  _TI_. Loops are replaced by terms of the form
-`_LOOP_( _LevelsAbove_)` where  _LevelsAbove_ is the size of
-the loop.
+The term _TF_ is a forest representation (without cycles and repeated
+terms) for the Prolog term _TI_. The term _TF_ is the main term.  The
+difference list _SubTerms_-_MoreSubterms_ stores terms of the form
+_V=T_, where _V_ is a new variable occuring in _TF_, and _T_ is a copy
+of a sub-term from _TI_.
 
  
 */
 
-/** @pred  tree_to_rational_term(? _TI_,- _TF_) 
+/** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms) 
 
 
-Inverse of rational_term_to_tree/2. The term  _TI_ is a tree representation (without
-cycles) for the Prolog term  _TF_. Loops replace terms of the form
-`_LOOP_( _LevelsAbove_)` where  _LevelsAbove_ is the size of
-the loop.
+Similar to rational_term_to_tree/4, but _SubTerms_ is a proper list.
 
+ 
+*/
 
-
-
-@} */
 
 /** @defgroup Predicates_on_Atoms Predicates on Atoms
 @ingroup YAPBuiltins
@@ -910,24 +898,24 @@ The predicate holds when at least one of the arguments is ground
 be unified with an atomic symbol and  _L_ with the list of the ASCII
 codes for the characters of the external representation of  _A_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  name(yap,L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 will return:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  L = [121,97,112].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 and
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  name(3,L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 will return:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
  L = [51].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -991,21 +979,21 @@ atoms or numbers.
 Creates an atom just like atomic_list_concat/2, but inserts
  _Separator_ between each pair of atoms. For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- atomic_list_concat([gnu, gnat], ', ', A).
 
 A = 'gnu, gnat'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 YAP emulates the SWI-Prolog version of this predicate that can also be
 used to split atoms by instantiating  _Separator_ and  _Atom_ as
 shown below.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- atomic_list_concat(L, -, 'gnu-gnat').
 
 L = [gnu, gnat]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -1120,85 +1108,85 @@ the call.
 
 Tests or generates alternative  _Types_ or  _Chars_. The
 character-types are inspired by the standard `C`
-`\<ctype.h\>` primitives.
+`<ctype.h>` primitives.
 
-  +  alnum
++  `alnum`
      _Char_ is a letter (upper- or lowercase) or digit.
 
-  + alpha
++ `alpha`
     _Char_ is a letter (upper- or lowercase).
 
-  + csym
++ `csym`
     _Char_ is a letter (upper- or lowercase), digit or the underscore (_). These are valid C- and Prolog symbol characters.
 
-  + csymf
++ `csymf`
     _Char_ is a letter (upper- or lowercase) or the underscore (_). These are valid first characters for C- and Prolog symbols
 
-  + ascii
++ `ascii`
     _Char_ is a 7-bits ASCII character (0..127).
 
-  + white
++ `white`
     _Char_ is a space or tab. E.i. white space inside a line.
 
-  + cntrl
++ `cntrl`
     _Char_ is an ASCII control-character (0..31).
  
-  + digit
++ `digit`
     _Char_ is a digit.
 
-  + digit( _Weight_)
++ `digit( _Weight_)`
     _Char_ is a digit with value _Weight_. I.e. `char_type(X, digit(6))` yields `X =  '6'`. Useful for parsing numbers.
 
-  + xdigit( _Weight_)
++ `xdigit( _Weight_)`
     _Char_ is a hexa-decimal digit with value  _Weight_. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
 
-  + graph
++ `graph`
     _Char_ produces a visible mark on a page when printed. Note that the space is not included!
 
-  + lower
++ `lower`
     _Char_ is a lower-case letter.
 
-  + lower(Upper)
++ `lower(Upper)`
     _Char_ is a lower-case version of  _Upper_. Only true if _Char_ is lowercase and  _Upper_ uppercase.
 
-    + to_lower(Upper)
++ `to_lower(Upper)`
  _Char_ is a lower-case version of Upper. For non-letters, or letter without case,  _Char_ and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
 
-    + upper
++ `upper`
  _Char_ is an upper-case letter.
 
-    + upper(Lower)
++ `upper(Lower)`
  _Char_ is an upper-case version of Lower. Only true if  _Char_ is uppercase and Lower lowercase.
 
-    + to_upper(Lower)
++ `to_upper(Lower)`
  _Char_ is an upper-case version of Lower. For non-letters, or letter without case,  _Char_ and Lower are the same. See also upcase_atom/2 and downcase_atom/2.
 
-    + punct
++ `punct`
  _Char_ is a punctuation character. This is a graph character that is not a letter or digit.
 
-    + space
++ `space`
  _Char_ is some form of layout character (tab, vertical-tab, newline, etc.).
 
-    + end_of_file
++ `end_of_file`
  _Char_ is -1.
 
-    + end_of_line
++ `end_of_line`
  _Char_ ends a line (ASCII: 10..13).
 
-    + newline
++ `newline`
  _Char_ is a the newline character (10).
 
-    + period
++ `period`
  _Char_ counts as the end of a sentence (.,!,?).
 
-    + quote
++ `quote`
  _Char_ is a quote-character (", ', `).
 
-    + paren(Close)
++ `paren(Close)`
  _Char_ is an open-parenthesis and Close is the corresponding close-parenthesis. 
 
 
-    + code_type(? _Code_, ? _Type_) 
++ `code_type(? _Code_, ? _Type_)`
 
 
 As char_type/2, but uses character-codes rather than
@@ -1221,22 +1209,22 @@ atom_chars/2 and atom_codes/2.
 The following predicates are used to compare and order terms, using the
 standard ordering:
 
-    + 
++ 
 variables come before numbers, numbers come before atoms which in turn
-come before compound terms, i.e.: variables @\< numbers @\< atoms @\<
+come before compound terms, i.e.: variables @< numbers @< atoms @<
 compound terms.
-    + 
++ 
 Variables are roughly ordered by "age" (the "oldest" variable is put
 first);
-    + 
++ 
 Floating point numbers are sorted in increasing order;
-    + 
++ 
 Rational numbers are sorted in increasing order;
-    + 
++ 
 Integers are sorted in increasing order;
-    + 
++ 
 Atoms are sorted in lexicographic order;
-    + 
++ 
 Compound terms are ordered first by arity of the main functor, then by
 the name of the main functor, and finally by their arguments in
 left-to-right order.
@@ -1253,15 +1241,15 @@ left-to-right order.
 As a result of comparing  _X_ and  _Y_,  _C_ may take one of
 the following values:
 
-    + 
++ 
 `=` if  _X_ and  _Y_ are identical;
-    + 
-`\<` if  _X_ precedes  _Y_ in the defined order;
-    + 
-`\>` if  _Y_ precedes  _X_ in the defined order;
++ 
+`<` if  _X_ precedes  _Y_ in the defined order;
++ 
+`>` if  _Y_ precedes  _X_ in the defined order;
 
 
-    + _X_ ==  _Y_ is iso 
++ _X_ ==  _Y_ is iso 
 
 
 Succeeds if terms  _X_ and  _Y_ are strictly identical. The
@@ -1269,30 +1257,30 @@ difference between this predicate and =/2 is that, if one of the
 arguments is a free variable, it only succeeds when they have already
 been unified.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- X == Y.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 fails, but,
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- X = Y, X == Y.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 succeeds.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- X == 2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 fails, but,
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- X = 2, X == 2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 succeeds.
 
  
 */
 
-/** @pred  _X_ \\==  _Y_ is iso 
+/** @pred  _X_ \==  _Y_ is iso 
 
 
 Terms  _X_ and  _Y_ are not strictly identical.
@@ -1300,7 +1288,7 @@ Terms  _X_ and  _Y_ are not strictly identical.
  
 */
 
-/** @pred  _X_ @\<  _Y_ is iso 
+/** @pred  _X_ @<  _Y_ is iso 
 
 
 Term  _X_ precedes term  _Y_ in the standard order.
@@ -1308,7 +1296,7 @@ Term  _X_ precedes term  _Y_ in the standard order.
  
 */
 
-/** @pred  _X_ @=\<  _Y_ is iso 
+/** @pred  _X_ @=<  _Y_ is iso 
 
 
 Term  _X_ does not follow term  _Y_ in the standard order.
@@ -1316,7 +1304,7 @@ Term  _X_ does not follow term  _Y_ in the standard order.
  
 */
 
-/** @pred  _X_ @\>  _Y_ is iso 
+/** @pred  _X_ @>  _Y_ is iso 
 
 
 Term  _X_ follows term  _Y_ in the standard order.
@@ -1324,7 +1312,7 @@ Term  _X_ follows term  _Y_ in the standard order.
  
 */
 
-/** @pred  _X_ @\>=  _Y_ is iso 
+/** @pred  _X_ @>=  _Y_ is iso 
 
 
 Term  _X_ does not precede term  _Y_ in the standard order.
@@ -1349,14 +1337,14 @@ Assuming L is a list of the form ` _Key_- _Value_`,
 from  _L_, by sorting its elements according to the value of
  _Key_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- keysort([3-a,1-b,2-c,1-a,1-b],S).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would return:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 S = [1-b,1-a,1-b,2-c,3-a]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -1366,7 +1354,7 @@ S = [1-b,1-a,1-b,2-c,3-a]
 
 Sorts similar to sort/2, but determines the order of two terms by
 calling  _Pred_(- _Delta_, + _E1_, + _E2_) . This call must
-unify  _Delta_ with one of `\<`, `\>` or `=`. If
+unify  _Delta_ with one of `<`, `>` or `=`. If
 built-in predicate compare/3 is used, the result is the same as
 sort/2.
 
@@ -1438,7 +1426,9 @@ mode 'read' or 'append' the file  _F_ does not exist or is not
 readable, and whether in mode 'write' or 'append' the file is not
 writable.
 
-    + open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
+*/
+
+/** @pred open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
 
 Opens the file with name  _F_ in mode  _M_ ('read',  'write' or
 'append'), returning  _S_ unified with the stream name, and following
@@ -1446,59 +1436,63 @@ these options:
 
 
 
-    + type(+ _T_) is iso
-Specify whether the stream is a `text` stream (default), or a
++ `type(+ _T_)` is iso
+
+  Specify whether the stream is a `text` stream (default), or a
 `binary` stream.
 
-    + reposition(+ _Bool_) is iso
-Specify whether it is possible to reposition the stream (`true`), or
++ `reposition(+ _Bool_)` is iso
+  Specify whether it is possible to reposition the stream (`true`), or
 not (`false`). By default, YAP enables repositioning for all
 files, except terminal files and sockets.
 
-    + eof_a
-*/
++ `eof(+ _Action_)` is iso
 
-/** @pred  n(+ _Action_) is iso
-Specify the action to take if attempting to input characters from a
+  Specify the action to take if attempting to input characters from a
 stream where we have previously found an `end_of_file`. The possible
 actions are `error`, that raises an error, `reset`, that tries to
 reset the stream and is used for `tty` type files, and `eof_code`,
 which generates a new `end_of_file` (default for non-tty files).
 
-    + alias(+ _Name_) is iso
-Specify an alias to the stream. The alias <tt>Name</tt> must be an atom. The
++ `alias(+ _Name_)` is iso
+
+  Specify an alias to the stream. The alias <tt>Name</tt> must be an atom. The
 alias can be used instead of the stream descriptor for every operation
 concerning the stream.
 
-The operation will fail and give an error if the alias name is already
+    The operation will fail and give an error if the alias name is already
 in use. YAP allows several aliases for the same file, but only
 one is returned by stream_property/2
 
-    + bom(+ _Bool_)
-If present and `true`, a BOM (<em>Byte Order Mark</em>) was
++ `bom(+ _Bool_)`
+
+  If present and `true`, a BOM (<em>Byte Order Mark</em>) was
 detected while opening the file for reading or a BOM was written while
 opening the stream. See BOM for details.
 
-    + encoding(+ _Encoding_)
++ `encoding(+ _Encoding_)`
+
 Set the encoding used for text.  See Encoding for an overview of
 wide character and encoding issues.
 
-    + representation_errors(+ _Mode_)
-Change the behaviour when writing characters to the stream that cannot
++ `representation_errors(+ _Mode_)`
+
+  Change the behaviour when writing characters to the stream that cannot
 be represented by the encoding.  The behaviour is one of `error`
-(throw and Input/Output error exception), `prolog` (write `\\u...\\`
+(throw and Input/Output error exception), `prolog` (write `\u...\`
 escape code or `xml` (write `\&#...;` XML character entity).
 The initial mode is `prolog` for the user streams and
 `error` for all other streams. See also Encoding.
 
-    + expand_filename(+ _Mode_)
-If  _Mode_ is `true` then do filename expansion, then ask Prolog
++ `expand_filename(+ _Mode_)`
+
+  If  _Mode_ is `true` then do filename expansion, then ask Prolog
 to do file name expansion before actually trying to opening the file:
 this includes processing `~` characters and processing `$`
 environment variables at the beginning of the file. Otherwise, just try
 to open the file using the given name.
 
-The default behavior is given by the Prolog flag
+  The default behavior is given by the Prolog flag
 open_expands_filename.
 
 
@@ -1694,59 +1688,59 @@ The following properties are recognized:
 
 
 
-    + file_name( _P_)
++ file_name( _P_)
 An atom giving the file name for the current stream. The file names are
 user_input, user_output, and user_error for the
 standard streams.
 
-    + mode( _P_)
++ mode( _P_)
 The mode used to open the file. It may be one of `append`,
 `read`, or `write`.
 
-    + input
++ input
 The stream is readable.
 
-    + output
++ output
 The stream is writable.
 
-    + alias( _A_)
++ alias( _A_)
 ISO-Prolog primitive for stream aliases. <tt>YAP</tt> returns one of the
 existing aliases for the stream.
 
-    + position( _P_)
++ position( _P_)
 A term describing the position in the stream.
 
-    + end_of_stream( _E_)
++ end_of_stream( _E_)
 Whether the stream is `at` the end of stream, or it has found the
 end of stream and is `past`, or whether it has `not` yet
 reached the end of stream.
 
-    + eof_action( _A_)
++ eof_action( _A_)
 The action to take when trying to read after reaching the end of
 stream. The action may be one of `error`, generate an error,
 `eof_code`, return character code `-1`, or `reset` the
 stream.
 
-    + reposition( _B_)
++ reposition( _B_)
 Whether the stream can be repositioned or not, that is, whether it is
 seekable.
 
-    + type( _T_)
++ type( _T_)
 Whether the stream is a `text` stream or a `binary` stream.
 
-    + bom(+ _Bool_)
++ bom(+ _Bool_)
 If present and `true`, a BOM (<em>Byte Order Mark</em>) was
 detected while opening the file for reading or a BOM was written while
 opening the stream. See BOM for details.
 
-    + encoding(+ _Encoding_)
++ encoding(+ _Encoding_)
 Query the encoding used for text.  See Encoding for an
 overview of wide character and encoding issues in YAP.
 
-    + representation_errors(+ _Mode_)
++ representation_errors(+ _Mode_)
 Behaviour when writing characters to the stream that cannot be
 represented by the encoding.  The behaviour is one of `error`
-(throw and Input/Output error exception), `prolog` (write `\\u...\\`
+(throw and Input/Output error exception), `prolog` (write `\u...\`
 escape code or `xml` (write `\&#...;` XML character entity).
 The initial mode is `prolog` for the user streams and
 `error` for all other streams. See also Encoding and
@@ -1754,7 +1748,7 @@ The initial mode is `prolog` for the user streams and
 
 
 
-    + current_line_number(- _LineNumber_) 
++ current_line_number(- _LineNumber_) 
 
 
 Unify  _LineNumber_ with the line number for the current stream.
@@ -1920,24 +1914,21 @@ declarations for operators (see op). If the end-of-stream is reached,
  _T_ is unified with the atom `end_of_file`. Further reads from of 
 the same stream may cause an error failure (see open/3).
 
-    + read_term(- _T_,+ _Options_) is iso 
+*/
+
+/** @pred read_term(- _T_,+ _Options_) is iso 
 
 
 Reads term  _T_ from the current input stream with execution
 controlled by the following options:
 
-
-
- 
-*/
-
-/** @pred  term_position(- _Position_) 
++ term_position(- _Position_) 
 
 Unify  _Position_ with a term describing the position of the stream
 at the start of parse. Use stream_position_data/3 to obtain extra
 information.
 
-    + singletons(- _Names_) 
++ singletons(- _Names_) 
 
 Unify  _Names_ with a list of the form  _Name=Var_, where
  _Name_ is the name of a non-anonymous singleton variable in the
@@ -1945,29 +1936,22 @@ original term, and `Var` is the variable's representation in
 YAP.
 The variables occur in left-to-right traversal order.
 
-    + syntax_errors(+ _Val_) 
++ syntax_errors(+ _Val_) 
 
 Control action to be taken after syntax errors. See yap_flag/2
 for detailed information.
 
-    + variable
-*/
-
-/** @pred  es(- _Names_) 
++ variables(- _Names_) 
 
 Unify  _Names_ with a list of the form  _Name=Var_, where  _Name_ is
 the name of a non-anonymous variable in the original term, and  _Var_
 is the variable's representation in YAP.
 The variables occur in left-to-right traversal order.
 
-    + variables(- _Names_) 
 
-Unify  _Names_ with a list of the variables in term  _T_.
-The variables occur in left-to-right traversal order.
+*/
 
-
-
-    + char_conversion(+ _IN_,+ _OUT_) is iso 
+/** @pred char_conversion(+ _IN_,+ _OUT_) is iso 
 
 
 While reading terms convert unquoted occurrences of the character
@@ -2037,38 +2021,38 @@ in standard parenthesized prefix notation.
 Displays term  _T_ on the current output stream, according to the
 following options:
 
-    + quoted(+ _Bool_) is iso
++ quoted(+ _Bool_) is iso
 If `true`, quote atoms if this would be necessary for the atom to
 be recognized as an atom by YAP's parser. The default value is
 `false`.
 
-    + ignore_ops(+ _Bool_) is iso
++ ignore_ops(+ _Bool_) is iso
 If `true`, ignore operator declarations when writing the term. The
 default value is `false`.
 
-    + numbervars(+ _Bool_) is iso
++ numbervars(+ _Bool_) is iso
 If `true`, output terms of the form
 `'$VAR'(N)`, where  _N_ is an integer, as a sequence of capital
 letters. The default value is `false`.
 
-    + portrayed(+ _Bool_)
++ portrayed(+ _Bool_)
 If `true`, use <tt>portray/1</tt> to portray bound terms. The default
 value is `false`.
 
-    + portray(+ _Bool_)
++ portray(+ _Bool_)
 If `true`, use <tt>portray/1</tt> to portray bound terms. The default
 value is `false`.
 
-    + max_depth(+ _Depth_)
++ max_depth(+ _Depth_)
 If `Depth` is a positive integer, use <tt>Depth</tt> as
 the maximum depth to portray a term. The default is `0`, that is,
 unlimited depth.
 
-    + priority(+ _Piority_)
++ priority(+ _Piority_)
 If `Priority` is a positive integer smaller than `1200`, 
 give the context priority. The default is `1200`.
 
-    + cycles(+ _Bool_)
++ cycles(+ _Bool_)
 Do not loop in rational trees (default).
 
 
@@ -2106,161 +2090,161 @@ sequences are available in YAP:
 
 
 
-    + '~~'
++ '~~'
 Print a single tilde.
 
-    + '~a'
++ '~a'
 The next argument must be an atom, that will be printed as if by `write`.
 
-    + '~Nc'
++ '~Nc'
 The next argument must be an integer, that will be printed as a
 character code. The number  _N_ is the number of times to print the
 character (default 1).
 
-    + '~Ne'
-    + '~NE'
-    + '~Nf'
-    + '~Ng'
-    + '~NG'
++ '~Ne'
++ '~NE'
++ '~Nf'
++ '~Ng'
++ '~NG'
 The next argument must be a floating point number. The float  _F_, the number
  _N_ and the control code `c` will be passed to `printf` as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
     printf("%s.Nc", F)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 As an example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
           [3.14,3.14,3.14,3.14,3.14,3.14]).
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~Nd'
++ '~Nd'
 The next argument must be an integer, and  _N_ is the number of digits
 after the decimal point. If  _N_ is `0` no decimal points will be
 printed. The default is  _N = 0_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("~2d, ~d",[15000, 15000]).
 150.00, 15000
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~ND'
++ '~ND'
 Identical to `'~Nd'`, except that commas are used to separate groups
 of three digits.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("~2D, ~D",[150000, 150000]).
 1,500.00, 150,000
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~i'
++ '~i'
 Ignore the next argument in the list of arguments:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format('The ~i met the boregrove',[mimsy]).
 The  met the boregrove
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~k'
++ '~k'
 Print the next argument with `write_canonical`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~k",a+[1,2]).
 Good night +(a,[1,2])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~Nn'
++ '~Nn'
 Print  _N_ newlines (where  _N_ defaults to 1).
 
-    + '~NN'
++ '~NN'
 Print  _N_ newlines if at the beginning of the line (where  _N_
 defaults to 1).
 
-    + '~Nr'
++ '~Nr'
 The next argument must be an integer, and  _N_ is interpreted as a
-radix, such that `2 \<= N \<= 36` (the default is 8).
+radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249f0, 444760
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that the letters `a-z` denote digits larger than 9.
 
-    + '~NR'
++ '~NR'
 Similar to '~NR'. The next argument must be an integer, and  _N_ is
-interpreted as a radix, such that `2 \<= N \<= 36` (the default is 8).
+interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249F0, 444760
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The only difference is that letters `A-Z` denote digits larger than 9.
 
-    + '~p'
++ '~p'
 Print the next argument with print/1:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~p",a+[1,2]).
 Good night a+[1,2]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~q'
++ '~q'
 Print the next argument with writeq/1:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("Good night ~q",'Hello'+[1,2]).
 Good night 'Hello'+[1,2]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~Ns'
++ '~Ns'
 The next argument must be a list of character codes. The system then
 outputs their representation as a string, where  _N_ is the maximum
 number of characters for the string ( _N_ defaults to the length of the
 string).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
 ?- format("The ~s are ~4s",["woods","lovely"]).
 The woods are love
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + '~w'
++ '~w'
 Print the next argument with write/1:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- format("Good night ~w",'Hello'+[1,2]).
 Good night Hello+[1,2]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 The number of arguments, `N`, may be given as an integer, or it
 may be given as an extra argument. The next example shows a small
 procedure to write a variable number of `a` characters:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 write_many_as(N) :-
         format("~*c",[N,0'a]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The format/2 built-in also allows for formatted output.  One can
 specify column boundaries and fill the intermediate space by a padding
 character: 
 
-    + '~N|'
++ '~N|'
 Set a column boundary at position  _N_, where  _N_ defaults to the
 current position.
 
-    + '~N+'
++ '~N+'
 Set a column boundary at  _N_ characters past the current position, where
  _N_ defaults to `8`.
 
-    + '~Nt'
++ '~Nt'
 Set padding for a column, where  _N_ is the fill code (default is
 `SPC`).
 
@@ -2269,29 +2253,29 @@ Set padding for a column, where  _N_ is the fill code (default is
 The next example shows how to align columns and padding. We first show
 left-alignment:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- format("~n*Hello~16+*~n",[]).
 *Hello          *
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that we reserve 16 characters for the column.
 
 The following example shows how to do right-alignment:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- format("*~tHello~16+*~n",[]).
 *          Hello*
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The `~t` escape sequence forces filling before `Hello`. 
 
 We next show how to do centering:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- format("*~tHello~t~16+*~n",[]).
 *     Hello     *
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The two `~t` escape sequence force filling both before and after
 `Hello`. Space is then evenly divided between the right and the
@@ -2328,28 +2312,28 @@ multi-threaded applications. This predicate supports creating
 difference-lists from character data efficiently. The example below
 defines the DCG rule `term/3` to insert a term in the output:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
  term(Term, In, Tail) :-
         with_output_to(codes(In, Tail), write(Term)).
 
 ?- phrase(term(hello), X).
 
 X = [104, 101, 108, 108, 111]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + A Stream handle or alias
++ A Stream handle or alias
 Temporary switch current output to the given stream. Redirection using with_output_to/2 guarantees the original output is restored, also if Goal fails or raises an exception. See also call_cleanup/2. 
-    + atom(- _Atom_)
++ atom(- _Atom_)
 Create an atom from the emitted characters. Please note the remark above. 
-    + string(- _String_)
++ string(- _String_)
 Create a string-object (not supported in YAP). 
-    + codes(- _Codes_)
++ codes(- _Codes_)
 Create a list of character codes from the emitted characters, similar to atom_codes/2. 
-    + codes(- _Codes_, - _Tail_)
++ codes(- _Codes_, - _Tail_)
 Create a list of character codes as a difference-list. 
-    + chars(- _Chars_)
++ chars(- _Chars_)
 Create a list of one-character-atoms codes from the emitted characters, similar to atom_chars/2. 
-    + chars(- _Chars_, - _Tail_)
++ chars(- _Chars_, - _Tail_)
 Create a list of one-character-atoms as a difference-list. 
 
 
@@ -2756,14 +2740,6 @@ stream.
  
 */
 
-/** @pred  ttytab(+ _N_) 
-
-
-The same as tab/1, but using stream user_output.
-
- 
-*/
-
 /** @pred  ttynl 
 
 
@@ -2788,7 +2764,9 @@ Outputs a new line to stream user_output.
 
 Checks if file  _F_ exists in the current directory.
 
-    + nofileerrors 
+*/
+
+/** @pred  nofileerrors 
 
 
 Switches off the file_errors flag, so that the predicates see/1,
@@ -2796,21 +2774,13 @@ tell/1, open/3 and close/1 just fail, instead of producing
 an error message and aborting whenever the specified file cannot be
 opened or closed.
 
-    + fileerrors 
+*/
+
+/**  @pred fileerrors 
 
 
 Switches on the file_errors flag so that in certain error conditions
 Input/Output predicates will produce an appropriated message and abort.
-
-    + always_prompt_user 
-
-
-Force the system to prompt the user even if the user_input stream
-is not a terminal. This command is useful if you want to obtain
-interactive control from a pipe or a socket.
-
-
-
 
 @} */
 
@@ -2878,11 +2848,11 @@ corresponding stream is closed with close/1 or `close/2`.
 Interface to system call `bind`, as used for servers: bind socket
 to a port. Port information depends on the domain:
 
-    + 'AF_UNIX'(+ _FILENAME_) (unsupported)
-    + 'AF_FILE'(+ _FILENAME_)
++ 'AF_UNIX'(+ _FILENAME_) (unsupported)
++ 'AF_FILE'(+ _FILENAME_)
 use file name  _FILENAME_ for UNIX or local sockets.
 
-    + 'AF_INET'(? _HOST_,?PORT)
++ 'AF_INET'(? _HOST_,?PORT)
 If  _HOST_ is bound to an atom, bind to host  _HOST_, otherwise
 if unbound bind to local host ( _HOST_ remains unbound). If port
  _PORT_ is bound to an integer, try to bind to the corresponding
@@ -2904,11 +2874,11 @@ read/write stream  _STREAM_.
 
 Port information depends on the domain:
 
-    + 'AF_UNIX'(+ _FILENAME_)
-    + 'AF_FILE'(+ _FILENAME_)
++ 'AF_UNIX'(+ _FILENAME_)
++ 'AF_FILE'(+ _FILENAME_)
 connect to socket at file  _FILENAME_.
 
-    + 'AF_INET'(+ _HOST_,+ _PORT_)
++ 'AF_INET'(+ _HOST_,+ _PORT_)
 Connect to socket at host  _HOST_ and port  _PORT_.
 
 
@@ -2957,9 +2927,7 @@ receives the new status which may be one of `unbuf` or
  
 */
 
-/** @pred  socket_select(+ _SOCKETS_, - _NEWSTREAMS_, + _TIMEOUT_, 
-
-+ _STREAMS_, - _READSTREAMS_) [unsupported in YAP-6.3]
+/** @pred  socket_select(+ _SOCKETS_, - _NEWSTREAMS_, + _TIMEOUT_, + _STREAMS_, - _READSTREAMS_) [unsupported in YAP-6.3]
 
 Interface to system call `select`, used for servers to wait for
 connection requests or for data at sockets. The variable
@@ -3023,29 +2991,29 @@ and therefore he should try to avoid them whenever possible.
  
 */
 
-/** @pred  dynamic + _P_ 
+/** @pred  dynamic( + _P_ )
 
 
 Declares predicate  _P_ or list of predicates [ _P1_,..., _Pn_]
-as a dynamic predicate.  _P_ must be written in form:
- _name/arity_.
+as a dynamic predicate.  _P_ must be written as a predicate indicator, that is in form
+ _Name/Arity_ or _Module:Name/Arity_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- dynamic god/1.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 a more convenient form can be used:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- dynamic son/3, father/2, mother/2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 or, equivalently,
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- dynamic [son/3, father/2, mother/2].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note:
 
@@ -3336,38 +3304,39 @@ is the atom  _A_.
 For the predicates obeying the specification  _P_ unify  _Prop_
 with a property of  _P_. These properties may be:
 
-    + built_in 
-
++ `built_in `
 true for built-in predicates,
-    + dynamic
+
++ `dynamic`
 true if the predicate is dynamic
-    + static 
 
++ `static `
 true if the predicate is static
-    + meta_predicate( _M_) 
 
++ `meta_predicate( _M_) `
 true if the predicate has a meta_predicate declaration  _M_.
-    + multifile 
 
++ `multifile `
 true if the predicate was declared to be multifile
-    + imported_from( _Mod_) 
 
++ `imported_from( _Mod_) `
 true if the predicate was imported from module  _Mod_.
-    + exported 
 
++ `exported `
 true if the predicate is exported in the current module.
-    + public
+
++ `public`
 true if the predicate is public; note that all dynamic predicates are
 public.
-    + tabled 
 
++ `tabled `
 true if the predicate is tabled; note that only static predicates can
 be tabled in YAP.
-    + source (predicate_property flag) 
 
++ `source (predicate_property flag) `
 true if source for the predicate is available.
-    + number_of_clauses( _ClauseCount_) 
 
++ `number_of_clauses( _ClauseCount_) `
 Number of clauses in the predicate definition. Always one if external
 or built-in.
 
@@ -3472,6 +3441,61 @@ term. Under each key a list of terms is kept. References are provided so that
 terms can be identified: each term in the i.d.b. has a unique reference 
 (references are also available for clauses of dynamic predicates).
 
+There is a strong analogy between the i.d.b. and the way dynamic 
+predicates are stored. In fact, the main i.d.b. predicates might be 
+implemented using dynamic predicates:
+
+~~~~~
+recorda(X,T,R) :- asserta(idb(X,T),R).
+recordz(X,T,R) :- assertz(idb(X,T),R).
+recorded(X,T,R) :- clause(idb(X,T),R).
+~~~~~
+We can take advantage of this, the other way around, as it is quite 
+easy to write a simple Prolog interpreter, using the i.d.b.:
+
+~~~~~
+asserta(G) :- recorda(interpreter,G,_).
+assertz(G) :- recordz(interpreter,G,_).
+retract(G) :- recorded(interpreter,G,R), !, erase(R).
+call(V) :- var(V), !, fail.
+call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+call(G) :- recorded(interpreter,G,_).
+~~~~~
+In YAP, much attention has been given to the implementation of the 
+i.d.b., especially to the problem of accelerating the access to terms kept in 
+a large list under the same key. Besides using the key, YAP uses an internal 
+lookup function, transparent to the user, to find only the terms that might 
+unify. For instance, in a data base containing the terms
+
+~~~~~
+b
+b(a)
+c(d)
+e(g)
+b(X)
+e(h)
+~~~~~
+
+stored under the key k/1, when executing the query 
+
+~~~~~
+:- recorded(k(_),c(_),R).
+~~~~~
+
+`recorded` would proceed directly to the third term, spending almost the 
+time as if `a(X)` or `b(X)` was being searched.
+The lookup function uses the functor of the term, and its first three
+arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+directly to the last term, while `recorded(k(_),e(_),_)` would find
+first the fourth term, and then, after backtracking, the last one.
+
+This mechanism may be useful to implement a sort of hierarchy, where 
+the functors of the terms (and eventually the first arguments) work as 
+secondary keys.
+
+In the YAP's i.d.b. an optimized representation is used for 
+terms without free variables. This results in a faster retrieval of terms 
+and better space usage. Whenever possible, avoid variables in terms in terms stored in the  i.d.b.
 
 
  
@@ -3542,9 +3566,9 @@ Searches in the internal database under the key  _K_, a term that
 unifies with  _T_ and whose reference matches  _R_. This
 built-in may be used in one of two ways:
 
-    + _K_ may be given, in this case the built-in will return all
++ _K_ may be given, in this case the built-in will return all
 elements of the internal data-base that match the key.
-    + _R_ may be given, if so returning the key and element that
++ _R_ may be given, if so returning the key and element that
 match the reference.
 
 
@@ -3664,74 +3688,19 @@ The `set_value` and `get_value` built-ins give a fast alternative to
 the internal data-base. This is a simple form of implementing a global
 counter.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
        read_and_increment_counter(Value) :-
                 get_value(counter, Value),
                 Value1 is Value+1,
                 set_value(counter, Value1).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 This predicate is YAP specific.
 
 
 
-There is a strong analogy between the i.d.b. and the way dynamic 
-predicates are stored. In fact, the main i.d.b. predicates might be 
-implemented using dynamic predicates:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-recorda(X,T,R) :- asserta(idb(X,T),R).
-recordz(X,T,R) :- assertz(idb(X,T),R).
-recorded(X,T,R) :- clause(idb(X,T),R).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We can take advantage of this, the other way around, as it is quite 
-easy to write a simple Prolog interpreter, using the i.d.b.:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-asserta(G) :- recorda(interpreter,G,_).
-assertz(G) :- recordz(interpreter,G,_).
-retract(G) :- recorded(interpreter,G,R), !, erase(R).
-call(V) :- var(V), !, fail.
-call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
-call(G) :- recorded(interpreter,G,_).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In YAP, much attention has been given to the implementation of the 
-i.d.b., especially to the problem of accelerating the access to terms kept in 
-a large list under the same key. Besides using the key, YAP uses an internal 
-lookup function, transparent to the user, to find only the terms that might 
-unify. For instance, in a data base containing the terms
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-b
-b(a)
-c(d)
-e(g)
-b(X)
-e(h)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-stored under the key k/1, when executing the query 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:- recorded(k(_),c(_),R).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`recorded` would proceed directly to the third term, spending almost the 
-time as if `a(X)` or `b(X)` was being searched.
-The lookup function uses the functor of the term, and its first three
-arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
-directly to the last term, while `recorded(k(_),e(_),_)` would find
-first the fourth term, and then, after backtracking, the last one.
-
-This mechanism may be useful to implement a sort of hierarchy, where 
-the functors of the terms (and eventually the first arguments) work as 
-secondary keys.
-
-In the YAP's i.d.b. an optimized representation is used for 
-terms without free variables. This results in a faster retrieval of terms 
-and better space usage. Whenever possible, avoid variables in terms in terms stored in the  i.d.b.
-
-
-@} */
+@} 
+*/
 
 /** @defgroup BlackBoard The Blackboard
 @ingroup YAPBuiltins
@@ -3741,10 +3710,10 @@ YAP implements a blackboard in the style of the SICStus Prolog
 blackboard. The blackboard uses the same underlying mechanism as the
 internal data-base but has several important differences:
 
-    + It is module aware, in contrast to the internal data-base.
-    + Keys can only be atoms or integers, and not compound terms.
-    + A single term can be stored per key.
-    + An atomic update operation is provided; this is useful for
++ It is module aware, in contrast to the internal data-base.
++ Keys can only be atoms or integers, and not compound terms.
++ A single term can be stored per key.
++ An atomic update operation is provided; this is useful for
 parallelism.
 
 
@@ -3817,24 +3786,24 @@ term  _T_ satisfying the goal  _G_.
 
 With the following program:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 a(2,1).
 a(1,1).
 a(2,2).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 the answer to the query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 findall(X,a(X,Y),L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would be:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 X = _32
 Y = _33
 L = [2,1,2];
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -3853,17 +3822,17 @@ Similar to `findall( _T_, _G_, _L_)` but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 all(X,a(X,Y),L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would be:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 X = _32
 Y = _33
 L = [2,1];
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that all/3 will fail if no answers are found.
 
@@ -3878,7 +3847,7 @@ For each set of possible instances of the free variables occurring in
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 bagof(X,a(X,Y),L).
 
 would be:
@@ -3889,7 +3858,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -3901,12 +3870,12 @@ Similar to `bagof( _T_, _G_, _L_)` but sorts list
  _L_ and keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 setof(X,a(X,Y),L).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would be:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 X = _32
 Y = 1
 L = [1,2];
@@ -3914,7 +3883,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -3930,32 +3899,32 @@ clause grammars and  an extension of the well known context-free grammars.
 
 A grammar rule is of the form:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 head --> body
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 where both \a head and \a body are sequences of one or more items
 linked by the standard conjunction operator ','.
 
 <em>Items can be:</em>
 
-    + 
++ 
 a <em>non-terminal</em> symbol may be either a complex term or an atom.
-    + 
++ 
 a <em>terminal</em> symbol may be any Prolog symbol. Terminals are
 written as Prolog lists.
-    + 
++ 
 an <em>empty body</em> is written as the empty list '[ ]'.
-    + 
++ 
 <em>extra conditions</em> may be inserted as Prolog procedure calls, by being
 written inside curly brackets '{' and '}'.
-    + 
++ 
 the left side of a rule consists of a nonterminal and an optional list
 of terminals.
-    + 
++ 
 alternatives may be stated in the right-hand side of the rule by using
 the disjunction operator ';'.
-    + 
-the <em>cut</em> and <em>conditional</em> symbol ('-\>') may be inserted in the 
++ 
+the <em>cut</em> and <em>conditional</em> symbol ('->') may be inserted in the 
 right hand side of a grammar rule
 
 
@@ -3987,16 +3956,16 @@ whenever the compilation of arithmetic expressions is in progress.
 This user-defined predicate is called by `expand_term/3` to
 preprocess all terms read when consulting a file. If it succeeds:
 
-    + 
++ 
 If  _X_ is of the form `:- G` or `?- G`, it is processed as
 a directive.
-    + 
++ 
 If  _X_ is of the form `'$source_location'( _File_, _Line_): _Clause_` it is processed as if from `File` and line `Line`.
 
-    + 
++ 
 If  _X_ is a list, all terms of the list are asserted or processed
 as directives.
-    + The term  _X_ is asserted instead of  _T_.
++ The term  _X_ is asserted instead of  _T_.
 
 
  
@@ -4151,30 +4120,30 @@ current command interpreter in WIN32 environments.
 
 Access to Unix-like functionality:
 
-    + argv/1
++ argv/1
 Return a list of arguments to the program. These are the arguments that
 follow a `--`, as in the usual Unix convention.
-    + cd/0
++ cd/0
 Change to home directory.
-    + cd/1
++ cd/1
 Change to given directory. Acceptable directory names are strings or
 atoms.
-    + environ/2
++ environ/2
 If the first argument is an atom, unify the second argument with the
 value of the corresponding environment variable.
-    + getcwd/1
++ getcwd/1
 Unify the first argument with an atom representing the current directory.
-    + putenv/2
++ putenv/2
 Set environment variable  _E_ to the value  _S_. If the
 environment variable  _E_ does not exist, create a new one. Both the
 environment variable and the value must be atoms.
-    + shell/1
++ shell/1
 Execute command under current shell. Acceptable commands are strings or
 atoms.
-    + system/1
++ system/1
 Execute command with `/bin/sh`. Acceptable commands are strings or
 atoms.
-    + shell/0
++ shell/0
 Execute a new shell.
 
 
@@ -4209,7 +4178,7 @@ executing built-in predicates, such as Input/Output operations.
 The next example shows how  _alarm/3_ can be used to implement a
 simple clock:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 loop :- loop.
 
 ticker :- write('.'), flush_output,
@@ -4217,7 +4186,7 @@ ticker :- write('.'), flush_output,
           alarm(1,ticker,_).
 
 :- set_value(tick, yes), alarm(1,ticker,_), loop.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The clock, `ticker`, writes a dot and then checks the flag
 `tick` to see whether it can continue ticking. If so, it calls
@@ -4228,13 +4197,13 @@ user input, `ticker` will wait until the user types the entry in.
 The next example shows how alarm/3 can be used to guarantee that
 a certain procedure does not take longer than a certain amount of time:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 loop :- loop.
 
 :-   catch((alarm(10, throw(ball), _),loop),
         ball,
         format('Quota exhausted.~n',[])).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 In this case after `10` seconds our `loop` is interrupted,
 `ball` is thrown,  and the handler writes `Quota exhausted`.
 Execution then continues from the handler.
@@ -4244,14 +4213,14 @@ sent. Often, the code you are executing succeeds or fails before the
 alarm is actually delivered. In this case, you probably want to disable
 the alarm when you leave the procedure. The next procedure does exactly so:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 once_with_alarm(Time,Goal,DoOnAlarm) :-
    catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
 
 execute_once_with_alarm(Time, Goal) :-
         alarm(Time, alarm, _),
         ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The procedure `once_with_alarm/3` has three arguments:
 the  _Time_ to wait before the alarm is
@@ -4281,10 +4250,10 @@ on_signal/3 succeeds, unless when called with an invalid
 signal name or one that is not supported on this platform. No checks
 are made on the handler provided by the user.
 
-    + sig_up (Hangup)
++ sig_up (Hangup)
 SIGHUP in Unix/Linux; Reconsult the initialization files
 ~/.yaprc, ~/.prologrc and ~/prolog.ini.
-    + sig_usr1 and sig_usr2 (User signals)
++ sig_usr1 and sig_usr2 (User signals)
 SIGUSR1 and SIGUSR2 in Unix/Linux; Print a message and halt.
 
 
@@ -4378,18 +4347,18 @@ Global variables are associations between names (atoms) and
 terms. They differ in various ways from storing information using
 assert/1 or recorda/3.
 
-    + The value lives on the Prolog (global) stack. This implies that
++ The value lives on the Prolog (global) stack. This implies that
 lookup time is independent from the size of the term. This is
 particularly interesting for large data structures such as parsed XML
 documents or the CHR global constraint store. 
 
-    + They support both global assignment using nb_setval/2 and
++ They support both global assignment using nb_setval/2 and
 backtrackable assignment using b_setval/2.
 
-    + Only one value (which can be an arbitrary complex Prolog term)
++ Only one value (which can be an arbitrary complex Prolog term)
 can be associated to a variable at a time. 
 
-    + Their value cannot be shared among threads. Each thread has its own
++ Their value cannot be shared among threads. Each thread has its own
 namespace and values for global variables.
 
 
@@ -4477,7 +4446,7 @@ trailed and left alone otherwise, which implies that the history that
 created the term affects the behaviour on backtracking. Please
 consider the following example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 demo_nb_linkval :-
         T = nice(N),
         (   N = world,
@@ -4486,7 +4455,7 @@ demo_nb_linkval :-
         ;   nb_getval(myvar, V),
             writeln(V)
         ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -4501,7 +4470,7 @@ you want to share structure with the previous term.
 
 The next example shows the differences between the three built-ins:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- nb_setval(a,a(_)),nb_getval(a,A),nb_setval(b,t(C,A)),nb_getval(b,B).
 A = a(_A),
 B = t(_B,a(_C)) ? 
@@ -4511,7 +4480,7 @@ B = t(_B,a(_C)) ?
 ?- nb_setval(a,a(_)),nb_getval(a,A),nb_linkval(b,t(C,A)),nb_getval(b,B).
 A = a(_A),
 B = t(C,a(_A)) ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -4534,7 +4503,7 @@ implementation is thread-safe, reentrant and capable of handling
 exceptions. Realising these features with a traditional implementation
 based on assert/retract or flag/3 is much more complicated.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
     succeeds_n_times(Goal, Times) :-
             Counter = counter(0),
             (   Goal,
@@ -4544,7 +4513,7 @@ based on assert/retract or flag/3 is much more complicated.
                 fail
             ;   arg(1, Counter, Times)
             ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -4626,16 +4595,16 @@ implementation.
 The count profiler works by incrementing counters at procedure entry or
 backtracking. It provides exact information:
 
-    + Profiling works for both static and dynamic predicates.
-    + Currently only information on entries and retries to a predicate
++ Profiling works for both static and dynamic predicates.
++ Currently only information on entries and retries to a predicate
 are maintained. This may change in the future.
-    + As an example, the following user-level program gives a list of
++ As an example, the following user-level program gives a list of
 the most often called procedures in a program. The procedure
 `list_profile` shows all procedures, irrespective of module, and
 the procedure `list_profile/1` shows the procedures being used in
 a specific module.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 list_profile :-
         % get number of calls for each profiled procedure
         setof(D-[M:P|D1],(current_module(M),profile_data(M:P,calls,D),profile_data(M:P,retries,D1)),LP),
@@ -4656,7 +4625,7 @@ write_profile_data([D-[M:P|R]|SLP]) :-
         %  called predicates first.
         format('~a:~w: ~32+~t~d~12+~t~d~12+~n', [M,P,D,R]),
         write_profile_data(SLP).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 These are  the current predicates to access and clear profiling data:
@@ -4673,14 +4642,14 @@ by the predicate indicator  _Na/Ar_. If any of  _Na/Ar_ or
  _Parameter_ are unbound, backtrack through all profiled predicates
 or stored parameters. Current parameters are:
 
-    + calls
++ calls
 Number of times a procedure was called.
 
-    + retries
++ retries
 Number of times a call to the procedure was backtracked to and retried.
 
 
-    + profile_reset 
++ profile_reset 
 
 
 Reset all profiling information.
@@ -4705,18 +4674,18 @@ may slow down the whole execution.
 
 The following procedures are available:
 
-    + profinit 
++ profinit 
 
 
 Initialise the data-structures for the profiler. Unnecessary for
 dynamic profiler.
 
-    + profon 
++ profon 
 
 
 Start profiling.
 
-    + profoff 
++ profoff 
 
 
 Stop profiling.
@@ -4752,11 +4721,11 @@ Predicates compiled with YAP's flag call_counting set to
 retries. Counters are actually decreasing counters, so that they can be
 used as timers.  Three counters are available:
 
-    + `calls`: number of predicate calls since execution started or since
++ `calls`: number of predicate calls since execution started or since
 system was reset; 
-    + `retries`: number of retries for predicates called since
++ `retries`: number of retries for predicates called since
 execution started or since counters were reset;
-    + `calls_and_retries`: count both on predicate calls and
++ `calls_and_retries`: count both on predicate calls and
 retries.
 
 These counters can be used to find out how many calls a certain
@@ -4778,35 +4747,43 @@ These are  the predicates that access and manipulate the call counters:
 Give current call count data. The first argument gives the current value
 for the  _Calls_ counter, next the  _Retries_ counter, and last
 the  _CallsAndRetries_ counter.
+ 
+*/
 
-    + call_count_reset 
+/** @pred  call_count_reset 
 
 
 Reset call count counters. All timers are also reset.
 
- <li
 */
 
-/** @pred  l_count(? _CallsMax_, ? _RetriesMax_, ? _CallsAndRetriesMax_) 
+/** @pred  call_count(? _CallsMax_, ? _RetriesMax_, ? _CallsAndRetriesMax_) 
 
 
-Set call count counter as timers. YAP will generate an exception
-if one of the instantiated call counters decreases to 0. YAP will ignore
-unbound arguments:
+Set call counters as timers. YAP will generate an exception
+if one of the instantiated call counters decreases to 0:
 
-    + _CallsMax_: throw the exception `call_counter` when the
++ _CallsMax_
+
+    throw the exception `call_counter` when the
 counter `calls` reaches 0;
-    + _RetriesMax_: throw the exception `retry_counter` when the
+
++ _RetriesMax_
+
+    throw the exception `retry_counter` when the
 counter `retries` reaches 0;
-    + _CallsAndRetriesMax_: throw the exception
+
++ _CallsAndRetriesMax_
+
+    throw the exception
 `call_and_retry_counter` when the counter `calls_and_retries`
 reaches 0.
 
-
+ YAP will ignore counters that are called with unbound arguments.
 
 Next, we show a simple example of how to use call counters:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~{.prolog}
    ?- yap_flag(call_counting,on), [-user]. l :- l. end_of_file. yap_flag(call_counting,off).
 
 yes
@@ -4817,7 +4794,7 @@ yes
 limit_exceeded.
 
 yes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Notice that we first compile the looping predicate `l/0` with
 call_counting `on`. Next, we catch/3 to handle an
 exception when `l/0` performs more than 10000 reductions.
@@ -4842,9 +4819,9 @@ built-in. Second, because dynamic arrays may have name that are globally
 visible, a dynamic array can be visible from any point in the
 program. In more detail, the clause
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 g(X) :- array_element(a,2,X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 will succeed as long as the programmer has used the built-in <tt>array/2</tt>
 to create an array term with at least 3 elements in the current
 environment, and the array was associated with the name `a`.  The
@@ -4862,15 +4839,15 @@ In order to efficiently manage space elements in a static array must
 have a type. Currently, elements of static arrays in YAP should
 have one of the following predefined types:
 
-    + `byte`: an 8-bit signed character.
-    + `unsigned_byte`: an 8-bit unsigned character.
-    + `int`: Prolog integers. Size would be the natural size for
++ `byte`: an 8-bit signed character.
++ `unsigned_byte`: an 8-bit unsigned character.
++ `int`: Prolog integers. Size would be the natural size for
 the machine's architecture.
-    + `float`: Prolog floating point number. Size would be equivalent
++ `float`: Prolog floating point number. Size would be equivalent
 to a double in `C`.
-    + `atom`: a Prolog atom.
-    + `dbref`: an internal database reference.
-    + `term`: a generic Prolog term. Note that this will term will
++ `atom`: a Prolog atom.
++ `dbref`: an internal database reference.
++ `term`: a generic Prolog term. Note that this will term will
 not be stored in the array itself, but instead will be stored in the
 Prolog internal database.
 
@@ -4884,18 +4861,18 @@ occurrences of Prolog terms of the form `X[I]` by run-time calls to
 array_element/3, so that one can use array references instead of
 extra calls to arg/3. As an example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 g(X,Y,Z,I,J) :- X[I] is Y[J]+Z[I].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 should give the same results as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 G(X,Y,Z,I,J) :-
         array_element(X,I,E1),
         array_element(Y,J,E2),  
         array_element(Z,I,E3),  
         E1 is E2+E3.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that the only limitation on array size are the stack size for
 dynamic arrays; and, the heap size for static (not memory mapped)
@@ -5041,7 +5018,7 @@ to use the operations on mutable terms.
  
 */
 
-/** @pred  add_to_array_element(+ _Name_, + _Index_, , + _Number_, ? _NewValue_)  
+/** @pred  add_to_array_element(+ _Name_, + _Index_, + _Number_, ? _NewValue_)  
 
 
 Add  _Number_  _Name_[ _Index_] and unify  _NewValue_ with
@@ -5109,7 +5086,7 @@ Succeeds if  _M_ are current modules associated to the file  _F_.
 Send to the current user error stream general information on space used and time
 spent by the system.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- statistics.
 memory (total)        4784124 bytes
    program space      3055616 bytes:    1392224 in use,      1663392 free
@@ -5126,7 +5103,7 @@ memory (total)        4784124 bytes
        1.020 sec. cputime
       25.055 sec. elapsed time
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 The example shows how much memory the system spends. Memory is divided
 into Program Space, Stack Space and Trail. In the example we have 3MB
 allocated for program spaces, with less than half being actually
@@ -5154,7 +5131,7 @@ argument:
 
 
 
-    + atoms 
++ atoms 
 
 `[ _NumberOfAtoms_, _SpaceUsedBy Atoms_]`
 
@@ -5162,7 +5139,7 @@ argument:
 This gives the total number of atoms `NumberOfAtoms` and how much
 space they require in bytes,  _SpaceUsedBy Atoms_.
 
-    + cputime 
++ cputime 
 
 `[ _Time since Boot_, _Time From Last Call to Cputime_]`
 
@@ -5170,7 +5147,7 @@ space they require in bytes,  _SpaceUsedBy Atoms_.
 This gives the total cputime in milliseconds spent executing Prolog code,
 garbage collection and stack shifts time included.
 
-    + dynamic_code 
++ dynamic_code 
 
 `[ _Clause Size_, _Index Size_, _Tree Index Size_, _Choice Point Instructions Size_, _Expansion Nodes Size_, _Index Switch Size_]`
 
@@ -5183,7 +5160,7 @@ tables that implement choice-point manipulation,  _Choice xsPoint Instructions S
 tree,  _Expansion Nodes Size_, and 
 tables such as hash tables that select according to value,   _Index Switch Size_.
 
-    + garbage_collection 
++ garbage_collection 
 
 `[ _Number of GCs_, _Total Global Recovered_, _Total Time Spent_]`
 
@@ -5192,7 +5169,7 @@ Number of garbage collections, amount of space recovered in kbytes, and
 total time spent doing garbage collection in milliseconds. More detailed
 information is available using `yap_flag(gc_trace,verbose)`.
 
-    + global_stack 
++ global_stack 
 
 `[ _Global Stack Used_, _Execution Stack Free_]`
 
@@ -5200,7 +5177,7 @@ information is available using `yap_flag(gc_trace,verbose)`.
 Space in kbytes currently used in the global stack, and space available for
 expansion by the local and global stacks.
 
-    + local_stack 
++ local_stack 
 
 `[ _Local Stack Used_, _Execution Stack Free_]`
 
@@ -5208,7 +5185,7 @@ expansion by the local and global stacks.
 Space in kbytes currently used in the local stack, and space available for
 expansion by the local and global stacks.
 
-    + heap 
++ heap 
 
 `[ _Heap Used_, _Heap Free_]`
 
@@ -5217,14 +5194,14 @@ Total space in kbytes not recoverable
 in backtracking. It includes the program code, internal data base, and,
 atom symbol table.
 
-    + program 
++ program 
 
 `[ _Program Space Used_, _Program Space Free_]`
 
 
 Equivalent to heap.
 
-    + runtime 
++ runtime 
 
 `[ _Time since Boot_, _Time From Last Call to Runtime_]`
 
@@ -5234,7 +5211,7 @@ code, not including garbage collections and stack shifts. Note that
 until YAP4.1.2 the runtime statistics would return time spent on
 garbage collection and stack shifting.
 
-    + stack_shifts 
++ stack_shifts 
 
 `[ _Number of Heap Shifts_, _Number of Stack Shifts_, _Number of Trail Shifts_]`
 
@@ -5243,7 +5220,7 @@ Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
 available using `yap_flag(gc_trace,verbose)`.
 
-    + static_code 
++ static_code 
 
 `[ _Clause Size_, _Index Size_, _Tree Index Size_, _Expansion Nodes Size_, _Index Switch Size_]`
 
@@ -5255,14 +5232,14 @@ indexing code is divided into a main tree,  _Tree Index Size_, table that cache 
 tree,  _Expansion Nodes Size_, and and 
 tables such as hash tables that select according to value,   _Index Switch Size_.
 
-    + trail 
++ trail 
 
 `[ _Trail Used_, _Trail Free_]`
 
 
 Space in kbytes currently being used and still available for the trail.
 
-    + walltime 
++ walltime 
 
 `[ _Time since Boot_, _Time From Last Call to Walltime_]`
 
@@ -5291,342 +5268,271 @@ does not support).
 Set or read system properties for  _Param_:
 
 
++ `argv `
 
-    + argv 
-
-
-Read-only flag. It unifies with a list of atoms that gives the
+    Read-only flag. It unifies with a list of atoms that gives the
 arguments to YAP after `--`.
 
-    + agc_margin 
++ `agc_margin `
 
-An integer: if this amount of atoms has been created since the last
+    An integer: if this amount of atoms has been created since the last
 atom-garbage collection, perform atom garbage collection at the first
 opportunity. Initial value is 10,000. May be changed. A value of 0
 (zero) disables atom garbage collection.
 
-    + associate 
++ `associate `
 
-
-
-Read-write flag telling a suffix for files associated to Prolog
+    Read-write flag telling a suffix for files associated to Prolog
 sources. It is `yap` by default.
 
-    + bounded is iso 
++ `bounded is iso `
 
-
-
-Read-only flag telling whether integers are bounded. The value depends
+    Read-only flag telling whether integers are bounded. The value depends
 on whether YAP uses the GMP library or not.
 
-    + profiling 
++ `profiling `
 
-
-
-If `off` (default) do not compile call counting information for
+    If `off` (default) do not compile call counting information for
 procedures. If `on` compile predicates so that they calls and
 retries to the predicate may be counted. Profiling data can be read through the
 call_count_data/3 built-in.
 
-    + char_conversion is iso
++ `char_conversion is iso`
 
-
-Writable flag telling whether a character conversion table is used when
+    Writable flag telling whether a character conversion table is used when
 reading terms. The default value for this flag is `off` except in
 `sicstus` and `iso` language modes, where it is `on`.
 
-    + character_escapes is iso 
++ `character_escapes is iso `
 
-
-Writable flag telling whether a character escapes are enables,
+    Writable flag telling whether a character escapes are enables,
 `true`, or disabled, `false`. The default value for this flag is
 `on`.
 
-    + debug is iso 
++ `debug is iso `
 
-
-
-If  _Value_ is unbound, tell whether debugging is `true` or
+    If  _Value_ is unbound, tell whether debugging is `true` or
 `false`. If  _Value_ is bound to `true` enable debugging, and if
 it is bound to `false` disable debugging.
 
-    + debugger_print_options 
++ `debugger_print_options `
 
-
-
-If bound, set the argument to the `write_term/3` options the
+    If bound, set the argument to the `write_term/3` options the
 debugger uses to write terms. If unbound, show the current options.
 
-    + dialect 
++ `dialect `
 
+    Read-only flag that always returns `yap`.
 
++ `discontiguous_warnings `
 
-Read-only flag that always returns `yap`.
-
-    + discontiguous_warnings 
-
-
-
-If  _Value_ is unbound, tell whether warnings for discontiguous
+    If  _Value_ is unbound, tell whether warnings for discontiguous
 predicates are `on` or
 `off`. If  _Value_ is bound to `on` enable these warnings,
 and if it is bound to `off` disable them. The default for YAP is
 `off`, unless we are in `sicstus` or `iso` mode.
 
-    + dollar_as_lower_case 
++ `dollar_as_lower_case `
 
-
-
-If `off` (default)  consider the character '$' a control character, if
+    If `off` (default)  consider the character '$' a control character, if
 `on` consider '$' a lower case character.
 
-    + double_quotes is iso 
++ `double_quotes is iso `
 
-
-
-If  _Value_ is unbound, tell whether a double quoted list of characters
+    If  _Value_ is unbound, tell whether a double quoted list of characters
 token is converted to a list of atoms, `chars`, to a list of integers,
 `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
 the corresponding behavior. The default value is `codes`.
 
-    + executable 
++ `executable `
 
-
-Read-only flag. It unifies with an atom that gives the
+    Read-only flag. It unifies with an atom that gives the
 original program path.
 
-    + fast 
++ `fast `
 
-
-
-If `on` allow fast machine code, if `off` (default) disable it. Only
+    If `on` allow fast machine code, if `off` (default) disable it. Only
 available in experimental implementations.
 
-    + fileerrors
++ `fileerrors`
 
-
-If `on` `fileerrors` is `on`, if `off` (default)
+    If `on` `fileerrors` is `on`, if `off` (default)
 `fileerrors` is disabled.
 
-    + float_format 
++ `float_format `
 
-
-C-library `printf()` format specification used by write/1 and
+    C-library `printf()` format specification used by write/1 and
 friends to determine how floating point numbers are printed. The
 default is `%.15g`. The specified value is passed to `printf()`
 without further checking. For example, if you want less digits
 printed, `%g` will print all floats using 6 digits instead of the
 default 15.
 
-    + gc
++ `gc`
 
+    If `on` allow garbage collection (default), if `off` disable it.
 
-If `on` allow garbage collection (default), if `off` disable it.
++ `gc_margin `
 
-    + gc_margin 
-
-
-
-Set or show the minimum free stack before starting garbage
+    Set or show the minimum free stack before starting garbage
 collection. The default depends on total stack size. 
 
-    + gc_trace 
++ `gc_trace `
 
-
-If `off` (default) do not show information on garbage collection
+    If `off` (default) do not show information on garbage collection
 and stack shifts, if `on` inform when a garbage collection or stack
 shift happened, if verbose give detailed information on garbage
 collection and stack shifts. Last, if `very_verbose` give detailed
 information on data-structures found during the garbage collection
 process, namely, on choice-points.
 
-    + generate_debugging_info 
++ `generate_debugging_info `
 
-
-If `true` (default) generate debugging information for
+    If `true` (default) generate debugging information for
 procedures, including source mode. If `false` predicates no
 information is generated, although debugging is still possible, and
 source mode is disabled.
 
-    + host_type 
++ `host_type `
 
-
-Return `configure` system information, including the machine-id
+    Return `configure` system information, including the machine-id
 for which YAP was compiled and Operating System information. 
 
-    + index 
++ `index `
 
-
-If `on` allow indexing (default), if `off` disable it, if
+    If `on` allow indexing (default), if `off` disable it, if
 `single` allow on first argument only.
 
-    + index_sub_term_search_depth 
++ `index_sub_term_search_depth `
 
+    Maximum bound on searching sub-terms for indexing, if `0` (default) no bound.
 
++ `informational_messages `
 
-Maximum bound on searching sub-terms for indexing, if `0` (default) no bound.
-
-    + informational_messages 
-
-
-
-If `on` allow printing of informational messages, such as the ones
+    If `on` allow printing of informational messages, such as the ones
 that are printed when consulting. If `off` disable printing
 these messages. It is `on` by default except if YAP is booted with
 the `-L` flag.
 
-    + integer_rounding_function is iso 
++ `integer_rounding_function is iso `
 
-
-
-Read-only flag telling the rounding function used for integers. Takes the value
+    Read-only flag telling the rounding function used for integers. Takes the value
 `toward_zero` for the current version of YAP.
 
-    + language 
++ `language `
 
-
-
-Choose whether YAP is closer to C-Prolog, `cprolog`, iso-prolog,
+    Choose whether YAP is closer to C-Prolog, `cprolog`, iso-prolog,
 `iso` or SICStus Prolog, `sicstus`. The current default is
 `cprolog`. This flag affects update semantics, leashing mode,
 style checking, handling calls to undefined procedures, how directives
 are interpreted, when to use dynamic, character escapes, and how files
 are consulted.
 
-    + max_arity is iso 
++ `max_arity is iso `
 
-
-
-Read-only flag telling the maximum arity of a functor. Takes the value
+    Read-only flag telling the maximum arity of a functor. Takes the value
 `unbounded` for the current version of YAP.
 
-    + max_integer is iso 
++ `max_integer is iso `
 
-
-
-Read-only flag telling the maximum integer in the
+    Read-only flag telling the maximum integer in the
 implementation. Depends on machine and Operating System
 architecture, and on whether YAP uses the `GMP` multi-precision
 library. If bounded is false, requests for max_integer
 will fail.
 
-    + max_tagged_integer  
++ `max_tagged_integer  `
 
-
-
-Read-only flag telling the maximum integer we can store as a single
+    Read-only flag telling the maximum integer we can store as a single
 word. Depends on machine and Operating System
 architecture. It can be used to find the word size of the current machine.
 
-    + min_integer is iso 
++ `min_integer is iso `
 
-
-Read-only flag telling the minimum integer in the
+    Read-only flag telling the minimum integer in the
 implementation. Depends on machine and Operating System architecture,
 and on whether YAP uses the `GMP` multi-precision library. If
 bounded is false, requests for min_integer will fail.
 
-    + min_tagged_integer  
++ `min_tagged_integer  `
 
-
-
-Read-only flag telling the minimum integer we can store as a single
+    Read-only flag telling the minimum integer we can store as a single
 word. Depends on machine and Operating System
 architecture.
 
-    + n_of_integer_keys_in_bb 
++ `n_of_integer_keys_in_bb `
 
-
-
-Read or set the size of the hash table that is used for looking up the
+    Read or set the size of the hash table that is used for looking up the
 blackboard when the key is an integer.
 
-    + occurs_check 
++ `occurs_check `
 
+    Current read-only and set to `false`.
 
++ `n_of_integer_keys_in_db `
 
-Current read-only and set to `false`.
-
-    + n_of_integer_keys_in_db 
-
-
-
-Read or set the size of the hash table that is used for looking up the
+    Read or set the size of the hash table that is used for looking up the
 internal data-base when the key is an integer.
 
-    + open_expands_filename 
++ `open_expands_filename `
 
-
-
-If `true` the open/3 builtin performs filename-expansion
+    If `true` the open/3 builtin performs filename-expansion
 before opening a file (SICStus Prolog like). If `false` it does not
 (SWI-Prolog like).
 
-    + open_shared_object 
++ `open_shared_object `
 
-
-
-If true, `open_shared_object/2` and friends are implemented,
+    If true, `open_shared_object/2` and friends are implemented,
 providing access to shared libraries (`.so` files) or to dynamic link
 libraries (`.DLL` files).
 
-    + profiling 
++ `profiling `
 
-
-
-If `off` (default) do not compile profiling information for
+    If `off` (default) do not compile profiling information for
 procedures. If `on` compile predicates so that they will output
 profiling information. Profiling data can be read through the
 profile_data/3 built-in.
 
-    + prompt_alternatives_on(atom, changeable) 
++ `prompt_alternatives_on(atom, changeable) `
 
-SWI-Compatible option, determines prompting for alternatives in the Prolog toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is <tt>determinism</tt> which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
+    SWI-Compatible option, determines prompting for alternatives in the Prolog toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is <tt>determinism</tt> which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
 
-    + redefine_warnings 
++ `redefine_warnings `
 
-
-
-If  _Value_ is unbound, tell whether warnings for procedures defined
+    If  _Value_ is unbound, tell whether warnings for procedures defined
 in several different files are `on` or
 `off`. If  _Value_ is bound to `on` enable these warnings,
 and if it is bound to `off` disable them. The default for YAP is
 `off`, unless we are in `sicstus` or `iso` mode.
 
-    + shared_object_search_path 
++ `shared_object_search_path `
 
-Name of the environment variable used by the system to search for shared
+    Name of the environment variable used by the system to search for shared
 objects.
 
-    + shared_object_extension 
++ `shared_object_extension `
 
-Suffix associated with loadable code.
+    Suffix associated with loadable code.
 
-    + single_var_warnings 
++ `single_var_warnings `
 
-
-
-If  _Value_ is unbound, tell whether warnings for singleton variables
+    If  _Value_ is unbound, tell whether warnings for singleton variables
 are `on` or `off`. If  _Value_ is bound to `on` enable
 these warnings, and if it is bound to `off` disable them. The
 default for YAP is `off`, unless we are in `sicstus` or
 `iso` mode.
 
-    + strict_iso 
++ `strict_iso `
 
-
-
-If  _Value_ is unbound, tell whether strict ISO compatibility mode
+    If  _Value_ is unbound, tell whether strict ISO compatibility mode
 is `on` or `off`. If  _Value_ is bound to `on` set
 language mode to `iso` and enable strict mode. If  _Value_ is
 bound to `off` disable strict mode, and keep the current language
 mode. The default for YAP is `off`.
-
 Under strict ISO Prolog mode all calls to non-ISO built-ins generate an
 error. Compilation of clauses that would call non-ISO built-ins will
 also generate errors. Pre-processing for grammar rules is also
 disabled. Module expansion is still performed.
-
 Arguably, ISO Prolog does not provide all the functionality required
 from a modern Prolog system. Moreover, because most Prolog
 implementations do not fully implement the standard and because the
@@ -5637,138 +5543,105 @@ will work the same way in every Prolog and in every platform. We thus
 believe this mode is mostly useful when investigating how a program
 depends on a Prolog's platform specific features.
 
-    + stack_dump_on_error 
++ `stack_dump_on_error `
 
-
-
-If `on` show a stack dump when YAP finds an error. The default is
+    If `on` show a stack dump when YAP finds an error. The default is
 `off`.
 
-    + syntax_errors
++ `syntax_errors`
 
-
-Control action to be taken after syntax errors while executing read/1,
+    Control action to be taken after syntax errors while executing read/1,
 `read/2`, or `read_term/3`:
-
-
-
-    + dec10
-
-
+  + `dec10`
 Report the syntax error and retry reading the term.
-
-    + fail
-
-
+  + `fail`
 Report the syntax error and fail (default).
-
-    + error
-
-
+  + `error`
 Report the syntax error and generate an error.
-
-    + quiet
-
-
+  + `quiet`
 Just fail
 
++ `system_options `
 
-    + system_options 
-
-
-This read only flag tells which options were used to compile
+    This read only flag tells which options were used to compile
 YAP. Currently it informs whether the system supports `big_numbers`,
 `coroutining`, `depth_limit`, `low_level_tracer`,
 `or-parallelism`, `rational_trees`, `readline`, `tabling`,
 `threads`, or the `wam_profiler`.
 
-    + tabling_mode
++ `tabling_mode`
 
-Sets or reads the tabling mode for all tabled predicates. Please
+    Sets or reads the tabling mode for all tabled predicates. Please
  (see Tabling) for the list of options.
 
-    + to_chars_mode 
++ `to_chars_mode `
 
-
-Define whether YAP should follow `quintus`-like
+    Define whether YAP should follow `quintus`-like
 semantics for the `atom_chars/1` or `number_chars/1` built-in,
 or whether it should follow the ISO standard (`iso` option).
 
-    + toplevel_hook 
++ `toplevel_hook `
 
-
-
-+If bound, set the argument to a goal to be executed before entering the
+    If bound, set the argument to a goal to be executed before entering the
 top-level. If unbound show the current goal or `true` if none is
 presented. Only the first solution is considered and the goal is not
 backtracked into.
 
-    + toplevel_print_options 
++ `toplevel_print_options `
 
-
-
-+If bound, set the argument to the `write_term/3` options used to write
+    If bound, set the argument to the `write_term/3` options used to write
 terms from the top-level. If unbound, show the current options.
 
-    + typein_module 
++ `typein_module `
 
-
-
-If bound, set the current working or type-in module to the argument,
+    If bound, set the current working or type-in module to the argument,
 which must be an atom. If unbound, unify the argument with the current
 working module.
 
-    + unix
++ `unix`
 
-Read-only Boolean flag that unifies with `true` if YAP is
+    Read-only Boolean flag that unifies with `true` if YAP is
 running on an Unix system.  Defined if the C-compiler used to compile
 this version of YAP either defines `__unix__` or `unix`.
 
-    + unknown is iso
++ `unknown is iso`
 
-
-Corresponds to calling the unknown/2 built-in. Possible values 
+    Corresponds to calling the unknown/2 built-in. Possible values 
 are `error`, `fail`, and `warning`.
 
-    + update_semantics 
++ `update_semantics `
 
-
-
-Define whether YAP should follow `immediate` update
+    Define whether YAP should follow `immediate` update
 semantics, as in C-Prolog (default), `logical` update semantics,
 as in Quintus Prolog, SICStus Prolog, or in the ISO standard. There is
 also an intermediate mode, `logical_assert`, where dynamic
 procedures follow logical semantics but the internal data base still
 follows immediate semantics.
 
-    + user_error 
++ `user_error `
 
-
-
-If the second argument is bound to a stream, set user_error to
+    If the second argument is bound to a stream, set user_error to
 this stream. If the second argument is unbound, unify the argument with
 the current user_error stream.
-
 By default, the user_error stream is set to a stream
 corresponding to the Unix `stderr` stream.
-
 The next example shows how to use this flag:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   ?- open( '/dev/null', append, Error,
-           [alias(mauri_tripa)] ).
+~~~{.prolog}
+    ?- open( '/dev/null', append, Error,
+            [alias(mauri_tripa)] ).
 
-Error = '$stream'(3) ? ;
+    Error = '$stream'(3) ? ;
 
-no
-   ?- set_prolog_flag(user_error, mauri_tripa).
+    no
+    ?- set_prolog_flag(user_error, mauri_tripa).
 
-close(mauri_tripa).
+    close(mauri_tripa).
 
-yes
-   ?- 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We execute three commands. First, we open a stream in write mode and
+     yes
+    ?- 
+~~~
+    We execute three commands. First, we open a stream in write mode and
 give it an alias, in this case `mauri_tripa`. Next, we set
 user_error to the stream via the alias. Note that after we did so
 prompts from the system were redirected to the stream
@@ -5776,99 +5649,78 @@ prompts from the system were redirected to the stream
 automatically redirects the user_error alias to the original
 `stderr`.
 
-    + user_flags 
++ `user_flags `
 
+    Define the behaviour of set_prolog_flag/2 if the flag is not known. Values are `silent`, `warning` and `error`. The first two create the flag on-the-fly, with `warning` printing a message. The value `error` is consistent with ISO: it raises an existence error and does not create the flag. See also `create_prolog_flag/3`. The default is`error`, and developers are encouraged to use `create_prolog_flag/3` to create flags for their library.
 
++ `user_input `
 
-Define the behaviour of set_prolog_flag/2 if the flag is not known. Values are `silent`, `warning` and `error`. The first two create the flag on-the-fly, with `warning` printing a message. The value `error` is consistent with ISO: it raises an existence error and does not create the flag. See also `create_prolog_flag/3`. The default is`error`, and developers are encouraged to use `create_prolog_flag/3` to create flags for their library.
-
-    + user_input 
-
-
-
-If the second argument is bound to a stream, set user_input to
+    If the second argument is bound to a stream, set user_input to
 this stream. If the second argument is unbound, unify the argument with
 the current user_input stream.
-
 By default, the user_input stream is set to a stream
 corresponding to the Unix `stdin` stream.
 
-    + user_output 
++ `user_output `
 
-
-
-If the second argument is bound to a stream, set user_output to
+    If the second argument is bound to a stream, set user_output to
 this stream. If the second argument is unbound, unify the argument with
 the current user_output stream.
-
 By default, the user_output stream is set to a stream
 corresponding to the Unix `stdout` stream.
 
-    + verbose 
++ `verbose `
 
-
-
-If `normal` allow printing of informational and banner messages,
+    If `normal` allow printing of informational and banner messages,
 such as the ones that are printed when consulting. If `silent`
 disable printing these messages. It is `normal` by default except if
 YAP is booted with the `-q` or `-L` flag.
 
-    + verbose_load 
++ `verbose_load `
 
-
-If `true` allow printing of informational messages when
+    If `true` allow printing of informational messages when
 consulting files. If `false` disable printing these messages. It
 is `normal` by default except if YAP is booted with the `-L`
 flag.
 
-    + version 
++ `version `
 
-
-Read-only flag that returns an atom with the current version of
+    Read-only flag that returns an atom with the current version of
 YAP.
 
-    + version_data 
++ `version_data `
 
-
-Read-only flag that reads a term of the form
+    Read-only flag that reads a term of the form
 `yap`( _Major_, _Minor_, _Patch_, _Undefined_), where
  _Major_ is the major version,  _Minor_ is the minor version,
 and  _Patch_ is the patch number.
 
-    + windows 
++ `windows `
 
-
-
-Read-only boolean flag that unifies with tr `true` if YAP is
+    Read-only boolean flag that unifies with tr `true` if YAP is
 running on an Windows machine.
 
-    + write_strings 
++ `write_strings `
 
-
-Writable flag telling whether the system should write lists of
+    Writable flag telling whether the system should write lists of
 integers that are writable character codes using the list notation. It
 is `on` if enables or `off` if disabled. The default value for
 this flag is `off`.
 
-    + max_workers 
++ `max_workers `
 
+    Read-only flag telling the maximum number of parallel processes.
 
-Read-only flag telling the maximum number of parallel processes.
++ `max_threads `
 
-    + max_threads 
-
-
-Read-only flag telling the maximum number of Prolog threads that can 
+    Read-only flag telling the maximum number of Prolog threads that can 
 be created.
-
 
 
  
 */
 
 /** @pred current_prolog_flag(? _Flag_,- _Value_) is iso 
-
-
 
 Obtain the value for a YAP Prolog flag. Equivalent to calling
 yap_flag/2 with the second argument unbound, and unifying the
@@ -5877,7 +5729,7 @@ returned second argument with  _Value_.
  
 */
 
-/** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_) 
+/** @pred prolog_flag(? _Flag_,- _OldValue_,+ `_NewValue_) 
 
 
 
@@ -5983,61 +5835,53 @@ following keys are available:
 
 
 
-    + directory 
++ directory 
 
 
 
 Full name for the directory where YAP is currently consulting the
 file.
 
-    + file 
++ file 
 
 
 
 Full name for the file currently being consulted. Notice that included
 filed are ignored.
 
-    + module 
++ module 
 
 
 
 Current source module.
 
-    + source (prolog_load_context/2 option) 
++ `source` (prolog_load_context/2 option) 
 
-
-
-Full name for the file currently being read in, which may be consulted,
+    Full name for the file currently being read in, which may be consulted,
 reconsulted, or included.
 
-    + stream 
++ `stream` 
 
+    Stream currently being read in.
 
++ `term_position` 
 
-Stream currently being read in.
-
-    + term_position 
-
-
-
-Stream position at the stream currently being read in. For SWI
+    Stream position at the stream currently being read in. For SWI
 compatibility, it is a term of the form
 `'$stream_position'(0,Line,0,0,0)`.
 
 
-    + source_location(? _FileName_, ? _Line_) 
++ `source_location(? _FileName_, ? _Line_)` 
 
+    SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
 
-SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use prolog_load_context/2.
++ `source_file(? _File_)`
 
-    + source_file(? _File_) 
+    SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
 
++ `source_file(? _ModuleAndPred_,? _File_)`
 
-SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
-
-    + source_file(? _ModuleAndPred_,? _File_)
-
-SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
+    SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
 
 
 
@@ -6065,71 +5909,84 @@ aggregation operations are counting, computing the sum, minimum,
 maximum, a bag of solutions and a set of solutions. We first give a
 simple example, computing the country with the smallest area:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 smallest_country(Name, Area) :-
         aggregate(min(A, N), country(N, A), min(Area, Name)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 There are four aggregation predicates, distinguished on two properties.
 
-
-
- @pred aggregate vs. aggregate_all
++ aggregate vs. aggregate_all
 The aggregate predicates use setof/3 (aggregate/4) or bagof/3
 (aggregate/3), dealing with existential qualified variables
-( _Var_/\\ _Goal_) and providing multiple solutions for the
+( _Var_/\ _Goal_) and providing multiple solutions for the
 remaining free variables in  _Goal_. The aggregate_all/3
 predicate uses findall/3, implicitly qualifying all free variables
 and providing exactly one solution, while aggregate_all/4 uses
 sort/2 over solutions and Distinguish (see below) generated using
 findall/3. 
-    + The  _Distinguish_ argument
++ The  _Distinguish_ argument
 The versions with 4 arguments provide a  _Distinguish_ argument
 that allow for keeping duplicate bindings of a variable in the
 result. For example, if we wish to compute the total population of
 all countries we do not want to lose results because two countries
 have the same population. Therefore we use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
         aggregate(sum(P), Name, country(Name, P), Total)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
-All aggregation predicates support the following operator below in
+All aggregation predicates support the following operators below in
  _Template_. In addition, they allow for an arbitrary named compound
 term where each of the arguments is a term from the list below. I.e. the
 term `r(min(X), max(X))` computes both the minimum and maximum
 binding for  _X_.
 
++ `count`
 
+    Count number of solutions. Same as `sum(1)`. 
 
- @pred count
-Count number of solutions. Same as `sum(1)`. 
-    + sum( _Expr_)
-Sum of  _Expr_ for all solutions. 
-    + min( _Expr_)
-Minimum of  _Expr_ for all solutions. 
-    + min( _Expr_,  _Witness_)
-A term min( _Min_,  _Witness_), where  _Min_ is the minimal version of  _Expr_
++ `sum( _Expr_)`
+
+    Sum of  _Expr_ for all solutions. 
+
++ `min( _Expr_)`
+
+    Minimum of  _Expr_ for all solutions. 
+
++ `min( _Expr_,  _Witness_)`
+
+    A term min( _Min_,  _Witness_), where  _Min_ is the minimal version of  _Expr_
+
 over all Solution and  _Witness_ is any other template applied to
 Solution that produced  _Min_. If multiple solutions provide the same
 minimum,  _Witness_ corresponds to the first solution. 
-    + max( _Expr_)
-Maximum of  _Expr_ for all solutions. 
-    + max( _Expr_,  _Witness_)
-As min( _Expr_,  _Witness_), but producing the maximum result. 
-    + set( _X_)
-An ordered set with all solutions for  _X_. 
-    + bag( _X_)
-A list of all solutions for  _X_. 
+
++ `max( _Expr_)`
+
+    Maximum of  _Expr_ for all solutions. 
+
++ `max( _Expr_,  _Witness_)`
+
+    As min( _Expr_,  _Witness_), but producing the maximum result. 
+
++ `set( _X_)`
+
+    An ordered set with all solutions for  _X_. 
+
++ `bag( _X_)`
+
+    A list of all solutions for  _X_. 
+
 
 
 The predicates are:
 
 
 
- @pred [nondet]aggregate(+ _Template_, : _Goal_, - _Result_) 
+ @pred aggregate(+ _Template_, : _Goal_, - _Result_)  is nondet
 
 
 Aggregate bindings in  _Goal_ according to  _Template_. The
@@ -6144,7 +6001,7 @@ aggregate/3 version performs setof/3 on  _Goal_.
  
 */
 
-/** @pred [semidet]aggregate_all(+ _Template_, : _Goal_, - _Result_) 
+/** @pred aggregate_all(+ _Template_, : _Goal_, - _Result_)  is semidet
 
 
 Aggregate bindings in  _Goal_ according to  _Template_. The
@@ -6152,7 +6009,7 @@ aggregate_all/3 version performs findall/3 on  _Goal_.
  
 */
 
-/** @pred [semidet]aggregate_all(+ _Template_, + _Discriminator_, : _Goal_, - _Result_)
+/** @pred aggregate_all(+ _Template_, + _Discriminator_, : _Goal_, - _Result_) is semidet
 
 Aggregate bindings in  _Goal_ according to  _Template_. The
 aggregate_all/3 version performs findall/3 followed by sort/2 on
@@ -6176,12 +6033,12 @@ any variables that are not shared with Generator.
 
 Here is an example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-    ?- foreach(between(1,4,X), dif(X,Y)), Y = 5.
+~~~~~{.prolog}
+    ?- foreach( between(1,4,X), dif(X,Y)), Y = 5.
     Y = 5
-    ?- foreach(between(1,4,X), dif(X,Y)), Y = 3.
+    ?- foreach( between(1,4,X), dif(X,Y)), Y = 3.
     No
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Notice that  _Goal_ is copied repeatedly, which may cause
 problems if attributed variables are involved.
@@ -6189,15 +6046,13 @@ problems if attributed variables are involved.
  
 */
 
-/** @pred [det]free_variables(:Generator, + _Template_, +VarList0, -VarList) 
+/** @pred free_variables(:Generator, + _Template_, +VarList0, -VarList)  is det
 
 
 In order to handle variables properly, we have to find all the universally quantified variables in the Generator. All variables as yet unbound are universally quantified, unless
 
-<ol>
-    + they occur in the template
-    + they are bound by X/\\P, setof, or bagof
-</ol>
++ they occur in the template
++ they are bound by X/\P, setof, or bagof
 
 `free_variables(Generator, Template, OldList, NewList)` finds this set, using OldList as an accumulator.
 
@@ -6205,9 +6060,6 @@ In order to handle variables properly, we have to find all the universally quant
 The original author of this code was Richard O'Keefe. Jan Wielemaker
 made some SWI-Prolog enhancements, sponsored by SecuritEase,
 http://www.securitease.com. The code is public domain (from DEC10 library).
-
-
-
 
 
 @} */
@@ -6467,20 +6319,20 @@ integers.
 The package is activated by `udi` declarations that state what is
 the argument of interest:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 :- udi(diagnoses(exo_interval,?,?)).
 
 :- load_files(db, [consult(exo)]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 It is designed to optimise the following type of queries:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- max(X, diagnoses(X, 9, Y), X).
 
 ?- min(X, diagnoses(X, 9, 36211117), X).
 
 ?- X #< Y, min(X, diagnoses(X, 9, 36211117), X ), diagnoses(Y, 9, _).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 The first argument gives the time, the second the patient, and the
 third the condition code. The first query should find the last time
 the patient 9 had any code reported, the second looks for the first
@@ -6508,46 +6360,46 @@ of gecode and to have an higher level interface,
 
 This text is due to Denys Duchier. The gecode interface requires
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 :- use_module(library(gecode)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Several example programs are available with the distribution.
 
-    + CREATING A SPACE
++ CREATING A SPACE
 
 A space is gecodes data representation for a store of constraints:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Space := space
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + CREATING VARIABLES
++ CREATING VARIABLES
 
 Unlike in Gecode, variable objects are not bound to a specific Space.  Each one
 actually contains an index with which it is possible to access a Space-bound
 Gecode variable.  Variables can be created using the following expressions:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
    IVar := intvar(Space,SPEC...)
    BVar := boolvar(Space)
    SVar := setvar(Space,SPEC...)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 where SPEC... is the same as in Gecode.  For creating lists of variables use
 the following variants:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
    IVars := intvars(Space,N,SPEC...)
    BVars := boolvars(Space,N,SPEC...)
    SVars := setvars(Space,N,SPEC...)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 where N is the number of variables to create (just like for XXXVarArray in
 Gecode).  Sometimes an IntSet is necessary:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
    ISet := intset([SPEC...])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 where each SPEC is either an integer or a pair (I,J) of integers.  An IntSet
 describes a set of ints by providing either intervals, or integers (which stand
@@ -6555,10 +6407,10 @@ for an interval of themselves).  It might be tempting to simply represent an
 IntSet as a list of specs, but this would be ambiguous with IntArgs which,
 here, are represented as lists of ints.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
    Space += keep(Var)
    Space += keep(Vars)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Variables can be marked as "kept".  In this case, only such variables will be
 explicitly copied during search.  This could bring substantial benefits in
@@ -6566,56 +6418,56 @@ memory usage.  Of course, in a solution, you can then only look at variables
 that have been "kept".  If no variable is marked as "kept", then they are all
 kept.  Thus marking variables as "kept" is purely an optimization.
 
-    + CONSTRAINTS AND BRANCHINGS
++ CONSTRAINTS AND BRANCHINGS
 
 all constraint and branching posting functions are available just like in
 Gecode.  Wherever a XXXArgs or YYYSharedArray is expected, simply use a list.
 At present, there is no support for minimodel-like constraint posting.
 Constraints and branchings are added to a space using:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Space += CONSTRAINT
     Space += BRANCHING
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Space += rel(X,'IRT_EQ',Y)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 arrays of variables are represented by lists of variables, and constants are
 represented by atoms with the same name as the Gecode constant
 (e.g. 'INT_VAR_SIZE_MIN').
 
-    + SEARCHING FOR SOLUTIONS
++ SEARCHING FOR SOLUTIONS
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     SolSpace := search(Space)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 This is a backtrackable predicate that enumerates all solution spaces
 (SolSpace).  It may also take options:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     SolSpace := search(Space,Options)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Options is a list whose elements maybe:
 
-    + restart
++ restart
 to select the Restart search engine
-    + threads=N
++ threads=N
 to activate the parallel search engine and control the number of
 workers (see Gecode doc)
-    + c_d=N
++ c_d=N
 to set the commit distance for recomputation
-    + a_d=N
++ a_d=N
 to set the adaptive distance for recomputation
 
 
 
-    + EXTRACTING INFO FROM A SOLUTION
++ EXTRACTING INFO FROM A SOLUTION
 
 An advantage of non Space-bound variables, is that you can use them both to
 post constraints in the original space AND to consult their values in
@@ -6623,7 +6475,7 @@ solutions.  Below are methods for looking up information about variables.  Each
 of these methods can either take a variable as argument, or a list of
 variables, and returns resp. either a value, or a list of values:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Val := assigned(Space,X)
 
     Val := min(Space,X)
@@ -6650,16 +6502,16 @@ variables, and returns resp. either a value, or a list of values:
     Val := glb_values(Space,V)
     Val := lub_values(Space,V)
     Val := unknown_values(Space,V)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + DISJUNCTORS
++ DISJUNCTORS
 
 Disjunctors provide support for disjunctions of clauses, where each clause is a
 conjunction of constraints:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     C1 or C2 or ... or Cn
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Each clause is executed "speculatively": this means it does not affect the main
 space.  When a clause becomes failed, it is discarded.  When only one clause
@@ -6670,69 +6522,69 @@ Example:
 Consider the problem where either X=Y=0 or X=Y+(1 or 2) for variable X and Y
 that take values in 0..3.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Space := space,
     [X,Y] := intvars(Space,2,0,3),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 First, we must create a disjunctor as a manager for our 2 clauses:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Disj := disjunctor(Space),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 We can now create our first clause:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     C1 := clause(Disj),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 This clause wants to constrain X and Y to 0.  However, since it must be
 executed "speculatively", it must operate on new variables X1 and Y1 that
 shadow X and Y:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     [X1,Y1] := intvars(C1,2,0,3),
     C1 += forward([X,Y],[X1,Y1]),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The forward(...) stipulation indicates which global variable is shadowed by
 which clause-local variable.  Now we can post the speculative clause-local
 constraints for X=Y=0:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     C1 += rel(X1,'IRT_EQ',0),
     C1 += rel(Y1,'IRT_EQ',0),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 We now create the second clause which uses X2 and Y2 to shadow X and Y:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     C2 := clause(Disj),
     [X2,Y2] := intvars(C2,2,0,3),
     C2 += forward([X,Y],[X2,Y2]),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 However, this clause also needs a clause-local variable Z2 taking values 1 or
 2 in order to post the clause-local constraint X2=Y2+Z2:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Z2 := intvar(C2,1,2),
     C2 += linear([-1,1,1],[X2,Y2,Z2],'IRT_EQ',0),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Finally, we can branch and search:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Space += branch([X,Y],'INT_VAR_SIZE_MIN','INT_VAL_MIN'),
     SolSpace := search(Space),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 and lookup values of variables in each solution:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     [X_,Y_] := val(SolSpace,[X,Y]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -6746,20 +6598,20 @@ and lookup values of variables in each solution:
 The gecode/clp(fd) interface is designed to use the GECODE functionality
 in a more CLP like style. It requires
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 :- use_module(library(gecode/clpfd)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Several example programs are available with the distribution.
 
 Integer variables are declared as:
 
-    + _V_ in  _A_.. _B_
++ _V_ in  _A_.. _B_
 declares an integer variable  _V_ with range  _A_ to  _B_.
-    + _Vs_ ins  _A_.. _B_
++ _Vs_ ins  _A_.. _B_
 declares a set of integer variabless  _Vs_ with range  _A_ to  _B_.
-    + boolvar( _V_)
++ boolvar( _V_)
 declares a  boolean variable.
-    + boolvars( _Vs_)
++ boolvars( _Vs_)
 declares a set of  boolean variable.
 
 
@@ -6768,55 +6620,55 @@ Constraints supported are:
  
 */
 
-/** @pred _X_ #=  _Y_
+/** @pred _X_ #=  _Y_ is semidet
 equality
  
 */
 
-/** @pred _X_ #\\=  _Y_
+/** @pred _X_ #\=  _Y_ is semidet
 disequality
  
 */
 
-/** @pred _X_ #\>  _Y_
+/** @pred _X_ #>  _Y_ is semidet
 larger
  
 */
 
-/** @pred _X_ #\>=  _Y_
+/** @pred _X_ #>=  _Y_ is semidet
 larger or equal
  
 */
 
-/** @pred _X_ #=\<  _Y_
+/** @pred _X_ #=<  _Y_ is semidet
 smaller
  
 */
 
-/** @pred _X_ #\<  _Y_
+/** @pred _X_ #<  _Y_ is semidet
 smaller or equal
 
 Arguments to this constraint may be an arithmetic expression with <tt>+</tt>,
-<tt>-</tt>, <tt>\\\*</tt>, integer division <tt>/</tt>, <tt>min</tt>, <tt>max</tt>, <tt>sum</tt>,
+<tt>-</tt>, <tt>\\*</tt>, integer division <tt>/</tt>, <tt>min</tt>, <tt>max</tt>, <tt>sum</tt>,
 <tt>count</tt>, and
-<tt>abs</tt>. Boolean variables support conjunction (/\\), disjunction (\\/),
-implication (=\>), equivalence (\<=\>), and xor. The <tt>sum</tt> constraint allows  a two argument version using the
+<tt>abs</tt>. Boolean variables support conjunction (/\), disjunction (\/),
+implication (=>), equivalence (<=>), and xor. The <tt>sum</tt> constraint allows  a two argument version using the
 `where` conditional, in Zinc style. 
 
 The send more money equation may be written as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
           1000*S + 100*E + 10*N + D +
           1000*M + 100*O + 10*R + E #=
 10000*M + 1000*O + 100*N + 10*E + Y,
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 This example uses `where` to select from
 column  _I_ the elements that have value under  _M_:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The <tt>count</tt> constraint counts the number of elements that match a
 certain constant or variable (integer sets are not available).
@@ -6825,25 +6677,19 @@ certain constant or variable (integer sets are not available).
 */
 
 /** @pred all_different( _Vs_    )
- 
-*/
 
-/** @pred all_distinct( _Vs_)
- 
-*/
-
-/** @pred all_different( _Cs_,  _Vs_)
- 
+Verifies whether all elements of a list are different.
 */
 
 /** @pred all_distinct( _Cs_,  _Vs_)
-verifies whether all elements of a list are different. In the second
-case, tests if all the sums between a list of constants and a list of
-variables are different.
+
+verifies whether all elements of a list are different. Also tests if
+all the sums between a list of constants and a list of variables are
+different.
 
 This is a formulation of the queens problem that uses both versions of `all_different`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 queens(N, Queens) :-
     length(Queens, N),
     Queens ins 1..N,
@@ -6859,15 +6705,15 @@ inc(_, I0, I0, I) :-
 
 dec(_, I0, I0, I) :-
     I is I0-1.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The next example uses `all_different/1` and the functionality of the matrix package to verify that all squares in
 sudoku have a different value:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -6880,57 +6726,57 @@ The product of constant  _Cs_ by  _Vs_ must be in relation
  
 */
 
-/** @pred _X_ #= 
+/** @pred _X_ #= is det
 all elements of  _X_  must take the same value
  
 */
 
-/** @pred _X_ #\\= 
+/** @pred _X_ #\=  is det
 not all elements of  _X_  take the same value
  
 */
 
-/** @pred _X_ #\> 
+/** @pred _X_ #>  is det
 elements of  _X_  must be increasing
  
 */
 
-/** @pred _X_ #\>= 
+/** @pred _X_ #>=  is det
 elements of  _X_  must be increasinga or equal
  
 */
 
-/** @pred _X_ #=\< 
+/** @pred _X_ #=<  is det
 elements of  _X_  must be decreasing
  
 */
 
-/** @pred _X_ #\< 
+/** @pred _X_ #<  is det
 elements of  _X_  must be decreasing or equal
 
  
 */
 
-/** @pred _X_ #\<==\>  _B_
+/** @pred _X_ #<==>  _B_  is det
 reified equivalence
  
 */
 
-/** @pred _X_ #==\>  _B_
-reified implication
+/** @pred _X_ #==>  _B_  is det
+Reified implication
  
 */
 
-/** @pred _X_ #\<  _B_
+/** @pred _X_ #<  _B_  is det
 reified implication 
 
 As an example. consider finding out the people who wanted to sit
 next to a friend and that are are actually sitting together:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 preference_satisfied(X-Y, B) :-
     abs(X - Y) #= 1 #<==> B.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Note that not all constraints may be reifiable.
 
  
@@ -6947,7 +6793,7 @@ If  _Type_ is `and` it is the conjunction of boolean variables
  _Ps_ and the negation of boolean variables  _Ns_ and must have
 result  _V_. If  _Type_ is `or` it is a disjunction.
 
-    + DFA
++ DFA
 the interface allows creating and manipulation deterministic finite
 automata. A DFA has a set of states, represented as integers
 and is initialised with an initial state, a set of transitions from the
@@ -6956,23 +6802,23 @@ state.
 
 The swedish-drinkers protocol is represented as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     A = [X,Y,Z],
     dfa( 0, [t(0,0,0),t(0,1,1),t(1,0,0),t(-1,0,0)], [0], C),
     in_dfa( A, C ),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 This code will enumeratae the valid tuples of three emissions.
 
-    + extensional constraints
++ extensional constraints
 Constraints can also be represented as lists of tuples. 
 
 The previous example
 would be written as:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     extensional_constraint([[0,0,0],[0,1,0],[1,0,0]], C),
     in_relation( A, C ),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -6994,7 +6840,7 @@ First Argument is the least element of a list.
 /** @pred max( _X_,  _Vs_)
 First Argument is the greatest element of a list.
 
-    + lex_order( _Vs_)
++ lex_order( _Vs_)
 All elements must be ordered.
 
 
@@ -7010,13 +6856,13 @@ available. The defaults are `min` and `min_step`.
 
 Variable selection options are as follows:
 
-    + leftmost
++ leftmost
 choose the first variable
-    + min
++ min
 choose one of the variables with smallest minimum value
-    + max
++ max
 choose one of the variables with greatest maximum value
-    + ff
++ ff
 choose one of the most constrained variables, that is, with the smallest
 domain.
 
@@ -7024,13 +6870,13 @@ domain.
 Given that we selected a variable, the values chosen for branching may
 be:
 
-    + min_step
++ min_step
 smallest value
-    + max_step
++ max_step
 largest value
-    + bisect
++ bisect
 median
-    + enum
++ enum
 all value starting from the minimum.
 
 
@@ -7187,13 +7033,13 @@ identical to  _Element_ deleted.
 Flatten a list of lists  _List_ into a single list
  _FlattenedList_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
 
 L = [1,2,3,4,5,6,7,8] ? ;
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -7349,11 +7195,11 @@ stay in the same order).
 
 Semi-deterministic selection from a list. Steadfast: defines as
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -7418,7 +7264,7 @@ True when  _Numbers_ is a list of numbers, and  _Min_ is the minimum.
 /** @pred numlist(+ _Low_, + _High_, + _List_) 
 
 
-If  _Low_ and  _High_ are integers with  _Low_ =\<
+If  _Low_ and  _High_ are integers with  _Low_ =<
  _High_, unify  _List_ to a list `[Low, Low+1, ...High]`. See
 also between/3.
 
@@ -7507,13 +7353,13 @@ Unify  _Words_ with a set of strings obtained from  _Line_ by
 using the character codes in  _Separators_ as separators. As an
 example, consider:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- split("Hello * I am free"," *",S).
 
 S = ["Hello","I","am","free"] ?
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -7536,11 +7382,11 @@ using the character codes in  _Separators_ as separators for
 fields. If two separators occur in a row, the field is considered
 empty. As an example, consider:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- fields("Hello  I am  free"," *",S).
 
 S = ["Hello","","I","am","","free"] ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -7605,9 +7451,7 @@ For every line  _LineIn_ in file  _FileIn_, execute
  
 */
 
-/** @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_, 
-
-+ _FormatCommand_,   + _Arguments_)
+/** @pred file_filter_with_initialization(+ _FileIn_, + _FileOut_, + _Goal_, + _FormatCommand_,   + _Arguments_)
 
 
 Same as file_filter/3, but before starting the filter execute
@@ -7630,11 +7474,11 @@ arrays. these arrays are allocated in the stack. Matrices are available
 by loading the library `library(matrix)`. They are multimensional
 objects of type:
 
-    + <tt>terms</tt>: Prolog terms
-    + <tt>ints</tt>: bounded integers, represented as an opaque term. The
++ <tt>terms</tt>: Prolog terms
++ <tt>ints</tt>: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
-    + <tt>floats</tt>: floating-poiny numbers, represented as an opaque term.
++ <tt>floats</tt>: floating-poiny numbers, represented as an opaque term.
 
 
 Matrix elements can be accessed through the `matrix_get/2`
@@ -7642,71 +7486,68 @@ predicate or through an <tt>R</tt>-inspired access notation (that uses the ciao
 style extension to `[]`.  Examples include:
 
  
-*/
-
-/** @pred _E_ \<==  _X_[2,3]
-Access the second row, third column of matrix <tt>X</tt>. Indices start from
++ Access the second row, third column of matrix <tt>X</tt>. Indices start from
 `0`,
+~~~~
+ _E_ <==  _X_[2,3]
+~~~~
  
-*/
-
-/** @pred _L_ \<==  _X_[2,_]
-Access all the second row, the output is a list ofe elements.
++ Access all the second row, the output is a list ofe elements.
+~~~~
+ _L_ <==  _X_[2,_]
+~~~~
  
-*/
++ Access all the second, thrd and fourth rows, the output is a list of elements.
+~~~~
+ _L_ <==  _X_[2..4,_]
+~~~~
 
-/** @pred _L_ \<==  _X_[2..4,_]
-Access all the second, thrd and fourth rows, the output is a list of elements.
- 
-*/
++ Access all the fifth, sixth and eight rows, the output is a list of elements. 
+~~~~
+ _L_ <==  _X_[2..4+3,_]
+~~~~
 
-/** @pred _L_ \<==  _X_[2..4+3,_]
-Access all the fifth, sixth and eight rows, the output is a list of elements.
-
-
-The matrix library also supports a B-Prolog/ECliPSe inspired `foreach` ITerator to iterate over
+The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
 elements of a matrix:
 
++ Copy a vector, element by element.
  
-*/
+~~~~
+ foreach(I in 0..N1, X[I] <== Y[I])
+~~~~
 
-/** @pred foreach(I in 0..N1, X[I] \<== Y[I])
-Copies a vector, element by element.
- 
-*/
-
-/** @pred foreach([I in 0..N1, J in I..N1], Z[I,J] \<== X[I,J] - X[I,J])
-The lower-triangular matrix  _Z_ is the difference between the
++ The lower-triangular matrix  _Z_ is the difference between the
 lower-triangular and upper-triangular parts of  _X_.
  
-*/
+~~~~
+ foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
+~~~~
 
-/** @pred foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
-Add all elements of a matrix by using  _Sum_ as an accumulator.
++ Add all elements of a matrix by using  _Sum_ as an accumulator.
 
+~~~~
+ foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
+~~~~
 
-Notice that the library does not support all known matrix operations. Please
+    Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
 
 
 
-    + _X_ = array[ _Dim1_,..., _Dimn_] of  _Objects_ 
-
-
-The of/2 operator can be used to create a new array of
++ _X_ = array[ _Dim1_,..., _Dimn_] of  _Objects_ 
+    The of/2 operator can be used to create a new array of
  _Objects_. The objects supported are:
 
-    + Unbound Variable
-create an array of free variables
-    + ints 
-create an array of integers
-    + floats 
-create an array of floating-point numbers
-    + _I_: _J_
-create an array with integers from  _I_ to  _J_
-    + [..]
-create an array from the values in a list
-
+  + `Unbound Variable`
+    create an array of free variables
+  + `ints `
+    create an array of integers
+  + `floats `
+    create an array of floating-point numbers
+  + `_I_: _J_`
+    create an array with integers from  _I_ to  _J_
+  + `[..]`
+    create an array from the values in a list
 
 The dimensions can be given as an integer, and the matrix will be
 indexed `C`-style from  `0..( _Max_-1)`, or can be given
@@ -7717,78 +7558,110 @@ matrices of integers and of floating-point numbers should have the same
  
 */
 
-/** @pred ? _LHS_ \<==  _RHS_ 
+/** @pred ?_LHS_ <==  ?_RHS_ is semidet
 
 
 General matrix assignment operation. It evaluates the right-hand side
 and then acts different according to the
 left-hand side and to the matrix:
 
-    + if  _LHS_ is part of an integer or floating-point matrix,
++ if  _LHS_ is part of an integer or floating-point matrix,
 perform non-backtrackable assignment.
-    + other unify left-hand side and right-hand size.
++ other unify left-hand side and right-hand size.
 
 
 The right-hand side supports the following operators: 
 
-    + []/2
-written as  _M_[ _Offset_]: obtain an element or list of elements
-of matrix  _M_ at offset  _Offset_.
-    + matrix/1
-create a vector from a list
-    + matrix/2
-create a matrix from a list. Oprions are:
++ `[]/2`
 
-    + dim=
-a list of dimensiona
-    + type=
+    written as  _M_[ _Offset_]: obtain an element or list of elements
+of matrix  _M_ at offset  _Offset_.
+
++ `matrix/1`
+
+    create a vector from a list
+
++ `matrix/2`
+
+    create a matrix from a list. Options are:
+  + dim=
+a list of dimensions
+  + type=
 integers, floating-point or terms
-    + base=
+  + base=
 a list of base offsets per dimension (all must be the same for arrays of
 integers and floating-points
 
-    + matrix/3
-create matrix giving two options
-    + dim/1
-list with matrix dimensions
-    + nrow/1
-number of rows in bi-dimensional matrix
-    + ncol/1
-number of columns in bi-dimensional matrix
-    + length/1
-size of a matrix
-    + size/1
-size of a matrix
-    + max/1
-maximum element of a numeric matrix
-    + maxarg/1
-argument of maximum element of a numeric matrix
-    + min/1
-minimum element of a numeric matrix
-    + minarg/1
-argument of minimum element of a numeric matrix
-    + list/1
-represent matrix as a list
-    + lists/2
-represent matrix as list of embedded lists
-    + ../2
- _I_.. _J_ generates a list with all integers from  _I_ to
++ `matrix/3`
+
+    create matrix giving two options
+
+  + `dim/1`
+  list with matrix dimensions
+
+  + `nrow/1`
+  number of rows in bi-dimensional matrix
+
++ `ncol/1`
+  number of columns in bi-dimensional matrix
+
++ `length/1`
+  size of a matrix
+
++ `size/1`
+  size of a matrix
+
++ `max/1`
+  
+    maximum element of a numeric matrix
+
++ `maxarg/1`
+  
+    argument of maximum element of a numeric matrix
+
++ `min/1`
+  
+    minimum element of a numeric matrix
+
++ `minarg/1`
+  
+    argument of minimum element of a numeric matrix
+
++ `list/1`
+  
+    represent matrix as a list
+
++ `lists/2`
+  
+    represent matrix as list of embedded lists
+
++ `../2`
+  
+    _I_.. _J_ generates a list with all integers from  _I_ to
  _J_, included.
-    + +/2
-add two numbers, add two matrices element-by-element, or add a number to
-all elements of a matrix or list
-    + -/2 
-subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
-all elements of a matrix or list
-    + \* /2 
-multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
-all elements of a matrix or list
-    + log/1 
-natural logarithm of a number, matrix or list
-    + exp/1 
-natural exponentiation of a number, matrix or list
 
++ `+/2`
+  
+    add two numbers, add two matrices element-by-element, or add a number to
+all elements of a matrix or list.
 
++ `-/2 `
+
+    subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
+all elements of a matrix or list
+
++ `* /2`
+
+    multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
+all elements of a matrix or list
+
+ + `log/1`
+ 
+    natural logarithm of a number, matrix or list
+
++ `exp/1 `
+
+    natural exponentiation of a number, matrix or list
  
 */
 
@@ -7804,9 +7677,9 @@ in the execution. The exceptions are the iteration indices. Moreover, if
 the goal is of the form ` _Locals_^ _G_` all variables
 occurring in  _Locals_ are marked as local. As an example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 foreach([I,J] ins 1..N, A^(A <==M[I,J], N[I] <== N[I] + A*A) )
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 the variables  _I_,  _J_ and  _A_ are duplicated for every
 call (local), whereas the matrices  _M_ and  _N_ are shared
 throughout the execution (global).
@@ -7829,11 +7702,11 @@ Create a new matrix  _Matrix_ of type  _Type_, which may be one of
 `ints` or `floats`, and with a list of dimensions  _Dims_.
 The matrix will be initialised to zeros.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- matrix_new(ints,[2,3],Matrix).
 
 Matrix = {..}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
  
@@ -8060,24 +7933,24 @@ Unify  _Sum_ with the sum of all elements in matrix   _Matrix_.
  
 */
 
-/** @pred matrix_agg_lines(+ _Matrix_,+ _Aggregate_) 
+/** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_) 
 
 
 
 If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
 the n-1 dimensional matrix where each element is obtained by adding all
-Matrix elements with same last n-1 index.
+_Matrix_ elements with same last n-1 index. Currently, only addition is supported.
 
  
 */
 
-/** @pred matrix_agg_cols(+ _Matrix_,+ _Aggregate_) 
+/** @pred matrix_agg_cols(+ _Matrix_,+Operator,+ _Aggregate_) 
 
 
 
 If  _Matrix_ is a n-dimensional matrix, unify  _Aggregate_ with
 the one dimensional matrix where each element is obtained by adding all
-Matrix elements with same  first index.
+Matrix elements with same  first index. Currently, only addition is supported.
 
  
 */
@@ -8144,10 +8017,10 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 
 Transpose matrix  _Matrix_ to   _Transpose_. Equivalent to:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 matrix_transpose(Matrix,Transpose) :-
         matrix_shuffle(Matrix,[1,0],Transpose).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -8173,13 +8046,11 @@ Select from  _Matrix_ the elements who have  _Index_ at
  
 */
 
-/** @pred matrix_row(+ _Matrix_,+ _Column_,- _NewMatrix_) 
+/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix_) 
 
 
 
-Select from  _Matrix_ the row matching  _Column_ as new matrix  _NewMatrix_.  _Column_ must have one less dimension than the original matrix.
- _Dimension_.
-
+Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_.  _Column_ must have one less dimension than the original matrix.
 
 
 
@@ -8200,9 +8071,9 @@ machines, to use this interface, you may have to set the environment
 variable <tt>LD_LIBRARY_PATH</tt>. Next, follows an example using bash in a
 64-bit Linux PC:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 where `MATLAB_HOME` is the directory where matlab is installed
 at. Please replace `ax64` for `x86` on a 32-bit PC.
 
@@ -8781,9 +8652,9 @@ Produces a random non-negative integer  _I_ whose low bits are not
 all that random, so it should be scaled to a smaller range in general.
 The integer  _I_ is in the range 0 .. 2^(w-1) - 1. You can use:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 rannum(X) :- yap_flag(max_integer,MI), rannum(R), X is R/MI.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 to obtain a floating point number uniformly distributed between 0 and 1.
 
  
@@ -9023,7 +8894,7 @@ output.  This predicate is especially useful for reading a block of
 lines upto some delimiter.  The following example reads an HTTP header
 ended by a blank line:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 read_header_data(Stream, Header) :-
     read_line_to_codes(Stream, Header, Tail),
     read_header_data(Header, Stream, Tail).
@@ -9034,7 +8905,7 @@ read_header_data("", _, _) :- !.
 read_header_data(_, Stream, Tail) :-
     read_line_to_codes(Stream, Tail, NewTail),
     read_header_data(Tail, Stream, NewTail).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -9368,7 +9239,7 @@ An atom is a regular expression in parentheses (matching a match for the
 regular expression), a range (see below), ``.''  (matching any single
 character), ``^'' (matching the null string at the beginning of the
 input string), ``$'' (matching the null string at the end of the input
-string), a ``\\'' followed by a single character (matching that
+string), a ``\'' followed by a single character (matching that
 character), or a single character with no other significance (matching
 that character).
 
@@ -9391,7 +9262,7 @@ character.
 Match regular expression  _RegExp_ to input string  _String_
 according to options  _Opts_. The options may be:
 
-    + `nocase`: Causes upper-case characters  in   _String_ to
++ `nocase`: Causes upper-case characters  in   _String_ to
 be treated  as  lower case during the matching process.
 
 
@@ -9412,9 +9283,9 @@ subexpression to the right in  _RegExp_, and so on.
 
 The options may be:
 
-    + `nocase`: Causes upper-case characters  in   _String_ to
++ `nocase`: Causes upper-case characters  in   _String_ to
 be treated  as  lower case during the matching process.
-    + `indices`: Changes what  is  stored  in
++ `indices`: Changes what  is  stored  in
  _SubMatchVars_. Instead  of storing the matching characters from
  _String_, each variable will contain a term of the form  _IO-IF_
 giving the indices in  _String_ of the first and last characters  in
@@ -9425,9 +9296,9 @@ the  matching range of characters.
 In general there may be more than one way to match a regular expression
 to an input string.  For example,  consider the command
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
   regexp("(a*)b*","aabaaabb", [], [X,Y])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Considering only the rules given so far,  _X_ and  _Y_ could end up
 with the values `"aabb"` and `"aa"`, `"aaab"` and
 `"aaa"`, `"ab"` and `"a"`, or any of several other
@@ -9438,25 +9309,23 @@ across the input string and the pattern, and it attempts to match longer
 pieces of the input string before shorter ones.  More specifically, the
 following rules apply in decreasing order of priority:
 
-<ol>
-    + If a regular expression could match  two  different parts of an
++ If a regular expression could match  two  different parts of an
 input string then it will match the one that begins earliest.
 
-    + If a regular expression contains "|"  operators  then the leftmost matching sub-expression is chosen.
++ If a regular expression contains "|"  operators  then the leftmost matching sub-expression is chosen.
 
-    + In \*, +, and ? constructs, longer matches are chosen in preference to shorter ones.
++ In \*, +, and ? constructs, longer matches are chosen in preference to shorter ones.
 
-    + In sequences of expression  components  the  components are considered from left to right.
-</ol>
++ In sequences of expression  components  the  components are considered from left to right.
 
-In the example from above, `"(a\*)b\*"` matches `"aab"`: the
+In the example above, `"(a\*)b\*"` matches `"aab"`: the
 `"(a\*)"` portion of the pattern is matched first and it consumes
 the leading `"aa"`; then the `"b\*"` portion of the pattern
 consumes the next `"b"`.  Or, consider the following example: 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
   regexp("(ab|a)(b*)c",  "abc", [], [X,Y,Z])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 After this command  _X_ will be `"abc"`,  _Y_ will be
 `"ab"`, and  _Z_ will be an empty string.  Rule 4 specifies that
@@ -9482,7 +9351,7 @@ One of the files provides a global function `install_mylib()` that
 initialises the module using calls to `PL_register_foreign()`. Here is a
 simple example file `mylib.c`, which creates a Windows MessageBox:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
+~~~~~{.c}
 #include <windows.h>
 #include <SWI-Prolog.h>
 
@@ -9503,14 +9372,14 @@ install_t
 install_mylib()
 { PL_register_foreign("say_hello", 1, pl_say_hello, 0);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Now write a file mylib.pl:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(mylib, [ say_hello/1 ]).
 :- use_foreign_library(foreign(mylib)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The file mylib.pl can be loaded as a normal Prolog file and provides the predicate defined in C.
 
@@ -9532,17 +9401,17 @@ load-call below calls the function `install_mylib()`. If the platform
 prefixes extern functions with `_`, this prefix is added before
 calling.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
           ...
           load_foreign_library(foreign(mylib)),
           ...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  _FileSpec_ is a specification for
 absolute_file_name/3. If searching the file fails, the plain
 name is passed to the OS to try the default method of the OS for
 locating foreign objects. The default definition of
-file_search_path/2 searches \<prolog home\>/lib/Yap.
+file_search_path/2 searches <prolog home>/lib/Yap.
 
 See also
 `use_foreign_library/1,2` are intended for use in
@@ -9551,7 +9420,8 @@ directives.
  
 */
 
-/** @pred [det] use_foreign_library(+ _FileSpec_),  use_foreign_library(+ _FileSpec_, + _Entry_:atom) 
+/** @pred use_foreign_library(+ _FileSpec_) is det
+     use_foreign_library(+ _FileSpec_, + _Entry_:atom) is det
 
 
 
@@ -9560,9 +9430,9 @@ and `load_foreign_library/2` and
 register the installation using `initialization/2` with the option
 now. This is similar to using:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
     :- initialization(load_foreign_library(foreign(mylib))).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 but using the initialization/1 wrapper causes the library to
 be loaded after loading of the file in which it appears is
@@ -9573,11 +9443,11 @@ of the file uses functionality of the `C`-library.
  
 */
 
-/** @pred [det]unload_foreign_library(+ _FileSpec_)
+/** @pred unload_foreign_library(+ _FileSpec_) is det
  
 */
 
-/** @pred [det]unload_foreign_library(+ _FileSpec_, + _Exit_:atom)  
+/** @pred unload_foreign_library(+ _FileSpec_, + _Exit_:atom)  is det
 
 
 
@@ -9627,7 +9497,7 @@ unify  _Return_ with `true`. Otherwise unify  _Return_ with
  
 */
 
-/** @pred splay_delete(+ _Key_,? _Val_,+ _Tree_,- _NewTree_) 
+/** @pred splay_del(+ _Item_,+ _Tree_,- _NewTree_) 
 
 
 Delete item  _Key_ from tree  _Tree_, assuming that it is present
@@ -9694,9 +9564,10 @@ one wants to read from a string the string must be fully instantiated
 before the library built-in opens the string for reading. These commands
 are available through the `use_module(library(charsio))` command.
 
+ 
+*/
 
-
- @pred format_to_chars(+ _Form_, + _Args_, - _Result_) 
+/** @pred format_to_chars(+ _Form_, + _Args_, - _Result_) 
 
 
 
@@ -9848,39 +9719,6 @@ buffer will be converted to the difference list of character codes
  _Chars-Chars0_ and  _Stream_ receives the stream corresponding to
 the memory buffer.
 
-
-
-The implementation of the character IO operations relies on three YAP
-built-ins:
-
-
-
- @pred charsio:open_mem_read_stream(+ _String_, - _Stream_)
-Store a string in a memory buffer and output a stream that reads from this
-memory buffer.
-
- 
-*/
-
-/** @pred charsio:open_mem_write_stream(- _Stream_)
-Create a new memory buffer and output a stream that writes to  it.
-
- 
-*/
-
-/** @pred charsio:peek_mem_write_stream(- _Stream_, L0, L)
-Convert the memory buffer associated with stream  _Stream_ to the
-difference list of character codes  _L-L0_.
-
-
-These built-ins are initialized to belong to the module `charsio` in
-`init.yap`. Novel procedures for manipulating strings by explicitly
-importing these built-ins.
-
-YAP does not currently support opening a `charsio` stream in
-`append` mode, or seeking in such a stream.
-
-
 @} */
 
 /** @defgroup System Calling The Operating System from YAP
@@ -9895,9 +9733,7 @@ are available through the `use_module(library(system))` command.
 
 
 
- @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, 
-
-- _Hour_, - _Minute_, - _Second_)
+ @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
 
 The datime/1 procedure returns the current date and time, with
 information on  _Year_,  _Month_,  _DayOfTheMonth_,
@@ -9905,31 +9741,30 @@ information on  _Year_,  _Month_,  _DayOfTheMonth_,
 on local time. This function uses the WIN32
 `GetLocalTime` function or the Unix `localtime` function.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- datime(X).
 
 X = datime(2001,5,28,15,29,46) ? 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
 
-/** @pred mktime(datime(+ _Year_, + _Month_, + _DayOfTheMonth_, 
+/** @pred mktime(+_Datime_, - _Seconds_)
 
-+ _Hour_, + _Minute_, + _Second_), - _Seconds_)
+The `mktime/2` procedure receives a term of the form _datime(+ _Year_,
++ _Month_, + _DayOfTheMonth_, + _Hour_, + _Minute_, + _Second_)_ and
+returns the number of _Seconds_ elapsed since 00:00:00 on January 1,
+1970, Coordinated Universal Time (UTC).  The user provides information
+on _Year_, _Month_, _DayOfTheMonth_, _Hour_, _Minute_, and
+_Second_. The _Hour_ is given on local time. This function uses the
+WIN32 `GetLocalTime` function or the Unix `mktime` function.
 
-The `mktime/1` procedure returns the number of  _Seconds_
-elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time
-(UTC).  The user provides information on  _Year_,  _Month_,
- _DayOfTheMonth_,  _Hour_,  _Minute_, and  _Second_. The
- _Hour_ is given on local time. This function uses the WIN32
-`GetLocalTime` function or the Unix `mktime` function.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- mktime(datime(2001,5,28,15,29,46),X).
 
 X = 991081786 ? ;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -9940,9 +9775,9 @@ X = 991081786 ? ;
 The delete_file/1 procedure removes file  _File_. If
  _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- delete_file(x).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -9956,9 +9791,9 @@ recursively, and `ignore` if errors are not to be reported.
 
 This example is equivalent to using the delete_file/1 predicate:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- delete_file(x, [recursive]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -9969,10 +9804,10 @@ This example is equivalent to using the delete_file/1 predicate:
 Given a directory  _Dir_,  directory_files/2 procedures a
 listing of all files and directories in the directory:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
     ?- directory_files('.',L), writeq(L).
 ['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 The predicates uses the `dirent` family of routines in Unix
 environments, and `findfirst` in WIN32.
 
@@ -10011,7 +9846,7 @@ timestamp; `mode( _mode_)`, gives the permission flags for the
 file, and `linkto( _FileName_)`, gives the file pointed to by a
 symbolic link. Properties can be obtained through backtracking:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- file_property('Makefile',P).
 
 P = type(regular) ? ;
@@ -10021,7 +9856,7 @@ P = size(2375) ? ;
 P = mod_time(990826911) ? ;
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10050,11 +9885,11 @@ Unify environment variable  _EnvVar_ with its value  _EnvValue_,
 if there is one. This predicate is backtrackable in Unix systems, but
 not currently in Win32 configurations.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    ?- environ('HOME',X).
 
 X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10122,9 +9957,7 @@ Interface with  _tmpnam_: obtain a new, unique file name  _File_.
  
 */
 
-/** @pred tmp_file(- _File_) 
-
-
+/** @pred tmp_file(+_Base_, - _File_) 
 
 Create a name for a temporary file.  _Base_ is an user provided
 identifier for the category of file. The  _TmpName_ is guaranteed to
@@ -10134,20 +9967,20 @@ temporary files.
  
 */
 
-/** @pred exec(+ _Command_,[+ _InputStream_,+ _OutputStream_,+ _ErrorStream_],- _PID_) 
+/** @pred exec(+ _Command_, _StandardStreams_,- _PID_) 
 
 
-Execute command  _Command_ with its streams connected to
- _InputStream_,  _OutputStream_, and  _ErrorStream_. The
+Execute command  _Command_ with its standard streams connected to
+the list [_InputStream_,  _OutputStream_, _ErrorStream_]. The
 process that executes the command is returned as  _PID_. The
 command is executed by the default shell `bin/sh -c` in Unix.
 
 The following example demonstrates the use of exec/3 to send a
 command and process its output:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 exec(ls,[std,pipe(S),null],P),repeat, get0(S,C), (C = -1, close(S) ! ; put(C)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The streams may be one of standard stream, `std`, null stream,
 `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
@@ -10169,11 +10002,11 @@ command.
 The following example demonstrates the use of popen/3 to process
 the output of a command, as exec/3 would do:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
    ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
 
 X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The WIN32 implementation of popen/3 relies on exec/3.
 
@@ -10534,7 +10367,7 @@ for any Goal which needs it. This library is loaded with the
  
 */
 
-/** @pred :- fragile  _P_,...., _Pn_ 
+/** @pred :- fragile  _P_,....,_Pn_ is directive
 
 
 Declares the predicate  _P_=<tt>[module:]name/arity</tt> as a fragile
@@ -10542,9 +10375,9 @@ predicate, module is optional, default is the current
 typein_module. Whenever such a fragile predicate is used in a query
 it will be called through call_cleanup/1.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 :- fragile foo/1,bar:baz/2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10589,7 +10422,7 @@ required to execute  _Goal_, close file-descriptors, etc. The example
 below provides a non-deterministic search for a term in a file, closing
 the stream as needed.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 term_in_file(Term, File) :-
     setup_call_cleanup(open(File, read, In),
                term_in_stream(Term, In),
@@ -10602,7 +10435,7 @@ term_in_stream(Term, In) :-
     ->  !, fail
     ;   T = Term
     ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that it is impossible to implement this predicate in Prolog other than
 by reading all terms into a list, close the file and call member/2.
@@ -10611,14 +10444,14 @@ choice-point left by `repeat` is removed by a cut or an exception.
 
 `setup_call_cleanup/2` can also be used to test determinism of a goal:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- setup_call_cleanup(true,(X=1;X=2), Det=yes).
 
 X = 1 ;
 
 X = 2,
 Det = yes ;
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 This predicate is under consideration for inclusion into the ISO standard.
 For compatibility with other Prolog implementations see `call_cleanup/2`.
@@ -10778,14 +10611,11 @@ with the SICStus Prolog ugraphs library. The routines assume directed
 graphs, undirected graphs may be implemented by using two edges. Graphs
 are represented in one of two ways:
 
-    + The P-representation of a graph is a list of (from-to) vertex
++ The P-representation of a graph is a list of (from-to) vertex
 pairs, where the pairs can be in any old order.  This form is
 convenient for input/output.
 
- 
-*/
-
-/** @pred The S-representation of a graph is a list of (vertex-neighbors)
+The S-representation of a graph is a list of (vertex-neighbors)
 pairs, where the pairs are in standard order (as produced by keysort)
 and the neighbors of each vertex are also in standard order (as
 produced by sort).  This form is convenient for many calculations.
@@ -10793,10 +10623,10 @@ produced by sort).  This form is convenient for many calculations.
 
 These built-ins are available once included with the
 `use_module(library(ugraphs))` command.
+ 
+*/
 
-
-
- @pred vertices_edges_to_ugraph(+ _Vertices_, + _Edges_, - _Graph_) 
+/** @pred  vertices_edges_to_ugraph(+ _Vertices_, + _Edges_, - _Graph_) 
 
 
 Given a graph with a set of vertices  _Vertices_ and a set of edges
@@ -10805,21 +10635,21 @@ s-representation. Note that the vertices without edges will appear in
  _Vertices_ but not in  _Edges_. Moreover, it is sufficient for a
 vertex to appear in  _Edges_.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 In this case all edges are defined implicitly. The next example shows
 three unconnected edges:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10830,11 +10660,11 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ?
 Unify  _Vertices_ with all vertices appearing in graph
  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10845,11 +10675,11 @@ L = [1,2,3,4,5]
 Unify  _Edges_ with all edges appearing in graph
  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10860,7 +10690,7 @@ L = [1,2,3,4,5]
 Unify  _NewGraph_ with a new graph obtained by adding the list of
 vertices  _Vertices_ to the graph  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- add_vertices([1-[3,5],2-[4],3-[],4-[5],
                  5-[],6-[],7-[],8-[]],
                 [0,2,9,10,11],
@@ -10868,7 +10698,7 @@ vertices  _Vertices_ to the graph  _Graph_. In the next example:
 
 NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
       6-[],7-[],8-[],9-[],10-[],11-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10880,12 +10710,12 @@ Unify  _NewGraph_ with a new graph obtained by deleting the list of
 vertices  _Vertices_ and all the edges that start from or go to a
 vertex in  _Vertices_ to the graph  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
                  4-[5],5-[],6-[],7-[2,6],8-[]],NL).
 
 NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10896,12 +10726,12 @@ NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
 Unify  _NewGraph_ with a new graph obtained by adding the list of
 edges  _Edges_ to the graph  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
               7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
 
 NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10913,13 +10743,13 @@ Unify  _NewGraph_ with a new graph obtained by removing the list of
 edges  _Edges_ from the graph  _Graph_. Notice that no vertices
 are deleted. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
               6-[],7-[],8-[]],
              [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
 
 NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10931,12 +10761,12 @@ Unify  _NewGraph_ with a new graph obtained from  _Graph_ by
 replacing all edges of the form  _V1-V2_ by edges of the form
  _V2-V1_. The cost is `O(|V|^2)`. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- transpose([1-[3,5],2-[4],3-[],
               4-[5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1-[],2-[],3-[1],4-[2],5-[1,4],6-[],7-[],8-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 Notice that an undirected graph is its own transpose.
 
  
@@ -10949,13 +10779,13 @@ Unify  _Vertices_ with the list of neighbors of vertex  _Vertex_
 in  _Graph_. If the vertice is not in the graph fail. In the next
 example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- neighbors(4,[1-[3,5],2-[4],3-[],
                 4-[1,2,7,5],5-[],6-[],7-[],8-[]],
              NL).
 
 NL = [1,2,7,5]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10966,12 +10796,12 @@ NL = [1,2,7,5]
 Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
 in  _Graph_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- neighbours(4,[1-[3,5],2-[4],3-[],
                  4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1,2,7,5]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -10982,14 +10812,14 @@ NL = [1,2,7,5]
 Unify  _NewGraph_ with the graph complementary to  _Graph_.
 In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- complement([1-[3,5],2-[4],3-[],
                4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
       4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],
       7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -11000,11 +10830,11 @@ NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
 Compose the graphs  _LeftGraph_ and  _RightGraph_ to form  _NewGraph_.
 In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
 
 L = [1-[4],2-[1,2,4],3-[]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -11016,11 +10846,11 @@ Generate the set of nodes  _Sort_ as a topological sorting of graph
  _Graph_, if one is possible.
 In the next example we show how topological sorting works for a linear graph:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
 
 L = [_138,_219,_139]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -11040,11 +10870,11 @@ Generate the graph  _Closure_ as the transitive closure of graph
  _Graph_.
 In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
 
 L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -11055,11 +10885,11 @@ L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
 Unify  _Vertices_ with the set of all vertices in graph
  _Graph_ that are reachable from  _Node_. In the next example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- reachable(1,[1-[3,5],2-[4],3-[],4-[5],5-[]],V).
 
 V = [1,3,5]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -11549,13 +11379,13 @@ lambda expressions to simplify higher order programming based on `call/N`.
 Lambda expressions are represented by ordinary Prolog terms.  There are
 two kinds of lambda expressions:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
     Free+\X1^X2^ ..^XN^Goal
 
          \X1^X2^ ..^XN^Goal
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-The second is a shorthand for` t+\\X1^X2^..^XN^Goal`, where `Xi` are the parameters.
+The second is a shorthand for` t+\X1^X2^..^XN^Goal`, where `Xi` are the parameters.
 
  _Goal_ is a goal or continuation (Syntax note:  _Operators_ within  _Goal_
 require parentheses due to the low precedence of the `^` operator).
@@ -11567,22 +11397,22 @@ All other variables of  _Goal_ are considered local variables. They must
 not appear outside the lambda expression. This restriction is
 currently not checked. Violations may lead to unexpected bindings.
 
-In the following example the parentheses around `X\>3` are necessary.
+In the following example the parentheses around `X>3` are necessary.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- use_module(library(lambda)).
 ?- use_module(library(apply)).
 
 ?- maplist(\X^(X>3),[4,5,9]).
 true.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 In the following  _X_ is a variable that is shared by both instances
 of the lambda expression. The second query illustrates the cooperation
 of continuations and lambdas. The lambda expression is in this case a
 continuation expecting a further argument.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- Xs = [A,B], maplist(X+\Y^dif(X,Y), Xs).
 Xs = [A, B],
 dif(X, A),
@@ -11593,12 +11423,12 @@ Xs = [A, B],
 dif(X, A),
 dif(X, B).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The following queries are all equivalent. To see this, use
 the fact `f(x,y)`.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~{.prolog}
 ?- call(f,A1,A2).
 ?- call(\X^f(X),A1,A2).
 ?- call(\X^Y^f(X,Y), A1,A2).                                                                                                            
@@ -11608,7 +11438,7 @@ the fact `f(x,y)`.
 ?- f(A1,A2).
 A1 = x,
 A2 = y.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Further discussions
 at Ulrich Neumerker's page in <http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord>.
@@ -11773,7 +11603,6 @@ with the completion status in  _Status_, otherwise it fails.
 /** @pred mpi_barrier 
 
 
-
 Collective communication predicate.  Performs a barrier
 synchronization among all processes. Note that a collective
 communication means that all processes call the same predicate. To be
@@ -11863,36 +11692,37 @@ The following predicates construct a BDD:
  
 */
 
-/** @pred bbd_new(? _Exp_, - _BddHandle_) 
+/** @pred bdd_new(? _Exp_, - _BddHandle_) 
 
 create a new BDD from the logical expression  _Exp_. The expression
 may include:
 
-    + Logical Variables:
++ Logical Variables:
 a leaf-node can be a logical variable.
-    + Constants 0 and 1
++ Constants 0 and 1
 a leaf-node can also be one of these two constants.
-    + or( _X_,  _Y_),  _X_ \\/  _Y_,  _X_ +  _Y_
++ or( _X_,  _Y_),  _X_ \/  _Y_,  _X_ +  _Y_
 disjunction
-    + and( _X_,  _Y_),  _X_ /\\  _Y_,  _X_ \*  _Y_
++ and( _X_,  _Y_),  _X_ /\  _Y_,  _X_ \*  _Y_
 conjunction
-    + nand( _X_,  _Y_)
++ nand( _X_,  _Y_)
 negated conjunction@
-    + nor( _X_,  _Y_)
++ nor( _X_,  _Y_)
 negated disjunction
-    + xor( _X_,  _Y_)
++ xor( _X_,  _Y_)
 exclusive or
-    + not( _X_), - _X_
++ not( _X_), - _X_
 negation
 
 
  
 */
 
-/** @pred bdd_from_list(? _List_, - _BddHandle_) 
+/** @pred bdd_from_list(? _List_, ?_Vars_, - _BddHandle_) 
 
-Convert a  _List_ of logical expressions of the form above into a BDD
-accessible through  _BddHandle_.
+Convert a _List_ of logical expressions of the form above, that
+includes the set of free variables _Vars_, into a BDD accessible
+through _BddHandle_.
 
  
 */
@@ -11902,17 +11732,17 @@ accessible through  _BddHandle_.
 create a new algebraic decision diagram (ADD) from the logical
 expression  _Exp_. The expression may include:
 
-    + Logical Variables:
++ Logical Variables:
 a leaf-node can be a logical variable, or <em>parameter</em>.
-    + Number
++ Number
 a leaf-node can also be any number
-    + _X_ \*  _Y_
++ _X_ \*  _Y_
 product
-    + _X_ +  _Y_
++ _X_ +  _Y_
 sum
-    + _X_ -  _Y_
++ _X_ -  _Y_
 subtraction
-    + or( _X_,  _Y_),  _X_ \\/  _Y_
++ or( _X_,  _Y_),  _X_ \/  _Y_
 logical or
 
 
@@ -11924,9 +11754,9 @@ logical or
 Convert the BDD or ADD represented by  _BDDHandle_ to a Prolog term
 of the form `bdd( _Dir_,  _Nodes_,  _Vars_)` or `mtbdd( _Nodes_,  _Vars_)`, respectively. The arguments are:
 
-    + 
++ 
  _Dir_ direction of the BDD, usually 1
-    + 
++ 
  _Nodes_ list of nodes in the BDD or ADD. 
 
 In a BDD nodes may be <tt>pp</tt> (both terminals are positive) or <tt>pn</tt>
@@ -11936,14 +11766,14 @@ variable corresponding to the node, a logical variable, a 0 or a 1 with
 the value of the left-hand side, and a logical variable, a 0 or a 1
 with the right-hand side.
 
-    + 
++ 
  _Vars_ are the free variables in the original BDD, or the parameters of the BDD/ADD.
 
 As an example, the BDD for the expression `X+(Y+X)\*(-Z)` becomes:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -11953,17 +11783,17 @@ bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
 Unify  _Val_ with the value of the logical expression compiled in
  _BDDHandle_ given an assignment to its  variables.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 bdd_new(X+(Y+X)*(-Z), BDD), 
 [X,Y,Z] = [0,0,0], 
 bdd_eval(BDD, V), 
 writeln(V).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 would write 0 in the standard output stream.
 
 The  Prolog code equivalent to <tt>bdd_eval/2</tt> is:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
     Tree = bdd(1, T, _Vs),
     reverse(T, RT),
     foldl(eval_bdd, RT, _, V).
@@ -11972,7 +11802,7 @@ eval_bdd(pp(P,X,L,R), _, P) :-
     P is ( X/\L ) \/ ( (1-X) /\ R ).
 eval_bdd(pn(P,X,L,R), _, P) :-
     P is ( X/\L ) \/ ( (1-X) /\ (1-R) ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 First, the nodes are reversed to implement bottom-up evaluation. Then,
 we use the `foldl` list manipulation predicate to walk every node,
 computing the disjunction of the two cases and binding the output
@@ -12014,7 +11844,7 @@ BDD. The input variables will be bound to probabilities, eg
 `[ _X_, _Y_, _Z_] = [0.3.0.7,0.1]`, and the previous
 `eval_bdd` would operate over real numbers:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
     Tree = bdd(1, T, _Vs),
     reverse(T, RT),
     foldl(eval_prob, RT, _, V).
@@ -12023,7 +11853,7 @@ eval_prob(pp(P,X,L,R), _, P) :-
     P is  X * L +  (1-X) * R.
 eval_prob(pn(P,X,L,R), _, P) :-
     P is  X * L + (1-X) * (1-R).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
  
 */
 
@@ -12053,7 +11883,7 @@ modules with blocks.  To use it use:
 
 This will crawl the files following the use_module, ensure_loaded directives withing the inputfilename.
 The result will be a file in dot format.
-You can make a pdf at the shell by asking `dot -Tpdf filename \> output.pdf`.
+You can make a pdf at the shell by asking `dot -Tpdf filename > output.pdf`.
 
  
 */
@@ -12065,15 +11895,18 @@ The same as make_diagram/2 but you can define how many of the imported/exporeted
 
 
 
-@page SWIhYProlog_Emulation SWI-Prolog Emulation
+*/
+
+/** @page SWIhYProlog_Emulation SWI-Prolog Emulation
 
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the
 `expects_dialect(swi)` command.
 
 
+*/
 
- @pred append(? _List1_,? _List2_,? _List3_) 
+/**  @pred append(? _List1_,? _List2_,? _List3_) 
 
 
 Succeeds when  _List3_ unifies with the concatenation of  _List1_
@@ -12125,20 +11958,20 @@ allowing for variables in the list.
 Creates an atom just like concat_atom/2, but inserts  _Separator_
 between each pair of atoms.  For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- concat_atom([gnu, gnat], ', ', A).
 
 A = 'gnu, gnat'
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 (Unimplemented) This predicate can also be used to split atoms by
 instantiating  _Separator_ and  _Atom_:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- concat_atom(L, -, 'gnu-gnat').
 
 L = [gnu, gnat]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -12192,7 +12025,7 @@ also `absolute_file_name/2` and chdir/1.
  
 */
 
-/** @pred @ _Term1_ =@= @ _Term2_ 
+/** @pred  _Term1_ =@=  _Term2_ is semidet
 
 
 
@@ -12213,11 +12046,11 @@ list or until the predicate called fails.  The predicate is called via
 `call/[2..]`, which implies common arguments can be put in
 front of the arguments obtained from the list(s). For example:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- maplist(plus(1), [0, 1, 2], X).
 
 X = [1, 2, 3]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 we will phrase this as `` _Predicate_ is applied on ...''
 
@@ -12271,39 +12104,38 @@ For all alternative bindings of  _Cond_  _Action_ can be proven.
 The next example verifies that all arithmetic statements in the list
  _L_ are correct. It does not say which is wrong if one proves wrong.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
-@page SWIhYProlog_Global_Variables SWI Global variables
+*/
+
+/** @page SWIhYProlog_Global_Variables SWI Global variables
 
 
 SWI-Prolog global variables are associations between names (atoms) and
 terms.  They differ in various ways from storing information using
 assert/1 or recorda/3.
 
-    + The value lives on the Prolog (global) stack.  This implies 
++ The value lives on the Prolog (global) stack.  This implies 
 that lookup time is independent from the size of the term.
 This is particulary interesting for large data structures
 such as parsed XML documents or the CHR global constraint
 store.
 
- 
-*/
-
-/** @pred They support both global assignment using nb_setval/2 and
+They support both global assignment using nb_setval/2 and
 backtrackable assignment using b_setval/2.
 
-    + Only one value (which can be an arbitrary complex Prolog
++ Only one value (which can be an arbitrary complex Prolog
 term) can be associated to a variable at a time.
 
-    + Their value cannot be shared among threads.  Each thread
++ Their value cannot be shared among threads.  Each thread
 has its own namespace and values for global variables.
 
-    + Currently global variables are scoped globally.  We may
++ Currently global variables are scoped globally.  We may
 consider module scoping in future versions.
 
 
@@ -12403,7 +12235,9 @@ GNU-Prolog provides a rich set of global variables, including arrays.
 Arrays can be implemented easily in SWI-Prolog using functor/3 and
 `setarg/3` due to the unrestricted arity of compound terms.
 
-@page Extensions Extensions to Prolog
+*/
+
+/** @page Extensions Extensions to Prolog
 
 YAP includes a number of extensions over the original Prolog
 language. Next, we discuss support to the most important ones.
@@ -12455,7 +12289,7 @@ coroutining  will in general slow down execution.
 
 The following declaration is supported:
 
-    + block/1
++ block/1
 The argument to `block/1` is a condition on a goal or a conjunction
 of conditions, with each element separated by commas. Each condition is
 of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
@@ -12463,7 +12297,7 @@ arity of the goal, and each  _CI_ is of the form `-`, if the
 argument must suspend until the first such variable is bound, or
 `?`, otherwise.
 
-    + wait/1
++ wait/1
 The argument to `wait/1` is a predicate descriptor or a conjunction
 of these predicates. These predicates will suspend until their first
 argument is bound.
@@ -12507,15 +12341,15 @@ or `true` if no goal has suspended.
 Delay execution of goal  _G_ until the conditions  _C_ are
 satisfied. The conditions are of the following form:
 
-    + _C1_, _C2_
++ _C1_, _C2_
 Delay until both conditions  _C1_ and  _C2_ are satisfied.
-    + _C1_; _C2_
++ _C1_; _C2_
 Delay until either condition  _C1_ or condition  _C2_ is satisfied.
-    + ?=( _V1_, _C2_)
++ ?=( _V1_, _C2_)
 Delay until terms  _V1_ and  _V1_ have been unified.
-    + nonvar( _V_)
++ nonvar( _V_)
 Delay until variable  _V_ is bound.
-    + ground( _V_)
++ ground( _V_)
 Delay until variable  _V_ is ground.
 
 
@@ -12534,7 +12368,7 @@ goals are then considered as unblocked. The next example shows a case
 where dif/2 suspends twice, once outside call_residue/2,
 and the other inside:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- dif(X,Y),
        call_residue((dif(X,Y),(X = f(Z) ; Y = f(Z))), L).
 
@@ -12547,7 +12381,7 @@ L = [[X]-dif(X,f(Z))],
 dif(X,f(Z)) ? ;
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 The system only reports one invocation of dif/2 as having
 suspended. 
 
@@ -12560,7 +12394,7 @@ suspended.
 
 Call goal  _G_ and unify  _L_ with a list of all constrained variables created <em>during</em> execution of  _G_:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
   ?- dif(X,Z), call_residue_vars(dif(X,Y),L).
 dif(X,Z), call_residue_vars(dif(X,Y),L).
 L = [Y],
@@ -12568,7 +12402,7 @@ dif(X,Z),
 dif(X,Y) ? ;
 
 no
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -12616,7 +12450,7 @@ attribute is associated to a module and the hook attr_unify_hook/2 is
 executed in this module.  The example below realises a very simple and
 incomplete finite domain reasoner.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(domain,
       [ domain/2            % Var, ?Domain
       ]).
@@ -12652,7 +12486,7 @@ attr_unify_hook(Domain, Y) :-
 attribute_goals(X) -->
     { get_attr(X, domain, List) },
     [domain(X, List)].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Before explaining the code we give some example queries:
 
@@ -12833,28 +12667,28 @@ by fresh variables.
 
 Old style attribute declarations are activated through loading the library <tt>atts</tt> . The command
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 | ?- use_module(library(atts)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 enables this form of use of attributed variables. The package provides the
 following functionality:
 
-    + Each attribute must be declared first. Attributes are described by a functor
++ Each attribute must be declared first. Attributes are described by a functor
 and are declared per module. Each Prolog module declares its own sets of
 attributes. Different modules may have different functors with the same
 module.
-    + The built-in put_atts/2 adds or deletes attributes to a
++ The built-in put_atts/2 adds or deletes attributes to a
 variable. The variable may be unbound or may be an attributed
 variable. In the latter case, YAP discards previous values for the
 attributes.
-    + The built-in get_atts/2 can be used to check the values of
++ The built-in get_atts/2 can be used to check the values of
 an attribute associated with a variable.
-    + The unification algorithm calls the user-defined predicate
++ The unification algorithm calls the user-defined predicate
 <tt>verify_attributes/3</tt> before trying to bind an attributed
 variable. Unification will resume after this call.
-    + The user-defined predicate
++ The user-defined predicate
 <tt>attribute_goal/2</tt> converts from an attribute to a goal.
-    + The user-defined predicate
++ The user-defined predicate
 <tt>project_attributes/2</tt> is used from a set of variables into a set of
 constraints or goals. One application of <tt>project_attributes/2</tt> is in
 the top-level, where it is used to output the set of
@@ -12873,9 +12707,9 @@ has a <em>name</em> which is <em>private</em> to the module in which the
 attribute was defined. Variables may have at most one attribute with a
 name. Attribute names are defined with the following declaration:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- attribute AttributeSpec, ..., AttributeSpec.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 where each  _AttributeSpec_ has the form ( _Name_/ _Arity_).
 One single such declaration is allowed per module  _Module_.
@@ -12895,13 +12729,11 @@ mechanism is used for this purpose.
 
 The  attribute manipulation predicates always work as follows:
 
-<ol>
-    + The first argument is the unbound variable associated with
++ The first argument is the unbound variable associated with
 attributes,
-    + The second argument is a list of attributes. Each attribute will
++ The second argument is a list of attributes. Each attribute will
 be a Prolog term or a constant, prefixed with the <tt>+</tt> and <tt>-</tt> unary
 operators. The prefix <tt>+</tt> may be dropped for convenience.
-</ol>
 
 The following three procedures are available to the user. Notice that
 these built-ins are rewritten by the system into internal built-ins, and
@@ -12918,11 +12750,11 @@ Unify the list  _?ListOfAttributes_ with the attributes for the unbound
 variable  _Var_. Each member of the list must be a bound term of the
 form `+( _Attribute_)`, `-( _Attribute_)` (the <tt>kbd</tt>
 prefix may be dropped). The meaning of <tt>+</tt> and <tt>-</tt> is:
-    + +( _Attribute_)
++ +( _Attribute_)
 Unifies  _Attribute_ with a corresponding attribute associated with
  _Var_, fails otherwise.
 
-    + -( _Attribute_)
++ -( _Attribute_)
 Succeeds if a corresponding attribute is not associated with
  _Var_. The arguments of  _Attribute_ are ignored.
 
@@ -12935,11 +12767,11 @@ Succeeds if a corresponding attribute is not associated with
 Associate with or remove attributes from a variable  _Var_. The
 attributes are given in  _?ListOfAttributes_, and the action depends
 on how they are prefixed:
-    + +( _Attribute_)
++ +( _Attribute_)
 Associate  _Var_ with  _Attribute_. A previous value for the
 attribute is simply replace (like with `set_mutable/2`).
 
-    + -( _Attribute_)
++ -( _Attribute_)
 Remove the attribute with the same name. If no such attribute existed,
 simply succeed.
 
@@ -12974,7 +12806,7 @@ It is up to the user to define which actions may be performed by
 unified with  _Value_. If <tt>verify_attributes/3</tt> fails, the
 unification will fail.
 
-Notice that the <tt>verify_attributes/3</tt> may be called even if  _Var_\<
+Notice that the <tt>verify_attributes/3</tt> may be called even if  _Var_<
 has no attributes in module <tt>Module</tt>. In this case the routine should
 simply succeed with  _Goals_ unified with the empty list.
 
@@ -13062,7 +12894,7 @@ queried for its domain by leaving  _Domain_ unbound.
 We do not present here a definition for project_attributes/2.
 Projecting finite domain constraints happens to be difficult.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(domain, [domain/2]).
 
 :- use_module(library(atts)).
@@ -13110,7 +12942,7 @@ domain(X, List) :-
             X = Fresh                       % may call
                                             % verify_attributes/3
         ).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Note that the ``implied binding'' `Other=El` was deferred until after
 the completion of `verify_attribute/3`.  Otherwise, there might be a
@@ -13122,13 +12954,13 @@ effectively serializes the calls to `verify_attribute/3`.
 Assuming that the code resides in the file domain.yap, we
 can use it via:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 | ?- use_module(domain).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Let's test it:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 | ?- domain(X,[5,6,7,1]), domain(Y,[3,4,5,6]), domain(Z,[1,6,7,8]).
 
 domain(X,[1,5,6,7]),
@@ -13150,14 +12982,14 @@ yes
 X = 6,
 Y = 6,
 Z = 6
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 To demonstrate the use of the  _Goals_ argument of
 verify_attributes/3, we give an implementation of
 freeze/2.  We have to name it `myfreeze/2` in order to
 avoid a name clash with the built-in predicate of the same name.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(myfreeze, [myfreeze/2]).
 
 :- use_module(library(atts)).
@@ -13182,29 +13014,29 @@ attribute_goal(Var, Goal) :-                % interpretation as goal
 myfreeze(X, Goal) :-
         put_atts(Fresh, frozen(Goal)),
         Fresh = X.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Assuming that this code lives in file myfreeze.yap,
 we would use it via:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 | ?- use_module(myfreeze).
 | ?- myfreeze(X,print(bound(x,X))), X=2.
 
 bound(x,2)                      % side effect
 X = 2                           % bindings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The two solvers even work together:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 | ?- myfreeze(X,print(bound(x,X))), domain(X,[1,2,3]),
      domain(Y,[2,10]), X=Y.
 
 bound(x,2)                      % side effect
 X = 2,                          % bindings
 Y = 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The two example solvers interact via bindings to shared attributed
 variables only.  More complicated interactions are likely to be found
@@ -13237,9 +13069,9 @@ Please note that the clpr library is <em>not</em> an
 `autoload` library and therefore this library must be loaded
 explicitely before using it:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- use_module(library(clpr)).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 @} */
@@ -13254,7 +13086,7 @@ The following predicates are provided to work with constraints:
  
 */
 
-/** @pred {+ _Constraints_}
+/** @pred {+ _Constraints_} is det
 Adds the constraints given by  _Constraints_ to the constraint store.
 
  
@@ -13324,9 +13156,9 @@ Returns the constraints on  _Target_ in the list  _CodedAnswer_
 where all variables of  _Target_ have veen replaced by  _NewVars_.
 This operation does not change the constraint store. E.g. in
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 dump([X,Y,Z],[x,y,z],Cons)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  _Cons_ will contain the constraints on  _X_,  _Y_ and
  _Z_ where these variables have been replaced by atoms `x`, `y` and `z`.
@@ -13345,38 +13177,38 @@ The arguments of the predicates defined in the subsection above are
 defined in the following table. Failing to meet the syntax rules will
 result in an exception.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-<Constraints> ---> <Constraint>				\\ single constraint \\
-	      | <Constraint> , <Constraints>		\\ conjunction \\
-	      | <Constraint> ; <Constraints>		\\ disjunction \\
+~~~~~
+<Constraints> ---> <Constraint>				\ single constraint \
+	      | <Constraint> , <Constraints>		\ conjunction \
+	      | <Constraint> ; <Constraints>		\ disjunction \
 
-<Constraint> ---> <Expression> {<} <Expression>		\\ less than \\
-	     | <Expression> {>} <Expression>		\\ greater than \\
-	     | <Expression> {=<} <Expression>	\\ less or equal \\
-	     | {<=}(<Expression>, <Expression>)	\\ less or equal \\
-	     | <Expression> {>=} <Expression>	\\ greater or equal \\
-	     | <Expression> {=\=} <Expression>	\\ not equal \\
-	     | <Expression> =:= <Expression>		\\ equal \\
-	     | <Expression> = <Expression>		\\ equal \\
+<Constraint> ---> <Expression> {<} <Expression>		\ less than \
+	     | <Expression> {>} <Expression>		\ greater than \
+	     | <Expression> {=<} <Expression>	\ less or equal \
+	     | {<=}(<Expression>, <Expression>)	\ less or equal \
+	     | <Expression> {>=} <Expression>	\ greater or equal \
+	     | <Expression> {=\=} <Expression>	\ not equal \
+	     | <Expression> =:= <Expression>		\ equal \
+	     | <Expression> = <Expression>		\ equal \
 
-<Expression> --->  <Variable>				\\ Prolog variable \\
-	     | <Number>				\\ Prolog number (float, integer) \\
-	     | +<Expression>				\\ unary plus \\
-	     | -<Expression>				\\ unary minus \\
-	     | <Expression> + <Expression>		\\ addition \\
-	     | <Expression> - <Expression>		\\ substraction \\
-	     | <Expression> * <Expression>		\\ multiplication \\
-	     | <Expression> / <Expression>		\\ division \\
-	     | abs(<Expression>)			\\ absolute value \\
-	     | sin(<Expression>)			\\ sine \\
-	     | cos(<Expression>)			\\ cosine \\
-	     | tan(<Expression>)			\\ tangent \\
-	     | exp(<Expression>)			\\ exponent \\
-	     | pow(<Expression>)			\\ exponent \\
-	     | <Expression> {^} <Expression>		\\ exponent \\
-	     | min(<Expression>, <Expression>)	\\ minimum \\
-	     | max(<Expression>, <Expression>)	\\ maximum \\
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<Expression> --->  <Variable>				\ Prolog variable \
+	     | <Number>				\ Prolog number (float, integer) \
+	     | +<Expression>				\ unary plus \
+	     | -<Expression>				\ unary minus \
+	     | <Expression> + <Expression>		\ addition \
+	     | <Expression> - <Expression>		\ substraction \
+	     | <Expression> * <Expression>		\ multiplication \
+	     | <Expression> / <Expression>		\ division \
+	     | abs(<Expression>)			\ absolute value \
+	     | sin(<Expression>)			\ sine \
+	     | cos(<Expression>)			\ cosine \
+	     | tan(<Expression>)			\ tangent \
+	     | exp(<Expression>)			\ exponent \
+	     | pow(<Expression>)			\ exponent \
+	     | <Expression> {^} <Expression>		\ exponent \
+	     | min(<Expression>, <Expression>)	\ minimum \
+	     | max(<Expression>, <Expression>)	\ maximum \
+~~~~~
 
 
 @} */
@@ -13389,21 +13221,21 @@ Instead of using the `{}/1` predicate, you can also use the standard
 unification mechanism to store constraints. The following code samples
 are equivalent:
 
-    + Unification with a variable
++ Unification with a variable
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 {X =:= Y}
 {X = Y}
 X = Y
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + Unification with a number
++ Unification with a number
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 {X =:= 5.0}
 {X = 5.0}
 X = 5.0
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -13419,7 +13251,7 @@ In this version, non-linear constraints do not get solved until certain
 conditions are satisfied. We call these conditions the isolation axioms.
 They are given in the following table.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 A = B * C         when B or C is ground	or		 // A = 5 * C or A = B * 4 \\
 	                      A and (B or C) are ground	 // 20 = 5 * C or 20 = B * 4 \\
 
@@ -13437,7 +13269,7 @@ X = Y ^ Z            Y and Z are ground		// X = 2 ^ 3
 X = sin(Y)	    when X is ground or			// 1 = sin(Y) 
 X = cos(Y)	               Y is ground			// X = sin(1.5707) 
 X = tan(Y)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 @section CHR CHR: Constraint Handling Rules 
 @ingroup YAPPackages
@@ -13453,7 +13285,7 @@ and licenced under compatible conditions with permission from the authors.
 
 The main reference for SWI-Prolog's CHR system is:
 
-    + T. Schrijvers, and B. Demoen, <em>The K.U.Leuven CHR System: Implementation and Application</em>, First Workshop on Constraint Handling Rules: Selected
++ T. Schrijvers, and B. Demoen, <em>The K.U.Leuven CHR System: Implementation and Application</em>, First Workshop on Constraint Handling Rules: Selected
 Contributions (Fruwirth, T. and Meister, M., eds.), pp. 1--5, 2004.
 
 
@@ -13498,7 +13330,7 @@ Wingroup CHR
 
 The syntax of CHR rules in hProlog is the following:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 rules --> rule, rules.
 rules --> [].
 
@@ -13537,12 +13369,12 @@ actual_pragmas --> actual_pragma, [atom(',')], actual_pragmas.
 
 actual_pragma --> [atom('passive(')], variable, [atom(')')].
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Additional syntax-related terminology:
 
-    + *head:* the constraints in an `actual_rule` before
-the arrow (either `\<=\>` or `==\>`)
++ *head:* the constraints in an `actual_rule` before
+the arrow (either `<=>` or `==>`)
 
 
 
@@ -13594,22 +13426,22 @@ the rules are tried.
 
 There are three different kinds of rules, each with their specific semantics:
 
-    + simplification
++ simplification
 The simplification rule removes the constraints in its head and calls its body.
 
-    + propagation
++ propagation
 The propagation rule calls its body exactly once for the constraints in
 its head.
 
-    + simpagation
++ simpagation
 The simpagation rule removes the constraints in its head after the
-`\\` and then calls its body. It is an optimization of
-simplification rules of the form: \\[constraints_1, constraints_2 \<=\>
-constraints_1, body \\] Namely, in the simpagation form: 
+`\` and then calls its body. It is an optimization of
+simplification rules of the form: \[constraints_1, constraints_2 <=>
+constraints_1, body \] Namely, in the simpagation form: 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 constraints1 \ constraints2 <=> body
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
  _constraints1_
 constraints are not called in the body.
 
@@ -13633,7 +13465,7 @@ as documentation for the programmer.
 
 The semantics of the pragmas are:
 
-    + passive(Identifier)
++ passive(Identifier)
 The constraint in the head of a rule  _Identifier_ can only act as a
 passive constraint in that rule.
 
@@ -13650,19 +13482,19 @@ Additional pragmas may be released in the future.
 It is possible to specify options that apply to all the CHR rules in the module.
 Options are specified with the `option/2` declaration:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
                 option(Option,Value).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Available options are:
 
-    + check_guard_bindings
++ check_guard_bindings
 This option controls whether guards should be checked for illegal
 variable bindings or not. Possible values for this option are
 `on`, to enable the checks, and `off`, to disable the
 checks.
 
-    + optimize
++ optimize
 This is an experimental option controlling the degree of optimization.
 Possible values are `full`, to enable all available
 optimizations, and `off` (default), to disable all optimizations.  
@@ -13671,7 +13503,7 @@ The default is derived from the SWI-Prolog flag `optimise`, where
 option `-O` provides full CHR optimization.
 If optimization is enabled, debugging should be disabled.
 
-    + debug
++ debug
 This options enables or disables the possibility to debug the CHR code.
 Possible values are `on` (default) and `off`. See
 `debugging` for more details on debugging.  The default is
@@ -13679,19 +13511,19 @@ derived from the prolog flag `generate_debug_info`, which
 is `true` by default.  See `-nodebug`.
 If debugging is enabled, optimization should be disabled.
 
-    + mode
++ mode
 This option specifies the mode for a particular constraint. The
 value is a term with functor and arity equal to that of a constraint.
 The arguments can be one of `-`, `+` or `?`.
 The latter is the default. The meaning is the following:
 
-    + -
++ -
 The corresponding argument of every occurrence
 of the constraint is always unbound.
-    + + 
++ + 
 The corresponding argument of every occurrence
 of the constraint is always ground.
-    + ?
++ ?
 The corresponding argument of every occurrence
 of the constraint can have any instantiation, which may change
 over time. This is the default value.
@@ -13701,22 +13533,22 @@ Note that it is up to the user the ensure that the mode declaration
 is correct with respect to the use of the constraint.
 This option may occur once for each constraint.
 
-    + type_declaration
++ type_declaration
 This option specifies the argument types for a particular constraint. The
 value is a term with functor and arity equal to that of a constraint.
 The arguments can be a user-defined type or one of
 the built-in types:
 
-    + int
++ int
 The corresponding argument of every occurrence
 of the constraint is an integer number.
-    + float
++ float
 ...{} a floating point number.
-    + number
++ number
 ...{} a number.
-    + natural
++ natural
 ...{} a positive integer.
-    + any
++ any
 The corresponding argument of every occurrence
 of the constraint can have any type. This is the default value.
 
@@ -13724,7 +13556,7 @@ of the constraint can have any type. This is the default value.
 Currently, type declarations are only used to improve certain
 optimizations (guard simplification, occurrence subsumption, ...{}).
 
-    + type_definition
++ type_definition
 This option defines a new user-defined type which can be used in
 type declarations. The value is a term of the form
 `type(` _name_`,` _list_`)`, where
@@ -13732,12 +13564,12 @@ type declarations. The value is a term of the form
 Variables can be used to define generic types. Recursive definitions
 are allowed. Examples are 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 type(bool,[true,false]).
 type(complex_number,[float + float * i]).
 type(binary_tree(T),[ leaf(T) | node(binary_tree(T),binary_tree(T)) ]).
 type(list(T),[ [] | [T | list(T)]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -13767,19 +13599,19 @@ never load different chr files with the same CHR module name.
 Every constraint used in CHR rules has to be declared.
 There are two ways to do this. The old style is as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 option(type_definition,type(list(T),[ [] , [T|list(T)] ]).
 option(mode,foo(+,?)).
 option(type_declaration,foo(list(int),float)).
 :- constraints foo/2, bar/0.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The new style is as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- chr_type list(T) ---> [] ; [T|list(T)].
 :- constraints foo(+list(int),?float), bar.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 @} */
@@ -13793,20 +13625,20 @@ from the library chr.   They are activated if the compiled file
 has the chr extension or after finding a declaration of the
 format below.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- constraints ...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 It is adviced to define CHR rules in a module file, where the module
 declaration is immediately followed by including the chr
 library as examplified below:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(zebra, [ zebra/0 ]).
 :- use_module(library(chr)).
 
 :- constraints ...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Using this style CHR rules can be defined in ordinary Prolog
 pl files and the operator definitions required by CHR do not
@@ -13838,33 +13670,33 @@ info is provided unless the `-nodebug` is used.
 
 For CHR constraints the four standard ports are defined:
 
-    + call
++ call
 A new constraint is called and becomes active.
-    + exit
++ exit
 An active constraint exits: it has either been inserted in the store after
 trying all rules or has been removed from the constraint store.
-    + fail
++ fail
 An active constraint fails.
-    + redo
++ redo
 An active constraint starts looking for an alternative solution.
 
 
 In addition to the above ports, CHR constraints have five additional
 ports:
 
-    + wake
++ wake
 A suspended constraint is woken and becomes active.
-    + insert
++ insert
 An active constraint has tried all rules and is suspended in
 the constraint store.
-    + remove
++ remove
 An active or passive constraint is removed from the constraint
 store, if it had been inserted.
-    + try
++ try
 An active constraints tries a rule with possibly
 some passive constraints. The try port is entered
 just before committing to the rule.
-    + apply
++ apply
 An active constraints commits to a rule with possibly
 some passive constraints. The apply port is entered
 just after committing to the rule.
@@ -13887,7 +13719,7 @@ accepting debug commands, and simply write out the other ports.
 
 The following debug commans are currently supported:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
         CHR debug options:
 
                 <cr>    creep           c       creep
@@ -13898,25 +13730,25 @@ The following debug commans are currently supported:
                 a       abort
                 f       fail
                 ?       help            h       help
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 Their meaning is:
 
-    + creep
++ creep
 Step to the next port.
-    + skip
++ skip
 Skip to exit port of this call or wake port.
-    + ancestors
++ ancestors
 Print list of ancestor call and wake ports.
-    + nodebug
++ nodebug
 Disable the tracer.
-    + break
++ break
 Enter a recursive Prolog toplevel.  See break/0.
-    + abort
++ abort
 Exit to the toplevel.  See abort/0.
-    + fail
++ fail
 Insert failure in execution.
-    + help
++ help
 Print the above available debug options.
 
 
@@ -13931,7 +13763,7 @@ Print the above available debug options.
 The chr module contains several predicates that allow
 inspecting and printing the content of the constraint store.
 
-    + chr_trace/0
++ chr_trace
 Activate the CHR tracer.  By default the CHR tracer is activated and
 deactivated automatically by the Prolog predicates trace/0 and
 notrace/0.
@@ -13939,12 +13771,12 @@ notrace/0.
  
 */
 
-/** @pred chr_notrace/0
+/** @pred chr_notrace
 De-activate the CHR tracer.  By default the CHR tracer is activated and
 deactivated automatically by the Prolog predicates trace/0 and
 notrace/0.
 
-    + chr_leash/0 
++ chr_leash/0 
 
 Define the set of CHR ports on which the CHR
 tracer asks for user intervention (i.e. stops).  _Spec_ is either a
@@ -13977,11 +13809,11 @@ disables it.
 
 Here are two example constraint solvers written in CHR.
 
-    + 
++ 
 The program below defines a solver with one constraint, 
 `leq/2`, which is a less-than-or-equal constraint.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(leq,[cycle/3, leq/2]).
 :- use_module(library(chr)).
 
@@ -13995,13 +13827,13 @@ cycle(X,Y,Z):-
         leq(X,Y),
         leq(Y,Z),
         leq(Z,X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + 
++ 
 The program below implements a simple finite domain
 constraint solver.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- module(dom,[dom/2]).
 :- use_module(library(chr)).
 
@@ -14017,7 +13849,7 @@ intersection([H|T],L2,[H|L3]) :-
         intersection(T,L2,L3).
 intersection([_|T],L2,L3) :-
         intersection(T,L2,L3).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -14035,19 +13867,19 @@ YAPs and SICStus and older versions of YAP.  Besides differences in
 available options and pragmas, the following differences should be
 noted:
 
-    + [The handler/1 declaration]
++ [The handler/1 declaration]
 In SICStus every CHR module requires a `handler/1`
 declaration declaring a unique handler name. This declaration is valid
 syntax in SWI-Prolog, but will have no effect. A warning will be given
 during compilation.
 
-    + [The rules/1 declaration]
++ [The rules/1 declaration]
 In SICStus, for every CHR module it is possible to only enable a subset
 of the available rules through the `rules/1` declaration. The
 declaration is valid syntax in SWI-Prolog, but has no effect. A
 warning is given during compilation.
 
-    + [Sourcefile naming]
++ [Sourcefile naming]
 SICStus uses a two-step compiler, where chr files are
 first translated into pl files.  For SWI-Prolog CHR
 rules may be defined in a file with any extension.
@@ -14065,22 +13897,22 @@ rules may be defined in a file with any extension.
 In this section we cover several guidelines on how to use CHR to write
 constraint solvers and how to do so efficiently.
 
-    + [Set semantics]
++ [Set semantics]
 The CHR system allows the presence of identical constraints, i.e.
 multiple constraints with the same functor, arity and arguments. For
 most constraint solvers, this is not desirable: it affects efficiency
 and possibly termination. Hence appropriate simpagation rules should be
 added of the form:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 {constraint \ constraint <=> true}.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-    + [Multi-headed rules]
++ [Multi-headed rules]
 Multi-headed rules are executed more efficiently when the constraints
 share one or more variables.
 
-    + [Mode and type declarations]
++ [Mode and type declarations]
 Provide mode and type declarations to get more efficient program execution.
 Make sure to disable debug (`-nodebug`) and enable optimization
 (`-O`).
@@ -14134,26 +13966,26 @@ by executing  _Goal_.  If the thread is created successfully, the
 thread-identifier of the created thread is unified to  _Id_.
  _Options_ is a list of options.  Currently defined options are:
 
-    + stack
++ stack
 Set the limit in K-Bytes to which the Prolog stacks of
 this thread may grow.  If omitted, the limit of the calling thread is
 used.  See also the  commandline `-S` option.
 
-    + trail
++ trail
 Set the limit in K-Bytes to which the trail stack of this thread may
 grow.  If omitted, the limit of the calling thread is used. See also the
 commandline option `-T`.
 
-    + alias
++ alias
 Associate an alias-name with the thread.  This named may be used to
 refer to the thread and remains valid until the thread is joined
 (see thread_join/2).
 
-    + at_exit
++ at_exit
 Define an exit hook for the thread.  This hook is called when the thread
 terminates, no matter its exit status.
 
-    + detached
++ detached
 If `false` (default), the thread can be waited for using
 thread_join/2. thread_join/2 must be called on this thread
 to reclaim the all resources associated to the thread. If `true`,
@@ -14211,22 +14043,22 @@ C-thread is destroyed. A small data-structure representing the
 exit-status of the thread is retained until thread_join/2 is called on
 the thread.  Defined values for  _Status_ are:
 
-    + true
++ true
 The goal has been proven successfully.
 
-    + false
++ false
 The goal has failed.
 
-    + exception( _Term_)
++ exception( _Term_)
 The thread is terminated on an
 exception.  See print_message/2 to turn system exceptions into
 readable messages.
 
-    + exited( _Term_)
++ exited( _Term_)
 The thread is terminated on thread_exit/1 using the argument  _Term_.
 
 
-    + thread_detach(+ _Id_) 
++ thread_detach(+ _Id_) 
 
 
 Switch thread into detached-state (see `detached` option at
@@ -14331,25 +14163,25 @@ thread_join/2.  For threads that have an alias-name, this name can
 be used in  _Id_ instead of the numerical thread identifier.
  _Property_ is one of:
 
-    + status( _Status_)
++ status( _Status_)
 The thread status of a thread (see below).
 
-    + alias( _Alias_)
++ alias( _Alias_)
 The thread alias, if it exists.
 
-    + at_exit( _AtExit_)
++ at_exit( _AtExit_)
 The thread exit hook, if defined (not available if the thread is already terminated).
 
-    + detached( _Boolean_)
++ detached( _Boolean_)
 The detached state of the thread.
 
-    + stack( _Size_)
++ stack( _Size_)
 The thread stack data-area size.
 
-    + trail( _Size_)
++ trail( _Size_)
 The thread trail data-area size.
 
-    + system( _Size_)
++ system( _Size_)
 The thread system data-area size.
 
 
@@ -14365,22 +14197,22 @@ thread_join/2.  For threads that have an alias-name, this name is
 returned in  _Id_ instead of the numerical thread identifier.
  _Status_ is one of:
 
-    + running
++ running
 The thread is running.  This is the initial status of a thread.  Please
 note that threads waiting for something are considered running too.
 
-    + false
++ false
 The  _Goal_ of the thread has been completed and failed.
 
-    + true
++ true
 The  _Goal_ of the thread has been completed and succeeded.
 
-    + exited( _Term_)
++ exited( _Term_)
 The  _Goal_ of the thread has been terminated using thread_exit/1
 with  _Term_ as argument.  If the underlying native thread has
 exited (using pthread_exit())  _Term_ is unbound.
 
-    + exception( _Term_)
++ exception( _Term_)
 The  _Goal_ of the thread has been terminated due to an uncaught
 exception (see throw/1 and catch/3).
 
@@ -14396,7 +14228,7 @@ does in single-threaded applications.  This call returns all keys
 of `statistics/2`, although only information statistics about the
 stacks and CPU time yield different values for each thread.
 
-    + mutex_statistics 
++ mutex_statistics 
 
 
 Print usage statistics on internal mutexes and mutexes associated
@@ -14408,7 +14240,7 @@ Windows as this would break portability to Windows-95/98/ME or
 significantly harm performance.  Generally collision count is
 close to zero on single-CPU hardware.
 
-    + threads 
++ threads 
 
 
 Prints a table of current threads and their status.
@@ -14479,14 +14311,14 @@ Please note that not-unifying messages remain in the queue.  After
 the following has been executed, thread 1 has the term `gnu`
 in its queue and continues execution using  _A_ is `gnat`.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
    <thread 1>
    thread_get_message(a(A)),
 
    <thread 2>
    thread_send_message(b(gnu)),
    thread_send_message(a(gnat)),
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 See also thread_peek_message/1.
 
@@ -14550,7 +14382,7 @@ workers execute arbitrary Prolog goals.  Note that this example provides
 no means to tell when all work is done. This must be realised using
 additional synchronisation.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 %    create_workers(+Id, +N)
 %    
 %    Create a pool with given Id and number of workers.
@@ -14575,7 +14407,7 @@ do_work(Id) :-
 
 work(Id, Goal) :-
     thread_send_message(Id, Goal).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 @} */
@@ -14662,12 +14494,12 @@ a file as in the example below as the clause is only visible from the
 thread that loaded the source-file.  All other threads start with an
 empty clause-list.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- thread_local
     foo/1.
 
 foo(gnat).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -14696,7 +14528,7 @@ assert/retract order.
 
 Here is how to realise a correct update:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- initialization
     mutex_create(addressbook).
 
@@ -14705,7 +14537,7 @@ change_address(Id, Address) :-
     retractall(address(Id, _)),
     asserta(address(Id, Address)),
     mutex_unlock(addressbook).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -14822,24 +14654,24 @@ system's `Makefile`.
  *YAPOr* is still a very experimental system, going through rapid
 development. The following restrictions are of note:
 
-    + *YAPOr* currently only supports the Linux/X86 and SPARC/Solaris
++ *YAPOr* currently only supports the Linux/X86 and SPARC/Solaris
 platforms. Porting to other Unix-like platforms should be straightforward.
 
-    + *YAPOr* does not support parallel updates to the
++ *YAPOr* does not support parallel updates to the
 data-base.
 
-    + *YAPOr* does not support opening or closing of streams during
++ *YAPOr* does not support opening or closing of streams during
 parallel execution.
 
-    + Garbage collection and stack shifting are not supported in
++ Garbage collection and stack shifting are not supported in
  *YAPOr*.  
 
-    + Built-ins that cause side-effects can only be executed when
++ Built-ins that cause side-effects can only be executed when
 left-most in the search-tree. There are no primitives to provide
 asynchronous or cavalier execution of these built-ins, as in Aurora or
 Muse.
 
-    + YAP does not support voluntary suspension of work.
++ YAP does not support voluntary suspension of work.
 
 
 We expect that some of these restrictions will be removed in future
@@ -14861,10 +14693,10 @@ supports the dynamic intermixing of batched scheduling and local
 scheduling at the subgoal level. Currently, the following restrictions
 are of note:
 
-    + YAPTab does not handle tabled predicates with loops through negation (undefined behaviour).
-    + YAPTab does not handle tabled predicates with cuts (undefined behaviour).
-    + YAPTab does not support coroutining (configure error).
-    + YAPTab does not support tabling dynamic predicates (permission error).
++ YAPTab does not handle tabled predicates with loops through negation (undefined behaviour).
++ YAPTab does not handle tabled predicates with cuts (undefined behaviour).
++ YAPTab does not support coroutining (configure error).
++ YAPTab does not support tabling dynamic predicates (permission error).
 
 
 To experiment with YAPTab use `--enable-tabling` in the configure
@@ -14875,7 +14707,7 @@ designed to interact with YAPTab and control tabled execution:
  
 */
 
-/** @pred table + _P_ 
+/** @pred table( + _P_ )
 
 
 Declares predicate  _P_ (or a list of predicates
@@ -14883,21 +14715,21 @@ Declares predicate  _P_ (or a list of predicates
 predicate.  _P_ must be written in the form
  _name/arity_. Examples:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- table son/3.
 :- table father/2.
 :- table mother/2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
  or
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- table son/3, father/2, mother/2.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
  or
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 :- table [son/3, father/2, mother/2].
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
  
 */
@@ -14919,20 +14751,27 @@ Sets or reads the default tabling mode for a tabled predicate  _P_
 (or a list of predicates  _P1_,..., _Pn_ or
 [ _P1_,..., _Pn_]). The list of  _Mode_ options includes:
 
-    + batched
-Defines that, by default, batched scheduling is the scheduling
++ `batched`
+
+    Defines that, by default, batched scheduling is the scheduling
 strategy to be used to evaluated calls to predicate  _P_.
-    + local
-Defines that, by default, local scheduling is the scheduling
+
++ `local`
+
+    Defines that, by default, local scheduling is the scheduling
 strategy to be used to evaluated calls to predicate  _P_.
-    + exec_answers
-Defines that, by default, when a call to predicate  _P_ is
+
++ `exec_answers`
+
+    Defines that, by default, when a call to predicate  _P_ is
 already evaluated (completed), answers are obtained by executing
 compiled WAM-like code directly from the trie data
 structure. This reduces the loading time when backtracking, but
 the order in which answers are obtained is undefined.
-    + load_answers
-Defines that, by default, when a call to predicate  _P_ is
+
++ `load_answers`
+  
+   Defines that, by default, when a call to predicate  _P_ is
 already evaluated (completed), answers are obtained (as a
 consumer) by loading them from the trie data structure. This
 guarantees that answers are obtained in the same order as they
@@ -14941,7 +14780,6 @@ were found. Somewhat less efficient but creates less choice-points.
 The default tabling mode for a new tabled predicate is `batched`
 and `exec_answers`. To set the tabling mode for all predicates at
 once you can use the yap_flag/2 predicate as described next.
-
  
 */
 
@@ -14949,25 +14787,34 @@ once you can use the yap_flag/2 predicate as described next.
 Sets or reads the tabling mode for all tabled predicates. The list of
  _Mode_ options includes:
 
-    + default
-Defines that (i) all calls to tabled predicates are evaluated
++ `default`
+
+    Defines that (i) all calls to tabled predicates are evaluated
 using the predicate default mode, and that (ii) answers for all
 completed calls are obtained by using the predicate default mode.
-    + batched
-Defines that all calls to tabled predicates are evaluated using
+
++ `batched`
+
+    Defines that all calls to tabled predicates are evaluated using
 batched scheduling. This option ignores the default tabling mode
 of each predicate.
-    + local
-Defines that all calls to tabled predicates are evaluated using
+
++ `local`
+
+    Defines that all calls to tabled predicates are evaluated using
 local scheduling. This option ignores the default tabling mode
 of each predicate.
-    + exec_answers
-Defines that answers for all completed calls are obtained by
+
++ `exec_answers`
+
+    Defines that answers for all completed calls are obtained by
 executing compiled WAM-like code directly from the trie data
 structure. This option ignores the default tabling mode
 of each predicate.
-    + load_answers
-Defines that answers for all completed calls are obtained by
+
++ `load_answers`
+
+    Defines that answers for all completed calls are obtained by
 loading them from the trie data structure. This option ignores
 the default tabling mode of each predicate.
 
@@ -15044,7 +14891,7 @@ deactivate low level tracing:
 
 Begin display of messages at procedure entry and retry.
 
-    + stop_low_level_trace 
++ stop_low_level_trace 
 
 
 Stop display of messages at procedure entry and retry.
@@ -15067,7 +14914,7 @@ internals, or to system debuggers.
  
 */
 
-/** @pred reset_op_counters 
+/** @pred wam_profiler_reset_op_counters 
 
 
 Reinitialize all counters.
@@ -15075,7 +14922,7 @@ Reinitialize all counters.
  
 */
 
-/** @pred show_op_counters(+ _A_) 
+/** @pred wam_profiler_show_op_counters(+ _A_) 
 
 
 Display the current value for the counters, using label  _A_. The
@@ -15084,7 +14931,7 @@ label must be an atom.
  
 */
 
-/** @pred show_ops_by_group(+ _A_) 
+/** @pred wam_profiler_show_ops_by_group(+ _A_) 
 
 
 Display the current value for the counters, organized by groups, using
@@ -15104,29 +14951,30 @@ label  _A_. The label must be an atom.
 
 /** @defgroup Deb_Preds Debugging Predicates
 
-The@{
+@{
+The
  following predicates are available to control the debugging of
 programs:
 
-    + debug
++ debug
 
-Switches the debugger on.
+    Switches the debugger on.
 
-    + debugging 
++ debugging 
 
 
-Outputs status information about the debugger which includes the leash
+    Outputs status information about the debugger which includes the leash
 mode and the existing spy-points, when the debugger is on.
 
-    + nodebug 
++ nodebug 
 
 
-Switches the debugger off.
+    Switches the debugger off.
 
  
 */
 
-/** @pred spy + _P_ 
+/** @pred spy( + _P_ ). 
 
 
 Sets spy-points on all the predicates represented by
@@ -15139,7 +14987,7 @@ predicates written in C, cannot be spied.
  
 */
 
-/** @pred nospy + _P_ 
+/** @pred nospy( + _P_ )
 
 
 Removes spy-points from all predicates specified by  _P_.
@@ -15162,17 +15010,22 @@ Removes all existing spy-points.
 Sets leashing mode to  _M_.
 The mode can be specified as:
 
-    + full
++ `full`
 prompt on Call, Exit, Redo and Fail
-    + tight
+
++ `tight`
 prompt on Call, Redo and Fail
-    + half
+
++ `half`
 prompt on Call and Redo
-    + loose
+
++ `loose`
 prompt on Call
-    + off
+
++ `off`
 never prompt
-    + none
+
++ `none`
 never prompt, same as `off`
 
 The initial leashing mode is `full`.
@@ -15183,14 +15036,10 @@ is a number  _N_, each of lower four bits of the number is used to
 control prompting at one the ports of the box model. The debugger will 
 prompt according to the following conditions:
 
-    + 
-if `N/\\ 1 =\\= 0`  prompt on fail 
-    + 
-if `N/\\ 2 =\\= 0` prompt on redo
-    + 
-if `N/\\ 4 =\\= 0` prompt on exit
-    + 
-if `N/\\ 8 =\\= 0` prompt on call
++ if `N/\ 1 =\= 0`  prompt on fail 
++ if `N/\ 2 =\= 0` prompt on redo
++ if `N/\ 4 =\= 0` prompt on exit
++ if `N/\ 8 =\= 0` prompt on call
 
 Therefore, `leash(15)` is equivalent to `leash(full)` and
 `leash(0)` is equivalent to `leash(off)`.
@@ -15204,19 +15053,10 @@ the ports where the debugger should stop. For example,
  
 */
 
-/** @pred spy_write(+ _Stream_,Term) 
-
-
-If defined by the user, this predicate will be used to print goals by
-the debugger instead of `write/2`.
-
- 
-*/
-
 /** @pred trace 
 
 
-Switches on the debugger and starts tracing.
+Switches on the debugger and enters tracing mode.
 
  
 */
@@ -15247,7 +15087,7 @@ evaluation of all queries activated by the procedure), after backtracking but
 before trying new alternative to the procedure and after failing the 
 procedure. Each one of these points is named a port:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 @group
            *--------------------------------------*
    Call    |                                      |    Exit
@@ -15257,22 +15097,22 @@ procedure. Each one of these points is named a port:
 <--------- +     offspring(X,Y), descendant(Y,Z). + <---------
    Fail    |                                      |    Redo
            *--------------------------------------*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
-    + Call
++ Call
 The call port is activated before initial invocation of
 procedure. Afterwards, execution will try to match the goal with the
 head of existing clauses for the procedure.
-    + Exit
++ Exit
 This port is activated if the procedure succeeds.
 Control will  now leave the procedure and return to its ancestor.
-    + Redo
++ Redo
 if the goal, or goals, activated after the call port
 fail  then backtracking will eventually return control to this procedure
 through  the redo port.
-    + Fail
++ Fail
 If all clauses for this predicate fail, then the
 invocation fails,  and control will try to redo the ancestor of this
 invocation.
@@ -15283,27 +15123,27 @@ relevant procedures, entering debug mode, and start execution of the
 program. When finding the first spy-point, YAP's debugger will take
 control and show a message of the form:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 * (1)  call:  quicksort([1,2,3],_38) ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 The debugger message will be shown while creeping, or at spy-points,
 and it includes four or five fields:
 
-    + 
++ 
 The first three characters are used to point out special states of the
 debugger. If the port is exit and the first character is '?', the
 current call is non-deterministic, that is, it still has alternatives to
 be tried. If the second character is a `\*`, execution is at a
-spy-point. If the third character is a `\>`, execution has returned
+spy-point. If the third character is a `>`, execution has returned
 either from a skip, a fail or a redo command.
-    + 
++ 
 The second field is the activation number, and uniquely identifies the
 activation. The number will start from 1 and will be incremented for
 each activation found by the debugger.
-    + 
++ 
 In the third field, the debugger shows the active port.
-    + 
++ 
 The fourth field is the goal. The goal is written by
 `write_term/3` on the standard error stream, using the options
 given by debugger_print_options.
@@ -15319,94 +15159,140 @@ There are several commands available, but the user only needs to
 remember the help command, which is `h`. This command shows all the 
 available options, which are:
 
-    + c - creep
-this command makes YAP continue execution and stop at the next
++ `c` - creep
+
+    this command makes YAP continue execution and stop at the next
 leashed port.
-    + return - creep
-the same as c
-    + l - leap
-YAP will execute until it meets a port for a spied predicate; this mode
+
++ `return` - creep
+
+    the same as c
+
++ `l` - leap
+
+    YAP will execute until it meets a port for a spied predicate; this mode
 keeps all computation history for debugging purposes, so it is more
 expensive than standard execution. Use <tt>k</tt> or <tt>z</tt> for fast execution.
-    + k - quasi-leap
-similar to leap but faster since the computation history is
+
++ `k` - quasi-leap
+
+    similar to leap but faster since the computation history is
 not kept; useful when leap becomes too slow.
-    + z - zip
-same as <tt>k</tt>
-    + s - skip
-YAP will continue execution without showing any messages until
+
++ `z` - zip
+
+
+    same as <tt>k</tt>
++ `s` - skip
+
+    YAP will continue execution without showing any messages until
 returning to the current activation. Spy-points will be  ignored in this
 mode. Note that this command keeps all debugging history, use <tt>t</tt> for fast execution. This command is meaningless, and therefore illegal, in the fail
 and exit ports.
-    + t - fast-skip
-similar to skip but faster since computation history is not
+
++ `t` - fast-skip
+
+    similar to skip but faster since computation history is not
 kept; useful if skip becomes slow.
-    + f [ _GoalId_] - fail
-If given no argument, forces YAP to fail the goal, skipping the fail
+
++ `f [ _GoalId_]` - fail
+
+    If given no argument, forces YAP to fail the goal, skipping the fail
 port and backtracking to the parent. 
 If <tt>f</tt> receives a goal number as
 the argument, the command fails all the way to the goal. If goal  _GoalId_ has completed execution, YAP fails until meeting the first active ancestor.
-    + r [ _GoalId_] - retry
-This command forces YAP to jump back call to the port. Note that any
+
++ `r` [ _GoalId_] - retry
+
+    This command forces YAP to jump back call to the port. Note that any
 side effects of the goal cannot be undone. This command is not available
 at the call port.  If <tt>f</tt> receives a goal number as the argument, the
 command retries goal  _GoalId_ instead. If goal  _GoalId_ has
 completed execution, YAP fails until meeting the first active ancestor.
 
-    + a - abort
-execution will be aborted, and the interpreter will return to the
++ `a` - abort
+
+    execution will be aborted, and the interpreter will return to the
 top-level. YAP disactivates debug mode, but spypoints are not removed.
-    + n - nodebug
-stop debugging and continue execution. The command will not clear active
+
++ `n` - nodebug
+
+    stop debugging and continue execution. The command will not clear active
 spy-points.
-    + e - exit
-leave YAP.
-    + h - help
-show the debugger commands.
-    + ! Query
-execute a query. YAP will not show the result of the query.
-    + b - break
-break active execution and launch a break level. This is  the same as `!break`.
-    + + - spy this goal
-start spying the active goal. The same as `! spy  G` where  _G_
+
++ `e` - exit
+
+    leave YAP.
+
++ `h` - help
+
+    show the debugger commands.
+
++ `!` Query
+
+    execute a query. YAP will not show the result of the query.
+
++ `b` - break
+
+    break active execution and launch a break level. This is  the same as `!break`.
+
++ `+` - spy this goal
+
+    start spying the active goal. The same as `! spy  G` where  _G_
 is the active goal.
-    + - - nospy this goal
-stop spying the active goal. The same as `! nospy G` where  _G_ is
+
++ `-` - nospy this goal
+
+    stop spying the active goal. The same as `! nospy G` where  _G_ is
 the active goal.
-    + p - print
-shows the active goal using print/1
-    + d - display
-shows the active goal using display/1
-    + \<Depth - debugger write depth
-sets the maximum write depth, both for composite terms and lists, that
+
++ `p` - print
+
+    shows the active goal using print/1
+
++ `d` - display
+
+    shows the active goal using display/1
+
++ `<Depth` - debugger write depth
+
+    sets the maximum write depth, both for composite terms and lists, that
 will be used by the debugger. For more
 information about `write_depth/2` ( (see Input/Output Control)).
-    + \< - full term
-resets to the default of ten the debugger's maximum write depth. For
+
++ `<` - full term
+
+    resets to the default of ten the debugger's maximum write depth. For
 more information about `write_depth/2` ( (see Input/Output Control)).
-    + A - alternatives
-show the list of backtrack points in the current execution. 
-    + g [ _N_] 
-show the list of ancestors in the current debugging environment. If it
+
++ `A` - alternatives
+
+    show the list of backtrack points in the current execution. 
+
++ `g [ _N_]`
+
+    show the list of ancestors in the current debugging environment. If it
 receives  _N_, show the first  _N_ ancestors.
 
 
 The debugging information, when fast-skip `quasi-leap` is used, will
 be lost.
 
-@page Efficiency Efficiency Considerations
+*/
+
+/** @page Efficiency Efficiency Considerations
 
 We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
 
-    + Execution of <em>deterministic</em> programs often
++ Execution of <em>deterministic</em> programs often
 boils down to a recursive loop of the form:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 
 
@@ -15424,10 +15310,10 @@ procedure.
 
 As an example, the two clauses for concatenate:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 concatenate([],L,L).
 concatenate([H|T],A,[H|NT]) :- concatenate(T,A,NT).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 If the first argument for the goal is a list, then only the second clause 
 is of interest. If the first argument is the nil atom, the system needs to 
@@ -15467,19 +15353,19 @@ indexation the "cut" becomes useless: the choice point is not even created.
 Indexation is also very important for predicates with a large number 
 of clauses that are used like tables:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 logician(aristoteles,greek).
 logician(frege,german).
 logician(russel,english).
 logician(godel,german).
 logician(whitehead,english).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 An interpreter like C-Prolog, trying to answer the query:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 ?- logician(godel,X).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 would blindly follow the standard Prolog strategy, trying first the
 first clause, then the second, the third and finally finding the
@@ -15499,12 +15385,12 @@ exception: if the first argument of a clause is a list, the algorithm
 also uses the list's head if not a variable. For instance, with the
 following clauses,
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 rules([],B,B).
 rules([n(N)|T],I,O) :- rules_for_noun(N,I,N), rules(T,N,O).
 rules([v(V)|T],I,O) :- rules_for_verb(V,I,N), rules(T,N,O).
 rules([q(Q)|T],I,O) :- rules_for_qualifier(Q,I,N), rules(T,N,O).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 if the first argument of the goal is a list, its head will be tested, and only 
 the clauses matching it will be tried during execution.
 
@@ -15512,31 +15398,31 @@ Some advice on how to take a good advantage of this mechanism:
 
 
 
-    + 
++ 
 Try to make the first argument an input argument.
 
-    + 
++ 
 Try to keep together all clauses whose first argument is not a 
 variable, that will decrease the number of tests since the other clauses are 
 always tried.
 
-    + 
++ 
 Try to avoid predicates having a lot of clauses with the same key. 
 For instance, the procedure:
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 type(n(mary),person).
 type(n(john), person).
 type(n(chair),object).
 type(v(eat),active).
 type(v(rest),passive).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
 becomes more efficient with:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 type(n(N),T) :- type_of_noun(N,T).
 type(v(V),T) :- type_of_verb(V,T).
 
@@ -15546,9 +15432,11 @@ type_of_noun(chair,object).
 
 type_of_verb(eat,active).
 type_of_verb(rest,passive).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
 
-@page ChYInterface C Language interface to YAP
+*/
+
+/** @page ChYInterface C Language interface to YAP
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -15556,9 +15444,9 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages. Last, a new C++ based interface is 
 being designed to work with the swig (@url(www.swig.org}) interface compiler.
 
-    + The @ref c-interface  YAP C-interface exports the YAP engine.
-    + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
-    + The @ref  yap-cplus-interface is desiged to interface with Object-Oriented systems.
++ The @ref c-interface  YAP C-interface exports the YAP engine.
++ The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
++ The @ref  yap-cplus-interface is desiged to interface with Object-Oriented systems.
 
 
 
@@ -15587,7 +15475,7 @@ YAP will search for  _ObjectFiles_ in the current directory first. If
 it cannot find them it will search for the files using the environment
 variable:
 
-    + YAPLIBDIR
++ YAPLIBDIR
 
 if defined, or in the default library.
 
