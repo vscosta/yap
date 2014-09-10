@@ -852,10 +852,10 @@ p_show_sequences(void)
 void 
 Yap_InitAnalystPreds(void)
 {
-  Yap_InitCPred("wam_profile_reset_op_counters", 0, p_reset_op_counters, SafePredFlag |SyncPredFlag);
-  Yap_InitCPred("wam_profile_show_op_counters", 1, p_show_op_counters, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("wam_profile_show_ops_by_group", 1, p_show_ops_by_group, SafePredFlag |SyncPredFlag);
-  Yap_InitCPred("wam_profile_show_sequences", 1, p_show_sequences, SafePredFlag |SyncPredFlag);
+  Yap_InitCPred("wam_profiler_reset_op_counters", 0, p_reset_op_counters, SafePredFlag |SyncPredFlag);
+  Yap_InitCPred("wam_profiler_show_op_counters", 1, p_show_op_counters, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("wam_profiler_show_ops_by_group", 1, p_show_ops_by_group, SafePredFlag |SyncPredFlag);
+  Yap_InitCPred("wam_profiler_show_sequences", 1, p_show_sequences, SafePredFlag |SyncPredFlag);
 }
 
 #endif /* ANALYST */

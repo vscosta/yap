@@ -54,16 +54,16 @@ static Int p_inform_stack_overflows( USES_REGS1 );
 static int growstack(size_t CACHE_TYPE);
 static void MoveGlobal( CACHE_TYPE1 );
 static void MoveLocalAndTrail( CACHE_TYPE1 );
-static void SetHeapRegs(int CACHE_TYPE);
-static void AdjustTrail(int, int CACHE_TYPE);
-static void AdjustLocal(int CACHE_TYPE);
-static void AdjustGlobal(long, int CACHE_TYPE);
+static void SetHeapRegs(bool CACHE_TYPE);
+static void AdjustTrail(bool, bool CACHE_TYPE);
+static void AdjustLocal(bool CACHE_TYPE);
+static void AdjustGlobal(Int, bool CACHE_TYPE);
 static void AdjustGrowStack( CACHE_TYPE1 );
-static int  static_growheap(long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE);
+static int  static_growheap(size_t,bool,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE);
 static void cpcellsd(CELL *, CELL *, CELL);
 static CELL AdjustAppl(CELL CACHE_TYPE);
 static CELL AdjustPair(CELL CACHE_TYPE);
-static void AdjustStacksAndTrail(long, int CACHE_TYPE);
+static void AdjustStacksAndTrail(Int, bool CACHE_TYPE);
 static void AdjustRegs(int CACHE_TYPE);
 static Term AdjustGlobTerm(Term CACHE_TYPE);
 
@@ -89,7 +89,7 @@ cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
 
 
 static void
-SetHeapRegs(int copying_threads USES_REGS)
+SetHeapRegs(bool copying_threads USES_REGS)
 {
 #ifdef undf7
   Sfprintf(GLOBAL_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, LOCAL_GlobalBase, H, LCL0, ASP);
@@ -377,7 +377,7 @@ AdjustPair(register CELL t0 USES_REGS)
 }
 
 static void
-AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
+AdjustTrail(bool adjusting_heap, bool thread_copying USES_REGS)
 {
   volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)LOCAL_TrailBase;
 
@@ -435,7 +435,7 @@ AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
 }
 
 static void
-AdjustLocal(int thread_copying USES_REGS)
+AdjustLocal(bool thread_copying USES_REGS)
 {
   register CELL   reg, *pt, *pt_bot;
 
@@ -490,10 +490,10 @@ AdjustGlobTerm(Term reg USES_REGS)
   return AtomTermAdjust(reg);
 }
 
-static volatile CELL *cpt=NULL;
+static volatile CELL *cpt=NULL, *ocpt = NULL;
 
 static void
-AdjustGlobal(long sz, int thread_copying USES_REGS)
+AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 {
   CELL *pt, *pt_max;
   ArrayEntry *al = LOCAL_DynamicArrays;
@@ -541,10 +541,12 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
   }
 #endif
   pt = H0;
+  ocpt = NULL;
   while (pt < pt_max) {
     CELL reg;
-    
     cpt = pt;
+    if (cpt > ocpt)
+      ocpt = cpt;
     reg = *pt;
     if (IsVarTerm(reg)) {
       if (IsOldGlobal(reg))
@@ -571,6 +573,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 	    Int sz = 2+
 	      (sizeof(MP_INT)+
 	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	    //printf("sz *%ld* at @%ld@\n", sz, pt-H0);
 	    Opaque_CallOnGCMark f;
 	    Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(pt);
@@ -602,8 +605,10 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 	      }
 	      if ( (f2 = Yap_blob_gc_relocate_handler(t)) < 0 ) {
 		int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
-		if (out < 0)
-		Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables");
+		if (out < 0) {
+		  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables");
+		  return;
+		}
 	      }
 	    }
 	    pt += sz;
@@ -630,6 +635,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
       *pt = AtomTermAdjust(reg);
     pt++;
   }
+  printf("exit with cpt=%p, (%p-%p) %ld\n", cpt, HR, H0, cpt-H0);
 }
 
 /*
@@ -638,9 +644,9 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
  * (just once) the trail cells pointing both to the global and to the local
  */
 static void
-AdjustStacksAndTrail(long sz, int copying_threads USES_REGS)
+AdjustStacksAndTrail(Int sz, bool copying_threads USES_REGS)
 {
-  AdjustTrail(TRUE, copying_threads PASS_REGS);
+  AdjustTrail(true, copying_threads PASS_REGS);
   AdjustLocal(copying_threads PASS_REGS);
   AdjustGlobal(sz, copying_threads PASS_REGS);
 }
@@ -782,11 +788,12 @@ Yap_AdjustRegs(int n)
 
 /* Used by do_goal() when we're short of heap space */
 static int
-static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
+  Int size = esize;
   UInt start_growth_time, growth_time;
   int gc_verbose;
-  UInt minimal_request = 0L;
+  size_t minimal_request = 0L;
 
   /* adjust to a multiple of 256) */
   if (size < YAP_ALLOC_SIZE)
@@ -863,17 +870,17 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
 /* Used when we're short of heap, usually because of an overflow in
    the attributed stack, but also because we allocated a zone  */
 static int
-static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
+static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
   char *omax = (char *)H0;
   ADDR old_GlobalBase = LOCAL_GlobalBase;
   UInt minimal_request = 0L;
-  long size = request;
+  Int size = request;
   char vb_msg1 = '\0', *vb_msg2;
-  int do_grow = TRUE;
-  int insert_in_delays = FALSE;
+  bool do_grow = true;
+  bool insert_in_delays = false;
   /*
     request is the amount of memory we requested, in bytes;
     base_move is the shift in global stacks we had to do
@@ -1413,11 +1420,11 @@ growatomtable( USES_REGS1 )
 
 
 int
-Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
+Yap_locked_growheap(bool fix_code, size_t in_size, void *cip)
 {
   CACHE_REGS
   int res;
-  int blob_overflow = (NOfBlobs > NOfBlobsMax);
+  bool blob_overflow = (NOfBlobs > NOfBlobsMax);
 
 #ifdef THREADS
   LOCK(GLOBAL_ThreadHandlesLock);
@@ -1472,9 +1479,8 @@ Yap_locked_growheap(int fix_code, size_t in_size, void *cip)
 }
 
 int
-Yap_growheap(int fix_code, size_t in_size, void *cip)
+Yap_growheap(bool fix_code, size_t in_size, void *cip)
 {
-  CACHE_REGS
   int rc;
   rc = Yap_locked_growheap(fix_code, in_size, cip);
   return rc;
@@ -1519,14 +1525,13 @@ Yap_locked_growglobal(CELL **ptr)
 int
 Yap_growglobal(CELL **ptr)
 {
-  CACHE_REGS
-    int rc;
+  int rc;
   rc = Yap_locked_growglobal(ptr);
   return rc;
 }
 
 UInt
-Yap_InsertInGlobal(CELL *where, UInt howmuch)
+Yap_InsertInGlobal(CELL *where, size_t howmuch)
 {
   CACHE_REGS
   if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
@@ -1563,10 +1568,11 @@ Yap_growstack(size_t size)
 }
 
 static int
-execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt minimal_request = 0L;
-  long size = size0;
+  Int size0 = esize0;
+  Int size = size0;
   ADDR old_LOCAL_GlobalBase = LOCAL_GlobalBase;
   
   if (!GLOBAL_AllowGlobalExpansion) {
@@ -1709,7 +1715,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   CACHE_REGS
   UInt size;
   UInt start_growth_time, growth_time;
-  int gc_verbose;
+  bool gc_verbose;
 
   LOCAL_PrologMode |= GrowStackMode;
   /* adjust to a multiple of 256) */
@@ -1743,11 +1749,12 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   return TRUE;
 }
 
-static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
-  long size0 = size;
+  Int size0 = esize;
+  Int size = esize;
 
 #if USE_SYSTEM_MALLOC
   if (contiguous_only)
@@ -1820,7 +1827,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 
 /* Used by do_goal() when we're short of stack space */
 int
-Yap_growtrail(long size, int contiguous_only)
+Yap_growtrail(size_t size, bool contiguous_only)
 { 
   int rc;
   CACHE_REGS
@@ -1830,7 +1837,7 @@ Yap_growtrail(long size, int contiguous_only)
 
 /* Used by do_goal() when we're short of stack space */
 int
-Yap_locked_growtrail(long size, int contiguous_only)
+Yap_locked_growtrail(size_t size, bool contiguous_only)
 { 
   CACHE_REGS
   return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
@@ -1926,7 +1933,7 @@ p_inform_heap_overflows( USES_REGS1 )
 
 #if defined(YAPOR_THREADS)
 void
-Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
+Yap_CopyThreadStacks(int worker_q, int worker_p, bool incremental)
 {
   CACHE_REGS
   Int size;

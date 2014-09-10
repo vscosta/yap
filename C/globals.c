@@ -47,7 +47,9 @@ static char SccsId[] = "%W% %G%";
 #define HEAP_ARENA 2
 #define HEAP_START 3
 
-#define MIN_ARENA_SIZE 1048
+#define MIN_ARENA_SIZE (1048L)
+
+
 #define MAX_ARENA_SIZE (2048*16)
 
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
@@ -170,7 +172,7 @@ adjust_cps(UInt size USES_REGS)
 
 
 static int
-GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity USES_REGS)
+GrowArena(Term arena, CELL *pt, size_t old_size, size_t size, UInt arity USES_REGS)
 {
   LOCAL_ArenaOverflows++;
   if (size == 0) {
@@ -396,8 +398,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 #endif
 	    break;
 	  case (CELL)FunctorString:
-	    if (ASP - HR > MIN_ARENA_SIZE+3+ap2[1]) {
-	      goto overflow;
+	    if (ASP - HR < MIN_ARENA_SIZE+3+ap2[1]) {
+		goto overflow;
 	    }
 	    *ptf++ = AbsAppl(HR);
 	    memcpy(HR, ap2, sizeof(CELL)*(3+ap2[1]));
@@ -584,9 +586,9 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Term *newarena, UInt min_grow USES_REGS)
+CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars, UInt arity, Term *newarena, size_t min_grow USES_REGS)
 {
-  UInt old_size = ArenaSz(arena);
+  size_t old_size = ArenaSz(arena);
   CELL *oldH = HR;
   CELL *oldHB = HB;
   CELL *oldASP = ASP;
@@ -689,7 +691,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
 #endif
 	break;
       case (CELL)FunctorString:
-	if (HR > ASP - MIN_ARENA_SIZE+3+ap[1]) {
+	if (HR > ASP - (MIN_ARENA_SIZE+3+ap[1])) {
 	  res = -1;
 	  goto error_handler;
 	}
@@ -756,6 +758,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
   newarena = (CELL *)XREGS[arity+3];
   arena = Deref(XREGS[arity+2]);
   t = XREGS[arity+1];
+  Yap_DebugPlWrite(t);
   old_size = ArenaSz(arena);
   goto restart;
 }

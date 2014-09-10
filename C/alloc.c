@@ -450,10 +450,10 @@ Yap_ExtendWorkSpace(Int s)
   return TRUE;
 }
 
-UInt
-Yap_ExtendWorkSpaceThroughHole(UInt s)
+size_t
+Yap_ExtendWorkSpaceThroughHole(size_t s)
 {
-  return -1;
+  return 0;
 }
 
 void
@@ -1600,8 +1600,8 @@ Yap_ExtendWorkSpace(Int s)
 #endif
 }
 
-UInt
-Yap_ExtendWorkSpaceThroughHole(UInt s)
+size_t
+Yap_ExtendWorkSpaceThroughHole(size_t s)
 {
 #if USE_SYSTEM_MMAP || defined(_WIN32) || defined(__CYGWIN__)
   MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
@@ -1618,7 +1618,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
     /* 487 happens when you step over someone else's memory */
     if (GetLastError() != 487) {
       WorkSpaceTop = WorkSpaceTop0;
-      return -1;
+      return 0;
     }
 #endif
 #elif SIZEOF_INT_P==8
@@ -1636,7 +1636,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
       /* 487 happens when you step over someone else's memory */
       if (GetLastError() != 487) {
 	WorkSpaceTop = WorkSpaceTop0;
-	return -1;
+	return 0;
       }
 #endif
     }
@@ -1644,7 +1644,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
   }
   WorkSpaceTop = WorkSpaceTop0;
 #endif
-  return -1;
+  return 0;
 }
 
 void

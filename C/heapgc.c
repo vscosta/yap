@@ -4263,7 +4263,6 @@ LeaveGCMode( USES_REGS1 )
 int 
 Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
-  CACHE_REGS
   int rc;
   rc = Yap_locked_gc(predarity, current_env, nextop);
   return rc;

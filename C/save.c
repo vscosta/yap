@@ -1299,7 +1299,7 @@ static void
 RestoreHashPreds( USES_REGS1 )
 {
   UInt size = PredHashTableSize;
-  int malloced = FALSE;
+  bool malloced = FALSE;
   PredEntry **np;
   UInt i;
   PredEntry **oldp = PredHash;
@@ -1620,7 +1620,7 @@ static int
 check_opcodes(OPCODE old_ops[])
 {
 #if USE_THREADED_CODE
-  int have_shifted = FALSE;
+  bool have_shifted = FALSE;
   op_numbers op = _Ystop;
   for (op = _Ystop; op < _std_top; op++) {
     if (Yap_opcode(op) != old_ops[op]) {
@@ -1639,7 +1639,7 @@ check_opcodes(OPCODE old_ops[])
 static void 
 RestoreHeap(OPCODE old_ops[] USES_REGS)
 {
-  int heap_moved = (LOCAL_OldHeapBase != Yap_HeapBase ||
+  bool heap_moved = (LOCAL_OldHeapBase != Yap_HeapBase ||
 		    LOCAL_XDiff), opcodes_moved;
   Term mod = CurrentModule;
 

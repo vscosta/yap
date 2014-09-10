@@ -607,7 +607,7 @@ check_alarm_fail_int(int CONT USES_REGS)
     }
 #endif
   if (Yap_get_signal( YAP_FAIL_SIGNAL )) {
-      return FALSE;
+      return false;
   }
   if (!Yap_has_a_signal()) {
       /* no need to look into GC */
@@ -639,7 +639,7 @@ code_overflow( CELL *yenv USES_REGS )
     CELL cut_b = LCL0-(CELL *)(yenv[E_CB]);
 
     /* do a garbage collection first to check if we can recover memory */
-    if (!Yap_locked_growheap(FALSE, 0, NULL)) {
+    if (!Yap_locked_growheap(false, 0, NULL)) {
       Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       return 0;
     }
@@ -726,7 +726,7 @@ interrupt_handler( PredEntry *pe USES_REGS )
 #endif	/* LOW_LEVEL_TRACE */
   /* for profiler */
   CACHE_A1();
-  return TRUE;
+  return true;
 }
 
 // interrupt handling code that sets up the case when we do not have
@@ -813,14 +813,14 @@ safe_interrupt_handler( PredEntry *pe USES_REGS )
   if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
     if (pe->ModuleOfPred) {
       if (DEPTH == MkIntTerm(0))
-		return FALSE;
+		return false;
       else DEPTH = RESET_DEPTH();
     }
   } else if (pe->ModuleOfPred) {
     DEPTH -= MkIntConstant(2);
   }
 #endif	/* DEPTH_LIMIT */
-  return TRUE;
+  return true;
 }
 
 static int
@@ -888,7 +888,7 @@ interrupt_handler_either( Term t_cut, PredEntry *pe USES_REGS )
 // #define DEBUG_INTERRUPTS 1
 
 #ifdef DEBUG_INTERRUPTS
-static int trace_interrupts = TRUE;
+static int trace_interrupts = true;
 #endif
 
 static int
@@ -898,16 +898,16 @@ interrupt_fail( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( FALSE PASS_REGS );
+  check_alarm_fail_int( false PASS_REGS );
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
      better wait.
   */
   if (Yap_has_signal( YAP_CREEP_SIGNAL ) ) {
-    return FALSE;
+    return false;
   }
   if (Yap_has_signal( YAP_CDOVF_SIGNAL ) ) {
-    return FALSE;
+    return false;
   }
   /* make sure we have the correct environment for continuation */
   ENV = B->cp_env;
@@ -924,7 +924,7 @@ interrupt_execute( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  if ((v = check_alarm_fail_int(  TRUE PASS_REGS )) >= 0) {
+  if ((v = check_alarm_fail_int(  true PASS_REGS )) >= 0) {
     return v;
   }
   PP  = P->y_u.pp.p0;
@@ -950,7 +950,7 @@ interrupt_call( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0) {
+  if ((v = check_alarm_fail_int( true PASS_REGS )) >= 0) {
     return v;
   }
   PP = P->y_u.Osbpp.p0;
@@ -1010,7 +1010,7 @@ interrupt_deallocate( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n",  worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, \
 	  __FUNCTION__, __LINE__,YENV,ENV,ASP);
 #endif
-  if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0) {
+  if ((v = check_alarm_fail_int( true PASS_REGS )) >= 0) {
     return v;
   }
   /*
@@ -1459,7 +1459,7 @@ Yap_absmi(int inp)
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
-	if(!Yap_growtrail (0, FALSE)) {
+	if(!Yap_growtrail (0, false)) {
 	  Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	  setregs();
 	  FAIL();
@@ -1509,7 +1509,7 @@ Yap_absmi(int inp)
       Op(try_me, Otapl);
       /* check if enough space between trail and codespace */
       check_trail(TR);
-      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+      /* I use YREG to go through the choicepoint. Usually YREG is in a
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
@@ -1604,7 +1604,7 @@ Yap_absmi(int inp)
       Op(try_exo, lp);
       /* check if enough space between trail and codespace */
       check_trail(TR);
-      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+      /* I use YREG to go through the choicepoint. Usually YREG is in a
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
@@ -2886,13 +2886,13 @@ Yap_absmi(int inp)
 	  SP = SP0;
 #ifdef LOW_LEVEL_TRACER
 	  if (Yap_do_low_level_trace) {
-	    int go_on = TRUE;
+	    int go_on = true;
 	    yamop *ipc = PREG;
 
 	    while (go_on) {
 	      op_numbers opnum = Yap_op_from_opcode(ipc->opc);
 
-	      go_on = FALSE;
+	      go_on = false;
 	      switch (opnum) {
 #ifdef TABLING
 	      case _table_load_answer:
@@ -2958,11 +2958,11 @@ Yap_absmi(int inp)
 	      case _retry3:
 	      case _retry4:
 		ipc = NEXTOP(ipc,l);
-		go_on = TRUE;
+		go_on = true;
 		break;
 	      case _jump:
 		ipc = ipc->y_u.l.l;
-		go_on = TRUE;
+		go_on = true;
 		break;
 	      case _retry_c:
 	      case _retry_userc:
@@ -2971,7 +2971,7 @@ Yap_absmi(int inp)
 	      case _retry_profiled:
 	      case _count_retry:
 		ipc = NEXTOP(ipc,p);
-		go_on = TRUE;
+		go_on = true;
 		break;
 	      case _retry_me:
 	      case _trust_me:
@@ -11785,7 +11785,7 @@ Yap_absmi(int inp)
 
       Op(p_equal, e);
       save_hb();
-      if (Yap_IUnify(ARG1, ARG2) == FALSE) {
+      if (Yap_IUnify(ARG1, ARG2) == false) {
 	FAIL();
       }
       PREG = NEXTOP(PREG, e);
@@ -11941,7 +11941,7 @@ Yap_absmi(int inp)
 	BEGD(d2);
 	always_save_pc();
 	d2 = iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1);
-	if (d2 == FALSE) {
+	if (d2 == false) {
 	  PREG = PREG->y_u.l.l;
 	  GONext();
 	}
@@ -12030,7 +12030,7 @@ Yap_absmi(int inp)
 	always_save_pc();
 	BEGD(d2);
 	d2 = iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1));
-	if (d2 == FALSE) {
+	if (d2 == false) {
 	  PREG = PREG->y_u.l.l;
 	  GONext();
 	}

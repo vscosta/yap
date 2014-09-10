@@ -1270,7 +1270,7 @@ typedef Int (*CPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
-static 
+static Int
 execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
 {
   switch (pe->ArityOfPE) {
@@ -3900,7 +3900,6 @@ YAP_SlotsToArgs(int n, yhandle_t slot)
 X_API void 
 YAP_signal(int sig)
 {
-  CACHE_REGS
   Yap_signal(sig);
 }
 

@@ -203,7 +203,7 @@ LookupAtom(const char *atom)
   HashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
-  CACHE_REGS
+
   if (NOfAtoms > 2*AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
@@ -271,7 +271,7 @@ LookupWideAtom(const wchar_t *atom)
   WideHashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(WideHashChain[hash].AERWLock);
-  CACHE_REGS
+
   if (NOfWideAtoms > 2*WideAtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
