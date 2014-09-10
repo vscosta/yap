@@ -712,6 +712,9 @@
 /* Define to 1 if you have the <stdarg.h> header file. */
 #undef HAVE_STDARG_H
 
+/* Define to 1 if you have the <stdbool.h> header file. */
+#undef HAVE_STDBOOL_H
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -891,6 +894,9 @@
 
 /* Define to 1 if you have the <zutil.h> header file. */
 #undef HAVE_ZUTIL_H
+
+/* Define to 1 if the system has the type `_Bool'. */
+#undef HAVE__BOOL
 
 /* Define to 1 if you have the `_chsize_s' function. */
 #undef HAVE__CHSIZE_S
